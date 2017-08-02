@@ -20,7 +20,7 @@ OutputDevice::OutputDevice(QObject *parent) : QIODevice(parent)
 }*/
 qint64 OutputDevice::readData(char *data, qint64 maxlen)
 {
-    OutputDevice::Sample s;
+    Sample s;
 
     for (qint64 i = 0; i < maxlen; i += 4) {
         s = this->sample();
@@ -32,9 +32,9 @@ qint64 OutputDevice::readData(char *data, qint64 maxlen)
     }
     return maxlen;
 }
-OutputDevice::Sample OutputDevice::sample(void)
+Sample OutputDevice::sample(void)
 {
-    OutputDevice::Sample output;
+    Sample output;
     output.f = 0.0;
     return output;
 }

@@ -1,6 +1,6 @@
 TEMPLATE = app
 
-QT += core qml quick quickcontrols2 multimedia
+QT += charts qml quick quickcontrols2 multimedia core
 CONFIG += c++11
 
 SOURCES += src/main.cpp \
@@ -8,12 +8,13 @@ SOURCES += src/main.cpp \
     src/pinknoise.cpp \
     src/outputdevice.cpp \
     src/whitenoise.cpp \
-    src/sinnoise.cpp
+    src/sinnoise.cpp \
+    src/source.cpp
 
 RESOURCES += qml.qrc
 
 # Additional import path used to resolve QML modules in Qt Creator's code model
-QML_IMPORT_PATH =
+QML_IMPORT_PATH = qml
 
 # Additional import path used to resolve QML modules just for Qt Quick Designer
 QML_DESIGNER_IMPORT_PATH =
@@ -39,4 +40,8 @@ HEADERS += \
     src/pinknoise.h \
     src/outputdevice.h \
     src/whitenoise.h \
-    src/sinnoise.h
+    src/sinnoise.h \
+    src/source.h \
+    src/sample.h
+
+FORMS +=

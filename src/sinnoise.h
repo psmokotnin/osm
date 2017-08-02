@@ -15,7 +15,7 @@ public slots:
     void setFrequency(int f);
 
 private:
-    OutputDevice::Sample sample(void);
+    Sample sample(void);
 
     float frequency = 1000;
     float sinPhase  = 0;

@@ -3,12 +3,14 @@ import QtQuick.Controls 2.1
 import QtQuick.Layouts 1.3
 
 Item {
-    Column {
+    RowLayout {
         ProgressBar {
             value: 0.5
+
+            contentItem: Item
         }
-        ProgressBar {
-            indeterminate: true
+        Button {
+            text: qsTr("Settings")
         }
     }
 }

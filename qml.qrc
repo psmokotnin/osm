@@ -3,5 +3,8 @@
         <file alias="main.qml">qml/main.qml</file>
         <file alias="Generator.qml">qml/Generator.qml</file>
         <file alias="Measure.qml">qml/Measure.qml</file>
+        <file alias="Chart.qml">qml/Chart.qml</file>
+        <file alias="Charts.qml">qml/Charts.qml</file>
+        <file alias="SideBar.qml">qml/SideBar.qml</file>
     </qresource>
 </RCC>

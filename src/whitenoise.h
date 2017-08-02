@@ -11,7 +11,7 @@ public:
     WhiteNoise(QObject *parent);
 
 private:
-    OutputDevice::Sample sample(void);
+    Sample sample(void);
 };
 
 #endif // WHITENOISE_H

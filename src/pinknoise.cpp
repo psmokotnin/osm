@@ -19,11 +19,11 @@ PinkNoise::PinkNoise(QObject *parent) : OutputDevice(parent)
 
     runningSum = 0;
 }
-OutputDevice::Sample PinkNoise::sample(void)
+Sample PinkNoise::sample(void)
 {
     long newRandom;
     long sum;
-    OutputDevice::Sample output;
+    Sample output;
 
     /* Increment and mask index. */
     index = (index + 1) & indexMask;

@@ -12,7 +12,7 @@ public:
 
 private:
 
-    OutputDevice::Sample sample(void);
+    Sample sample(void);
     unsigned long pseudoRandom(void);
 
     const static int MAX_RANDOM_ROWS = 30;

@@ -6,9 +6,9 @@ SinNoise::SinNoise(QObject *parent) : OutputDevice(parent)
     connect(parent, SIGNAL(frequencyChanged(int)), this, SLOT(setFrequency(int)));
 }
 
-OutputDevice::Sample SinNoise::sample(void)
+Sample SinNoise::sample(void)
 {
-    OutputDevice::Sample output;
+    Sample output;
     sinPhase += (float)(2 * M_PI * frequency / sampleRate);
     if (sinPhase > 2 * M_PI)
         sinPhase -= 2 * M_PI;
