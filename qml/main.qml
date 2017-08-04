@@ -1,16 +1,19 @@
 import QtQuick 2.7
-import QtQuick.Controls 2.1
+import QtQuick.Controls 2.2
 import QtQuick.Controls.Material 2.1
 import QtQuick.Layouts 1.1
 
 
 ApplicationWindow {
+    id:applicationWindow
+
+    property alias properiesbar: bottomtab
     visible: true
 
-    width: 600
-    height: 300
-    minimumWidth: 600
-    minimumHeight: 300
+    width: 1000
+    height: 600
+    minimumWidth: 1000
+    minimumHeight: 600
 
     Material.theme: Material.Light
     Material.accent: Material.Indigo
@@ -42,23 +45,23 @@ ApplicationWindow {
             }
 
             //Properties area
-            Rectangle {
+            PropetiesBar {
                 id: bottomtab
-                height: 100
+                height: 200
                 anchors.left: parent.left
                 anchors.right: parent.right
                 anchors.bottom: parent.bottom
-
-                color: "green"
             }
         }
 
         //Measures area
-        SideBar{
+        SideBar {
             id: righttab
+
             anchors.right: parent.right
             anchors.top: parent.top
             anchors.bottom: parent.bottom
+
             width: 200
         }
     }

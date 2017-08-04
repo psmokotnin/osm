@@ -6,5 +6,7 @@
         <file alias="Chart.qml">qml/Chart.qml</file>
         <file alias="Charts.qml">qml/Charts.qml</file>
         <file alias="SideBar.qml">qml/SideBar.qml</file>
+        <file alias="GeneratorProperties.qml">qml/GeneratorProperties.qml</file>
+        <file alias="PropetiesBar.qml">qml/PropetiesBar.qml</file>
     </qresource>
 </RCC>
