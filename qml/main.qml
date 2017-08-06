@@ -47,7 +47,7 @@ ApplicationWindow {
             //Properties area
             PropetiesBar {
                 id: bottomtab
-                height: 200
+                height: 120
                 anchors.left: parent.left
                 anchors.right: parent.right
                 anchors.bottom: parent.bottom

@@ -20,7 +20,7 @@ Item {
             horizontalAlignment: Label.AlignHCenter
             verticalAlignment: Label.AlignVCenter
 
-            text: qsTr("Select any item in the right bar to change its properties")
+            text: qsTr("Select an item in the right bar to change its properties")
         }
     }
 }
