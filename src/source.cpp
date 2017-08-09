@@ -26,13 +26,26 @@ qint64 Source::writeData(const char *data, qint64 len)
 {
     Sample s;
 
-    for (qint64 i = 0; i < len; i += 4){
+    for (qint64 i = 0; i < len; i += 4) {
         s.c[0] = data[i];
         s.c[1] = data[i + 1];
         s.c[2] = data[i + 2];
         s.c[3] = data[i + 3];
+
+        internalBuffer.enqueue(s);
+
+        if (internalBuffer.length() == BUFFER_SIZE) {
+            buffer.clear();
+            internalBuffer.swap(buffer);
+
+            emit readyRead();
+        }
     }
-    //qDebug() << s.f << " " << len;
 
     return len;
+}
+
+int Source::sampleRate()
+{
+    return audio->format().sampleRate();
 }

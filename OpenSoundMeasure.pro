@@ -9,7 +9,10 @@ SOURCES += src/main.cpp \
     src/outputdevice.cpp \
     src/whitenoise.cpp \
     src/sinnoise.cpp \
-    src/source.cpp
+    src/source.cpp \
+    src/measure.cpp \
+    src/fft.cpp \
+    src/complex.cpp
 
 RESOURCES += qml.qrc
 
@@ -42,6 +45,9 @@ HEADERS += \
     src/whitenoise.h \
     src/sinnoise.h \
     src/source.h \
-    src/sample.h
+    src/sample.h \
+    src/measure.h \
+    src/fft.h \
+    src/complex.h
 
 FORMS +=

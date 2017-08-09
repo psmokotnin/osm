@@ -18,6 +18,7 @@ Item {
         }
 
         LogValueAxis {
+        //ValueAxis {
             id: axisX
             min: 20
             max: 22000
@@ -26,16 +27,27 @@ Item {
         LineSeries {
             name: qsTr("n")
             id: series1
+
             axisX: axisX
             axisY: axisY
+
+            property var m : measureModel
+
+            Connections {
+                target: series1.m
+                onReadyRead: {
+                    series1.m.updateRTASeries(series1);
+                }
+            }
         }
 
 
     }
 
+    //measureModel.readyRead: {
     // Add data dynamically to the series
     Component.onCompleted: {
-        for (var i = 20; i <= 20000; i+= 500) {
+        for (var i = 1; i <= 20000; i+= 500) {
             series1.append(i, Math.random() * -96 );
             //series2.append(i, Math.random());
         }
