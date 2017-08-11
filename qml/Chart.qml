@@ -4,7 +4,6 @@ import QtCharts 2.2
 Item {
     //anchors.fill: parent
 
-    //![1]
     ChartView {
         //title: qsTr("Two Series, Common Axes")
         anchors.fill: parent
@@ -13,7 +12,7 @@ Item {
 
         ValueAxis {
             id: axisY
-            min: -96
+            min: -120
             max: 0
         }
 
@@ -25,13 +24,17 @@ Item {
         }
 
         LineSeries {
-            name: qsTr("n")
             id: series1
+
+            property var m : measureModel
+            name: m.name
 
             axisX: axisX
             axisY: axisY
 
-            property var m : measureModel
+            visible: m.active
+            color: m.color
+            width: 2
 
             Connections {
                 target: series1.m
@@ -40,19 +43,7 @@ Item {
                 }
             }
         }
-
-
     }
-
-    //measureModel.readyRead: {
-    // Add data dynamically to the series
-    Component.onCompleted: {
-        for (var i = 1; i <= 20000; i+= 500) {
-            series1.append(i, Math.random() * -96 );
-            //series2.append(i, Math.random());
-        }
-    }
-    //![1]
 
     PropertiesOpener {
         propertiesQml: "qrc:/ChartProperties.qml"

@@ -3,14 +3,43 @@ import QtQuick.Controls 2.1
 import QtQuick.Layouts 1.3
 
 Item {
-    RowLayout {
-        ProgressBar {
-            value: 0.5
+    id: measure
 
-            contentItem: Item
+    property var m;
+    height: 50
+    width: parent.width
+
+    RowLayout {
+        width: parent.width
+
+        CheckBox {
+            anchors.verticalCenter: parent.verticalCenter
+
+            onCheckStateChanged: {
+                m.active = checked
+            }
+            Component.onCompleted: {
+                checked = m.active
+            }
+
         }
-        Button {
-            text: qsTr("Settings")
+
+        ColumnLayout {
+            Layout.fillWidth: true
+
+            Label {
+                Layout.fillWidth: true
+                text:  m.name//qsTr("Measure")
+
+                PropertiesOpener {
+                   propertiesQml: "qrc:/MeasureProperties.qml"
+                   pushObject: measure.m
+                }
+            }
+            ProgressBar {
+                value: m.level
+                implicitWidth: parent.width
+            }
         }
     }
 }

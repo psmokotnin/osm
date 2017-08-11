@@ -14,8 +14,11 @@ Item {
     VisualItemModel {
           id: sideModel
           Generator {}
+          Measure {
+              m: measureModel
+          }
 
-          Rectangle { height: 100; width: 80; color: "red" }
+          Rectangle { height: 50; width: parent.width; color: "red" }
           Rectangle { height: 100; width: 80; color: "green" }
           Rectangle { height: 100; width: 80; color: "blue" }
       }
