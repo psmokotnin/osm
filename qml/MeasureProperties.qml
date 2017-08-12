@@ -11,7 +11,7 @@ Item {
         spacing: 0
 
         SpinBox {
-            //id: frequencySpinBox
+            implicitWidth: 125
             value: dataObject.pointsPerOctave
             from: 0
             to: 24
@@ -31,6 +31,7 @@ Item {
 
             Layout.preferredWidth: 25
             Layout.preferredHeight: 25
+            Layout.margins: 5
 
             onColorChanged: {
                 dataObject.color = color

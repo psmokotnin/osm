@@ -8,6 +8,8 @@ ApplicationWindow {
     id:applicationWindow
 
     property alias properiesbar: bottomtab
+    property alias dataSourceList : righttab.list
+
     visible: true
 
     width: 1000

@@ -1,11 +1,12 @@
-import QtQuick 2.0
+import QtQuick 2.7
 import QtQuick.Controls 2.1
 import QtQuick.Layouts 1.3
 
 Item {
     id: measure
 
-    property var m;
+    property var dataModel;
+    property bool chartable : true;
     height: 50
     width: parent.width
 
@@ -16,12 +17,11 @@ Item {
             anchors.verticalCenter: parent.verticalCenter
 
             onCheckStateChanged: {
-                m.active = checked
+                dataModel.active = checked
             }
             Component.onCompleted: {
-                checked = m.active
+                checked = dataModel.active
             }
-
         }
 
         ColumnLayout {
@@ -29,15 +29,16 @@ Item {
 
             Label {
                 Layout.fillWidth: true
-                text:  m.name//qsTr("Measure")
+                text:  dataModel.name
 
                 PropertiesOpener {
                    propertiesQml: "qrc:/MeasureProperties.qml"
-                   pushObject: measure.m
+                   pushObject: measure.dataModel
                 }
             }
+
             ProgressBar {
-                value: m.level
+                value: dataModel.level
                 implicitWidth: parent.width
             }
         }

@@ -1,25 +1,21 @@
-import QtQuick 2.0
+import QtQuick 2.7
 
-Item {
-    anchors.fill: parent
-
+MouseArea {
     property string propertiesQml
-    property var pushObject : false
+    property var pushObject
 
-    MouseArea {
-        anchors.fill: parent
-        onClicked: {
-            applicationWindow.properiesbar.stack.clear()
-            if (parent.propertiesQml) {
-                var item = applicationWindow.properiesbar.stack.push(
-                        parent.propertiesQml,
-                        {
-                            dataObject: pushObject
-                        }
-                        )
-            }
-            else
-                console.error("qml not set for ", parent.parent)
+    anchors.fill: parent
+    onClicked: {
+        applicationWindow.properiesbar.stack.clear()
+        if (propertiesQml) {
+            var item = applicationWindow.properiesbar.stack.push(
+                    propertiesQml,
+                    {
+                        dataObject: pushObject
+                    }
+            )
         }
+        else
+            console.error("qml not set for ", parent.parent)
     }
 }

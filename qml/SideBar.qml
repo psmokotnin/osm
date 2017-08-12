@@ -10,12 +10,13 @@ import QtQuick.Layouts 1.1
  * For detail settings the bottom bar is used.
  */
 Item {
+    property Item list : sideList
 
     VisualItemModel {
           id: sideModel
           Generator {}
           Measure {
-              m: measureModel
+              dataModel: measureModel
           }
 
           Rectangle { height: 50; width: parent.width; color: "red" }
