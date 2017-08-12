@@ -13,8 +13,11 @@ Item {
     RowLayout {
         width: parent.width
 
-        CheckBox {
+        MulticolorCheckBox {
+            id: checkbox
             anchors.verticalCenter: parent.verticalCenter
+
+            checkedColor: dataModel.color
 
             onCheckStateChanged: {
                 dataModel.active = checked
@@ -41,6 +44,11 @@ Item {
                 value: dataModel.level
                 implicitWidth: parent.width
             }
+        }
+
+        Connections {
+            target: dataModel
+            onColorChanged: checkbox.checkedColor = dataModel.color
         }
     }
 }

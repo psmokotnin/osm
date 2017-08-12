@@ -13,5 +13,6 @@
         <file alias="TitledCombo.qml">qml/TitledCombo.qml</file>
         <file alias="MeasureProperties.qml">qml/MeasureProperties.qml</file>
         <file alias="ColorPicker.qml">qml/ColorPicker.qml</file>
+        <file alias="MulticolorCheckBox.qml">qml/MulticolorCheckBox.qml</file>
     </qresource>
 </RCC>
