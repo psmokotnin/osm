@@ -4,8 +4,10 @@
 
 Measure::Measure(QObject *parent) : QObject(parent)
 {
-    fftPower = 11;
+    fftPower = 12;
     fftSize = pow(2, fftPower);
+
+    data = (complex *)calloc(fftSize, sizeof(complex));
 
     fft = new FFT(this);
 }
@@ -41,21 +43,20 @@ void Measure::reciveData()
         }
     }
 
-    data.clear();
-
     _level = 0.0;
+    int i = 0;
     foreach (Sample s, buffer) {
-        data.append(s.f);
-        //_level += fabs(s.f);
+        data[i] = s.f;
+        i++;
         if (s.f > _level) _level = s.f;
     }
-    //_level /= data.count();
 
-    data = fft->transform(data);
+    fft->transform(data, fftSize);
 
     emit readyRead();
     emit levelChanged();
 }
+
 
 void Measure::updateRTASeries(QAbstractSeries *series)
 {
@@ -69,13 +70,16 @@ void Measure::updateRTASeries(QAbstractSeries *series)
                 frequencyFactor  = pow(2, 1.0 / _pointsPerOctave),
                 currentFrequency = startFrequency,
                 nextFrequency    = currentFrequency * frequencyFactor,
-                currentLevel     = 0.0;
+                currentLevel     = 0.0,
+                rateFactor       = source->sampleRate() / fftSize,
+                m, y, f
+                ;
         int     currentCount     = 0;
 
-        foreach (fftData d, data) {
-            qreal m = sqrt(d.real() * d.real() + d.imag() * d.imag());
-            qreal y = 20.0 * log10(m); // log10(m / 1.0); 1.0f - 0dB point
-            qreal f = i * source->sampleRate() / fftSize;
+        for (i = 0; i < fftSize / 2; i ++) {
+            m = std::abs(data[i]);
+            y = 20.0 * log10(m); // log10(m / 1.0); 1.0f - 0dB point
+            f = i * rateFactor;
             currentCount ++;
 
             if (_pointsPerOctave >= 1) {
@@ -100,10 +104,6 @@ void Measure::updateRTASeries(QAbstractSeries *series)
                     f = std::numeric_limits<qreal>::min();
                 points.append(QPointF(f, y));
             }
-
-            i++;
-            if (i == fftSize / 2)
-                break;
         }
 
         xySeries->replace(points);

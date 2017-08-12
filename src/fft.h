@@ -6,7 +6,7 @@
 
 #include "complex.h"
 
-typedef std::complex<qreal> fftData;
+typedef std::complex<qreal> complex;
 
 class FFT : public QObject
 {
@@ -14,7 +14,7 @@ class FFT : public QObject
 public:
     explicit FFT(QObject *parent = nullptr);
 
-    QList<fftData> transform(QList<fftData> data);
+    complex *transform(complex *data, int length);
 
 signals:
 

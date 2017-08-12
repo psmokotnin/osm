@@ -31,7 +31,7 @@ class Measure : public QObject
 private:
     Source *source;
     QQueue<Sample> buffer;
-    QList<fftData> data;
+    complex * data;
     FFT *fft;
 
     bool _active         = true;
