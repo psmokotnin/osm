@@ -84,11 +84,13 @@ void Measure::updateRTASeries(QAbstractSeries *series)
 
                     y = 20.0 * log10(currentLevel / currentCount);
                     points.append(QPointF(currentFrequency, y));
-
-                    currentFrequency = nextFrequency;
-                    nextFrequency    = currentFrequency * frequencyFactor,
                     currentLevel     = 0.0;
                     currentCount     = 0;
+
+                    while (f > currentFrequency + (nextFrequency - currentFrequency) / 2) {
+                        currentFrequency = nextFrequency;
+                        nextFrequency    = currentFrequency * frequencyFactor;
+                    }
                 }
 
                 currentLevel += m;
