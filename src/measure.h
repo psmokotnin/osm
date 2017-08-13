@@ -2,14 +2,17 @@
 #define MEASURE_H
 
 #include <QObject>
+#include <QAudioInput>
 
+#include <QTimer>
 #include <QtCharts/QAbstractSeries>
 QT_CHARTS_USE_NAMESPACE
 
-#include "source.h"
+#include "sample.h"
+#include "audiostack.h"
 #include "fft.h"
 
-class Measure : public QObject
+class Measure : public QIODevice
 {
     Q_OBJECT
 
@@ -23,14 +26,22 @@ class Measure : public QObject
     Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged)
 
     //Current sound level
-    Q_PROPERTY(qreal level READ level NOTIFY levelChanged)
+    Q_PROPERTY(float level READ level NOTIFY levelChanged)
 
     //How many points per octave is used. 0 is no grouping
     Q_PROPERTY(unsigned int pointsPerOctave READ pointsPerOctave WRITE setPointsPerOctave NOTIFY pointsPerOctaveChanged)
 
 private:
-    Source *source;
-    QQueue<Sample> buffer;
+    QAudioInput* audio;
+    QAudioFormat format;
+    QTimer *timer;
+    AudioStack *dataStack,
+               *referenceStack;
+    int
+        _chanelCount = 2,
+        _dataChanel = 1,
+        _referenceChanel = 0;
+
     complex * data;
     FFT *fft;
 
@@ -38,7 +49,7 @@ private:
     QString _name        = "My measure";
     QColor _color        = QColor("#209fdf");
     int _pointsPerOctave = 12;
-    qreal _level         = 0.0;
+    float _level         = 0.0;
 
 protected:
     int fftPower;
@@ -56,12 +67,14 @@ public:
     QColor color() {return _color;}
     void setColor(QColor color) {_color = color; emit colorChanged();}
 
-    void setSource(Source *s);
-
     unsigned int pointsPerOctave() {return _pointsPerOctave;}
     void setPointsPerOctave(unsigned int p) {_pointsPerOctave = p;}
 
-    qreal level() {return _level;}
+    float level() {return _level;}
+
+    //IO methods
+    qint64 readData(char *data, qint64 maxlen);
+    qint64 writeData(const char *data, qint64 len);
 
 signals:
     void activeChanged();
@@ -73,7 +86,7 @@ signals:
     void pointsPerOctaveChanged();
 
 public slots:
-    void reciveData();
+    void transform();
     void updateRTASeries(QAbstractSeries *series);
 };
 

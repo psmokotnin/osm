@@ -9,7 +9,6 @@ SOURCES += src/main.cpp \
     src/outputdevice.cpp \
     src/whitenoise.cpp \
     src/sinnoise.cpp \
-    src/source.cpp \
     src/measure.cpp \
     src/fft.cpp \
     src/complex.cpp \
@@ -45,7 +44,6 @@ HEADERS += \
     src/outputdevice.h \
     src/whitenoise.h \
     src/sinnoise.h \
-    src/source.h \
     src/sample.h \
     src/measure.h \
     src/fft.h \

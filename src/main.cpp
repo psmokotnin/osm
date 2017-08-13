@@ -4,7 +4,6 @@
 #include <QQmlContext>
 
 #include "src/generator.h"
-#include "src/source.h"
 #include "src/measure.h"
 
 int main(int argc, char *argv[])
@@ -13,10 +12,8 @@ int main(int argc, char *argv[])
     QQuickStyle::setStyle("Material");
 
     Generator g;
-    Source s;
     Measure *m;
     m = new Measure(nullptr);
-    m->setSource(&s);
 
     QQmlApplicationEngine engine;
 
@@ -25,7 +22,6 @@ int main(int argc, char *argv[])
     //Q_DECLARE_METATYPE(QQmlListProperty<Complex>)
 
     engine.rootContext()->setContextProperty("generatorModel", &g);
-    engine.rootContext()->setContextProperty("sourceModel", &s);
     engine.rootContext()->setContextProperty("measureModel", m);
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
 

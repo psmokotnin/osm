@@ -19,7 +19,7 @@ complex *FFT::transform(complex *data, int length)
     }
 
     complex wlen, w, u, v;
-    qreal ang, dPi = 2 * M_PI ;
+    float ang, dPi = 2 * M_PI ;
     for (int len = 2; len <= n; len <<= 1)
     {
         ang = dPi / len;

@@ -2,14 +2,40 @@
 
 #include "measure.h"
 
-Measure::Measure(QObject *parent) : QObject(parent)
+Measure::Measure(QObject *parent) : QIODevice(parent)
 {
     fftPower = 12;
     fftSize = pow(2, fftPower);
 
     data = (complex *)calloc(fftSize, sizeof(complex));
 
+    dataStack = new AudioStack(fftSize);
+    referenceStack = new AudioStack(fftSize);
+
+    QAudioDeviceInfo d = QAudioDeviceInfo::defaultInputDevice();
+    foreach (int c, d.supportedChannelCounts()) {
+        if (c > _chanelCount)
+            _chanelCount = c;
+    }
+
+    format.setSampleRate(48000);
+    format.setChannelCount(_chanelCount);
+    format.setSampleSize(32);
+    format.setCodec("audio/pcm");
+    format.setByteOrder(QAudioFormat::LittleEndian);
+    format.setSampleType(QAudioFormat::Float);
+
+    audio = new QAudioInput(format, this);
+    open(WriteOnly);
+    audio->start(this);
+
+    //qDebug() << audio->format().channelCount();
+
     fft = new FFT(this);
+
+    timer = new QTimer(this);
+    connect(timer, SIGNAL(timeout()), SLOT(transform()));
+    timer->start(40); //25 per sec
 }
 void Measure::setActive(bool active)
 {
@@ -19,36 +45,50 @@ void Measure::setActive(bool active)
     emit activeChanged();
     emit levelChanged();
 }
-void Measure::setSource(Source *s)
+qint64 Measure::readData(char *data, qint64 maxlen)
 {
-    source = s;
-    connect(source, SIGNAL(readyRead()), SLOT(reciveData()));
+    Q_UNUSED(data);
+    Q_UNUSED(maxlen);
+
+    return -1;
 }
-/**
- * @brief Measure::reciveData
- * When reciveData slot called:
- * At first Measure appends data from the source to the internal buffer,
- * Then it prepares data for FFT and run
- * Finally create data for charts and emit signals
- */
-void Measure::reciveData()
+
+qint64 Measure::writeData(const char *data, qint64 len)
 {
-    if (!_active)
-        return;
+    Sample s;
+    int currentChanel = 0;
 
-    foreach (Sample s, source->buffer) {
-        buffer.append(s);
-        while (buffer.length() > fftSize) {
-            buffer.removeFirst();
+    for (qint64 i = 0; i < len; i += 4) {
+        s.c[0] = data[i];
+        s.c[1] = data[i + 1];
+        s.c[2] = data[i + 2];
+        s.c[3] = data[i + 3];
+
+        if (currentChanel == _dataChanel) {
+            dataStack->add(s.f);
         }
-    }
 
+        if (currentChanel == _referenceChanel) {
+            referenceStack->add(s.f);
+        }
+
+        currentChanel ++;
+        if (currentChanel == _chanelCount)
+            currentChanel = 0;
+    }
+    return len;
+}
+void Measure::transform()
+{
     _level = 0.0;
-    int i = 0;
-    foreach (Sample s, buffer) {
-        data[i] = s.f;
-        i++;
-        if (s.f > _level) _level = s.f;
+
+    dataStack->reset();
+    for (int i = 0; i < fftSize; i++) {
+        data[i] = dataStack->current();
+        if (dataStack->current() > _level)
+            _level = dataStack->current();
+
+        dataStack->next();
     }
 
     fft->transform(data, fftSize);
@@ -56,8 +96,6 @@ void Measure::reciveData()
     emit readyRead();
     emit levelChanged();
 }
-
-
 void Measure::updateRTASeries(QAbstractSeries *series)
 {
     if (series) {
@@ -66,12 +104,12 @@ void Measure::updateRTASeries(QAbstractSeries *series)
         QVector<QPointF> points;
 
         int i = 0;
-        qreal startFrequency     = 6.875, //(note A)
+        float startFrequency     = 6.875, //(note A)
                 frequencyFactor  = pow(2, 1.0 / _pointsPerOctave),
                 currentFrequency = startFrequency,
                 nextFrequency    = currentFrequency * frequencyFactor,
                 currentLevel     = 0.0,
-                rateFactor       = source->sampleRate() / fftSize,
+                rateFactor       = audio->format().sampleRate() / fftSize,
                 m, y, f
                 ;
         int     currentCount     = 0;
@@ -101,7 +139,7 @@ void Measure::updateRTASeries(QAbstractSeries *series)
             } else {
                 //without grouping by freq data
                 if (f == 0)
-                    f = std::numeric_limits<qreal>::min();
+                    f = std::numeric_limits<float>::min();
                 points.append(QPointF(f, y));
             }
         }
