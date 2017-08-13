@@ -12,7 +12,8 @@ SOURCES += src/main.cpp \
     src/source.cpp \
     src/measure.cpp \
     src/fft.cpp \
-    src/complex.cpp
+    src/complex.cpp \
+    src/audiostack.cpp
 
 RESOURCES += qml.qrc
 
@@ -48,6 +49,7 @@ HEADERS += \
     src/sample.h \
     src/measure.h \
     src/fft.h \
-    src/complex.h
+    src/complex.h \
+    src/audiostack.h
 
 FORMS +=
