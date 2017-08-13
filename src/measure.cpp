@@ -8,6 +8,7 @@ Measure::Measure(QObject *parent) : QIODevice(parent)
     fftSize = pow(2, fftPower);
 
     data = (complex *)calloc(fftSize, sizeof(complex));
+    referenceData = (complex *)calloc(fftSize, sizeof(complex));
 
     dataStack = new AudioStack(fftSize);
     referenceStack = new AudioStack(fftSize);
@@ -35,7 +36,7 @@ Measure::Measure(QObject *parent) : QIODevice(parent)
 
     timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), SLOT(transform()));
-    timer->start(40); //25 per sec
+    timer->start(80); //25 per sec
 }
 void Measure::setActive(bool active)
 {
@@ -80,21 +81,34 @@ qint64 Measure::writeData(const char *data, qint64 len)
 }
 void Measure::transform()
 {
-    _level = 0.0;
+    if (!_active)
+        return;
+
+    _level = _referenceLevel = 0.0;
 
     dataStack->reset();
+    referenceStack->reset();
     for (int i = 0; i < fftSize; i++) {
+
         data[i] = dataStack->current();
+        referenceData[i] = referenceStack->current();
+
         if (dataStack->current() > _level)
             _level = dataStack->current();
 
+        if (referenceStack->current() > _referenceLevel)
+            _referenceLevel = referenceStack->current();
+
         dataStack->next();
+        referenceStack->next();
     }
 
     fft->transform(data, fftSize);
+    fft->transform(referenceData, fftSize);
 
     emit readyRead();
     emit levelChanged();
+    emit referenceLevelChanged();
 }
 void Measure::updateRTASeries(QAbstractSeries *series)
 {

@@ -27,6 +27,7 @@ class Measure : public QIODevice
 
     //Current sound level
     Q_PROPERTY(float level READ level NOTIFY levelChanged)
+    Q_PROPERTY(float referenceLevel READ referenceLevel NOTIFY referenceLevelChanged)
 
     //How many points per octave is used. 0 is no grouping
     Q_PROPERTY(unsigned int pointsPerOctave READ pointsPerOctave WRITE setPointsPerOctave NOTIFY pointsPerOctaveChanged)
@@ -42,14 +43,15 @@ private:
         _dataChanel = 1,
         _referenceChanel = 0;
 
-    complex * data;
+    complex *data, *referenceData;
     FFT *fft;
 
     bool _active         = true;
     QString _name        = "My measure";
     QColor _color        = QColor("#209fdf");
     int _pointsPerOctave = 12;
-    float _level         = 0.0;
+    float _level         = 0.0,
+         _referenceLevel = 0.0;
 
 protected:
     int fftPower;
@@ -71,6 +73,7 @@ public:
     void setPointsPerOctave(unsigned int p) {_pointsPerOctave = p;}
 
     float level() {return _level;}
+    float referenceLevel() {return _referenceLevel;}
 
     //IO methods
     qint64 readData(char *data, qint64 maxlen);
@@ -83,6 +86,7 @@ signals:
 
     void readyRead();
     void levelChanged();
+    void referenceLevelChanged();
     void pointsPerOctaveChanged();
 
 public slots:

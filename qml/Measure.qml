@@ -44,6 +44,11 @@ Item {
                 value: dataModel.level
                 implicitWidth: parent.width
             }
+
+            ProgressBar {
+                value: dataModel.referenceLevel
+                implicitWidth: parent.width
+            }
         }
 
         Connections {
