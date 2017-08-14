@@ -91,7 +91,7 @@ signals:
 
 public slots:
     void transform();
-    void updateRTASeries(QAbstractSeries *series);
+    void updateSeries(QAbstractSeries *series, QString type);
 };
 
 #endif // MEASURE_H

@@ -53,7 +53,7 @@ Item {
             series.useOpenGL = true;
 
             dataModel.readyRead.connect(function() {
-                dataModel.updateRTASeries(series);
+                dataModel.updateSeries(series, chart.type);
             });
 
             //name

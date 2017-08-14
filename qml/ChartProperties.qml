@@ -17,7 +17,7 @@ Item {
         TitledCombo {
             title: qsTr("chart type")
             model: chartProperties.dataObject.availableTypes
-            currentIndex: 0
+            currentIndex: chartProperties.dataObject.availableTypes.indexOf(chartProperties.dataObject.type)
             onCurrentIndexChanged: {
                 chartProperties.dataObject.type = chartProperties.dataObject.availableTypes[currentIndex];
             }

@@ -110,7 +110,7 @@ void Measure::transform()
     emit levelChanged();
     emit referenceLevelChanged();
 }
-void Measure::updateRTASeries(QAbstractSeries *series)
+void Measure::updateSeries(QAbstractSeries *series, QString type)
 {
     if (series) {
         QXYSeries *xySeries = static_cast<QXYSeries *>(series);
@@ -130,7 +130,12 @@ void Measure::updateRTASeries(QAbstractSeries *series)
 
         for (i = 0; i < fftSize / 2; i ++) {
             m = std::abs(data[i]);
-            y = 20.0 * log10(m); // log10(m / 1.0); 1.0f - 0dB point
+
+            //if (type == "RTA") m /= 1.0; - 1.0f - 0dB
+            if (type == "Magnitude")
+                m /= std::abs(referenceData[i]);
+
+            y = 20.0 * log10(m);
             f = i * rateFactor;
             currentCount ++;
 
@@ -139,6 +144,7 @@ void Measure::updateRTASeries(QAbstractSeries *series)
                 if (f > currentFrequency + (nextFrequency - currentFrequency) / 2) {
 
                     y = 20.0 * log10(currentLevel / currentCount);
+
                     points.append(QPointF(currentFrequency, y));
                     currentLevel     = 0.0;
                     currentCount     = 0;
