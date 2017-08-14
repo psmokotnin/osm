@@ -3,6 +3,8 @@ import QtQuick.Controls 2.2
 import QtQuick.Layouts 1.3
 
 Item {
+    id: chartProperties
+    property var dataObject
 
     RowLayout {
         spacing: 0
@@ -14,8 +16,11 @@ Item {
 
         TitledCombo {
             title: qsTr("chart type")
-            model: ["RTA"]
+            model: chartProperties.dataObject.availableTypes
             currentIndex: 0
+            onCurrentIndexChanged: {
+                chartProperties.dataObject.type = chartProperties.dataObject.availableTypes[currentIndex];
+            }
         }
     }
 }

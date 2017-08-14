@@ -9,7 +9,6 @@ Item {
     property string title : ""
     property var model : []
     property int currentIndex : 0
-    //signal
 
     ColumnLayout {
 
@@ -26,6 +25,9 @@ Item {
             Layout.bottomMargin: 5
             model: i.model
             currentIndex: i.currentIndex
+            onCurrentIndexChanged: {
+                i.currentIndex = currentIndex
+            }
         }
     }
 }
