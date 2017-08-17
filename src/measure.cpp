@@ -124,18 +124,20 @@ void Measure::updateSeries(QAbstractSeries *series, QString type)
                 nextFrequency    = currentFrequency * frequencyFactor,
                 currentLevel     = 0.0,
                 rateFactor       = audio->format().sampleRate() / fftSize,
-                m, y, f
+                m, y, f, p
                 ;
         int     currentCount     = 0;
 
         for (i = 0; i < fftSize / 2; i ++) {
             m = std::abs(data[i]);
+            p = std::arg(data[i]) - std::arg(referenceData[i]);
 
             //if (type == "RTA") m /= 1.0; - 1.0f - 0dB
             if (type == "Magnitude")
                 m /= std::abs(referenceData[i]);
 
-            y = 20.0 * log10(m);
+
+            y = (type == "Phase" ? p : 20.0 * log10(m));
             f = i * rateFactor;
             currentCount ++;
 
@@ -143,7 +145,10 @@ void Measure::updateSeries(QAbstractSeries *series, QString type)
 
                 if (f > currentFrequency + (nextFrequency - currentFrequency) / 2) {
 
-                    y = 20.0 * log10(currentLevel / currentCount);
+                    y = (type == "Phase" ?
+                             currentLevel / currentCount :
+                             20.0 * log10(currentLevel / currentCount)
+                             );
 
                     points.append(QPointF(currentFrequency, y));
                     currentLevel     = 0.0;
@@ -155,7 +160,7 @@ void Measure::updateSeries(QAbstractSeries *series, QString type)
                     }
                 }
 
-                currentLevel += m;
+                currentLevel += (type == "Phase" ? p : m);
             } else {
                 //without grouping by freq data
                 if (f == 0)
