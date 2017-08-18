@@ -26,6 +26,7 @@ public:
 
     void reset(void);
     bool next(void);
+    float first(void);
     float current(void);
     void fill(float value);
 };

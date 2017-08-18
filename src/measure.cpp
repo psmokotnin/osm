@@ -12,6 +12,7 @@ Measure::Measure(QObject *parent) : QIODevice(parent)
 
     dataStack = new AudioStack(fftSize);
     referenceStack = new AudioStack(fftSize);
+    delayStack = new AudioStack(delay());
 
     QAudioDeviceInfo d = QAudioDeviceInfo::defaultInputDevice();
     foreach (int c, d.supportedChannelCounts()) {
@@ -30,8 +31,6 @@ Measure::Measure(QObject *parent) : QIODevice(parent)
     open(WriteOnly);
     audio->start(this);
 
-    //qDebug() << audio->format().channelCount();
-
     fft = new FFT(this);
 
     timer = new QTimer(this);
@@ -45,6 +44,11 @@ void Measure::setActive(bool active)
 
     emit activeChanged();
     emit levelChanged();
+}
+void Measure::setDelay(int delay)
+{
+    delayStack->setSize(delay);
+    _delay = delay;
 }
 qint64 Measure::readData(char *data, qint64 maxlen)
 {
@@ -70,7 +74,12 @@ qint64 Measure::writeData(const char *data, qint64 len)
         }
 
         if (currentChanel == _referenceChanel) {
-            referenceStack->add(s.f);
+            if (delay() > 0) {
+                delayStack->add(s.f);
+                referenceStack->add(delayStack->first());
+            } else {
+                referenceStack->add(s.f);
+            }
         }
 
         currentChanel ++;
@@ -131,6 +140,7 @@ void Measure::updateSeries(QAbstractSeries *series, QString type)
         for (i = 0; i < fftSize / 2; i ++) {
             m = std::abs(data[i]);
             p = std::arg(data[i]) - std::arg(referenceData[i]);
+            p *= 180.0 / M_PI;
 
             //if (type == "RTA") m /= 1.0; - 1.0f - 0dB
             if (type == "Magnitude")

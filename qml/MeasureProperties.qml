@@ -19,6 +19,23 @@ Item {
             onValueChanged: dataObject.pointsPerOctave = value
         }
 
+        SpinBox {
+            implicitWidth: 225
+            value: dataObject.delay
+            from: 0
+            to: 48000
+            editable: true
+            onValueChanged: dataObject.delay = value
+
+            textFromValue: function(value, locale) {
+                return Number(value / 48).toLocaleString(locale, 'f', 2) + "ms";
+            }
+
+            valueFromText: function(text, locale) {
+                return Number.fromLocaleString(locale, text.replace("ms", "")) * 48;
+            }
+        }
+
         TextField {
             placeholderText: qsTr("title")
             text: dataObject.name

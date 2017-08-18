@@ -1,4 +1,15 @@
 #include "fft.h"
+#include <complex>
+
+using namespace std::complex_literals;
+
+QDebug operator<<(QDebug dbg, const complex &c)
+{
+    dbg.nospace() << "Complex value: r:"
+        << c.real() << " i:" << c.imag();
+
+    return dbg.maybeSpace();
+}
 
 FFT::FFT(QObject *parent) : QObject(parent)
 {

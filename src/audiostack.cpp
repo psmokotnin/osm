@@ -73,3 +73,7 @@ float AudioStack::current(void)
 {
     return this->pointer->value;
 }
+float AudioStack::first(void)
+{
+    return this->firstdata->value;
+}

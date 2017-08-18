@@ -29,6 +29,8 @@ class Measure : public QIODevice
     Q_PROPERTY(float level READ level NOTIFY levelChanged)
     Q_PROPERTY(float referenceLevel READ referenceLevel NOTIFY referenceLevelChanged)
 
+    Q_PROPERTY(int delay READ delay WRITE setDelay NOTIFY delayChanged)
+
     //How many points per octave is used. 0 is no grouping
     Q_PROPERTY(unsigned int pointsPerOctave READ pointsPerOctave WRITE setPointsPerOctave NOTIFY pointsPerOctaveChanged)
 
@@ -37,11 +39,13 @@ private:
     QAudioFormat format;
     QTimer *timer;
     AudioStack *dataStack,
-               *referenceStack;
+               *referenceStack,
+               *delayStack;
     int
         _chanelCount = 2,
         _dataChanel = 1,
-        _referenceChanel = 0;
+        _referenceChanel = 0,
+        _delay = 0;
 
     complex *data, *referenceData;
     FFT *fft;
@@ -75,6 +79,9 @@ public:
     float level() {return _level;}
     float referenceLevel() {return _referenceLevel;}
 
+    int delay(){return _delay;}
+    void setDelay(int delay);
+
     //IO methods
     qint64 readData(char *data, qint64 maxlen);
     qint64 writeData(const char *data, qint64 len);
@@ -86,6 +93,7 @@ signals:
 
     void readyRead();
     void levelChanged();
+    void delayChanged();
     void referenceLevelChanged();
     void pointsPerOctaveChanged();
 

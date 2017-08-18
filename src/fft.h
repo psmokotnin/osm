@@ -7,6 +7,7 @@
 #include "complex.h"
 
 typedef std::complex<qreal> complex;
+QDebug operator<<(QDebug dbg, const complex &c);
 
 class FFT : public QObject
 {
