@@ -9,21 +9,11 @@
 QT_CHARTS_USE_NAMESPACE
 
 #include "sample.h"
-#include "audiostack.h"
-#include "fft.h"
+#include "chartable.h"
 
-class Measure : public QIODevice
+class Measure : public Chartable
 {
     Q_OBJECT
-
-    //Active state of measurement
-    Q_PROPERTY(bool active READ active WRITE setActive NOTIFY activeChanged)
-
-    //Name of the measurement
-    Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
-
-    //Chart color
-    Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged)
 
     //Current sound level
     Q_PROPERTY(float level READ level NOTIFY levelChanged)
@@ -31,50 +21,28 @@ class Measure : public QIODevice
 
     Q_PROPERTY(int delay READ delay WRITE setDelay NOTIFY delayChanged)
 
-    //How many points per octave is used. 0 is no grouping
-    Q_PROPERTY(unsigned int pointsPerOctave READ pointsPerOctave WRITE setPointsPerOctave NOTIFY pointsPerOctaveChanged)
-
 private:
     QAudioInput* audio;
     QAudioFormat format;
     QTimer *timer;
-    AudioStack *dataStack,
-               *referenceStack,
-               *delayStack;
     int
         _chanelCount = 2,
         _dataChanel = 1,
         _referenceChanel = 0,
         _delay = 0;
 
-    complex *data, *referenceData, *impulseData;
     FFT *fft;
 
-    bool _active         = true;
-    QString _name        = "My measure";
-    QColor _color        = QColor("#209fdf");
-    int _pointsPerOctave = 12;
     float _level         = 0.0,
          _referenceLevel = 0.0;
 
 protected:
     int fftPower;
-    int fftSize;
 
 public:
     explicit Measure(QObject *parent = nullptr);
 
-    bool active() {return _active;}
     void setActive(bool active);
-
-    QString name() {return _name;}
-    void setName(QString name) {_name = name; emit nameChanged();}
-
-    QColor color() {return _color;}
-    void setColor(QColor color) {_color = color; emit colorChanged();}
-
-    unsigned int pointsPerOctave() {return _pointsPerOctave;}
-    void setPointsPerOctave(unsigned int p) {_pointsPerOctave = p;}
 
     float level() {return _level;}
     float referenceLevel() {return _referenceLevel;}
@@ -82,26 +50,20 @@ public:
     int delay(){return _delay;}
     void setDelay(int delay);
 
+    int sampleRate();
+
     //IO methods
     qint64 readData(char *data, qint64 maxlen);
     qint64 writeData(const char *data, qint64 len);
 
 signals:
-    void activeChanged();
-    void nameChanged();
-    void colorChanged();
-
     void readyRead();
     void levelChanged();
     void delayChanged();
     void referenceLevelChanged();
-    void pointsPerOctaveChanged();
 
 public slots:
     void transform();
-    void updateSeries(QAbstractSeries *series, QString type);
-    void scopeSeries(QAbstractSeries *series);
-    void impulseSeries(QAbstractSeries *series);
 };
 
 #endif // MEASURE_H
