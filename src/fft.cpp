@@ -15,7 +15,7 @@ FFT::FFT(QObject *parent) : QObject(parent)
 {
 
 }
-complex *FFT::transform(complex *data, int length)
+complex *FFT::transform(complex *data, int length, bool inverse)
 {
     int n = length;
 
@@ -30,7 +30,7 @@ complex *FFT::transform(complex *data, int length)
     }
 
     complex wlen, w, u, v;
-    float ang, dPi = 2 * M_PI ;
+    float ang, dPi = 2 * M_PI * (inverse ? -1 : 1);
     for (int len = 2; len <= n; len <<= 1)
     {
         ang = dPi / len;

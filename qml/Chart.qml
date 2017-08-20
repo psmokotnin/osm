@@ -17,7 +17,7 @@ Item {
     ChartView {
         id: chart
 
-        property var availableTypes : ["RTA", "Magnitude", "Phase", "Scope"]
+        property var availableTypes : ["RTA", "Magnitude", "Phase", "Impulse", "Scope"]
         property string type : availableTypes[0]
         property var allSeries : []
 
@@ -32,15 +32,19 @@ Item {
 
         function axisByType(direction) {
             if (direction == "X")
-                if (type == "Scope")
-                    return createAxis("lin", -10, 10);//ms
-                else
+                switch (type) {
+                case "Scope": return createAxis("lin", -10, 10);break;//ms
+                case "Impulse": return createAxis("lin", 0, 85);break;//ms
+
+                default:
                     return createAxis("log", 20, 20000);
+                }
             else {//Y
                 switch (type) {
                     case "Magnitude": return createAxis("lin", -18, 18);
                     case "Phase": return createAxis("lin", -180, 180);
                     case "Scope": return createAxis("lin", -1, 1);
+                    case "Impulse": return createAxis("lin", -1, 1);
 
                     default:
                     case "RTA": return createAxis("lin", -120, 0);

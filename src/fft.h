@@ -15,7 +15,7 @@ class FFT : public QObject
 public:
     explicit FFT(QObject *parent = nullptr);
 
-    complex *transform(complex *data, int length);
+    complex *transform(complex *data, int length, bool inverse = false);
 
 signals:
 

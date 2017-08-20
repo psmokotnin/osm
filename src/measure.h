@@ -47,7 +47,7 @@ private:
         _referenceChanel = 0,
         _delay = 0;
 
-    complex *data, *referenceData;
+    complex *data, *referenceData, *impulseData;
     FFT *fft;
 
     bool _active         = true;
@@ -101,6 +101,7 @@ public slots:
     void transform();
     void updateSeries(QAbstractSeries *series, QString type);
     void scopeSeries(QAbstractSeries *series);
+    void impulseSeries(QAbstractSeries *series);
 };
 
 #endif // MEASURE_H

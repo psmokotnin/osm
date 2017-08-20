@@ -9,6 +9,7 @@ Measure::Measure(QObject *parent) : QIODevice(parent)
 
     data = (complex *)calloc(fftSize, sizeof(complex));
     referenceData = (complex *)calloc(fftSize, sizeof(complex));
+    impulseData = (complex *)calloc(fftSize, sizeof(complex));
 
     dataStack = new AudioStack(fftSize);
     referenceStack = new AudioStack(fftSize);
@@ -123,6 +124,8 @@ void Measure::updateSeries(QAbstractSeries *series, QString type)
 {
     if (type == "Scope")
         return scopeSeries(series);
+    if (type == "Impulse")
+        return impulseSeries(series);
     if (series) {
         QXYSeries *xySeries = static_cast<QXYSeries *>(series);
 
@@ -218,5 +221,26 @@ void Measure::scopeSeries(QAbstractSeries *series)
         i++;
     }
     while (dataStack->next());
+    xySeries->replace(points);
+}
+void Measure::impulseSeries(QAbstractSeries *series)
+{
+    QXYSeries *xySeries = static_cast<QXYSeries *>(series);
+
+    QVector<QPointF> points;
+    float x, y;
+
+    for (int i = 0; i < fftSize; i ++) {
+        impulseData[i] = data[i] / referenceData[i];
+    }
+
+    fft->transform(impulseData, fftSize, true);
+
+    for (int i = 0; i < fftSize; i ++) {
+        x = i / 48.0;
+        y = impulseData[i].real();
+        points.append(QPointF(x, y));
+    }
+
     xySeries->replace(points);
 }
