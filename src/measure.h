@@ -100,6 +100,7 @@ signals:
 public slots:
     void transform();
     void updateSeries(QAbstractSeries *series, QString type);
+    void scopeSeries(QAbstractSeries *series);
 };
 
 #endif // MEASURE_H

@@ -121,6 +121,8 @@ void Measure::transform()
 }
 void Measure::updateSeries(QAbstractSeries *series, QString type)
 {
+    if (type == "Scope")
+        return scopeSeries(series);
     if (series) {
         QXYSeries *xySeries = static_cast<QXYSeries *>(series);
 
@@ -181,4 +183,40 @@ void Measure::updateSeries(QAbstractSeries *series, QString type)
 
         xySeries->replace(points);
     }
+}
+void Measure::scopeSeries(QAbstractSeries *series)
+{
+    QXYSeries *xySeries = static_cast<QXYSeries *>(series);
+
+    QVector<QPointF> points;
+    float trigLevel = 0.0, lastLevel = NULL;
+    float x, y;
+    int i, trigPoint = fftSize / 2;
+    dataStack->reset();
+
+    for (i = 0; i < 3 * fftSize / 4; i++, dataStack->next()) {
+
+        if (i < fftSize / 4)
+            continue;
+
+        if (lastLevel != NULL)
+        {
+            if (lastLevel <= trigLevel && dataStack->current() >= trigLevel) {
+                trigPoint = i;
+                break;
+            }
+        }
+        lastLevel = dataStack->current();
+    }
+
+    dataStack->reset();
+    i = 0;
+    do {
+        x = (i - trigPoint) / 48.0;
+        y = dataStack->current();
+        points.append(QPointF(x, y));
+        i++;
+    }
+    while (dataStack->next());
+    xySeries->replace(points);
 }
