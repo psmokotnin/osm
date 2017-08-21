@@ -12,11 +12,21 @@ void Chartable::setActive(bool active)
 
 void Chartable::updateSeries(QAbstractSeries *series, QString type)
 {
+    if (!series)
+        return;
+
+    //clean
+    if (type == "") {
+        QXYSeries *xySeries = static_cast<QXYSeries *>(series);
+        xySeries->clear();
+        return;
+    }
+
     if (type == "Scope")
         return scopeSeries(series);
     if (type == "Impulse")
         return impulseSeries(series);
-    if (series) {
+
         QXYSeries *xySeries = static_cast<QXYSeries *>(series);
 
         QVector<QPointF> points;
@@ -75,7 +85,7 @@ void Chartable::updateSeries(QAbstractSeries *series, QString type)
         }
 
         xySeries->replace(points);
-    }
+
 }
 void Chartable::scopeSeries(QAbstractSeries *series)
 {

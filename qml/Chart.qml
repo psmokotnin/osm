@@ -19,7 +19,6 @@ Item {
 
         property var availableTypes : ["RTA", "Magnitude", "Phase", "Impulse", "Scope"]
         property string type : availableTypes[0]
-        property var allSeries : []
 
         anchors.fill: parent
         legend.visible: false
@@ -64,6 +63,13 @@ Item {
                 dataModel.updateSeries(series, chart.type);
             });
 
+            chart.typeChanged.connect(function() {
+                dataModel.updateSeries(series, "");//clean before change axises
+                chart.setAxisX(chart.axisByType("X"), series);
+                chart.setAxisY(chart.axisByType("Y"), series);
+                dataModel.updateSeries(series, chart.type);
+            });
+
             //name
             dataModel.nameChanged.connect(function() {
                 series.name = dataModel.name;
@@ -80,7 +86,6 @@ Item {
             dataModel.colorChanged.connect(function() {
                 series.color = dataModel.color;
             });
-            allSeries.push(series);
         }
 
         function createAxis(type, min, max) {
@@ -105,10 +110,6 @@ Item {
         }
 
         onTypeChanged: {
-            for (var i = 0; i < count; i ++) {
-                setAxisX(axisByType("X"), series(i));
-                setAxisY(axisByType("Y"), series(i));
-            }
         }
 
         Component.onCompleted: {
