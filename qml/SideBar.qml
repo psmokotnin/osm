@@ -21,15 +21,12 @@ Item {
           Measure {
               dataModel: measureModel
           }
-
-          Rectangle { height: 50; width: parent.width; color: "red" }
-          Rectangle { height: 100; width: 80; color: "green" }
-          Rectangle { height: 100; width: 80; color: "blue" }
       }
 
       ListView {
           id: sideList
           anchors.fill: parent
+          anchors.margins: 5
           model: sideModel
 
           ScrollIndicator.vertical: ScrollIndicator { }

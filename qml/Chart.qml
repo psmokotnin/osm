@@ -24,24 +24,6 @@ Item {
         legend.visible: false
         antialiasing: true
 
-        ValueAxis {
-            id: scopeX
-            min: -10
-            max: 10
-        }
-
-        ValueAxis {
-            id: impulseX
-            min: 0
-            max: 85
-        }
-
-        LogValueAxis {
-            id: defaultX
-            min: 20
-            max: 20000
-        }
-
         PropertiesOpener {
             propertiesQml: "qrc:/ChartProperties.qml"
             pushObject: chart
@@ -143,7 +125,7 @@ Item {
             }
             applicationWindow.dataSourceList.modelAdded.connect(function(item) {
                 if (item.chartable) {
-                    //chart.appendSeries(item.dataModel);
+                    chart.appendSeries(item.dataModel);
                 }
             });
         }
