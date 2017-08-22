@@ -1,6 +1,7 @@
 import QtQuick 2.7
 import QtQuick.Controls 2.2
 import QtQuick.Layouts 1.1
+import QtQml.Models 2.2
 /**
  * SideBar
  *
@@ -12,7 +13,9 @@ import QtQuick.Layouts 1.1
 Item {
     property Item list : sideList
 
-    VisualItemModel {
+    signal modelAdded(Item item);
+
+    ObjectModel {
           id: sideModel
           Generator {}
           Measure {
@@ -30,5 +33,10 @@ Item {
           model: sideModel
 
           ScrollIndicator.vertical: ScrollIndicator { }
+      }
+
+      function append(item) {
+          sideModel.append(item);
+          modelAdded(item);
       }
 }

@@ -10,6 +10,7 @@ QT_CHARTS_USE_NAMESPACE
 
 #include "sample.h"
 #include "chartable.h"
+#include "stored.h"
 
 class Measure : public Chartable
 {
@@ -38,6 +39,7 @@ private:
 
 protected:
     int fftPower;
+    AudioStack *delayStack;
 
 public:
     explicit Measure(QObject *parent = nullptr);
@@ -53,7 +55,6 @@ public:
     int sampleRate();
 
     //IO methods
-    qint64 readData(char *data, qint64 maxlen);
     qint64 writeData(const char *data, qint64 len);
 
 signals:
@@ -64,6 +65,7 @@ signals:
 
 public slots:
     void transform();
+    QObject *store();
 };
 
 #endif // MEASURE_H

@@ -4,6 +4,30 @@ Chartable::Chartable(QObject *parent) : QIODevice(parent)
 {
 
 }
+void Chartable::alloc()
+{
+    data = (complex *)calloc(_fftSize, sizeof(complex));
+    referenceData = (complex *)calloc(_fftSize, sizeof(complex));
+    impulseData = (complex *)calloc(_fftSize, sizeof(complex));
+
+    dataStack = new AudioStack(_fftSize);
+    referenceStack = new AudioStack(_fftSize);
+}
+
+qint64 Chartable::readData(char *data, qint64 maxlen)
+{
+    Q_UNUSED(data);
+    Q_UNUSED(maxlen);
+
+    return -1;
+}
+qint64 Chartable::writeData(const char *data, qint64 len)
+{
+    Q_UNUSED(data);
+    Q_UNUSED(len);
+
+    return -1;
+}
 void Chartable::setActive(bool active)
 {
     _active = active;
@@ -37,12 +61,12 @@ void Chartable::updateSeries(QAbstractSeries *series, QString type)
                 currentFrequency = startFrequency,
                 nextFrequency    = currentFrequency * frequencyFactor,
                 currentLevel     = 0.0,
-                rateFactor       = sampleRate() / fftSize,
+                rateFactor       = sampleRate() / _fftSize,
                 m, y, f, p
                 ;
         int     currentCount     = 0;
 
-        for (i = 0; i < fftSize / 2; i ++) {
+        for (i = 0; i < _fftSize / 2; i ++) {
             m = std::abs(data[i]);
             p = std::arg(data[i]) - std::arg(referenceData[i]);
             p *= 180.0 / M_PI;
@@ -94,12 +118,12 @@ void Chartable::scopeSeries(QAbstractSeries *series)
     QVector<QPointF> points;
     float trigLevel = 0.0, lastLevel = NULL;
     float x, y;
-    int i, trigPoint = fftSize / 2;
+    int i, trigPoint = _fftSize / 2;
     dataStack->reset();
 
-    for (i = 0; i < 3 * fftSize / 4; i++, dataStack->next()) {
+    for (i = 0; i < 3 * _fftSize / 4; i++, dataStack->next()) {
 
-        if (i < fftSize / 4)
+        if (i < _fftSize / 4)
             continue;
 
         if (lastLevel != NULL)
@@ -130,11 +154,31 @@ void Chartable::impulseSeries(QAbstractSeries *series)
     QVector<QPointF> points;
     float x, y;
 
-    for (int i = 0; i < fftSize; i ++) {
+    for (int i = 0; i < _fftSize; i ++) {
         x = i / 48.0;
         y = impulseData[i].real();
         points.append(QPointF(x, y));
     }
 
     xySeries->replace(points);
+}
+void Chartable::copyData(AudioStack *toDataStack,
+              AudioStack *toReferenceStack,
+              complex *toData,
+              complex *toReferenceData,
+              complex *toImpulseData)
+{
+    dataStack->reset();
+    referenceStack->reset();
+    for (int i = 0; i < fftSize(); i++) {
+        toDataStack->add(dataStack->current());
+        toReferenceStack->add(referenceStack->current());
+
+        toData[i] = data[i];
+        toReferenceData[i] = referenceData[i];
+        toImpulseData[i] = impulseData[i];
+
+        dataStack->next();
+        referenceStack->next();
+    }
 }

@@ -8,7 +8,7 @@ ApplicationWindow {
     id:applicationWindow
 
     property alias properiesbar: bottomtab
-    property alias dataSourceList : righttab.list
+    property alias dataSourceList : righttab
 
     visible: true
 

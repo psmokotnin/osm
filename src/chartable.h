@@ -30,16 +30,20 @@ protected:
     QString _name        = "My measure";
     QColor _color        = QColor("#209fdf");
     int _pointsPerOctave = 12;
-    int fftSize;
+    int _fftSize;
     AudioStack *dataStack,
-               *referenceStack,
-               *delayStack;
+               *referenceStack;
     complex *data, *referenceData, *impulseData;
+
+    void alloc();
 
 public:
     Chartable(QObject *parent);
 
     virtual int sampleRate() = 0;
+
+    qint64 readData(char *data, qint64 maxlen);
+    virtual qint64 writeData(const char *data, qint64 len);
 
     bool active() {return _active;}
     virtual void setActive(bool active);
@@ -52,6 +56,15 @@ public:
 
     unsigned int pointsPerOctave() {return _pointsPerOctave;}
     void setPointsPerOctave(unsigned int p) {_pointsPerOctave = p;}
+
+    int fftSize() {return _fftSize;}
+    void setFftSize(int size) {_fftSize = size;}
+
+    void copyData(AudioStack *toDataStack,
+                  AudioStack *toReferenceStack,
+                  complex *toData,
+                  complex *toReferenceData,
+                  complex *toImpulseData);
 
 signals:
     void activeChanged();

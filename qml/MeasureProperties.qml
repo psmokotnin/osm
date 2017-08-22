@@ -58,5 +58,16 @@ Item {
         Component.onCompleted: {
             colorPicker.color = dataObject.color
         }
+
+        Button {
+            text: qsTr("Store");
+            onClicked: {
+                var storedData = dataObject.store();
+                var component = Qt.createComponent("Stored.qml");
+                var item = component.createObject(null, {dataModel: storedData});
+
+                applicationWindow.dataSourceList.append(item);
+            }
+        }
     }
 }

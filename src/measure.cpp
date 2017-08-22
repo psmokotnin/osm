@@ -3,14 +3,9 @@
 Measure::Measure(QObject *parent) : Chartable(parent)
 {
     fftPower = 12;
-    fftSize = pow(2, fftPower);
+    _fftSize = pow(2, fftPower);
 
-    data = (complex *)calloc(fftSize, sizeof(complex));
-    referenceData = (complex *)calloc(fftSize, sizeof(complex));
-    impulseData = (complex *)calloc(fftSize, sizeof(complex));
-
-    dataStack = new AudioStack(fftSize);
-    referenceStack = new AudioStack(fftSize);
+    alloc();
     delayStack = new AudioStack(delay());
 
     QAudioDeviceInfo d = QAudioDeviceInfo::defaultInputDevice();
@@ -53,13 +48,6 @@ int Measure::sampleRate()
 {
     return audio->format().sampleRate();
 }
-qint64 Measure::readData(char *data, qint64 maxlen)
-{
-    Q_UNUSED(data);
-    Q_UNUSED(maxlen);
-
-    return -1;
-}
 qint64 Measure::writeData(const char *data, qint64 len)
 {
     Sample s;
@@ -99,7 +87,7 @@ void Measure::transform()
 
     dataStack->reset();
     referenceStack->reset();
-    for (int i = 0; i < fftSize; i++) {
+    for (int i = 0; i < _fftSize; i++) {
 
         data[i] = dataStack->current();
         referenceData[i] = referenceStack->current();
@@ -114,15 +102,22 @@ void Measure::transform()
         referenceStack->next();
     }
 
-    fft->transform(data, fftSize);
-    fft->transform(referenceData, fftSize);
+    fft->transform(data, _fftSize);
+    fft->transform(referenceData, _fftSize);
 
-    for (int i = 0; i < fftSize; i ++) {
+    for (int i = 0; i < _fftSize; i ++) {
         impulseData[i] = data[i] / referenceData[i];
     }
-    fft->transform(impulseData, fftSize, true);
+    fft->transform(impulseData, _fftSize, true);
 
     emit readyRead();
     emit levelChanged();
     emit referenceLevelChanged();
+}
+QObject *Measure::store()
+{
+    Stored *store = new Stored(this);
+    store->build(this);
+
+    return store;
 }
