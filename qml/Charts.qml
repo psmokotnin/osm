@@ -4,18 +4,27 @@ import QtQuick.Layouts 1.3
 
 Item {
 
-    ColumnLayout{
-         spacing: 0
+    ColumnLayout {
+        id: sv
+
+        readonly property int minimunHeight: 150
 
          anchors.fill: parent
 
-         Repeater {
-             model: 1
-             Chart {
-                 Layout.fillWidth: true
-                 Layout.fillHeight: true
-             }
+         ChartContainer {
+             Layout.fillWidth: true
+             Layout.minimumHeight: sv.minimunHeight
+             Layout.preferredWidth: parent.width
+             Layout.fillHeight: true
          }
+
+//         ChartContainer {
+//             Layout.fillWidth: true
+//             Layout.minimumHeight: sv.minimunHeight
+//             Layout.preferredWidth: parent.width
+//             Layout.fillHeight: true
+//             visible: true
+//         }
      }
 
 }

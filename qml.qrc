@@ -15,5 +15,6 @@
         <file alias="ColorPicker.qml">qml/ColorPicker.qml</file>
         <file alias="MulticolorCheckBox.qml">qml/MulticolorCheckBox.qml</file>
         <file alias="Stored.qml">qml/Stored.qml</file>
+        <file alias="ChartContainer.qml">qml/ChartContainer.qml</file>
     </qresource>
 </RCC>

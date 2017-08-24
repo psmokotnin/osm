@@ -13,14 +13,5 @@ Item {
             title: qsTr("charts count")
             model: ["1", "2"]
         }*/
-
-        TitledCombo {
-            title: qsTr("chart type")
-            model: chartProperties.dataObject.availableTypes
-            currentIndex: chartProperties.dataObject.availableTypes.indexOf(chartProperties.dataObject.type)
-            onCurrentIndexChanged: {
-                chartProperties.dataObject.type = chartProperties.dataObject.availableTypes[currentIndex];
-            }
-        }
     }
 }
