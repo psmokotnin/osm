@@ -33,6 +33,7 @@ private:
         _delay = 0;
 
     FFT *fft;
+    complex *workingData, *workingReferenceData, *workingImpulseData;
 
     float _level         = 0.0,
          _referenceLevel = 0.0;

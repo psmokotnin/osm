@@ -73,7 +73,7 @@ signals:
     void pointsPerOctaveChanged();
 
 public slots:
-    void updateSeries(QAbstractSeries *series, QString type);
+    virtual void updateSeries(QAbstractSeries *series, QString type);
     void scopeSeries(QAbstractSeries *series);
     void impulseSeries(QAbstractSeries *series);
 };

@@ -5,6 +5,10 @@ Measure::Measure(QObject *parent) : Chartable(parent)
     fftPower = 12;
     _fftSize = pow(2, fftPower);
 
+    workingData = (complex *)calloc(_fftSize, sizeof(complex));
+    workingReferenceData = (complex *)calloc(_fftSize, sizeof(complex));
+    workingImpulseData = (complex *)calloc(_fftSize, sizeof(complex));
+
     alloc();
     delayStack = new AudioStack(delay());
 
@@ -89,8 +93,8 @@ void Measure::transform()
     referenceStack->reset();
     for (int i = 0; i < _fftSize; i++) {
 
-        data[i] = dataStack->current();
-        referenceData[i] = referenceStack->current();
+        workingData[i] = dataStack->current();
+        workingReferenceData[i] = referenceStack->current();
 
         if (dataStack->current() > _level)
             _level = dataStack->current();
@@ -102,13 +106,17 @@ void Measure::transform()
         referenceStack->next();
     }
 
-    fft->transform(data, _fftSize);
-    fft->transform(referenceData, _fftSize);
+    fft->transform(workingData, _fftSize);
+    fft->transform(workingReferenceData, _fftSize);
 
     for (int i = 0; i < _fftSize; i ++) {
-        impulseData[i] = data[i] / referenceData[i];
+        workingImpulseData[i] = workingData[i] / workingReferenceData[i];
     }
-    fft->transform(impulseData, _fftSize, true);
+    fft->transform(workingImpulseData, _fftSize, true);
+
+    memcpy(data, workingData, _fftSize *sizeof(complex));
+    memcpy(referenceData, workingReferenceData, _fftSize *sizeof(complex));
+    memcpy(impulseData, workingImpulseData, _fftSize *sizeof(complex));
 
     emit readyRead();
     emit levelChanged();
@@ -117,6 +125,7 @@ void Measure::transform()
 QObject *Measure::store()
 {
     Stored *store = new Stored(this);
+    store->setSampleRate(sampleRate());
     store->build(this);
 
     return store;
