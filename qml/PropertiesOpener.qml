@@ -6,9 +6,11 @@ MouseArea {
 
     anchors.fill: parent
     onClicked: {
-        applicationWindow.properiesbar.stack.clear()
+        var aw = applicationWindow;
+        aw.properiesbar.stack.clear();
+
         if (propertiesQml) {
-            var item = applicationWindow.properiesbar.stack.push(
+            var item = aw.properiesbar.stack.push(
                     propertiesQml,
                     {
                         dataObject: pushObject

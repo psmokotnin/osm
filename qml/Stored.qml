@@ -34,10 +34,10 @@ Item {
                 Layout.fillWidth: true
                 text:  dataModel.name
 
-//                PropertiesOpener {
-//                   propertiesQml: "qrc:/MeasureProperties.qml"
-//                   pushObject: measure.dataModel
-//                }
+                PropertiesOpener {
+                   propertiesQml: "qrc:/StoredProperties.qml"
+                   pushObject: store.dataModel
+                }
             }
 
         }
