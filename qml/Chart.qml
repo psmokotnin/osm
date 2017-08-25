@@ -88,8 +88,8 @@ ChartView {
         }
 
         return Qt.createQmlObject(
-            "import QtQuick 2.0;
-             import QtCharts 2.0; " +
+            "import QtQuick 2.7;
+             import QtCharts 2.2; " +
              typeItem + "{ min: " + min + "; max: " + max + " }",
               chart
         );
@@ -111,7 +111,7 @@ ChartView {
                 }
         }
         applicationWindow.dataSourceList.modelAdded.connect(function(item) {
-            if (item.chartable) {
+            if (chart && item.chartable) {
                 var newSeries = chart.appendSeries(item.dataModel);
                 item.dataModel.updateSeries(newSeries, chart.type);
             }
