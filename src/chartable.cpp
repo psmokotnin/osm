@@ -70,7 +70,12 @@ void Chartable::updateSeries(QAbstractSeries *series, QString type)
             m = std::abs(data[i]);
             p = std::arg(data[i]) - std::arg(referenceData[i]);
             p *= 180.0 / M_PI;
-
+            while (p > 180.0) {
+                p -= 360.0;
+            }
+            while (p < -180.0) {
+                p += 360.0;
+            }
             //if (type == "RTA") m /= 1.0; - 1.0f - 0dB
             if (type == "Magnitude")
                 m /= std::abs(referenceData[i]);

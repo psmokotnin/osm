@@ -23,8 +23,10 @@ bool Generator::getEnabled()
 }
 void Generator::setEnabled(bool enable)
 {
-    enabled = enable;
-    updateAudio();
+    if (enabled != enable) {
+        enabled = enable;
+        updateAudio();
+    }
 }
 int Generator::getType()
 {

@@ -22,6 +22,8 @@ class Measure : public Chartable
 
     Q_PROPERTY(int delay READ delay WRITE setDelay NOTIFY delayChanged)
 
+    Q_PROPERTY(int average READ average WRITE setAverage NOTIFY averageChanged)
+
 private:
     QAudioInput* audio;
     QAudioFormat format;
@@ -30,13 +32,19 @@ private:
         _chanelCount = 2,
         _dataChanel = 1,
         _referenceChanel = 0,
-        _delay = 0;
+        _delay = 0,
+        _average = 0, _setAverage = 0;
+    int _avgcounter = 0;
 
     FFT *fft;
     complex *workingData, *workingReferenceData, *workingImpulseData;
+    complex **averageData, **averageReferenceData, **averageImpulseData;
 
     float _level         = 0.0,
          _referenceLevel = 0.0;
+
+    void averaging();
+    void averageRealloc();
 
 protected:
     int fftPower;
@@ -44,6 +52,7 @@ protected:
 
 public:
     explicit Measure(QObject *parent = nullptr);
+    ~Measure();
 
     void setActive(bool active);
 
@@ -52,6 +61,9 @@ public:
 
     int delay(){return _delay;}
     void setDelay(int delay);
+
+    int average(){return _average;}
+    void setAverage(int average);
 
     int sampleRate();
 
@@ -63,6 +75,7 @@ signals:
     void levelChanged();
     void delayChanged();
     void referenceLevelChanged();
+    void averageChanged();
 
 public slots:
     void transform();

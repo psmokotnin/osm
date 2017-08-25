@@ -8,7 +8,7 @@ Measure::Measure(QObject *parent) : Chartable(parent)
     workingData = (complex *)calloc(_fftSize, sizeof(complex));
     workingReferenceData = (complex *)calloc(_fftSize, sizeof(complex));
     workingImpulseData = (complex *)calloc(_fftSize, sizeof(complex));
-
+    setAverage(1);
     alloc();
     delayStack = new AudioStack(delay());
 
@@ -35,6 +35,28 @@ Measure::Measure(QObject *parent) : Chartable(parent)
     connect(timer, SIGNAL(timeout()), SLOT(transform()));
     timer->start(80); //25 per sec
 }
+Measure::~Measure()
+{
+    if (timer->isActive())
+        timer->stop();
+
+    audio->stop();
+
+    for (int i = 0; i < _average; i++) {
+        delete(averageData[i]);
+        delete(averageReferenceData[i]);
+        delete(averageImpulseData[i]);
+    }
+
+    delete(averageData);
+    delete(averageReferenceData);
+    delete(averageImpulseData);
+
+    delete(workingData);
+    delete(workingReferenceData);
+    delete(workingImpulseData);
+}
+
 void Measure::setActive(bool active)
 {
     Chartable::setActive(active);
@@ -42,11 +64,32 @@ void Measure::setActive(bool active)
     _level  = 0;
     _referenceLevel = 0;
     emit levelChanged();
+    emit referenceLevelChanged();
 }
 void Measure::setDelay(int delay)
 {
     delayStack->setSize(delay);
     _delay = delay;
+}
+void Measure::setAverage(int average)
+{
+    _setAverage = average;
+}
+void Measure::averageRealloc()
+{
+    if (_average == _setAverage)
+        return;
+
+    averageData          = new complex *[_setAverage];
+    averageReferenceData = new complex *[_setAverage];
+    averageImpulseData   = new complex *[_setAverage];
+    for (int i = 0; i < _setAverage; i ++) {
+        averageData[i]          = new complex[_fftSize];
+        averageReferenceData[i] = new complex[_fftSize];
+        averageImpulseData[i]   = new complex[_fftSize];
+    }
+    //aply new value
+    _average = _setAverage;
 }
 int Measure::sampleRate()
 {
@@ -114,6 +157,9 @@ void Measure::transform()
     }
     fft->transform(workingImpulseData, _fftSize, true);
 
+    if (_average > 1)
+        averaging();
+
     memcpy(data, workingData, _fftSize *sizeof(complex));
     memcpy(referenceData, workingReferenceData, _fftSize *sizeof(complex));
     memcpy(impulseData, workingImpulseData, _fftSize *sizeof(complex));
@@ -122,6 +168,32 @@ void Measure::transform()
     emit levelChanged();
     emit referenceLevelChanged();
 }
+void Measure::averaging()
+{
+    averageRealloc();
+
+    _avgcounter ++;
+    if (_avgcounter >= _average) _avgcounter = 0;
+
+    for (int i = 0; i < fftSize(); i++) {
+
+        averageData[_avgcounter][i]          = workingData[i];
+        averageReferenceData[_avgcounter][i] = workingReferenceData[i];
+        averageImpulseData[_avgcounter][i]   = workingImpulseData[i];
+
+        workingData[i] = workingReferenceData[i] = workingImpulseData[0] = 0;
+
+        for (int j = 0; j < _average; j++) {
+            workingData[i]          += averageData[j][i];
+            workingReferenceData[i] += averageReferenceData[j][i];
+            workingImpulseData[i]   += averageImpulseData[j][i];
+        }
+        workingData[i]          /= _average;
+        workingReferenceData[i] /= _average;
+        workingImpulseData[i]   /= _average;
+    }
+}
+
 QObject *Measure::store()
 {
     Stored *store = new Stored(this);

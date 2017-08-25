@@ -20,6 +20,15 @@ Item {
         }
 
         SpinBox {
+            implicitWidth: 125
+            value: dataObject.average
+            from: 1
+            to: 25
+            editable: true
+            onValueChanged: dataObject.average = value
+        }
+
+        SpinBox {
             implicitWidth: 225
             value: dataObject.delay
             from: 0
