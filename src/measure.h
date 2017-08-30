@@ -69,7 +69,7 @@ public:
     void setAverage(int average);
 
     bool polarity() {return _polarity;}
-    void setPolarity(bool polarity) {_polarity = polarity;qDebug() << polarity;}
+    void setPolarity(bool polarity) {_polarity = polarity;}
 
     int sampleRate();
 
