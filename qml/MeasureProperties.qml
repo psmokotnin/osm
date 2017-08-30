@@ -14,8 +14,8 @@ Item {
             implicitWidth: 125
             value: dataObject.pointsPerOctave
             from: 0
-            to: 24
-            //editable: true
+            to: 48
+            editable: true
             onValueChanged: dataObject.pointsPerOctave = value
         }
 
@@ -23,7 +23,7 @@ Item {
             implicitWidth: 125
             value: dataObject.average
             from: 1
-            to: 25
+            to: 100
             editable: true
             onValueChanged: dataObject.average = value
         }
@@ -43,6 +43,11 @@ Item {
             valueFromText: function(text, locale) {
                 return Number.fromLocaleString(locale, text.replace("ms", "")) * 48;
             }
+        }
+
+        CheckBox {
+            checked: dataObject.polarity
+            onCheckStateChanged: dataObject.polarity = checked
         }
 
         TextField {

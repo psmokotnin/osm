@@ -107,7 +107,7 @@ qint64 Measure::writeData(const char *data, qint64 len)
         s.c[3] = data[i + 3];
 
         if (currentChanel == _dataChanel) {
-            dataStack->add(s.f);
+            dataStack->add((_polarity ? -1 * s.f : s.f));
         }
 
         if (currentChanel == _referenceChanel) {
@@ -157,7 +157,7 @@ void Measure::transform()
     }
     fft->transform(workingImpulseData, _fftSize, true);
 
-    if (_average > 1)
+    if (_setAverage > 1)
         averaging();
 
     memcpy(data, workingData, _fftSize *sizeof(complex));

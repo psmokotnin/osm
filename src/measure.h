@@ -24,6 +24,8 @@ class Measure : public Chartable
 
     Q_PROPERTY(int average READ average WRITE setAverage NOTIFY averageChanged)
 
+    Q_PROPERTY(bool polarity READ polarity WRITE setPolarity NOTIFY polarityChanged)
+
 private:
     QAudioInput* audio;
     QAudioFormat format;
@@ -35,6 +37,7 @@ private:
         _delay = 0,
         _average = 0, _setAverage = 0;
     int _avgcounter = 0;
+    bool _polarity = false;
 
     FFT *fft;
     complex *workingData, *workingReferenceData, *workingImpulseData;
@@ -65,6 +68,9 @@ public:
     int average(){return _average;}
     void setAverage(int average);
 
+    bool polarity() {return _polarity;}
+    void setPolarity(bool polarity) {_polarity = polarity;qDebug() << polarity;}
+
     int sampleRate();
 
     //IO methods
@@ -76,6 +82,7 @@ signals:
     void delayChanged();
     void referenceLevelChanged();
     void averageChanged();
+    void polarityChanged();
 
 public slots:
     void transform();
