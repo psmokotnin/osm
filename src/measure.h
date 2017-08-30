@@ -41,7 +41,8 @@ private:
 
     FFT *fft;
     complex *workingData, *workingReferenceData, *workingImpulseData;
-    complex **averageData, **averageReferenceData, **averageImpulseData;
+    complex **averageImpulseData;
+    qreal **averageModule, **averageMagnitude, **averagePhase;
 
     float _level         = 0.0,
          _referenceLevel = 0.0;

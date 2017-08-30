@@ -35,6 +35,8 @@ protected:
                *referenceStack;
     complex *data, *referenceData, *impulseData;
 
+    qreal *module, *magnitude, *phase;
+
     void alloc();
 
 public:
@@ -62,9 +64,10 @@ public:
 
     void copyData(AudioStack *toDataStack,
                   AudioStack *toReferenceStack,
-                  complex *toData,
-                  complex *toReferenceData,
-                  complex *toImpulseData);
+                  qreal *toModule,
+                  qreal *toMagmitude,
+                  qreal *toPhase,
+                  complex *toImpulse);
 
 signals:
     void activeChanged();

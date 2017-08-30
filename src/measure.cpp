@@ -41,20 +41,6 @@ Measure::~Measure()
         timer->stop();
 
     audio->stop();
-
-    for (int i = 0; i < _average; i++) {
-        delete(averageData[i]);
-        delete(averageReferenceData[i]);
-        delete(averageImpulseData[i]);
-    }
-
-    delete(averageData);
-    delete(averageReferenceData);
-    delete(averageImpulseData);
-
-    delete(workingData);
-    delete(workingReferenceData);
-    delete(workingImpulseData);
 }
 
 void Measure::setActive(bool active)
@@ -80,14 +66,18 @@ void Measure::averageRealloc()
     if (_average == _setAverage)
         return;
 
-    averageData          = new complex *[_setAverage];
-    averageReferenceData = new complex *[_setAverage];
-    averageImpulseData   = new complex *[_setAverage];
+    averageModule       = new qreal *[_setAverage];
+    averageMagnitude    = new qreal *[_setAverage];
+    averagePhase        = new qreal *[_setAverage];
+    averageImpulseData  = new complex *[_setAverage];
+
     for (int i = 0; i < _setAverage; i ++) {
-        averageData[i]          = new complex[_fftSize];
-        averageReferenceData[i] = new complex[_fftSize];
-        averageImpulseData[i]   = new complex[_fftSize];
+        averageModule[i]      = new qreal[_fftSize];
+        averageMagnitude[i]   = new qreal[_fftSize];
+        averagePhase[i]       = new qreal[_fftSize];
+        averageImpulseData[i] = new complex[_fftSize];
     }
+
     //aply new value
     _average = _setAverage;
 }
@@ -154,6 +144,13 @@ void Measure::transform()
 
     for (int i = 0; i < _fftSize; i ++) {
         workingImpulseData[i] = workingData[i] / workingReferenceData[i];
+        if (i < _fftSize / 2) {
+            module[i]    = 20.0 * log10(std::abs(workingData[i]));
+            magnitude[i] = 20.0 * log10(std::abs(workingData[i]) / std::abs(workingReferenceData[i]));
+            phase[i]     = std::arg(workingData[i]) - std::arg(workingReferenceData[i]);
+            while (std::abs(phase[i]) > M_PI)
+                phase[i] -= 2 * (phase[i] / std::abs(phase[i])) * M_PI;
+        }
     }
     fft->transform(workingImpulseData, _fftSize, true);
 
@@ -176,21 +173,24 @@ void Measure::averaging()
     if (_avgcounter >= _average) _avgcounter = 0;
 
     for (int i = 0; i < fftSize(); i++) {
+        averageModule[_avgcounter][i]      = module[i];
+        averageMagnitude[_avgcounter][i]   = magnitude[i];
+        averagePhase[_avgcounter][i]       = phase[i];
+        averageImpulseData[_avgcounter][i] = workingImpulseData[i];
 
-        averageData[_avgcounter][i]          = workingData[i];
-        averageReferenceData[_avgcounter][i] = workingReferenceData[i];
-        averageImpulseData[_avgcounter][i]   = workingImpulseData[i];
-
-        workingData[i] = workingReferenceData[i] = workingImpulseData[0] = 0;
-
+        module[i] = magnitude[i] = phase[i] = 0.0;
+        workingImpulseData[i] = 0.0;
         for (int j = 0; j < _average; j++) {
-            workingData[i]          += averageData[j][i];
-            workingReferenceData[i] += averageReferenceData[j][i];
-            workingImpulseData[i]   += averageImpulseData[j][i];
+            module[i]       += averageModule[j][i];
+            magnitude[i]    += averageMagnitude[j][i];
+            phase[i]        += averagePhase[j][i];
+            workingImpulseData[i] += averageImpulseData[j][i];
         }
-        workingData[i]          /= _average;
-        workingReferenceData[i] /= _average;
-        workingImpulseData[i]   /= _average;
+
+        module[i]       /= _average;
+        magnitude[i]    /= _average;
+        phase[i]        /= _average;
+        workingImpulseData[i] /= _average;
     }
 }
 

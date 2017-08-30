@@ -12,6 +12,10 @@ void Chartable::alloc()
 
     dataStack = new AudioStack(_fftSize);
     referenceStack = new AudioStack(_fftSize);
+
+    module      = (qreal *)calloc(_fftSize, sizeof(qreal));
+    magnitude   = (qreal *)calloc(_fftSize, sizeof(qreal));
+    phase       = (qreal *)calloc(_fftSize, sizeof(qreal));
 }
 
 qint64 Chartable::readData(char *data, qint64 maxlen)
@@ -62,26 +66,19 @@ void Chartable::updateSeries(QAbstractSeries *series, QString type)
                 nextFrequency    = currentFrequency * frequencyFactor,
                 currentLevel     = 0.0,
                 rateFactor       = sampleRate() / _fftSize,
-                m, y, f, p
+                l, y, f
                 ;
         int     currentCount     = 0;
 
         for (i = 0; i < _fftSize / 2; i ++) {
-            m = std::abs(data[i]);
-            p = std::arg(data[i]) - std::arg(referenceData[i]);
-            p *= 180.0 / M_PI;
-            while (p > 180.0) {
-                p -= 360.0;
-            }
-            while (p < -180.0) {
-                p += 360.0;
-            }
-            //if (type == "RTA") m /= 1.0; - 1.0f - 0dB
-            if (type == "Magnitude")
-                m /= std::abs(referenceData[i]);
 
+            if (type == "RTA")
+                l = module[i];
+            else if (type == "Magnitude")
+                l = magnitude[i];
+            else if (type == "Phase")
+                l = phase[i] * 180 / M_PI;
 
-            y = (type == "Phase" ? p : 20.0 * log10(m));
             f = i * rateFactor;
             currentCount ++;
 
@@ -89,11 +86,7 @@ void Chartable::updateSeries(QAbstractSeries *series, QString type)
 
                 if (f > currentFrequency + (nextFrequency - currentFrequency) / 2) {
 
-                    y = (type == "Phase" ?
-                             currentLevel / currentCount :
-                             20.0 * log10(currentLevel / currentCount)
-                             );
-
+                    y = currentLevel / currentCount;
                     points.append(QPointF(currentFrequency, y));
                     currentLevel     = 0.0;
                     currentCount     = 0;
@@ -104,12 +97,12 @@ void Chartable::updateSeries(QAbstractSeries *series, QString type)
                     }
                 }
 
-                currentLevel += (type == "Phase" ? p : m);
+                currentLevel += l;
             } else {
                 //without grouping by freq data
                 if (f == 0)
                     f = std::numeric_limits<float>::min();
-                points.append(QPointF(f, y));
+                points.append(QPointF(f, l));
             }
         }
 
@@ -169,9 +162,9 @@ void Chartable::impulseSeries(QAbstractSeries *series)
 }
 void Chartable::copyData(AudioStack *toDataStack,
               AudioStack *toReferenceStack,
-              complex *toData,
-              complex *toReferenceData,
-              complex *toImpulseData)
+              qreal *toModule,
+              qreal *toMagmitude,
+              qreal *toPhase, complex *toImpulse)
 {
     dataStack->reset();
     referenceStack->reset();
@@ -179,9 +172,10 @@ void Chartable::copyData(AudioStack *toDataStack,
         toDataStack->add(dataStack->current());
         toReferenceStack->add(referenceStack->current());
 
-        toData[i] = data[i];
-        toReferenceData[i] = referenceData[i];
-        toImpulseData[i] = impulseData[i];
+        toModule[i]    = module[i];
+        toMagmitude[i] = magnitude[i];
+        toPhase[i]     = phase[i];
+        toImpulse[i]   = impulseData[i];
 
         dataStack->next();
         referenceStack->next();
