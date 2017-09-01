@@ -114,22 +114,21 @@ void Chartable::scopeSeries(QAbstractSeries *series)
     QXYSeries *xySeries = static_cast<QXYSeries *>(series);
 
     QVector<QPointF> points;
-    float trigLevel = 0.0, lastLevel = NULL;
+    float trigLevel = 0.0, lastLevel;
     float x, y;
     int i, trigPoint = _fftSize / 2;
     dataStack->reset();
 
     for (i = 0; i < 3 * _fftSize / 4; i++, dataStack->next()) {
 
-        if (i < _fftSize / 4)
+        if (i < _fftSize / 4) {
+            lastLevel = dataStack->current();
             continue;
+        }
 
-        if (lastLevel != NULL)
-        {
-            if (lastLevel <= trigLevel && dataStack->current() >= trigLevel) {
-                trigPoint = i;
-                break;
-            }
+        if (lastLevel <= trigLevel && dataStack->current() >= trigLevel) {
+            trigPoint = i;
+            break;
         }
         lastLevel = dataStack->current();
     }
