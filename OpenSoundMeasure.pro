@@ -14,7 +14,8 @@ SOURCES += src/main.cpp \
     src/complex.cpp \
     src/audiostack.cpp \
     src/chartable.cpp \
-    src/stored.cpp
+    src/stored.cpp \
+    src/math.cpp
 
 RESOURCES += qml.qrc
 
@@ -52,6 +53,7 @@ HEADERS += \
     src/complex.h \
     src/audiostack.h \
     src/chartable.h \
-    src/stored.h
+    src/stored.h \
+    src/math.h
 
 FORMS +=

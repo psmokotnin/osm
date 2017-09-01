@@ -46,8 +46,15 @@ Item {
         }
 
         CheckBox {
+            text: qsTr("polarity")
             checked: dataObject.polarity
             onCheckStateChanged: dataObject.polarity = checked
+        }
+
+        CheckBox {
+            text: qsTr("averageMedian")
+            checked: dataObject.averageMedian
+            onCheckStateChanged: dataObject.averageMedian = checked
         }
 
         TextField {

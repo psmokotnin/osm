@@ -1,4 +1,5 @@
 #include "measure.h"
+#include "math.h"
 
 Measure::Measure(QObject *parent) : Chartable(parent)
 {
@@ -54,7 +55,6 @@ void Measure::setActive(bool active)
 }
 void Measure::setDelay(int delay)
 {
-    delayStack->setSize(delay);
     _delay = delay;
 }
 void Measure::setAverage(int average)
@@ -89,6 +89,11 @@ qint64 Measure::writeData(const char *data, qint64 len)
 {
     Sample s;
     int currentChanel = 0;
+
+    if (delayStack->size() != _delay) {
+        delayStack->setSize(_delay);
+        delayStack->fill(0.0);
+    }
 
     for (qint64 i = 0; i < len; i += 4) {
         s.c[0] = data[i];
@@ -169,6 +174,9 @@ void Measure::averaging()
 {
     averageRealloc();
 
+    if (_averageMedian)
+        return medianAveraging();
+
     _avgcounter ++;
     if (_avgcounter >= _average) _avgcounter = 0;
 
@@ -190,6 +198,33 @@ void Measure::averaging()
         module[i]       /= _average;
         magnitude[i]    /= _average;
         phase[i]        /= _average;
+        workingImpulseData[i] /= _average;
+    }
+}
+void Measure::medianAveraging()
+{
+    _avgcounter ++;
+    if (_avgcounter >= _average) _avgcounter = 0;
+
+    for (int i = 0; i < fftSize(); i++) {
+        averageModule[_avgcounter][i]      = module[i];
+        averageMagnitude[_avgcounter][i]   = magnitude[i];
+        averagePhase[_avgcounter][i]       = phase[i];
+        averageImpulseData[_avgcounter][i] = workingImpulseData[i];
+
+        qreal mmodule[_average], mmagnitude[_average], mphase[_average];
+
+        module[i] = magnitude[i] = phase[i] = 0.0;
+        workingImpulseData[i] = 0.0;
+        for (int j = 0; j < _average; j++) {
+            mmodule[j]    = averageModule[j][i];
+            mmagnitude[j] = averageMagnitude[j][i];
+            mphase[j]     = averagePhase[j][i];
+            workingImpulseData[i] += averageImpulseData[j][i];
+        }
+        module[i]       = median(mmodule, _average);
+        magnitude[i]    = median(mmagnitude, _average);
+        phase[i]        = median(mphase, _average);
         workingImpulseData[i] /= _average;
     }
 }

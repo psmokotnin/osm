@@ -20,9 +20,10 @@ class Measure : public Chartable
     Q_PROPERTY(float level READ level NOTIFY levelChanged)
     Q_PROPERTY(float referenceLevel READ referenceLevel NOTIFY referenceLevelChanged)
 
-    Q_PROPERTY(int delay READ delay WRITE setDelay NOTIFY delayChanged)
+    Q_PROPERTY(unsigned long delay READ delay WRITE setDelay NOTIFY delayChanged)
 
     Q_PROPERTY(int average READ average WRITE setAverage NOTIFY averageChanged)
+    Q_PROPERTY(bool averageMedian READ averageMedian WRITE setAverageMedian NOTIFY averageMedianChanged)
 
     Q_PROPERTY(bool polarity READ polarity WRITE setPolarity NOTIFY polarityChanged)
 
@@ -34,10 +35,11 @@ private:
         _chanelCount = 2,
         _dataChanel = 1,
         _referenceChanel = 0,
-        _delay = 0,
         _average = 0, _setAverage = 0;
+    unsigned long _delay = 0;
     int _avgcounter = 0;
     bool _polarity = false;
+    bool _averageMedian = false;
 
     FFT *fft;
     complex *workingData, *workingReferenceData, *workingImpulseData;
@@ -49,6 +51,7 @@ private:
 
     void averaging();
     void averageRealloc();
+    void medianAveraging();
 
 protected:
     int fftPower;
@@ -72,6 +75,9 @@ public:
     bool polarity() {return _polarity;}
     void setPolarity(bool polarity) {_polarity = polarity;}
 
+    bool averageMedian() {return _averageMedian;}
+    void setAverageMedian(bool averageMedian) {_averageMedian = averageMedian;}
+
     int sampleRate();
 
     //IO methods
@@ -84,6 +90,7 @@ signals:
     void referenceLevelChanged();
     void averageChanged();
     void polarityChanged();
+    void averageMedianChanged();
 
 public slots:
     void transform();
