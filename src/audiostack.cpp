@@ -56,6 +56,17 @@ void AudioStack::add(float data)
         this->_size --;
     }
 }
+bool AudioStack::halfAdd(float data)
+{
+    if (halfAdded) {
+        add((halfData + data) / 2.0);
+        halfAdded = false;
+    } else {
+        halfData = data;
+        halfAdded = true;
+    }
+    return !halfAdded;
+}
 void AudioStack::reset(void)
 {
     this->pointer = this->firstdata;
