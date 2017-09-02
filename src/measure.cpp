@@ -150,11 +150,12 @@ void Measure::transform()
     for (int i = 0; i < _fftSize; i ++) {
         workingImpulseData[i] = workingData[i] / workingReferenceData[i];
         if (i < _fftSize / 2) {
-            module[i]    = 20.0 * log10(std::abs(workingData[i]));
-            magnitude[i] = 20.0 * log10(std::abs(workingData[i]) / std::abs(workingReferenceData[i]));
-            phase[i]     = std::arg(workingData[i]) - std::arg(workingReferenceData[i]);
-            while (std::abs(phase[i]) > M_PI)
-                phase[i] -= 2 * (phase[i] / std::abs(phase[i])) * M_PI;
+            data[i].frequency = i * sampleRate() / _fftSize;
+            data[i].module    = 20.0 * log10(std::abs(workingData[i]));
+            data[i].magnitude = 20.0 * log10(std::abs(workingData[i]) / std::abs(workingReferenceData[i]));
+            data[i].phase     = std::arg(workingData[i]) - std::arg(workingReferenceData[i]);
+            while (std::abs(data[i].phase) > M_PI)
+                data[i].phase -= 2 * (data[i].phase / std::abs(data[i].phase)) * M_PI;
         }
     }
     fft->transform(workingImpulseData, _fftSize, true);
@@ -162,7 +163,6 @@ void Measure::transform()
     if (_setAverage > 1)
         averaging();
 
-    memcpy(data, workingData, _fftSize *sizeof(complex));
     memcpy(referenceData, workingReferenceData, _fftSize *sizeof(complex));
     memcpy(impulseData, workingImpulseData, _fftSize *sizeof(complex));
 
@@ -181,23 +181,23 @@ void Measure::averaging()
     if (_avgcounter >= _average) _avgcounter = 0;
 
     for (int i = 0; i < fftSize(); i++) {
-        averageModule[_avgcounter][i]      = module[i];
-        averageMagnitude[_avgcounter][i]   = magnitude[i];
-        averagePhase[_avgcounter][i]       = phase[i];
+        averageModule[_avgcounter][i]      = data[i].module;
+        averageMagnitude[_avgcounter][i]   = data[i].magnitude;
+        averagePhase[_avgcounter][i]       = data[i].phase;
         averageImpulseData[_avgcounter][i] = workingImpulseData[i];
 
-        module[i] = magnitude[i] = phase[i] = 0.0;
+        data[i].module = data[i].magnitude = data[i].phase = 0.0;
         workingImpulseData[i] = 0.0;
         for (int j = 0; j < _average; j++) {
-            module[i]       += averageModule[j][i];
-            magnitude[i]    += averageMagnitude[j][i];
-            phase[i]        += averagePhase[j][i];
+            data[i].module        += averageModule[j][i];
+            data[i].magnitude     += averageMagnitude[j][i];
+            data[i].phase         += averagePhase[j][i];
             workingImpulseData[i] += averageImpulseData[j][i];
         }
 
-        module[i]       /= _average;
-        magnitude[i]    /= _average;
-        phase[i]        /= _average;
+        data[i].module        /= _average;
+        data[i].magnitude     /= _average;
+        data[i].phase         /= _average;
         workingImpulseData[i] /= _average;
     }
 }
@@ -207,14 +207,14 @@ void Measure::medianAveraging()
     if (_avgcounter >= _average) _avgcounter = 0;
 
     for (int i = 0; i < fftSize(); i++) {
-        averageModule[_avgcounter][i]      = module[i];
-        averageMagnitude[_avgcounter][i]   = magnitude[i];
-        averagePhase[_avgcounter][i]       = phase[i];
+        averageModule[_avgcounter][i]      = data[i].module;
+        averageMagnitude[_avgcounter][i]   = data[i].magnitude;
+        averagePhase[_avgcounter][i]       = data[i].phase;
         averageImpulseData[_avgcounter][i] = workingImpulseData[i];
 
         qreal mmodule[_average], mmagnitude[_average], mphase[_average];
 
-        module[i] = magnitude[i] = phase[i] = 0.0;
+        data[i].module = data[i].magnitude = data[i].phase = 0.0;
         workingImpulseData[i] = 0.0;
         for (int j = 0; j < _average; j++) {
             mmodule[j]    = averageModule[j][i];
@@ -222,9 +222,9 @@ void Measure::medianAveraging()
             mphase[j]     = averagePhase[j][i];
             workingImpulseData[i] += averageImpulseData[j][i];
         }
-        module[i]       = median(mmodule, _average);
-        magnitude[i]    = median(mmagnitude, _average);
-        phase[i]        = median(mphase, _average);
+        data[i].module       = median(mmodule, _average);
+        data[i].magnitude    = median(mmagnitude, _average);
+        data[i].phase        = median(mphase, _average);
         workingImpulseData[i] /= _average;
     }
 }

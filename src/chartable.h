@@ -13,6 +13,12 @@ class Chartable : public QIODevice
 {
     Q_OBJECT
 
+    struct TransferData {
+        qreal frequency;
+        qreal module;
+        qreal magnitude;
+        qreal phase;
+    };
     //Active state of measurement
     Q_PROPERTY(bool active READ active WRITE setActive NOTIFY activeChanged)
 
@@ -33,9 +39,9 @@ protected:
     int _fftSize;
     AudioStack *dataStack,
                *referenceStack;
-    complex *data, *referenceData, *impulseData;
+    complex *referenceData, *impulseData;
 
-    qreal *module, *magnitude, *phase;
+    std::vector<TransferData> data;
 
     void alloc();
 
@@ -64,9 +70,7 @@ public:
 
     void copyData(AudioStack *toDataStack,
                   AudioStack *toReferenceStack,
-                  qreal *toModule,
-                  qreal *toMagmitude,
-                  qreal *toPhase,
+                  std::vector<TransferData> toData,
                   complex *toImpulse);
 
 signals:

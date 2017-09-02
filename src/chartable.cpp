@@ -6,16 +6,13 @@ Chartable::Chartable(QObject *parent) : QIODevice(parent)
 }
 void Chartable::alloc()
 {
-    data = (complex *)calloc(_fftSize, sizeof(complex));
     referenceData = (complex *)calloc(_fftSize, sizeof(complex));
     impulseData = (complex *)calloc(_fftSize, sizeof(complex));
 
     dataStack = new AudioStack(_fftSize);
     referenceStack = new AudioStack(_fftSize);
 
-    module      = (qreal *)calloc(_fftSize, sizeof(qreal));
-    magnitude   = (qreal *)calloc(_fftSize, sizeof(qreal));
-    phase       = (qreal *)calloc(_fftSize, sizeof(qreal));
+    data.resize(_fftSize);
 }
 
 qint64 Chartable::readData(char *data, qint64 maxlen)
@@ -65,21 +62,20 @@ void Chartable::updateSeries(QAbstractSeries *series, QString type)
                 currentFrequency = startFrequency,
                 nextFrequency    = currentFrequency * frequencyFactor,
                 currentLevel     = 0.0,
-                rateFactor       = sampleRate() / _fftSize,
                 l, y, f
                 ;
         int     currentCount     = 0;
 
-        for (i = 0; i < _fftSize / 2; i ++) {
+        for (i = 0; i < data.size(); i ++) {
 
             if (type == "RTA")
-                l = module[i];
+                l = data[i].module;
             else if (type == "Magnitude")
-                l = magnitude[i];
+                l = data[i].magnitude;
             else if (type == "Phase")
-                l = phase[i] * 180 / M_PI;
+                l = data[i].phase * 180 / M_PI;
 
-            f = i * rateFactor;
+            f = data[i].frequency;
             currentCount ++;
 
             if (_pointsPerOctave >= 1) {
@@ -161,9 +157,7 @@ void Chartable::impulseSeries(QAbstractSeries *series)
 }
 void Chartable::copyData(AudioStack *toDataStack,
               AudioStack *toReferenceStack,
-              qreal *toModule,
-              qreal *toMagmitude,
-              qreal *toPhase, complex *toImpulse)
+              std::vector<TransferData> toData, complex *toImpulse)
 {
     dataStack->reset();
     referenceStack->reset();
@@ -171,10 +165,8 @@ void Chartable::copyData(AudioStack *toDataStack,
         toDataStack->add(dataStack->current());
         toReferenceStack->add(referenceStack->current());
 
-        toModule[i]    = module[i];
-        toMagmitude[i] = magnitude[i];
-        toPhase[i]     = phase[i];
-        toImpulse[i]   = impulseData[i];
+        toData[i]    = data[i];
+        toImpulse[i] = impulseData[i];
 
         dataStack->next();
         referenceStack->next();
