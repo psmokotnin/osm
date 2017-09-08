@@ -27,6 +27,13 @@ class Measure : public Chartable
 
     Q_PROPERTY(bool polarity READ polarity WRITE setPolarity NOTIFY polarityChanged)
 
+
+    Q_PROPERTY(bool doubleTF READ doubleTF WRITE setDoubleTF NOTIFY doubleTFChanged)
+    bool _doubleTF = false;
+    bool doubleTF() {return _doubleTF;}
+    void setDoubleTF(bool doubleTF);
+
+
 private:
     QAudioInput* audio;
     QAudioFormat format;
@@ -46,6 +53,9 @@ private:
     complex **averageImpulseData;
     qreal **averageModule, **averageMagnitude, **averagePhase;
 
+    AudioStack *subDataStack, *subReferenceStack;
+    complex *subWorkingData, *subWorkingReferenceData;
+
     float _level         = 0.0,
          _referenceLevel = 0.0;
 
@@ -55,7 +65,6 @@ private:
 
 protected:
     int fftPower;
-    AudioStack *delayStack;
 
 public:
     explicit Measure(QObject *parent = nullptr);
@@ -91,6 +100,7 @@ signals:
     void averageChanged();
     void polarityChanged();
     void averageMedianChanged();
+    void doubleTFChanged();
 
 public slots:
     void transform();

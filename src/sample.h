@@ -1,5 +1,6 @@
 #ifndef SAMPLE_H
 #define SAMPLE_H
+#include <qglobal.h>
 
 union Sample {
     float f;

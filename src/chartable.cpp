@@ -66,7 +66,7 @@ void Chartable::updateSeries(QAbstractSeries *series, QString type)
                 ;
         int     currentCount     = 0;
 
-        for (i = 0; i < data.size(); i ++) {
+        for (i = 0; i < (int)data.size(); i ++) {
 
             if (type == "RTA")
                 l = data[i].module;
@@ -157,7 +157,7 @@ void Chartable::impulseSeries(QAbstractSeries *series)
 }
 void Chartable::copyData(AudioStack *toDataStack,
               AudioStack *toReferenceStack,
-              std::vector<TransferData> toData, complex *toImpulse)
+              std::vector<TransferData> *toData, complex *toImpulse)
 {
     dataStack->reset();
     referenceStack->reset();
@@ -165,10 +165,13 @@ void Chartable::copyData(AudioStack *toDataStack,
         toDataStack->add(dataStack->current());
         toReferenceStack->add(referenceStack->current());
 
-        toData[i]    = data[i];
         toImpulse[i] = impulseData[i];
 
         dataStack->next();
         referenceStack->next();
     }
+
+    toData->resize(data.size());
+    for (unsigned long i = 0; i < data.size(); i++)
+        (*toData)[i] = data[i];
 }

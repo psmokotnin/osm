@@ -70,7 +70,7 @@ public:
 
     void copyData(AudioStack *toDataStack,
                   AudioStack *toReferenceStack,
-                  std::vector<TransferData> toData,
+                  std::vector<TransferData> *toData,
                   complex *toImpulse);
 
 signals:

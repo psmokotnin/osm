@@ -11,7 +11,16 @@ Measure::Measure(QObject *parent) : Chartable(parent)
     workingImpulseData = (complex *)calloc(_fftSize, sizeof(complex));
     setAverage(1);
     alloc();
-    delayStack = new AudioStack(delay());
+
+    subDataStack = new AudioStack(_fftSize);
+    subReferenceStack = new AudioStack(_fftSize);
+
+    dataStack->setSubStack(subDataStack);
+    subDataStack->setParts(10);
+    referenceStack->setSubStack(subReferenceStack);
+    subReferenceStack->setParts(10);
+    subWorkingData = (complex *)calloc(_fftSize, sizeof(complex));
+    subWorkingReferenceData = (complex *)calloc(_fftSize, sizeof(complex));
 
     QAudioDeviceInfo d = QAudioDeviceInfo::defaultInputDevice();
     foreach (int c, d.supportedChannelCounts()) {
@@ -43,7 +52,12 @@ Measure::~Measure()
 
     audio->stop();
 }
-
+void Measure::setDoubleTF(bool doubleTF)
+{
+    if (_doubleTF != doubleTF) {
+        _doubleTF = doubleTF;
+    }
+}
 void Measure::setActive(bool active)
 {
     Chartable::setActive(active);
@@ -56,6 +70,8 @@ void Measure::setActive(bool active)
 void Measure::setDelay(int delay)
 {
     _delay = delay;
+    referenceStack->setSize(fftSize() + _delay);
+    subReferenceStack->setSize(fftSize() + _delay / 10);
 }
 void Measure::setAverage(int average)
 {
@@ -90,12 +106,10 @@ qint64 Measure::writeData(const char *data, qint64 len)
     Sample s;
     int currentChanel = 0;
 
-    if (delayStack->size() != _delay) {
-        delayStack->setSize(_delay);
-        delayStack->fill(0.0);
-    }
+    for (qint64 i = 0; i < len; i += 4, currentChanel++) {
+        if (currentChanel == _chanelCount)
+            currentChanel = 0;
 
-    for (qint64 i = 0; i < len; i += 4) {
         s.c[0] = data[i];
         s.c[1] = data[i + 1];
         s.c[2] = data[i + 2];
@@ -106,17 +120,8 @@ qint64 Measure::writeData(const char *data, qint64 len)
         }
 
         if (currentChanel == _referenceChanel) {
-            if (delay() > 0) {
-                delayStack->add(s.f);
-                referenceStack->add(delayStack->first());
-            } else {
-                referenceStack->add(s.f);
-            }
+            referenceStack->add(s.f);
         }
-
-        currentChanel ++;
-        if (currentChanel == _chanelCount)
-            currentChanel = 0;
     }
     return len;
 }
@@ -129,27 +134,75 @@ void Measure::transform()
 
     dataStack->reset();
     referenceStack->reset();
+    subDataStack->reset();
+    subReferenceStack->reset();
+
     for (int i = 0; i < _fftSize; i++) {
 
         workingData[i] = dataStack->current();
         workingReferenceData[i] = referenceStack->current();
 
-        if (dataStack->current() > _level)
-            _level = dataStack->current();
+        subWorkingData[i] = subDataStack->current();
+        subWorkingReferenceData[i] = subReferenceStack->current();
 
-        if (referenceStack->current() > _referenceLevel)
-            _referenceLevel = referenceStack->current();
+        if (workingData[i].real() > _level)
+            _level = workingData[i].real();
+
+        if (workingReferenceData[i].real() > _referenceLevel)
+            _referenceLevel = workingReferenceData[i].real();
 
         dataStack->next();
         referenceStack->next();
+        subDataStack->next();
+        subReferenceStack->next();
     }
 
     fft->transform(workingData, _fftSize);
     fft->transform(workingReferenceData, _fftSize);
+    fft->transform(subWorkingData, _fftSize);
+    fft->transform(subWorkingReferenceData, _fftSize);
+
+    data.clear();
+    if (_doubleTF) {
+        unsigned int p = 0, offset = fftSize() / (4 * 10);
+        data.resize(
+                    fftSize() / 4 + //half of subData (0 to 1200Hz)
+                    (fftSize() / 2 - fftSize() / (4 * 10))
+                    - 1);
+        complex d, r;
+        for (int i = 1; i < fftSize() / 4; i++) {
+            d = subWorkingData[i];
+            r = subWorkingReferenceData[i];
+
+            data[p].frequency = (qreal)i * (qreal)sampleRate() / ((qreal)fftSize() * 10.0);
+            data[p].module    = 20.0 * log10(std::abs(d));
+            data[p].magnitude = 20.0 * log10(std::abs(d) / std::abs(r));
+            data[p].phase     = std::arg(d) - std::arg(r);
+            while (std::abs(data[p].phase) > M_PI)
+                data[p].phase -= 2 * (data[p].phase / std::abs(data[p].phase)) * M_PI;
+
+            p++;
+        }
+        for (int i = offset; i < fftSize() / 2; i++) {
+            complex d, r;
+            d = workingData[i];
+            r = workingReferenceData[i];
+
+            data[p].frequency = (qreal)i * (qreal)sampleRate() / (qreal)fftSize();
+            data[p].module    = 20.0 * log10(std::abs(d));
+            data[p].magnitude = 20.0 * log10(std::abs(d) / std::abs(r));
+            data[p].phase     = std::arg(d) - std::arg(r);
+            while (std::abs(data[p].phase) > M_PI)
+                data[p].phase -= 2 * (data[p].phase / std::abs(data[p].phase)) * M_PI;
+
+            p++;
+        }
+    } else
+        data.resize(_fftSize / 2);
 
     for (int i = 0; i < _fftSize; i ++) {
         workingImpulseData[i] = workingData[i] / workingReferenceData[i];
-        if (i < _fftSize / 2) {
+        if (!_doubleTF && i > 0 && i < _fftSize / 2) {
             data[i].frequency = i * sampleRate() / _fftSize;
             data[i].module    = 20.0 * log10(std::abs(workingData[i]));
             data[i].magnitude = 20.0 * log10(std::abs(workingData[i]) / std::abs(workingReferenceData[i]));

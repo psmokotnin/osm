@@ -57,6 +57,12 @@ Item {
             onCheckStateChanged: dataObject.averageMedian = checked
         }
 
+        CheckBox {
+            text: qsTr("doubleTF")
+            checked: dataObject.doubleTF
+            onCheckStateChanged: dataObject.doubleTF = checked
+        }
+
         TextField {
             placeholderText: qsTr("title")
             text: dataObject.name
