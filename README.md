@@ -6,3 +6,7 @@ You are able to do: RTA, Transfer function (magnitude and phase), Impulse respon
 Current version: 0.0 (prototyping)
 Language: C++14
 Qt5.9
+FFTW3
+
+macos:
+    brew install fftw --with-openmp

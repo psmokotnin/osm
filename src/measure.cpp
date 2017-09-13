@@ -3,7 +3,7 @@
 
 Measure::Measure(QObject *parent) : Chartable(parent)
 {
-    fftPower = 12;
+    fftPower = 16;//65K 0.73Hz;
     _fftSize = pow(2, fftPower);
 
     workingData = (complex *)calloc(_fftSize, sizeof(complex));
@@ -12,15 +12,13 @@ Measure::Measure(QObject *parent) : Chartable(parent)
     setAverage(1);
     alloc();
 
-    subDataStack = new AudioStack(_fftSize);
-    subReferenceStack = new AudioStack(_fftSize);
+    dataComplex      = (fftw_complex *)fftw_malloc(sizeof(fftw_complex) * _fftSize);
+    referenceComplex = (fftw_complex *)fftw_malloc(sizeof(fftw_complex) * _fftSize);
+    impulseComplex   = (fftw_complex *)fftw_malloc(sizeof(fftw_complex) * _fftSize);
 
-    dataStack->setSubStack(subDataStack);
-    subDataStack->setParts(10);
-    referenceStack->setSubStack(subReferenceStack);
-    subReferenceStack->setParts(10);
-    subWorkingData = (complex *)calloc(_fftSize, sizeof(complex));
-    subWorkingReferenceData = (complex *)calloc(_fftSize, sizeof(complex));
+    dataPlan            = fftw_plan_dft_1d(_fftSize, dataComplex, dataComplex, FFTW_FORWARD, FFTW_ESTIMATE);
+    referencePlan       = fftw_plan_dft_1d(_fftSize, referenceComplex, referenceComplex, FFTW_FORWARD, FFTW_ESTIMATE);
+    impulsePlan         = fftw_plan_dft_1d(_fftSize, impulseComplex, impulseComplex, FFTW_BACKWARD, FFTW_ESTIMATE);
 
     QAudioDeviceInfo d = QAudioDeviceInfo::defaultInputDevice();
     foreach (int c, d.supportedChannelCounts()) {
@@ -43,7 +41,7 @@ Measure::Measure(QObject *parent) : Chartable(parent)
 
     timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), SLOT(transform()));
-    timer->start(80); //25 per sec
+    timer->start(80*2); //12.5 per sec
 }
 Measure::~Measure()
 {
@@ -51,12 +49,9 @@ Measure::~Measure()
         timer->stop();
 
     audio->stop();
-}
-void Measure::setDoubleTF(bool doubleTF)
-{
-    if (_doubleTF != doubleTF) {
-        _doubleTF = doubleTF;
-    }
+
+    fftw_destroy_plan(dataPlan);
+    fftw_free(dataComplex);
 }
 void Measure::setActive(bool active)
 {
@@ -71,7 +66,6 @@ void Measure::setDelay(int delay)
 {
     _delay = delay;
     referenceStack->setSize(fftSize() + _delay);
-    subReferenceStack->setSize(fftSize() + _delay / 10);
 }
 void Measure::setAverage(int average)
 {
@@ -82,16 +76,18 @@ void Measure::averageRealloc()
     if (_average == _setAverage)
         return;
 
-    averageModule       = new qreal *[_setAverage];
-    averageMagnitude    = new qreal *[_setAverage];
-    averagePhase        = new qreal *[_setAverage];
     averageImpulseData  = new complex *[_setAverage];
 
     for (int i = 0; i < _setAverage; i ++) {
-        averageModule[i]      = new qreal[_fftSize];
-        averageMagnitude[i]   = new qreal[_fftSize];
-        averagePhase[i]       = new qreal[_fftSize];
         averageImpulseData[i] = new complex[_fftSize];
+    }
+
+    averageData      = new fftw_complex*[_setAverage];
+    averageReference = new fftw_complex*[_setAverage];
+
+    for (int i = 0; i < _setAverage; i ++) {
+        averageData[i]      = new fftw_complex[_fftSize];
+        averageReference[i] = new fftw_complex[_fftSize];
     }
 
     //aply new value
@@ -134,16 +130,17 @@ void Measure::transform()
 
     dataStack->reset();
     referenceStack->reset();
-    subDataStack->reset();
-    subReferenceStack->reset();
 
     for (int i = 0; i < _fftSize; i++) {
 
         workingData[i] = dataStack->current();
         workingReferenceData[i] = referenceStack->current();
 
-        subWorkingData[i] = subDataStack->current();
-        subWorkingReferenceData[i] = subReferenceStack->current();
+        dataComplex[i][0] = dataStack->current();//real
+        dataComplex[i][1] = 0.0;//imag
+
+        referenceComplex[i][0] = referenceStack->current();//real
+        referenceComplex[i][1] = 0.0;//imag
 
         if (workingData[i].real() > _level)
             _level = workingData[i].real();
@@ -153,68 +150,24 @@ void Measure::transform()
 
         dataStack->next();
         referenceStack->next();
-        subDataStack->next();
-        subReferenceStack->next();
     }
 
-    fft->transform(workingData, _fftSize);
-    fft->transform(workingReferenceData, _fftSize);
-    fft->transform(subWorkingData, _fftSize);
-    fft->transform(subWorkingReferenceData, _fftSize);
-
-    data.clear();
-    if (_doubleTF) {
-        unsigned int p = 0, offset = fftSize() / (4 * 10);
-        data.resize(
-                    fftSize() / 4 + //half of subData (0 to 1200Hz)
-                    (fftSize() / 2 - fftSize() / (4 * 10))
-                    - 1);
-        complex d, r;
-        for (int i = 1; i < fftSize() / 4; i++) {
-            d = subWorkingData[i];
-            r = subWorkingReferenceData[i];
-
-            data[p].frequency = (qreal)i * (qreal)sampleRate() / ((qreal)fftSize() * 10.0);
-            data[p].module    = 20.0 * log10(std::abs(d));
-            data[p].magnitude = 20.0 * log10(std::abs(d) / std::abs(r));
-            data[p].phase     = std::arg(d) - std::arg(r);
-            while (std::abs(data[p].phase) > M_PI)
-                data[p].phase -= 2 * (data[p].phase / std::abs(data[p].phase)) * M_PI;
-
-            p++;
-        }
-        for (int i = offset; i < fftSize() / 2; i++) {
-            complex d, r;
-            d = workingData[i];
-            r = workingReferenceData[i];
-
-            data[p].frequency = (qreal)i * (qreal)sampleRate() / (qreal)fftSize();
-            data[p].module    = 20.0 * log10(std::abs(d));
-            data[p].magnitude = 20.0 * log10(std::abs(d) / std::abs(r));
-            data[p].phase     = std::arg(d) - std::arg(r);
-            while (std::abs(data[p].phase) > M_PI)
-                data[p].phase -= 2 * (data[p].phase / std::abs(data[p].phase)) * M_PI;
-
-            p++;
-        }
-    } else
-        data.resize(_fftSize / 2);
+    fftw_execute(dataPlan);
+    fftw_execute(referencePlan);
 
     for (int i = 0; i < _fftSize; i ++) {
+
         workingImpulseData[i] = workingData[i] / workingReferenceData[i];
-        if (!_doubleTF && i > 0 && i < _fftSize / 2) {
-            data[i].frequency = i * sampleRate() / _fftSize;
-            data[i].module    = 20.0 * log10(std::abs(workingData[i]));
-            data[i].magnitude = 20.0 * log10(std::abs(workingData[i]) / std::abs(workingReferenceData[i]));
-            data[i].phase     = std::arg(workingData[i]) - std::arg(workingReferenceData[i]);
-            while (std::abs(data[i].phase) > M_PI)
-                data[i].phase -= 2 * (data[i].phase / std::abs(data[i].phase)) * M_PI;
+        fft_divide(impulseComplex[i], dataComplex[i], referenceComplex[i]);
+
+        if (i < _fftSize / 2) {
+            data[i].frequency = (qreal)i * sampleRate() / (qreal)_fftSize;
+            memcpy(data[i].data, dataComplex[i], sizeof(fftw_complex));
+            memcpy(data[i].reference, referenceComplex[i], sizeof(fftw_complex));
         }
     }
-    fft->transform(workingImpulseData, _fftSize, true);
-
-    if (_setAverage > 1)
-        averaging();
+    fftw_execute(impulsePlan);
+    averaging();
 
     memcpy(referenceData, workingReferenceData, _fftSize *sizeof(complex));
     memcpy(impulseData, workingImpulseData, _fftSize *sizeof(complex));
@@ -223,65 +176,50 @@ void Measure::transform()
     emit levelChanged();
     emit referenceLevelChanged();
 }
+/**
+ * @brief Measure::averaging
+ * vector averaging
+ * TODO: add polar averaging mode
+ */
 void Measure::averaging()
 {
     averageRealloc();
 
-    if (_averageMedian)
-        return medianAveraging();
-
     _avgcounter ++;
     if (_avgcounter >= _average) _avgcounter = 0;
 
-    for (int i = 0; i < fftSize(); i++) {
-        averageModule[_avgcounter][i]      = data[i].module;
-        averageMagnitude[_avgcounter][i]   = data[i].magnitude;
-        averagePhase[_avgcounter][i]       = data[i].phase;
-        averageImpulseData[_avgcounter][i] = workingImpulseData[i];
+    for (int i = 0; i < fftSize() ; i++) {
 
-        data[i].module = data[i].magnitude = data[i].phase = 0.0;
+        averageData[_avgcounter][i][0]      = data[i].data[0];
+        averageData[_avgcounter][i][1]      = data[i].data[1];
+        averageReference[_avgcounter][i][0] = data[i].reference[0];
+        averageReference[_avgcounter][i][1] = data[i].reference[1];
+
+        averageImpulseData[_avgcounter][i] = impulseComplex[i][0];
+
+        data[i].data[0] = 0.0;
+        data[i].data[1] = 0.0;
+        data[i].reference[0] = 0.0;
+        data[i].reference[1] = 0.0;
         workingImpulseData[i] = 0.0;
+
         for (int j = 0; j < _average; j++) {
-            data[i].module        += averageModule[j][i];
-            data[i].magnitude     += averageMagnitude[j][i];
-            data[i].phase         += averagePhase[j][i];
+            data[i].data[0]      += averageData[j][i][0];
+            data[i].data[1]      += averageData[j][i][1];
+            data[i].reference[0] += averageReference[j][i][0];
+            data[i].reference[1] += averageReference[j][i][1];
+
             workingImpulseData[i] += averageImpulseData[j][i];
         }
 
-        data[i].module        /= _average;
-        data[i].magnitude     /= _average;
-        data[i].phase         /= _average;
-        workingImpulseData[i] /= _average;
+        data[i].module        = 20.0 * log10(fft_abs(data[i].data) / (_fftSize * _average));
+        data[i].magnitude     = 20.0 * log10(fft_abs(data[i].data) / fft_abs(data[i].reference));
+        data[i].phase         = fft_arg(data[i].data) - fft_arg(data[i].reference);
+        while (std::abs(data[i].phase) > M_PI)
+            data[i].phase -= 2 * (data[i].phase / std::abs(data[i].phase)) * M_PI;
+        workingImpulseData[i] /= _average * _fftSize;
     }
 }
-void Measure::medianAveraging()
-{
-    _avgcounter ++;
-    if (_avgcounter >= _average) _avgcounter = 0;
-
-    for (int i = 0; i < fftSize(); i++) {
-        averageModule[_avgcounter][i]      = data[i].module;
-        averageMagnitude[_avgcounter][i]   = data[i].magnitude;
-        averagePhase[_avgcounter][i]       = data[i].phase;
-        averageImpulseData[_avgcounter][i] = workingImpulseData[i];
-
-        qreal mmodule[_average], mmagnitude[_average], mphase[_average];
-
-        data[i].module = data[i].magnitude = data[i].phase = 0.0;
-        workingImpulseData[i] = 0.0;
-        for (int j = 0; j < _average; j++) {
-            mmodule[j]    = averageModule[j][i];
-            mmagnitude[j] = averageMagnitude[j][i];
-            mphase[j]     = averagePhase[j][i];
-            workingImpulseData[i] += averageImpulseData[j][i];
-        }
-        data[i].module       = median(mmodule, _average);
-        data[i].magnitude    = median(mmagnitude, _average);
-        data[i].phase        = median(mphase, _average);
-        workingImpulseData[i] /= _average;
-    }
-}
-
 QObject *Measure::store()
 {
     Stored *store = new Stored(this);

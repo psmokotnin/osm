@@ -57,3 +57,11 @@ HEADERS += \
     src/math.h
 
 FORMS +=
+
+#FFTW3
+QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.12
+INCLUDEPATH += /usr/local/include
+LIBS += -L/usr/local/lib/ -lfftw3_omp -lfftw3 -lm
+
+DISTFILES += \
+    README.md

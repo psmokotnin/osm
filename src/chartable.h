@@ -14,6 +14,8 @@ class Chartable : public QIODevice
     Q_OBJECT
 
     struct TransferData {
+        fftw_complex data;
+        fftw_complex reference;
         qreal frequency;
         qreal module;
         qreal magnitude;

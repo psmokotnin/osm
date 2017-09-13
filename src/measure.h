@@ -8,6 +8,8 @@
 #include <QtCharts/QAbstractSeries>
 QT_CHARTS_USE_NAMESPACE
 
+#include <fftw3.h>
+
 #include "sample.h"
 #include "chartable.h"
 #include "stored.h"
@@ -23,15 +25,14 @@ class Measure : public Chartable
     Q_PROPERTY(unsigned long delay READ delay WRITE setDelay NOTIFY delayChanged)
 
     Q_PROPERTY(int average READ average WRITE setAverage NOTIFY averageChanged)
-    Q_PROPERTY(bool averageMedian READ averageMedian WRITE setAverageMedian NOTIFY averageMedianChanged)
 
     Q_PROPERTY(bool polarity READ polarity WRITE setPolarity NOTIFY polarityChanged)
 
 
-    Q_PROPERTY(bool doubleTF READ doubleTF WRITE setDoubleTF NOTIFY doubleTFChanged)
-    bool _doubleTF = false;
-    bool doubleTF() {return _doubleTF;}
-    void setDoubleTF(bool doubleTF);
+//    Q_PROPERTY(bool doubleTF READ doubleTF WRITE setDoubleTF NOTIFY doubleTFChanged)
+//    bool _doubleTF = false;
+//    bool doubleTF() {return _doubleTF;}
+//    void setDoubleTF(bool doubleTF);
 
 
 private:
@@ -51,17 +52,17 @@ private:
     FFT *fft;
     complex *workingData, *workingReferenceData, *workingImpulseData;
     complex **averageImpulseData;
-    qreal **averageModule, **averageMagnitude, **averagePhase;
 
-    AudioStack *subDataStack, *subReferenceStack;
-    complex *subWorkingData, *subWorkingReferenceData;
+    fftw_complex *dataComplex, *referenceComplex, *impulseComplex;
+    fftw_plan dataPlan, referencePlan;
+    fftw_plan impulsePlan;
+    fftw_complex **averageData, **averageReference;
 
     float _level         = 0.0,
          _referenceLevel = 0.0;
 
     void averaging();
     void averageRealloc();
-    void medianAveraging();
 
 protected:
     int fftPower;
@@ -84,9 +85,6 @@ public:
     bool polarity() {return _polarity;}
     void setPolarity(bool polarity) {_polarity = polarity;}
 
-    bool averageMedian() {return _averageMedian;}
-    void setAverageMedian(bool averageMedian) {_averageMedian = averageMedian;}
-
     int sampleRate();
 
     //IO methods
@@ -99,8 +97,7 @@ signals:
     void referenceLevelChanged();
     void averageChanged();
     void polarityChanged();
-    void averageMedianChanged();
-    void doubleTFChanged();
+//    void doubleTFChanged();
 
 public slots:
     void transform();

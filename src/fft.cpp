@@ -10,6 +10,28 @@ QDebug operator<<(QDebug dbg, const complex &c)
 
     return dbg.maybeSpace();
 }
+QDebug operator<<(QDebug dbg, const fftw_complex &c)
+{
+    dbg.nospace() << "Complex value: r:"
+        << c[0] << " i:" << c[1];
+
+    return dbg.maybeSpace();
+}
+qreal fft_abs(fftw_complex c) {
+    return sqrt(pow(c[0], 2) + pow(c[1], 2));
+}
+qreal fft_arg(fftw_complex c) {
+    return atan2(c[1], c[0]);
+}
+
+void fft_divide(fftw_complex result, fftw_complex dividend, fftw_complex divider) {
+
+    result[0] = (dividend[0] * divider[0] + dividend[1] * divider[1]) /
+            (pow(divider[0], 2) + pow(divider[1], 2));
+
+    result[1] = (dividend[1] * divider[0] - dividend[0] * divider[1]) /
+            (pow(divider[0], 2) + pow(divider[1], 2));
+}
 
 FFT::FFT(QObject *parent) : QObject(parent)
 {

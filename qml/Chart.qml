@@ -19,7 +19,7 @@ ChartView {
         if (direction == "X")
             switch (type) {
             case "Scope": return createAxis("lin", -10, 10);break;//ms
-            case "Impulse": return createAxis("lin", 0, 85);break;//ms
+            case "Impulse": return createAxis("lin", 0, 1365);break;//ms
 
             default:
                 return createAxis("log", 20, 20000);
