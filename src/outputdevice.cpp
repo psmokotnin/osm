@@ -20,17 +20,13 @@ OutputDevice::OutputDevice(QObject *parent) : QIODevice(parent)
 }*/
 qint64 OutputDevice::readData(char *data, qint64 maxlen)
 {
-    Sample s;
-
-    for (qint64 i = 0; i < maxlen; i += 4) {
-        s = this->sample();
-
-        data[i + 0] = s.c[0];
-        data[i + 1] = s.c[1];
-        data[i + 2] = s.c[2];
-        data[i + 3] = s.c[3];
+    qint64 total = 0;
+    while (maxlen - total > 0) {
+        const Sample src = this->sample();
+        memcpy(data + total, &src.f, sizeof(float));
+        total += sizeof(float);
     }
-    return maxlen;
+    return total;
 }
 Sample OutputDevice::sample(void)
 {
@@ -38,7 +34,6 @@ Sample OutputDevice::sample(void)
     output.f = 0.0;
     return output;
 }
-
 qint64 OutputDevice::writeData(const char *data, qint64 len)
 {
     Q_UNUSED(data);

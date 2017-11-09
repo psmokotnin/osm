@@ -6,20 +6,21 @@ QT_CHARTS_USE_NAMESPACE
 #include <QIODevice>
 #include <QColor>
 
-#include "fft.h"
 #include "audiostack.h"
+#include "complex.h"
 
 class Chartable : public QIODevice
 {
     Q_OBJECT
 
     struct TransferData {
-        fftw_complex data;
-        fftw_complex reference;
-        qreal frequency;
-        qreal module;
-        qreal magnitude;
-        qreal phase;
+        complex data;
+        complex reference;
+        float frequency;
+        double module    = -INFINITY;
+        double magnitude = 0.0;
+        double phase     = 0.0;
+        bool  correct   = false;
     };
     //Active state of measurement
     Q_PROPERTY(bool active READ active WRITE setActive NOTIFY activeChanged)
@@ -38,12 +39,13 @@ protected:
     QString _name        = "My measure";
     QColor _color        = QColor("#209fdf");
     int _pointsPerOctave = 12;
-    int _fftSize;
+    int _fftSize, _deconvolutionSize;
     AudioStack *dataStack,
                *referenceStack;
-    complex *referenceData, *impulseData;
+    complex *impulseData;
 
-    std::vector<TransferData> data;
+    int dataLength;
+    TransferData *data;
 
     void alloc();
 
@@ -69,6 +71,9 @@ public:
 
     int fftSize() {return _fftSize;}
     void setFftSize(int size) {_fftSize = size;}
+
+    int deconvolutionSize() {return _deconvolutionSize;}
+    void setDeconvolutionSize(int size) {_deconvolutionSize = size;}
 
     void copyData(AudioStack *toDataStack,
                   AudioStack *toReferenceStack,

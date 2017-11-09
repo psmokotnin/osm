@@ -11,7 +11,7 @@ PinkNoise::PinkNoise(QObject *parent) : OutputDevice(parent)
     indexMask = (1 << numRows) - 1;
     /* Calculate maximum possible signed random value. Extra 1 for white noise always added. */
     pmax = (numRows + 1) * (1 << (RANDOM_BITS - 1));
-    scalar = 2.0f / pmax;
+    scalar = 1.0f / pmax;
 
     /* Initialize rows. */
     for (int i = 0; i < numRows; i++)

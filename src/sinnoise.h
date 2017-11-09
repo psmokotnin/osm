@@ -18,7 +18,7 @@ private:
     Sample sample(void);
 
     float frequency = 1000;
-    float sinPhase  = 0;
+    double sinPhase  = 0;
 };
 
 #endif // SINNOISE_H

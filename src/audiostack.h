@@ -9,7 +9,7 @@ class AudioStack
 
 public:
     struct Cell {
-        qreal value;
+        float value;
         Cell * next = nullptr;
         Cell * pre = nullptr;
     };
@@ -20,25 +20,30 @@ protected:
     Cell * pointer = nullptr;
     AudioStack *subStack = nullptr;
     int subParts = 1;
-    QVector<qreal> parts;
+    QVector<float> parts;
 
 
 public:
     AudioStack(unsigned long size);
+    AudioStack(AudioStack *original);
     void setSize(unsigned long size);
     unsigned long size();
-    void add(qreal data);
-    bool halfAdd(qreal data);
+    void add(const float data);
+    bool halfAdd(float data);
 
     void setParts(int size) {subParts = size;}
-    bool partAdd(qreal data);
+    bool partAdd(float data);
 
     void reset(void);
     bool next(void);
-    qreal first(void);
-    qreal current(void);
-    qreal shift(void);
-    void fill(qreal value);
+    bool isNext(void);
+    float first(void);
+
+    float current(void);
+    float shift(void);
+    void fill(float value);
+
+    void rewind(int delta);
 
     void setSubStack(AudioStack *stack) {subStack = stack;}
 };

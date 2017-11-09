@@ -15,6 +15,7 @@ Generator::Generator(QObject *parent) : QObject(parent)
     format.setSampleType(QAudioFormat::Float);
 
     audio = new QAudioOutput(format, this);
+    audio->setBufferSize(16384);
     //connect(audio, SIGNAL(stateChanged(QAudio::State)), this, SLOT(handleStateChanged(QAudio::State)));
 }
 bool Generator::getEnabled()

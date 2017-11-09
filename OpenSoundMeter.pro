@@ -10,12 +10,12 @@ SOURCES += src/main.cpp \
     src/whitenoise.cpp \
     src/sinnoise.cpp \
     src/measure.cpp \
-    src/fft.cpp \
     src/complex.cpp \
     src/audiostack.cpp \
     src/chartable.cpp \
     src/stored.cpp \
-    src/math.cpp
+    src/fouriertransform.cpp \
+    src/deconvolution.cpp
 
 RESOURCES += qml.qrc
 
@@ -49,19 +49,18 @@ HEADERS += \
     src/sinnoise.h \
     src/sample.h \
     src/measure.h \
-    src/fft.h \
     src/complex.h \
     src/audiostack.h \
     src/chartable.h \
     src/stored.h \
-    src/math.h
+    src/fouriertransform.h \
+    src/ssemath.h \
+    src/deconvolution.h
 
 FORMS +=
 
-#FFTW3
-QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.12
-INCLUDEPATH += /usr/local/include
-LIBS += -L/usr/local/lib/ -lfftw3_omp -lfftw3 -lm
+QMAKE_CXXFLAGS_RELEASE -= -O2
+QMAKE_CXXFLAGS_RELEASE += -Ofast
 
 DISTFILES += \
     README.md

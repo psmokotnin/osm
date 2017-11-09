@@ -1,5 +1,5 @@
 #include "audiostack.h"
-
+#include <cmath>
 AudioStack::AudioStack(unsigned long size)
 {
     this->_size = 0;
@@ -8,6 +8,16 @@ AudioStack::AudioStack(unsigned long size)
     this->firstdata = nullptr;
     this->pointer   = nullptr;
     this->add(0.0);
+    reset();
+}
+AudioStack::AudioStack(AudioStack *original)
+{
+    this->_size = original->size();
+    this->sizeLimit = original->sizeLimit;
+    this->lastdata  = original->lastdata;
+    this->firstdata = original->firstdata;
+    this->pointer   = original->pointer;
+    reset();
 }
 void AudioStack::setSize(unsigned long size)
 {
@@ -17,14 +27,14 @@ unsigned long AudioStack::size()
 {
     return this->_size;
 }
-void AudioStack::fill(qreal value)
+void AudioStack::fill(float value)
 {
     for (unsigned long i = 0; i < this->sizeLimit; i++)
     {
         this->add(value);
     }
 }
-void AudioStack::add(qreal data)
+void AudioStack::add(float data)
 {
     Cell * newData = new Cell;
     newData->value = data;
@@ -59,12 +69,12 @@ void AudioStack::add(qreal data)
     if (subStack != nullptr)
         subStack->partAdd(data);
 }
-bool AudioStack::partAdd(qreal data)
+bool AudioStack::partAdd(float data)
 {
     parts.append(data);
 
     if (parts.count() == subParts) {
-        qreal newData = 0.0;
+        float newData = 0.0;
         for (int i = 0; i < parts.count(); i++) {
             newData += parts[i];
         }
@@ -89,17 +99,21 @@ bool AudioStack::next(void)
     }
     return false;
 }
-qreal AudioStack::current(void)
+bool AudioStack::isNext(void)
+{
+    return (this->pointer && this->pointer->next);
+}
+float AudioStack::current(void)
 {
     if (this->pointer != nullptr)
         return this->pointer->value;
     return 0.0;
 }
-qreal AudioStack::shift(void)
+float AudioStack::shift(void)
 {
     if (this->firstdata && _size > 1) {
         Cell * first = this->firstdata;
-        qreal value = first->value;
+        float value = first->value;
         if (this->pointer == this->firstdata)
             this->pointer = first->next;
 
@@ -112,9 +126,37 @@ qreal AudioStack::shift(void)
     return 0.0;
 }
 
-qreal AudioStack::first(void)
+float AudioStack::first(void)
 {
     if (this->firstdata)
         return this->firstdata->value;
     return 0.0;
+}
+/*
+ * Move pointer by delta points
+ * delta < 0 => move pointer left
+ * delta > 0 => move pointer right
+ */
+void AudioStack::rewind(int delta)
+{
+    bool direction = std::signbit(delta);
+    for (int i = 0; i < std::abs(delta); i++) {
+        if (direction && pointer->pre)
+            pointer = pointer->pre;
+        else if (!direction && pointer->next)
+            pointer = pointer->next;
+        else {
+            Cell * newData = new Cell;
+            newData->value = 0.0;
+            newData->next  = (direction ? pointer : nullptr);
+            newData->pre   = (direction ? nullptr : pointer);
+            _size ++;
+            pointer = newData;
+
+            if (direction)
+                firstdata = newData;
+            else
+                lastdata = newData;
+        }
+    }
 }

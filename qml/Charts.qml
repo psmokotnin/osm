@@ -18,6 +18,13 @@ Item {
              Layout.fillHeight: true
          }
 
+         ChartContainer {
+             Layout.fillWidth: true
+             Layout.minimumHeight: sv.minimunHeight
+             Layout.preferredWidth: parent.width
+             Layout.fillHeight: true
+         }
+
 //         ChartContainer {
 //             Layout.fillWidth: true
 //             Layout.minimumHeight: sv.minimunHeight

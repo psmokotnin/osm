@@ -8,11 +8,12 @@
 #include <QtCharts/QAbstractSeries>
 QT_CHARTS_USE_NAMESPACE
 
-#include <fftw3.h>
-
 #include "sample.h"
 #include "chartable.h"
 #include "stored.h"
+
+#include "fouriertransform.h"
+#include "deconvolution.h"
 
 class Measure : public Chartable
 {
@@ -28,12 +29,8 @@ class Measure : public Chartable
 
     Q_PROPERTY(bool polarity READ polarity WRITE setPolarity NOTIFY polarityChanged)
 
-
-//    Q_PROPERTY(bool doubleTF READ doubleTF WRITE setDoubleTF NOTIFY doubleTFChanged)
-//    bool _doubleTF = false;
-//    bool doubleTF() {return _doubleTF;}
-//    void setDoubleTF(bool doubleTF);
-
+    Q_PROPERTY(int dataChanel READ dataChanel WRITE setDataChanel NOTIFY dataChanelChanged)
+    Q_PROPERTY(int referenceChanel READ referenceChanel WRITE setReferenceChanel NOTIFY referenceChanelChanged)
 
 private:
     QAudioInput* audio;
@@ -41,22 +38,20 @@ private:
     QTimer *timer;
     int
         _chanelCount = 2,
-        _dataChanel = 1,
-        _referenceChanel = 0,
+        _dataChanel = 0,
+        _referenceChanel = 1,
         _average = 0, _setAverage = 0;
     unsigned long _delay = 0;
     int _avgcounter = 0;
     bool _polarity = false;
     bool _averageMedian = false;
 
-    FFT *fft;
-    complex *workingData, *workingReferenceData, *workingImpulseData;
-    complex **averageImpulseData;
+    complex **averageData, **averageReference;
+    float **averageDeconvolution, **averageMagnitude;
 
-    fftw_complex *dataComplex, *referenceComplex, *impulseComplex;
-    fftw_plan dataPlan, referencePlan;
-    fftw_plan impulsePlan;
-    fftw_complex **averageData, **averageReference;
+    FourierTransform *dataFT;
+    Deconvolution *deconv;
+    int newDataCount = 0;
 
     float _level         = 0.0,
          _referenceLevel = 0.0;
@@ -72,6 +67,12 @@ public:
     ~Measure();
 
     void setActive(bool active);
+
+    unsigned int dataChanel() {return _dataChanel;}
+    void setDataChanel(unsigned int n) {_dataChanel = n;}
+
+    unsigned int referenceChanel(){return _referenceChanel;}
+    void setReferenceChanel(unsigned int n) {_referenceChanel = n;}
 
     float level() {return _level;}
     float referenceLevel() {return _referenceLevel;}
@@ -98,6 +99,8 @@ signals:
     void averageChanged();
     void polarityChanged();
 //    void doubleTFChanged();
+    void dataChanelChanged();
+    void referenceChanelChanged();
 
 public slots:
     void transform();

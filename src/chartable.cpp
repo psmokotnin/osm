@@ -1,3 +1,4 @@
+#include <cmath>
 #include "chartable.h"
 
 Chartable::Chartable(QObject *parent) : QIODevice(parent)
@@ -6,13 +7,12 @@ Chartable::Chartable(QObject *parent) : QIODevice(parent)
 }
 void Chartable::alloc()
 {
-    referenceData = (complex *)calloc(_fftSize, sizeof(complex));
-    impulseData = (complex *)calloc(_fftSize, sizeof(complex));
+    impulseData = new complex[_deconvolutionSize];//(complex *)calloc(_deconvolutionSize, sizeof(complex));
 
     dataStack = new AudioStack(_fftSize);
     referenceStack = new AudioStack(_fftSize);
 
-    data.resize(_fftSize);
+    data = new TransferData[dataLength];
 }
 
 qint64 Chartable::readData(char *data, qint64 maxlen)
@@ -66,14 +66,21 @@ void Chartable::updateSeries(QAbstractSeries *series, QString type)
                 ;
         int     currentCount     = 0;
 
-        for (i = 0; i < (int)data.size(); i ++) {
+        for (i = 0; i < dataLength; i ++) {
+
+            if (!data[i].correct && (type == "Magnitude" || type == "Phase"))
+                continue;
 
             if (type == "RTA")
                 l = data[i].module;
             else if (type == "Magnitude")
                 l = data[i].magnitude;
-            else if (type == "Phase")
-                l = data[i].phase * 180 / M_PI;
+            else if (type == "Phase") {
+                l = data[i].phase * 180.0 / M_PI;
+                if (std::abs(l) > 180.0) {
+                    l -= 360 * (int)(l / 180);
+                }
+            }
 
             f = data[i].frequency;
             currentCount ++;
@@ -113,31 +120,32 @@ void Chartable::scopeSeries(QAbstractSeries *series)
     float trigLevel = 0.0, lastLevel;
     float x, y;
     int i, trigPoint = _fftSize / 2;
-    dataStack->reset();
+    AudioStack *stack = new AudioStack(dataStack);
+    stack->reset();
 
-    for (i = 0; i < 3 * _fftSize / 4; i++, dataStack->next()) {
+    for (i = 0; i < 3 * _fftSize / 4; i++, stack->next()) {
 
         if (i < _fftSize / 4) {
-            lastLevel = dataStack->current();
+            lastLevel = stack->current();
             continue;
         }
 
-        if (lastLevel <= trigLevel && dataStack->current() >= trigLevel) {
+        if (lastLevel <= trigLevel && stack->current() >= trigLevel) {
             trigPoint = i;
             break;
         }
-        lastLevel = dataStack->current();
+        lastLevel = stack->current();
     }
 
-    dataStack->reset();
+    stack->reset();
     i = 0;
     do {
         x = (i - trigPoint) / 48.0;
-        y = dataStack->current();
+        y = stack->current();
         points.append(QPointF(x, y));
         i++;
     }
-    while (dataStack->next());
+    while (stack->next());
     xySeries->replace(points);
 }
 void Chartable::impulseSeries(QAbstractSeries *series)
@@ -147,9 +155,15 @@ void Chartable::impulseSeries(QAbstractSeries *series)
     QVector<QPointF> points;
     float x, y;
 
-    for (int i = 0; i < _fftSize; i ++) {
-        x = i / 48.0;
-        y = impulseData[i].real();
+    for (int i = _deconvolutionSize / -2, n = _deconvolutionSize / 2;
+         i < _deconvolutionSize / 2;
+         i ++, n++) {
+        if (n == _deconvolutionSize)
+            n -= _deconvolutionSize;
+
+        x = (float)i * 1000.0 / sampleRate(); //i -> ms
+        y = impulseData[n].real;
+
         points.append(QPointF(x, y));
     }
 
@@ -165,13 +179,13 @@ void Chartable::copyData(AudioStack *toDataStack,
         toDataStack->add(dataStack->current());
         toReferenceStack->add(referenceStack->current());
 
-        toImpulse[i] = impulseData[i];
+        //toImpulse[i] = impulseData[i];
 
         dataStack->next();
         referenceStack->next();
     }
 
-    toData->resize(data.size());
-    for (unsigned long i = 0; i < data.size(); i++)
-        (*toData)[i] = data[i];
+//    toData->resize(data.size());
+//    for (unsigned long i = 0; i < data.size(); i++)
+//        (*toData)[i] = data[i];
 }

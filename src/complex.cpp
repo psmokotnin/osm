@@ -1,24 +1,160 @@
 #include "complex.h"
 
-Complex::Complex(QObject *parent) : QObject(parent)
+float complex::abs()
 {
-    value = 0;
+    return sqrtf(powf(real, 2) + powf(imag, 2));
 }
-Complex::Complex(qreal r, QObject *parent) : QObject(parent)
+float complex::arg()
 {
-    value = r;
+    return atan2f(imag, real);
+}
+const complex complex::conjugate() const
+{
+    complex rc;
+    rc.real = real;
+    rc.imag = -1 * imag;
+    return rc;
+}
+complex& complex::operator=(const float& r)
+{
+    real = r;
+    imag = 0.0;
+    return *this;
+}
+complex& complex::operator=(const complex& c)
+{
+    real = c.real;
+    imag = c.imag;
+    return *this;
 }
 
-Complex::Complex(qreal r, qreal i, QObject *parent) : QObject(parent)
+const complex complex::operator+(const float& r) const
 {
-    value.real(r);
-    value.imag(i);;
+    complex rc;
+    rc.real = real + r;
+    rc.imag = imag;
+    return rc;
+}
+const complex complex::operator+(const complex& c) const
+{
+    complex rc;
+    rc.real = real + c.real;
+    rc.imag = imag + c.imag;
+    return rc;
 }
 
-QDebug operator<<(QDebug dbg, const Complex &c)
+complex& complex::operator+=(const float& r)
+{
+    real += r;
+    return *this;
+}
+complex& complex::operator+=(const complex& c)
+{
+    real += c.real;
+    imag += c.imag;
+    return *this;
+}
+
+const complex complex::operator-(const float& r) const
+{
+    complex rc;
+    rc.real = real - r;
+    rc.imag = imag;
+    return rc;
+}
+const complex complex::operator-(const complex& c) const
+{
+    complex rc;
+    rc.real = real - c.real;
+    rc.imag = imag - c.imag;
+    return rc;
+}
+
+complex& complex::operator-=(const float& r)
+{
+    real -= r;
+    return *this;
+}
+complex& complex::operator-=(const complex& c)
+{
+    real -= c.real;
+    imag -= c.imag;
+    return *this;
+}
+
+const complex complex::operator/(const float& r) const
+{
+    complex rc;
+    rc.real = real / r;
+    rc.imag = imag / r;
+    return rc;
+}
+const complex complex::operator/(const complex& c) const
+{
+    complex rc;
+    float d = pow(c.real, 2) + pow(c.imag, 2);
+
+    rc.real = (real * c.real + imag * c.imag) / d;
+    rc.imag = (imag * c.real - real * c.imag) / d;
+
+    return rc;
+}
+complex& complex::operator/=(const float& r)
+{
+    real /= r;
+    imag /= r;
+    return *this;
+}
+complex& complex::operator/=(const complex& c)
+{
+    float r = real, d = pow(c.real, 2) + pow(c.imag, 2);
+
+    real = (real * c.real + imag * c.imag) / d;
+    imag = (imag * c.real - r * c.imag) / d;
+
+    return *this;
+}
+
+complex complex::operator*(const float& r) const
+{
+    complex rc;
+    rc.real = real * r;
+    rc.imag = imag * r;
+    return rc;
+}
+complex complex::operator*(const complex& c) const
+{
+    complex rc;
+    rc.real = real * c.real - imag * c.imag;
+    rc.imag = real * c.imag + imag * c.real;
+    return rc;
+}
+
+complex& complex::operator*=(const float& r)
+{
+    real *= r;
+    imag *= r;
+    return *this;
+}
+complex& complex::operator*=(const complex& c)
+{
+    float r = real;
+    real = real * c.real - imag * c.imag;
+    imag = r * c.imag + imag * c.real;
+    return *this;
+}
+bool complex::operator==(const complex& c) const
+{
+    return (real == c.real && imag == c.imag);
+}
+bool complex::operator!=(const complex& c) const
+{
+    return (real != c.real || imag != c.imag);
+}
+QDebug operator<<(QDebug dbg, const complex &c)
 {
     dbg.nospace() << "Complex value: r:"
-        << c.real() << " i:" << c.imag();
+        << c.real << " i:" << c.imag;
 
     return dbg.maybeSpace();
 }

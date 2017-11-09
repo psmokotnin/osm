@@ -17,7 +17,6 @@ int main(int argc, char *argv[])
 
     QQmlApplicationEngine engine;
 
-
     //qmlRegisterType<Complex>();
     //Q_DECLARE_METATYPE(QQmlListProperty<Complex>)
 

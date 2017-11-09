@@ -1,34 +1,52 @@
 #ifndef COMPLEX_H
 #define COMPLEX_H
 
-#include <complex>
-
-#include <QObject>
+#include <math.h>
 #include <QDebug>
 
-class Complex : public QObject
+struct complex
 {
-    Q_OBJECT
+    float real;
+    float imag;
+    complex (float r = 0.0, float i = 0.0): real(r), imag(i) {}
+    complex (const complex &c) : real(c.real), imag(c.imag) {}
 
-    Q_PROPERTY(qreal real READ real);
-    Q_PROPERTY(qreal imag READ imag);
+    float abs();
+    float arg();
 
-private:
-    std::complex<qreal> value;
+    const complex conjugate() const;
 
-public:
-    explicit Complex(QObject *parent = nullptr);
-    explicit Complex(qreal r, QObject *parent = nullptr);
-    explicit Complex(qreal r, qreal i, QObject *parent = nullptr);
+    complex& operator=(const float& r);
+    complex& operator=(const complex& c);
 
-    qreal real() const {return value.real();}
-    qreal imag() const {return value.imag();}
+    const complex operator+(const float& r) const;
+    const complex operator+(const complex& c) const;
 
-signals:
+    complex& operator+=(const float& r);
+    complex& operator+=(const complex& c);
 
-public slots:
+    const complex operator-(const float& r) const;
+    const complex operator-(const complex& c) const;
+
+    complex& operator-=(const float& r);
+    complex& operator-=(const complex& c);
+
+    const complex operator/(const float& r) const;
+    const complex operator/(const complex& c) const;
+
+    complex& operator/=(const float& r);
+    complex& operator/=(const complex& c);
+
+    complex operator*(const float& r) const;
+    complex operator*(const complex& c) const;
+
+    complex& operator*=(const float& r);
+    complex& operator*=(const complex& c);
+
+    bool operator==(const complex& c) const;
+    bool operator!=(const complex& c) const;
 };
 
-QDebug operator<<(QDebug dbg, const Complex &c);
+QDebug operator<<(QDebug dbg, const complex &c);
 
 #endif // COMPLEX_H
