@@ -36,6 +36,18 @@ void FourierTransform::prepareDelta(int octaveCount, int pointPerOctave)
         outputA[i] = outputB[i] = 0.0;
     }
 }
+void FourierTransform::prepareFast()
+{
+    _fastA = new complex[_size];
+    _fastB = new complex[_size];
+
+    wlen = new complex[(int)log2(_size)];
+    float ang, dPi = 2 * M_PI;
+    for (int len = 2, l = 0; len <= _size; len <<= 1, l++) {
+        ang = dPi / len;
+        wlen[l] = complex(cosf(ang), sinf(ang));
+    }
+}
 long FourierTransform::getPoint(int number, int octave) const
 {
     return _lowKs[number] * pow(2, octave);
@@ -53,6 +65,18 @@ complex FourierTransform::a(int i) const
 complex FourierTransform::b(int i) const
 {
     return outputB[i];
+}
+complex FourierTransform::af(long i, WindowFunction *window) const
+{
+    return _fastA[i] / window->gain();
+}
+complex FourierTransform::bf(long i, WindowFunction *window) const
+{
+    return _fastB[i] / window->gain();
+}
+long FourierTransform::f2i(double frequency, int sampleRate) const
+{
+    return frequency * _size / sampleRate;
 }
 void FourierTransform::add(float sampleA, float sampleB)
 {
@@ -125,4 +149,44 @@ void FourierTransform::change(float sampleA, float sampleB)
 
     inA[_pointer] = sampleA;
     inB[_pointer] = sampleB;
+}
+void FourierTransform::fast(WindowFunction *window)
+{
+    //apply data-window
+    for (int i = 0, n = _pointer + 1; i < _size; i++, n++) {
+        if (n >= _size) n = 0;
+        _fastA[i] = inA[n] * window->get(i);
+        _fastB[i] = inB[n] * window->get(i);
+    }
+
+    for (int i = 1, j = 0; i < _size; ++i) {
+        int bit = _size >> 1;
+        for (; j>= bit; bit >>= 1)
+            j -= bit;
+        j += bit;
+        if (i < j) {
+            std::swap (_fastA[i], _fastA[j]);
+            std::swap (_fastB[i], _fastB[j]);
+        }
+    }
+
+    complex w, au, av, bu, bv;
+    for (int len = 2, l = 0; len <= _size; len <<= 1, l++) {
+        for (int i = 0; i < _size; i += len) {
+            w = 1.0;
+            for (int j = 0; j < len / 2; ++j) {
+                au                     = _fastA[i + j];
+                av                     = _fastA[i + j + len / 2] * w;
+                _fastA[i + j]            = au + av;
+                _fastA[i + j + len / 2]  = au - av;
+
+                bu                     = _fastB[i + j];
+                bv                     = _fastB[i + j + len / 2] * w;
+                _fastB[i + j]           = bu + bv;
+                _fastB[i + j + len / 2] = bu - bv;
+
+                w *= wlen[l];
+            }
+        }
+    }
 }

@@ -32,7 +32,7 @@ ChartView {
                 case "Impulse": return createAxis("lin", -1, 1);
 
                 default:
-                case "RTA": return createAxis("lin", -120, 0);
+                case "RTA": return createAxis("lin", -90, 0);
             }
         }
     }

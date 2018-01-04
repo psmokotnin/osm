@@ -74,6 +74,13 @@ Item {
             colorPicker.color = dataObject.color
         }
 
+        ComboBox {
+            id: windowSelect
+            model: dataObject.windows
+            currentIndex: dataObject.window
+            onCurrentIndexChanged: dataObject.window = currentIndex
+        }
+
         Button {
             text: qsTr("Store");
             onClicked: {

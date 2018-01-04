@@ -20,7 +20,7 @@ class Chartable : public QIODevice
         double module    = -INFINITY;
         double magnitude = 0.0;
         double phase     = 0.0;
-        bool  correct   = false;
+        bool  correct    = false;
     };
     //Active state of measurement
     Q_PROPERTY(bool active READ active WRITE setActive NOTIFY activeChanged)

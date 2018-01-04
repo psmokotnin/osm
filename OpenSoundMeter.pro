@@ -1,7 +1,7 @@
 TEMPLATE = app
 
 QT += charts qml quick quickcontrols2 multimedia core
-CONFIG += c++14
+CONFIG += c++17
 
 SOURCES += src/main.cpp \
     src/generator.cpp \
@@ -15,7 +15,8 @@ SOURCES += src/main.cpp \
     src/chartable.cpp \
     src/stored.cpp \
     src/fouriertransform.cpp \
-    src/deconvolution.cpp
+    src/deconvolution.cpp \
+    src/windowfunction.cpp
 
 RESOURCES += qml.qrc
 
@@ -55,7 +56,8 @@ HEADERS += \
     src/stored.h \
     src/fouriertransform.h \
     src/ssemath.h \
-    src/deconvolution.h
+    src/deconvolution.h \
+    src/windowfunction.h
 
 FORMS +=
 

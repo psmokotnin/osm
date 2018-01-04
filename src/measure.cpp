@@ -6,13 +6,21 @@
  */
 Measure::Measure(QObject *parent) : Chartable(parent)
 {
-    fftPower = 15;//16 - 65K 0.73Hz;
+    fftPower = 14;//16 - 65K 0.73Hz;
     _fftSize = pow(2, fftPower);
     _deconvolutionSize = pow (2, 12);
 
-    dataFT = new FourierTransform(fftSize());
-    dataLength = 480;
-    dataFT->prepareDelta(10, 48); //24 point per each of 10 octaves
+    dataFT  = new FourierTransform(fftSize());
+    _window = new WindowFunction(fftSize());
+    _window->setType(WindowFunction::Type::hann);
+
+    //delta
+    dataLength = 960;
+    dataFT->prepareDelta(10, 96); //96 point per each of 10 octaves
+
+    //fft
+    //dataLength = _fftSize / 2;
+    dataFT->prepareFast();
     deconv = new Deconvolution(_deconvolutionSize);
 
     setAverage(1);
@@ -37,7 +45,11 @@ Measure::Measure(QObject *parent) : Chartable(parent)
     audio->start(this);
 
     for (int i = 0; i < dataLength; i++) {
-        data[i].frequency     = (float)dataFT->getPoint(i) * sampleRate() / (float)_fftSize;
+        //delta
+        //data[i].frequency     = (float)dataFT->getPoint(i) * sampleRate() / (float)_fftSize;
+
+        //fft
+        data[i].frequency     = (float)i * sampleRate() / (float)_fftSize;
     }
     timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), SLOT(transform()));
@@ -142,9 +154,16 @@ void Measure::transform()
         dataStack->next();
         referenceStack->next();
 
-        dataFT->change(dataStack->current(), referenceStack->current());
+        //delta
+        //dataFT->change(dataStack->current(), referenceStack->current());
+
+        //fast
+        dataFT->add(dataStack->current(), referenceStack->current());
+
+        //deconvolution
         deconv->add(referenceStack->current(), dataStack->current());
     }
+    dataFT->fast(_window);
     deconv->transform();
     averaging();
 
@@ -169,8 +188,9 @@ void Measure::averaging()
 
     for (int i = 0; i < dataLength ; i++) {
 
-        averageData[_avgcounter][i]      = dataFT->a(i);
-        averageReference[_avgcounter][i] = dataFT->b(i);
+        averageData[_avgcounter][i]      = dataFT->af(i, _window);
+        averageReference[_avgcounter][i] = dataFT->bf(i, _window);
+
         overThreshold = (averageData[_avgcounter][i].abs() > threshold) &&
                 (averageReference[_avgcounter][i].abs() > threshold);
         if (overThreshold)
@@ -194,7 +214,7 @@ void Measure::averaging()
         if (overThreshold) {
             //data[i].magnitude     = 20.0 * log10f(data[i].data.abs() / data[i].reference.abs());
             data[i].magnitude    /= _average;
-            data[i].phase         = data[i].data.arg() - data[i].reference.arg();
+            data[i].phase         = data[i].reference.arg() - data[i].data.arg();
         }
 
     }

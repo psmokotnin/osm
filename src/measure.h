@@ -29,8 +29,13 @@ class Measure : public Chartable
 
     Q_PROPERTY(bool polarity READ polarity WRITE setPolarity NOTIFY polarityChanged)
 
+    //routing
     Q_PROPERTY(int dataChanel READ dataChanel WRITE setDataChanel NOTIFY dataChanelChanged)
     Q_PROPERTY(int referenceChanel READ referenceChanel WRITE setReferenceChanel NOTIFY referenceChanelChanged)
+
+    //data window type
+    Q_PROPERTY(int window READ getWindowType WRITE setWindowType NOTIFY windowTypeChanged)
+    Q_PROPERTY(QVariant windows READ getAvailableWindowTypes CONSTANT)
 
 private:
     QAudioInput* audio;
@@ -49,6 +54,7 @@ private:
     complex **averageData, **averageReference;
     float **averageDeconvolution, **averageMagnitude;
 
+    WindowFunction *_window;
     FourierTransform *dataFT;
     Deconvolution *deconv;
     int newDataCount = 0;
@@ -91,6 +97,10 @@ public:
     //IO methods
     qint64 writeData(const char *data, qint64 len);
 
+    QVariant getAvailableWindowTypes() {return _window->getTypes();}
+    int getWindowType() {return (int)_window->type();}
+    void setWindowType(int t) {_window->setType((WindowFunction::Type)t);}
+
 signals:
     void readyRead();
     void levelChanged();
@@ -98,9 +108,9 @@ signals:
     void referenceLevelChanged();
     void averageChanged();
     void polarityChanged();
-//    void doubleTFChanged();
     void dataChanelChanged();
     void referenceChanelChanged();
+    void windowTypeChanged();
 
 public slots:
     void transform();
