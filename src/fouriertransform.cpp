@@ -6,17 +6,23 @@
 
 FourierTransform::FourierTransform(int size)
 {
-    _size = size;
-    kdx = -2.0 * M_PI / (double)_size;
-    inA = new float[_size];
-    inB = new float[_size];
+    setSize(size);
+}
+void FourierTransform::setSize(int size)
+{
+    if (_size != size) {
+        _size = size;
+        inA = new float[_size];
+        inB = new float[_size];
 
-    for (int i = 0; i < _size; i++) {
-        inA[i] = inB[i] = 0.0;
+        for (int i = 0; i < _size; i++) {
+            inA[i] = inB[i] = 0.0;
+        }
     }
 }
 void FourierTransform::prepareDelta(int octaveCount, int pointPerOctave)
 {
+    kdx = -2.0 * M_PI / (double)_size;
     _octaveCount    = octaveCount;
     _pointPerOctave = pointPerOctave;
 

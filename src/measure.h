@@ -19,6 +19,9 @@ class Measure : public Chartable
 {
     Q_OBJECT
 
+    //fft
+    Q_PROPERTY(int fftPower READ fftPower WRITE setFftPower NOTIFY fftPowerChanged)
+
     //Current sound level
     Q_PROPERTY(float level READ level NOTIFY levelChanged)
     Q_PROPERTY(float referenceLevel READ referenceLevel NOTIFY referenceLevelChanged)
@@ -63,14 +66,17 @@ private:
          _referenceLevel = 0.0;
 
     void averaging();
-    void averageRealloc();
+    void averageRealloc(bool force = false);
 
 protected:
-    int fftPower;
+    int _fftPower;
 
 public:
     explicit Measure(QObject *parent = nullptr);
     ~Measure();
+
+    int fftPower() {return _fftPower;}
+    void setFftPower(int power);
 
     void setActive(bool active);
 
@@ -102,6 +108,7 @@ public:
     void setWindowType(int t) {_window->setType((WindowFunction::Type)t);}
 
 signals:
+    void fftPowerChanged();
     void readyRead();
     void levelChanged();
     void delayChanged();

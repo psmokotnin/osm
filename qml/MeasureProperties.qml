@@ -81,6 +81,13 @@ Item {
             onCurrentIndexChanged: dataObject.window = currentIndex
         }
 
+        ComboBox {
+            id: powerSelect
+            model: [14, 15, 16]
+            currentIndex: { model.indexOf(dataObject.fftPower) }
+            onCurrentIndexChanged: dataObject.fftPower = model[currentIndex]
+        }
+
         Button {
             text: qsTr("Store");
             onClicked: {

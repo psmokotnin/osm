@@ -26,7 +26,10 @@ public:
     WindowFunction(long size);
     ~WindowFunction();
 
-    Type type() {return _type;}
+    void setSize(long size);
+    long size() const {return _size;}
+
+    Type type() const {return _type;}
     void setType(Type t);
     QVariant getTypes();
 

@@ -6,8 +6,8 @@
  */
 Measure::Measure(QObject *parent) : Chartable(parent)
 {
-    fftPower = 14;//16 - 65K 0.73Hz;
-    _fftSize = pow(2, fftPower);
+    _fftPower = 16;//16 - 65K 0.73Hz;
+    _fftSize = pow(2, _fftPower);
     _deconvolutionSize = pow (2, 12);
 
     dataFT  = new FourierTransform(fftSize());
@@ -15,12 +15,13 @@ Measure::Measure(QObject *parent) : Chartable(parent)
     _window->setType(WindowFunction::Type::hann);
 
     //delta
-    dataLength = 960;
-    dataFT->prepareDelta(10, 96); //96 point per each of 10 octaves
+    //dataLength = 960;
+    //dataFT->prepareDelta(10, 96); //96 point per each of 10 octaves
 
     //fft
-    //dataLength = _fftSize / 2;
+    dataLength = _fftSize / 2;
     dataFT->prepareFast();
+
     deconv = new Deconvolution(_deconvolutionSize);
 
     setAverage(1);
@@ -62,6 +63,29 @@ Measure::~Measure()
 
     audio->stop();
 }
+void Measure::setFftPower(int power)
+{
+    if (_fftPower != power) {
+        audio->suspend();
+
+        _fftPower = power;
+        _fftSize  = pow(2, _fftPower);
+
+        dataFT->setSize(_fftSize);
+        dataFT->prepareFast();
+        _window->setSize(_fftSize);
+
+        dataLength = _fftSize / 2;
+        data = new TransferData[dataLength];
+        for (int i = 0; i < dataLength; i++) {
+            data[i].frequency     = (float)i * sampleRate() / (float)_fftSize;
+        }
+
+        averageRealloc(true);
+
+        audio->resume();
+    }
+}
 void Measure::setActive(bool active)
 {
     Chartable::setActive(active);
@@ -91,9 +115,9 @@ void Measure::setAverage(int average)
 {
     _setAverage = average;
 }
-void Measure::averageRealloc()
+void Measure::averageRealloc(bool force)
 {
-    if (_average == _setAverage)
+    if (!force && _average == _setAverage)
         return;
 
 

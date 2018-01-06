@@ -13,15 +13,6 @@ class Chartable : public QIODevice
 {
     Q_OBJECT
 
-    struct TransferData {
-        complex data;
-        complex reference;
-        float frequency;
-        double module    = -INFINITY;
-        double magnitude = 0.0;
-        double phase     = 0.0;
-        bool  correct    = false;
-    };
     //Active state of measurement
     Q_PROPERTY(bool active READ active WRITE setActive NOTIFY activeChanged)
 
@@ -35,6 +26,17 @@ class Chartable : public QIODevice
     Q_PROPERTY(unsigned int pointsPerOctave READ pointsPerOctave WRITE setPointsPerOctave NOTIFY pointsPerOctaveChanged)
 
 protected:
+
+    struct TransferData {
+        complex data;
+        complex reference;
+        float frequency;
+        double module    = -INFINITY;
+        double magnitude = 0.0;
+        double phase     = 0.0;
+        bool  correct    = false;
+    };
+
     bool _active         = true;
     QString _name        = "My measure";
     QColor _color        = QColor("#209fdf");

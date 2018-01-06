@@ -2,10 +2,7 @@
 
 WindowFunction::WindowFunction(long size)
 {
-    _size = size;
-    _data = new float[_size];
-
-    calculate();
+    setSize(size);
 }
 const std::map<WindowFunction::Type, QString> WindowFunction::TypeMap = {
     {WindowFunction::Type::rectangular, "Rectangular"},
@@ -18,6 +15,14 @@ const std::map<WindowFunction::Type, QString> WindowFunction::TypeMap = {
 WindowFunction::~WindowFunction()
 {
     delete(_data);
+}
+void WindowFunction::setSize(long size)
+{
+    if (_size != size) {
+        _size = size;
+        _data = new float[_size];
+        calculate();
+    }
 }
 void WindowFunction::setType(Type t)
 {

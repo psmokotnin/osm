@@ -27,6 +27,8 @@ private:
 public:
     FourierTransform(int size);
 
+    void setSize(int size);
+
     void add(float sampleA, float sampleB);
     void fast(WindowFunction *window);
 
