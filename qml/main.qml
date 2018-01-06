@@ -8,6 +8,7 @@ ApplicationWindow {
     id:applicationWindow
 
     property alias properiesbar: bottomtab
+    property alias charts: charts
     property alias dataSourceList : righttab
 
     visible: true
@@ -36,7 +37,7 @@ ApplicationWindow {
 
             //Charts area
             Charts {
-                id: t
+                id: charts
                 y: 0
                 x: 0
 

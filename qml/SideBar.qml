@@ -15,6 +15,16 @@ Item {
 
     signal modelAdded(Item item);
 
+    ComboBox {
+        id: chartsCount
+        anchors.horizontalCenter: parent.horizontalCenter
+        model: ["Single", "Double", "Three"]
+        currentIndex: 0
+        onCurrentIndexChanged: {
+            applicationWindow.charts.count = currentIndex + 1
+        }
+    }
+
     ObjectModel {
           id: sideModel
           Generator {}
@@ -25,7 +35,10 @@ Item {
 
       ListView {
           id: sideList
-          anchors.fill: parent
+          anchors.top: chartsCount.bottom
+          anchors.left: parent.left
+          anchors.right: parent.right
+          anchors.bottom: parent.bottom
           anchors.margins: 5
           model: sideModel
 

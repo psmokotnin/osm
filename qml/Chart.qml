@@ -44,8 +44,7 @@ ChartView {
         var series = createSeries(ChartView.SeriesTypeLine,
                                   dataModel.name,
                                   aX, aY);
-
-        series.useOpenGL = true;
+        //series.useOpenGL = true;  // QOpenGLFramebufferObject: Framebuffer incomplete attachment.
 
         dataModel.readyRead.connect(function() {
             if (chart) {
