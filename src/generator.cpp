@@ -2,20 +2,21 @@
 
 Generator::Generator(QObject *parent) : QObject(parent)
 {
-    sources << new PinkNoise(this);
-    sources << new WhiteNoise(this);
-    sources << new SinNoise(this);
+    _sources << new PinkNoise(this);
+    _sources << new WhiteNoise(this);
+    _sources << new SinNoise(this);
 
+    _device = QAudioDeviceInfo::defaultOutputDevice();
     // Set up the format, eg.
-    format.setSampleRate(48000);
-    format.setChannelCount(1);
-    format.setSampleSize(32);
-    format.setCodec("audio/pcm");
-    format.setByteOrder(QAudioFormat::LittleEndian);
-    format.setSampleType(QAudioFormat::Float);
+    _format.setSampleRate(48000);
+    _format.setChannelCount(1);
+    _format.setSampleSize(32);
+    _format.setCodec("audio/pcm");
+    _format.setByteOrder(QAudioFormat::LittleEndian);
+    _format.setSampleType(QAudioFormat::Float);
 
-    audio = new QAudioOutput(format, this);
-    audio->setBufferSize(16384);
+    _audio = new QAudioOutput(_device, _format, this);
+    _audio->setBufferSize(16384);
     //connect(audio, SIGNAL(stateChanged(QAudio::State)), this, SLOT(handleStateChanged(QAudio::State)));
 }
 bool Generator::getEnabled()
@@ -42,20 +43,20 @@ void Generator::setType(int t)
 void Generator::updateAudio(void)
 {
     if (enabled) {
-        if (sources[type]->openMode() == QIODevice::NotOpen)
-            sources[type]->open(QIODevice::ReadOnly);
+        if (_sources[type]->openMode() == QIODevice::NotOpen)
+            _sources[type]->open(QIODevice::ReadOnly);
 
-        sources[type]->setSamplerate(format.sampleRate());
-        audio->start(sources[type]);
+        _sources[type]->setSamplerate(_format.sampleRate());
+        _audio->start(_sources[type]);
     }
     else
-        audio->stop();
+        _audio->stop();
 }
 
 QVariant Generator::getAvailableTypes(void)
 {
     QStringList nameList;
-    foreach (OutputDevice* o, sources) {
+    foreach (OutputDevice* o, _sources) {
         nameList << o->name;
     }
     return QVariant::fromValue(nameList);
@@ -67,6 +68,26 @@ QVariant Generator::getDeviceList(void)
         deviceList << deviceInfo.deviceName();
     }
     return QVariant::fromValue(deviceList);
+}
+QString Generator::deviceName()
+{
+    return _device.deviceName();
+}
+void Generator::selectDevice(QString name)
+{
+    foreach (const QAudioDeviceInfo &deviceInfo, QAudioDeviceInfo::availableDevices(QAudio::AudioOutput)) {
+        if (name == deviceInfo.deviceName()) {
+            _device = deviceInfo;
+
+            _audio->stop();
+            _sources[type]->close();
+
+            _audio = new QAudioOutput(_device, _format, this);
+            _sources[type]->open(QIODevice::ReadOnly);
+            _audio->setBufferSize(16384);
+            _audio->start(_sources[type]);
+        }
+    }
 }
 int Generator::getFrequency()
 {

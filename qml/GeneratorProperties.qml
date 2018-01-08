@@ -12,6 +12,8 @@ Item {
             id: deviceSelect
             model: generatorModel.devices
             implicitWidth: parent.width
+            currentIndex: { model.indexOf(generatorModel.device) }
+            onCurrentIndexChanged: generatorModel.device = model[currentIndex]
         }
 
         RowLayout {

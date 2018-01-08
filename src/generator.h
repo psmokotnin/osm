@@ -26,6 +26,7 @@ class Generator : public QObject
 
     //Available output devices
     Q_PROPERTY(QVariant devices READ getDeviceList CONSTANT)
+    Q_PROPERTY(QString device READ deviceName WRITE selectDevice NOTIFY deviceChanged)
 
     //Frequency
     Q_PROPERTY(int frequency READ getFrequency WRITE setFrequency NOTIFY frequencyChangedQml)
@@ -35,9 +36,10 @@ private:
     int type        = 0;
     int frequency   = 1000;
 
-    QAudioFormat format;
-    QAudioOutput* audio;
-    QList<OutputDevice*> sources;
+    QAudioFormat _format;
+    QAudioOutput* _audio;
+    QAudioDeviceInfo _device;
+    QList<OutputDevice*> _sources;
 
 protected:
     void updateAudio(void);
@@ -54,6 +56,9 @@ public:
     QVariant getAvailableTypes(void);
     QVariant getDeviceList(void);
 
+    QString deviceName();
+    void selectDevice(QString name);
+
     int getFrequency();
     void setFrequency(int f);
 
@@ -62,6 +67,7 @@ signals:
     void typeChanged();
     void frequencyChanged(int f);
     void frequencyChangedQml();
+    void deviceChanged();
 
 public slots:
 };

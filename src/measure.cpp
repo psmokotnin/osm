@@ -1,3 +1,4 @@
+#include <algorithm>
 #include "measure.h"
 /**
  * simple fft:  2^12 max
@@ -10,7 +11,7 @@ Measure::Measure(QObject *parent) : Chartable(parent)
     _fftSize = pow(2, _fftPower);
     _deconvolutionSize = pow (2, 12);
 
-    dataFT  = new FourierTransform(fftSize());
+    _dataFT  = new FourierTransform(fftSize());
     _window = new WindowFunction(fftSize());
     _window->setType(WindowFunction::Type::hann);
 
@@ -20,30 +21,32 @@ Measure::Measure(QObject *parent) : Chartable(parent)
 
     //fft
     dataLength = _fftSize / 2;
-    dataFT->prepareFast();
+    _dataFT->prepareFast();
 
-    deconv = new Deconvolution(_deconvolutionSize);
+    _deconv = new Deconvolution(_deconvolutionSize);
 
     setAverage(1);
     alloc();
 
-    QAudioDeviceInfo d = QAudioDeviceInfo::defaultInputDevice();
-    foreach (int c, d.supportedChannelCounts()) {
+    _device = QAudioDeviceInfo::defaultInputDevice();
+    _chanelCount = std::max(_dataChanel, _referenceChanel) + 1;
+    foreach (int c, _device.supportedChannelCounts()) {
         if (c > _chanelCount)
             _chanelCount = c;
     }
 
-    format.setSampleRate(48000);
-    format.setChannelCount(_chanelCount);
-    format.setSampleSize(32);
-    format.setCodec("audio/pcm");
-    format.setByteOrder(QAudioFormat::LittleEndian);
-    format.setSampleType(QAudioFormat::Float);
+    _format.setSampleRate(48000);
+    _format.setChannelCount(_chanelCount);
+    _format.setSampleSize(32);
+    _format.setCodec("audio/pcm");
+    _format.setByteOrder(QAudioFormat::LittleEndian);
+    _format.setSampleType(QAudioFormat::Float);
 
-    audio = new QAudioInput(format, this);
+    _audio = new QAudioInput(_device, _format, this);
     open(WriteOnly);
-    audio->setBufferSize(65536*2);
-    audio->start(this);
+    _audio->setBufferSize(65536*2);
+    _audio->start(this);
+    _chanelCount = _format.channelCount();
 
     for (int i = 0; i < dataLength; i++) {
         //delta
@@ -52,27 +55,62 @@ Measure::Measure(QObject *parent) : Chartable(parent)
         //fft
         data[i].frequency     = (float)i * sampleRate() / (float)_fftSize;
     }
-    timer = new QTimer(this);
-    connect(timer, SIGNAL(timeout()), SLOT(transform()));
-    timer->start(80); //12.5 per sec
+    _timer = new QTimer(this);
+    connect(_timer, SIGNAL(timeout()), SLOT(transform()));
+    _timer->start(80); //12.5 per sec
 }
 Measure::~Measure()
 {
-    if (timer->isActive())
-        timer->stop();
+    if (_timer->isActive())
+        _timer->stop();
 
-    audio->stop();
+    _audio->stop();
+}
+QVariant Measure::getDeviceList(void)
+{
+    QStringList deviceList;
+    foreach (const QAudioDeviceInfo &deviceInfo, QAudioDeviceInfo::availableDevices(QAudio::AudioInput)) {
+        deviceList << deviceInfo.deviceName();
+    }
+    return QVariant::fromValue(deviceList);
+}
+QString Measure::deviceName()
+{
+    return _device.deviceName();
+}
+void Measure::selectDevice(QString name)
+{
+    foreach (const QAudioDeviceInfo &deviceInfo, QAudioDeviceInfo::availableDevices(QAudio::AudioInput)) {
+        if (name == deviceInfo.deviceName()) {
+            _audio->stop();
+            close();
+
+            _device = deviceInfo;
+
+            _chanelCount = std::max(_dataChanel, _referenceChanel) + 1;
+            foreach (int c, _device.supportedChannelCounts()) {
+                if (c > _chanelCount)
+                    _chanelCount = c;
+            }
+
+            _audio = new QAudioInput(_device, _format, this);
+            open(WriteOnly);
+            _audio->setBufferSize(65536 * _chanelCount);
+            _audio->start(this);
+            _chanelCount = _format.channelCount();
+        }
+    }
 }
 void Measure::setFftPower(int power)
 {
     if (_fftPower != power) {
-        audio->suspend();
+        _audio->suspend();
 
         _fftPower = power;
         _fftSize  = pow(2, _fftPower);
 
-        dataFT->setSize(_fftSize);
-        dataFT->prepareFast();
+        _dataFT->setSize(_fftSize);
+        _dataFT->prepareFast();
         _window->setSize(_fftSize);
 
         dataLength = _fftSize / 2;
@@ -83,7 +121,7 @@ void Measure::setFftPower(int power)
 
         averageRealloc(true);
 
-        audio->resume();
+        _audio->resume();
     }
 }
 void Measure::setActive(bool active)
@@ -91,13 +129,13 @@ void Measure::setActive(bool active)
     Chartable::setActive(active);
 
     if (active && (
-                audio->state() == QAudio::IdleState ||
-                audio->state() == QAudio::StoppedState)
+                _audio->state() == QAudio::IdleState ||
+                _audio->state() == QAudio::StoppedState)
        )
-        audio->start(this);
+        _audio->start(this);
 
-    if (!active && audio->state() == QAudio::ActiveState)
-        audio->stop();
+    if (!active && _audio->state() == QAudio::ActiveState)
+        _audio->stop();
 
     _level  = 0;
     _referenceLevel = 0;
@@ -139,19 +177,19 @@ void Measure::averageRealloc(bool force)
 }
 int Measure::sampleRate()
 {
-    return audio->format().sampleRate();
+    return _audio->format().sampleRate();
 }
 qint64 Measure::writeData(const char *data, qint64 len)
 {
-    const int channelBytes = format.sampleSize() / 8;
-    const int sampleBytes  = format.channelCount() * channelBytes;
+    const int channelBytes = _format.sampleSize() / 8;
+    const int sampleBytes  = _format.channelCount() * channelBytes;
     const int numSamples   = len / sampleBytes;
 
     const unsigned char *ptr = reinterpret_cast<const unsigned char *>(data);
     const float *d;
 
     for (int i = 0; i < numSamples; ++i) {
-        for (int j = 0; j < format.channelCount(); ++j) {
+        for (int j = 0; j < _format.channelCount(); ++j) {
 
             d = reinterpret_cast<const float*>(ptr);
             if (j == _dataChanel) {
@@ -182,13 +220,13 @@ void Measure::transform()
         //dataFT->change(dataStack->current(), referenceStack->current());
 
         //fast
-        dataFT->add(dataStack->current(), referenceStack->current());
+        _dataFT->add(dataStack->current(), referenceStack->current());
 
         //deconvolution
-        deconv->add(referenceStack->current(), dataStack->current());
+        _deconv->add(referenceStack->current(), dataStack->current());
     }
-    dataFT->fast(_window);
-    deconv->transform();
+    _dataFT->fast(_window);
+    _deconv->transform();
     averaging();
 
     emit readyRead();
@@ -200,6 +238,16 @@ void Measure::transform()
  * vector averaging
  * TODO: add polar averaging mode
  */
+QTimer *Measure::getTimer() const
+{
+    return _timer;
+}
+
+void Measure::setTimer(QTimer *value)
+{
+    _timer = value;
+}
+
 void Measure::averaging()
 {
     averageRealloc();
@@ -212,8 +260,8 @@ void Measure::averaging()
 
     for (int i = 0; i < dataLength ; i++) {
 
-        averageData[_avgcounter][i]      = dataFT->af(i, _window);
-        averageReference[_avgcounter][i] = dataFT->bf(i, _window);
+        averageData[_avgcounter][i]      = _dataFT->af(i, _window);
+        averageReference[_avgcounter][i] = _dataFT->bf(i, _window);
 
         overThreshold = (averageData[_avgcounter][i].abs() > threshold) &&
                 (averageReference[_avgcounter][i].abs() > threshold);
@@ -244,7 +292,7 @@ void Measure::averaging()
     }
 
     for (int i = 0; i < _deconvolutionSize; i++) {
-        averageDeconvolution[_avgcounter][i]  = deconv->get(i);
+        averageDeconvolution[_avgcounter][i]  = _deconv->get(i);
         impulseData[i] = 0.0;
         for (int j = 0; j < _average; j++) {
             impulseData[i] += averageDeconvolution[j][i];

@@ -22,6 +22,10 @@ class Measure : public Chartable
     //fft
     Q_PROPERTY(int fftPower READ fftPower WRITE setFftPower NOTIFY fftPowerChanged)
 
+    //Available input devices
+    Q_PROPERTY(QVariant devices READ getDeviceList CONSTANT)
+    Q_PROPERTY(QString device READ deviceName WRITE selectDevice NOTIFY deviceChanged)
+
     //Current sound level
     Q_PROPERTY(float level READ level NOTIFY levelChanged)
     Q_PROPERTY(float referenceLevel READ referenceLevel NOTIFY referenceLevelChanged)
@@ -41,9 +45,10 @@ class Measure : public Chartable
     Q_PROPERTY(QVariant windows READ getAvailableWindowTypes CONSTANT)
 
 private:
-    QAudioInput* audio;
-    QAudioFormat format;
-    QTimer *timer;
+    QAudioInput* _audio;
+    QAudioDeviceInfo _device;
+    QAudioFormat _format;
+    QTimer *_timer;
     int
         _chanelCount = 2,
         _dataChanel = 0,
@@ -58,9 +63,8 @@ private:
     float **averageDeconvolution, **averageMagnitude;
 
     WindowFunction *_window;
-    FourierTransform *dataFT;
-    Deconvolution *deconv;
-    int newDataCount = 0;
+    FourierTransform *_dataFT;
+    Deconvolution *_deconv;
 
     float _level         = 0.0,
          _referenceLevel = 0.0;
@@ -79,6 +83,12 @@ public:
     void setFftPower(int power);
 
     void setActive(bool active);
+
+    QVariant getDeviceList(void);
+    void setDevice(QString deviceName);
+
+    QString deviceName();
+    void selectDevice(QString name);
 
     unsigned int dataChanel() {return _dataChanel;}
     void setDataChanel(unsigned int n) {_dataChanel = n;}
@@ -107,8 +117,12 @@ public:
     int getWindowType() {return (int)_window->type();}
     void setWindowType(int t) {_window->setType((WindowFunction::Type)t);}
 
+    QTimer *getTimer() const;
+    void setTimer(QTimer *value);
+
 signals:
     void fftPowerChanged();
+    void deviceChanged();
     void readyRead();
     void levelChanged();
     void delayChanged();

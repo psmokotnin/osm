@@ -7,6 +7,9 @@ Item {
 
     property var dataObject
 
+    ColumnLayout {
+        spacing: 0
+
     RowLayout {
         spacing: 0
 
@@ -98,5 +101,20 @@ Item {
                 applicationWindow.dataSourceList.append(item);
             }
         }
+    }
+
+    RowLayout {
+        spacing: 0
+        anchors.left: parent.left
+        anchors.right: parent.right
+
+        ComboBox {
+            id: deviceSelect
+            implicitWidth: 200
+            model: dataObject.devices
+            currentIndex: { model.indexOf(dataObject.device) }
+            onCurrentIndexChanged: dataObject.device = model[currentIndex]
+        }
+    }
     }
 }
