@@ -7,26 +7,13 @@
  */
 Measure::Measure(QObject *parent) : Chartable(parent)
 {
-    _fftPower = 16;//16 - 65K 0.73Hz;
+    _fftPower = 14;//16 - 65K 0.73Hz;
     _fftSize = pow(2, _fftPower);
     _deconvolutionSize = pow (2, 12);
 
     _dataFT  = new FourierTransform(fftSize());
     _window = new WindowFunction(fftSize());
     _window->setType(WindowFunction::Type::hann);
-
-    //delta
-    //dataLength = 960;
-    //dataFT->prepareDelta(10, 96); //96 point per each of 10 octaves
-
-    //fft
-    dataLength = _fftSize / 2;
-    _dataFT->prepareFast();
-
-    _deconv = new Deconvolution(_deconvolutionSize);
-
-    setAverage(1);
-    alloc();
 
     _device = QAudioDeviceInfo::defaultInputDevice();
     _chanelCount = std::max(_dataChanel, _referenceChanel) + 1;
@@ -45,16 +32,17 @@ Measure::Measure(QObject *parent) : Chartable(parent)
     _audio = new QAudioInput(_device, _format, this);
     open(WriteOnly);
     _audio->setBufferSize(65536*2);
+
+    calculateDataLength();
+    _dataFT->prepareFast();
+
+    _deconv = new Deconvolution(_deconvolutionSize);
+
+    setAverage(1);
+    alloc();
+
     _audio->start(this);
     _chanelCount = _format.channelCount();
-
-    for (int i = 0; i < dataLength; i++) {
-        //delta
-        //data[i].frequency     = (float)dataFT->getPoint(i) * sampleRate() / (float)_fftSize;
-
-        //fft
-        data[i].frequency     = (float)i * sampleRate() / (float)_fftSize;
-    }
     _timer = new QTimer(this);
     connect(_timer, SIGNAL(timeout()), SLOT(transform()));
     _timer->start(80); //12.5 per sec
@@ -113,15 +101,53 @@ void Measure::setFftPower(int power)
         _dataFT->prepareFast();
         _window->setSize(_fftSize);
 
-        dataLength = _fftSize / 2;
-        data = new TransferData[dataLength];
-        for (int i = 0; i < dataLength; i++) {
-            data[i].frequency     = (float)i * sampleRate() / (float)_fftSize;
-        }
+        calculateDataLength();
 
         averageRealloc(true);
 
         _audio->resume();
+    }
+}
+
+void Measure::setDoubleTW(bool doubleTW)
+{
+    _audio->suspend();
+
+    _dataFT->setDoubleTW(doubleTW);
+    calculateDataLength();
+    averageRealloc(true);
+
+    _audio->resume();
+}
+void Measure::calculateDataLength()
+{
+    if (_dataFT->doubleTW()) {
+
+        dataLength =
+                  _fftSize / 10 +                                           //subData (0 to 1200Hz)
+                 (_fftSize / 2 - _fftSize / (10 * _dataFT->dataDivider())); //from 1.2 to 24kHz
+
+        data = new TransferData[dataLength];
+        for (int i = 0; i < dataLength; i++) {
+
+            if (i < _fftSize / 10) {
+                data[i].fftPoint  = i;
+                data[i].frequency = (float)i * sampleRate() / ((float)_fftSize * _dataFT->dataDivider());
+            } else {
+                data[i].fftPoint  = i - _fftSize / 10 + _fftSize / (10 * _dataFT->dataDivider());
+                data[i].frequency = (float)data[i].fftPoint * sampleRate() / (float)_fftSize;
+            }
+        }
+
+    } else {
+
+        //classic fft
+        dataLength = _fftSize / 2;
+        data = new TransferData[dataLength];
+        for (int i = 0; i < dataLength; i++) {
+            data[i].fftPoint  = i;
+            data[i].frequency = (float)i * sampleRate() / (float)_fftSize;
+        }
     }
 }
 void Measure::setActive(bool active)
@@ -260,8 +286,13 @@ void Measure::averaging()
 
     for (int i = 0; i < dataLength ; i++) {
 
-        averageData[_avgcounter][i]      = _dataFT->af(i, _window);
-        averageReference[_avgcounter][i] = _dataFT->bf(i, _window);
+        if (_dataFT->doubleTW() && i < _fftSize / 10) {
+            averageData[_avgcounter][i]      = _dataFT->ad(data[i].fftPoint, _window);
+            averageReference[_avgcounter][i] = _dataFT->bd(data[i].fftPoint, _window);
+        } else {
+            averageData[_avgcounter][i]      = _dataFT->af(data[i].fftPoint, _window);
+            averageReference[_avgcounter][i] = _dataFT->bf(data[i].fftPoint, _window);
+        }
 
         overThreshold = (averageData[_avgcounter][i].abs() > threshold) &&
                 (averageReference[_avgcounter][i].abs() > threshold);

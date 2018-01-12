@@ -44,6 +44,9 @@ class Measure : public Chartable
     Q_PROPERTY(int window READ getWindowType WRITE setWindowType NOTIFY windowTypeChanged)
     Q_PROPERTY(QVariant windows READ getAvailableWindowTypes CONSTANT)
 
+    //DTW
+    Q_PROPERTY(int doubleTW READ doubleTW WRITE setDoubleTW NOTIFY doubleTWChanged)
+
 private:
     QAudioInput* _audio;
     QAudioDeviceInfo _device;
@@ -69,6 +72,7 @@ private:
     float _level         = 0.0,
          _referenceLevel = 0.0;
 
+    void calculateDataLength();
     void averaging();
     void averageRealloc(bool force = false);
 
@@ -81,6 +85,9 @@ public:
 
     int fftPower() {return _fftPower;}
     void setFftPower(int power);
+
+    bool doubleTW() const {return _dataFT->doubleTW();}
+    void setDoubleTW(bool doubleTW);
 
     void setActive(bool active);
 
@@ -132,6 +139,7 @@ signals:
     void dataChanelChanged();
     void referenceChanelChanged();
     void windowTypeChanged();
+    void doubleTWChanged();
 
 public slots:
     void transform();

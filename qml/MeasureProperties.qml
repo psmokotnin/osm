@@ -115,6 +115,12 @@ Item {
             currentIndex: { model.indexOf(dataObject.device) }
             onCurrentIndexChanged: dataObject.device = model[currentIndex]
         }
+
+//        CheckBox {
+//            text: qsTr("doubleTW")
+//            checked: dataObject.doubleTW
+//            onCheckStateChanged: dataObject.doubleTW = checked
+//        }
     }
     }
 }

@@ -28,6 +28,7 @@ class Chartable : public QIODevice
 protected:
 
     struct TransferData {
+        long fftPoint;
         complex data;
         complex reference;
         float frequency;

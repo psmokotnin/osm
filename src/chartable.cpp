@@ -11,8 +11,6 @@ void Chartable::alloc()
 
     dataStack = new AudioStack(_fftSize);
     referenceStack = new AudioStack(_fftSize);
-
-    data = new TransferData[dataLength];
 }
 
 qint64 Chartable::readData(char *data, qint64 maxlen)
