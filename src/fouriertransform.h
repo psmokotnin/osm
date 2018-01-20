@@ -16,6 +16,9 @@ private:
     //sources
     float *inA, *inB, *dA, *dB;
 
+    //fft swap map
+    long *_swapMap;
+
     //fast
     complex *_fastA, *_fastB, *wlen;
     complex *_doubleA, *_doubleB;

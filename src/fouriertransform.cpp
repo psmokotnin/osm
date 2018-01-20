@@ -61,12 +61,27 @@ void FourierTransform::prepareFast()
     _fastB = new complex[_size];
     _doubleA = new complex[_size];
     _doubleB = new complex[_size];
+    _swapMap = new long[_size];
 
     wlen = new complex[(int)log2(_size)];
     float ang, dPi = 2 * M_PI;
     for (int len = 2, l = 0; len <= _size; len <<= 1, l++) {
         ang = dPi / len;
         wlen[l] = complex(cosf(ang), sinf(ang));
+    }
+
+    for (long i = 0; i < _size; i++) {
+        _swapMap[i] = i;
+    }
+
+    for (int i = 1, j = 0; i < _size; ++i) {
+        int bit = _size >> 1;
+        for (; j>= bit; bit >>= 1)
+            j -= bit;
+        j += bit;
+        if (i < j) {
+            std::swap (_swapMap[i], _swapMap[j]);
+        }
     }
 }
 long FourierTransform::getPoint(int number, int octave) const
@@ -200,31 +215,15 @@ void FourierTransform::fast(WindowFunction *window)
     //apply data-window
     for (int i = 0, n = _pointer + 1; i < _size; i++, n++) {
         if (n >= _size) n = 0;
-        _fastA[i] = inA[n] * window->get(i);
-        _fastB[i] = inB[n] * window->get(i);
+        _fastA[_swapMap[i]] = inA[n] * window->get(i);
+        _fastB[_swapMap[i]] = inB[n] * window->get(i);
     }
 
     if (_doubleTW) {
         for (int i = 0, n = _doublePointer + 1; i < _size; i++, n++) {
             if (n >= _size) n = 0;
-            _doubleA[i] = dA[n] * window->get(i);
-            _doubleB[i] = dB[n] * window->get(i);
-        }
-    }
-
-    for (int i = 1, j = 0; i < _size; ++i) {
-        int bit = _size >> 1;
-        for (; j>= bit; bit >>= 1)
-            j -= bit;
-        j += bit;
-        if (i < j) {
-            std::swap (_fastA[i], _fastA[j]);
-            std::swap (_fastB[i], _fastB[j]);
-
-            if (_doubleTW) {
-                std::swap (_doubleA[i], _doubleA[j]);
-                std::swap (_doubleB[i], _doubleB[j]);
-            }
+            _doubleA[_swapMap[i]] = dA[n] * window->get(i);
+            _doubleB[_swapMap[i]] = dB[n] * window->get(i);
         }
     }
 
