@@ -39,7 +39,7 @@ protected:
     };
 
     bool _active         = true;
-    QString _name        = "My measure";
+    QString _name        = "My measurement";
     QColor _color        = QColor("#209fdf");
     int _pointsPerOctave = 12;
     int _fftSize, _deconvolutionSize;

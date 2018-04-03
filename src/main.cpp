@@ -5,6 +5,7 @@
 
 #include "src/generator.h"
 #include "src/measure.h"
+#include "src/chart/chart.h"
 
 int main(int argc, char *argv[])
 {
@@ -15,8 +16,9 @@ int main(int argc, char *argv[])
     Measure *m;
     m = new Measure(nullptr);
 
-    QQmlApplicationEngine engine;
+    qmlRegisterType<Fftchart::Chart>("FftChart", 1, 0, "FftChart");
 
+    QQmlApplicationEngine engine;
     //qmlRegisterType<Complex>();
     //Q_DECLARE_METATYPE(QQmlListProperty<Complex>)
 

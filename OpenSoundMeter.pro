@@ -16,7 +16,11 @@ SOURCES += src/main.cpp \
     src/stored.cpp \
     src/fouriertransform.cpp \
     src/deconvolution.cpp \
-    src/windowfunction.cpp
+    src/windowfunction.cpp \
+    src/chart/axis.cpp \
+    src/chart/painteditem.cpp \
+    src/chart/series.cpp \
+    src/chart/chart.cpp
 
 RESOURCES += qml.qrc
 
@@ -57,7 +61,11 @@ HEADERS += \
     src/fouriertransform.h \
     src/ssemath.h \
     src/deconvolution.h \
-    src/windowfunction.h
+    src/windowfunction.h \
+    src/chart/axis.h \
+    src/chart/painteditem.h \
+    src/chart/chart.h \
+    src/chart/series.h
 
 FORMS +=
 
