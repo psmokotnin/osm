@@ -59,8 +59,11 @@ void Chart::setType(const Type type)
             default: ;
         }
 
-        axisX->needUpdate();
-        axisY->needUpdate();
+        emit typeChanged();
+
+        foreach (QQuickItem *item, childItems()) {
+            item->update();
+        }
         needUpdate();
     }
 }
@@ -98,7 +101,11 @@ void Chart::paint(QPainter *painter)
 }
 void Chart::appendDataSource(Chartable *source)
 {
-    new Series(source, this);
+    Series *s = new Series(source, &_type, axisX, axisY, this);
+
+    connect(this,   SIGNAL(typeChanged()),  s, SLOT(prepareConvert()));
+    connect(source, SIGNAL(colorChanged()), s, SLOT(needUpdate()));
+    connect(source, SIGNAL(readyRead()),    s, SLOT(needUpdate()));
 }
 void Chart::needUpdate()
 {

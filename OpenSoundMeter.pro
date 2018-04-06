@@ -20,7 +20,8 @@ SOURCES += src/main.cpp \
     src/chart/axis.cpp \
     src/chart/painteditem.cpp \
     src/chart/series.cpp \
-    src/chart/chart.cpp
+    src/chart/chart.cpp \
+    src/ssemath.cpp
 
 RESOURCES += qml.qrc
 
@@ -65,7 +66,8 @@ HEADERS += \
     src/chart/axis.h \
     src/chart/painteditem.h \
     src/chart/chart.h \
-    src/chart/series.h
+    src/chart/series.h \
+    src/chart/type.h
 
 FORMS +=
 

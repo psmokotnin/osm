@@ -9,7 +9,7 @@ PaintedItem::PaintedItem(QQuickItem *parent)
 
 }
 
-QString PaintedItem::format(qreal v)
+QString PaintedItem::format(float v)
 {
     bool addK = false;
     if (v >= 1000) {

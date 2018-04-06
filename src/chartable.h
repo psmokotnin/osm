@@ -8,6 +8,7 @@ QT_CHARTS_USE_NAMESPACE
 
 #include "audiostack.h"
 #include "complex.h"
+#include "chart/type.h"
 
 class Chartable : public QIODevice
 {
@@ -32,9 +33,9 @@ protected:
         complex data;
         complex reference;
         float frequency;
-        double module    = -INFINITY;
-        double magnitude = 0.0;
-        double phase     = 0.0;
+        float module    = -INFINITY;
+        float magnitude = 0.0;
+        float phase     = 0.0;
         bool  correct    = false;
     };
 
@@ -47,7 +48,7 @@ protected:
                *referenceStack;
     complex *impulseData;
 
-    int dataLength;
+    int _dataLength;
     TransferData *data;
 
     void alloc();
@@ -55,7 +56,7 @@ protected:
 public:
     Chartable(QObject *parent);
 
-    virtual int sampleRate() = 0;
+    virtual int sampleRate() const = 0;
 
     qint64 readData(char *data, qint64 maxlen);
     virtual qint64 writeData(const char *data, qint64 len);
@@ -82,6 +83,11 @@ public:
                   AudioStack *toReferenceStack,
                   std::vector<TransferData> *toData,
                   complex *toImpulse);
+
+    //Fftchart::Source
+    int dataLength(Fftchart::Type *type) const;
+    float x(Fftchart::Type *type, int i) const;
+    float y(Fftchart::Type *type, int i) const;
 
 signals:
     void activeChanged();

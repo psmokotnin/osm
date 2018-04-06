@@ -1,6 +1,9 @@
 #include "fouriertransform.h"
 
+#ifndef USE_SSE2
 #define USE_SSE2
+#endif
+
 #include "ssemath.h"
 
 FourierTransform::FourierTransform(int size)

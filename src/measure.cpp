@@ -123,12 +123,12 @@ void Measure::calculateDataLength()
 {
     if (_dataFT->doubleTW()) {
 
-        dataLength =
+        _dataLength =
                   _fftSize / 10 +                                           //subData (0 to 1200Hz)
                  (_fftSize / 2 - _fftSize / (10 * _dataFT->dataDivider())); //from 1.2 to 24kHz
 
-        data = new TransferData[dataLength];
-        for (int i = 0; i < dataLength; i++) {
+        data = new TransferData[_dataLength];
+        for (int i = 0; i < _dataLength; i++) {
 
             if (i < _fftSize / 10) {
                 data[i].fftPoint  = i;
@@ -142,9 +142,9 @@ void Measure::calculateDataLength()
     } else {
 
         //classic fft
-        dataLength = _fftSize / 2;
-        data = new TransferData[dataLength];
-        for (int i = 0; i < dataLength; i++) {
+        _dataLength = _fftSize / 2;
+        data = new TransferData[_dataLength];
+        for (int i = 0; i < _dataLength; i++) {
             data[i].fftPoint  = i;
             data[i].frequency = (float)i * sampleRate() / (float)_fftSize;
         }
@@ -192,16 +192,16 @@ void Measure::averageRealloc(bool force)
     averageDeconvolution = new float*[_setAverage];
 
     for (int i = 0; i < _setAverage; i ++) {
-        averageData[i]      = new complex[dataLength];
-        averageReference[i] = new complex[dataLength];
-        averageMagnitude[i] = new float[dataLength];
+        averageData[i]      = new complex[_dataLength];
+        averageReference[i] = new complex[_dataLength];
+        averageMagnitude[i] = new float[_dataLength];
         averageDeconvolution[i] = new float[_deconvolutionSize];
     }
 
     //aply new value
     _average = _setAverage;
 }
-int Measure::sampleRate()
+int Measure::sampleRate() const
 {
     return _audio->format().sampleRate();
 }
@@ -284,7 +284,7 @@ void Measure::averaging()
     bool overThreshold = false;
     const float threshold = _fftSize * pow(10, -90.0 / 20);
 
-    for (int i = 0; i < dataLength ; i++) {
+    for (int i = 0; i < _dataLength ; i++) {
 
         if (_dataFT->doubleTW() && i < _fftSize / 10) {
             averageData[_avgcounter][i]      = _dataFT->ad(data[i].fftPoint, _window);

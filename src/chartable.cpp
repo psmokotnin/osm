@@ -1,7 +1,9 @@
 #include <cmath>
 #include "chartable.h"
 
-Chartable::Chartable(QObject *parent) : QIODevice(parent)
+Chartable::Chartable(QObject *parent) :
+    QIODevice(parent)//,
+    //Fftchart::Source(parent)
 {
 
 }
@@ -64,7 +66,7 @@ void Chartable::updateSeries(QAbstractSeries *series, QString type)
                 ;
         int     currentCount     = 0;
 
-        for (i = 0; i < dataLength; i ++) {
+        for (i = 0; i < _dataLength; i ++) {
 
             if (!data[i].correct && (type == "Magnitude" || type == "Phase"))
                 continue;
@@ -186,4 +188,65 @@ void Chartable::copyData(AudioStack *toDataStack,
 //    toData->resize(data.size());
 //    for (unsigned long i = 0; i < data.size(); i++)
 //        (*toData)[i] = data[i];
+}
+
+int Chartable::dataLength(Fftchart::Type *type) const
+{
+    switch (*type) {
+    case Fftchart::Type::RTA:
+    case Fftchart::Type::Magnitude:
+    case Fftchart::Type::Phase:
+        return _dataLength;
+
+    case Fftchart::Type::Impulse:
+        return _deconvolutionSize;
+
+    case Fftchart::Type::Scope:
+        return dataStack->size();
+    default:
+        return 0;
+    }
+}
+//BUG: crash if i out of bounds Thread 2 Crashed:: QSGRenderThread 0   com.yourcompany.OpenSoundMeter	0x0000000107f8c463 Chartable::x(Fftchart::Type, int) const + 19
+//when reduce fftPower
+float Chartable::x(Fftchart::Type *type, int i) const
+{
+    switch (*type) {
+    case Fftchart::Type::RTA:
+    case Fftchart::Type::Magnitude:
+    case Fftchart::Type::Phase:
+        return data[i].frequency;
+
+    case Fftchart::Type::Impulse:
+        return (i - _deconvolutionSize / -2) * 1000.0 / sampleRate();
+
+    case Fftchart::Type::Scope:
+        //return dataStack->size();
+        break;
+    default:
+        return 0;
+    }
+}
+float Chartable::y(Fftchart::Type *type, int i) const
+{
+    static const float phaseMul = 180.0 / M_PI;
+    switch (*type) {
+    case Fftchart::Type::RTA:
+        return data[i].module;
+    case Fftchart::Type::Magnitude:
+        return data[i].magnitude;
+    case Fftchart::Type::Phase:
+        return data[i].phase * phaseMul;
+
+    case Fftchart::Type::Impulse:
+        if (i > _deconvolutionSize / 2)
+            i-= _deconvolutionSize;
+        return impulseData[i].real;
+
+    case Fftchart::Type::Scope:
+        //return dataStack->size();
+        break;
+    default:
+        return 0;
+    }
 }

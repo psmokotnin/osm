@@ -3,13 +3,13 @@
 
 #include <array>
 
-#include "src/chartable.h"
-#include "painteditem.h"
+#include "type.h"
 #include "axis.h"
+#include "painteditem.h"
+
+#include "src/chartable.h"
 
 namespace Fftchart {
-
-enum Type {null, RTA, Magnitude, Phase, Scope, Impulse};
 
 class Chart : public PaintedItem
 {
@@ -31,6 +31,9 @@ public:
     void paint(QPainter *painter);
 
     Q_INVOKABLE void appendDataSource(Chartable *source);
+
+signals:
+    void typeChanged();
 
 public slots:
     void needUpdate();

@@ -13,7 +13,7 @@ public:
 
     void build(Chartable *source);
 
-    int sampleRate() {return _sampleRate;}
+    int sampleRate() const {return _sampleRate;}
     void setSampleRate(int sampleRate) {_sampleRate = sampleRate;}
 };
 

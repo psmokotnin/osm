@@ -11,32 +11,33 @@ namespace Fftchart {
 class Axis : public PaintedItem
 {
     Q_OBJECT
-    static std::vector<qreal> ISO_LABELS;
+    static std::vector<float> ISO_LABELS;
 
 private:
     AxisType _type = linear;
     AxisDirection _direction;
     QColor _lineColor, _textColor;
-    qreal _min, _max;
-    std::vector<qreal> _labels;
-
-protected:
-    qreal convert(qreal value, qreal size);
+    float _min, _max;
+    std::vector<float> _labels;
 
 public:
     Axis(AxisDirection d, QQuickItem *parent = Q_NULLPTR);
     void paint(QPainter *painter) noexcept;
+    float convert(float value, float size);
 
-    void configure(AxisType type, qreal min, qreal max, unsigned int ticks = 0);
+    void configure(AxisType type, float min, float max, unsigned int ticks = 0);
 
-    void setMin(qreal v) {_min = v;}
-    void setMax(qreal v) {_max = v;}
+    void setMin(float v) {_min = v;}
+    float min() const {return _min;}
+
+    void setMax(float v) {_max = v;}
+    float max() const {return _max;}
 
     void setISOLabels() {_labels = ISO_LABELS;}
     void autoLabels(unsigned int ticks);
-    //void setLabels(std::vector<qreal> labels) {_labels = labels;}
 
     void setType(AxisType t) {_type = t;}
+    AxisType type() const {return _type;}
 
 public slots:
     void needUpdate();

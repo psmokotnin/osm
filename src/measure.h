@@ -115,7 +115,7 @@ public:
     bool polarity() {return _polarity;}
     void setPolarity(bool polarity) {_polarity = polarity;}
 
-    int sampleRate();
+    int sampleRate() const;
 
     //IO methods
     qint64 writeData(const char *data, qint64 len);

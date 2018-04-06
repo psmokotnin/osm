@@ -51,7 +51,7 @@ Item {
             //chartStack.push("Chart.qml", {"type": model[currentIndex]});
         }
         Component.onCompleted: {
-            //fftChart.type = model[currentIndex];
+            fftChart.type = model[currentIndex];
         }
     }
 }

@@ -103,6 +103,7 @@ bool AudioStack::isNext(void)
 {
     return (this->pointer && this->pointer->next);
 }
+//BUG: Crashed on delay changed: 0   com.yourcompany.OpenSoundMeter	0x000000010c41a1dd AudioStack::current() + 13
 float AudioStack::current(void)
 {
     if (this->pointer != nullptr)

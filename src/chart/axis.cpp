@@ -8,7 +8,7 @@
 using namespace std;
 using namespace Fftchart;
 
-vector<qreal> Axis::ISO_LABELS = {
+vector<float> Axis::ISO_LABELS = {
     31.5, 63, 125, 250, 500, 1000, 2000, 4000, 8000, 16000
 };
 
@@ -19,7 +19,7 @@ Axis::Axis(AxisDirection d, QQuickItem *parent)
     _lineColor = QColor::fromRgbF(0, 0, 0, 0.1);
     _textColor = QColor::fromRgbF(0, 0, 0, 1);
 }
-void Axis::configure(AxisType type, qreal min, qreal max, unsigned int ticks)
+void Axis::configure(AxisType type, float min, float max, unsigned int ticks)
 {
     setType(type);
     setMin(min);
@@ -37,14 +37,14 @@ void Axis::paint(QPainter *painter) noexcept
 
     QPoint p1, p2;
     QRect textRect(0, 0, 50, 20), lastTextRect;
-    qreal t;
-    qreal size = (_direction == horizontal ? pwidth() : pheight());
+    float t;
+    float size = (_direction == horizontal ? pwidth() : pheight());
     int alignFlag = (_direction == horizontal ?
                          Qt::AlignTop | Qt::AlignCenter :
                          Qt::AlignRight | Qt::AlignHCenter
                          );
 
-    for_each(_labels.begin(), _labels.end(), [&](qreal &l) {
+    for_each(_labels.begin(), _labels.end(), [&](float &l) {
 
         try {
             t = convert(l, size);
@@ -75,7 +75,7 @@ void Axis::paint(QPainter *painter) noexcept
         }
     });
 }
-qreal Axis::convert(qreal value, qreal size)
+float Axis::convert(float value, float size)
 {
     if (_type == AxisType::logarithmic) {
         if (value == 0) {
@@ -88,13 +88,13 @@ qreal Axis::convert(qreal value, qreal size)
 void Axis::autoLabels(unsigned int ticks)
 {
     _labels.clear();
-    qreal l, step;
+    float l, step;
     //make symetrical labels if _min and _max have different signs
-    if (abs(_min + _max) < max(abs(_min), abs(_max))) {
+    if (std::abs(_min + _max) < std::max(abs(_min), std::abs(_max))) {
         l = 0;
         _labels.push_back(l);
         ticks --;
-        step = 2 * max(abs(_min), abs(_max)) / ticks;
+        step = 2 * std::max(std::abs(_min), std::abs(_max)) / ticks;
         for (unsigned int i = 0; i < ticks / 2; i++) {
             l += step;
             _labels.push_back(l);
@@ -102,7 +102,7 @@ void Axis::autoLabels(unsigned int ticks)
         }
     } else {
         l = _min;
-        step = abs(_max - _min) / ticks;
+        step = std::abs(_max - _min) / ticks;
         for (unsigned int i = 0; i <= ticks; i++) {
             _labels.push_back(l);
             l += step;
