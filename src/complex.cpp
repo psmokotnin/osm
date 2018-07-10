@@ -15,6 +15,11 @@ const complex complex::conjugate() const
     rc.imag = -1 * imag;
     return rc;
 }
+void complex::polar(const float& phase)
+{
+    real = cos(phase);
+    imag = sin(phase);
+}
 complex& complex::operator=(const float& r)
 {
     real = r;

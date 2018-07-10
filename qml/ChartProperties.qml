@@ -9,9 +9,18 @@ Item {
     RowLayout {
         spacing: 0
 
-        /*TitledCombo {
-            title: qsTr("charts count")
-            model: ["1", "2"]
-        }*/
+        TitledCombo {
+            title: qsTr("ppo")
+            model: ["off", 3, 6, 12, 24, 48]
+            currentIndex: {
+                var ppo = dataObject.pointsPerOctave;
+                if (ppo === 0) ppo = "off";
+                model.indexOf(ppo);
+            }
+            onCurrentIndexChanged: {
+                var ppo = model[currentIndex];
+                dataObject.pointsPerOctave = (ppo === "off" ? 0 : ppo);
+            }
+        }
     }
 }

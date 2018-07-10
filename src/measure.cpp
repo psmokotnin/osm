@@ -5,8 +5,11 @@
  * fftw:        2^16 max
  * deltaFT:     2^(any N as you want :-)
  */
-Measure::Measure(QObject *parent) : Chartable(parent)
+Measure::Measure(QObject *parent) : Fftchart::Source(parent)
 {
+    _iodevice = new InputDevice(this);
+    connect(_iodevice, SIGNAL(recived(const char *, qint64)), SLOT(writeData(const char *, qint64)));
+
     _fftPower = 14;//16 - 65K 0.73Hz;
     _fftSize = pow(2, _fftPower);
     _deconvolutionSize = pow (2, 12);
@@ -30,18 +33,23 @@ Measure::Measure(QObject *parent) : Chartable(parent)
     _format.setSampleType(QAudioFormat::Float);
 
     _audio = new QAudioInput(_device, _format, this);
-    open(WriteOnly);
+    _iodevice->open(InputDevice::WriteOnly);
     _audio->setBufferSize(65536*2);
 
     calculateDataLength();
     _dataFT->prepareFast();
 
     _deconv = new Deconvolution(_deconvolutionSize);
+    _impulseData = new TimeData[_deconvolutionSize];
+
+    impulseData = new complex[_deconvolutionSize];
+
+    dataStack = new AudioStack(_fftSize);
+    referenceStack = new AudioStack(_fftSize);
 
     setAverage(1);
-    alloc();
 
-    _audio->start(this);
+    _audio->start(_iodevice);
     _chanelCount = _format.channelCount();
     _timer = new QTimer(this);
     connect(_timer, SIGNAL(timeout()), SLOT(transform()));
@@ -49,6 +57,7 @@ Measure::Measure(QObject *parent) : Chartable(parent)
 }
 Measure::~Measure()
 {
+    disconnect(this);
     if (_timer->isActive())
         _timer->stop();
 
@@ -71,7 +80,7 @@ void Measure::selectDevice(QString name)
     foreach (const QAudioDeviceInfo &deviceInfo, QAudioDeviceInfo::availableDevices(QAudio::AudioInput)) {
         if (name == deviceInfo.deviceName()) {
             _audio->stop();
-            close();
+            _iodevice->close();
 
             _device = deviceInfo;
 
@@ -82,9 +91,10 @@ void Measure::selectDevice(QString name)
             }
 
             _audio = new QAudioInput(_device, _format, this);
-            open(WriteOnly);
+            _iodevice->open(InputDevice::WriteOnly);
             _audio->setBufferSize(65536 * _chanelCount);
-            _audio->start(this);
+            if (active())
+                _audio->start(_iodevice);
             _chanelCount = _format.channelCount();
         }
     }
@@ -122,20 +132,20 @@ void Measure::setDoubleTW(bool doubleTW)
 void Measure::calculateDataLength()
 {
     if (_dataFT->doubleTW()) {
-
+//TODO: remove
         _dataLength =
                   _fftSize / 10 +                                           //subData (0 to 1200Hz)
                  (_fftSize / 2 - _fftSize / (10 * _dataFT->dataDivider())); //from 1.2 to 24kHz
 
-        data = new TransferData[_dataLength];
+        _ftdata = new FTData[_dataLength];
         for (int i = 0; i < _dataLength; i++) {
 
             if (i < _fftSize / 10) {
-                data[i].fftPoint  = i;
-                data[i].frequency = (float)i * sampleRate() / ((float)_fftSize * _dataFT->dataDivider());
+                _ftdata[i].fftPoint  = i;
+                _ftdata[i].frequency = (float)i * sampleRate() / ((float)_fftSize * _dataFT->dataDivider());
             } else {
-                data[i].fftPoint  = i - _fftSize / 10 + _fftSize / (10 * _dataFT->dataDivider());
-                data[i].frequency = (float)data[i].fftPoint * sampleRate() / (float)_fftSize;
+                _ftdata[i].fftPoint  = i - _fftSize / 10 + _fftSize / (10 * _dataFT->dataDivider());
+                _ftdata[i].frequency = (float)_ftdata[i].fftPoint * sampleRate() / (float)_fftSize;
             }
         }
 
@@ -143,22 +153,22 @@ void Measure::calculateDataLength()
 
         //classic fft
         _dataLength = _fftSize / 2;
-        data = new TransferData[_dataLength];
+        _ftdata = new FTData[_dataLength];
         for (int i = 0; i < _dataLength; i++) {
-            data[i].fftPoint  = i;
-            data[i].frequency = (float)i * sampleRate() / (float)_fftSize;
+            _ftdata[i].fftPoint  = i;
+            _ftdata[i].frequency = (float)i * sampleRate() / (float)_fftSize;
         }
     }
 }
 void Measure::setActive(bool active)
 {
-    Chartable::setActive(active);
+    Fftchart::Source::setActive(active);
 
     if (active && (
                 _audio->state() == QAudio::IdleState ||
                 _audio->state() == QAudio::StoppedState)
        )
-        _audio->start(this);
+        _audio->start(_iodevice);
 
     if (!active && _audio->state() == QAudio::ActiveState)
         _audio->stop();
@@ -184,17 +194,17 @@ void Measure::averageRealloc(bool force)
     if (!force && _average == _setAverage)
         return;
 
+    if (averageData)        delete[] averageData;
+    if (averageReference)   delete[] averageReference;
+    if (averageDeconvolution) delete[] averageDeconvolution;
 
-//release old memory!
     averageData      = new complex*[_setAverage];
     averageReference = new complex*[_setAverage];
-    averageMagnitude = new float*[_setAverage];
     averageDeconvolution = new float*[_setAverage];
 
     for (int i = 0; i < _setAverage; i ++) {
         averageData[i]      = new complex[_dataLength];
         averageReference[i] = new complex[_dataLength];
-        averageMagnitude[i] = new float[_dataLength];
         averageDeconvolution[i] = new float[_deconvolutionSize];
     }
 
@@ -259,11 +269,6 @@ void Measure::transform()
     emit levelChanged();
     emit referenceLevelChanged();
 }
-/**
- * @brief Measure::averaging
- * vector averaging
- * TODO: add polar averaging mode
- */
 QTimer *Measure::getTimer() const
 {
     return _timer;
@@ -281,61 +286,39 @@ void Measure::averaging()
     _avgcounter ++;
     if (_avgcounter >= _average) _avgcounter = 0;
 
-    bool overThreshold = false;
-    const float threshold = _fftSize * pow(10, -90.0 / 20);
-
     for (int i = 0; i < _dataLength ; i++) {
+        averageData[_avgcounter][i]      = _dataFT->af(_ftdata[i].fftPoint);
+        averageReference[_avgcounter][i] = _dataFT->bf(_ftdata[i].fftPoint);
 
-        if (_dataFT->doubleTW() && i < _fftSize / 10) {
-            averageData[_avgcounter][i]      = _dataFT->ad(data[i].fftPoint, _window);
-            averageReference[_avgcounter][i] = _dataFT->bd(data[i].fftPoint, _window);
-        } else {
-            averageData[_avgcounter][i]      = _dataFT->af(data[i].fftPoint, _window);
-            averageReference[_avgcounter][i] = _dataFT->bf(data[i].fftPoint, _window);
-        }
-
-        overThreshold = (averageData[_avgcounter][i].abs() > threshold) &&
-                (averageReference[_avgcounter][i].abs() > threshold);
-        if (overThreshold)
-            averageMagnitude[_avgcounter][i] = 20.0 * log10f(
-                    averageData[_avgcounter][i].abs() / averageReference[_avgcounter][i].abs()
-                    );
-
-        data[i].data      = 0.0;
-        data[i].reference = 0.0;
-        if (overThreshold) data[i].magnitude = 0.0;
+        _ftdata[i].data      = 0.0;
+        _ftdata[i].reference = 0.0;
 
         for (int j = 0; j < _average; j++) {
-            data[i].data      += averageData[j][i];
-            data[i].reference += averageReference[j][i];
-            if (overThreshold)
-                data[i].magnitude += averageMagnitude[j][i];
+            _ftdata[i].data      += averageData[j][i];
+            _ftdata[i].reference += averageReference[j][i];
         }
-
-        data[i].module        = 20.0 * log10f(data[i].data.abs() / (_fftSize * _average));
-        data[i].correct       = overThreshold;
-        if (overThreshold) {
-            //data[i].magnitude     = 20.0 * log10f(data[i].data.abs() / data[i].reference.abs());
-            data[i].magnitude    /= _average;
-            data[i].phase         = data[i].reference.arg() - data[i].data.arg();
-        }
-
+        _ftdata[i].data      /= _average * _window->gain();
+        _ftdata[i].reference /= _average * _window->gain();
     }
 
-    for (int i = 0; i < _deconvolutionSize; i++) {
+    for (int i = 0, j = _deconvolutionSize / 2; i < _deconvolutionSize; i++, j++) {
         averageDeconvolution[_avgcounter][i]  = _deconv->get(i);
         impulseData[i] = 0.0;
         for (int j = 0; j < _average; j++) {
             impulseData[i] += averageDeconvolution[j][i];
         }
         impulseData[i] /= (float)_average;
+
+        if (j > _deconvolutionSize) j -= _deconvolutionSize;
+        _impulseData[j].value = impulseData[i];
+        _impulseData[j].time  = (j - _deconvolutionSize / 2) * 1000.0 / sampleRate();
     }
 }
 QObject *Measure::store()
 {
-    Stored *store = new Stored(this);
-    store->setSampleRate(sampleRate());
-    store->build(this);
+//    Stored *store = new Stored(this);
+//    store->setSampleRate(sampleRate());
+//    store->build(this);
 
-    return store;
+//    return store;
 }

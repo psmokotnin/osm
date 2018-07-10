@@ -9,13 +9,15 @@
 QT_CHARTS_USE_NAMESPACE
 
 #include "sample.h"
-#include "chartable.h"
+#include "audiostack.h"
+#include "chart/type.h"
+#include "chart/source.h"
 #include "stored.h"
-
+#include "inputdevice.h"
 #include "fouriertransform.h"
 #include "deconvolution.h"
 
-class Measure : public Chartable
+class Measure : public Fftchart::Source
 {
     Q_OBJECT
 
@@ -48,6 +50,7 @@ class Measure : public Chartable
     Q_PROPERTY(int doubleTW READ doubleTW WRITE setDoubleTW NOTIFY doubleTWChanged)
 
 private:
+    InputDevice *_iodevice;
     QAudioInput* _audio;
     QAudioDeviceInfo _device;
     QAudioFormat _format;
@@ -62,8 +65,12 @@ private:
     bool _polarity = false;
     bool _averageMedian = false;
 
-    complex **averageData, **averageReference;
-    float **averageDeconvolution, **averageMagnitude;
+    AudioStack *dataStack,
+               *referenceStack;
+    complex *impulseData;
+
+    complex **averageData = nullptr, **averageReference = nullptr;
+    float **averageDeconvolution = nullptr;
 
     WindowFunction *_window;
     FourierTransform *_dataFT;
@@ -85,6 +92,9 @@ public:
 
     int fftPower() {return _fftPower;}
     void setFftPower(int power);
+
+    int fftSize() {return _fftSize;}
+    void setFftSize(int size) {_fftSize = size;}
 
     bool doubleTW() const {return _dataFT->doubleTW();}
     void setDoubleTW(bool doubleTW);
@@ -118,7 +128,7 @@ public:
     int sampleRate() const;
 
     //IO methods
-    qint64 writeData(const char *data, qint64 len);
+    //qint64 writeData(const char *data, qint64 len);
 
     QVariant getAvailableWindowTypes() {return _window->getTypes();}
     int getWindowType() {return (int)_window->type();}
@@ -144,6 +154,7 @@ signals:
 public slots:
     void transform();
     QObject *store();
+    qint64 writeData(const char *_ftdata, qint64 len);
 };
 
 #endif // MEASURE_H

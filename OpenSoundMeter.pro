@@ -1,8 +1,7 @@
 TEMPLATE = app
 
 QT += charts qml quick quickcontrols2 multimedia core
-CONFIG += c++17
-
+CONFIG += c++1z
 SOURCES += src/main.cpp \
     src/generator.cpp \
     src/pinknoise.cpp \
@@ -12,7 +11,6 @@ SOURCES += src/main.cpp \
     src/measure.cpp \
     src/complex.cpp \
     src/audiostack.cpp \
-    src/chartable.cpp \
     src/stored.cpp \
     src/fouriertransform.cpp \
     src/deconvolution.cpp \
@@ -21,7 +19,9 @@ SOURCES += src/main.cpp \
     src/chart/painteditem.cpp \
     src/chart/series.cpp \
     src/chart/chart.cpp \
-    src/ssemath.cpp
+    src/ssemath.cpp \
+    src/chart/source.cpp \
+    src/inputdevice.cpp
 
 RESOURCES += qml.qrc
 
@@ -57,7 +57,6 @@ HEADERS += \
     src/measure.h \
     src/complex.h \
     src/audiostack.h \
-    src/chartable.h \
     src/stored.h \
     src/fouriertransform.h \
     src/ssemath.h \
@@ -67,7 +66,9 @@ HEADERS += \
     src/chart/painteditem.h \
     src/chart/chart.h \
     src/chart/series.h \
-    src/chart/type.h
+    src/chart/type.h \
+    src/chart/source.h \
+    src/inputdevice.h
 
 FORMS +=
 

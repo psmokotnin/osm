@@ -17,7 +17,7 @@ private:
     AxisType _type = linear;
     AxisDirection _direction;
     QColor _lineColor, _textColor;
-    float _min, _max;
+    float _min, _max, _scale;
     std::vector<float> _labels;
 
 public:
@@ -25,10 +25,13 @@ public:
     void paint(QPainter *painter) noexcept;
     float convert(float value, float size);
 
-    void configure(AxisType type, float min, float max, unsigned int ticks = 0);
+    void configure(AxisType type, float min, float max, unsigned int ticks = 0, float scale = 1.0);
 
     void setMin(float v) {_min = v;}
     float min() const {return _min;}
+
+    void setScale(float v) {_scale = v;}
+    float scale() const {return _scale;}
 
     void setMax(float v) {_max = v;}
     float max() const {return _max;}

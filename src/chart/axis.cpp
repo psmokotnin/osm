@@ -19,11 +19,12 @@ Axis::Axis(AxisDirection d, QQuickItem *parent)
     _lineColor = QColor::fromRgbF(0, 0, 0, 0.1);
     _textColor = QColor::fromRgbF(0, 0, 0, 1);
 }
-void Axis::configure(AxisType type, float min, float max, unsigned int ticks)
+void Axis::configure(AxisType type, float min, float max, unsigned int ticks, float scale)
 {
     setType(type);
     setMin(min);
     setMax(max);
+    setScale(scale);
     if (type == linear) {
         autoLabels(ticks);
     }
@@ -70,7 +71,7 @@ void Axis::paint(QPainter *painter) noexcept
 
         //don't draw next label if it intersects lastone
         if (lastTextRect.isEmpty() || !lastTextRect.intersects(textRect)) {
-            painter->drawText(textRect, alignFlag, format(l));
+            painter->drawText(textRect, alignFlag, format(l * scale()));
             lastTextRect = textRect;
         }
     });

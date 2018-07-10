@@ -5,7 +5,8 @@
 #include "../ssemath.h"
 
 #include "axis.h"
-#include "src/chartable.h"
+#include "type.h"
+#include "source.h"
 
 namespace Fftchart {
 class Series : public PaintedItem
@@ -15,21 +16,29 @@ class Series : public PaintedItem
 
 private:
     QColor m_color;
-    Chartable *_source;
+    Source *_source;
     Axis *_axisX, *_axisY;
     Type *_type;
     v4sf x, _xmul, _xadd, y, _yadd, _ymul;
+    int _pointsPerOctave = 0;
 
-    void paint4(QPainterPath *path, v4sf *x, v4sf *y, unsigned int *lastx);
+    void convert4Vertexes(v4sf *x, v4sf *y) const;
+    void line4Vertexes(v4sf *x, v4sf *y, unsigned int count = 4) const;
+    void draw4Bands(v4sf *x, v4sf *y, float *lastX, float width, unsigned int count = 4) const noexcept;
 
+    void bandBars();
+    void paintLine(int size, float (Source::*xFunc)(int) const, float (Source::*yFunc)(int) const);
+    void smoothLine(float (Source::*valueFunc)(int) const);
+
+    unsigned int pointsPerOctave() {return _pointsPerOctave;}
 
 public:
-    Series(Chartable *source, Type *type, Axis *axisX, Axis *axisY, QQuickItem *parent = Q_NULLPTR);
+    Series(Source *source, Type *type, Axis *axisX, Axis *axisY, QQuickItem *parent = Q_NULLPTR);
 
     QColor color() const { return m_color;}
     void setColor(const QColor &color) {m_color = color;}
-    //void setType(Type type) {_type = type;}
     void paint(QPainter *painter);
+    void setPointsPerOctave(unsigned int p) {_pointsPerOctave = p;}
 
 signals:
     void colorChanged();

@@ -1,119 +1,44 @@
 import QtQuick 2.7
-import QtCharts 2.2
 import QtQuick.Controls 2.2
+import FftChart 1.0
 
-ChartView {
-    id: chart
+Item {
+    id: chartview
 
-    property string type : "RTA"
+    FftChart {
+        id: fftChart
+        anchors.fill: parent
 
-    legend.visible: false
-    antialiasing: true
+        Component.onCompleted: {
+            for (var i = 0;
+                 i < applicationWindow.dataSourceList.list.model.count;
+                 i ++
+                 ) {
+                    var item = applicationWindow.dataSourceList.list.model.get(i);
+
+                    if (item.chartable) {
+                        var newSeries = fftChart.appendDataSource(item.dataModel);
+                    }
+            }
+            //TODO: add series on store
+        }
+    }
 
     PropertiesOpener {
-        propertiesQml: "qrc:/ChartProperties.qml"
-        pushObject: chart
+       propertiesQml: "qrc:/ChartProperties.qml"
+       pushObject: fftChart
     }
 
-    function axisByType(direction) {
-        if (direction == "X")
-            switch (type) {
-            case "Scope": return createAxis("lin", -10, 10);break;//ms
-            case "Impulse": return createAxis("lin", -10, 10);break;//ms
-
-            default:
-                return createAxis("log", 20, 20000);
-            }
-        else {//Y
-            switch (type) {
-                case "Magnitude": return createAxis("lin", -18, 18);
-                case "Phase": return createAxis("lin", -180, 180);
-                case "Scope": return createAxis("lin", -1, 1);
-                case "Impulse": return createAxis("lin", -1, 1);
-
-                default:
-                case "RTA": return createAxis("lin", -90, 0);
-            }
+    ComboBox {
+        anchors.top: parent.top
+        anchors.right: parent.right
+        model: ["RTA", "Magnitude", "Phase", "Impulse", "Scope"]
+        currentIndex: 0
+        onCurrentIndexChanged: {
+            fftChart.type = model[currentIndex];
         }
-    }
-
-    function appendSeries(dataModel) {
-
-        var aX = chart.count ? chart.axisX(chart.series[0]) : axisByType("X");
-        var aY = chart.count ? chart.axisY(chart.series[0]) : axisByType("Y");
-        var series = createSeries(ChartView.SeriesTypeLine,
-                                  dataModel.name,
-                                  aX, aY);
-        //series.useOpenGL = true;  // QOpenGLFramebufferObject: Framebuffer incomplete attachment.
-
-        dataModel.readyRead.connect(function() {
-            if (chart) {
-                dataModel.updateSeries(series, chart.type);
-            } else {
-                return -1;
-            }
-        });
-
-        //name
-        dataModel.nameChanged.connect(function() {
-            series.name = dataModel.name;
-        });
-
-        //visible
-        series.visible = dataModel.active;
-        dataModel.activeChanged.connect(function() {
-            series.visible = dataModel.active;
-        });
-
-        //color
-        series.color = dataModel.color;
-        dataModel.colorChanged.connect(function() {
-            series.color = dataModel.color;
-        });
-        return series;
-    }
-
-    function createAxis(type, min, max) {
-        var typeItem;
-        switch (type) {
-            case "log":
-                typeItem = "LogValueAxis";
-                break;
-
-            default:
-            case "lin":
-                typeItem = "ValueAxis";
-                break;
+        Component.onCompleted: {
+            fftChart.type = model[currentIndex];
         }
-
-        return Qt.createQmlObject(
-            "import QtQuick 2.7;
-             import QtCharts 2.2; " +
-             typeItem + "{ min: " + min + "; max: " + max + " }",
-              chart
-        );
-    }
-
-    onTypeChanged: {
-    }
-
-    Component.onCompleted: {
-        for (var i = 0;
-             i < applicationWindow.dataSourceList.list.model.count;
-             i ++
-             ) {
-                var item = applicationWindow.dataSourceList.list.model.get(i);
-
-                if (item.chartable) {
-                    var newSeries = chart.appendSeries(item.dataModel);
-                    item.dataModel.updateSeries(newSeries, chart.type);
-                }
-        }
-        applicationWindow.dataSourceList.modelAdded.connect(function(item) {
-            if (chart && item.chartable) {
-                var newSeries = chart.appendSeries(item.dataModel);
-                item.dataModel.updateSeries(newSeries, chart.type);
-            }
-        });
     }
 }

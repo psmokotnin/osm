@@ -59,11 +59,9 @@ public:
     complex b(int i) const;
 
     //get fast transform results
-    complex af(long i, WindowFunction *window) const;
-    complex bf(long i, WindowFunction *window) const;
+    complex af(long i) const;
+    complex bf(long i) const;
 
-    complex ad(long i, WindowFunction *window) const;
-    complex bd(long i, WindowFunction *window) const;
     unsigned int dataDivider() const { return _dataDivider;}
 };
 

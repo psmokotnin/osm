@@ -105,21 +105,13 @@ complex FourierTransform::b(int i) const
 {
     return outputB[i];
 }
-complex FourierTransform::af(long i, WindowFunction *window) const
+complex FourierTransform::af(long i) const
 {
-    return _fastA[i] / window->gain();
+    return _fastA[i];
 }
-complex FourierTransform::bf(long i, WindowFunction *window) const
+complex FourierTransform::bf(long i) const
 {
-    return _fastB[i] / window->gain();
-}
-complex FourierTransform::ad(long i, WindowFunction *window) const
-{
-    return _doubleA[i] / window->gain();
-}
-complex FourierTransform::bd(long i, WindowFunction *window) const
-{
-    return _doubleB[i] / window->gain();
+    return _fastB[i];
 }
 long FourierTransform::f2i(double frequency, int sampleRate) const
 {

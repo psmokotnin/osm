@@ -15,6 +15,7 @@ struct complex
     float arg();
 
     const complex conjugate() const;
+    void polar(const float &phase);
 
     complex& operator=(const float& r);
     complex& operator=(const complex& c);

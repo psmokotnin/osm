@@ -1,5 +1,5 @@
 #include "stored.h"
-
+/*
 Stored::Stored(QObject *parent) : Chartable(parent)
 {
 
@@ -12,3 +12,4 @@ void Stored::build(Chartable *source)
 
     //source->copyData(dataStack, referenceStack, &data, impulseData);
 }
+*/

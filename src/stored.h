@@ -1,7 +1,6 @@
 #ifndef STORED_H
 #define STORED_H
-
-#include "chartable.h"
+/*
 
 class Stored : public Chartable
 {
@@ -16,5 +15,5 @@ public:
     int sampleRate() const {return _sampleRate;}
     void setSampleRate(int sampleRate) {_sampleRate = sampleRate;}
 };
-
+*/
 #endif // STORED_H

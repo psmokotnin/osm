@@ -16,7 +16,7 @@ Chart::Chart(QQuickItem *parent)
     axisX = new Axis(AxisDirection::horizontal, this);
     axisY = new Axis(AxisDirection::vertical, this);
 
-    setType(RTA);
+    _setType(RTA);
 }
 QString Chart::typeString() const
 {
@@ -33,39 +33,44 @@ void Chart::setTypeByString(const QString &type)
 void Chart::setType(const Type type)
 {
     if (_type != type) {
-        _type = type;
-
-        switch (_type) {
-            case RTA:         axisY->configure(AxisType::linear, -90,    0,  9);break;
-            case Magnitude:   axisY->configure(AxisType::linear, -18,   18, 13);break;
-            case Phase:       axisY->configure(AxisType::linear, -180, 180,  9);break;
-            case Scope:       axisY->configure(AxisType::linear, -1,     1, 11);break;
-            case Impulse:     axisY->configure(AxisType::linear, -1,     1, 11);break;
-            default: ;
-        }
-
-        switch (_type) {
-            case RTA:
-            case Magnitude:
-            case Phase:
-                axisX->configure(AxisType::logarithmic, 20, 20000);
-                axisX->setISOLabels();
-                break;
-
-            case Impulse:
-            case Scope:
-                axisX->configure(AxisType::linear, -10, 10, 11);break;
-            break;
-            default: ;
-        }
-
-        emit typeChanged();
-
-        foreach (QQuickItem *item, childItems()) {
-            item->update();
-        }
-        needUpdate();
+        _setType(type);
     }
+}
+void Chart::_setType(const Type type)
+{
+    _type = type;
+
+    switch (_type) {
+        case RTA:         axisY->configure(AxisType::linear, -90,    0,  9);break;
+        case Magnitude:   axisY->configure(AxisType::linear, -18,   18, 13);break;
+        case Phase:       axisY->configure(AxisType::linear, -M_PI, M_PI,  9, 180 / M_PI);break;
+        case Scope:       axisY->configure(AxisType::linear, -1,     1, 11);break;
+        case Impulse:     axisY->configure(AxisType::linear, -1,     1, 11);break;
+        default: ;
+    }
+
+    switch (_type) {
+        case RTA:
+        case Magnitude:
+        case Phase:
+            axisX->configure(AxisType::logarithmic, 20, 20000);
+            axisX->setISOLabels();
+            break;
+
+        case Impulse:
+            axisX->configure(AxisType::linear,  -5,  5, 11);break;
+
+        case Scope:
+            axisX->configure(AxisType::linear, -10, 10, 11);break;
+        default: ;
+    }
+
+    emit typeChanged();
+
+    foreach (QQuickItem *item, childItems()) {
+        item->update();
+    }
+    needUpdate();
 }
 void Chart::paint(QPainter *painter)
 {
@@ -99,7 +104,7 @@ void Chart::paint(QPainter *painter)
         }
     }
 }
-void Chart::appendDataSource(Chartable *source)
+void Chart::appendDataSource(Source *source)
 {
     Series *s = new Series(source, &_type, axisX, axisY, this);
 
@@ -110,4 +115,11 @@ void Chart::appendDataSource(Chartable *source)
 void Chart::needUpdate()
 {
     update();
+}
+void Chart::setPointsPerOctave(unsigned int p)
+{
+    _pointsPerOctave = p;
+    foreach(auto *s, findChildren<Fftchart::Series *>()) {
+        s->setPointsPerOctave(p);
+    }
 }
