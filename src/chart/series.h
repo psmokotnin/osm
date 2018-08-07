@@ -18,17 +18,19 @@ private:
     QColor m_color;
     Source *_source;
     Axis *_axisX, *_axisY;
+    qreal lWidth, lHeight;
     Type *_type;
     v4sf x, _xmul, _xadd, y, _yadd, _ymul;
-    int _pointsPerOctave = 0;
+    unsigned int _pointsPerOctave = 0;
+    float _frequencyFactor;
 
     void convert4Vertexes(v4sf *x, v4sf *y) const;
     void line4Vertexes(v4sf *x, v4sf *y, unsigned int count = 4) const;
     void draw4Bands(v4sf *x, v4sf *y, float *lastX, float width, unsigned int count = 4) const noexcept;
 
     void bandBars();
-    void paintLine(int size, float (Source::*xFunc)(int) const, float (Source::*yFunc)(int) const);
-    void smoothLine(float (Source::*valueFunc)(int) const);
+    void paintLine(unsigned int size, float (Source::*xFunc)(unsigned int) const, float (Source::*yFunc)(unsigned int) const);
+    void smoothLine(float (Source::*valueFunc)(unsigned int) const);
 
     unsigned int pointsPerOctave() {return _pointsPerOctave;}
 
@@ -38,7 +40,7 @@ public:
     QColor color() const { return m_color;}
     void setColor(const QColor &color) {m_color = color;}
     void paint(QPainter *painter);
-    void setPointsPerOctave(unsigned int p) {_pointsPerOctave = p;}
+    void setPointsPerOctave(unsigned int p);
 
 signals:
     void colorChanged();

@@ -44,13 +44,13 @@ Sample PinkNoise::sample(void)
          * values together. Only one changes each time.
          */
         runningSum -= rows[numZeros];
-        newRandom = ((long)pseudoRandom()) >> this->RANDOM_SHIFT;
+        newRandom = (static_cast<long>(pseudoRandom())) >> this->RANDOM_SHIFT;
         runningSum += newRandom;
         rows[numZeros] = newRandom;
     }
 
     /* Add extra white noise value. */
-    newRandom = ((long)pseudoRandom()) >> this->RANDOM_SHIFT;
+    newRandom = (static_cast<long>(pseudoRandom())) >> this->RANDOM_SHIFT;
     sum = runningSum + newRandom;
 
     /* Scale to range of -1.0 to 0.9999. */

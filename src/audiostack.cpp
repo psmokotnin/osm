@@ -137,10 +137,10 @@ float AudioStack::first(void)
  * delta < 0 => move pointer left
  * delta > 0 => move pointer right
  */
-void AudioStack::rewind(int delta)
+void AudioStack::rewind(long delta)
 {
     bool direction = std::signbit(delta);
-    for (int i = 0; i < std::abs(delta); i++) {
+    for (long i = 0; i < std::abs(delta); i++) {
         if (direction && pointer->pre)
             pointer = pointer->pre;
         else if (!direction && pointer->next)

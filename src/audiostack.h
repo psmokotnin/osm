@@ -43,7 +43,7 @@ public:
     float shift(void);
     void fill(float value);
 
-    void rewind(int delta);
+    void rewind(long delta);
 
     void setSubStack(AudioStack *stack) {subStack = stack;}
 };

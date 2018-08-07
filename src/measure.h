@@ -46,22 +46,19 @@ class Measure : public Fftchart::Source
     Q_PROPERTY(int window READ getWindowType WRITE setWindowType NOTIFY windowTypeChanged)
     Q_PROPERTY(QVariant windows READ getAvailableWindowTypes CONSTANT)
 
-    //DTW
-    Q_PROPERTY(int doubleTW READ doubleTW WRITE setDoubleTW NOTIFY doubleTWChanged)
-
 private:
     InputDevice *_iodevice;
-    QAudioInput* _audio;
+    QAudioInput* _audio = nullptr;
     QAudioDeviceInfo _device;
     QAudioFormat _format;
     QTimer *_timer;
-    int
+    unsigned int
         _chanelCount = 2,
         _dataChanel = 0,
         _referenceChanel = 1,
         _average = 0, _setAverage = 0;
     unsigned long _delay = 0;
-    int _avgcounter = 0;
+    unsigned int _avgcounter = 0;
     bool _polarity = false;
     bool _averageMedian = false;
 
@@ -84,20 +81,17 @@ private:
     void averageRealloc(bool force = false);
 
 protected:
-    int _fftPower;
+    unsigned int _fftPower;
 
 public:
     explicit Measure(QObject *parent = nullptr);
     ~Measure();
 
-    int fftPower() {return _fftPower;}
-    void setFftPower(int power);
+    unsigned int fftPower() {return _fftPower;}
+    void setFftPower(unsigned int power);
 
-    int fftSize() {return _fftSize;}
-    void setFftSize(int size) {_fftSize = size;}
-
-    bool doubleTW() const {return _dataFT->doubleTW();}
-    void setDoubleTW(bool doubleTW);
+    unsigned int fftSize() {return _fftSize;}
+    void setFftSize(unsigned int size) {_fftSize = size;}
 
     void setActive(bool active);
 
@@ -116,23 +110,20 @@ public:
     float level() {return _level;}
     float referenceLevel() {return _referenceLevel;}
 
-    int delay(){return _delay;}
-    void setDelay(int delay);
+    unsigned long delay() {return _delay;}
+    void setDelay(unsigned long delay);
 
-    int average(){return _average;}
-    void setAverage(int average);
+    unsigned int average() {return _average;}
+    void setAverage(unsigned int average);
 
     bool polarity() {return _polarity;}
     void setPolarity(bool polarity) {_polarity = polarity;}
 
-    int sampleRate() const;
-
-    //IO methods
-    //qint64 writeData(const char *data, qint64 len);
+    unsigned int sampleRate() const;
 
     QVariant getAvailableWindowTypes() {return _window->getTypes();}
-    int getWindowType() {return (int)_window->type();}
-    void setWindowType(int t) {_window->setType((WindowFunction::Type)t);}
+    int getWindowType() {return static_cast<int>(_window->type());}
+    void setWindowType(int t) {_window->setType(static_cast<WindowFunction::Type>(t));}
 
     QTimer *getTimer() const;
     void setTimer(QTimer *value);
@@ -149,7 +140,6 @@ signals:
     void dataChanelChanged();
     void referenceChanelChanged();
     void windowTypeChanged();
-    void doubleTWChanged();
 
 public slots:
     void transform();

@@ -15,15 +15,6 @@ Item {
 
         SpinBox {
             implicitWidth: 125
-            value: dataObject.pointsPerOctave
-            from: 0
-            to: 48
-            editable: true
-            onValueChanged: dataObject.pointsPerOctave = value
-        }
-
-        SpinBox {
-            implicitWidth: 125
             value: dataObject.average
             from: 1
             to: 100
@@ -115,12 +106,6 @@ Item {
             currentIndex: { model.indexOf(dataObject.device) }
             onCurrentIndexChanged: dataObject.device = model[currentIndex]
         }
-
-//        CheckBox {
-//            text: qsTr("doubleTW")
-//            checked: dataObject.doubleTW
-//            onCheckStateChanged: dataObject.doubleTW = checked
-//        }
     }
-    }
+    }//ColumnLayout
 }

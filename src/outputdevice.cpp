@@ -4,20 +4,6 @@ OutputDevice::OutputDevice(QObject *parent) : QIODevice(parent)
 {
 
 }
-
-/**
- * @brief OutputDevice::readData makes silent output stream by default.
- * @param data
- * @param maxlen
- * @return
- */
-/*qint64 OutputDevice::readData(char *data, qint64 maxlen)
-{
-    for (qint64 i = 0; i < maxlen; i++) {
-        data[i] = 0;
-    }
-    return maxlen;
-}*/
 qint64 OutputDevice::readData(char *data, qint64 maxlen)
 {
     qint64 total = 0;

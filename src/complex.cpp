@@ -97,7 +97,7 @@ const complex complex::operator/(const float& r) const
 const complex complex::operator/(const complex& c) const
 {
     complex rc;
-    float d = pow(c.real, 2) + pow(c.imag, 2);
+    float d = c.real * c.real + c.imag * c.imag;
 
     rc.real = (real * c.real + imag * c.imag) / d;
     rc.imag = (imag * c.real - real * c.imag) / d;
@@ -112,7 +112,7 @@ complex& complex::operator/=(const float& r)
 }
 complex& complex::operator/=(const complex& c)
 {
-    float r = real, d = pow(c.real, 2) + pow(c.imag, 2);
+    float r = real, d = c.real * c.real + c.imag * c.imag;
 
     real = (real * c.real + imag * c.imag) / d;
     imag = (imag * c.real - r * c.imag) / d;

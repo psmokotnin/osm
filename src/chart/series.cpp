@@ -19,31 +19,38 @@ Series::Series(Source *source, Type *type, Axis *axisX, Axis *axisY, QQuickItem 
     _axisY  = axisY;
     prepareConvert();
 }
+void Series::setPointsPerOctave(unsigned int p)
+{
+    _pointsPerOctave = p;
+    _frequencyFactor = static_cast<float>(pow(2, 1.0 / pointsPerOctave()));
+}
 void Series::prepareConvert()
 {
     if (_axisX->type() == AxisType::linear) {
         _xadd = _mm_set_ps1(-1 * _axisX->min());
-        _xmul = _mm_set_ps1(width() / (_axisX->max() - _axisX->min()));
+        _xmul = _mm_set_ps1(static_cast<float>(width()) / (_axisX->max() - _axisX->min()));
     } else {
-        _xadd = _mm_set_ps1(-1 * std::log(_axisX->min()));
-        _xmul = _mm_set_ps1(width() / std::log(_axisX->max() / _axisX->min()));
+        _xadd = _mm_set_ps1(-1 * log(_axisX->min()));
+        _xmul = _mm_set_ps1(static_cast<float>(width()) / log(_axisX->max() / _axisX->min()));
     }
 
     if (_axisY->type() == AxisType::linear) {
         _yadd = _mm_set_ps1(-1 * _axisY->min());
-        _ymul = _mm_set_ps1(height() / (_axisY->max() - _axisY->min()));
+        _ymul = _mm_set_ps1(static_cast<float>(height()) / (_axisY->max() - _axisY->min()));
     } else {
         throw std::invalid_argument("_axisY logarithmic scale.");
     }
+    lWidth = width();
+    lHeight = height();
 }
 void Series::paint(QPainter *painter)
 {
-    //TODO: call if only width or height were changed!
-    prepareConvert();
+    if (abs(lWidth - width()) > 0 || abs(lHeight - height()) > 0)
+        prepareConvert();
 
     painter->beginNativePainting();
 
-    //TODO: add multisampling, antialiasing and/or smooth shader
+    //NOTE: add multisampling, antialiasing and/or smooth shader
 
     QColor color = _source->color();
     glColor3f(color.redF(), color.greenF(), color.blueF());
@@ -78,10 +85,10 @@ void Series::paint(QPainter *painter)
 
     painter->endNativePainting();
 }
-void Series::paintLine(int size, float (Source::*xFunc)(int) const, float (Source::*yFunc)(int) const)
+void Series::paintLine(unsigned int size, float (Source::*xFunc)(unsigned int) const, float (Source::*yFunc)(unsigned int) const)
 {
     glBegin(GL_LINE_STRIP);
-    for (int i = 1; i < size; i += 4) {
+    for (unsigned int i = 1; i < size; i += 4) {
         x[0] = (_source->*xFunc)(i + 0);
         x[1] = (_source->*xFunc)(i + 1);
         x[2] = (_source->*xFunc)(i + 2);
@@ -111,7 +118,7 @@ void Series::convert4Vertexes(v4sf *x, v4sf *y) const
 void Series::line4Vertexes(v4sf *x, v4sf *y, unsigned int count) const
 {
     for (unsigned int j = 0; j < count; j++) {
-        if (j > 1 && (int)(*x)[j] == (int)(*x)[j-1])
+        if (j > 1 && static_cast<int>((*x)[j]) == static_cast<int>((*x)[j-1]))
             return;
 
         glVertex3f((*x)[j], (*y)[j], 0);
@@ -120,7 +127,7 @@ void Series::line4Vertexes(v4sf *x, v4sf *y, unsigned int count) const
 void Series::draw4Bands(v4sf *x, v4sf *y, float *lastX, float width, unsigned int count) const noexcept
 {
     for (unsigned int j = 0; j < count; j++) {
-        if (j > 1 && (int)(*x)[j] == (int)(*x)[j-1])
+        if (j > 1 && static_cast<int>((*x)[j]) == static_cast<int>((*x)[j-1]))
             return;
 
         *lastX = std::min((*x)[j] - width, *lastX);
@@ -132,39 +139,41 @@ void Series::needUpdate()
 {
     update();
 }
-void Series::smoothLine(float (Source::*valueFunc)(int) const)
+void Series::smoothLine(float (Source::*valueFunc)(unsigned int) const)
 {
     if (!pointsPerOctave()) {
         return paintLine(_source->size(), &Source::frequency, valueFunc);
     }
-    constexpr float startFrequency = 24000 / 2048;//pow(2, 11);
+    constexpr const float startFrequency = 24000 / 2048;//pow(2, 11);
 
-    float frequencyFactor = pow(2, 1.0 / pointsPerOctave()), //TODO: cache this value
-        bandStart = startFrequency,
-        bandEnd   = bandStart * frequencyFactor,
+    float bandStart = startFrequency,
+        bandEnd   = bandStart * _frequencyFactor,
         frequency,
         value = 0,
         lValue = 0, tvalue = 0, ltvalue = 0
         ;
 
-    int c = _source->size(),
+    unsigned int c = _source->size(),
         count = 0;
 
     float a[4], f[4];
     int bCount = 0;
     bool bCollected = false;
     float splinePoint[4], currentPoint;
+    float xfs, xfe, yc, d, lyc(0);
     bool phaseType;
     phaseType = (*_type == Phase);
-    constexpr float D_PI = 2.0 * M_PI;
+    constexpr float
+            F_PI = static_cast<float>(M_PI),
+            D_PI = 2 * F_PI;
 
     glBegin(GL_LINE_STRIP);
-    for (int i = 1; i < c; i++) {
+    for (unsigned int i = 1; i < c; i++) {
         frequency = _source->frequency(i);
         if (frequency < bandStart) continue;
         while (frequency > bandEnd) {
             bandStart = bandEnd;
-            bandEnd   = bandStart * frequencyFactor;
+            bandEnd   = bandStart * _frequencyFactor;
             if (count) {
 
                 value /= count;
@@ -176,7 +185,7 @@ void Series::smoothLine(float (Source::*valueFunc)(int) const)
                 }
 
                 if (phaseType && bCount > 0) {
-                    if (std::abs(splinePoint[bCount - 1] - value) > M_PI) {
+                    if (abs(splinePoint[bCount - 1] - value) > F_PI) {
                         value  -= std::copysign(D_PI, value);
                         lValue -= std::copysign(D_PI, value);
                     }
@@ -195,20 +204,23 @@ void Series::smoothLine(float (Source::*valueFunc)(int) const)
                     a[3] = (-1 * splinePoint[0] + 3 * splinePoint[1] - 3 * splinePoint[2] + splinePoint[3]) / 6;
 
                     //draw line from splinePoint[1] to splinePoint[2]
-                    float xfs, xfe, yc, lyc, d;
                     xfs = (log(f[1]) + _xadd[0]) * _xmul[0];
                     xfe = (log(f[2]) + _xadd[0]) * _xmul[0];
                     d = 1 / (xfe - xfs);
 
                     for (float xc = xfs, t = 0; xc < xfe; ++xc, t += d) {
                         currentPoint = 0;
-                        currentPoint = a[0] + a[1] * t + a[2] * pow(t, 2) + a[3] * pow(t, 3);
+                        currentPoint =
+                                a[0] +
+                                a[1] * t +
+                                a[2] * pow(t, static_cast<float>(2)) +
+                                a[3] * pow(t, static_cast<float>(3));
 
                         if (phaseType) {
                             yc = currentPoint;
-                            while (yc >  M_PI) yc -= D_PI;
-                            while (yc < -M_PI) yc += D_PI;
-                            if (std::abs(yc - lyc) > M_PI) {
+                            while (yc >  F_PI) yc -= D_PI;
+                            while (yc < -F_PI) yc += D_PI;
+                            if (abs(yc - lyc) > F_PI) {
                                 glEnd();
                                 glBegin(GL_LINE_STRIP);
                             }
@@ -230,10 +242,9 @@ void Series::smoothLine(float (Source::*valueFunc)(int) const)
         ++ count;
 
         if (phaseType) {
-
             tvalue = (_source->*valueFunc)(i);
             //make phase linear (non periodic) function
-            if (std::abs(tvalue - ltvalue) > M_PI) {
+            if (abs(tvalue - ltvalue) > F_PI) {
                 tvalue += std::copysign(D_PI, ltvalue);                //move to next/prev circle
             }
 
@@ -250,30 +261,29 @@ void Series::smoothLine(float (Source::*valueFunc)(int) const)
 }
 void Series::bandBars()
 {
-    static float startFrequency = 24000 / pow(2, 11);
+    constexpr const float startFrequency = 24000 / 2048;//pow(2, 11);
 
-    float frequencyFactor = pow(2, 1.0 / pointsPerOctave()), //TODO: cache this value
-        bandStart = startFrequency,
-        bandEnd   = bandStart * frequencyFactor,
+    float bandStart = startFrequency,
+        bandEnd   = bandStart * _frequencyFactor,
         frequency,
         value = 0,
         bandWidth = 0,
         lastX = 0;
 
-    int c = _source->size(),
+    unsigned int c = _source->size(),
         j = 0,
         count = 0;
     x[0] = 24000.0;
-    x[1] = x[0] * frequencyFactor;
+    x[1] = x[0] * _frequencyFactor;
     convert4Vertexes(&x, &y);
-    bandWidth = std::abs(x[1] - x[0]) / 2.0;
+    bandWidth = abs(x[1] - x[0]) / 2;
 
-    for (int i = 1; i < c; i++) {
+    for (unsigned int i = 1; i < c; i++) {
         frequency = _source->frequency(i);
         if (frequency < bandStart) continue;
         while (frequency > bandEnd) {
             bandStart = bandEnd;
-            bandEnd   = bandStart * frequencyFactor;
+            bandEnd   = bandStart * _frequencyFactor;
             if (count) {
                 x[j] = frequency;
                 y[j] = 10 * log10f(value);

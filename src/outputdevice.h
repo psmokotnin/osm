@@ -21,7 +21,7 @@ public:
     qint64 readData(char *data, qint64 maxlen);
     virtual Sample sample(void);
 
-    void setSamplerate(int s) {sampleRate = s;};
+    void setSamplerate(int s) {sampleRate = s;}
 
 };
 

@@ -9,14 +9,14 @@ SinNoise::SinNoise(QObject *parent) : OutputDevice(parent)
 Sample SinNoise::sample(void)
 {
     Sample output;
-    sinPhase += (2.0 * M_PI * frequency / sampleRate);
+    sinPhase += (2.0 * M_PI * static_cast<double>(frequency) / sampleRate);
     if (sinPhase >= 2.0 * M_PI)
         sinPhase -= 2.0 * M_PI;
 
-    output.f = (float)sin(sinPhase);
+    output.f = static_cast<float>(sin(sinPhase));
     return output;
 }
 void SinNoise::setFrequency(int f)
 {
-    frequency = (float)f;
+    frequency = static_cast<float>(f);
 }

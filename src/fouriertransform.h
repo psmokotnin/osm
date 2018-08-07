@@ -7,17 +7,15 @@
 class FourierTransform
 {
 private:
-    long _size;
-    long _pointer = 0, _doublePointer = 0;
-    bool _doubleTW = false;
+    unsigned long _size;
+    unsigned long _pointer = 0;
     const unsigned int _dataDivider = 4;
-    float accA, accB;
 
     //sources
     float *inA, *inB, *dA, *dB;
 
     //fft swap map
-    long *_swapMap;
+    unsigned long *_swapMap;
 
     //fast
     complex *_fastA, *_fastB, *wlen;
@@ -26,18 +24,15 @@ private:
     //delta results
     complex *outputA, *outputB;
 
-    int _octaveCount, _pointPerOctave;
+    unsigned int _octaveCount, _pointPerOctave;
     long *_lowKs;
 
-    double kdx;
+    float kdx;
 
 public:
-    FourierTransform(int size);
+    FourierTransform(unsigned int size);
 
-    void setSize(int size);
-
-    bool doubleTW() const;
-    void setDoubleTW(bool doubleTW);
+    void setSize(unsigned int size);
 
     void add(float sampleA, float sampleB);
     void fast(WindowFunction *window);
@@ -45,14 +40,14 @@ public:
     //add and delta transform
     void change(float sampleA, float sampleB);
 
-    void prepareDelta(int octaveCount, int pointPerOctave);
+    void prepareDelta(unsigned int octaveCount, unsigned int pointPerOctave);
     void prepareFast();
 
-    long getPoint(int number, int octave) const;
-    long getPoint(int number) const;
+    long getPoint(unsigned int number, unsigned int octave) const;
+    long getPoint(unsigned int number) const;
     long f2i(double frequency, int sampleRate) const;
 
-    long pointer() const {return _pointer;}
+    unsigned long pointer() const {return _pointer;}
 
     //get delta transform results
     complex a(int i) const;

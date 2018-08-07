@@ -15,7 +15,7 @@ public:
 
 private:
     Type _type = Type::rectangular;
-    long _size;
+    unsigned long _size;
     float *_data;
     float _gain;
 
@@ -23,18 +23,18 @@ private:
     void calculate();
 
 public:
-    WindowFunction(long size);
+    WindowFunction(unsigned long size);
     ~WindowFunction();
 
-    void setSize(long size);
-    long size() const {return _size;}
+    void setSize(unsigned long size);
+    unsigned long size() const {return _size;}
 
     Type type() const {return _type;}
     void setType(Type t);
     QVariant getTypes();
 
     float gain() const {return _gain;}
-    float get(long k) const { return _data[k]; }
+    float get(unsigned long k) const { return _data[k]; }
 
 };
 QDebug operator<<(QDebug dbg, const WindowFunction::Type &t);

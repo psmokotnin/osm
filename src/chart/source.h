@@ -13,23 +13,15 @@ class Source : public QObject
     Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
     Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged)
 
-    //TODO: remove
-    Q_PROPERTY(unsigned int pointsPerOctave READ pointsPerOctave WRITE setPointsPerOctave NOTIFY pointsPerOctaveChanged)
-
 protected:
     bool _active         = true;
     QString _name        = "Measurement";
     QColor _color        = QColor("#209fdf");
 
     struct FTData {
-long fftPoint;
         complex data;
         complex reference;
         float frequency;
-float module    = -INFINITY;
-float magnitude = 0.0;
-float phase     = 0.0;
-bool  correct    = false;
     } *_ftdata;
 
     struct TimeData {
@@ -37,12 +29,9 @@ bool  correct    = false;
         complex value;
     } *_impulseData, *_scopeData;
 
-    int _dataLength, _deconvolutionSize;
-    int _fftSize;
-
-
-    //TODO: remove
-    int _pointsPerOctave = 1;//12;
+    unsigned int _dataLength;
+    unsigned int _deconvolutionSize;
+    unsigned int _fftSize;
 
 public:
     explicit Source(QObject *parent = nullptr);
@@ -58,29 +47,22 @@ public:
     void setColor(QColor color) {_color = color; emit colorChanged();}
 
 
-    float size() const  noexcept {return _dataLength;}
-    float fftSize() const  noexcept {return _fftSize;}
-    float frequency(int i) const noexcept;
-    float module(int i) const noexcept;
-    float dataAbs(int i) const noexcept;
-    float magnitude(int i) const noexcept;
-    float phase(int i) const noexcept;
+    unsigned int size() const  noexcept {return _dataLength;}
+    unsigned int fftSize() const  noexcept {return _fftSize;}
+    float frequency(unsigned int i) const noexcept;
+    float module(unsigned int i) const noexcept;
+    float dataAbs(unsigned int i) const noexcept;
+    float magnitude(unsigned int i) const noexcept;
+    float phase(unsigned int i) const noexcept;
 
-    float impulseSize() const noexcept {return _deconvolutionSize;}
-    float impulseTime(int i) const noexcept;
-    float impulseValue(int i) const noexcept;
-
-    //TODO: remove
-    unsigned int pointsPerOctave() {return _pointsPerOctave;}
-    void setPointsPerOctave(unsigned int p) {_pointsPerOctave = p;}
+    unsigned int impulseSize() const noexcept {return _deconvolutionSize;}
+    float impulseTime(unsigned int i) const noexcept;
+    float impulseValue(unsigned int i) const noexcept;
 
 signals:
     void activeChanged();
     void nameChanged();
     void colorChanged();
-
-    //TODO: remove
-    void pointsPerOctaveChanged();
 
 public slots:
 };
