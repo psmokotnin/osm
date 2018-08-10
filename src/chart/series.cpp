@@ -45,6 +45,9 @@ void Series::prepareConvert()
 }
 void Series::paint(QPainter *painter)
 {
+    if (!_source->active()) {
+        return ;
+    }
     if (abs(lWidth - width()) > 0 || abs(lHeight - height()) > 0)
         prepareConvert();
 

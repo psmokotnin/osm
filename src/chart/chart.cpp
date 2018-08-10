@@ -46,7 +46,6 @@ void Chart::_setType(const Type type)
         case Phase:       axisY->configure(AxisType::linear, -M_PI, M_PI,  9, 180 / M_PI);break;
         case Scope:       axisY->configure(AxisType::linear, -1,     1, 11);break;
         case Impulse:     axisY->configure(AxisType::linear, -1,     1, 11);break;
-        default: ;
     }
 
     switch (_type) {
@@ -62,7 +61,6 @@ void Chart::_setType(const Type type)
 
         case Scope:
             axisX->configure(AxisType::linear, -10, 10, 11);break;
-        default: ;
     }
 
     emit typeChanged();
@@ -111,6 +109,23 @@ void Chart::appendDataSource(Source *source)
     connect(this,   SIGNAL(typeChanged()),  s, SLOT(prepareConvert()));
     connect(source, SIGNAL(colorChanged()), s, SLOT(needUpdate()));
     connect(source, SIGNAL(readyRead()),    s, SLOT(needUpdate()));
+    connect(source, SIGNAL(activeChanged()),s, SLOT(needUpdate()));
+}
+void Chart::removeDataSource(Source *source)
+{
+    foreach (QQuickItem *item, childItems()) {
+        QQuickPaintedItem *child = qobject_cast<QQuickPaintedItem*>(item);
+        QString className(child->metaObject()->className());
+
+        if (className.compare("Fftchart::Series") == 0) {
+            Series *s = qobject_cast<Series*>(item);
+
+            if (s->getSource() == source) {
+                delete s;
+                break;
+            }
+        }
+    }
 }
 void Chart::needUpdate()
 {
@@ -121,5 +136,6 @@ void Chart::setPointsPerOctave(unsigned int p)
     _pointsPerOctave = p;
     foreach(auto *s, findChildren<Fftchart::Series *>()) {
         s->setPointsPerOctave(p);
+        s->needUpdate();
     }
 }

@@ -55,5 +55,9 @@ Item {
             target: dataModel
             onColorChanged: checkbox.checkedColor = dataModel.color
         }
+
+        Component.onCompleted: {
+            dataModel.color = applicationWindow.dataSourceList.nextColor();
+        }
     }
 }

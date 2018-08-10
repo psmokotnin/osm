@@ -20,7 +20,7 @@ private:
     void _setType(const Type type);
     Axis *axisX, *axisY;
     std::map<Type, QString> typeMap;
-    int _pointsPerOctave = 0;
+    unsigned int _pointsPerOctave = 0;
 
 public:
     Chart(QQuickItem *parent = Q_NULLPTR);
@@ -32,6 +32,7 @@ public:
     void paint(QPainter *painter);
 
     Q_INVOKABLE void appendDataSource(Source *source);
+    Q_INVOKABLE void removeDataSource(Source *source);
     unsigned int pointsPerOctave() {return _pointsPerOctave;}
     void setPointsPerOctave(unsigned int p);
 

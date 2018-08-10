@@ -85,11 +85,9 @@ Item {
         Button {
             text: qsTr("Store");
             onClicked: {
-                var storedData = dataObject.store();
-                var component = Qt.createComponent("Stored.qml");
-                var item = component.createObject(applicationWindow, {dataModel: storedData});
-
-                applicationWindow.dataSourceList.append(item);
+                var stored = dataObject.store();
+                stored.name = 'Stored #' + (applicationWindow.dataSourceList.list.model.count - 1);
+                applicationWindow.dataSourceList.addStored(stored);
             }
         }
     }

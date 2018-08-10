@@ -41,6 +41,7 @@ public:
     void setColor(const QColor &color) {m_color = color;}
     void paint(QPainter *painter);
     void setPointsPerOctave(unsigned int p);
+    Source * getSource() const {return _source;}
 
 signals:
     void colorChanged();

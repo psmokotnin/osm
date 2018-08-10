@@ -20,7 +20,16 @@ Item {
                         var newSeries = fftChart.appendDataSource(item.dataModel);
                     }
             }
-            //TODO: add series on store
+
+            applicationWindow.dataSourceList.modelAdded.connect(function(item) {
+                fftChart.appendDataSource(item.dataModel);
+                fftChart.needUpdate();
+            });
+
+            applicationWindow.dataSourceList.modelRemoved.connect(function(item) {
+                fftChart.removeDataSource(item.dataModel);
+                fftChart.needUpdate();
+            });
         }
     }
 

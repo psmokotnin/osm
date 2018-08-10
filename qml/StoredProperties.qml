@@ -10,15 +10,6 @@ Item {
     RowLayout {
         spacing: 0
 
-        SpinBox {
-            implicitWidth: 125
-            value: dataObject.pointsPerOctave
-            from: 0
-            to: 24
-            //editable: true
-            onValueChanged: dataObject.pointsPerOctave = value
-        }
-
         TextField {
             placeholderText: qsTr("title")
             text: dataObject.name
@@ -35,6 +26,14 @@ Item {
 
             onColorChanged: {
                 dataObject.color = color
+            }
+        }
+
+        Button {
+            text: qsTr("Delete");
+            onClicked: {
+                applicationWindow.dataSourceList.remove(dataObject);
+                applicationWindow.properiesbar.stack.clear();
             }
         }
 

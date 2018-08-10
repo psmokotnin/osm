@@ -8,7 +8,7 @@ Item {
     property var dataModel;
     property bool chartable : true;
     height: 50
-    //width: parent.width
+    width: parent.width
 
     RowLayout {
         width: parent.width

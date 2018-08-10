@@ -1,9 +1,17 @@
+#include <algorithm>
 #include "source.h"
 
 using namespace Fftchart;
 Source::Source(QObject *parent) : QObject(parent)
 {
 
+}
+void Source::setGlobalColor(int globalValue)
+{
+    if (globalValue < 19) {
+        _color = Qt::GlobalColor(globalValue);
+        emit colorChanged();
+    }
 }
 float Source::frequency(unsigned int i) const noexcept
 {
@@ -53,4 +61,10 @@ float Source::impulseValue(unsigned int i) const noexcept
     if (i >= _dataLength)
         return 0.0;
     return _impulseData[i].value.real;
+}
+
+void Source::copy(FTData *dataDist, TimeData *timeDist)
+{
+    std::copy(_ftdata, _ftdata + size(), dataDist);
+    std::copy(_impulseData, _impulseData + impulseSize(), timeDist);
 }

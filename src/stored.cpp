@@ -1,15 +1,16 @@
 #include "stored.h"
-/*
-Stored::Stored(QObject *parent) : Chartable(parent)
+
+Stored::Stored(QObject *parent) : Fftchart::Source(parent)
 {
 
 }
-void Stored::build(Chartable *source)
+void Stored::build (Fftchart::Source *source)
 {
-    _fftSize = source->fftSize();
-    _deconvolutionSize = source->deconvolutionSize();
-    alloc();
-
-    //source->copyData(dataStack, referenceStack, &data, impulseData);
+    _dataLength = source->size();
+    _deconvolutionSize = source->impulseSize();
+    setFftSize(source->fftSize());
+    _ftdata = new FTData[_dataLength];
+    _impulseData = new TimeData[_deconvolutionSize];
+    source->copy(_ftdata, _impulseData);
+    emit readyRead();
 }
-*/

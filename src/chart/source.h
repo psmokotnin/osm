@@ -16,7 +16,7 @@ class Source : public QObject
 protected:
     bool _active         = true;
     QString _name        = "Measurement";
-    QColor _color        = QColor("#209fdf");
+    QColor _color;
 
     struct FTData {
         complex data;
@@ -35,7 +35,7 @@ protected:
 
 public:
     explicit Source(QObject *parent = nullptr);
-
+    Q_INVOKABLE void destroy() {deleteLater();}//Schedules ~Source() from qml
 
     bool active() const noexcept {return _active;}
     virtual void setActive(bool active) {_active = active; emit activeChanged();}
@@ -46,9 +46,9 @@ public:
     QColor color() const noexcept {return _color;}
     void setColor(QColor color) {_color = color; emit colorChanged();}
 
-
     unsigned int size() const  noexcept {return _dataLength;}
     unsigned int fftSize() const  noexcept {return _fftSize;}
+    void setFftSize(unsigned int size) {_fftSize = size;}
     float frequency(unsigned int i) const noexcept;
     float module(unsigned int i) const noexcept;
     float dataAbs(unsigned int i) const noexcept;
@@ -59,12 +59,16 @@ public:
     float impulseTime(unsigned int i) const noexcept;
     float impulseValue(unsigned int i) const noexcept;
 
+    void copy(FTData *dataDist, TimeData *timeDist);
+
 signals:
     void activeChanged();
     void nameChanged();
     void colorChanged();
+    void readyRead();
 
 public slots:
+    void setGlobalColor(int globalValue);
 };
 }
 #endif // SOURCE_H

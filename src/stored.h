@@ -1,19 +1,14 @@
 #ifndef STORED_H
 #define STORED_H
-/*
 
-class Stored : public Chartable
+#include "chart/source.h"
+
+class Stored: public Fftchart::Source
 {
-protected:
-    int _sampleRate;
+    Q_OBJECT
 
 public:
-    Stored(QObject *parent = nullptr);
-
-    void build(Chartable *source);
-
-    int sampleRate() const {return _sampleRate;}
-    void setSampleRate(int sampleRate) {_sampleRate = sampleRate;}
+    explicit Stored(QObject *parent = nullptr);
+    void build (Fftchart::Source *source);
 };
-*/
 #endif // STORED_H

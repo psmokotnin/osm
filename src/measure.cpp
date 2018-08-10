@@ -276,9 +276,8 @@ void Measure::averaging()
 }
 QObject *Measure::store()
 {
-//    Stored *store = new Stored(this);
-//    store->setSampleRate(sampleRate());
-//    store->build(this);
+    Stored *store = new Stored(this);
+    store->build(this);
 
-//    return store;
+    return store;
 }

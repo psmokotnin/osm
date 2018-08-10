@@ -1,7 +1,9 @@
 import QtQuick 2.7
 import QtQuick.Controls 2.2
 import QtQuick.Layouts 1.1
-import QtQml.Models 2.2
+import QtQml 2.2
+import QtQml.Models 2.3
+import QtQuick.Controls.Material 2.1
 /**
  * SideBar
  *
@@ -12,8 +14,9 @@ import QtQml.Models 2.2
  */
 Item {
     property Item list : sideList
-
+    property int colorIndex: 6;
     signal modelAdded(Item item);
+    signal modelRemoved(Item item);
 
     ComboBox {
         id: chartsCount
@@ -45,8 +48,35 @@ Item {
           ScrollIndicator.vertical: ScrollIndicator { }
       }
 
-      function append(item) {
+      function addStored(storedData) {
+          var component = Qt.createComponent("Stored.qml");
+          var item = component.createObject(applicationWindow, {dataModel: storedData});
+          storedData.color = nextColor();
+
           sideModel.append(item);
           modelAdded(item);
+      }
+
+      function remove(object) {
+          for (var i = 0; i < sideModel.count; i++) {
+              var o = sideModel.get(i);
+              if (o.dataModel && o.dataModel === object) {
+                  sideModel.remove(i);  //remove from sidebar
+                  o.destroy();          //destroy sidebar qml element
+                  modelRemoved(o);      //signal for remove from charts and delete Series QObject
+                  object.destroy();     //delete Source QObject
+                  break;
+              }
+          }
+      }
+
+      function nextColor() {
+          var color = Material.color(colorIndex);
+          colorIndex += 3;
+          if (color === Material.color(-1)) {
+              colorIndex -= 20;
+              return nextColor();
+          }
+          return color;
       }
 }

@@ -90,9 +90,6 @@ public:
     unsigned int fftPower() {return _fftPower;}
     void setFftPower(unsigned int power);
 
-    unsigned int fftSize() {return _fftSize;}
-    void setFftSize(unsigned int size) {_fftSize = size;}
-
     void setActive(bool active);
 
     QVariant getDeviceList(void);
@@ -131,7 +128,6 @@ public:
 signals:
     void fftPowerChanged();
     void deviceChanged();
-    void readyRead();
     void levelChanged();
     void delayChanged();
     void referenceLevelChanged();
