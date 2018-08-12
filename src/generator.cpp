@@ -81,11 +81,15 @@ void Generator::selectDevice(QString name)
 
             _audio->stop();
             _sources[type]->close();
-
+            delete _audio;
             _audio = new QAudioOutput(_device, _format, this);
-            _sources[type]->open(QIODevice::ReadOnly);
             _audio->setBufferSize(16384);
-            _audio->start(_sources[type]);
+
+            if (enabled) {
+                _sources[type]->open(QIODevice::ReadOnly);
+                _sources[type]->setSamplerate(_format.sampleRate());
+                _audio->start(_sources[type]);
+            }
         }
     }
 }
