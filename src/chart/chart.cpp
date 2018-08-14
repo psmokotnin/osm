@@ -139,3 +139,11 @@ void Chart::setPointsPerOctave(unsigned int p)
         s->needUpdate();
     }
 }
+qreal Chart::x2v(qreal x) const noexcept
+{
+    return axisX->coordToValue(x);
+}
+qreal Chart::y2v(qreal y) const noexcept
+{
+    return axisY->coordToValue(y);
+}

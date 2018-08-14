@@ -17,8 +17,8 @@ protected:
     } padding;
 
     QString format(float v);
-    float pwidth()  {return width()  - (padding.left + padding.right); }
-    float pheight() {return height() - (padding.top  + padding.bottom);}
+    float pwidth() const noexcept  {return static_cast<float>(width())  - (padding.left + padding.right); }
+    float pheight() const noexcept {return static_cast<float>(height()) - (padding.top  + padding.bottom);}
 
 public:
     PaintedItem (QQuickItem *parent = Q_NULLPTR);

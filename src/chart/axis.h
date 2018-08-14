@@ -23,7 +23,10 @@ private:
 public:
     Axis(AxisDirection d, QQuickItem *parent = Q_NULLPTR);
     void paint(QPainter *painter) noexcept;
-    float convert(float value, float size);
+    float convert(float value, float size) const;
+    float reverse(float value, float size) const noexcept;
+    float coordToValue(float coord) const noexcept;
+    qreal coordToValue(qreal coord) const noexcept;
 
     void configure(AxisType type, float min, float max, unsigned int ticks = 0, float scale = 1.0);
 

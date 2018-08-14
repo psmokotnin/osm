@@ -34,8 +34,20 @@ Item {
     }
 
     PropertiesOpener {
-       propertiesQml: "qrc:/ChartProperties.qml"
-       pushObject: fftChart
+        id: opener
+        propertiesQml: "qrc:/ChartProperties.qml"
+        pushObject: fftChart
+        cursorShape: "CrossCursor";
+        hoverEnabled: true
+        onEntered: cursor.visible = true
+        onExited: cursor.visible = false
+    }
+
+    Label {
+        id: cursor
+        text: "%1".arg(fftChart.y2v(opener.mouseY)) + "\n" + "%1".arg(fftChart.x2v(opener.mouseX))
+        x: opener.mouseX + cursor.fontInfo.pixelSize / 2
+        y: opener.mouseY - cursor.height / 2
     }
 
     ComboBox {

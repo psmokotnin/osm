@@ -76,7 +76,7 @@ void Axis::paint(QPainter *painter) noexcept
         }
     });
 }
-float Axis::convert(float value, float size)
+float Axis::convert(float value, float size) const
 {
     if (_type == AxisType::logarithmic) {
         if (value == 0) {
@@ -85,6 +85,25 @@ float Axis::convert(float value, float size)
         return size * (log(value) - log(_min)) / log(_max / _min);
     }
     return size * (value - _min) / (_max - _min);
+}
+float Axis::reverse(float value, float size) const noexcept
+{
+    if (_type == AxisType::logarithmic) {
+        return pow(static_cast<float>(M_E), log(_min) + value * log(_max / _min) / size);
+    }
+    return value * (_max - _min) / size + _min;
+}
+float Axis::coordToValue(float coord) const noexcept
+{
+    float size = (_direction == horizontal ? pwidth() : pheight());
+    coord = (_direction == horizontal ?
+               coord - padding.left :
+               static_cast<float>(height()) - coord - padding.bottom);
+    return reverse(coord, size) * scale();
+}
+qreal Axis::coordToValue(qreal coord) const noexcept
+{
+    return static_cast<qreal>(coordToValue(static_cast<float>(coord)));
 }
 void Axis::autoLabels(unsigned int ticks)
 {

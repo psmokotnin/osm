@@ -36,6 +36,9 @@ public:
     unsigned int pointsPerOctave() {return _pointsPerOctave;}
     void setPointsPerOctave(unsigned int p);
 
+    Q_INVOKABLE qreal x2v(qreal x) const noexcept;
+    Q_INVOKABLE qreal y2v(qreal y) const noexcept;
+
 signals:
     void typeChanged();
     void pointsPerOctaveChanged();
