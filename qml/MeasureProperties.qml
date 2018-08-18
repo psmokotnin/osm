@@ -23,7 +23,8 @@ Item {
         }
 
         SpinBox {
-            implicitWidth: 225
+            id: delaySpin
+            implicitWidth: 175
             value: dataObject.delay
             from: 0
             to: 48000
@@ -36,6 +37,20 @@ Item {
 
             valueFromText: function(text, locale) {
                 return Number.fromLocaleString(locale, text.replace("ms", "")) * 48;
+            }
+
+            ToolTip.visible: hovered
+            ToolTip.text: "Estimated delay time: <b>" +
+                          Number(dataObject.estimated / 48).toLocaleString(locale, 'f', 2) +
+                          'ms</b>';
+        }
+
+        Button {
+            text: qsTr("E");
+            implicitWidth: 25
+            anchors.left: delaySpin.right
+            onClicked: {
+                delaySpin.value = dataObject.estimated;
             }
         }
 

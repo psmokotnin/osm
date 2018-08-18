@@ -4,6 +4,7 @@ Deconvolution::Deconvolution(unsigned int size)
 {
     _size = size;
     _pointer = 0;
+    _maxPoint = 0;
 
     _in  = new float[_size];
     _out = new float[_size];
@@ -112,7 +113,12 @@ void Deconvolution::transform()
         }
     }
 
+    float max = 0.0;
     for (unsigned int i = 0; i < _size; i++) {
         _d[i] = _dc[i].real / _size;
+        if (max < abs(_d[i])) {
+            max = abs(_d[i]);
+            _maxPoint = i;
+        }
     }
 }

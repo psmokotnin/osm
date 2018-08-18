@@ -33,6 +33,7 @@ class Measure : public Fftchart::Source
     Q_PROPERTY(float referenceLevel READ referenceLevel NOTIFY referenceLevelChanged)
 
     Q_PROPERTY(unsigned long delay READ delay WRITE setDelay NOTIFY delayChanged)
+    Q_PROPERTY(long estimated READ estimated NOTIFY estimatedChanged)
 
     Q_PROPERTY(int average READ average WRITE setAverage NOTIFY averageChanged)
 
@@ -58,6 +59,7 @@ private:
         _referenceChanel = 1,
         _average = 0, _setAverage = 0;
     unsigned long _delay = 0;
+    long _estimatedDelay = 0;
     unsigned int _avgcounter = 0;
     bool _polarity = false;
     bool _averageMedian = false;
@@ -68,6 +70,7 @@ private:
 
     complex **averageData = nullptr, **averageReference = nullptr;
     float **averageDeconvolution = nullptr;
+    unsigned long *estimatedDelays = nullptr;
 
     WindowFunction *_window;
     FourierTransform *_dataFT;
@@ -125,6 +128,8 @@ public:
     QTimer *getTimer() const;
     void setTimer(QTimer *value);
 
+    long estimated() const noexcept;
+
 signals:
     void fftPowerChanged();
     void deviceChanged();
@@ -136,6 +141,7 @@ signals:
     void dataChanelChanged();
     void referenceChanelChanged();
     void windowTypeChanged();
+    void estimatedChanged();
 
 public slots:
     void transform();

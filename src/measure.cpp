@@ -157,15 +157,18 @@ void Measure::averageRealloc(bool force)
     if (averageData)        delete[] averageData;
     if (averageReference)   delete[] averageReference;
     if (averageDeconvolution) delete[] averageDeconvolution;
+    if (estimatedDelays)    delete[] estimatedDelays;
 
     averageData      = new complex*[_setAverage];
     averageReference = new complex*[_setAverage];
     averageDeconvolution = new float*[_setAverage];
+    estimatedDelays  = new unsigned long[_setAverage];
 
     for (unsigned int i = 0; i < _setAverage; i ++) {
         averageData[i]      = new complex[_dataLength];
         averageReference[i] = new complex[_dataLength];
         averageDeconvolution[i] = new float[_deconvolutionSize];
+        estimatedDelays[i]  = 0;
     }
 
     //aply new value
@@ -273,6 +276,14 @@ void Measure::averaging()
         _impulseData[j].value = impulseData[i];
         _impulseData[j].time  = static_cast<float>(t * 1000.0 / sampleRate());//ms
     }
+
+    estimatedDelays[_avgcounter] = _deconv->maxPoint();
+    _estimatedDelay = 0;
+    for (unsigned int k = 0; k < _average; k++) {
+        _estimatedDelay += estimatedDelays[k];
+    }
+    _estimatedDelay /= _average;
+    emit estimatedChanged();
 }
 QObject *Measure::store()
 {
@@ -280,4 +291,11 @@ QObject *Measure::store()
     store->build(this);
 
     return store;
+}
+long Measure::estimated() const noexcept
+{
+    if (_estimatedDelay > _deconvolutionSize / 2) {
+        return _estimatedDelay - _deconvolutionSize + static_cast<long>(_delay);
+    }
+    return _estimatedDelay + static_cast<long>(_delay);
 }
