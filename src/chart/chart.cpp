@@ -105,6 +105,7 @@ void Chart::paint(QPainter *painter)
 void Chart::appendDataSource(Source *source)
 {
     Series *s = new Series(source, &_type, axisX, axisY, this);
+    s->setPointsPerOctave(pointsPerOctave());
 
     connect(this,   SIGNAL(typeChanged()),  s, SLOT(prepareConvert()));
     connect(source, SIGNAL(colorChanged()), s, SLOT(needUpdate()));
