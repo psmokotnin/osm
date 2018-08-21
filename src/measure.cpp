@@ -158,6 +158,8 @@ void Measure::averageRealloc(bool force)
     if (averageReference)   delete[] averageReference;
     if (averageDeconvolution) delete[] averageDeconvolution;
     if (estimatedDelays)    delete[] estimatedDelays;
+    if (dataLPFs)           delete[] dataLPFs;
+    if (referenceLPFs)      delete[] referenceLPFs;
 
     averageData      = new complex*[_setAverage];
     averageReference = new complex*[_setAverage];
@@ -170,6 +172,8 @@ void Measure::averageRealloc(bool force)
         averageDeconvolution[i] = new float[_deconvolutionSize];
         estimatedDelays[i]  = 0;
     }
+    dataLPFs      = new Filter[_dataLength];
+    referenceLPFs = new Filter[_dataLength];
 
     //aply new value
     _average = _setAverage;
@@ -246,8 +250,13 @@ void Measure::averaging()
     if (_avgcounter >= _average) _avgcounter = 0;
 
     for (unsigned int i = 0; i < _dataLength ; i++) {
-        averageData[_avgcounter][i]      = _dataFT->af(i);
-        averageReference[_avgcounter][i] = _dataFT->bf(i);
+        if (_lpf) {
+            averageData[_avgcounter][i]      = dataLPFs[i](     _dataFT->af(i));
+            averageReference[_avgcounter][i] = referenceLPFs[i](_dataFT->bf(i));
+        } else {
+            averageData[_avgcounter][i]      = _dataFT->af(i);
+            averageReference[_avgcounter][i] = _dataFT->bf(i);
+        }
 
         _ftdata[i].data      = 0.0;
         _ftdata[i].reference = 0.0;

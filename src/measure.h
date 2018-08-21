@@ -16,6 +16,7 @@ QT_CHARTS_USE_NAMESPACE
 #include "inputdevice.h"
 #include "fouriertransform.h"
 #include "deconvolution.h"
+#include "filter.h"
 
 class Measure : public Fftchart::Source
 {
@@ -38,6 +39,7 @@ class Measure : public Fftchart::Source
     Q_PROPERTY(int average READ average WRITE setAverage NOTIFY averageChanged)
 
     Q_PROPERTY(bool polarity READ polarity WRITE setPolarity NOTIFY polarityChanged)
+    Q_PROPERTY(bool lpf READ lpf WRITE setLPF NOTIFY lpfChanged)
 
     //routing
     Q_PROPERTY(int dataChanel READ dataChanel WRITE setDataChanel NOTIFY dataChanelChanged)
@@ -61,8 +63,9 @@ private:
     unsigned long _delay = 0;
     long _estimatedDelay = 0;
     unsigned int _avgcounter = 0;
-    bool _polarity = false;
-    bool _averageMedian = false;
+    bool _polarity          = false;
+    bool _averageMedian     = false;
+    bool _lpf               = true;
 
     AudioStack *dataStack,
                *referenceStack;
@@ -75,6 +78,7 @@ private:
     WindowFunction *_window;
     FourierTransform *_dataFT;
     Deconvolution *_deconv;
+    Filter *dataLPFs = nullptr, *referenceLPFs = nullptr;
 
     float _level         = 0.0,
          _referenceLevel = 0.0;
@@ -119,6 +123,9 @@ public:
     bool polarity() {return _polarity;}
     void setPolarity(bool polarity) {_polarity = polarity;}
 
+    bool lpf() {return _lpf;}
+    void setLPF(bool lpf) {_lpf = lpf;}
+
     unsigned int sampleRate() const;
 
     QVariant getAvailableWindowTypes() {return _window->getTypes();}
@@ -142,6 +149,7 @@ signals:
     void referenceChanelChanged();
     void windowTypeChanged();
     void estimatedChanged();
+    void lpfChanged();
 
 public slots:
     void transform();

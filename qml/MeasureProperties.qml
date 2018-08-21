@@ -21,6 +21,11 @@ Item {
             editable: true
             onValueChanged: dataObject.average = value
         }
+        CheckBox {
+            text: qsTr("LPF")
+            checked: dataObject.lpf
+            onCheckStateChanged: dataObject.lpf = checked
+        }
 
         SpinBox {
             id: delaySpin
