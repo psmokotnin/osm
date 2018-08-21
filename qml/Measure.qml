@@ -40,14 +40,14 @@ Item {
                 }
             }
 
-            ProgressBar {
-                value: dataModel.level
-                implicitWidth: parent.width
+            Meter {
+                dBV: dataModel.level
+                width: parent.width
             }
 
-            ProgressBar {
-                value: dataModel.referenceLevel
-                implicitWidth: parent.width
+            Meter {
+                dBV: dataModel.referenceLevel
+                width: parent.width
             }
         }
 

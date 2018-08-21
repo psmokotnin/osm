@@ -17,5 +17,6 @@
         <file alias="Stored.qml">qml/Stored.qml</file>
         <file alias="ChartContainer.qml">qml/ChartContainer.qml</file>
         <file alias="StoredProperties.qml">qml/StoredProperties.qml</file>
+        <file alias="Meter.qml">qml/Meter.qml</file>
     </qresource>
 </RCC>

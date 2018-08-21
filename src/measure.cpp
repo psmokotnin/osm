@@ -1,7 +1,9 @@
 #include <algorithm>
 #include "measure.h"
 
-Measure::Measure(QObject *parent) : Fftchart::Source(parent)
+Measure::Measure(QObject *parent) : Fftchart::Source(parent),
+    dataMeter(12000),
+    referenceMeter(12000)
 {
     _iodevice = new InputDevice(this);
     connect(_iodevice, SIGNAL(recived(const char *, qint64)), SLOT(writeData(const char *, qint64)));
@@ -197,10 +199,12 @@ qint64 Measure::writeData(const char *data, qint64 len)
             d = reinterpret_cast<const float*>(ptr);
             if (j == _dataChanel) {
                 dataStack->add((_polarity ? -1 * *d : *d));
+                dataMeter.add(*d);
             }
 
             if (j == _referenceChanel) {
                 referenceStack->add(*d);
+                referenceMeter.add(*d);
             }
 
             ptr += channelBytes;
@@ -227,6 +231,8 @@ void Measure::transform()
     _dataFT->fast(_window);
     _deconv->transform();
     averaging();
+    _level = dataMeter.value();
+    _referenceLevel = referenceMeter.value();
 
     emit readyRead();
     emit levelChanged();

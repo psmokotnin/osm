@@ -54,36 +54,20 @@ void AudioStack::add(float data)
     if (!this->firstdata)
         this->firstdata = newData;
 
-    while (this->_size > this->sizeLimit) //drop first
-    {
-        Cell * first = this->firstdata;
-        if (this->pointer == this->firstdata)
-            this->pointer = first->next;
-
-        this->firstdata = first->next;
-        delete (first);
-        first = nullptr;
-        this->_size --;
+    while (this->_size > this->sizeLimit) {
+        dropFirst();
     }
-
-    if (subStack != nullptr)
-        subStack->partAdd(data);
 }
-bool AudioStack::partAdd(float data)
+void AudioStack::dropFirst()
 {
-    parts.append(data);
+    Cell * first = firstdata;
+    if (pointer == firstdata)
+        pointer = first->next;
 
-    if (parts.count() == subParts) {
-        float newData = 0.0;
-        for (int i = 0; i < parts.count(); i++) {
-            newData += parts[i];
-        }
-        newData /= parts.count();
-        add(newData);
-        parts.clear();
-        return true;
-    }
-    return false;
+    firstdata = first->next;
+    delete (first);
+    first = nullptr;
+    _size --;
 }
 
 void AudioStack::reset(void)

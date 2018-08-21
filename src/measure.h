@@ -10,6 +10,7 @@ QT_CHARTS_USE_NAMESPACE
 
 #include "sample.h"
 #include "audiostack.h"
+#include "meter.h"
 #include "chart/type.h"
 #include "chart/source.h"
 #include "stored.h"
@@ -70,6 +71,7 @@ private:
     AudioStack *dataStack,
                *referenceStack;
     complex *impulseData;
+    Meter dataMeter, referenceMeter;
 
     complex **averageData = nullptr, **averageReference = nullptr;
     float **averageDeconvolution = nullptr;

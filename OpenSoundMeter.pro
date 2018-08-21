@@ -22,7 +22,8 @@ SOURCES += src/main.cpp \
     src/ssemath.cpp \
     src/chart/source.cpp \
     src/inputdevice.cpp \
-    src/filter.cpp
+    src/filter.cpp \
+    src/meter.cpp
 
 RESOURCES += qml.qrc
 
@@ -70,7 +71,8 @@ HEADERS += \
     src/chart/type.h \
     src/chart/source.h \
     src/inputdevice.h \
-    src/filter.h
+    src/filter.h \
+    src/meter.h
 
 FORMS +=
 
