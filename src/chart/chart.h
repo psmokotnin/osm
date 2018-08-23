@@ -38,6 +38,7 @@ public:
 
     Q_INVOKABLE qreal x2v(qreal x) const noexcept;
     Q_INVOKABLE qreal y2v(qreal y) const noexcept;
+    Q_INVOKABLE QString urlForGrab(QUrl url) const {return url.toLocalFile();}
 
 signals:
     void typeChanged();

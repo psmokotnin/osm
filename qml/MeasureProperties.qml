@@ -87,6 +87,19 @@ Item {
         Component.onCompleted: {
             colorPicker.color = dataObject.color
         }
+    }
+
+    RowLayout {
+        spacing: 0
+        anchors.left: parent.left
+        anchors.right: parent.right
+
+        ComboBox {
+            id: powerSelect
+            model: [14, 15, 16]
+            currentIndex: { model.indexOf(dataObject.fftPower) }
+            onCurrentIndexChanged: dataObject.fftPower = model[currentIndex]
+        }
 
         ComboBox {
             id: windowSelect
@@ -96,10 +109,11 @@ Item {
         }
 
         ComboBox {
-            id: powerSelect
-            model: [14, 15, 16]
-            currentIndex: { model.indexOf(dataObject.fftPower) }
-            onCurrentIndexChanged: dataObject.fftPower = model[currentIndex]
+            id: deviceSelect
+            implicitWidth: 200
+            model: dataObject.devices
+            currentIndex: { model.indexOf(dataObject.device) }
+            onCurrentIndexChanged: dataObject.device = model[currentIndex]
         }
 
         Button {
@@ -109,20 +123,6 @@ Item {
                 stored.name = 'Stored #' + (applicationWindow.dataSourceList.list.model.count - 1);
                 applicationWindow.dataSourceList.addStored(stored);
             }
-        }
-    }
-
-    RowLayout {
-        spacing: 0
-        anchors.left: parent.left
-        anchors.right: parent.right
-
-        ComboBox {
-            id: deviceSelect
-            implicitWidth: 200
-            model: dataObject.devices
-            currentIndex: { model.indexOf(dataObject.device) }
-            onCurrentIndexChanged: dataObject.device = model[currentIndex]
         }
     }
     }//ColumnLayout

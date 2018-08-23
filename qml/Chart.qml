@@ -53,7 +53,8 @@ Item {
     ComboBox {
         anchors.top: parent.top
         anchors.right: parent.right
-        model: ["RTA", "Magnitude", "Phase", "Impulse", "Scope"]
+        implicitWidth: 130
+        model: ["RTA", "Magnitude", "Phase", "Impulse"/*, "Scope"*/]
         currentIndex: 0
         onCurrentIndexChanged: {
             fftChart.type = model[currentIndex];
