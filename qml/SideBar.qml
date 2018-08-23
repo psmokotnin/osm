@@ -44,6 +44,7 @@ Item {
           anchors.bottom: parent.bottom
           anchors.margins: 5
           model: sideModel
+          cacheBuffer: 500
 
           ScrollIndicator.vertical: ScrollIndicator { }
       }

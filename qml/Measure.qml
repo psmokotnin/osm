@@ -8,14 +8,14 @@ Item {
     property var dataModel;
     property bool chartable : true;
     height: 50
-    width: parent.width
+    width: (parent ? parent.width : 0)
 
     RowLayout {
         width: parent.width
 
         MulticolorCheckBox {
             id: checkbox
-            anchors.verticalCenter: parent.verticalCenter
+            Layout.alignment: Qt.AlignVCenter
 
             checkedColor: dataModel.color
 

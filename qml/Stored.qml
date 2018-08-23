@@ -15,7 +15,7 @@ Item {
 
         MulticolorCheckBox {
             id: checkbox
-            anchors.verticalCenter: parent.verticalCenter
+            Layout.alignment: Qt.AlignVCenter
 
             checkedColor: dataModel.color
 

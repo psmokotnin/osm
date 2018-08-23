@@ -43,6 +43,7 @@ class Measure : public Fftchart::Source
     Q_PROPERTY(bool lpf READ lpf WRITE setLPF NOTIFY lpfChanged)
 
     //routing
+    Q_PROPERTY(int chanelsCount READ chanelsCount NOTIFY chanelsCountChanged)
     Q_PROPERTY(int dataChanel READ dataChanel WRITE setDataChanel NOTIFY dataChanelChanged)
     Q_PROPERTY(int referenceChanel READ referenceChanel WRITE setReferenceChanel NOTIFY referenceChanelChanged)
 
@@ -57,7 +58,8 @@ private:
     QAudioFormat _format;
     QTimer *_timer;
     unsigned int
-        _chanelCount = 2,
+        _chanelCount = 2,   //how many chanels will be presented in writeData
+        _maxChanelCount = 2,//max supported channels by selected device
         _dataChanel = 0,
         _referenceChanel = 1,
         _average = 0, _setAverage = 0;
@@ -112,6 +114,7 @@ public:
 
     unsigned int referenceChanel(){return _referenceChanel;}
     void setReferenceChanel(unsigned int n) {_referenceChanel = n;}
+    unsigned int chanelsCount() {return _maxChanelCount;}
 
     float level() {return _level;}
     float referenceLevel() {return _referenceLevel;}
@@ -152,6 +155,7 @@ signals:
     void windowTypeChanged();
     void estimatedChanged();
     void lpfChanged();
+    void chanelsCountChanged();
 
 public slots:
     void transform();

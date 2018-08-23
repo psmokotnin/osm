@@ -26,45 +26,26 @@ ApplicationWindow {
         spacing: 0
 
         ColumnLayout {
-            y: 0
-
-            anchors.left: parent.left
-            anchors.right: righttab.left
-            anchors.top: parent.top
-            anchors.bottom: parent.bottom
-
             spacing: 0
 
             //Charts area
             Charts {
                 id: charts
-                y: 0
-                x: 0
-
-                anchors.left: parent.left
-                anchors.right: parent.right
-                anchors.top: parent.top
-                anchors.bottom: bottomtab.top
+                Layout.fillWidth: true
+                Layout.fillHeight: true
             }
 
             //Properties area
             PropetiesBar {
                 id: bottomtab
                 height: 120
-                anchors.left: parent.left
-                anchors.right: parent.right
-                anchors.bottom: parent.bottom
+                Layout.fillWidth: true
             }
         }
 
-        //Measures area
         SideBar {
             id: righttab
-
-            anchors.right: parent.right
-            anchors.top: parent.top
-            anchors.bottom: parent.bottom
-
+            Layout.fillHeight: true
             width: 200
         }
     }

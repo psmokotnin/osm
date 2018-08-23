@@ -4,17 +4,16 @@ import QtQuick.Layouts 1.3
 import QtQuick.Dialogs 1.2
 
 Item {
-
     property var dataObject
 
     ColumnLayout {
         spacing: 0
+        anchors.fill: parent
 
     RowLayout {
-        spacing: 0
 
         SpinBox {
-            implicitWidth: 125
+            implicitWidth: 120
             value: dataObject.average
             from: 1
             to: 100
@@ -23,82 +22,84 @@ Item {
         }
         CheckBox {
             text: qsTr("LPF")
+            implicitWidth: 120
             checked: dataObject.lpf
             onCheckStateChanged: dataObject.lpf = checked
         }
 
-        SpinBox {
-            id: delaySpin
-            implicitWidth: 175
-            value: dataObject.delay
-            from: 0
-            to: 48000
-            editable: true
-            onValueChanged: dataObject.delay = value
-
-            textFromValue: function(value, locale) {
-                return Number(value / 48).toLocaleString(locale, 'f', 2) + "ms";
-            }
-
-            valueFromText: function(text, locale) {
-                return Number.fromLocaleString(locale, text.replace("ms", "")) * 48;
-            }
-
-            ToolTip.visible: hovered
-            ToolTip.text: "Estimated delay time: <b>" +
-                          Number(dataObject.estimated / 48).toLocaleString(locale, 'f', 2) +
-                          'ms</b>';
-        }
-
-        Button {
-            text: qsTr("E");
-            implicitWidth: 25
-            anchors.left: delaySpin.right
-            onClicked: {
-                delaySpin.value = dataObject.estimated;
-            }
-        }
-
         CheckBox {
             text: qsTr("polarity")
+            implicitWidth: 120
             checked: dataObject.polarity
             onCheckStateChanged: dataObject.polarity = checked
         }
 
-        TextField {
-            placeholderText: qsTr("title")
-            text: dataObject.name
-            onTextEdited: dataObject.name = text
-
-        }
-
-        ColorPicker {
-            id: colorPicker
-
-            Layout.preferredWidth: 25
-            Layout.preferredHeight: 25
-            Layout.margins: 5
-
-            onColorChanged: {
-                dataObject.color = color
+            TextField {
+                placeholderText: qsTr("title")
+                text: dataObject.name
+                onTextEdited: dataObject.name = text
+                implicitWidth: 120
             }
-        }
 
-        Component.onCompleted: {
-            colorPicker.color = dataObject.color
-        }
+            ColorPicker {
+                id: colorPicker
+                Layout.preferredWidth: 25
+                Layout.preferredHeight: 25
+                Layout.margins: 0
+
+                onColorChanged: {
+                    dataObject.color = color
+                }
+
+                Component.onCompleted: {
+                    color = dataObject.color
+                }
+            }
+
+            RowLayout {
+                Layout.fillWidth: true
+            }
+
+            SpinBox {
+                id: delaySpin
+                implicitWidth: 180
+                value: dataObject.delay
+                from: 0
+                to: 48000
+                editable: true
+                onValueChanged: dataObject.delay = value
+
+                textFromValue: function(value, locale) {
+                    return Number(value / 48).toLocaleString(locale, 'f', 2) + "ms";
+                }
+
+                valueFromText: function(text, locale) {
+                    return Number.fromLocaleString(locale, text.replace("ms", "")) * 48;
+                }
+
+                ToolTip.visible: hovered
+                ToolTip.text: "Estimated delay time: <b>" +
+                              Number(dataObject.estimated / 48).toLocaleString(locale, 'f', 2) +
+                              'ms</b>';
+            }
+
+            Button {
+                text: qsTr("E");
+                onClicked: {
+                    delaySpin.value = dataObject.estimated;
+                }
+            }
     }
 
     RowLayout {
-        spacing: 0
-        anchors.left: parent.left
-        anchors.right: parent.right
+        Layout.fillWidth: true
 
         ComboBox {
             id: powerSelect
             model: [14, 15, 16]
             currentIndex: { model.indexOf(dataObject.fftPower) }
             onCurrentIndexChanged: dataObject.fftPower = model[currentIndex]
+            displayText: "Power:" + currentText
         }
 
         ComboBox {
@@ -109,8 +110,30 @@ Item {
         }
 
         ComboBox {
+            model: dataObject.chanelsCount
+            currentIndex: dataObject.dataChanel
+            onCurrentIndexChanged: dataObject.dataChanel = currentIndex
+            displayText: "M ch:" + (currentIndex + 1)
+            delegate: ItemDelegate {
+                      text: modelData + 1
+                      width: parent.width
+                  }
+        }
+
+        ComboBox {
+            model: dataObject.chanelsCount
+            currentIndex: dataObject.referenceChanel
+            onCurrentIndexChanged: dataObject.referenceChanel = currentIndex
+            displayText: "R ch:" + (currentIndex + 1)
+            delegate: ItemDelegate {
+                      text: modelData + 1
+                      width: parent.width
+                  }
+        }
+
+        ComboBox {
             id: deviceSelect
-            implicitWidth: 200
+            Layout.fillWidth: true
             model: dataObject.devices
             currentIndex: { model.indexOf(dataObject.device) }
             onCurrentIndexChanged: dataObject.device = model[currentIndex]

@@ -67,6 +67,7 @@ void Measure::selectDevice(QString name)
                 delete _audio;
             }
             _iodevice->close();
+            _maxChanelCount = 0;
 
             _device = deviceInfo;
 
@@ -75,6 +76,7 @@ void Measure::selectDevice(QString name)
                 unsigned int formatChanels = static_cast<unsigned int>(c);
                 if (formatChanels > _chanelCount)
                     _chanelCount = formatChanels;
+                _maxChanelCount = std::max(formatChanels, _maxChanelCount);
             }
 
             _format.setSampleRate(48000);
@@ -91,6 +93,7 @@ void Measure::selectDevice(QString name)
                 _audio->start(_iodevice);
                 _chanelCount = static_cast<unsigned int>(_format.channelCount());
             }
+            emit chanelsCountChanged();
             break;
         }
     }
