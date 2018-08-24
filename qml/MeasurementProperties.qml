@@ -19,12 +19,18 @@ Item {
                 to: 100
                 editable: true
                 onValueChanged: dataObject.average = value
+
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("average count")
             }
             CheckBox {
                 text: qsTr("LPF")
                 implicitWidth: 120
                 checked: dataObject.lpf
                 onCheckStateChanged: dataObject.lpf = checked
+
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("data low pass filter")
             }
 
             CheckBox {
@@ -32,6 +38,9 @@ Item {
                 implicitWidth: 120
                 checked: dataObject.polarity
                 onCheckStateChanged: dataObject.polarity = checked
+
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("inverse polarity at measurement chanel")
             }
 
             TextField {
@@ -39,6 +48,8 @@ Item {
                 text: dataObject.name
                 onTextEdited: dataObject.name = text
                 implicitWidth: 120
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("title")
             }
 
             ColorPicker {
@@ -54,6 +65,8 @@ Item {
                 Component.onCompleted: {
                     color = dataObject.color
                 }
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("series color")
             }
 
             RowLayout {
@@ -78,9 +91,8 @@ Item {
                 }
 
                 ToolTip.visible: hovered
-                ToolTip.text: "Estimated delay time: <b>" +
-                              Number(dataObject.estimated / 48).toLocaleString(locale, 'f', 2) +
-                              'ms</b>';
+                ToolTip.text: qsTr("estimated delay time: <b>%L1ms</b>")
+                    .arg(Number(dataObject.estimated / 48).toLocaleString(locale, 'f', 2));
             }
 
             Button {
@@ -88,6 +100,8 @@ Item {
                 onClicked: {
                     delaySpin.value = dataObject.estimated;
                 }
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("apply estimated delay")
             }
         }
 
@@ -100,6 +114,8 @@ Item {
                 currentIndex: { model.indexOf(dataObject.fftPower) }
                 onCurrentIndexChanged: dataObject.fftPower = model[currentIndex]
                 displayText: "Power:" + currentText
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("FFT Size: power of 2")
             }
 
             ComboBox {
@@ -107,6 +123,8 @@ Item {
                 model: dataObject.windows
                 currentIndex: dataObject.window
                 onCurrentIndexChanged: dataObject.window = currentIndex
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("window function")
             }
 
             ComboBox {
@@ -118,6 +136,8 @@ Item {
                           text: modelData + 1
                           width: parent.width
                       }
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("measurement chanel number")
             }
 
             ComboBox {
@@ -129,6 +149,8 @@ Item {
                           text: modelData + 1
                           width: parent.width
                       }
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("reference chanel number")
             }
 
             ComboBox {
@@ -137,6 +159,8 @@ Item {
                 model: dataObject.devices
                 currentIndex: { model.indexOf(dataObject.device) }
                 onCurrentIndexChanged: dataObject.device = model[currentIndex]
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("audio input device")
             }
 
             Button {
@@ -146,6 +170,8 @@ Item {
                     stored.name = 'Stored #' + (applicationWindow.dataSourceList.list.model.count - 1);
                     applicationWindow.dataSourceList.addStored(stored);
                 }
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("store current measurement")
             }
         }
     }//ColumnLayout

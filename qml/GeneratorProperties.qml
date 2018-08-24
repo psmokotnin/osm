@@ -14,6 +14,9 @@ Item {
             implicitWidth: parent.width
             currentIndex: { model.indexOf(generatorModel.device) }
             onCurrentIndexChanged: generatorModel.device = model[currentIndex]
+
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("audio output device")
         }
 
         RowLayout {
@@ -25,6 +28,9 @@ Item {
                 currentIndex: generatorModel.type
                 model: generatorModel.types
                 onCurrentIndexChanged: generatorModel.type = currentIndex
+
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("signal type")
             }
 
             //Sin frequency
@@ -35,6 +41,9 @@ Item {
                 to: 20000
                 editable: true
                 onValueChanged: generatorModel.frequency = value
+
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("frequency for sin")
             }
         }
     }
