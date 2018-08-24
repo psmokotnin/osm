@@ -1,12 +1,11 @@
-# Open Sound Measure
+# Open Sound Meter
+OSM - measurement software for tuning sound systems.
+Current version: 0.1
 
-This is software for measurements of sound processes.
-You are able to do: RTA, Transfer function (magnitude and phase), Impulse response and scope.
+[Project page](https://psmokotnin.github.io/osm/)
 
-Current version: 0.0 (prototyping)
-Language: C++14
-Qt5.9
-FFTW3
+Qt5.11
+Language: C++17
 
-macos:
-    brew install fftw --with-openmp
+** SSE2 **
+Software uses SSE2 cpu instructions that is the only one restriction to target platform.
