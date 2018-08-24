@@ -31,8 +31,8 @@ Item {
     ObjectModel {
           id: sideModel
           Generator {}
-          Measure {
-              dataModel: measureModel
+          Measurement {
+              dataModel: measurementModel
           }
       }
 

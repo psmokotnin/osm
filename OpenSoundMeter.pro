@@ -8,7 +8,6 @@ SOURCES += src/main.cpp \
     src/outputdevice.cpp \
     src/whitenoise.cpp \
     src/sinnoise.cpp \
-    src/measure.cpp \
     src/complex.cpp \
     src/audiostack.cpp \
     src/stored.cpp \
@@ -23,7 +22,8 @@ SOURCES += src/main.cpp \
     src/chart/source.cpp \
     src/inputdevice.cpp \
     src/filter.cpp \
-    src/meter.cpp
+    src/meter.cpp \
+    src/measurement.cpp
 
 RESOURCES += qml.qrc
 
@@ -56,7 +56,6 @@ HEADERS += \
     src/whitenoise.h \
     src/sinnoise.h \
     src/sample.h \
-    src/measure.h \
     src/complex.h \
     src/audiostack.h \
     src/stored.h \
@@ -72,7 +71,8 @@ HEADERS += \
     src/chart/source.h \
     src/inputdevice.h \
     src/filter.h \
-    src/meter.h
+    src/meter.h \
+    src/measurement.h
 
 FORMS +=
 

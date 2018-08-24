@@ -17,7 +17,7 @@ Item {
                     var item = applicationWindow.dataSourceList.list.model.get(i);
 
                     if (item.chartable) {
-                        var newSeries = fftChart.appendDataSource(item.dataModel);
+                        fftChart.appendDataSource(item.dataModel);
                     }
             }
 

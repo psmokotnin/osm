@@ -1,10 +1,11 @@
 #include <algorithm>
-#include "measure.h"
+#include "measurement.h"
 
-Measure::Measure(QObject *parent) : Fftchart::Source(parent),
+Measurement::Measurement(QObject *parent) : Fftchart::Source(parent),
     dataMeter(12000),
     referenceMeter(12000)
 {
+    setObjectName("Measurement");
     _iodevice = new InputDevice(this);
     connect(_iodevice, SIGNAL(recived(const char *, qint64)), SLOT(writeData(const char *, qint64)));
 
@@ -35,7 +36,7 @@ Measure::Measure(QObject *parent) : Fftchart::Source(parent),
     connect(_timer, SIGNAL(timeout()), SLOT(transform()));
     _timer->start(80); //12.5 per sec
 }
-Measure::~Measure()
+Measurement::~Measurement()
 {
     disconnect(this);
     if (_timer->isActive())
@@ -43,7 +44,7 @@ Measure::~Measure()
 
     _audio->stop();
 }
-QVariant Measure::getDeviceList(void)
+QVariant Measurement::getDeviceList(void)
 {
     QStringList deviceList;
     foreach (const QAudioDeviceInfo &deviceInfo, QAudioDeviceInfo::availableDevices(QAudio::AudioInput)) {
@@ -51,11 +52,11 @@ QVariant Measure::getDeviceList(void)
     }
     return QVariant::fromValue(deviceList);
 }
-QString Measure::deviceName()
+QString Measurement::deviceName()
 {
     return _device.deviceName();
 }
-void Measure::selectDevice(QString name)
+void Measurement::selectDevice(QString name)
 {
     if (name == deviceName())
         return;
@@ -98,7 +99,7 @@ void Measure::selectDevice(QString name)
         }
     }
 }
-void Measure::setFftPower(unsigned int power)
+void Measurement::setFftPower(unsigned int power)
 {
     if (_fftPower != power) {
         _audio->suspend();
@@ -117,7 +118,7 @@ void Measure::setFftPower(unsigned int power)
         _audio->resume();
     }
 }
-void Measure::calculateDataLength()
+void Measurement::calculateDataLength()
 {        
     _dataLength = _fftSize / 2;
     _ftdata = new FTData[_dataLength];
@@ -125,7 +126,7 @@ void Measure::calculateDataLength()
         _ftdata[i].frequency = static_cast<float>(i * sampleRate()) / _fftSize;
     }
 }
-void Measure::setActive(bool active)
+void Measurement::setActive(bool active)
 {
     Fftchart::Source::setActive(active);
 
@@ -138,23 +139,23 @@ void Measure::setActive(bool active)
     if (!active && _audio->state() == QAudio::ActiveState)
         _audio->stop();
 
-    _level  = 0;
-    _referenceLevel = 0;
+    _level  = -INFINITY;
+    _referenceLevel = -INFINITY;
     emit levelChanged();
     emit referenceLevelChanged();
 }
-void Measure::setDelay(unsigned long delay)
+void Measurement::setDelay(unsigned long delay)
 {
     long delta = static_cast<long>(_delay) - static_cast<long>(delay);
     _delay = delay;
     referenceStack->setSize(fftSize() + _delay);
     referenceStack->rewind(delta);
 }
-void Measure::setAverage(unsigned int average)
+void Measurement::setAverage(unsigned int average)
 {
     _setAverage = average;
 }
-void Measure::averageRealloc(bool force)
+void Measurement::averageRealloc(bool force)
 {
     if (!force && _average == _setAverage)
         return;
@@ -183,11 +184,11 @@ void Measure::averageRealloc(bool force)
     //aply new value
     _average = _setAverage;
 }
-unsigned int Measure::sampleRate() const
+unsigned int Measurement::sampleRate() const
 {
     return static_cast<unsigned int>(_audio->format().sampleRate());
 }
-qint64 Measure::writeData(const char *data, qint64 len)
+qint64 Measurement::writeData(const char *data, qint64 len)
 {
     const auto channelBytes = _format.sampleSize() / 8;
     const auto sampleBytes  = _format.channelCount() * channelBytes;
@@ -215,7 +216,7 @@ qint64 Measure::writeData(const char *data, qint64 len)
     }
     return len;
 }
-void Measure::transform()
+void Measurement::transform()
 {
     if (!_active)
         return;
@@ -241,17 +242,17 @@ void Measure::transform()
     emit levelChanged();
     emit referenceLevelChanged();
 }
-QTimer *Measure::getTimer() const
+QTimer *Measurement::getTimer() const
 {
     return _timer;
 }
 
-void Measure::setTimer(QTimer *value)
+void Measurement::setTimer(QTimer *value)
 {
     _timer = value;
 }
 
-void Measure::averaging()
+void Measurement::averaging()
 {
     averageRealloc();
 
@@ -303,14 +304,14 @@ void Measure::averaging()
     _estimatedDelay /= _average;
     emit estimatedChanged();
 }
-QObject *Measure::store()
+QObject *Measurement::store()
 {
     Stored *store = new Stored(this);
     store->build(this);
 
     return store;
 }
-long Measure::estimated() const noexcept
+long Measurement::estimated() const noexcept
 {
     if (_estimatedDelay > _deconvolutionSize / 2) {
         return _estimatedDelay - _deconvolutionSize + static_cast<long>(_delay);

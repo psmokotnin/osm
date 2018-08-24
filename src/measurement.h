@@ -1,5 +1,5 @@
-#ifndef MEASURE_H
-#define MEASURE_H
+#ifndef MEASUREMENT_H
+#define MEASUREMENT_H
 
 #include <QObject>
 #include <QAudioInput>
@@ -19,7 +19,7 @@ QT_CHARTS_USE_NAMESPACE
 #include "deconvolution.h"
 #include "filter.h"
 
-class Measure : public Fftchart::Source
+class Measurement : public Fftchart::Source
 {
     Q_OBJECT
 
@@ -95,8 +95,8 @@ protected:
     unsigned int _fftPower;
 
 public:
-    explicit Measure(QObject *parent = nullptr);
-    ~Measure();
+    explicit Measurement(QObject *parent = nullptr);
+    ~Measurement();
 
     unsigned int fftPower() {return _fftPower;}
     void setFftPower(unsigned int power);
@@ -163,4 +163,4 @@ public slots:
     qint64 writeData(const char *_ftdata, qint64 len);
 };
 
-#endif // MEASURE_H
+#endif // MEASUREMENT_H

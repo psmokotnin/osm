@@ -4,7 +4,7 @@
 #include <QQmlContext>
 
 #include "src/generator.h"
-#include "src/measure.h"
+#include "src/measurement.h"
 #include "src/chart/chart.h"
 
 int main(int argc, char *argv[])
@@ -13,8 +13,8 @@ int main(int argc, char *argv[])
     QQuickStyle::setStyle("Material");
 
     Generator g;
-    Measure *m;
-    m = new Measure(nullptr);
+    Measurement *m;
+    m = new Measurement(nullptr);
 
     qmlRegisterType<Fftchart::Chart>("FftChart", 1, 0, "FftChart");
 
@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
     //Q_DECLARE_METATYPE(QQmlListProperty<Complex>)
 
     engine.rootContext()->setContextProperty("generatorModel", &g);
-    engine.rootContext()->setContextProperty("measureModel", m);
+    engine.rootContext()->setContextProperty("measurementModel", m);
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
 
 

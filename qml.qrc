@@ -2,7 +2,7 @@
     <qresource prefix="/">
         <file alias="main.qml">qml/main.qml</file>
         <file alias="Generator.qml">qml/Generator.qml</file>
-        <file alias="Measure.qml">qml/Measure.qml</file>
+        <file alias="Measurement.qml">qml/Measurement.qml</file>
         <file alias="Chart.qml">qml/Chart.qml</file>
         <file alias="Charts.qml">qml/Charts.qml</file>
         <file alias="SideBar.qml">qml/SideBar.qml</file>
@@ -11,7 +11,7 @@
         <file alias="PropertiesOpener.qml">qml/PropertiesOpener.qml</file>
         <file alias="ChartProperties.qml">qml/ChartProperties.qml</file>
         <file alias="TitledCombo.qml">qml/TitledCombo.qml</file>
-        <file alias="MeasureProperties.qml">qml/MeasureProperties.qml</file>
+        <file alias="MeasurementProperties.qml">qml/MeasurementProperties.qml</file>
         <file alias="ColorPicker.qml">qml/ColorPicker.qml</file>
         <file alias="MulticolorCheckBox.qml">qml/MulticolorCheckBox.qml</file>
         <file alias="Stored.qml">qml/Stored.qml</file>

@@ -3,7 +3,7 @@ import QtQuick.Controls 2.1
 import QtQuick.Layouts 1.3
 
 Item {
-    id: measure
+    id: measurement
 
     property var dataModel;
     property bool chartable : true;
@@ -35,8 +35,8 @@ Item {
                 text:  dataModel.name
 
                 PropertiesOpener {
-                   propertiesQml: "qrc:/MeasureProperties.qml"
-                   pushObject: measure.dataModel
+                   propertiesQml: "qrc:/MeasurementProperties.qml"
+                   pushObject: measurement.dataModel
                 }
             }
 
