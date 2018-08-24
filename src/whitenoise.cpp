@@ -8,6 +8,6 @@ WhiteNoise::WhiteNoise(QObject *parent) : OutputDevice(parent)
 Sample WhiteNoise::sample(void)
 {
     Sample s;
-    s.f = static_cast<float>(qrand() / RAND_MAX);
+    s.f = static_cast<float>(qrand()) / RAND_MAX;
     return s;
 }
