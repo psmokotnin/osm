@@ -2,7 +2,8 @@ import QtQuick 2.7
 import QtQuick.Controls 2.2
 import QtQuick.Controls.Material 2.1
 import QtQuick.Layouts 1.1
-
+import QtQuick.Window 2.2
+import QtQuick.Controls 1.4
 
 ApplicationWindow {
     id:applicationWindow
@@ -20,6 +21,16 @@ ApplicationWindow {
 
     Material.theme: Material.Light
     Material.accent: Material.Indigo
+
+    menuBar: MenuBar {
+            Menu {
+                title: qsTr("&Help")
+                MenuItem {
+                    text: qsTr("About")
+                    onTriggered: aboutpopup.open();
+                }
+            }
+        }
 
     RowLayout {
         anchors.fill: parent
@@ -48,5 +59,13 @@ ApplicationWindow {
             Layout.fillHeight: true
             width: 200
         }
+    }
+
+    About {
+        id: aboutpopup
+        x: 100
+        y: 100
+        width: parent.width - 200
+        height: parent.height - 200
     }
 }
