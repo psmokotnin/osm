@@ -17,7 +17,7 @@ title: OSM
 email: psmokotnin@gmail.com
 description: >- # this means to ignore newlines until "baseurl:"
   Open source dual-channel FFT optimization tool for sound systems tuning.
-baseurl: "" # the subpath of your site, e.g. /blog
+baseurl: "/osm" # the subpath of your site, e.g. /blog
 url: "" # the base hostname & protocol for your site, e.g. http://example.com
 #twitter_username: jekyllrb
 github_username:  psmokotnin
