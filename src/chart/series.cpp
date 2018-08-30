@@ -120,7 +120,7 @@ void Series::paintLine(unsigned int size, float (Source::*xFunc)(unsigned int) c
         y[3] = (_source->*yFunc)(i + 3);
 
         convert4Vertexes(&x, &y);
-        line4Vertexes(&x, &y);
+        line4Vertexes(&x, &y, (i + 4 > size ? (size - i) : 4));
     }
     glEnd();
 }
