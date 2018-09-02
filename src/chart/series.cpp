@@ -21,7 +21,11 @@
 #include <complex>
 #include <QPen>
 #include <QPainter>
-#include <gl.h>
+#ifdef Q_OS_WIN32
+    #include <GL/gl.h>
+#else
+    #include <gl.h>
+#endif
 
 using namespace Fftchart;
 
@@ -29,7 +33,6 @@ Series::Series(Source *source, Type *type, Axis *axisX, Axis *axisY, QQuickItem 
     : PaintedItem(parent)
 {
     setRenderTarget(FramebufferObject);
-
     _source = source;
     _type   = type;
     _axisX  = axisX;
@@ -47,8 +50,8 @@ void Series::prepareConvert()
         _xadd = _mm_set_ps1(-1 * _axisX->min());
         _xmul = _mm_set_ps1(static_cast<float>(width()) / (_axisX->max() - _axisX->min()));
     } else {
-        _xadd = _mm_set_ps1(-1 * log(_axisX->min()));
-        _xmul = _mm_set_ps1(static_cast<float>(width()) / log(_axisX->max() / _axisX->min()));
+        _xadd = _mm_set_ps1(-1 * logf(_axisX->min()));
+        _xmul = _mm_set_ps1(static_cast<float>(width()) / logf(_axisX->max() / _axisX->min()));
     }
 
     if (_axisY->type() == AxisType::linear) {

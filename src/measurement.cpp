@@ -34,8 +34,8 @@ Measurement::Measurement(QObject *parent) : Fftchart::Source(parent),
     _window = new WindowFunction(fftSize());
     _window->setType(WindowFunction::Type::hann);
 
-    QAudioDeviceInfo device = QAudioDeviceInfo::defaultInputDevice();
-    selectDevice(device.deviceName());
+    QAudioDeviceInfo device(QAudioDeviceInfo::defaultInputDevice());
+    selectDevice(device);
 
     calculateDataLength();
     _dataFT->prepareFast();
@@ -80,41 +80,44 @@ void Measurement::selectDevice(QString name)
 
     foreach (const QAudioDeviceInfo &deviceInfo, QAudioDeviceInfo::availableDevices(QAudio::AudioInput)) {
         if (name == deviceInfo.deviceName()) {
-            if (_audio) {
-                _audio->stop();
-                delete _audio;
-            }
-            _iodevice->close();
-            _maxChanelCount = 0;
-
-            _device = deviceInfo;
-
-            _chanelCount = std::max(_dataChanel, _referenceChanel) + 1;
-            foreach (auto c, _device.supportedChannelCounts()) {
-                unsigned int formatChanels = static_cast<unsigned int>(c);
-                if (formatChanels > _chanelCount)
-                    _chanelCount = formatChanels;
-                _maxChanelCount = std::max(formatChanels, _maxChanelCount);
-            }
-
-            _format.setSampleRate(48000);
-            _format.setChannelCount(static_cast<int>(_chanelCount));
-            _format.setSampleSize(32);
-            _format.setCodec("audio/pcm");
-            _format.setByteOrder(QAudioFormat::LittleEndian);
-            _format.setSampleType(QAudioFormat::Float);
-
-            _audio = new QAudioInput(_device, _format, this);
-            _iodevice->open(InputDevice::WriteOnly);
-            _audio->setBufferSize(65536 * static_cast<int>(_chanelCount));
-            if (active()) {
-                _audio->start(_iodevice);
-                _chanelCount = static_cast<unsigned int>(_format.channelCount());
-            }
-            emit chanelsCountChanged();
-            break;
+            selectDevice(deviceInfo);
         }
     }
+}
+void Measurement::selectDevice(QAudioDeviceInfo deviceInfo)
+{
+    if (_audio) {
+        _audio->stop();
+        delete _audio;
+    }
+    _iodevice->close();
+    _maxChanelCount = 0;
+
+    _device = deviceInfo;
+
+    _chanelCount = std::max(_dataChanel, _referenceChanel) + 1;
+    foreach (auto c, _device.supportedChannelCounts()) {
+        unsigned int formatChanels = static_cast<unsigned int>(c);
+        if (formatChanels > _chanelCount)
+            _chanelCount = formatChanels;
+        _maxChanelCount = std::max(formatChanels, _maxChanelCount);
+    }
+
+    _format.setSampleRate(48000);
+    _format.setChannelCount(static_cast<int>(_chanelCount));
+    _format.setSampleSize(32);
+    _format.setCodec("audio/pcm");
+    _format.setByteOrder(QAudioFormat::LittleEndian);
+    _format.setSampleType(QAudioFormat::Float);
+
+    _audio = new QAudioInput(_device, _format, this);
+    _iodevice->open(InputDevice::WriteOnly);
+    _audio->setBufferSize(65536 * static_cast<int>(_chanelCount));
+    if (active()) {
+        _audio->start(_iodevice);
+        _chanelCount = static_cast<unsigned int>(_format.channelCount());
+    }
+    emit chanelsCountChanged();
 }
 void Measurement::setFftPower(unsigned int power)
 {

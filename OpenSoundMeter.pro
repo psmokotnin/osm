@@ -76,8 +76,11 @@ HEADERS += \
 
 FORMS +=
 
+win32:QMAKE_CXXFLAGS += -m32 -msse2
 QMAKE_CXXFLAGS_RELEASE -= -O2
 QMAKE_CXXFLAGS_RELEASE += -Ofast
+
+win32:LIBS += -lglu32 -lopengl32
 
 DISTFILES += \
     README.md

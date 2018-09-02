@@ -125,6 +125,7 @@ public:
 
     QString deviceName();
     void selectDevice(QString name);
+    void selectDevice(QAudioDeviceInfo deviceInfo);
 
     unsigned int dataChanel() {return _dataChanel;}
     void setDataChanel(unsigned int n) {_dataChanel = n;}
