@@ -121,16 +121,15 @@ void Chart::paint(QPainter *painter)
 }
 void Chart::appendDataSource(Source *source)
 {
-    Series s __attribute__ ((aligned (16))) (source, &_type, axisX, axisY, this);
-    s.setPointsPerOctave(pointsPerOctave());
-
+    Series *s = new Series(source, &_type, axisX, axisY, this);
+    s->setPointsPerOctave(pointsPerOctave());
     if (source->objectName() == "Measurement") {
-        s.setZ(2.0);
+        s->setZ(2.0);
     }
-    connect(this,   SIGNAL(typeChanged()),   &s, SLOT(prepareConvert()));
-    connect(source, SIGNAL(colorChanged()),  &s, SLOT(needUpdate()));
-    connect(source, SIGNAL(readyRead()),     &s, SLOT(needUpdate()));
-    connect(source, SIGNAL(activeChanged()), &s, SLOT(needUpdate()));
+    connect(this,   SIGNAL(typeChanged()),  s, SLOT(prepareConvert()));
+    connect(source, SIGNAL(colorChanged()), s, SLOT(needUpdate()));
+    connect(source, SIGNAL(readyRead()),    s, SLOT(needUpdate()));
+    connect(source, SIGNAL(activeChanged()),s, SLOT(needUpdate()));
 }
 void Chart::removeDataSource(Source *source)
 {

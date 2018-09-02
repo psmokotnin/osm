@@ -54,6 +54,12 @@ private:
 public:
     Series(Source *source, Type *type, Axis *axisX, Axis *axisY, QQuickItem *parent = Q_NULLPTR);
 
+#ifdef Q_OS_WIN32
+    //we must align memory because of v4sf (aka _m128)
+    void *operator new(size_t t);
+    void operator delete (void *m);
+#endif
+
     QColor color() const { return m_color;}
     void setColor(const QColor &color) {m_color = color;}
     void paint(QPainter *painter);

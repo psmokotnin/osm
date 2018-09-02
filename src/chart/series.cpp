@@ -23,6 +23,7 @@
 #include <QPainter>
 #ifdef Q_OS_WIN32
     #include <GL/gl.h>
+    #include <stdlib.h>
 #else
     #include <gl.h>
 #endif
@@ -39,6 +40,16 @@ Series::Series(Source *source, Type *type, Axis *axisX, Axis *axisY, QQuickItem 
     _axisY  = axisY;
     prepareConvert();
 }
+#ifdef Q_OS_WIN32
+void *Series::operator new(size_t t)
+{
+    return _aligned_malloc(t, 16);
+}
+void Series::operator delete (void *m)
+{
+    free(m);
+}
+#endif
 void Series::setPointsPerOctave(unsigned int p)
 {
     _pointsPerOctave = p;
