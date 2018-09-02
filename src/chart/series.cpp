@@ -47,7 +47,7 @@ void *Series::operator new(size_t t)
 }
 void Series::operator delete (void *m)
 {
-    free(m);
+    _aligned_free(m);
 }
 #endif
 void Series::setPointsPerOctave(unsigned int p)
