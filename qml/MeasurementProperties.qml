@@ -178,6 +178,7 @@ Item {
                 onCurrentIndexChanged: dataObject.device = model[currentIndex]
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("audio input device")
+                displayText: (model.indexOf(dataObject.device) !== -1 ? model.indexOf(dataObject.device) : dataObject.device);
             }
 
             Button {

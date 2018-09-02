@@ -134,7 +134,7 @@ void FourierTransform::add(float sampleA, float sampleB)
     inB[_pointer] = sampleB;
 }
 
-void FourierTransform::change(float sampleA, float sampleB)
+__attribute__((force_align_arg_pointer)) void FourierTransform::change(float sampleA, float sampleB)
 {
     _pointer++;
     if (_pointer >= _size)
