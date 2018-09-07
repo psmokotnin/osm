@@ -19,5 +19,6 @@
         <file alias="StoredProperties.qml">qml/StoredProperties.qml</file>
         <file alias="Meter.qml">qml/Meter.qml</file>
         <file alias="About.qml">qml/About.qml</file>
+        <file alias="Updater.qml">qml/Updater.qml</file>
     </qresource>
 </RCC>

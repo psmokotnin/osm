@@ -33,13 +33,13 @@ Popup {
             Layout.preferredWidth: popup.availableWidth
             Layout.preferredHeight: 150
             textFormat: Text.RichText
-            text: qsTr('
+            text: qsTr("
                 <h1>OSM</h1><br/>
-                <a href="https://psmokotnin.github.io/osm/">https://psmokotnin.github.io/osm/</a><br><br/>
+                <a href=\"https://psmokotnin.github.io/osm/\">https://psmokotnin.github.io/osm/</a><br><br/>
                 Copyright (C) 2018  Pavel Smokotnin<br/>
-                Version: 0.1<br/>
+                Version: %1<br/>
                 License: GPL v3.0
-            ')
+            ").arg(appVersion)
             onLinkActivated: Qt.openUrlExternally(link)
         }
 

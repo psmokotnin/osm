@@ -74,6 +74,10 @@ HEADERS += \
     src/meter.h \
     src/measurement.h
 
+APP_GIT_VERSION = $$system(git --git-dir $$PWD/.git --work-tree $$PWD describe --always --tags)
+DEFINES += APP_GIT_VERSION=\\\"$$APP_GIT_VERSION\\\"
+
+
 FORMS +=
 
 QMAKE_CXXFLAGS_RELEASE -= -O2

@@ -46,6 +46,10 @@ ApplicationWindow {
                     text: qsTr("About")
                     onTriggered: aboutpopup.open();
                 }
+                MenuItem {
+                    text: qsTr("Check for update")
+                    onTriggered: update.show();
+                }
             }
         }
 
@@ -84,5 +88,9 @@ ApplicationWindow {
         y: 100
         width: parent.width - 200
         height: parent.height - 200
+    }
+
+    Updater {
+        id: update
     }
 }

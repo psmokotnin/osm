@@ -24,6 +24,10 @@
 #include "src/measurement.h"
 #include "src/chart/chart.h"
 
+#ifndef APP_GIT_VERSION
+#define APP_GIT_VERSION "unknow"
+#endif
+
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
@@ -36,9 +40,8 @@ int main(int argc, char *argv[])
     qmlRegisterType<Fftchart::Chart>("FftChart", 1, 0, "FftChart");
 
     QQmlApplicationEngine engine;
-    //qmlRegisterType<Complex>();
-    //Q_DECLARE_METATYPE(QQmlListProperty<Complex>)
 
+    engine.rootContext()->setContextProperty("appVersion", QString(APP_GIT_VERSION));
     engine.rootContext()->setContextProperty("generatorModel", &g);
     engine.rootContext()->setContextProperty("measurementModel", m);
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
