@@ -19,6 +19,7 @@
 #define FFTSERIES_H
 
 #include <QColor>
+#include <QOpenGLFunctions>
 #include "../ssemath.h"
 
 #include "axis.h"
@@ -26,7 +27,7 @@
 #include "source.h"
 
 namespace Fftchart {
-class Series : public PaintedItem
+class Series : public PaintedItem, QOpenGLFunctions
 {
     Q_OBJECT
     Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged)

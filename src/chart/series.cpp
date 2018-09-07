@@ -21,17 +21,17 @@
 #include <complex>
 #include <QPen>
 #include <QPainter>
-#ifdef Q_OS_WIN32
-    #include <GL/gl.h>
-    #include <stdlib.h>
-#else
-    #include <gl.h>
-#endif
+//#ifdef Q_OS_WIN32
+//    #include <GL/gl.h>
+//    #include <stdlib.h>
+//#else
+//    #include <gl.h>
+//#endif
 
 using namespace Fftchart;
 
 Series::Series(Source *source, Type *type, Axis *axisX, Axis *axisY, QQuickItem *parent)
-    : PaintedItem(parent)
+    : PaintedItem(parent), QOpenGLFunctions()
 {
     setRenderTarget(FramebufferObject);
     _source = source;
@@ -79,6 +79,7 @@ void Series::paint(QPainter *painter)
     if (!_source->active()) {
         return ;
     }
+    initializeOpenGLFunctions();
     if (abs(lWidth - width()) > 0 || abs(lHeight - height()) > 0)
         prepareConvert();
 
