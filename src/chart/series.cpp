@@ -21,12 +21,6 @@
 #include <complex>
 #include <QPen>
 #include <QPainter>
-//#ifdef Q_OS_WIN32
-//    #include <GL/gl.h>
-//    #include <stdlib.h>
-//#else
-//    #include <gl.h>
-//#endif
 
 using namespace Fftchart;
 
