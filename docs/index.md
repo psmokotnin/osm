@@ -10,6 +10,13 @@ layout: default
 
 <div class="section">
     <div class="row">
+        <div class="col s6 offset-s3">
+            <p class="light">Hello to the Open Sound Meter project, real time dual-FFT measurement analysis tool for sound system.</p>
+        </div>
+    </div>
+</div>
+<div class="section">
+    <div class="row">
           <div class="carousel carousel-slider center" data-indicators="true" data-namespace="DIVcarouselcarousel-slider1" style="height: 400px;">
           <div class="carousel-fixed-item center with-indicators">
           </div>
@@ -56,6 +63,9 @@ layout: default
                     <h2 class="center light-blue-text"><i class="material-icons">desktop_mac</i></h2>
                     <h5 class="center">Crossplatform</h5>
                     <p class="light">{{site.title}} is easy to build on Windows, MacOS or Linux. It's developed in C++ with Qt SDK and no additional libraries.</p>
+                    <p>
+                        <a class="waves-effect waves-light btn orange" href="{{ site.source_page }}" target="_blank">Github</a>
+                    </p>
                 </div>
             </div>
             

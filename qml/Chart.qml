@@ -65,6 +65,7 @@ Item {
         text: "%1".arg(fftChart.y2v(opener.mouseY)) + "\n" + "%1".arg(fftChart.x2v(opener.mouseX))
         x: opener.mouseX + cursor.fontInfo.pixelSize / 2
         y: opener.mouseY - cursor.height / 2
+        visible: opener.containsMouse
     }
 
     ComboBox {

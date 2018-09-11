@@ -34,8 +34,7 @@ int main(int argc, char *argv[])
     QQuickStyle::setStyle("Material");
 
     Generator g;
-    Measurement *m;
-    m = new Measurement(nullptr);
+    Measurement m;
 
     qmlRegisterType<Fftchart::Chart>("FftChart", 1, 0, "FftChart");
 
@@ -43,7 +42,7 @@ int main(int argc, char *argv[])
 
     engine.rootContext()->setContextProperty("appVersion", QString(APP_GIT_VERSION));
     engine.rootContext()->setContextProperty("generatorModel", &g);
-    engine.rootContext()->setContextProperty("measurementModel", m);
+    engine.rootContext()->setContextProperty("measurementModel", &m);
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
 
 

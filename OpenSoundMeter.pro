@@ -1,6 +1,6 @@
 TEMPLATE = app
 
-QT += charts qml quick quickcontrols2 multimedia core
+QT += charts qml quick quickcontrols2 multimedia core opengl
 CONFIG += c++1z
 SOURCES += src/main.cpp \
     src/generator.cpp \
@@ -85,3 +85,5 @@ QMAKE_CXXFLAGS_RELEASE += -Ofast
 
 DISTFILES += \
     README.md
+
+ICON = icons/osm.icns
