@@ -141,6 +141,7 @@ void Chart::removeDataSource(Source *source)
             Series *s = qobject_cast<Series*>(item);
 
             if (s->getSource() == source) {
+                childItems().removeOne(item);
                 delete s;
                 break;
             }

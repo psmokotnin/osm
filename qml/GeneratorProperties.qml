@@ -34,6 +34,8 @@ Item {
 
             ToolTip.visible: hovered
             ToolTip.text: qsTr("audio output device")
+
+            displayText: generatorModel.device;
         }
 
         RowLayout {

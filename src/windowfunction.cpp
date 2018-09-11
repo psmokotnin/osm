@@ -49,8 +49,8 @@ void WindowFunction::setType(Type t)
 QVariant WindowFunction::getTypes()
 {
     QStringList typeList;
-    for (auto&& [first, second] : TypeMap) {
-        typeList << second;
+    for (auto type : TypeMap) {
+        typeList << type.second;
     }
     return typeList;
 }

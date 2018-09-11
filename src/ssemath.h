@@ -47,7 +47,7 @@
 #endif
 
 /* __m128 is ugly to write */
-typedef __m128 v4sf;  // vector of 4 float (sse1)
+typedef ALIGN16_BEG __m128 v4sf ALIGN16_END;  // vector of 4 float (sse1)
 
 #ifdef USE_SSE2
 # include <emmintrin.h>

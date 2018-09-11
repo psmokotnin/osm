@@ -21,21 +21,29 @@
 #include <complex>
 #include <QPen>
 #include <QPainter>
-#include <gl.h>
 
 using namespace Fftchart;
 
 Series::Series(Source *source, Type *type, Axis *axisX, Axis *axisY, QQuickItem *parent)
-    : PaintedItem(parent)
+    : PaintedItem(parent), QOpenGLFunctions()
 {
     setRenderTarget(FramebufferObject);
-
     _source = source;
     _type   = type;
     _axisX  = axisX;
     _axisY  = axisY;
     prepareConvert();
 }
+#ifdef Q_OS_WIN32
+void *Series::operator new(size_t t)
+{
+    return _aligned_malloc(t, 16);
+}
+void Series::operator delete (void *m)
+{
+    _aligned_free(m);
+}
+#endif
 void Series::setPointsPerOctave(unsigned int p)
 {
     _pointsPerOctave = p;
@@ -47,8 +55,8 @@ void Series::prepareConvert()
         _xadd = _mm_set_ps1(-1 * _axisX->min());
         _xmul = _mm_set_ps1(static_cast<float>(width()) / (_axisX->max() - _axisX->min()));
     } else {
-        _xadd = _mm_set_ps1(-1 * log(_axisX->min()));
-        _xmul = _mm_set_ps1(static_cast<float>(width()) / log(_axisX->max() / _axisX->min()));
+        _xadd = _mm_set_ps1(-1 * logf(_axisX->min()));
+        _xmul = _mm_set_ps1(static_cast<float>(width()) / logf(_axisX->max() / _axisX->min()));
     }
 
     if (_axisY->type() == AxisType::linear) {
@@ -65,6 +73,7 @@ void Series::paint(QPainter *painter)
     if (!_source->active()) {
         return ;
     }
+    initializeOpenGLFunctions();
     if (abs(lWidth - width()) > 0 || abs(lHeight - height()) > 0)
         prepareConvert();
 
