@@ -87,4 +87,5 @@ QMAKE_CXXFLAGS_RELEASE += -Ofast
 DISTFILES += \
     README.md
 
-ICON = icons/osm.icns
+ICON = icons/white.icns
+win32:RC_ICONS = icons/dark.ico
