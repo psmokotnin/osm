@@ -89,7 +89,7 @@ Item {
                 editable: true
                 onValueChanged: generatorModel.gain = value / 100
 
-                Component.onCompleted: value = generatorModel.gain
+                Component.onCompleted: value = generatorModel.gain * 100
 
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("output gain")

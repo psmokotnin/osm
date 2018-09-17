@@ -54,7 +54,7 @@ private:
     bool enabled    = false;
     int type        = 0;
     int frequency   = 1000;
-    double m_gain   = 1.0;
+    double m_gain   = 0.2;
 
     QAudioFormat _format;
     QAudioOutput* _audio;

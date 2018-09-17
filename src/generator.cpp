@@ -34,7 +34,6 @@ Generator::Generator(QObject *parent) : QObject(parent)
 
     _audio = new QAudioOutput(_device, _format, this);
     _audio->setBufferSize(16384);
-//    _audio->setVolume(m_gain);
     //connect(audio, SIGNAL(stateChanged(QAudio::State)), this, SLOT(handleStateChanged(QAudio::State)));
 }
 bool Generator::getEnabled()
@@ -66,7 +65,6 @@ void Generator::updateAudio(void)
 
         _sources[type]->setSamplerate(_format.sampleRate());
         _audio->setVolume(m_gain);
-//        qDebug() << m_gain;
         _audio->start(_sources[type]);
     }
     else
@@ -106,11 +104,11 @@ void Generator::selectDevice(QString name)
             _audio->setBufferSize(16384);
 
             updateAudio();
-//            if (enabled) {
-//                _sources[type]->open(QIODevice::ReadOnly);
-//                _sources[type]->setSamplerate(_format.sampleRate());
-//                _audio->start(_sources[type]);
-//            }
+            //            if (enabled) {
+            //                _sources[type]->open(QIODevice::ReadOnly);
+            //                _sources[type]->setSamplerate(_format.sampleRate());
+            //                _audio->start(_sources[type]);
+            //            }
         }
     }
 }
@@ -135,7 +133,6 @@ void Generator::setGain(double gain)
         return;
 
     m_gain = gain;
-//    updateAudio();
     _audio->setVolume(m_gain);
     emit gainChanged(m_gain);
 }
