@@ -47,11 +47,14 @@ class Generator : public QObject
 
     //Frequency
     Q_PROPERTY(int frequency READ getFrequency WRITE setFrequency NOTIFY frequencyChangedQml)
+    //Gain
+    Q_PROPERTY(double gain READ gain WRITE setGain NOTIFY gainChanged)
 
 private:
     bool enabled    = false;
     int type        = 0;
     int frequency   = 1000;
+    double m_gain   = 1.0;
 
     QAudioFormat _format;
     QAudioOutput* _audio;
@@ -79,6 +82,8 @@ public:
     int getFrequency();
     void setFrequency(int f);
 
+    double gain() const;
+
 signals:
     void enabledChanged();
     void typeChanged();
@@ -86,7 +91,10 @@ signals:
     void frequencyChangedQml();
     void deviceChanged();
 
+    void gainChanged(double gain);
+
 public slots:
+void setGain(double gain);
 };
 
 #endif // GENERATOR_H
