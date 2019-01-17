@@ -74,6 +74,7 @@ private:
     QAudioDeviceInfo _device;
     QAudioFormat _format;
     QTimer *_timer;
+    QThread *m_timerThread;
     unsigned int
         _chanelCount = 2,   //how many chanels will be presented in writeData
         _maxChanelCount = 2,//max supported channels by selected device

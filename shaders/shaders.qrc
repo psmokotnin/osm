@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/">
+        <file>phase.frag</file>
+        <file>logx.vert</file>
+        <file>color.frag</file>
+        <file>magnitude.frag</file>
+        <file>pos.vert</file>
+    </qresource>
+</RCC>

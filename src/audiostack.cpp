@@ -53,6 +53,7 @@ void AudioStack::fill(float value)
 }
 void AudioStack::add(float data)
 {
+    std::lock_guard<std::mutex> lock(memoryMutex);
     Cell * newData = new Cell;
     newData->value = data;
     newData->next  = nullptr;
@@ -112,6 +113,7 @@ float AudioStack::current(void)
 }
 float AudioStack::shift(void)
 {
+    std::lock_guard<std::mutex> lock(memoryMutex);
     if (this->firstdata && _size > 1) {
         Cell * first = this->firstdata;
         float value = first->value;
@@ -140,6 +142,7 @@ float AudioStack::first(void)
  */
 void AudioStack::rewind(long delta)
 {
+    std::lock_guard<std::mutex> lock(memoryMutex);
     bool direction = std::signbit(delta);
     for (long i = 0; i < std::abs(delta); i++) {
         if (direction && pointer->pre)

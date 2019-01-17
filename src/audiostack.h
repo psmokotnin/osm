@@ -20,6 +20,7 @@
 #include <QDebug>
 #include <math.h>
 #include <qglobal.h>
+#include <mutex>
 
 class AudioStack
 {
@@ -31,11 +32,14 @@ public:
         Cell * pre = nullptr;
     };
 
+private:
+    std::mutex memoryMutex;
+
 protected:
     unsigned long _size = 0, sizeLimit = 0;
     Cell * firstdata = nullptr, * lastdata = nullptr;
     Cell * pointer = nullptr;
-
+    virtual void dropFirst();
 
 public:
     AudioStack(unsigned long size);
@@ -45,7 +49,6 @@ public:
     void setSize(unsigned long size);
     unsigned long size();
     virtual void add(const float data);
-    virtual void dropFirst();
 
     void reset(void);
     bool next(void);

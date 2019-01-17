@@ -19,7 +19,8 @@
 #include "source.h"
 
 using namespace Fftchart;
-Source::Source(QObject *parent) : QObject(parent)
+Source::Source(QObject *parent) : QObject(parent),
+    _active(true)
 {
 
 }
@@ -69,13 +70,13 @@ float Source::phase(unsigned int i) const noexcept
 }
 float Source::impulseTime(unsigned int i) const noexcept
 {
-    if (i >= _dataLength)
+    if (i >= _deconvolutionSize)
         return 0.0;
     return _impulseData[i].time;
 }
 float Source::impulseValue(unsigned int i) const noexcept
 {
-    if (i >= _dataLength)
+    if (i >= _deconvolutionSize)
         return 0.0;
     return _impulseData[i].value.real;
 }

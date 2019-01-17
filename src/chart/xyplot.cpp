@@ -15,24 +15,21 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <cmath>
-#include "painteditem.h"
+#include "xyplot.h"
 
 using namespace Fftchart;
 
-PaintedItem::PaintedItem(QQuickItem *parent)
-    : QQuickPaintedItem(parent)
-{
+XYPlot::XYPlot(QQuickItem *parent) :
+    Plot(parent),
+    x(AxisDirection::horizontal, this),
+    y(AxisDirection::vertical, this)
+{}
 
+qreal XYPlot::x2v(qreal mouseX) const noexcept
+{
+    return x.coordToValue(mouseX);
 }
-
-QString PaintedItem::format(float v)
+qreal XYPlot::y2v(qreal mouseY) const noexcept
 {
-    bool addK = false;
-    if (v >= 1000.f) {
-        v /= 1000.f;
-        addK = true;
-    }
-    v = std::round(v * 10.f) / 10.f;
-    return QString::number(static_cast<double>(v)) + (addK ? "K" : "");
+    return y.coordToValue(mouseY);
 }

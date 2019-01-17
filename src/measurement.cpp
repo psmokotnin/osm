@@ -15,6 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+#include <QThread>
 #include <algorithm>
 #include "measurement.h"
 
@@ -22,7 +23,8 @@ Measurement::Measurement(QObject *parent) : Fftchart::Source(parent),
     dataMeter(12000),
     referenceMeter(12000)
 {
-    setObjectName("Measurement");
+    _name = "Measurement";
+    setObjectName(_name);
     _iodevice = new InputDevice(this);
     connect(_iodevice, SIGNAL(recived(const char *, qint64)), SLOT(writeData(const char *, qint64)));
 
@@ -49,17 +51,22 @@ Measurement::Measurement(QObject *parent) : Fftchart::Source(parent),
     referenceStack = new AudioStack(_fftSize);
 
     setAverage(1);
-    _timer = new QTimer(this);
-    connect(_timer, SIGNAL(timeout()), SLOT(transform()));
-    _timer->start(80); //12.5 per sec
+    m_timerThread = new QThread(this);
+    _timer = new QTimer(nullptr);
+    _timer->setInterval(80);
+    _timer->moveToThread(m_timerThread);
+    connect(_timer, SIGNAL(timeout()), SLOT(transform()), Qt::DirectConnection);
+    connect(m_timerThread, SIGNAL(started()), _timer, SLOT(start()), Qt::DirectConnection);
+
+    //_timer->start(80); //12.5 per sec
 }
 Measurement::~Measurement()
 {
-    disconnect(this);
-    if (_timer->isActive())
-        _timer->stop();
-
     _audio->stop();
+
+    m_timerThread->quit();
+    m_timerThread->wait();
+    delete(m_timerThread);
 }
 QVariant Measurement::getDeviceList(void)
 {
@@ -234,6 +241,9 @@ qint64 Measurement::writeData(const char *data, qint64 len)
             ptr += channelBytes;
         }
     }
+    if (!m_timerThread->isRunning()) {
+        m_timerThread->start();
+    }
     return len;
 }
 void Measurement::transform()
@@ -242,7 +252,7 @@ void Measurement::transform()
         return;
 
     _level = _referenceLevel = 0.0;
-
+    lock();
     while (dataStack->isNext() && referenceStack->isNext()) {
         dataStack->next();
         referenceStack->next();
@@ -257,6 +267,7 @@ void Measurement::transform()
     averaging();
     _level = dataMeter.value();
     _referenceLevel = referenceMeter.value();
+    unlock();
 
     emit readyRead();
     emit levelChanged();

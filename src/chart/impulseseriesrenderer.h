@@ -1,6 +1,6 @@
 /**
  *  OSM
- *  Copyright (C) 2018  Pavel Smokotnin
+ *  Copyright (C) 2019  Pavel Smokotnin
 
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -15,24 +15,22 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <cmath>
-#include "painteditem.h"
+#ifndef IMPULSESERIESRENDERER_H
+#define IMPULSESERIESRENDERER_H
 
-using namespace Fftchart;
+#include "seriesrenderer.h"
 
-PaintedItem::PaintedItem(QQuickItem *parent)
-    : QQuickPaintedItem(parent)
+namespace Fftchart {
+class ImpulseSeriesRenderer : public SeriesRenderer
 {
+public:
+    ImpulseSeriesRenderer();
+    void renderSeries() override;
+
+private:
+    int m_posAttr;
+    int m_matrixUniform;
+};
 
 }
-
-QString PaintedItem::format(float v)
-{
-    bool addK = false;
-    if (v >= 1000.f) {
-        v /= 1000.f;
-        addK = true;
-    }
-    v = std::round(v * 10.f) / 10.f;
-    return QString::number(static_cast<double>(v)) + (addK ? "K" : "");
-}
+#endif // IMPULSESERIESRENDERER_H

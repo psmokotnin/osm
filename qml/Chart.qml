@@ -22,11 +22,48 @@ import FftChart 1.0
 Item {
     id: chartview
 
-    FftChart {
-        id: fftChart
+    VariableChart {
+        id: chart
         anchors.fill: parent
 
         Component.onCompleted: {
+
+            applicationWindow.dataSourceList.modelAdded.connect(function(item) {
+                chart.appendDataSource(item.dataModel);
+            });
+
+            applicationWindow.dataSourceList.modelRemoved.connect(function(item) {
+                chart.removeDataSource(item.dataModel);
+            });
+
+            appnedSeries();
+            initOpener();
+        }
+
+        onTypeChanged: function() {
+            appnedSeries();
+            initOpener();
+        }
+
+        function initOpener() {
+            opener.propertiesQml = null;
+            switch(type) {
+            case "RTA":
+                opener.propertiesQml = "qrc:/Plot/RTAProperties.qml";
+                break;
+            case "Magnitude":
+                opener.propertiesQml = "qrc:/Plot/MagnitudeProperties.qml";
+                break;
+            case "Phase":
+                opener.propertiesQml = "qrc:/Plot/PhaseProperties.qml";
+                break;
+            case "Impulse":
+                opener.propertiesQml = "qrc:/Plot/ImpulseProperties.qml";
+                break;
+            }
+        }
+
+        function appnedSeries() {
             for (var i = 0;
                  i < applicationWindow.dataSourceList.list.model.count;
                  i ++
@@ -34,26 +71,15 @@ Item {
                     var item = applicationWindow.dataSourceList.list.model.get(i);
 
                     if (item.chartable) {
-                        fftChart.appendDataSource(item.dataModel);
+                        chart.appendDataSource(item.dataModel);
                     }
             }
-
-            applicationWindow.dataSourceList.modelAdded.connect(function(item) {
-                fftChart.appendDataSource(item.dataModel);
-                fftChart.needUpdate();
-            });
-
-            applicationWindow.dataSourceList.modelRemoved.connect(function(item) {
-                fftChart.removeDataSource(item.dataModel);
-                fftChart.needUpdate();
-            });
         }
     }
 
     PropertiesOpener {
         id: opener
-        propertiesQml: "qrc:/ChartProperties.qml"
-        pushObject: fftChart
+        pushObject: chart.plot;
         cursorShape: "CrossCursor";
         hoverEnabled: true
         onEntered: cursor.visible = true
@@ -62,7 +88,7 @@ Item {
 
     Label {
         id: cursor
-        text: "%1".arg(fftChart.y2v(opener.mouseY)) + "\n" + "%1".arg(fftChart.x2v(opener.mouseX))
+        text: "%1".arg(chart.plot.y2v(opener.mouseY)) + "\n" + "%1".arg(chart.plot.x2v(opener.mouseX))
         x: opener.mouseX + cursor.fontInfo.pixelSize / 2
         y: opener.mouseY - cursor.height / 2
         visible: opener.containsMouse
@@ -72,13 +98,22 @@ Item {
         anchors.top: parent.top
         anchors.right: parent.right
         implicitWidth: 130
-        model: ["RTA", "Magnitude", "Phase", "Impulse"/*, "Scope"*/]
+        model: ["RTA", "Magnitude", "Phase", "Impulse"]
         currentIndex: 0
         onCurrentIndexChanged: {
-            fftChart.type = model[currentIndex];
+            var pb = applicationWindow.properiesbar;
+            var reopen = false;
+            if (pb.currentObject == chart.plot) {
+                pb.reset();
+                reopen = true;
+            }
+            chart.type = model[currentIndex];
+            if (reopen) {
+                pb.open(chart.plot, opener.propertiesQml);
+            }
         }
         Component.onCompleted: {
-            fftChart.type = model[currentIndex];
+            chart.type = model[currentIndex];
         }
     }
 }

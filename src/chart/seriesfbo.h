@@ -15,24 +15,30 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <cmath>
-#include "painteditem.h"
+#ifndef SERIESFBO_H
+#define SERIESFBO_H
 
-using namespace Fftchart;
+#include <QQuickFramebufferObject>
+#include "source.h"
 
-PaintedItem::PaintedItem(QQuickItem *parent)
-    : QQuickPaintedItem(parent)
+namespace Fftchart {
+
+typedef std::function<QQuickFramebufferObject::Renderer* (void)> RendererCreator;
+
+class SeriesFBO : public QQuickFramebufferObject
 {
+    Q_OBJECT
 
-}
+public:
+    explicit SeriesFBO(Source* s, RendererCreator rc, QQuickItem *parent = nullptr);
+    Source *source() const { return m_source;}
+    QQuickFramebufferObject::Renderer *createRenderer() const override;
 
-QString PaintedItem::format(float v)
-{
-    bool addK = false;
-    if (v >= 1000.f) {
-        v /= 1000.f;
-        addK = true;
-    }
-    v = std::round(v * 10.f) / 10.f;
-    return QString::number(static_cast<double>(v)) + (addK ? "K" : "");
+protected:
+    RendererCreator rendererCreator;
+    Source *m_source;
+
+protected slots:
+};
 }
+#endif // SERIESFBO_H

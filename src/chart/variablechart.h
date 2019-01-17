@@ -1,3 +1,5 @@
+#ifndef SELECT_H
+#define SELECT_H
 /**
  *  OSM
  *  Copyright (C) 2018  Pavel Smokotnin
@@ -15,54 +17,41 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef FFTCHART_H
-#define FFTCHART_H
-
-#include <array>
+#include <QtQuick/QQuickItem>
 #include "type.h"
-#include "axis.h"
 #include "source.h"
-#include "painteditem.h"
+#include "plot.h"
 
 namespace Fftchart {
 
-class Chart : public PaintedItem
+class VariableChart : public QQuickItem
 {
     Q_OBJECT
-    Q_PROPERTY(QString type READ typeString WRITE setTypeByString)
-    Q_PROPERTY(unsigned int pointsPerOctave READ pointsPerOctave WRITE setPointsPerOctave NOTIFY pointsPerOctaveChanged)
+    Q_PROPERTY(QString type READ typeString WRITE setTypeByString NOTIFY typeChanged)
+    Q_PROPERTY(QQuickItem *plot READ plot() NOTIFY typeChanged)
 
 private:
-    Type _type;//NOTE: std::optional? llvm doesnot support:(
-    void _setType(const Type type);
-    Axis *axisX, *axisY;
-    std::map<Type, QString> typeMap;
-    unsigned int _pointsPerOctave = 0;
+    Plot * s_plot;
+    Type m_selected;
+
+protected:
+    void initType();
 
 public:
-    Chart(QQuickItem *parent = Q_NULLPTR);
-
+    VariableChart(QQuickItem *parent = Q_NULLPTR);
     QString typeString() const;
     void setType(const Type type);
     void setTypeByString(const QString &type);
 
-    void paint(QPainter *painter);
-
     Q_INVOKABLE void appendDataSource(Source *source);
     Q_INVOKABLE void removeDataSource(Source *source);
-    unsigned int pointsPerOctave() {return _pointsPerOctave;}
-    void setPointsPerOctave(unsigned int p);
+    Plot* plot() {return s_plot;}
 
-    Q_INVOKABLE qreal x2v(qreal x) const noexcept;
-    Q_INVOKABLE qreal y2v(qreal y) const noexcept;
     Q_INVOKABLE QString urlForGrab(QUrl url) const {return url.toLocalFile();}
 
 signals:
     void typeChanged();
-    void pointsPerOctaveChanged();
-
-public slots:
-    void needUpdate();
 };
+
 }
-#endif // FFTCHART_H
+#endif // SELECT_H

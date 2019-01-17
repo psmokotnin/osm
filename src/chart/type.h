@@ -18,7 +18,18 @@
 #ifndef TYPE_H
 #define TYPE_H
 
+#include <map>
+#include <QString>
+
 namespace Fftchart {
+
     enum Type {RTA, Magnitude, Phase, Scope, Impulse};
+    static std::map<Type, QString> typeMap = {
+        {RTA,       "RTA"},
+        {Magnitude, "Magnitude"},
+        {Phase,     "Phase"},
+        {Scope,     "Scope"},
+        {Impulse,   "Impulse"}
+    };
 }
 #endif // TYPE_H

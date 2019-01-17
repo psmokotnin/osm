@@ -22,7 +22,7 @@
 
 #include "src/generator.h"
 #include "src/measurement.h"
-#include "src/chart/chart.h"
+#include "src/chart/variablechart.h"
 
 #ifndef APP_GIT_VERSION
 #define APP_GIT_VERSION "unknow"
@@ -32,11 +32,12 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
     QQuickStyle::setStyle("Material");
+    QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
 
     Generator g;
     Measurement m;
 
-    qmlRegisterType<Fftchart::Chart>("FftChart", 1, 0, "FftChart");
+    qmlRegisterType<Fftchart::VariableChart>("FftChart", 1, 0, "VariableChart");
 
     QQmlApplicationEngine engine;
 
@@ -44,7 +45,6 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("generatorModel", &g);
     engine.rootContext()->setContextProperty("measurementModel", &m);
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
-
 
     if (engine.rootObjects().isEmpty())
         return -1;

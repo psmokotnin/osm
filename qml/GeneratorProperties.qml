@@ -17,7 +17,7 @@
  */
 import QtQuick 2.7
 import QtQuick.Controls 2.2
-import QtQuick.Layouts 1.1
+import QtQuick.Layouts 1.3
 
 Item {
     ColumnLayout {
@@ -29,13 +29,14 @@ Item {
             id: deviceSelect
             model: generatorModel.devices
             implicitWidth: parent.width
-            currentIndex: { model.indexOf(generatorModel.device) }
-            onCurrentIndexChanged: generatorModel.device = model[currentIndex]
+            currentIndex: model.indexOf(generatorModel.device)
+            onCurrentIndexChanged: function () {
+                generatorModel.device = model[currentIndex];
+                displayText = generatorModel.device;
+            }
 
             ToolTip.visible: hovered
             ToolTip.text: qsTr("audio output device")
-
-            displayText: generatorModel.device;
         }
 
         RowLayout {

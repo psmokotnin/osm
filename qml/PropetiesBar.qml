@@ -16,28 +16,75 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 import QtQuick 2.7
-import QtQuick.Controls 2.2
+import QtQuick.Controls 2.4
 
 Item {
     property alias stack: propertiesStack
+    property var currentObject : null
+    property string currentQml : null
 
     StackView {
         id: propertiesStack
         anchors.fill: parent
         anchors.margins: 5
         initialItem: topView
+
+        replaceEnter: Transition {
+            PropertyAnimation {
+                property:   "opacity"
+                from:       0
+                to:         1
+                duration:   100
+            }
+        }
+        replaceExit: Transition {
+            PropertyAnimation {
+                property:   "opacity"
+                from:       1
+                to:         0
+                duration:   100
+            }
+        }
     }
 
     Component {
         id: topView
 
         Label {
-            anchors.fill: parent
-
             horizontalAlignment: Label.AlignHCenter
             verticalAlignment: Label.AlignVCenter
 
             text: qsTr("Select an item in the right bar to change its properties")
         }
+    }
+
+    function open(pushObject, propertiesQml) {
+        reset();
+        currentObject = pushObject;
+        if (propertiesQml) {
+            var item = propertiesStack.replace(
+                    propertiesQml,
+                    {
+                        dataObject: pushObject
+                    }
+            );
+        }
+        else
+            console.error("qml not set for ", pushObject)
+    }
+
+    function reset() {
+        propertiesStack.clear();
+        propertiesStack.push(topView);
+    }
+
+    function check() {
+        if (!currentObject) {
+            reset();
+        }
+    }
+
+    onCurrentObjectChanged: {
+        check();
     }
 }

@@ -127,7 +127,7 @@ Item {
 
             ComboBox {
                 id: powerSelect
-                model: [14, 15, 16]
+                model: [10, 12, 14, 15, 16]
                 currentIndex: { model.indexOf(dataObject.fftPower) }
                 onCurrentIndexChanged: dataObject.fftPower = model[currentIndex]
                 displayText: "Power:" + currentText
@@ -175,7 +175,10 @@ Item {
                 Layout.fillWidth: true
                 model: dataObject.devices
                 currentIndex: { model.indexOf(dataObject.device) }
-                onCurrentIndexChanged: dataObject.device = model[currentIndex]
+                onCurrentIndexChanged: {
+                    dataObject.device = model[currentIndex]
+                    displayText = dataObject.device;
+                }
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("audio input device")
                 displayText: dataObject.device

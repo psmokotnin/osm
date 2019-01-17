@@ -23,11 +23,13 @@ class Meter : public AudioStack
 {
     float _squareValue = 0;
 
+protected:
+    virtual void dropFirst();
+
 public:
     Meter(unsigned long size);
 
     virtual void add(const float data);
-    virtual void dropFirst();
 
     float value() const noexcept;
 };

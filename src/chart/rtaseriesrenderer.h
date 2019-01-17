@@ -15,24 +15,30 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <cmath>
-#include "painteditem.h"
+#ifndef RTASERIES_H
+#define RTASERIES_H
 
-using namespace Fftchart;
+#include <QQuickFramebufferObject>
+#include <QOpenGLShaderProgram>
 
-PaintedItem::PaintedItem(QQuickItem *parent)
-    : QQuickPaintedItem(parent)
+#include "frequencybasedseriesrenderer.h"
+#include "rtaplot.h"
+
+namespace Fftchart {
+
+class RTASeriesRenderer : public FrequencyBasedSeriesRenderer
 {
+public:
+    explicit RTASeriesRenderer();
+    void renderSeries() override;
 
-}
+protected:
+    void renderLine();
+    void renderLines(RTAPlot *plot);
+    void renderBars(RTAPlot *plot);
 
-QString PaintedItem::format(float v)
-{
-    bool addK = false;
-    if (v >= 1000.f) {
-        v /= 1000.f;
-        addK = true;
-    }
-    v = std::round(v * 10.f) / 10.f;
-    return QString::number(static_cast<double>(v)) + (addK ? "K" : "");
+private:
+    int m_posAttr;
+};
 }
+#endif // RTASERIES_H

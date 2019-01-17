@@ -34,8 +34,9 @@ private:
     AxisType _type = linear;
     AxisDirection _direction;
     QColor _lineColor, _textColor;
-    float _min, _max, _scale;
     std::vector<float> _labels;
+    float _min, _max, _scale;
+    float _lowLimit, _highLimit; //stop values
 
 public:
     Axis(AxisDirection d, QQuickItem *parent = Q_NULLPTR);
@@ -45,25 +46,30 @@ public:
     float coordToValue(float coord) const noexcept;
     qreal coordToValue(qreal coord) const noexcept;
 
-    void configure(AxisType type, float min, float max, unsigned int ticks = 0, float scale = 1.0);
+    void configure(AxisType type, float min, float max, unsigned int ticks = 0, float scale = 1.0f);
 
-    void setMin(float v) {_min = v;}
+    float lowLimit() const {return _lowLimit;}
+    float highLimit() const {return _highLimit;}
+
+    void setMin(float v);
     float min() const {return _min;}
 
-    void setScale(float v) {_scale = v;}
+    void setScale(float v) {_scale = v;needUpdate();}
     float scale() const {return _scale;}
 
-    void setMax(float v) {_max = v;}
+    void setMax(float v);
     float max() const {return _max;}
 
     void setISOLabels() {_labels = ISO_LABELS;}
     void autoLabels(unsigned int ticks);
 
-    void setType(AxisType t) {_type = t;}
+    void setType(AxisType t) {_type = t;needUpdate();}
     AxisType type() const {return _type;}
 
 public slots:
     void needUpdate();
+    void parentWidthChanged();
+    void parentHeightChanged();
 };
 }
 #endif // AXIS_H

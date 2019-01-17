@@ -1,6 +1,6 @@
 /**
  *  OSM
- *  Copyright (C) 2018  Pavel Smokotnin
+ *  Copyright (C) 2019  Pavel Smokotnin
 
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -15,24 +15,23 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <cmath>
-#include "painteditem.h"
+#include "impulseplot.h"
+#include "seriesfbo.h"
+#include "impulseseriesrenderer.h"
 
 using namespace Fftchart;
 
-PaintedItem::PaintedItem(QQuickItem *parent)
-    : QQuickPaintedItem(parent)
+ImpulsePlot::ImpulsePlot(QQuickItem *parent): XYPlot(parent)
 {
-
+    x.configure(AxisType::linear, -20.0, 20.0, 41);
+    x.setMin(-5.f);
+    x.setMax(5.f);
+    y.configure(AxisType::linear, -2.0, 2.0, 21);
+    y.setMin(-1.f);
+    y.setMax(1.f);
+    setFlag(QQuickItem::ItemHasContents);
 }
-
-QString PaintedItem::format(float v)
+SeriesFBO* ImpulsePlot::createSeriesFromSource(Source *source)
 {
-    bool addK = false;
-    if (v >= 1000.f) {
-        v /= 1000.f;
-        addK = true;
-    }
-    v = std::round(v * 10.f) / 10.f;
-    return QString::number(static_cast<double>(v)) + (addK ? "K" : "");
+    return new SeriesFBO(source, [](){return new ImpulseSeriesRenderer();}, this);
 }

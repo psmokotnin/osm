@@ -50,7 +50,7 @@ Item {
             text: qsTr("Delete");
             onClicked: {
                 applicationWindow.dataSourceList.remove(dataObject);
-                applicationWindow.properiesbar.stack.clear();
+                applicationWindow.properiesbar.clear();
             }
         }
 

@@ -35,10 +35,23 @@ Axis::Axis(AxisDirection d, QQuickItem *parent)
     _direction = d;
     _lineColor = QColor::fromRgbF(0, 0, 0, 0.1);
     _textColor = QColor::fromRgbF(0, 0, 0, 1);
+
+    connect(parent, SIGNAL(widthChanged()), this, SLOT(parentWidthChanged()));
+    connect(parent, SIGNAL(heightChanged()), this, SLOT(parentHeightChanged()));
+    setWidth(parent->width());
+    setHeight(parent->height());
+}
+void Axis::parentWidthChanged() {
+    setWidth(parentItem()->width());
+}
+void Axis::parentHeightChanged() {
+    setHeight(parentItem()->height());
 }
 void Axis::configure(AxisType type, float min, float max, unsigned int ticks, float scale)
 {
     setType(type);
+    _lowLimit = min;
+    _highLimit = max;
     setMin(min);
     setMax(max);
     setScale(scale);
@@ -57,11 +70,17 @@ void Axis::paint(QPainter *painter) noexcept
     QRect textRect(0, 0, 50, 20), lastTextRect;
     float t;
     float size = (_direction == horizontal ? pwidth() : pheight());
-    int alignFlag = (_direction == horizontal ?
+    int alignFlag = static_cast<int>(_direction == horizontal ?
                          Qt::AlignTop | Qt::AlignCenter :
                          Qt::AlignRight | Qt::AlignHCenter
                          );
 
+    QRect limit(
+                static_cast<int>(padding.left),
+                static_cast<int>(padding.top),
+                static_cast<int>(widthf()  - padding.left - padding.right ) + 1,
+                static_cast<int>(heightf() - padding.top  - padding.bottom) + 1
+                );
     for_each(_labels.begin(), _labels.end(), [&](float &l) {
 
         try {
@@ -71,11 +90,15 @@ void Axis::paint(QPainter *painter) noexcept
             return; //continue
         }
 
-        p1.setX(_direction == horizontal ? t + padding.left : padding.left);
-        p2.setX(_direction == horizontal ? t + padding.left : width() - padding.right);
+        p1.setX(static_cast<int>(_direction == horizontal ? t + padding.left : padding.left));
+        p2.setX(static_cast<int>(_direction == horizontal ? t + padding.left : widthf() - padding.right));
 
-        p1.setY(_direction == horizontal ? height() - padding.bottom : height() - padding.bottom - t);
-        p2.setY(_direction == horizontal ? padding.top : height() - padding.bottom - t);
+        p1.setY(static_cast<int>(_direction == horizontal ? heightf() - padding.bottom : heightf() - padding.bottom - t));
+        p2.setY(static_cast<int>(_direction == horizontal ? padding.top : heightf() - padding.bottom - t));
+
+        //do not draw lines out of padding
+        if (!limit.contains(p1) || !limit.contains(p2) )
+            return;
 
         painter->setPen(linePen);
         painter->drawLine(p1, p2);
@@ -96,7 +119,7 @@ void Axis::paint(QPainter *painter) noexcept
 float Axis::convert(float value, float size) const
 {
     if (_type == AxisType::logarithmic) {
-        if (value == 0) {
+        if (value == 0.f) {
             throw invalid_argument("Value can't be zero at logarithmic scale.");
         }
         return size * (log(value) - log(_min)) / log(_max / _min);
@@ -149,4 +172,18 @@ void Axis::autoLabels(unsigned int ticks)
 void Axis::needUpdate()
 {
     update();
+}
+void Axis::setMin(float v)
+{
+    _min = std::max(_lowLimit,
+                    std::min(v, _max)
+        );
+    needUpdate();
+}
+void Axis::setMax(float v)
+{
+    _max = std::min(_highLimit,
+                   std::max(v, _min)
+        );
+    needUpdate();
 }

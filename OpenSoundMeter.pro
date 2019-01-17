@@ -16,16 +16,29 @@ SOURCES += src/main.cpp \
     src/windowfunction.cpp \
     src/chart/axis.cpp \
     src/chart/painteditem.cpp \
-    src/chart/series.cpp \
-    src/chart/chart.cpp \
     src/ssemath.cpp \
     src/chart/source.cpp \
     src/inputdevice.cpp \
     src/filter.cpp \
     src/meter.cpp \
-    src/measurement.cpp
+    src/measurement.cpp \
+    src/chart/variablechart.cpp \
+    src/chart/plot.cpp \
+    src/chart/rtaplot.cpp \
+    src/chart/seriesfbo.cpp \
+    src/chart/rtaseriesrenderer.cpp \
+    src/chart/seriesrenderer.cpp \
+    src/chart/impulseplot.cpp \
+    src/chart/impulseseriesrenderer.cpp \
+    src/chart/phaseplot.cpp \
+    src/chart/phaseseriesrenderer.cpp \
+    src/chart/magnitudeplot.cpp \
+    src/chart/magnitudeseriesrenderer.cpp \
+    src/chart/frequencybasedseriesrenderer.cpp \
+    src/chart/xyplot.cpp
 
-RESOURCES += qml.qrc
+RESOURCES += qml.qrc \
+    shaders/shaders.qrc
 
 # Additional import path used to resolve QML modules in Qt Creator's code model
 QML_IMPORT_PATH = qml
@@ -65,27 +78,44 @@ HEADERS += \
     src/windowfunction.h \
     src/chart/axis.h \
     src/chart/painteditem.h \
-    src/chart/chart.h \
-    src/chart/series.h \
     src/chart/type.h \
     src/chart/source.h \
     src/inputdevice.h \
     src/filter.h \
     src/meter.h \
-    src/measurement.h
+    src/measurement.h \
+    src/chart/variablechart.h \
+    src/chart/plot.h \
+    src/chart/rtaplot.h \
+    src/chart/seriesfbo.h \
+    src/chart/rtaseriesrenderer.h \
+    src/chart/seriesrenderer.h \
+    src/chart/impulseplot.h \
+    src/chart/impulseseriesrenderer.h \
+    src/chart/phaseplot.h \
+    src/chart/phaseseriesrenderer.h \
+    src/chart/magnitudeplot.h \
+    src/chart/magnitudeseriesrenderer.h \
+    src/chart/frequencybasedseriesrenderer.h \
+    src/chart/xyplot.h
 
-APP_GIT_VERSION = $$system(git --git-dir $$PWD/.git --work-tree $$PWD describe --always --tags)
+APP_GIT_VERSION = $$system(git --git-dir $$_PRO_FILE_PWD_/.git --work-tree $$_PRO_FILE_PWD_ describe --always --tags)
 DEFINES += APP_GIT_VERSION=\\\"$$APP_GIT_VERSION\\\"
-
 
 FORMS +=
 
-win32:QMAKE_CXXFLAGS += -m32 -msse2
+win:QMAKE_CXXFLAGS += -m64 -msse2
 QMAKE_CXXFLAGS_RELEASE -= -O2
 QMAKE_CXXFLAGS_RELEASE += -Ofast
 
 DISTFILES += \
-    README.md
+    README.md \
+    shaders/fragment.frag \
+    shaders/logx.vert \
+    shaders/phase.geom \
+    shaders/color.frag \
+    shaders/magnitude.frag \
+    shaders/pos.vert
 
 ICON = icons/white.icns
-win32:RC_ICONS = icons/dark.ico
+win32:RC_ICONS = icons/white.ico

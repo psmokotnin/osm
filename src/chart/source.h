@@ -19,6 +19,8 @@
 #define SOURCE_H
 #include <QObject>
 #include <QColor>
+#include <mutex>
+
 #include "../complex.h"
 
 namespace Fftchart {
@@ -31,9 +33,10 @@ class Source : public QObject
     Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged)
 
 protected:
-    bool _active         = true;
-    QString _name        = "Measurement";
+    QString _name;
     QColor _color;
+
+    std::mutex dataMutex;   //NOTE: shared_mutex (C++17)
 
     struct FTData {
         complex data;
@@ -49,6 +52,7 @@ protected:
     unsigned int _dataLength;
     unsigned int _deconvolutionSize;
     unsigned int _fftSize;
+    bool _active;
 
 public:
     explicit Source(QObject *parent = nullptr);
@@ -77,6 +81,9 @@ public:
     float impulseValue(unsigned int i) const noexcept;
 
     void copy(FTData *dataDist, TimeData *timeDist);
+
+    void lock()   {dataMutex.lock();}
+    void unlock() {dataMutex.unlock();}
 
 signals:
     void activeChanged();

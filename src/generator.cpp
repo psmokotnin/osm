@@ -92,6 +92,9 @@ QString Generator::deviceName()
 }
 void Generator::selectDevice(QString name)
 {
+    if (name == deviceName())
+        return;
+
     foreach (const QAudioDeviceInfo &deviceInfo, QAudioDeviceInfo::availableDevices(QAudio::AudioOutput)) {
         if (name == deviceInfo.deviceName()) {
             _device = deviceInfo;
@@ -106,6 +109,7 @@ void Generator::selectDevice(QString name)
                 _sources[type]->open(QIODevice::ReadOnly);
                 _sources[type]->setSamplerate(_format.sampleRate());
                 _audio->start(_sources[type]);
+                emit deviceChanged();
             }
         }
     }

@@ -20,5 +20,10 @@
         <file alias="Meter.qml">qml/Meter.qml</file>
         <file alias="About.qml">qml/About.qml</file>
         <file alias="Updater.qml">qml/Updater.qml</file>
+        <file alias="Plot/RTAProperties.qml">qml/Plot/RTAProperties.qml</file>
+        <file alias="Plot/ImpulseProperties.qml">qml/Plot/ImplulseProperties.qml</file>
+        <file alias="FloatSpinBox.qml">qml/FloatSpinBox.qml</file>
+        <file alias="Plot/PhaseProperties.qml">qml/Plot/PhaseProperties.qml</file>
+        <file alias="Plot/MagnitudeProperties.qml">qml/Plot/MagnitudeProperties.qml</file>
     </qresource>
 </RCC>
