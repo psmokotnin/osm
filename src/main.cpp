@@ -33,6 +33,9 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
     QQuickStyle::setStyle("Material");
     QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
+    QCoreApplication::setApplicationName("Open Sound Meter");
+    QCoreApplication::setOrganizationName("psmokotnin");
+    QCoreApplication::setOrganizationDomain("psmokotnin.github.io/osm");
 
     Generator g;
     Measurement m;

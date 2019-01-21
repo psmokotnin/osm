@@ -103,7 +103,6 @@ void Generator::selectDevice(QString name)
             _sources[type]->close();
             delete _audio;
             _audio = new QAudioOutput(_device, _format, this);
-            _audio->setBufferSize(16384);
 
             if (enabled) {
                 _sources[type]->open(QIODevice::ReadOnly);

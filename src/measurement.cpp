@@ -53,17 +53,14 @@ Measurement::Measurement(QObject *parent) : Fftchart::Source(parent),
     setAverage(1);
     m_timerThread = new QThread(this);
     _timer = new QTimer(nullptr);
-    _timer->setInterval(80);
+    _timer->setInterval(80);//12.5 per sec
     _timer->moveToThread(m_timerThread);
     connect(_timer, SIGNAL(timeout()), SLOT(transform()), Qt::DirectConnection);
     connect(m_timerThread, SIGNAL(started()), _timer, SLOT(start()), Qt::DirectConnection);
-
-    //_timer->start(80); //12.5 per sec
 }
 Measurement::~Measurement()
 {
     _audio->stop();
-
     m_timerThread->quit();
     m_timerThread->wait();
     delete(m_timerThread);
@@ -119,7 +116,6 @@ void Measurement::selectDevice(QAudioDeviceInfo deviceInfo)
 
     _audio = new QAudioInput(_device, _format, this);
     _iodevice->open(InputDevice::WriteOnly);
-    _audio->setBufferSize(65536 * static_cast<int>(_chanelCount));
     if (active()) {
         _audio->start(_iodevice);
         _chanelCount = static_cast<unsigned int>(_format.channelCount());
