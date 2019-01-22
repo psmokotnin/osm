@@ -115,6 +115,7 @@ void Measurement::selectDevice(QAudioDeviceInfo deviceInfo)
     _format.setSampleType(QAudioFormat::Float);
 
     _audio = new QAudioInput(_device, _format, this);
+    _audio->setBufferSize(16384);
     _iodevice->open(InputDevice::WriteOnly);
     if (active()) {
         _audio->start(_iodevice);

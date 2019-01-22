@@ -38,7 +38,7 @@ Popup {
     }
 
     function check (openonavailable) {
-        request('https://api.github.com/repos/psmokotnin/osm/releases/latest', function (o) {
+        request('http://osm.pprocherk.ru/check', function (o) {
 
             if (o.readyState !== 4) { return; }
 
