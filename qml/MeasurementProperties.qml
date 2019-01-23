@@ -177,7 +177,6 @@ Item {
                 currentIndex: { model.indexOf(dataObject.device) }
                 onCurrentIndexChanged: {
                     dataObject.device = model[currentIndex]
-                    displayText = dataObject.device;
                 }
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("audio input device")

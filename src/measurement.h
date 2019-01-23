@@ -35,6 +35,7 @@ QT_CHARTS_USE_NAMESPACE
 #include "fouriertransform.h"
 #include "deconvolution.h"
 #include "filter.h"
+#include "measurementaudiothread.h"
 
 class Measurement : public Fftchart::Source
 {
@@ -69,18 +70,10 @@ class Measurement : public Fftchart::Source
     Q_PROPERTY(QVariant windows READ getAvailableWindowTypes CONSTANT)
 
 private:
-    InputDevice *_iodevice;
-    QAudioInput* _audio = nullptr;
-    QAudioDeviceInfo _device;
-    QAudioFormat _format;
     QTimer *_timer;
-    QThread *m_timerThread;
-    unsigned int
-        _chanelCount = 2,   //how many chanels will be presented in writeData
-        _maxChanelCount = 2,//max supported channels by selected device
-        _dataChanel = 0,
-        _referenceChanel = 1,
-        _average = 0, _setAverage = 0;
+    QThread m_timerThread;
+    MeasurementAudioThread m_audioThread;
+    unsigned int _average = 0, _setAverage = 0;
     unsigned long _delay = 0;
     long _estimatedDelay = 0;
     unsigned int _avgcounter = 0;
@@ -124,16 +117,16 @@ public:
     QVariant getDeviceList(void);
     void setDevice(QString deviceName);
 
-    QString deviceName();
+    QString deviceName() const;
     void selectDevice(QString name);
     void selectDevice(QAudioDeviceInfo deviceInfo);
 
-    unsigned int dataChanel() {return _dataChanel;}
-    void setDataChanel(unsigned int n) {_dataChanel = n;}
+    unsigned int dataChanel() const {return m_audioThread.dataChanel();}
+    void setDataChanel(unsigned int n) {m_audioThread.setDataChanel(n);}
 
-    unsigned int referenceChanel(){return _referenceChanel;}
-    void setReferenceChanel(unsigned int n) {_referenceChanel = n;}
-    unsigned int chanelsCount() {return _maxChanelCount;}
+    unsigned int referenceChanel() const {return m_audioThread.referenceChanel();}
+    void setReferenceChanel(unsigned int n) {m_audioThread.setReferenceChanel(n);}
+    unsigned int chanelsCount() const {return m_audioThread.chanelsCount();}
 
     float level() {return _level;}
     float referenceLevel() {return _referenceLevel;}
@@ -178,6 +171,7 @@ signals:
 
 public slots:
     void transform();
+    void recalculateDataLength();
     QObject *store();
     qint64 writeData(const char *_ftdata, qint64 len);
 };

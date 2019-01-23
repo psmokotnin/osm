@@ -35,7 +35,9 @@ SOURCES += src/main.cpp \
     src/chart/magnitudeplot.cpp \
     src/chart/magnitudeseriesrenderer.cpp \
     src/chart/frequencybasedseriesrenderer.cpp \
-    src/chart/xyplot.cpp
+    src/chart/xyplot.cpp \
+    src/generatorthread.cpp \
+    src/measurementaudiothread.cpp
 
 RESOURCES += qml.qrc \
     shaders/shaders.qrc
@@ -97,7 +99,9 @@ HEADERS += \
     src/chart/magnitudeplot.h \
     src/chart/magnitudeseriesrenderer.h \
     src/chart/frequencybasedseriesrenderer.h \
-    src/chart/xyplot.h
+    src/chart/xyplot.h \
+    src/generatorthread.h \
+    src/measurementaudiothread.h
 
 APP_GIT_VERSION = $$system(git --git-dir $$_PRO_FILE_PWD_/.git --work-tree $$_PRO_FILE_PWD_ describe --always --tags)
 DEFINES += APP_GIT_VERSION=\\\"$$APP_GIT_VERSION\\\"

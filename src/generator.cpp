@@ -17,108 +17,54 @@
  */
 #include "generator.h"
 
-Generator::Generator(QObject *parent) : QObject(parent)
+Generator::Generator(QObject *parent) : QObject(parent),
+    m_thread(parent)
 {
-    _sources << new PinkNoise(this);
-    _sources << new WhiteNoise(this);
-    _sources << new SinNoise(this);
+    QMetaObject::invokeMethod(&m_thread, "init", Qt::QueuedConnection);
 
-    _device = QAudioDeviceInfo::defaultOutputDevice();
-    // Set up the format, eg.
-    _format.setSampleRate(48000);
-    _format.setChannelCount(1);
-    _format.setSampleSize(32);
-    _format.setCodec("audio/pcm");
-    _format.setByteOrder(QAudioFormat::LittleEndian);
-    _format.setSampleType(QAudioFormat::Float);
-
-    _audio = new QAudioOutput(_device, _format, this);
-    _audio->setBufferSize(16384);
-    //connect(audio, SIGNAL(stateChanged(QAudio::State)), this, SLOT(handleStateChanged(QAudio::State)));
+    connect(&m_thread, SIGNAL(enabledChanged(bool)), this, SIGNAL(enabledChanged(bool)), Qt::QueuedConnection);
+    connect(&m_thread, SIGNAL(deviceChanged()), this, SIGNAL(deviceChanged()), Qt::QueuedConnection);
+    connect(&m_thread, SIGNAL(typeChanged()), this, SIGNAL(typeChanged()), Qt::QueuedConnection);
+    connect(&m_thread, SIGNAL(frequencyChanged(int)), this, SIGNAL(frequencyChanged(int)), Qt::QueuedConnection);
 }
-bool Generator::getEnabled()
+Generator::~Generator()
 {
-    return enabled;
+    m_thread.quit();
+    m_thread.wait();
 }
-void Generator::setEnabled(bool enable)
+void Generator::setEnabled(bool enabled)
 {
-    if (enabled != enable) {
-        enabled = enable;
-        updateAudio();
-    }
+    QMetaObject::invokeMethod(
+                &m_thread,
+                "setEnabled",
+                Qt::QueuedConnection,
+                Q_ARG(bool, enabled)
+    );
 }
-int Generator::getType()
+void Generator::setType(int type)
 {
-    return type;
-}
-void Generator::setType(int t)
-{
-    type = t;
-
-    updateAudio();
-}
-void Generator::updateAudio(void)
-{
-    if (enabled) {
-        if (_sources[type]->openMode() == QIODevice::NotOpen)
-            _sources[type]->open(QIODevice::ReadOnly);
-
-        _sources[type]->setSamplerate(_format.sampleRate());
-        _audio->start(_sources[type]);
-    }
-    else
-        _audio->stop();
-}
-
-QVariant Generator::getAvailableTypes(void)
-{
-    QStringList nameList;
-    foreach (OutputDevice* o, _sources) {
-        nameList << o->name;
-    }
-    return QVariant::fromValue(nameList);
-}
-QVariant Generator::getDeviceList(void)
-{
-    QStringList deviceList;
-    foreach (const QAudioDeviceInfo &deviceInfo, QAudioDeviceInfo::availableDevices(QAudio::AudioOutput)) {
-        deviceList << deviceInfo.deviceName();
-    }
-    return QVariant::fromValue(deviceList);
-}
-QString Generator::deviceName()
-{
-    return _device.deviceName();
+    QMetaObject::invokeMethod(
+                &m_thread,
+                "setType",
+                Qt::QueuedConnection,
+                Q_ARG(int, type)
+    );
 }
 void Generator::selectDevice(QString name)
 {
-    if (name == deviceName())
-        return;
-
-    foreach (const QAudioDeviceInfo &deviceInfo, QAudioDeviceInfo::availableDevices(QAudio::AudioOutput)) {
-        if (name == deviceInfo.deviceName()) {
-            _device = deviceInfo;
-
-            _audio->stop();
-            _sources[type]->close();
-            delete _audio;
-            _audio = new QAudioOutput(_device, _format, this);
-
-            if (enabled) {
-                _sources[type]->open(QIODevice::ReadOnly);
-                _sources[type]->setSamplerate(_format.sampleRate());
-                _audio->start(_sources[type]);
-                emit deviceChanged();
-            }
-        }
-    }
+    QMetaObject::invokeMethod(
+                &m_thread,
+                "selectDevice",
+                Qt::QueuedConnection,
+                Q_ARG(QString, name)
+    );
 }
-int Generator::getFrequency()
+void Generator::setFrequency(int frequency)
 {
-    return frequency;
-}
-void Generator::setFrequency(int f)
-{
-    frequency = f;
-    emit frequencyChanged(frequency);
+    QMetaObject::invokeMethod(
+                &m_thread,
+                "setFrequency",
+                Qt::QueuedConnection,
+                Q_ARG(int, frequency)
+    );
 }

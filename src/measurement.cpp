@@ -20,13 +20,17 @@
 #include "measurement.h"
 
 Measurement::Measurement(QObject *parent) : Fftchart::Source(parent),
+    m_timerThread(nullptr), m_audioThread(nullptr),
     dataMeter(12000),
     referenceMeter(12000)
 {
     _name = "Measurement";
     setObjectName(_name);
-    _iodevice = new InputDevice(this);
-    connect(_iodevice, SIGNAL(recived(const char *, qint64)), SLOT(writeData(const char *, qint64)));
+
+    connect(&m_audioThread, SIGNAL(recived(const char *, qint64)), SLOT(writeData(const char *, qint64)), Qt::DirectConnection);
+    connect(&m_audioThread, SIGNAL(deviceChanged()), this, SIGNAL(deviceChanged()));
+    connect(&m_audioThread, SIGNAL(formatChanged()), this, SIGNAL(chanelsCountChanged()));
+    connect(&m_audioThread, SIGNAL(formatChanged()), this, SLOT(recalculateDataLength()));
 
     _fftPower = 14;//16 - 65K 0.73Hz;
     _fftSize = static_cast<unsigned int>(pow(2, _fftPower));
@@ -51,19 +55,20 @@ Measurement::Measurement(QObject *parent) : Fftchart::Source(parent),
     referenceStack = new AudioStack(_fftSize);
 
     setAverage(1);
-    m_timerThread = new QThread(this);
     _timer = new QTimer(nullptr);
     _timer->setInterval(80);//12.5 per sec
-    _timer->moveToThread(m_timerThread);
+    _timer->moveToThread(&m_timerThread);
     connect(_timer, SIGNAL(timeout()), SLOT(transform()), Qt::DirectConnection);
-    connect(m_timerThread, SIGNAL(started()), _timer, SLOT(start()), Qt::DirectConnection);
+    connect(&m_timerThread, SIGNAL(started()), _timer, SLOT(start()), Qt::DirectConnection);
+    m_timerThread.start();
 }
 Measurement::~Measurement()
 {
-    _audio->stop();
-    m_timerThread->quit();
-    m_timerThread->wait();
-    delete(m_timerThread);
+    m_audioThread.quit();
+    m_audioThread.wait();
+
+    m_timerThread.quit();
+    m_timerThread.wait();
 }
 QVariant Measurement::getDeviceList(void)
 {
@@ -73,9 +78,9 @@ QVariant Measurement::getDeviceList(void)
     }
     return QVariant::fromValue(deviceList);
 }
-QString Measurement::deviceName()
+QString Measurement::deviceName() const
 {
-    return _device.deviceName();
+    return m_audioThread.device().deviceName();
 }
 void Measurement::selectDevice(QString name)
 {
@@ -90,43 +95,18 @@ void Measurement::selectDevice(QString name)
 }
 void Measurement::selectDevice(QAudioDeviceInfo deviceInfo)
 {
-    if (_audio) {
-        _audio->stop();
-        delete _audio;
-    }
-    _iodevice->close();
-    _maxChanelCount = 0;
-
-    _device = deviceInfo;
-
-    _chanelCount = std::max(_dataChanel, _referenceChanel) + 1;
-    foreach (auto c, _device.supportedChannelCounts()) {
-        unsigned int formatChanels = static_cast<unsigned int>(c);
-        if (formatChanels > _chanelCount)
-            _chanelCount = formatChanels;
-        _maxChanelCount = std::max(formatChanels, _maxChanelCount);
-    }
-
-    _format.setSampleRate(48000);
-    _format.setChannelCount(static_cast<int>(_chanelCount));
-    _format.setSampleSize(32);
-    _format.setCodec("audio/pcm");
-    _format.setByteOrder(QAudioFormat::LittleEndian);
-    _format.setSampleType(QAudioFormat::Float);
-
-    _audio = new QAudioInput(_device, _format, this);
-    _audio->setBufferSize(16384);
-    _iodevice->open(InputDevice::WriteOnly);
-    if (active()) {
-        _audio->start(_iodevice);
-        _chanelCount = static_cast<unsigned int>(_format.channelCount());
-    }
-    emit chanelsCountChanged();
+    QMetaObject::invokeMethod(
+                &m_audioThread,
+                "selectDevice",
+                Qt::QueuedConnection,
+                Q_ARG(QAudioDeviceInfo, deviceInfo),
+                Q_ARG(bool, active())
+    );
 }
 void Measurement::setFftPower(unsigned int power)
 {
     if (_fftPower != power) {
-        _audio->suspend();
+        std::lock_guard<std::mutex> guard(dataMutex);
 
         _fftPower = power;
         _fftSize  = static_cast<unsigned int>(pow(2, _fftPower));
@@ -136,11 +116,13 @@ void Measurement::setFftPower(unsigned int power)
         _window->setSize(_fftSize);
 
         calculateDataLength();
-
         averageRealloc(true);
-
-        _audio->resume();
     }
+}
+void Measurement::recalculateDataLength()
+{
+    std::lock_guard<std::mutex> guard(dataMutex);
+    calculateDataLength();
 }
 void Measurement::calculateDataLength()
 {        
@@ -154,14 +136,12 @@ void Measurement::setActive(bool active)
 {
     Fftchart::Source::setActive(active);
 
-    if (active && (
-                _audio->state() == QAudio::IdleState ||
-                _audio->state() == QAudio::StoppedState)
-       )
-        _audio->start(_iodevice);
-
-    if (!active && _audio->state() == QAudio::ActiveState)
-        _audio->stop();
+    QMetaObject::invokeMethod(
+                &m_audioThread,
+                "setActive",
+                Qt::QueuedConnection,
+                Q_ARG(bool, active)
+    );
 
     _level  = -INFINITY;
     _referenceLevel = -INFINITY;
@@ -210,36 +190,33 @@ void Measurement::averageRealloc(bool force)
 }
 unsigned int Measurement::sampleRate() const
 {
-    return static_cast<unsigned int>(_audio->format().sampleRate());
+    return static_cast<unsigned int>(m_audioThread.format().sampleRate());
 }
 qint64 Measurement::writeData(const char *data, qint64 len)
 {
-    const auto channelBytes = _format.sampleSize() / 8;
-    const auto sampleBytes  = _format.channelCount() * channelBytes;
+    const auto channelBytes = m_audioThread.format().sampleSize() / 8;
+    const auto sampleBytes  = m_audioThread.format().channelCount() * channelBytes;
     const auto numSamples   = len / sampleBytes;
 
     const unsigned char *ptr = reinterpret_cast<const unsigned char *>(data);
     const float *d;
 
     for (auto i = 0; i < numSamples; ++i) {
-        for (unsigned int j = 0; j < static_cast<unsigned int>(_format.channelCount()); ++j) {
+        for (unsigned int j = 0; j < static_cast<unsigned int>(m_audioThread.format().channelCount()); ++j) {
 
             d = reinterpret_cast<const float*>(ptr);
-            if (j == _dataChanel) {
+            if (j == dataChanel()) {
                 dataStack->add((_polarity ? -1 * *d : *d));
                 dataMeter.add(*d);
             }
 
-            if (j == _referenceChanel) {
+            if (j == referenceChanel()) {
                 referenceStack->add(*d);
                 referenceMeter.add(*d);
             }
 
             ptr += channelBytes;
         }
-    }
-    if (!m_timerThread->isRunning()) {
-        m_timerThread->start();
     }
     return len;
 }

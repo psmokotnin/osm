@@ -28,11 +28,12 @@ Item {
         ComboBox {
             id: deviceSelect
             model: generatorModel.devices
+            displayText: generatorModel.device;
+
             implicitWidth: parent.width
             currentIndex: model.indexOf(generatorModel.device)
             onCurrentIndexChanged: function () {
                 generatorModel.device = model[currentIndex];
-                displayText = generatorModel.device;
             }
 
             ToolTip.visible: hovered

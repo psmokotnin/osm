@@ -20,13 +20,8 @@
 
 #include <QObject>
 #include <QDebug>
-#include <QAudio>
-#include <QAudioDeviceInfo>
-#include <QAudioOutput>
 
-#include "whitenoise.h"
-#include "pinknoise.h"
-#include "sinnoise.h"
+#include "generatorthread.h"
 
 class Generator : public QObject
 {
@@ -46,44 +41,34 @@ class Generator : public QObject
     Q_PROPERTY(QString device READ deviceName WRITE selectDevice NOTIFY deviceChanged)
 
     //Frequency
-    Q_PROPERTY(int frequency READ getFrequency WRITE setFrequency NOTIFY frequencyChangedQml)
+    Q_PROPERTY(int frequency READ frequency WRITE setFrequency NOTIFY frequencyChanged)
 
 private:
-    bool enabled    = false;
-    int type        = 0;
-    int frequency   = 1000;
-
-    QAudioFormat _format;
-    QAudioOutput* _audio;
-    QAudioDeviceInfo _device;
-    QList<OutputDevice*> _sources;
-
-protected:
-    void updateAudio(void);
+    GeneratorThread m_thread;
 
 public:
     explicit Generator(QObject* parent = nullptr);
+    ~Generator();
 
-    bool getEnabled();
+    bool getEnabled() {return m_thread.enabled();}
     void setEnabled(bool enable);
 
-    int getType();
+    int getType() {return m_thread.type();}
     void setType(int t);
 
-    QVariant getAvailableTypes(void);
-    QVariant getDeviceList(void);
+    QVariant getAvailableTypes(void) {return m_thread.getAvailableTypes();}
+    QVariant getDeviceList(void) {return m_thread.getDeviceList();}
 
-    QString deviceName();
+    QString deviceName() {return m_thread.deviceName();}
     void selectDevice(QString name);
 
-    int getFrequency();
+    int frequency() {return m_thread.frequency();}
     void setFrequency(int f);
 
 signals:
-    void enabledChanged();
+    void enabledChanged(bool);
     void typeChanged();
     void frequencyChanged(int f);
-    void frequencyChangedQml();
     void deviceChanged();
 
 public slots:
