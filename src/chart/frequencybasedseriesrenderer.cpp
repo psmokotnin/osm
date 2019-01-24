@@ -69,8 +69,6 @@ void FrequencyBasedSeriesRenderer::iterate(
         frequency = m_source->frequency(i);
         if (frequency < bandStart) continue;
         while (frequency > bandEnd) {
-            bandStart = bandEnd;
-            bandEnd   *= _frequencyFactor;
 
             if (count) {
                 collected(lastBandEnd, bandEnd, count);
@@ -79,6 +77,9 @@ void FrequencyBasedSeriesRenderer::iterate(
                 //extend current band to the end of the pervious collected
                 lastBandEnd = bandEnd;
             }
+
+            bandStart = bandEnd;
+            bandEnd   *= _frequencyFactor;
         }
         count ++;
         accumulate(i);
@@ -107,7 +108,7 @@ void FrequencyBasedSeriesRenderer::iterateForSpline(unsigned int pointsPerOctave
             splinePoint[1]  = splinePoint[2];f[1] = f[2];
             splinePoint[2]  = splinePoint[3];f[2] = f[3];
         }
-        f[bCount] = bandEnd;
+        f[bCount] = (bandStart + bandEnd) / 2.f;
         splinePoint[bCount] = *value;
 
         if (bCount == 3) {
