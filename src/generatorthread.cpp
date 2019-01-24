@@ -24,6 +24,7 @@
 
 GeneratorThread::GeneratorThread(QObject *parent) :
     QThread(parent),
+    m_audio(nullptr),
     m_type(0),
     m_frequency(1000),
     m_enabled(false)
