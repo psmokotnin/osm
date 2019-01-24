@@ -46,6 +46,7 @@ Item {
 
             //generator type
             ComboBox {
+                id: type
                 currentIndex: generatorModel.type
                 model: generatorModel.types
                 onCurrentIndexChanged: generatorModel.type = currentIndex
@@ -56,6 +57,7 @@ Item {
 
             //Sin frequency
             SpinBox {
+                visible: type.currentText == 'Sin';
                 id: frequencySpinBox
                 value: generatorModel.frequency
                 from: 20
