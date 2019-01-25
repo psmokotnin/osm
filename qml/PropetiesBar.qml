@@ -78,6 +78,10 @@ Item {
         propertiesStack.push(topView);
     }
 
+    function clear() {
+        reset();
+    }
+
     function check() {
         if (!currentObject) {
             reset();

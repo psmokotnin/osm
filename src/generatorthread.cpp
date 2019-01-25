@@ -97,7 +97,6 @@ void GeneratorThread::_selectDevice(QAudioDeviceInfo device)
         delete m_audio;
     }
     m_audio = new QAudioOutput(m_device, m_format, this);
-    m_audio->setBufferSize(16384);
     _updateAudio();
     emit deviceChanged();
 }
