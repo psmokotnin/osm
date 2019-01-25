@@ -16,10 +16,12 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "outputdevice.h"
+#include <math.h>
 
-OutputDevice::OutputDevice(QObject *parent) : QIODevice(parent)
+OutputDevice::OutputDevice(QObject *parent) : QIODevice(parent),
+    m_gain(1.f)
 {
-
+    connect(parent, SIGNAL(gainChanged(float)), this, SLOT(setGain(float)));
 }
 qint64 OutputDevice::readData(char *data, qint64 maxlen)
 {
@@ -43,4 +45,8 @@ qint64 OutputDevice::writeData(const char *data, qint64 len)
     Q_UNUSED(len);
 
     return -1;
+}
+void OutputDevice::setGain(float gaindB)
+{
+    m_gain = powf(10.f, gaindB / 20.f);
 }

@@ -44,6 +44,25 @@ Item {
             spacing: 10
             Layout.alignment: Qt.AlignTop
 
+            SpinBox {
+                id: gainSpinBox
+                value: generatorModel.gain
+                from: -90
+                to: 0
+                editable: true
+                onValueChanged: generatorModel.gain = value
+                textFromValue: function(value, locale) {
+                    return Number(value) + "dB"
+                }
+
+                valueFromText: function(text, locale) {
+                    return parseInt(text)
+                }
+
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("gain")
+            }
+
             //generator type
             ComboBox {
                 id: type

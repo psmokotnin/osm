@@ -43,6 +43,9 @@ class Generator : public QObject
     //Frequency
     Q_PROPERTY(int frequency READ frequency WRITE setFrequency NOTIFY frequencyChanged)
 
+    //Gain
+    Q_PROPERTY(float gain READ gain WRITE setGain NOTIFY gainChanged)
+
 private:
     GeneratorThread m_thread;
 
@@ -65,11 +68,15 @@ public:
     int frequency() {return m_thread.frequency();}
     void setFrequency(int f);
 
+    int gain() {return m_thread.gain();}
+    void setGain(float gain);
+
 signals:
     void enabledChanged(bool);
     void typeChanged();
     void frequencyChanged(int f);
     void deviceChanged();
+    void gainChanged(float);
 
 public slots:
 };

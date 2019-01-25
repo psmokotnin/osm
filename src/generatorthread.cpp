@@ -25,6 +25,7 @@
 GeneratorThread::GeneratorThread(QObject *parent) :
     QThread(parent),
     m_audio(nullptr),
+    m_gain(-6.f),
     m_type(0),
     m_frequency(1000),
     m_enabled(false)
@@ -106,6 +107,7 @@ void GeneratorThread::_updateAudio()
         if (m_sources[m_type]->openMode() == QIODevice::NotOpen) {
             m_sources[m_type]->open(QIODevice::ReadOnly);
         }
+        m_sources[m_type]->setGain(m_gain);
         m_sources[m_type]->setSamplerate(m_format.sampleRate());
         m_audio->start(m_sources[m_type]);
     } else {
@@ -133,5 +135,12 @@ void GeneratorThread::setFrequency(int frequency)
     if (m_frequency != frequency) {
         m_frequency = frequency;
         emit frequencyChanged(m_frequency);
+    }
+}
+void GeneratorThread::setGain(float gain)
+{
+    if (!qFuzzyCompare(gain, m_gain)) {
+        m_gain = gain;
+        emit gainChanged(gain);
     }
 }

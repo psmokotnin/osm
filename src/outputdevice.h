@@ -29,6 +29,7 @@ class OutputDevice : public QIODevice
 
 protected:
     int sampleRate;
+    float m_gain;
 
 public:
     OutputDevice(QObject *parent);
@@ -39,6 +40,9 @@ public:
     virtual Sample sample(void);
 
     void setSamplerate(int s) {sampleRate = s;}
+
+public slots:
+    void setGain(float gaindB);
 
 };
 

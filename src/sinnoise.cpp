@@ -30,7 +30,7 @@ Sample SinNoise::sample(void)
     if (sinPhase >= 2.0 * M_PI)
         sinPhase -= 2.0 * M_PI;
 
-    output.f = static_cast<float>(sin(sinPhase));
+    output.f = m_gain * static_cast<float>(sin(sinPhase));
     return output;
 }
 void SinNoise::setFrequency(int f)

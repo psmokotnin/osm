@@ -36,6 +36,7 @@ private:
     QAudioDeviceInfo m_device;
     QList<OutputDevice*> m_sources;
 
+    float m_gain;
     int m_type;
     int m_frequency;
     bool m_enabled;
@@ -62,11 +63,15 @@ public slots:
     int frequency() {return m_frequency;}
     void setFrequency(int frequency);
 
+    float gain() {return m_gain;}
+    void setGain(float gain);
+
 signals:
     void enabledChanged(bool);
     void deviceChanged();
     void typeChanged();
     void frequencyChanged(int f);
+    void gainChanged(float);
 };
 
 #endif // GENERATORTHREAD_H
