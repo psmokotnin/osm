@@ -46,6 +46,10 @@ class Generator : public QObject
     //Gain
     Q_PROPERTY(float gain READ gain WRITE setGain NOTIFY gainChanged)
 
+    Q_PROPERTY(int chanelsCount READ chanelsCount NOTIFY chanelsCountChanged)
+    Q_PROPERTY(int chanel READ chanel WRITE setChanel NOTIFY chanelChanged)
+    Q_PROPERTY(int aux READ aux WRITE setAux NOTIFY auxChanged)
+
 private:
     GeneratorThread m_thread;
 
@@ -68,8 +72,14 @@ public:
     int frequency() {return m_thread.frequency();}
     void setFrequency(int f);
 
-    int gain() {return m_thread.gain();}
+    float gain() {return m_thread.gain();}
     void setGain(float gain);
+
+    int chanelsCount() const {return m_thread.chanelsCount();}
+    int chanel() const {return m_thread.chanel();}
+    void setChanel(int chanel);
+    int aux() const {return m_thread.aux();}
+    void setAux(int chanel);
 
 signals:
     void enabledChanged(bool);
@@ -77,6 +87,9 @@ signals:
     void frequencyChanged(int f);
     void deviceChanged();
     void gainChanged(float);
+    void chanelsCountChanged();
+    void chanelChanged(int);
+    void auxChanged(int);
 
 public slots:
 };

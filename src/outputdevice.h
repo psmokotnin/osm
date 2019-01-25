@@ -29,6 +29,7 @@ class OutputDevice : public QIODevice
 
 protected:
     int sampleRate;
+    int m_chanel, m_aux, m_chanelCount;
     float m_gain;
 
 public:
@@ -43,6 +44,9 @@ public:
 
 public slots:
     void setGain(float gaindB);
+    void setChanel(int chanel) {m_chanel = chanel;}
+    void setAux(int chanel) {m_aux = chanel;}
+    void setChanelCount(int count) {m_chanelCount = count;}
 
 };
 

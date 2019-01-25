@@ -27,6 +27,9 @@ Generator::Generator(QObject *parent) : QObject(parent),
     connect(&m_thread, SIGNAL(typeChanged()), this, SIGNAL(typeChanged()), Qt::QueuedConnection);
     connect(&m_thread, SIGNAL(frequencyChanged(int)), this, SIGNAL(frequencyChanged(int)), Qt::QueuedConnection);
     connect(&m_thread, SIGNAL(gainChanged(float)), this, SIGNAL(gainChanged(float)), Qt::QueuedConnection);
+    connect(&m_thread, SIGNAL(chanelChanged(int)), this, SIGNAL(chanelChanged(int)), Qt::QueuedConnection);
+    connect(&m_thread, SIGNAL(auxChanged(int)), this, SIGNAL(auxChanged(int)), Qt::QueuedConnection);
+    connect(&m_thread, SIGNAL(chanelsCountChanged()), this, SIGNAL(chanelsCountChanged()), Qt::QueuedConnection);
 }
 Generator::~Generator()
 {
@@ -76,5 +79,23 @@ void Generator::setGain(float gain)
                 "setGain",
                 Qt::QueuedConnection,
                 Q_ARG(float, gain)
+    );
+}
+void Generator::setChanel(int chanel)
+{
+    QMetaObject::invokeMethod(
+                &m_thread,
+                "setChanel",
+                Qt::QueuedConnection,
+                Q_ARG(int, chanel)
+    );
+}
+void Generator::setAux(int chanel)
+{
+    QMetaObject::invokeMethod(
+                &m_thread,
+                "setAux",
+                Qt::QueuedConnection,
+                Q_ARG(int, chanel)
     );
 }

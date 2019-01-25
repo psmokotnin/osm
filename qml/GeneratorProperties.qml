@@ -24,22 +24,50 @@ Item {
         anchors.fill: parent
         spacing: 10
 
-        //list of available output devices:
-        ComboBox {
-            id: deviceSelect
-            model: generatorModel.devices
-            displayText: generatorModel.device;
+        RowLayout {
+            //list of available output devices:
+            ComboBox {
+                id: deviceSelect
+                model: generatorModel.devices
+                displayText: generatorModel.device;
 
-            implicitWidth: parent.width
-            currentIndex: model.indexOf(generatorModel.device)
-            onCurrentIndexChanged: function () {
-                generatorModel.device = model[currentIndex];
+                Layout.fillWidth: true
+                currentIndex: model.indexOf(generatorModel.device)
+                onCurrentIndexChanged: function () {
+                    generatorModel.device = model[currentIndex];
+                }
+
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("audio output device")
             }
 
-            ToolTip.visible: hovered
-            ToolTip.text: qsTr("audio output device")
-        }
+            ComboBox {
+                model: generatorModel.chanelsCount
+                currentIndex: generatorModel.chanel
+                onCurrentIndexChanged: generatorModel.chanel = currentIndex
+                displayText: "chanel: " + (currentIndex + 1)
+                delegate: ItemDelegate {
+                          text: modelData + 1
+                          width: parent.width
+                      }
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("chanel number")
+            }
 
+            ComboBox {
+                model: generatorModel.chanelsCount
+                currentIndex: generatorModel.aux
+                onCurrentIndexChanged: generatorModel.aux = currentIndex
+                displayText: "aux: " + (currentIndex + 1)
+                delegate: ItemDelegate {
+                          text: modelData + 1
+                          width: parent.width
+                      }
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("aux chanel number")
+            }
+
+        }
         RowLayout {
             spacing: 10
             Layout.alignment: Qt.AlignTop

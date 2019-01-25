@@ -39,6 +39,7 @@ private:
     float m_gain;
     int m_type;
     int m_frequency;
+    int m_chanelCount, m_chanel, m_aux;
     bool m_enabled;
 
     void _selectDevice(QAudioDeviceInfo device);
@@ -66,12 +67,22 @@ public slots:
     float gain() {return m_gain;}
     void setGain(float gain);
 
+    int chanelsCount() const {return m_chanelCount;}
+    int chanel() const {return m_chanel;}
+    void setChanel(int chanel);
+
+    int aux() const {return m_aux;}
+    void setAux(int chanel);
+
 signals:
     void enabledChanged(bool);
     void deviceChanged();
     void typeChanged();
     void frequencyChanged(int f);
     void gainChanged(float);
+    void chanelChanged(int);
+    void auxChanged(int);
+    void chanelsCountChanged();
 };
 
 #endif // GENERATORTHREAD_H

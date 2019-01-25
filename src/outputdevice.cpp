@@ -19,6 +19,8 @@
 #include <math.h>
 
 OutputDevice::OutputDevice(QObject *parent) : QIODevice(parent),
+    m_chanel(1),
+    m_chanelCount(1),
     m_gain(1.f)
 {
     connect(parent, SIGNAL(gainChanged(float)), this, SLOT(setGain(float)));
@@ -26,10 +28,24 @@ OutputDevice::OutputDevice(QObject *parent) : QIODevice(parent),
 qint64 OutputDevice::readData(char *data, qint64 maxlen)
 {
     qint64 total = 0;
+    int chanel = m_chanelCount;
+    const float zero = 0.f;
+    Sample src;
+
     while (maxlen - total > 0) {
-        const Sample src = this->sample();
-        memcpy(data + total, &src.f, sizeof(float));
+        if (chanel >= m_chanelCount) {
+            chanel = 0;
+            src = this->sample();
+        }
+
+        if (chanel == m_chanel || chanel == m_aux) {
+            memcpy(data + total, &src.f, sizeof(float));
+        } else {
+            memcpy(data + total, &zero, sizeof(float));
+        }
         total += sizeof(float);
+
+        ++chanel;
     }
     return total;
 }

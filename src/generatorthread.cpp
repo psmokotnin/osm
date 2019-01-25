@@ -28,6 +28,9 @@ GeneratorThread::GeneratorThread(QObject *parent) :
     m_gain(-6.f),
     m_type(0),
     m_frequency(1000),
+    m_chanelCount(1),
+    m_chanel(0),
+    m_aux(1),
     m_enabled(false)
 {
     start();
@@ -41,7 +44,6 @@ void GeneratorThread::init()
 
     m_device = QAudioDeviceInfo::defaultOutputDevice();
     m_format.setSampleRate(48000);
-    m_format.setChannelCount(1);
     m_format.setSampleSize(32);
     m_format.setCodec("audio/pcm");
     m_format.setByteOrder(QAudioFormat::LittleEndian);
@@ -97,9 +99,17 @@ void GeneratorThread::_selectDevice(QAudioDeviceInfo device)
         m_audio->stop();
         delete m_audio;
     }
+    m_chanelCount = 1;
+    foreach (auto formatChanels, m_device.supportedChannelCounts()) {
+        if (formatChanels > m_chanelCount)
+            m_chanelCount = formatChanels;
+    }
+    m_format.setChannelCount(m_chanelCount);
     m_audio = new QAudioOutput(m_device, m_format, this);
+
     _updateAudio();
     emit deviceChanged();
+    emit chanelsCountChanged();
 }
 void GeneratorThread::_updateAudio()
 {
@@ -108,6 +118,9 @@ void GeneratorThread::_updateAudio()
             m_sources[m_type]->open(QIODevice::ReadOnly);
         }
         m_sources[m_type]->setGain(m_gain);
+        m_sources[m_type]->setChanel(m_chanel);
+        m_sources[m_type]->setAux(m_aux);
+        m_sources[m_type]->setChanelCount(m_chanelCount);
         m_sources[m_type]->setSamplerate(m_format.sampleRate());
         m_audio->start(m_sources[m_type]);
     } else {
@@ -142,5 +155,21 @@ void GeneratorThread::setGain(float gain)
     if (!qFuzzyCompare(gain, m_gain)) {
         m_gain = gain;
         emit gainChanged(gain);
+    }
+}
+void GeneratorThread::setChanel(int chanel)
+{
+    if (m_chanel != chanel) {
+        m_chanel = chanel;
+        m_sources[m_type]->setChanel(m_chanel);
+        emit chanelChanged(m_chanel);
+    }
+}
+void GeneratorThread::setAux(int chanel)
+{
+    if (m_aux != chanel) {
+        m_aux = chanel;
+        m_sources[m_type]->setAux(m_aux);
+        emit auxChanged(m_aux);
     }
 }
