@@ -50,13 +50,13 @@ public:
     unsigned long size();
     virtual void add(const float data);
 
-    void reset(void);
-    bool next(void);
-    bool isNext(void);
-    float first(void);
+    void reset();
+    bool next();
+    bool isNext();
+    float first();
 
-    float current(void);
-    float shift(void);
+    float current();
+    float shift();
     void fill(float value);
 
     void rewind(long delta);

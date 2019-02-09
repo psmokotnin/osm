@@ -29,8 +29,8 @@ class Filter
     const complex &y(unsigned int i) const noexcept;
 
 public:
-    explicit Filter();
-    complex operator()(complex v);
+    explicit Filter() {}
+    complex operator()(const complex &v);
 
 };
 

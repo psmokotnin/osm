@@ -21,7 +21,6 @@
 using namespace Fftchart;
 
 FrequencyBasedSeriesRenderer::FrequencyBasedSeriesRenderer() :
-    SeriesRenderer(),
     m_matrixUniform(0),
     m_minmaxUniform(0),
     m_screenUniform(0),
@@ -31,20 +30,18 @@ FrequencyBasedSeriesRenderer::FrequencyBasedSeriesRenderer() :
 }
 void FrequencyBasedSeriesRenderer::setUniforms()
 {
-    XYPlot *plot = static_cast<XYPlot*>(m_item->parent());
-
     QMatrix4x4 matrix;
-    matrix.ortho(0, 1, plot->yAxis()->max(), plot->yAxis()->min(), -1, 1);
-    matrix.scale(1  / logf(plot->xAxis()->max() / plot->xAxis()->min()), 1.0f, 1.0f);
-    matrix.translate(-1 * logf(plot->xAxis()->min()), 0);
+    matrix.ortho(0, 1, yMax, yMin, -1, 1);
+    matrix.scale(1  / logf(xMax / xMin), 1.0f, 1.0f);
+    matrix.translate(-1 * logf(xMin), 0);
     m_program.setUniformValue(m_matrixUniform, matrix);
 
     m_program.setUniformValue(
         m_minmaxUniform,
-        static_cast<GLfloat>(plot->xAxis()->min()),
-        static_cast<GLfloat>(plot->xAxis()->max()),
-        static_cast<GLfloat>(plot->yAxis()->min()),
-        static_cast<GLfloat>(plot->yAxis()->max())
+        static_cast<GLfloat>(xMin),
+        static_cast<GLfloat>(xMax),
+        static_cast<GLfloat>(yMin),
+        static_cast<GLfloat>(yMax)
     );
 
     m_program.setUniformValue(m_screenUniform, m_width, m_height);
@@ -52,8 +49,8 @@ void FrequencyBasedSeriesRenderer::setUniforms()
 }
 void FrequencyBasedSeriesRenderer::iterate(
         unsigned int pointsPerOctave,
-        std::function<void(unsigned int)> accumulate,
-        std::function<void(float start, float end, unsigned int count)> collected)
+        const std::function<void(unsigned int)> &accumulate,
+        const std::function<void(float start, float end, unsigned int count)> &collected)
 {
     unsigned int count = 0;
 
@@ -87,8 +84,8 @@ void FrequencyBasedSeriesRenderer::iterate(
 }
 void FrequencyBasedSeriesRenderer::iterateForSpline(unsigned int pointsPerOctave,
              float *value,
-             std::function<void (unsigned int)> accumulate,
-             std::function<void(float f1, float f2, GLfloat *a)> collected
+             const std::function<void (unsigned int)> &accumulate,
+             const std::function<void(float f1, float f2, GLfloat *a)> &collected
         )
 {
     bool bCollected = false;
@@ -117,7 +114,7 @@ void FrequencyBasedSeriesRenderer::iterateForSpline(unsigned int pointsPerOctave
             a[2] = (     splinePoint[0] - 2 * splinePoint[1] +     splinePoint[2]) / 2;
             a[3] = (-1 * splinePoint[0] + 3 * splinePoint[1] - 3 * splinePoint[2] + splinePoint[3]) / 6;
             bCollected = true;
-            collected(f[1], f[2], a);
+            collected(f[1], f[2], static_cast<float *>(a));
         } else {
             ++bCount;
         }

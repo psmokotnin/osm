@@ -21,7 +21,7 @@ using namespace Fftchart;
 
 SeriesFBO::SeriesFBO(Source* s, RendererCreator rc, QQuickItem *parent):
     QQuickFramebufferObject(parent),
-    rendererCreator(rc),
+    rendererCreator(std::move(rc)),
     m_source(s)
 {
     setFlag(QQuickItem::ItemHasContents);

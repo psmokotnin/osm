@@ -19,23 +19,24 @@
 #define DECONVOLUTION_H
 #include <complex>
 #include "complex.h"
+#include "fouriertransform.h"
+#include "container/array.h"
 
 class Deconvolution
 {
 private:
-    unsigned int _size, _pointer, _maxPoint;
-    float *_in, *_out, *_d;
-    complex *_inc, *_outc, *_dc;
-
-    complex *wlen;
+    unsigned int m_size, m_maxPoint;
+    container::array<float> m_data;
+    FourierTransform fft, ifft;
 
 public:
-    Deconvolution(unsigned int size);
-    ~Deconvolution();
+    explicit Deconvolution(unsigned int size = 8);
+    ~Deconvolution() = default;
     void add(float in, float out);
-    void transform();
-    float get(const unsigned int i) const {return _d[i];}
-    unsigned int maxPoint() const noexcept {return _maxPoint;}
+    void transform(WindowFunction *window);
+    float get(const unsigned int i) const {return m_data[i];}
+    unsigned int maxPoint() const noexcept {return m_maxPoint;}
+    void setSize(unsigned int size);
 };
 
 #endif // DECONVOLUTION_H

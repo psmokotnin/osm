@@ -39,9 +39,10 @@ protected:
     std::mutex dataMutex;   //NOTE: shared_mutex (C++17)
 
     struct FTData {
-        complex data;
-        complex reference;
+        complex data;//TODO:remove
+        complex reference;//TODO:remove
         float frequency;
+        float phase;//TODO:add modul & magnitude
     } *_ftdata;
 
     struct TimeData {
@@ -50,7 +51,7 @@ protected:
     } *_impulseData, *_scopeData;
 
     unsigned int _dataLength;
-    unsigned int _deconvolutionSize;
+    unsigned int m_deconvolutionSize;
     unsigned int _fftSize;
     bool _active;
 
@@ -76,7 +77,7 @@ public:
     float magnitude(unsigned int i) const noexcept;
     float phase(unsigned int i) const noexcept;
 
-    unsigned int impulseSize() const noexcept {return _deconvolutionSize;}
+    unsigned int impulseSize() const noexcept {return m_deconvolutionSize;}
     float impulseTime(unsigned int i) const noexcept;
     float impulseValue(unsigned int i) const noexcept;
 

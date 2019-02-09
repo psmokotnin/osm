@@ -26,10 +26,12 @@ class PhaseSeriesRenderer : public FrequencyBasedSeriesRenderer
 public:
     PhaseSeriesRenderer();
     void renderSeries() override;
+    void synchronize(QQuickFramebufferObject *item) override;
 
 private:
     int m_posAttr, m_splineA,
         m_frequency1, m_frequency2;
+    unsigned int m_pointsPerOctave;
 };
 }
 #endif // PHASESERIESRENDERER_H

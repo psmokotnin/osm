@@ -20,6 +20,12 @@
 
 using namespace Fftchart;
 Source::Source(QObject *parent) : QObject(parent),
+    _ftdata(nullptr),
+    _impulseData(nullptr),
+    _scopeData(nullptr),
+    _dataLength(1),
+    m_deconvolutionSize(1),
+    _fftSize(1),
     _active(true)
 {
 
@@ -66,23 +72,23 @@ float Source::phase(unsigned int i) const noexcept
     while (p >  F_PI) p -= D_PI;
     while (p < -F_PI) p += D_PI;
 
-    return p;
+    return _ftdata[i].phase;//p;
 }
 float Source::impulseTime(unsigned int i) const noexcept
 {
-    if (i >= _deconvolutionSize)
+    if (i >= m_deconvolutionSize)
         return 0.0;
     return _impulseData[i].time;
 }
 float Source::impulseValue(unsigned int i) const noexcept
 {
-    if (i >= _deconvolutionSize)
+    if (i >= m_deconvolutionSize)
         return 0.0;
     return _impulseData[i].value.real;
 }
 
 void Source::copy(FTData *dataDist, TimeData *timeDist)
 {
-    std::copy(_ftdata, _ftdata + size(), dataDist);
-    std::copy(_impulseData, _impulseData + impulseSize(), timeDist);
+    std::copy_n(_ftdata, size(), dataDist);
+    std::copy_n(_impulseData, impulseSize(), timeDist);
 }

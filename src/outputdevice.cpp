@@ -16,10 +16,12 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "outputdevice.h"
-#include <math.h>
+#include <cmath>
 
 OutputDevice::OutputDevice(QObject *parent) : QIODevice(parent),
-    m_chanel(1),
+    m_name("Silent"),
+    m_sampleRate(0),
+    m_chanel(1), m_aux(2),
     m_chanelCount(1),
     m_gain(1.f)
 {
@@ -30,7 +32,7 @@ qint64 OutputDevice::readData(char *data, qint64 maxlen)
     qint64 total = 0;
     int chanel = m_chanelCount;
     const float zero = 0.f;
-    Sample src;
+    Sample src = {0.f};
 
     while (maxlen - total > 0) {
         if (chanel >= m_chanelCount) {
@@ -49,10 +51,9 @@ qint64 OutputDevice::readData(char *data, qint64 maxlen)
     }
     return total;
 }
-Sample OutputDevice::sample(void)
+Sample OutputDevice::sample()
 {
-    Sample output;
-    output.f = 0.0;
+    Sample output = {0.f};
     return output;
 }
 qint64 OutputDevice::writeData(const char *data, qint64 len)

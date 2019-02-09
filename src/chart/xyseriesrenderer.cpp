@@ -1,6 +1,6 @@
 /**
  *  OSM
- *  Copyright (C) 2018  Pavel Smokotnin
+ *  Copyright (C) 2019  Pavel Smokotnin
 
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -15,20 +15,27 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "inputdevice.h"
-#include <qdebug.h>
-InputDevice::InputDevice(QObject *parent) : QIODevice(parent)
+#include "xyseriesrenderer.h"
+#include "xyplot.h"
+
+using namespace Fftchart;
+
+XYSeriesRenderer::XYSeriesRenderer():
+    xMin(0.f),
+    xMax(0.f),
+    yMin(0.f),
+    yMax(0.f)
 {
 
 }
-qint64 InputDevice::readData(char *data, qint64 maxlen)
+void XYSeriesRenderer::synchronize(QQuickFramebufferObject *item)
 {
-    Q_UNUSED(data);
-    Q_UNUSED(maxlen);
-    return -1;
-}
-qint64 InputDevice::writeData(const char *data, qint64 len)
-{
-    emit recived(data, len);
-    return len;
+    SeriesRenderer::synchronize(item);
+
+    if (auto *plot = dynamic_cast<XYPlot*>(m_item->parent())) {
+        xMin = plot->xAxis()->min();
+        xMax = plot->xAxis()->max();
+        yMin = plot->yAxis()->min();
+        yMax = plot->yAxis()->max();
+    }
 }

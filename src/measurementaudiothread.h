@@ -22,8 +22,6 @@
 #include <QDebug>
 #include <QAudioInput>
 
-#include "inputdevice.h"
-
 class MeasurementAudioThread : public QThread
 {
     Q_OBJECT
@@ -31,7 +29,6 @@ class MeasurementAudioThread : public QThread
 private:
     QAudioInput* m_audio;
 
-    InputDevice m_iodevice;
     QAudioDeviceInfo m_device;
     QAudioFormat m_format;
 
@@ -41,6 +38,8 @@ private:
         m_dataChanel = 0,
         m_referenceChanel = 1
     ;
+
+    void startAudio();
 
 public:
     explicit MeasurementAudioThread(QObject *parent);
@@ -55,14 +54,17 @@ public:
     unsigned int dataChanel() const {return m_dataChanel;}
     void setDataChanel(unsigned int n) {m_dataChanel = n;}
 
+    int bufferSize() const {return m_audio->bufferSize();}
+    int bytesReady() const {return  m_audio->bytesReady();}
+
 public slots:
     void setActive(bool active);
     void stop();
-    void selectDevice(QAudioDeviceInfo deviceInfo, bool restart);
+    void selectDevice(const QAudioDeviceInfo &deviceInfo, bool restart);
 
 signals:
     void deviceChanged();
-    void recived(const char *data, qint64 len);
+    void recived(const QByteArray&);
     void formatChanged();
 };
 

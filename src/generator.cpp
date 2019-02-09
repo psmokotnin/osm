@@ -22,14 +22,14 @@ Generator::Generator(QObject *parent) : QObject(parent),
 {
     QMetaObject::invokeMethod(&m_thread, "init", Qt::QueuedConnection);
 
-    connect(&m_thread, SIGNAL(enabledChanged(bool)), this, SIGNAL(enabledChanged(bool)), Qt::QueuedConnection);
-    connect(&m_thread, SIGNAL(deviceChanged()), this, SIGNAL(deviceChanged()), Qt::QueuedConnection);
-    connect(&m_thread, SIGNAL(typeChanged()), this, SIGNAL(typeChanged()), Qt::QueuedConnection);
-    connect(&m_thread, SIGNAL(frequencyChanged(int)), this, SIGNAL(frequencyChanged(int)), Qt::QueuedConnection);
-    connect(&m_thread, SIGNAL(gainChanged(float)), this, SIGNAL(gainChanged(float)), Qt::QueuedConnection);
-    connect(&m_thread, SIGNAL(chanelChanged(int)), this, SIGNAL(chanelChanged(int)), Qt::QueuedConnection);
-    connect(&m_thread, SIGNAL(auxChanged(int)), this, SIGNAL(auxChanged(int)), Qt::QueuedConnection);
-    connect(&m_thread, SIGNAL(chanelsCountChanged()), this, SIGNAL(chanelsCountChanged()), Qt::QueuedConnection);
+    connect(&m_thread, SIGNAL(enabledChanged(bool)),  this, SIGNAL(enabledChanged(bool)),   Qt::QueuedConnection);
+    connect(&m_thread, SIGNAL(deviceChanged()),       this, SIGNAL(deviceChanged()),        Qt::QueuedConnection);
+    connect(&m_thread, SIGNAL(typeChanged()),         this, SIGNAL(typeChanged()),          Qt::QueuedConnection);
+    connect(&m_thread, SIGNAL(frequencyChanged(int)), this, SIGNAL(frequencyChanged(int)),  Qt::QueuedConnection);
+    connect(&m_thread, SIGNAL(gainChanged(float)),    this, SIGNAL(gainChanged(float)),     Qt::QueuedConnection);
+    connect(&m_thread, SIGNAL(chanelChanged(int)),    this, SIGNAL(chanelChanged(int)),     Qt::QueuedConnection);
+    connect(&m_thread, SIGNAL(auxChanged(int)),       this, SIGNAL(auxChanged(int)),        Qt::QueuedConnection);
+    connect(&m_thread, SIGNAL(chanelsCountChanged()), this, SIGNAL(chanelsCountChanged()),  Qt::QueuedConnection);
 }
 Generator::~Generator()
 {
@@ -54,7 +54,7 @@ void Generator::setType(int type)
                 Q_ARG(int, type)
     );
 }
-void Generator::selectDevice(QString name)
+void Generator::selectDevice(const QString &name)
 {
     QMetaObject::invokeMethod(
                 &m_thread,

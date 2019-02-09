@@ -31,14 +31,16 @@ class RTASeriesRenderer : public FrequencyBasedSeriesRenderer
 public:
     explicit RTASeriesRenderer();
     void renderSeries() override;
+    void synchronize(QQuickFramebufferObject *item) override;
 
 protected:
     void renderLine();
-    void renderLines(RTAPlot *plot);
-    void renderBars(RTAPlot *plot);
+    void renderLines();
+    void renderBars();
 
 private:
     int m_posAttr;
+    unsigned int m_pointsPerOctave, m_mode;
 };
 }
 #endif // RTASERIES_H

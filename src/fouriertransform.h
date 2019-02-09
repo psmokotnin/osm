@@ -20,61 +20,45 @@
 
 #include "complex.h"
 #include "windowfunction.h"
+#include "container/array.h"
 
 class FourierTransform
 {
 private:
-    unsigned long _size;
-    unsigned long _pointer = 0;
-    const unsigned int _dataDivider = 4;
+    unsigned int _size;
+    unsigned int _pointer;
 
     //sources
-    float *inA, *inB, *dA, *dB;
+    container::array<float> inA, inB;
 
     //fft swap map
-    unsigned long *_swapMap;
+    container::array<unsigned int> _swapMap;
 
     //fast
-    complex *_fastA, *_fastB, *wlen;
-    complex *_doubleA, *_doubleB;
-
-    //delta results
-    complex *outputA, *outputB;
-
-    unsigned int _octaveCount, _pointPerOctave;
-    long *_lowKs;
-
-    float kdx;
+    container::array<complex> _fastA, _fastB, wlen;
 
 public:
-    FourierTransform(unsigned int size);
+    FourierTransform(unsigned int size = 2);
 
     void setSize(unsigned int size);
 
     void add(float sampleA, float sampleB);
-    void fast(WindowFunction *window);
+    void set(unsigned int i, const complex &a, const complex &b);
+    //ultrafast - speed up the FFT, but result can't be used for reverse fft
+    void fast(WindowFunction *window, bool reverse = false, bool ultrafast = false);
+    void ufast(WindowFunction *window) {
+        fast(window, false, true);
+    }
 
-    //add and delta transform
-    void change(float sampleA, float sampleB);
-
-    void prepareDelta(unsigned int octaveCount, unsigned int pointPerOctave);
     void prepareFast();
 
-    long getPoint(unsigned int number, unsigned int octave) const;
-    long getPoint(unsigned int number) const;
     long f2i(double frequency, int sampleRate) const;
 
     unsigned long pointer() const {return _pointer;}
 
-    //get delta transform results
-    complex a(int i) const;
-    complex b(int i) const;
-
     //get fast transform results
-    complex af(long i) const;
-    complex bf(long i) const;
-
-    unsigned int dataDivider() const { return _dataDivider;}
+    complex af(unsigned int i) const;
+    complex bf(unsigned int i) const;
 };
 
 #endif // FOURIERTRANSFORM_H

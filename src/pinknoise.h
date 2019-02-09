@@ -29,8 +29,8 @@ public:
 
 private:
 
-    Sample sample(void);
-    unsigned long pseudoRandom(void);
+    Sample sample() override;
+    unsigned long pseudoRandom();
 
     const static int MAX_RANDOM_ROWS = 30;
     const static int RANDOM_BITS     = 24;

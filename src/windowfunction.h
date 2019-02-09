@@ -21,7 +21,7 @@
 #include <QDebug>
 #include <QVariant>
 #include <math.h>
-
+#include "container/array.h"
 
 class WindowFunction
 {
@@ -31,27 +31,27 @@ public:
     static const std::map<Type, QString> TypeMap;
 
 private:
-    Type _type = Type::rectangular;
-    unsigned long _size;
-    float *_data;
-    float _gain;
+    Type m_type;
+    unsigned long m_size;
+    container::array<float> m_data;//container::array
+    float m_gain;
 
     //calculate data for current type
     void calculate();
 
 public:
-    WindowFunction(unsigned long size);
-    ~WindowFunction();
+    explicit WindowFunction(Type type);
+    ~WindowFunction() = default;
 
     void setSize(unsigned long size);
-    unsigned long size() const {return _size;}
+    unsigned long size() const {return m_size;}
 
-    Type type() const {return _type;}
+    Type type() const {return m_type;}
     void setType(Type t);
-    QVariant getTypes();
+    QVariant getTypes() const;
 
-    float gain() const {return _gain;}
-    float get(unsigned long k) const { return _data[k]; }
+    float gain() const {return m_gain;}
+    float get(unsigned long k) const { return m_data[k]; }
 
 };
 QDebug operator<<(QDebug dbg, const WindowFunction::Type &t);

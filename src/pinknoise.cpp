@@ -17,9 +17,10 @@
  */
 #include "pinknoise.h"
 
-PinkNoise::PinkNoise(QObject *parent) : OutputDevice(parent)
+PinkNoise::PinkNoise(QObject *parent) : OutputDevice(parent),
+    rows()
 {
-    name = "Pink";
+    m_name = "Pink";
 
     long pmax;
     int numRows = 12;
@@ -36,11 +37,10 @@ PinkNoise::PinkNoise(QObject *parent) : OutputDevice(parent)
 
     runningSum = 0;
 }
-Sample PinkNoise::sample(void)
+Sample PinkNoise::sample()
 {
     long newRandom;
     long sum;
-    Sample output;
 
     /* Increment and mask index. */
     index = (index + 1) & indexMask;
@@ -61,23 +61,22 @@ Sample PinkNoise::sample(void)
          * values together. Only one changes each time.
          */
         runningSum -= rows[numZeros];
-        newRandom = (static_cast<long>(pseudoRandom())) >> this->RANDOM_SHIFT;
+        newRandom = (static_cast<long>(pseudoRandom())) >> RANDOM_SHIFT;
         runningSum += newRandom;
         rows[numZeros] = newRandom;
     }
 
     /* Add extra white noise value. */
-    newRandom = (static_cast<long>(pseudoRandom())) >> this->RANDOM_SHIFT;
+    newRandom = (static_cast<long>(pseudoRandom())) >> RANDOM_SHIFT;
     sum = runningSum + newRandom;
 
     /* Scale to range of -1.0 to 0.9999. */
-    output.f = m_gain * scalar * sum;
-
+    Sample output = {m_gain * scalar * sum};
     return output;
 }
 
 /* Calculate pseudo-random 32 bit number based on linear congruential method. */
-unsigned long PinkNoise::pseudoRandom( void )
+unsigned long PinkNoise::pseudoRandom()
 {
     static unsigned long randSeed = 22222;  /* Change this for different random sequences. */
     randSeed = (randSeed * 196314165) + 907633515;

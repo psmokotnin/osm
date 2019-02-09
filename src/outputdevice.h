@@ -28,19 +28,20 @@ class OutputDevice : public QIODevice
     Q_OBJECT
 
 protected:
-    int sampleRate;
+    QString m_name;
+    int m_sampleRate;
     int m_chanel, m_aux, m_chanelCount;
     float m_gain;
 
 public:
     OutputDevice(QObject *parent);
-    QString name = "Silent";
 
-    qint64 writeData(const char *data, qint64 len);
-    qint64 readData(char *data, qint64 maxlen);
-    virtual Sample sample(void);
+    qint64 writeData(const char *data, qint64 len) override;
+    qint64 readData(char *data, qint64 maxlen) override;
+    virtual Sample sample();
 
-    void setSamplerate(int s) {sampleRate = s;}
+    void setSamplerate(int s) {m_sampleRate = s;}
+    QString name() const {return m_name;}
 
 public slots:
     void setGain(float gaindB);

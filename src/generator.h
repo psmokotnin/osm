@@ -57,22 +57,22 @@ public:
     explicit Generator(QObject* parent = nullptr);
     ~Generator();
 
-    bool getEnabled() {return m_thread.enabled();}
+    bool getEnabled() const {return m_thread.enabled();}
     void setEnabled(bool enable);
 
-    int getType() {return m_thread.type();}
+    int getType() const {return m_thread.type();}
     void setType(int t);
 
-    QVariant getAvailableTypes(void) {return m_thread.getAvailableTypes();}
-    QVariant getDeviceList(void) {return m_thread.getDeviceList();}
+    QVariant getAvailableTypes(void) const {return m_thread.getAvailableTypes();}
+    QVariant getDeviceList(void) const {return m_thread.getDeviceList();}
 
-    QString deviceName() {return m_thread.deviceName();}
-    void selectDevice(QString name);
+    QString deviceName() const {return m_thread.deviceName();}
+    void selectDevice(const QString &name);
 
-    int frequency() {return m_thread.frequency();}
+    int frequency() const {return m_thread.frequency();}
     void setFrequency(int f);
 
-    float gain() {return m_thread.gain();}
+    float gain() const {return m_thread.gain();}
     void setGain(float gain);
 
     int chanelsCount() const {return m_thread.chanelsCount();}

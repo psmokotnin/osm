@@ -40,7 +40,7 @@ protected:
 public:
     VariableChart(QQuickItem *parent = Q_NULLPTR);
     QString typeString() const;
-    void setType(const Type type);
+    void setType(const Type &type);
     void setTypeByString(const QString &type);
 
     Q_INVOKABLE void appendDataSource(Source *source);

@@ -30,7 +30,9 @@ vector<float> Axis::ISO_LABELS = {
 };
 
 Axis::Axis(AxisDirection d, QQuickItem *parent)
-    : PaintedItem(parent)
+    : PaintedItem(parent),
+      _min(0.f), _max(1.f), _scale(1.f),
+      _lowLimit(0.f), _highLimit(1.f)
 {
     _direction = d;
     _lineColor = QColor::fromRgbF(0, 0, 0, 0.1);
@@ -85,7 +87,7 @@ void Axis::paint(QPainter *painter) noexcept
 
         try {
             t = convert(l, size);
-        } catch (const invalid_argument e) {
+        } catch (const invalid_argument &e) {
             qDebug() << l << e.what();
             return; //continue
         }

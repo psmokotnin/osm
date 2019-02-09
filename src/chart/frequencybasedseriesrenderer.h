@@ -18,27 +18,27 @@
 #ifndef FREQUENCYBASEDSERIESRENDERER_H
 #define FREQUENCYBASEDSERIESRENDERER_H
 
-#include "seriesrenderer.h"
+#include "xyseriesrenderer.h"
 namespace Fftchart {
 
-class FrequencyBasedSeriesRenderer : public SeriesRenderer
+class FrequencyBasedSeriesRenderer : public XYSeriesRenderer
 {
 
 protected:
     void setUniforms();
     void iterate(unsigned int pointsPerOctave,
-                 std::function<void (unsigned int)> accumulate,
-                 std::function<void(float start, float end, unsigned int count)> collected
+                const std::function<void(unsigned int)> &accumulate,
+                const std::function<void(float start, float end, unsigned int count)> &collected
             );
 
     void iterateForSpline(unsigned int pointsPerOctave,
-                 float *value,
-                 std::function<void (unsigned int)> accumulate,
-                 std::function<void(float f1, float f2, GLfloat *a)> collected
+                float *value,
+                const std::function<void (unsigned int)> &accumulate,
+                const std::function<void(float f1, float f2, GLfloat *a)> &collected
             );
 
 public:
-    FrequencyBasedSeriesRenderer();
+    explicit FrequencyBasedSeriesRenderer();
     virtual void renderSeries() = 0;
 
 protected:

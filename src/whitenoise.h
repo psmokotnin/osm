@@ -28,7 +28,7 @@ public:
     WhiteNoise(QObject *parent);
 
 private:
-    Sample sample(void);
+    Sample sample() override;
 };
 
 #endif // WHITENOISE_H

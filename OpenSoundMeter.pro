@@ -18,7 +18,6 @@ SOURCES += src/main.cpp \
     src/chart/painteditem.cpp \
     src/ssemath.cpp \
     src/chart/source.cpp \
-    src/inputdevice.cpp \
     src/filter.cpp \
     src/meter.cpp \
     src/measurement.cpp \
@@ -37,7 +36,9 @@ SOURCES += src/main.cpp \
     src/chart/frequencybasedseriesrenderer.cpp \
     src/chart/xyplot.cpp \
     src/generatorthread.cpp \
-    src/measurementaudiothread.cpp
+    src/measurementaudiothread.cpp \
+    src/averaging.cpp \
+    src/chart/xyseriesrenderer.cpp
 
 RESOURCES += qml.qrc \
     shaders/shaders.qrc
@@ -82,7 +83,6 @@ HEADERS += \
     src/chart/painteditem.h \
     src/chart/type.h \
     src/chart/source.h \
-    src/inputdevice.h \
     src/filter.h \
     src/meter.h \
     src/measurement.h \
@@ -101,7 +101,11 @@ HEADERS += \
     src/chart/frequencybasedseriesrenderer.h \
     src/chart/xyplot.h \
     src/generatorthread.h \
-    src/measurementaudiothread.h
+    src/measurementaudiothread.h \
+    src/averaging.h \
+    src/chart/xyseriesrenderer.h \
+    src/container/fifo.h \
+    src/container/array.h
 
 APP_GIT_VERSION = $$system(git --git-dir $$_PRO_FILE_PWD_/.git --work-tree $$_PRO_FILE_PWD_ describe --always --tags)
 DEFINES += APP_GIT_VERSION=\\\"$$APP_GIT_VERSION\\\"

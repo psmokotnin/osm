@@ -20,7 +20,7 @@
 #include <qglobal.h>
 
 union Sample {
-    float f;
+    float f = 0.f;
     char c[sizeof(float)];
 };
 

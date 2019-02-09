@@ -25,12 +25,8 @@
 using namespace Fftchart;
 
 SeriesRenderer::SeriesRenderer() :
-    QQuickFramebufferObject::Renderer(),
-    m_item(nullptr),
-    m_program()
-{
-}
-SeriesRenderer::~SeriesRenderer()
+    m_colorUniform(0),
+    m_width(0), m_height(0)
 {
 }
 QOpenGLFramebufferObject *SeriesRenderer::createFramebufferObject(const QSize &size)
@@ -44,33 +40,19 @@ QOpenGLFramebufferObject *SeriesRenderer::createFramebufferObject(const QSize &s
 void SeriesRenderer::synchronize(QQuickFramebufferObject *item)
 {
     m_item = item;
-    m_source = static_cast<SeriesFBO*>(item)->source();
+    if ((m_source = dynamic_cast<SeriesFBO*>(item)->source())) {
+        qreal retinaScale = m_item->window()->devicePixelRatio();
+        m_width  = static_cast<GLsizei>(m_item->width() * retinaScale);
+        m_height = static_cast<GLsizei>(m_item->height() * retinaScale);
+    }
 }
 void SeriesRenderer::render()
 {
-    if (!m_item)
-        return;
-
-    Plot *plot = static_cast<Plot*>(m_item->parent());
-    std::lock_guard<std::mutex> guard(plot->renderMutex);
-
-    //plot could be destroyed (or prepared for it) while mutex was locked
-    if (!plot || !plot->parent()) {
-        return;
-    }
-
-    //The item does not have a window until it has been assigned into a scene.
-    if (!m_item->window())
-        return;
-
     if (!m_program.isLinked()) {
-        qDebug() << "shader not setted or linked";
+        qDebug() << QString("shader not setted or linked");
         return;
     }
 
-    qreal retinaScale = m_item->window()->devicePixelRatio();
-    m_width  = static_cast<GLsizei>(m_item->width() * retinaScale);
-    m_height = static_cast<GLsizei>(m_item->height() * retinaScale);
     openGLFunctions->glViewport(
         0,
         0,
@@ -80,7 +62,6 @@ void SeriesRenderer::render()
 
     openGLFunctions->glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     openGLFunctions->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
 
     m_program.bind();
 

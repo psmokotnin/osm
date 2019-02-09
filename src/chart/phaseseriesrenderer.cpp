@@ -21,7 +21,7 @@
 
 using namespace Fftchart;
 
-PhaseSeriesRenderer::PhaseSeriesRenderer() : FrequencyBasedSeriesRenderer()
+PhaseSeriesRenderer::PhaseSeriesRenderer() : m_pointsPerOctave(0)
 {
     m_program.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/logx.vert");
     m_program.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/phase.frag");
@@ -38,12 +38,19 @@ PhaseSeriesRenderer::PhaseSeriesRenderer() : FrequencyBasedSeriesRenderer()
     m_minmaxUniform = m_program.uniformLocation("minmax");
     m_screenUniform = m_program.uniformLocation("screen");
 }
+void PhaseSeriesRenderer::synchronize(QQuickFramebufferObject *item)
+{
+    XYSeriesRenderer::synchronize(item);
+
+    if (auto *plot = dynamic_cast<PhasePlot*>(m_item->parent())) {
+        m_pointsPerOctave = plot->pointsPerOctave();
+    }
+}
 void PhaseSeriesRenderer::renderSeries()
 {
     if (!m_source->active())
         return;
 
-    PhasePlot *plot = static_cast<PhasePlot*>(m_item->parent());
     GLfloat vertices[8];
     constexpr float
             F_PI = static_cast<float>(M_PI),
@@ -52,12 +59,12 @@ void PhaseSeriesRenderer::renderSeries()
     float value = 0.f, tvalue = 0.f, ltvalue = 0.f, lValue = 0.f;
 
     setUniforms();
-    openGLFunctions->glVertexAttribPointer(static_cast<GLuint>(m_posAttr), 2, GL_FLOAT, GL_FALSE, 0, vertices);
+    openGLFunctions->glVertexAttribPointer(static_cast<GLuint>(m_posAttr), 2, GL_FLOAT, GL_FALSE, 0, static_cast<const void *>(vertices));
     openGLFunctions->glEnableVertexAttribArray(0);
 
     float xadd, xmul;
-    xadd = -1.0f * logf(plot->xAxis()->min());
-    xmul = m_width / logf(plot->xAxis()->max() / plot->xAxis()->min());
+    xadd = -1.0f * logf(xMin);
+    xmul = m_width / logf(xMax / xMin);
 
     /*
      * Draw quad for each band from -PI to +PI (full height)
@@ -102,7 +109,7 @@ void PhaseSeriesRenderer::renderSeries()
         value = 0.0f;
     };
 
-    iterateForSpline(plot->pointsPerOctave(), &value, accumulate, collected);
+    iterateForSpline(m_pointsPerOctave, &value, accumulate, collected);
 
     openGLFunctions->glDisableVertexAttribArray(0);
 }

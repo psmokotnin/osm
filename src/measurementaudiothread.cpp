@@ -19,36 +19,32 @@
 
 MeasurementAudioThread::MeasurementAudioThread(QObject *parent):
     QThread(parent),
-    m_audio(nullptr),
-    m_iodevice(this)
+    m_audio(nullptr)
 {
     start();
     QObject::moveToThread(this);
 
     connect(this, SIGNAL(finished()), SLOT(stop()));
-    connect(&m_iodevice, SIGNAL(recived(const char *, qint64)), SIGNAL(recived(const char *, qint64)));
 }
 void MeasurementAudioThread::stop()
 {
     if (m_audio) {
         m_audio->stop();
     }
-    m_iodevice.close();
 }
-void MeasurementAudioThread::selectDevice(QAudioDeviceInfo deviceInfo, bool restart)
+void MeasurementAudioThread::selectDevice(const QAudioDeviceInfo &deviceInfo, bool restart)
 {
     if (m_audio) {
         m_audio->stop();
         delete m_audio;
     }
-    m_iodevice.close();
     m_maxChanelCount = 0;
 
     m_device = deviceInfo;
 
     m_chanelCount = std::max(m_dataChanel, m_referenceChanel) + 1;
     foreach (auto c, m_device.supportedChannelCounts()) {
-        unsigned int formatChanels = static_cast<unsigned int>(c);
+        auto formatChanels = static_cast<unsigned int>(c);
         if (formatChanels > m_chanelCount)
             m_chanelCount = formatChanels;
         m_maxChanelCount = std::max(formatChanels, m_maxChanelCount);
@@ -62,15 +58,15 @@ void MeasurementAudioThread::selectDevice(QAudioDeviceInfo deviceInfo, bool rest
     m_format.setSampleType(QAudioFormat::Float);
 
     m_audio = new QAudioInput(m_device, m_format, this);
-    m_iodevice.open(InputDevice::WriteOnly);
+    m_audio->setBufferSize(
+                static_cast<int>(sizeof(float)) *
+                static_cast<int>(m_chanelCount) *
+                8*1024);
+
     emit deviceChanged();
 
     if (restart) {
-        m_audio->start(&m_iodevice);
-        m_format = m_audio->format();
-        m_chanelCount = static_cast<unsigned int>(m_format.channelCount());
-
-        emit formatChanged();
+        startAudio();
     }
 }
 void MeasurementAudioThread::setActive(bool active)
@@ -79,11 +75,29 @@ void MeasurementAudioThread::setActive(bool active)
                 m_audio->state() == QAudio::IdleState ||
                 m_audio->state() == QAudio::StoppedState)
        ) {
-        m_audio->start(&m_iodevice);
+        startAudio();
         return ;
     }
 
     if (!active && m_audio->state() == QAudio::ActiveState) {
         m_audio->stop();
     }
+}
+void MeasurementAudioThread::startAudio()
+{
+    auto io = m_audio->start();
+    connect(io, &QIODevice::readyRead,
+                [&, io]() {
+                    int len = m_audio->bytesReady();
+                    QByteArray buffer(len, 0x1);
+                    qint64 l;
+
+                    while ((l = io->read(buffer.data(), len)) && l > 0) {
+                        emit recived(buffer);
+                    }
+        });
+
+    m_format = m_audio->format();
+    m_chanelCount = static_cast<unsigned int>(m_format.channelCount());
+    emit formatChanged();
 }

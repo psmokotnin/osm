@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "complex.h"
+#include "./complex.h"
 
 float complex::abs()
 {
@@ -41,12 +41,6 @@ complex& complex::operator=(const float& r)
 {
     real = r;
     imag = 0.0;
-    return *this;
-}
-complex& complex::operator=(const complex& c)
-{
-    real = c.real;
-    imag = c.imag;
     return *this;
 }
 

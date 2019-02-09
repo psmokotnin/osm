@@ -31,7 +31,7 @@ class SeriesRenderer : public QQuickFramebufferObject::Renderer
 {
 public:
     explicit SeriesRenderer();
-    ~SeriesRenderer() override;
+    virtual ~SeriesRenderer() override = default;
     void render() override final;
     virtual void renderSeries() = 0;
 

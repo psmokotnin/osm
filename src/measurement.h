@@ -31,7 +31,7 @@ QT_CHARTS_USE_NAMESPACE
 #include "chart/type.h"
 #include "chart/source.h"
 #include "stored.h"
-#include "inputdevice.h"
+#include "averaging.h"
 #include "fouriertransform.h"
 #include "deconvolution.h"
 #include "filter.h"
@@ -70,56 +70,52 @@ class Measurement : public Fftchart::Source
     Q_PROPERTY(QVariant windows READ getAvailableWindowTypes CONSTANT)
 
 private:
-    QTimer *_timer;
+    QTimer m_timer;
     QThread m_timerThread;
     MeasurementAudioThread m_audioThread;
-    unsigned int _average = 0, _setAverage = 0;
-    unsigned long _delay = 0;
-    long _estimatedDelay = 0;
-    unsigned int _avgcounter = 0;
-    bool _polarity          = false;
-    bool _averageMedian     = false;
-    bool _lpf               = true;
+    unsigned int m_average;
+    unsigned long m_delay, m_setDelay;
+    long m_estimatedDelay;
+    bool m_polarity, m_lpf;
 
     AudioStack *dataStack,
                *referenceStack;
-    complex *impulseData;
     Meter dataMeter, referenceMeter;
 
-    complex **averageData = nullptr, **averageReference = nullptr;
-    float **averageDeconvolution = nullptr;
-    unsigned long *estimatedDelays = nullptr;
+    WindowFunction m_window;
+    FourierTransform m_dataFT;
+    Deconvolution m_deconvolution;
+    container::array<Filter> m_dataLPFs, m_referenceLPFs;
+    Averaging<complex> dataAvg, referenceAvg;
+    Averaging<float> deconvAvg;
+    Averaging<unsigned int> estimatedDelayAvg;
 
-    WindowFunction *_window;
-    FourierTransform *_dataFT;
-    Deconvolution *_deconv;
-    Filter *dataLPFs = nullptr, *referenceLPFs = nullptr;
-
-    float _level         = 0.0,
-         _referenceLevel = 0.0;
+    container::array<Filter> m_phaseLPFs;
+    Averaging<float> pahseAvg;
 
     void calculateDataLength();
     void averaging();
-    void averageRealloc(bool force = false);
 
 protected:
-    unsigned int _fftPower;
+    unsigned int _fftPower, _setfftPower;
+    void updateFftPower();
+    void updateDelay();
 
 public:
     explicit Measurement(QObject *parent = nullptr);
     ~Measurement();
 
-    unsigned int fftPower() {return _fftPower;}
+    unsigned int fftPower() const {return _fftPower;}
     void setFftPower(unsigned int power);
 
     void setActive(bool active);
 
-    QVariant getDeviceList(void);
+    QVariant getDeviceList() const;
     void setDevice(QString deviceName);
 
     QString deviceName() const;
-    void selectDevice(QString name);
-    void selectDevice(QAudioDeviceInfo deviceInfo);
+    void selectDevice(const QString &name);
+    void selectDevice(const QAudioDeviceInfo &deviceInfo);
 
     unsigned int dataChanel() const {return m_audioThread.dataChanel();}
     void setDataChanel(unsigned int n) {m_audioThread.setDataChanel(n);}
@@ -128,34 +124,31 @@ public:
     void setReferenceChanel(unsigned int n) {m_audioThread.setReferenceChanel(n);}
     unsigned int chanelsCount() const {return m_audioThread.chanelsCount();}
 
-    float level() {return _level;}
-    float referenceLevel() {return _referenceLevel;}
+    float level() const {return dataMeter.value();}
+    float referenceLevel() const {return referenceMeter.value();}
 
-    unsigned long delay() {return _delay;}
+    unsigned long delay() const {return m_delay;}
     void setDelay(unsigned long delay);
 
-    unsigned int average() {return _average;}
+    unsigned int average() const {return m_average;}
     void setAverage(unsigned int average);
 
-    bool polarity() {return _polarity;}
-    void setPolarity(bool polarity) {_polarity = polarity;}
+    bool polarity() const {return m_polarity;}
+    void setPolarity(bool polarity) {m_polarity = polarity;}
 
-    bool lpf() {return _lpf;}
-    void setLPF(bool lpf) {_lpf = lpf;}
+    bool lpf() const {return m_lpf;}
+    void setLPF(bool lpf) {m_lpf = lpf;}
 
     unsigned int sampleRate() const;
 
-    QVariant getAvailableWindowTypes() {return _window->getTypes();}
-    int getWindowType() {return static_cast<int>(_window->type());}
-    void setWindowType(int t) {_window->setType(static_cast<WindowFunction::Type>(t));}
-
-    QTimer *getTimer() const;
-    void setTimer(QTimer *value);
+    QVariant getAvailableWindowTypes() const {return m_window.getTypes();}
+    int getWindowType() const {return static_cast<int>(m_window.type());}
+    void setWindowType(int t);
 
     long estimated() const noexcept;
 
 signals:
-    void fftPowerChanged();
+    void fftPowerChanged(unsigned int power);
     void deviceChanged();
     void levelChanged();
     void delayChanged();
@@ -173,7 +166,7 @@ public slots:
     void transform();
     void recalculateDataLength();
     QObject *store();
-    qint64 writeData(const char *_ftdata, qint64 len);
+    void writeData(const QByteArray& buffer);
 };
 
 #endif // MEASUREMENT_H

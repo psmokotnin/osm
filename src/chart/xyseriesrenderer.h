@@ -1,6 +1,6 @@
 /**
  *  OSM
- *  Copyright (C) 2018  Pavel Smokotnin
+ *  Copyright (C) 2019  Pavel Smokotnin
 
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -15,22 +15,21 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef INPUTDEVICE_H
-#define INPUTDEVICE_H
-#include <QIODevice>
+#ifndef XYSERIESRENDERER_H
+#define XYSERIESRENDERER_H
 
-class InputDevice : public QIODevice
+#include "seriesrenderer.h"
+
+namespace Fftchart {
+class XYSeriesRenderer : public SeriesRenderer
 {
-    Q_OBJECT
+protected:
+    float xMin, xMax, yMin, yMax;
 
 public:
-    InputDevice(QObject *parent);
-
-    qint64 readData(char *data, qint64 maxlen);
-    qint64 writeData(const char *data, qint64 len);
-
-signals:
-    void recived(const char *data, qint64 len);
+    XYSeriesRenderer();
+    void synchronize(QQuickFramebufferObject *item) override;
 };
+}
 
-#endif // INPUTDEVICE_H
+#endif // XYSERIESRENDERER_H

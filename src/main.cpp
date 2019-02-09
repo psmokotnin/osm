@@ -34,8 +34,9 @@ int main(int argc, char *argv[])
     QQuickStyle::setStyle("Material");
     QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
     QCoreApplication::setApplicationName("Open Sound Meter");
+    QCoreApplication::setApplicationVersion(APP_GIT_VERSION);
     QCoreApplication::setOrganizationName("psmokotnin");
-    QCoreApplication::setOrganizationDomain("psmokotnin.github.io/osm");
+    QCoreApplication::setOrganizationDomain("psmokotnin.github.io");
 
     Generator g;
     Measurement m;
@@ -52,5 +53,5 @@ int main(int argc, char *argv[])
     if (engine.rootObjects().isEmpty())
         return -1;
 
-    return app.exec();
+    return QApplication::exec();
 }

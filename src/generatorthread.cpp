@@ -25,6 +25,7 @@
 GeneratorThread::GeneratorThread(QObject *parent) :
     QThread(parent),
     m_audio(nullptr),
+    m_format(), m_device(), m_sources(),
     m_gain(-6.f),
     m_type(0),
     m_frequency(1000),
@@ -59,7 +60,7 @@ void GeneratorThread::finish()
 {
     setEnabled(false);
 }
-QString GeneratorThread::deviceName()
+QString GeneratorThread::deviceName() const
 {
     return m_device.deviceName();
 }
@@ -79,7 +80,7 @@ void GeneratorThread::setType(int type)
         emit typeChanged();
     }
 }
-void GeneratorThread::selectDevice(QString name)
+void GeneratorThread::selectDevice(const QString &name)
 {
     if (name == deviceName())
         return;
@@ -90,7 +91,7 @@ void GeneratorThread::selectDevice(QString name)
         }
     }
 }
-void GeneratorThread::_selectDevice(QAudioDeviceInfo device)
+void GeneratorThread::_selectDevice(const QAudioDeviceInfo &device)
 {
     m_device = device;
     m_sources[m_type]->close();
@@ -106,6 +107,10 @@ void GeneratorThread::_selectDevice(QAudioDeviceInfo device)
     }
     m_format.setChannelCount(m_chanelCount);
     m_audio = new QAudioOutput(m_device, m_format, this);
+    m_audio->setBufferSize(
+                static_cast<int>(sizeof(float)) *
+                static_cast<int>(m_chanelCount) *
+                8*1024);
 
     _updateAudio();
     emit deviceChanged();
@@ -127,15 +132,15 @@ void GeneratorThread::_updateAudio()
         m_audio->stop();
     }
 }
-QVariant GeneratorThread::getAvailableTypes(void)
+QVariant GeneratorThread::getAvailableTypes() const
 {
     QStringList nameList;
     foreach (OutputDevice* o, m_sources) {
-        nameList << o->name;
+        nameList << o->name();
     }
     return QVariant::fromValue(nameList);
 }
-QVariant GeneratorThread::getDeviceList(void)
+QVariant GeneratorThread::getDeviceList() const
 {
     QStringList deviceList;
     foreach (const QAudioDeviceInfo &deviceInfo, QAudioDeviceInfo::availableDevices(QAudio::AudioOutput)) {

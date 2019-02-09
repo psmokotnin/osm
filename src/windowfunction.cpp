@@ -17,9 +17,12 @@
  */
 #include "windowfunction.h"
 
-WindowFunction::WindowFunction(unsigned long size)
+WindowFunction::WindowFunction(Type type):
+    m_type(type),
+    m_size(0),
+    m_gain(1.f)
 {
-    setSize(size);
+
 }
 const std::map<WindowFunction::Type, QString> WindowFunction::TypeMap = {
     {WindowFunction::Type::rectangular, "Rectangular"},
@@ -29,27 +32,23 @@ const std::map<WindowFunction::Type, QString> WindowFunction::TypeMap = {
     {WindowFunction::Type::blackman_harris, "Blackman Harris"},
     {WindowFunction::Type::HFT223D, "HFT223D"}
 };
-WindowFunction::~WindowFunction()
-{
-    delete(_data);
-}
 void WindowFunction::setSize(unsigned long size)
 {
-    if (_size != size) {
-        _size = size;
-        _data = new float[_size];
+    if (m_size != size) {
+        m_size = size;
+        m_data.resize(m_size);
         calculate();
     }
 }
 void WindowFunction::setType(Type t)
 {
-    _type = t;
+    m_type = t;
     calculate();
 }
-QVariant WindowFunction::getTypes()
+QVariant WindowFunction::getTypes() const
 {
     QStringList typeList;
-    for (auto type : TypeMap) {
+    for (const auto &type : TypeMap) {
         typeList << type.second;
     }
     return typeList;
@@ -57,17 +56,17 @@ QVariant WindowFunction::getTypes()
 void WindowFunction::calculate()
 {
     float cg = 0.0;
-    for (unsigned long i = 0; i < _size; i++) {
-        double z = 2.0 * M_PI * i / _size, dataTemp;
+    for (unsigned long i = 0; i < m_size; i++) {
+        double z = 2.0 * M_PI * i / m_size, dataTemp;
 
-        switch (_type) {
+        switch (m_type) {
 
             case Type::rectangular:
                 dataTemp = 1.0;
                 break;
 
             case Type::hann:
-                dataTemp = pow(sin(M_PI * i / _size), 2);
+                dataTemp = pow(sin(M_PI * i / m_size), 2);
                 break;
 
             case Type::hamming:
@@ -95,11 +94,11 @@ void WindowFunction::calculate()
                     0.00000132725 * cos(9 * z);
                 break;
         }
-        _data[i] = static_cast<float>(dataTemp);
-        cg += _data[i];
+        m_data[i] = static_cast<float>(dataTemp);
+        cg += m_data[i];
     }
 
-    _gain = cg / _size;
+    m_gain = cg / m_size;
 }
 QDebug operator<<(QDebug dbg, const WindowFunction::Type &t)
 {

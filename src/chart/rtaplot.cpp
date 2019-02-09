@@ -22,7 +22,8 @@ using namespace Fftchart;
 
 RTAPlot::RTAPlot(QQuickItem *parent): XYPlot(parent),
     m_mode(0),
-    m_pointsPerOctave(12)
+    m_pointsPerOctave(12),
+    m_spline(false)
 {
     x.configure(AxisType::logarithmic, 20.f, 20000.f);
     x.setISOLabels();

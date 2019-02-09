@@ -21,7 +21,7 @@
 
 using namespace Fftchart;
 
-MagnitudeSeriesRenderer::MagnitudeSeriesRenderer() : FrequencyBasedSeriesRenderer()
+MagnitudeSeriesRenderer::MagnitudeSeriesRenderer() : m_pointsPerOctave(0)
 {
     m_program.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/logx.vert");
     m_program.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/magnitude.frag");
@@ -37,22 +37,29 @@ MagnitudeSeriesRenderer::MagnitudeSeriesRenderer() : FrequencyBasedSeriesRendere
     m_minmaxUniform = m_program.uniformLocation("minmax");
     m_screenUniform = m_program.uniformLocation("screen");
 }
+void MagnitudeSeriesRenderer::synchronize(QQuickFramebufferObject *item)
+{
+    XYSeriesRenderer::synchronize(item);
+
+    if (auto *plot = dynamic_cast<MagnitudePlot*>(m_item->parent())) {
+        m_pointsPerOctave = plot->pointsPerOctave();
+    }
+}
 void MagnitudeSeriesRenderer::renderSeries()
 {
     if (!m_source->active())
         return;
 
-    MagnitudePlot *plot = static_cast<MagnitudePlot*>(m_item->parent());
     GLfloat vertices[8];
     float value = 0.f;
 
     setUniforms();
-    openGLFunctions->glVertexAttribPointer(static_cast<GLuint>(m_posAttr), 2, GL_FLOAT, GL_FALSE, 0, vertices);
+    openGLFunctions->glVertexAttribPointer(static_cast<GLuint>(m_posAttr), 2, GL_FLOAT, GL_FALSE, 0, static_cast<const void *>(vertices));
     openGLFunctions->glEnableVertexAttribArray(0);
 
     float xadd, xmul;
-    xadd = -1.0f * logf(plot->xAxis()->min());
-    xmul = m_width / logf(plot->xAxis()->max() / plot->xAxis()->min());
+    xadd = -1.0f * logf(xMin);
+    xmul = m_width / logf(xMax / xMin);
 
     /*
      * Draw quad for each band from min to max (full height)
@@ -63,19 +70,19 @@ void MagnitudeSeriesRenderer::renderSeries()
     {
         value += m_source->magnitude(i);
     };
-    auto collected = [plot, m_program = &m_program, openGLFunctions = openGLFunctions, &vertices, &value,
+    auto collected = [m_program = &m_program, openGLFunctions = openGLFunctions, &vertices, &value,
             m_splineA = m_splineA, m_frequency1 = m_frequency1, m_frequency2 = m_frequency2,
-            xadd, xmul]
+            xadd, xmul, yMin = yMin, yMax = yMax]
             (float f1, float f2, GLfloat *ac)
     {
         vertices[0] = f1;
-        vertices[1] = plot->yAxis()->min();
+        vertices[1] = yMin;
         vertices[2] = f1;
-        vertices[3] = plot->yAxis()->max();
+        vertices[3] = yMax;
         vertices[4] = f2;
-        vertices[5] = plot->yAxis()->max();
+        vertices[5] = yMax;
         vertices[6] = f2;
-        vertices[7] = plot->yAxis()->min();
+        vertices[7] = yMin;
 
         m_program->setUniformValueArray(m_splineA, ac, 1, 4);
         float fx1 = (logf(f1) + xadd) * xmul;
@@ -87,6 +94,6 @@ void MagnitudeSeriesRenderer::renderSeries()
         value = 0.0f;
     };
 
-    iterateForSpline(plot->pointsPerOctave(), &value, accumulate, collected);
+    iterateForSpline(m_pointsPerOctave, &value, accumulate, collected);
     openGLFunctions->glDisableVertexAttribArray(0);
 }

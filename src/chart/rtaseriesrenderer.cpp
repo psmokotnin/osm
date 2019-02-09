@@ -19,7 +19,9 @@
 #include "rtaplot.h"
 
 using namespace Fftchart;
-RTASeriesRenderer::RTASeriesRenderer() : FrequencyBasedSeriesRenderer()
+RTASeriesRenderer::RTASeriesRenderer() :
+    m_pointsPerOctave(0),
+    m_mode(0)
 {
     m_program.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/logx.vert");
     m_program.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/color.frag");
@@ -29,21 +31,29 @@ RTASeriesRenderer::RTASeriesRenderer() : FrequencyBasedSeriesRenderer()
     m_colorUniform  = m_program.uniformLocation("m_color");
     m_matrixUniform = m_program.uniformLocation("matrix");
 }
+void RTASeriesRenderer::synchronize(QQuickFramebufferObject *item)
+{
+    XYSeriesRenderer::synchronize(item);
+
+    if (auto *plot = dynamic_cast<RTAPlot*>(m_item->parent())) {
+        m_pointsPerOctave = plot->pointsPerOctave();
+        m_mode = plot->mode();
+    }
+}
 void RTASeriesRenderer::renderSeries()
 {
     if (!m_source->active())
         return;
 
-    RTAPlot *plot = static_cast<RTAPlot*>(m_item->parent());
     QMatrix4x4 matrix;
 
-    matrix.ortho(0, 1, plot->yAxis()->max(), plot->yAxis()->min(), -1, 1);
-    matrix.scale(1  / logf(plot->xAxis()->max() / plot->xAxis()->min()), 1.0f, 1.0f);
-    matrix.translate(-1 * logf(plot->xAxis()->min()), 0);
+    matrix.ortho(0, 1, yMax, yMin, -1, 1);
+    matrix.scale(1  / logf(xMax / xMin), 1.0f, 1.0f);
+    matrix.translate(-1 * logf(xMin), 0);
     m_program.setUniformValue(m_matrixUniform, matrix);
     openGLFunctions->glLineWidth(2);
 
-    switch (plot->mode())
+    switch (m_mode)
     {
         //line
         case 0:
@@ -52,12 +62,12 @@ void RTASeriesRenderer::renderSeries()
 
         //bars
         case 1:
-            renderBars(plot);
+            renderBars();
         break;
 
         //lines
         case 2:
-            renderLines(plot);
+            renderLines();
         break;
 
         default:
@@ -70,7 +80,7 @@ void RTASeriesRenderer::renderLine()
     unsigned int count = m_source->size();
     GLfloat vertices[4];
 
-    openGLFunctions->glVertexAttribPointer(static_cast<GLuint>(m_posAttr), 2, GL_FLOAT, GL_FALSE, 0, vertices);
+    openGLFunctions->glVertexAttribPointer(static_cast<GLuint>(m_posAttr), 2, GL_FLOAT, GL_FALSE, 0, static_cast<const void *>(vertices));
     openGLFunctions->glEnableVertexAttribArray(0);
 
     for (unsigned int i = 1, j = 0; i < count; ++i, j += 2) {
@@ -84,13 +94,12 @@ void RTASeriesRenderer::renderLine()
     }
     openGLFunctions->glDisableVertexAttribArray(0);
 }
-void RTASeriesRenderer::renderBars(RTAPlot *plot)
+void RTASeriesRenderer::renderBars()
 {
-    float value = 0,
-          minValue = plot->yAxis()->min();
+    float value = 0;
     GLfloat vertices[8];
 
-    openGLFunctions->glVertexAttribPointer(static_cast<GLuint>(m_posAttr), 2, GL_FLOAT, GL_FALSE, 0, vertices);
+    openGLFunctions->glVertexAttribPointer(static_cast<GLuint>(m_posAttr), 2, GL_FLOAT, GL_FALSE, 0, static_cast<const void *>(vertices));
     openGLFunctions->glEnableVertexAttribArray(0);
 
     auto accumalte =[m_source = m_source, &value] (unsigned int i)
@@ -98,7 +107,7 @@ void RTASeriesRenderer::renderBars(RTAPlot *plot)
         value += powf(m_source->dataAbs(i) / m_source->fftSize(), 2);
     };
 
-    auto collected = [&minValue, &value, &vertices, openGLFunctions = openGLFunctions]
+    auto collected = [&value, &vertices, openGLFunctions = openGLFunctions, minValue = yMin]
             (float start, float end, unsigned int count)
     {
         Q_UNUSED(count)
@@ -118,19 +127,19 @@ void RTASeriesRenderer::renderBars(RTAPlot *plot)
         value = 0;
     };
 
-    iterate(plot->pointsPerOctave(), accumalte, collected);
+    iterate(m_pointsPerOctave, accumalte, collected);
 
     openGLFunctions->glDisableVertexAttribArray(0);
 }
-void RTASeriesRenderer::renderLines(RTAPlot *plot)
+void RTASeriesRenderer::renderLines()
 {
     unsigned int count = m_source->size();
     GLfloat vertices[4];
-    openGLFunctions->glVertexAttribPointer(static_cast<GLuint>(m_posAttr), 2, GL_FLOAT, GL_FALSE, 0, vertices);
+    openGLFunctions->glVertexAttribPointer(static_cast<GLuint>(m_posAttr), 2, GL_FLOAT, GL_FALSE, 0, static_cast<const void *>(vertices));
     openGLFunctions->glEnableVertexAttribArray(0);
     for (unsigned int i = 0; i < count; ++i) {
         vertices[0] = m_source->frequency(i);
-        vertices[1] = plot->yAxis()->min();
+        vertices[1] = yMin;
         vertices[2] = m_source->frequency(i);
         vertices[3] = m_source->module(i);
         openGLFunctions->glDrawArrays(GL_LINES, 0, 2);

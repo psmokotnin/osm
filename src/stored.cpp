@@ -23,11 +23,13 @@ Stored::Stored(QObject *parent) : Fftchart::Source(parent)
 }
 void Stored::build (Fftchart::Source *source)
 {
+    source->lock();
     _dataLength = source->size();
-    _deconvolutionSize = source->impulseSize();
+    m_deconvolutionSize = source->impulseSize();
     setFftSize(source->fftSize());
     _ftdata = new FTData[_dataLength];
-    _impulseData = new TimeData[_deconvolutionSize];
+    _impulseData = new TimeData[m_deconvolutionSize];
     source->copy(_ftdata, _impulseData);
+    source->unlock();
     emit readyRead();
 }

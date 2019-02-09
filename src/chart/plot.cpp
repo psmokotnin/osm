@@ -77,13 +77,13 @@ void Plot::applyHeightForSeries(SeriesFBO *s)
 }
 QSGNode *Plot::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *)
 {
-    QSGSimpleRectNode *n = static_cast<QSGSimpleRectNode *>(oldNode);
-        if (!n) {
-            n = new QSGSimpleRectNode();
-            n->setColor(Qt::white);
-        }
-        n->setRect(boundingRect());
-        return n;
+    auto *n = dynamic_cast<QSGSimpleRectNode *>(oldNode);
+    if (!n) {
+        n = new QSGSimpleRectNode();
+        n->setColor(Qt::white);
+    }
+    n->setRect(boundingRect());
+    return n;
 }
 void Plot::appendDataSource(Source *source)
 {

@@ -20,46 +20,61 @@
 #include "measurement.h"
 
 Measurement::Measurement(QObject *parent) : Fftchart::Source(parent),
-    m_timerThread(nullptr), m_audioThread(nullptr),
-    dataMeter(12000),
-    referenceMeter(12000)
+    m_timer(nullptr), m_timerThread(nullptr),
+    m_audioThread(nullptr),
+    m_average(0),
+    m_delay(0), m_setDelay(0),
+    m_estimatedDelay(0),
+    m_polarity(false), m_lpf(true),
+    dataMeter(12000), referenceMeter(12000), //250ms
+    m_window(WindowFunction::Type::hann)
 {
     _name = "Measurement";
     setObjectName(_name);
 
-    connect(&m_audioThread, SIGNAL(recived(const char *, qint64)), SLOT(writeData(const char *, qint64)), Qt::DirectConnection);
+    connect(&m_audioThread, SIGNAL(recived(const QByteArray&)), SLOT(writeData(const QByteArray&)), Qt::DirectConnection);
     connect(&m_audioThread, SIGNAL(deviceChanged()), this, SIGNAL(deviceChanged()));
     connect(&m_audioThread, SIGNAL(formatChanged()), this, SIGNAL(chanelsCountChanged()));
     connect(&m_audioThread, SIGNAL(formatChanged()), this, SLOT(recalculateDataLength()));
 
-    _fftPower = 14;//16 - 65K 0.73Hz;
+    _setfftPower = _fftPower = 14;//16 - 65K 0.73Hz;
     _fftSize = static_cast<unsigned int>(pow(2, _fftPower));
-    _deconvolutionSize = static_cast<unsigned int>(pow(2, 12));
+    m_deconvolutionSize = static_cast<unsigned int>(pow(2, 12));
 
-    _dataFT  = new FourierTransform(fftSize());
-    _window = new WindowFunction(fftSize());
-    _window->setType(WindowFunction::Type::hann);
+    m_dataFT.setSize(fftSize());
+    m_window.setSize(fftSize());
 
     QAudioDeviceInfo device(QAudioDeviceInfo::defaultInputDevice());
     selectDevice(device);
 
     calculateDataLength();
-    _dataFT->prepareFast();
+    m_dataFT.prepareFast();
+    m_dataLPFs.resize(_dataLength);
+    m_referenceLPFs.resize(_dataLength);
+    m_phaseLPFs.resize(_dataLength);
 
-    _deconv = new Deconvolution(_deconvolutionSize);
-    _impulseData = new TimeData[_deconvolutionSize];
-
-    impulseData = new complex[_deconvolutionSize];
+    m_deconvolution.setSize(m_deconvolutionSize);
+    _impulseData = new TimeData[m_deconvolutionSize];
 
     dataStack = new AudioStack(_fftSize);
     referenceStack = new AudioStack(_fftSize);
 
+    dataAvg.setSize(fftSize());
+    referenceAvg.setSize(fftSize());
+    pahseAvg.setSize(fftSize());
+    dataAvg.setGain(m_window.gain());
+    referenceAvg.setGain(m_window.gain());
+    deconvAvg.setSize(m_deconvolutionSize);
+    deconvAvg.reset();
+    estimatedDelayAvg.setSize(1);
+    estimatedDelayAvg.reset();
+
     setAverage(1);
-    _timer = new QTimer(nullptr);
-    _timer->setInterval(80);//12.5 per sec
-    _timer->moveToThread(&m_timerThread);
-    connect(_timer, SIGNAL(timeout()), SLOT(transform()), Qt::DirectConnection);
-    connect(&m_timerThread, SIGNAL(started()), _timer, SLOT(start()), Qt::DirectConnection);
+    m_timer.setInterval(80);//12.5 per sec
+    m_timer.moveToThread(&m_timerThread);
+    connect(&m_timer, SIGNAL(timeout()), SLOT(transform()), Qt::DirectConnection);
+    connect(&m_timerThread, SIGNAL(started()), &m_timer, SLOT(start()), Qt::DirectConnection);
+    connect(&m_timerThread, SIGNAL(finished()), &m_timer, SLOT(stop()), Qt::DirectConnection);
     m_timerThread.start();
 }
 Measurement::~Measurement()
@@ -69,8 +84,11 @@ Measurement::~Measurement()
 
     m_timerThread.quit();
     m_timerThread.wait();
+
+    delete dataStack;
+    delete referenceStack;
 }
-QVariant Measurement::getDeviceList(void)
+QVariant Measurement::getDeviceList() const
 {
     QStringList deviceList;
     foreach (const QAudioDeviceInfo &deviceInfo, QAudioDeviceInfo::availableDevices(QAudio::AudioInput)) {
@@ -82,7 +100,7 @@ QString Measurement::deviceName() const
 {
     return m_audioThread.device().deviceName();
 }
-void Measurement::selectDevice(QString name)
+void Measurement::selectDevice(const QString &name)
 {
     if (name == deviceName())
         return;
@@ -93,7 +111,7 @@ void Measurement::selectDevice(QString name)
         }
     }
 }
-void Measurement::selectDevice(QAudioDeviceInfo deviceInfo)
+void Measurement::selectDevice(const QAudioDeviceInfo &deviceInfo)
 {
     QMetaObject::invokeMethod(
                 &m_audioThread,
@@ -103,20 +121,35 @@ void Measurement::selectDevice(QAudioDeviceInfo deviceInfo)
                 Q_ARG(bool, active())
     );
 }
+//this calls from gui thread
 void Measurement::setFftPower(unsigned int power)
 {
     if (_fftPower != power) {
-        std::lock_guard<std::mutex> guard(dataMutex);
-
-        _fftPower = power;
+        _setfftPower = power;
+    }
+}
+//this calls from timer thread
+//should be called while mutex locked
+void Measurement::updateFftPower()
+{
+    if (_fftPower != _setfftPower) {
+        _fftPower = _setfftPower;
         _fftSize  = static_cast<unsigned int>(pow(2, _fftPower));
 
-        _dataFT->setSize(_fftSize);
-        _dataFT->prepareFast();
-        _window->setSize(_fftSize);
+        m_dataFT.setSize(_fftSize);
+        m_dataFT.prepareFast();
+        m_window.setSize(_fftSize);
+
+        dataAvg.setSize(_fftSize);
+        referenceAvg.setSize(_fftSize);
+        pahseAvg.setSize(_fftSize);
 
         calculateDataLength();
-        averageRealloc(true);
+        m_dataLPFs.resize(_dataLength);
+        m_referenceLPFs.resize(_dataLength);
+        m_phaseLPFs.resize(_dataLength);
+
+        emit fftPowerChanged(_fftPower);
     }
 }
 void Measurement::recalculateDataLength()
@@ -127,8 +160,10 @@ void Measurement::recalculateDataLength()
 void Measurement::calculateDataLength()
 {        
     _dataLength = _fftSize / 2;
+    if (_ftdata)
+        delete[] _ftdata;
     _ftdata = new FTData[_dataLength];
-    for (unsigned int i = 0; i < _dataLength; i++) {
+    for (unsigned int i = 0; i < _dataLength; ++i) {
         _ftdata[i].frequency = static_cast<float>(i * sampleRate()) / _fftSize;
     }
 }
@@ -142,184 +177,143 @@ void Measurement::setActive(bool active)
                 Qt::QueuedConnection,
                 Q_ARG(bool, active)
     );
-
-    _level  = -INFINITY;
-    _referenceLevel = -INFINITY;
+    dataMeter.reset();
+    referenceMeter.reset();
     emit levelChanged();
     emit referenceLevelChanged();
 }
+//this calls from gui thread
 void Measurement::setDelay(unsigned long delay)
 {
-    long delta = static_cast<long>(_delay) - static_cast<long>(delay);
-    _delay = delay;
-    referenceStack->setSize(fftSize() + _delay);
-    referenceStack->rewind(delta);
+    m_setDelay = delay;
+}
+//this calls from timer thread
+void Measurement::updateDelay()
+{
+    if (m_delay != m_setDelay) {
+        long delta = static_cast<long>(m_delay) - static_cast<long>(m_setDelay);
+        m_delay = m_setDelay;
+        referenceStack->setSize(fftSize() + m_delay);
+        referenceStack->rewind(delta);
+        emit delayChanged();
+    }
 }
 void Measurement::setAverage(unsigned int average)
 {
-    _setAverage = average;
-}
-void Measurement::averageRealloc(bool force)
-{
-    if (!force && _average == _setAverage)
-        return;
-
-    if (averageData)        delete[] averageData;
-    if (averageReference)   delete[] averageReference;
-    if (averageDeconvolution) delete[] averageDeconvolution;
-    if (estimatedDelays)    delete[] estimatedDelays;
-    if (dataLPFs)           delete[] dataLPFs;
-    if (referenceLPFs)      delete[] referenceLPFs;
-
-    averageData      = new complex*[_setAverage];
-    averageReference = new complex*[_setAverage];
-    averageDeconvolution = new float*[_setAverage];
-    estimatedDelays  = new unsigned long[_setAverage];
-
-    for (unsigned int i = 0; i < _setAverage; i ++) {
-        averageData[i]      = new complex[_dataLength];
-        averageReference[i] = new complex[_dataLength];
-        averageDeconvolution[i] = new float[_deconvolutionSize];
-        estimatedDelays[i]  = 0;
-    }
-    dataLPFs      = new Filter[_dataLength];
-    referenceLPFs = new Filter[_dataLength];
-
-    //aply new value
-    _average = _setAverage;
+    m_average = average;
+    dataAvg.setDepth(average);
+    referenceAvg.setDepth(average);
+    deconvAvg.setDepth(average);
+    estimatedDelayAvg.setDepth(average);
+    pahseAvg.setDepth(average);
 }
 unsigned int Measurement::sampleRate() const
 {
     return static_cast<unsigned int>(m_audioThread.format().sampleRate());
 }
-qint64 Measurement::writeData(const char *data, qint64 len)
+void Measurement::setWindowType(int t)
 {
-    const auto channelBytes = m_audioThread.format().sampleSize() / 8;
-    const auto sampleBytes  = m_audioThread.format().channelCount() * channelBytes;
-    const auto numSamples   = len / sampleBytes;
+    m_window.setType(static_cast<WindowFunction::Type>(t));
+    dataAvg.setGain(m_window.gain());
+    referenceAvg.setGain(m_window.gain());
+}
+void Measurement::writeData(const QByteArray& buffer)
+{
+    float sample;
+    auto totalChanels = static_cast<unsigned int>(m_audioThread.format().channelCount());
+    unsigned int currentChanel = 0;
+    for (auto it = buffer.begin(); it != buffer.end(); ++it) {
 
-    const unsigned char *ptr = reinterpret_cast<const unsigned char *>(data);
-    const float *d;
-
-    for (auto i = 0; i < numSamples; ++i) {
-        for (unsigned int j = 0; j < static_cast<unsigned int>(m_audioThread.format().channelCount()); ++j) {
-
-            d = reinterpret_cast<const float*>(ptr);
-            if (j == dataChanel()) {
-                dataStack->add((_polarity ? -1 * *d : *d));
-                dataMeter.add(*d);
-            }
-
-            if (j == referenceChanel()) {
-                referenceStack->add(*d);
-                referenceMeter.add(*d);
-            }
-
-            ptr += channelBytes;
+        if (currentChanel == dataChanel()) {
+            std::memcpy(&sample, it, sizeof(float));
+            dataStack->add((m_polarity ? -1 * sample : sample));
+            dataMeter.add(sample);
         }
+
+        if (currentChanel == referenceChanel()) {
+            std::memcpy(&sample, it, sizeof(float));
+            referenceStack->add(sample);
+            referenceMeter.add(sample);
+        }
+        ++currentChanel;
+        if (currentChanel >= totalChanels) {
+            currentChanel = 0;
+        }
+        it += 3;
     }
-    return len;
 }
 void Measurement::transform()
 {
     if (!_active)
         return;
 
-    _level = _referenceLevel = 0.0;
     lock();
+    updateFftPower();
+    updateDelay();
     while (dataStack->isNext() && referenceStack->isNext()) {
         dataStack->next();
         referenceStack->next();
 
-        _dataFT->add(dataStack->current(), referenceStack->current());
-
-        //deconvolution
-        _deconv->add(referenceStack->current(), dataStack->current());
+        m_dataFT.add(dataStack->current(), referenceStack->current());
+        m_deconvolution.add(referenceStack->current(), dataStack->current());
     }
-    _dataFT->fast(_window);
-    _deconv->transform();
+    m_dataFT.ufast(&m_window);
+    m_deconvolution.transform(&m_window);
     averaging();
-    _level = dataMeter.value();
-    _referenceLevel = referenceMeter.value();
     unlock();
 
     emit readyRead();
     emit levelChanged();
     emit referenceLevelChanged();
 }
-QTimer *Measurement::getTimer() const
-{
-    return _timer;
-}
-
-void Measurement::setTimer(QTimer *value)
-{
-    _timer = value;
-}
-
 void Measurement::averaging()
 {
-    averageRealloc();
-
-    _avgcounter ++;
-    if (_avgcounter >= _average) _avgcounter = 0;
-
     for (unsigned int i = 0; i < _dataLength ; i++) {
-        if (_lpf) {
-            averageData[_avgcounter][i]      = dataLPFs[i](     _dataFT->af(i));
-            averageReference[_avgcounter][i] = referenceLPFs[i](_dataFT->bf(i));
-        } else {
-            averageData[_avgcounter][i]      = _dataFT->af(i);
-            averageReference[_avgcounter][i] = _dataFT->bf(i);
-        }
 
-        _ftdata[i].data      = 0.0;
-        _ftdata[i].reference = 0.0;
+        dataAvg.append(i,       (m_lpf ? m_dataLPFs[i](     m_dataFT.af(i)) : m_dataFT.af(i) ));
+        referenceAvg.append(i,  (m_lpf ? m_referenceLPFs[i](m_dataFT.bf(i)) : m_dataFT.bf(i)));
 
-        for (unsigned int j = 0; j < _average; j++) {
-            _ftdata[i].data      += averageData[j][i];
-            _ftdata[i].reference += averageReference[j][i];
-        }
-        _ftdata[i].data      /= _average * _window->gain();
-        _ftdata[i].reference /= _average * _window->gain();
+        constexpr const float
+                F_PI = static_cast<float>(M_PI),
+                D_PI = F_PI * 2;
+        float phase = m_dataFT.bf(i).arg() - m_dataFT.af(i).arg();
+        while (phase >  F_PI) phase -= D_PI;
+        while (phase < -F_PI) phase += D_PI;
+        pahseAvg.append(i,      (m_lpf ? m_phaseLPFs[i](phase).real : phase ));
+
+        _ftdata[i].data      = dataAvg.value(i);
+        _ftdata[i].reference = referenceAvg.value(i);
+        _ftdata[i].phase     = pahseAvg.value(i);
     }
 
     int t = 0;
-    for (unsigned int i = 0, j = _deconvolutionSize / 2; i < _deconvolutionSize; i++, j++, t++) {
-        averageDeconvolution[_avgcounter][i]  = _deconv->get(i);
-        impulseData[i] = 0.0;
-        for (unsigned int k = 0; k < _average; k++) {
-            impulseData[i] += averageDeconvolution[k][i];
-        }
-        impulseData[i] /= static_cast<float>(_average);
+    float kt = 1000.f / sampleRate();
+    for (unsigned int i = 0, j = m_deconvolutionSize / 2 - 1; i < m_deconvolutionSize; i++, j++, t++) {
 
-        if (t > static_cast<int>(_deconvolutionSize / 2)) {
-            t -= static_cast<int>(_deconvolutionSize);
-            j -= _deconvolutionSize;
-        }
-        _impulseData[j].value = impulseData[i];
-        _impulseData[j].time  = static_cast<float>(t * 1000.0 / sampleRate());//ms
-    }
+        deconvAvg.append(i, m_deconvolution.get(i));
 
-    estimatedDelays[_avgcounter] = _deconv->maxPoint();
-    _estimatedDelay = 0;
-    for (unsigned int k = 0; k < _average; k++) {
-        _estimatedDelay += estimatedDelays[k];
+        if (t > static_cast<int>(m_deconvolutionSize / 2)) {
+            t -= static_cast<int>(m_deconvolutionSize);
+            j -= m_deconvolutionSize;
+        }
+        _impulseData[j].value.real = deconvAvg.value(i);
+        _impulseData[j].time  = t * kt;//ms
     }
-    _estimatedDelay /= _average;
+    estimatedDelayAvg.append(0, m_deconvolution.maxPoint());
+    m_estimatedDelay = estimatedDelayAvg.value(0);
     emit estimatedChanged();
 }
 QObject *Measurement::store()
 {
-    Stored *store = new Stored(this);
+    auto *store = new Stored(this);
     store->build(this);
 
     return store;
 }
 long Measurement::estimated() const noexcept
 {
-    if (_estimatedDelay > _deconvolutionSize / 2) {
-        return _estimatedDelay - _deconvolutionSize + static_cast<long>(_delay);
+    if (m_estimatedDelay > m_deconvolutionSize / 2) {
+        return m_estimatedDelay - m_deconvolutionSize + static_cast<long>(m_delay);
     }
-    return _estimatedDelay + static_cast<long>(_delay);
+    return m_estimatedDelay + static_cast<long>(m_delay);
 }

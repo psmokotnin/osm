@@ -35,7 +35,6 @@ struct complex
     void polar(const float &phase);
 
     complex& operator=(const float& r);
-    complex& operator=(const complex& c);
 
     const complex operator+(const float& r) const;
     const complex operator+(const complex& c) const;

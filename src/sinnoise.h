@@ -32,10 +32,10 @@ public slots:
     void setFrequency(int f);
 
 private:
-    Sample sample(void);
+    Sample sample();
 
-    float frequency = 1000;
-    double sinPhase  = 0;
+    float m_frequency;
+    double m_phase;
 };
 
 #endif // SINNOISE_H

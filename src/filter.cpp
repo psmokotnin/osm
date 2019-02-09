@@ -17,9 +17,6 @@
  */
 #include "filter.h"
 
-Filter::Filter()
-{
-}
 unsigned int Filter::p(unsigned int i) const noexcept
 {
     unsigned int p = _p + i;
@@ -37,7 +34,7 @@ const complex &Filter::y(unsigned int i) const noexcept
 /**
  * @url http://www-users.cs.york.ac.uk/~fisher/cgi-bin/mkfscript
  */
-complex Filter::operator()(complex v)
+complex Filter::operator()(const complex &v)
 {
     _p = p(1);
 

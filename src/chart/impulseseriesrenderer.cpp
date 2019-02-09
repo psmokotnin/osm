@@ -20,7 +20,7 @@
 
 using namespace Fftchart;
 
-ImpulseSeriesRenderer::ImpulseSeriesRenderer() : SeriesRenderer()
+ImpulseSeriesRenderer::ImpulseSeriesRenderer()
 {
     m_program.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/pos.vert");
     m_program.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/color.frag");
@@ -34,14 +34,13 @@ void ImpulseSeriesRenderer::renderSeries()
     if (!m_source->active())
         return;
 
-    ImpulsePlot *plot = static_cast<ImpulsePlot *>(m_item->parent());
     QMatrix4x4 matrix;
     GLfloat vertices[4];
 
-    matrix.ortho(plot->xAxis()->min(), plot->xAxis()->max(), plot->yAxis()->max(), plot->yAxis()->min(), -1, 1);
+    matrix.ortho(xMin, xMax, yMax, yMin, -1, 1);
     m_program.setUniformValue(m_matrixUniform, matrix);
 
-    openGLFunctions->glVertexAttribPointer(static_cast<GLuint>(m_posAttr), 2, GL_FLOAT, GL_FALSE, 0, vertices);
+    openGLFunctions->glVertexAttribPointer(static_cast<GLuint>(m_posAttr), 2, GL_FLOAT, GL_FALSE, 0, static_cast<const void *>(vertices));
 
     openGLFunctions->glEnableVertexAttribArray(0);
     openGLFunctions->glLineWidth(2);

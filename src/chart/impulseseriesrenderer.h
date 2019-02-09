@@ -18,10 +18,10 @@
 #ifndef IMPULSESERIESRENDERER_H
 #define IMPULSESERIESRENDERER_H
 
-#include "seriesrenderer.h"
+#include "xyseriesrenderer.h"
 
 namespace Fftchart {
-class ImpulseSeriesRenderer : public SeriesRenderer
+class ImpulseSeriesRenderer : public XYSeriesRenderer
 {
 public:
     ImpulseSeriesRenderer();

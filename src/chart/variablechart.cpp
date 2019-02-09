@@ -57,7 +57,6 @@ void VariableChart::initType()
     newPlot->setParentItem(this);
 
     if (s_plot) {
-        std::lock_guard<std::mutex> guard(s_plot->renderMutex);
         s_plot->clear();
         s_plot->disconnectFromParent();
         s_plot->setParent(nullptr);
@@ -71,7 +70,7 @@ QString VariableChart::typeString() const
 {
     return typeMap.at(m_selected);
 }
-void VariableChart::setType(const Type type)
+void VariableChart::setType(const Type &type)
 {
     if (m_selected != type) {
         m_selected = type;
@@ -81,9 +80,9 @@ void VariableChart::setType(const Type type)
 }
 void VariableChart::setTypeByString(const QString &type)
 {
-    for (auto it = typeMap.begin(); it != typeMap.end(); ++it) {
-        if (it->second == type) {
-            setType(it->first);
+    for (auto &it : typeMap) {
+        if (it.second == type) {
+            setType(it.first);
         }
     }
 }

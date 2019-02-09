@@ -51,10 +51,6 @@ public:
     virtual void appendDataSource(Source *source);
     virtual void removeDataSource(Source *source);
 
-    std::mutex renderMutex;
-    void lock()   {renderMutex.lock();}
-    void unlock() {renderMutex.unlock();}
-
     Q_INVOKABLE virtual qreal x2v(qreal x) const noexcept = 0;
     Q_INVOKABLE virtual qreal y2v(qreal y) const noexcept = 0;
 

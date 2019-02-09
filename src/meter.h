@@ -17,21 +17,22 @@
  */
 #ifndef METER_H
 #define METER_H
-#include "audiostack.h"
 
-class Meter : public AudioStack
+#include <queue>
+#include "container/fifo.h"
+class Meter
 {
-    float _squareValue = 0;
-
-protected:
-    virtual void dropFirst();
+private:
+    container::fifo<float> m_data;
+    unsigned long m_size;
+    float m_integrator;
 
 public:
     Meter(unsigned long size);
 
-    virtual void add(const float data);
-
+    void add(const float data) noexcept;
     float value() const noexcept;
+    void reset() noexcept;
 };
 
 #endif // METER_H

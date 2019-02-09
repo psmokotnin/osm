@@ -42,29 +42,29 @@ private:
     int m_chanelCount, m_chanel, m_aux;
     bool m_enabled;
 
-    void _selectDevice(QAudioDeviceInfo device);
+    void _selectDevice(const QAudioDeviceInfo &device);
     void _updateAudio();
 
 public slots:
     void init();
     void finish();
 
-    bool enabled() {return m_enabled;}
+    bool enabled() const {return m_enabled;}
     void setEnabled(bool enable);
 
-    int type() {return m_type;}
+    int type() const {return m_type;}
     void setType(int type);
 
-    QVariant getDeviceList(void);
-    void selectDevice(QString name);
+    QVariant getDeviceList() const;
+    void selectDevice(const QString &name);
 
-    QString deviceName();
-    QVariant getAvailableTypes(void);
+    QString deviceName() const;
+    QVariant getAvailableTypes() const;
 
-    int frequency() {return m_frequency;}
+    int frequency() const {return m_frequency;}
     void setFrequency(int frequency);
 
-    float gain() {return m_gain;}
+    float gain() const {return m_gain;}
     void setGain(float gain);
 
     int chanelsCount() const {return m_chanelCount;}

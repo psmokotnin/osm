@@ -19,12 +19,11 @@
 
 WhiteNoise::WhiteNoise(QObject *parent) : OutputDevice(parent)
 {
-    name = "White";
+    m_name = "White";
     qsrand(1);
 }
-Sample WhiteNoise::sample(void)
+Sample WhiteNoise::sample()
 {
-    Sample s;
-    s.f = m_gain * static_cast<float>(qrand()) / RAND_MAX;
+    Sample s = {m_gain * static_cast<float>(qrand()) / RAND_MAX};
     return s;
 }

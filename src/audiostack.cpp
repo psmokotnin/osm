@@ -88,11 +88,11 @@ void AudioStack::dropFirst()
     _size --;
 }
 
-void AudioStack::reset(void)
+void AudioStack::reset()
 {
     this->pointer = this->firstdata;
 }
-bool AudioStack::next(void)
+bool AudioStack::next()
 {
     if (this->pointer && this->pointer->next)
     {
@@ -101,17 +101,17 @@ bool AudioStack::next(void)
     }
     return false;
 }
-bool AudioStack::isNext(void)
+bool AudioStack::isNext()
 {
     return (this->pointer && this->pointer->next);
 }
-float AudioStack::current(void)
+float AudioStack::current()
 {
     if (this->pointer != nullptr)
         return this->pointer->value;
     return 0.0;
 }
-float AudioStack::shift(void)
+float AudioStack::shift()
 {
     std::lock_guard<std::mutex> lock(memoryMutex);
     if (this->firstdata && _size > 1) {
@@ -129,7 +129,7 @@ float AudioStack::shift(void)
     return 0.0;
 }
 
-float AudioStack::first(void)
+float AudioStack::first()
 {
     if (this->firstdata)
         return this->firstdata->value;

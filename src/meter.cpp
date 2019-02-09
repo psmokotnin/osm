@@ -1,4 +1,5 @@
 /**
+
  *  OSM
  *  Copyright (C) 2018  Pavel Smokotnin
 
@@ -15,26 +16,35 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+#include <cmath>
 #include "meter.h"
 
-Meter::Meter(unsigned long size) : AudioStack(size)
+Meter::Meter(unsigned long size) :
+    m_size(size),
+    m_integrator(0.f)
 {
-
 }
-void Meter::add(const float data)
+void Meter::add(const float data) noexcept
 {
     float d = abs(data);
-    AudioStack::add(d);
-    _squareValue += d;
-}
-void Meter::dropFirst()
-{
-    if (firstdata) {
-        _squareValue -= firstdata->value;
+    m_integrator -= m_data.pushnpop(d, m_size);
+    m_integrator += d;
+    while( m_data.size() > m_size) {
+        m_integrator -= m_data.front();
+        m_data.pop();
     }
-    AudioStack::dropFirst();
 }
 float Meter::value() const noexcept
 {
-    return 20*log10(_squareValue / _size);//dBV
+    if (m_data.size() == 0)
+        return -INFINITY;
+
+    return 20*log10(m_integrator / m_data.size());//dBV
+}
+void Meter::reset() noexcept
+{
+    while (!m_data.size()) {
+        m_data.pop();
+    }
+    m_integrator = 0.f;
 }

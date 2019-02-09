@@ -17,23 +17,24 @@
  */
 #include "sinnoise.h"
 
-SinNoise::SinNoise(QObject *parent) : OutputDevice(parent)
+SinNoise::SinNoise(QObject *parent) : OutputDevice(parent),
+    m_frequency(1000.f),
+    m_phase(0.0)
 {
-    name = "Sin";
+    m_name = "Sin";
     connect(parent, SIGNAL(frequencyChanged(int)), this, SLOT(setFrequency(int)));
 }
 
-Sample SinNoise::sample(void)
+Sample SinNoise::sample()
 {
-    Sample output;
-    sinPhase += (2.0 * M_PI * static_cast<double>(frequency) / sampleRate);
-    if (sinPhase >= 2.0 * M_PI)
-        sinPhase -= 2.0 * M_PI;
+    m_phase += (2.0 * M_PI * static_cast<double>(m_frequency) / m_sampleRate);
+    if (m_phase >= 2.0 * M_PI)
+        m_phase -= 2.0 * M_PI;
 
-    output.f = m_gain * static_cast<float>(sin(sinPhase));
+    Sample output = {m_gain * static_cast<float>(sin(m_phase))};
     return output;
 }
 void SinNoise::setFrequency(int f)
 {
-    frequency = static_cast<float>(f);
+    m_frequency = static_cast<float>(f);
 }
