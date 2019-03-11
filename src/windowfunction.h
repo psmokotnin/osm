@@ -51,7 +51,7 @@ public:
     QVariant getTypes() const;
 
     float gain() const {return m_gain;}
-    float get(unsigned long k) const { return m_data[k]; }
+    const float& get(unsigned long k) const { return m_data[k]; }
 
 };
 QDebug operator<<(QDebug dbg, const WindowFunction::Type &t);

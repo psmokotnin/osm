@@ -39,10 +39,10 @@ protected:
     std::mutex dataMutex;   //NOTE: shared_mutex (C++17)
 
     struct FTData {
-        complex data;//TODO:remove
-        complex reference;//TODO:remove
         float frequency;
-        float phase;//TODO:add modul & magnitude
+        float module;
+        float magnitude;
+        float phase;
     } *_ftdata;
 
     struct TimeData {
@@ -73,7 +73,6 @@ public:
     void setFftSize(unsigned int size) {_fftSize = size;}
     float frequency(unsigned int i) const noexcept;
     float module(unsigned int i) const noexcept;
-    float dataAbs(unsigned int i) const noexcept;
     float magnitude(unsigned int i) const noexcept;
     float phase(unsigned int i) const noexcept;
 

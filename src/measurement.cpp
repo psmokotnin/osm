@@ -49,8 +49,8 @@ Measurement::Measurement(QObject *parent) : Fftchart::Source(parent),
 
     calculateDataLength();
     m_dataFT.prepareFast();
-    m_dataLPFs.resize(_dataLength);
-    m_referenceLPFs.resize(_dataLength);
+    m_moduleLPFs.resize(_dataLength);
+    m_magnitudeLPFs.resize(_dataLength);
     m_phaseLPFs.resize(_dataLength);
 
     m_deconvolution.setSize(m_deconvolutionSize);
@@ -59,11 +59,9 @@ Measurement::Measurement(QObject *parent) : Fftchart::Source(parent),
     dataStack = new AudioStack(_fftSize);
     referenceStack = new AudioStack(_fftSize);
 
-    dataAvg.setSize(fftSize());
-    referenceAvg.setSize(fftSize());
     pahseAvg.setSize(fftSize());
-    dataAvg.setGain(m_window.gain());
-    referenceAvg.setGain(m_window.gain());
+    moduleAvg.setSize(fftSize());
+    magnitudeAvg.setSize(fftSize());
     deconvAvg.setSize(m_deconvolutionSize);
     deconvAvg.reset();
     estimatedDelayAvg.setSize(1);
@@ -140,13 +138,13 @@ void Measurement::updateFftPower()
         m_dataFT.prepareFast();
         m_window.setSize(_fftSize);
 
-        dataAvg.setSize(_fftSize);
-        referenceAvg.setSize(_fftSize);
+        moduleAvg.setSize(_fftSize);
+        magnitudeAvg.setSize(_fftSize);
         pahseAvg.setSize(_fftSize);
 
         calculateDataLength();
-        m_dataLPFs.resize(_dataLength);
-        m_referenceLPFs.resize(_dataLength);
+        m_moduleLPFs.resize(_dataLength);
+        m_magnitudeLPFs.resize(_dataLength);
         m_phaseLPFs.resize(_dataLength);
 
         emit fftPowerChanged(_fftPower);
@@ -163,8 +161,10 @@ void Measurement::calculateDataLength()
     if (_ftdata)
         delete[] _ftdata;
     _ftdata = new FTData[_dataLength];
+
+    float kf = static_cast<float>(sampleRate()) / _fftSize;
     for (unsigned int i = 0; i < _dataLength; ++i) {
-        _ftdata[i].frequency = static_cast<float>(i * sampleRate()) / _fftSize;
+        _ftdata[i].frequency = static_cast<float>(i * kf);
     }
 }
 void Measurement::setActive(bool active)
@@ -201,10 +201,10 @@ void Measurement::updateDelay()
 void Measurement::setAverage(unsigned int average)
 {
     m_average = average;
-    dataAvg.setDepth(average);
-    referenceAvg.setDepth(average);
     deconvAvg.setDepth(average);
     estimatedDelayAvg.setDepth(average);
+    moduleAvg.setDepth(average);
+    magnitudeAvg.setDepth(average);
     pahseAvg.setDepth(average);
 }
 unsigned int Measurement::sampleRate() const
@@ -214,8 +214,7 @@ unsigned int Measurement::sampleRate() const
 void Measurement::setWindowType(int t)
 {
     m_window.setType(static_cast<WindowFunction::Type>(t));
-    dataAvg.setGain(m_window.gain());
-    referenceAvg.setGain(m_window.gain());
+    moduleAvg.setGain(m_window.gain());
 }
 void Measurement::writeData(const QByteArray& buffer)
 {
@@ -268,22 +267,22 @@ void Measurement::transform()
 }
 void Measurement::averaging()
 {
+    complex p;
     for (unsigned int i = 0; i < _dataLength ; i++) {
 
-        dataAvg.append(i,       (m_lpf ? m_dataLPFs[i](     m_dataFT.af(i)) : m_dataFT.af(i) ));
-        referenceAvg.append(i,  (m_lpf ? m_referenceLPFs[i](m_dataFT.bf(i)) : m_dataFT.bf(i)));
+        float magnitude = m_dataFT.af(i).abs() / m_dataFT.bf(i).abs();
+        if (std::isnan(magnitude)) {
+            magnitude = 0.f;
+        }
+        magnitudeAvg.append(i,  (m_lpf ? m_magnitudeLPFs[i](magnitude).real         : magnitude ));
+        moduleAvg.append(i,     (m_lpf ? m_moduleLPFs[i](m_dataFT.af(i).abs()).real : m_dataFT.af(i).abs() ));
 
-        constexpr const float
-                F_PI = static_cast<float>(M_PI),
-                D_PI = F_PI * 2;
-        float phase = m_dataFT.bf(i).arg() - m_dataFT.af(i).arg();
-        while (phase >  F_PI) phase -= D_PI;
-        while (phase < -F_PI) phase += D_PI;
-        pahseAvg.append(i,      (m_lpf ? m_phaseLPFs[i](phase).real : phase ));
+        p.polar(m_dataFT.bf(i).arg() - m_dataFT.af(i).arg());
+        pahseAvg.append(i,      (m_lpf ? m_phaseLPFs[i](p) : p ));
 
-        _ftdata[i].data      = dataAvg.value(i);
-        _ftdata[i].reference = referenceAvg.value(i);
-        _ftdata[i].phase     = pahseAvg.value(i);
+        _ftdata[i].magnitude = magnitudeAvg.value(i);
+        _ftdata[i].module    = moduleAvg.value(i);
+        _ftdata[i].phase     = pahseAvg.value(i).arg();
     }
 
     int t = 0;

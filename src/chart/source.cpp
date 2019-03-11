@@ -47,32 +47,20 @@ float Source::module(unsigned int i) const noexcept
 {
     if (i >= _dataLength)
         return 0.0;
-    return 20 * log10f(_ftdata[i].data.abs() / _fftSize);
-}
-float Source::dataAbs(unsigned int i) const noexcept
-{
-    if (i >= _dataLength)
-        return 0.0;
-    return _ftdata[i].data.abs();
+    return _ftdata[i].module;
 }
 float Source::magnitude(unsigned int i) const noexcept
 {
     if (i >= _dataLength)
         return 0.0;
-    return 20 * log10f(_ftdata[i].data.abs() / _ftdata[i].reference.abs());
+    return 20 * log10f(_ftdata[i].magnitude);
 }
 float Source::phase(unsigned int i) const noexcept
 {
     if (i >= _dataLength)
         return 0.0;
-    constexpr const float
-            F_PI = static_cast<float>(M_PI),
-            D_PI = F_PI * 2;
-    float p = _ftdata[i].reference.arg() - _ftdata[i].data.arg();
-    while (p >  F_PI) p -= D_PI;
-    while (p < -F_PI) p += D_PI;
 
-    return _ftdata[i].phase;//p;
+    return _ftdata[i].phase;
 }
 float Source::impulseTime(unsigned int i) const noexcept
 {
@@ -86,7 +74,6 @@ float Source::impulseValue(unsigned int i) const noexcept
         return 0.0;
     return _impulseData[i].value.real;
 }
-
 void Source::copy(FTData *dataDist, TimeData *timeDist)
 {
     std::copy_n(_ftdata, size(), dataDist);

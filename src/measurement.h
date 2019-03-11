@@ -85,13 +85,12 @@ private:
     WindowFunction m_window;
     FourierTransform m_dataFT;
     Deconvolution m_deconvolution;
-    container::array<Filter> m_dataLPFs, m_referenceLPFs;
-    Averaging<complex> dataAvg, referenceAvg;
     Averaging<float> deconvAvg;
     Averaging<unsigned int> estimatedDelayAvg;
 
-    container::array<Filter> m_phaseLPFs;
-    Averaging<float> pahseAvg;
+    container::array<Filter> m_moduleLPFs, m_magnitudeLPFs, m_phaseLPFs;
+    Averaging<float> magnitudeAvg, moduleAvg;
+    Averaging<complex> pahseAvg;
 
     void calculateDataLength();
     void averaging();
