@@ -86,7 +86,7 @@ public:
     /*
      * pop if size > limit, else just push
      */
-    T pushnpop(const T &value, const size_t &limit)
+    T pushnpop(const T value, const size_t &limit)
     {
         if (m_size >= limit && m_front && m_end) {
             T popValue = m_front->value;
