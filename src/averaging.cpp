@@ -42,16 +42,21 @@ template <> complex Averaging<complex>::value(unsigned int i)
 
 template <> void Averaging<float>::checkDepth(unsigned int i) {
     while (data.pat(i)->size() > m_depth) {
-        m_value[i] -= data.pat(i)->front();
+        float value = data.pat(i)->front();
+        if (!std::isnan(value)) {
+            m_value[i] -= value;
+            m_collected[i]--;
+        }
         data.pat(i)->pop();
-        m_collected[i]--;
     }
 };
 template<> void Averaging<float>::append(unsigned int i, const float &value)
 {
     data.pat(i)->push(value);
-    m_value[i] += value;
-    m_collected[i]++;
+    if (!std::isnan(value)) {
+        m_value[i] += value;
+        m_collected[i]++;
+    }
     checkDepth(i);
 };
 template <> float Averaging<float>::value(unsigned int i)
