@@ -107,11 +107,12 @@ void GeneratorThread::_selectDevice(const QAudioDeviceInfo &device)
     }
     m_format.setChannelCount(m_chanelCount);
     m_audio = new QAudioOutput(m_device, m_format, this);
+#ifndef WIN64
     m_audio->setBufferSize(
                 static_cast<int>(sizeof(float)) *
                 static_cast<int>(m_chanelCount) *
                 8*1024);
-
+#endif
     _updateAudio();
     emit deviceChanged();
     emit chanelsCountChanged();

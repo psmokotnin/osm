@@ -30,7 +30,7 @@ private:
 public:
     Meter(unsigned long size);
 
-    void add(const float data) noexcept;
+    void add(const float &data) noexcept;
     float value() const noexcept;
     void reset() noexcept;
 };

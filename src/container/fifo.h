@@ -19,7 +19,6 @@
 #define FIFO_H
 
 #include <cmath>
-#include <mutex>
 
 namespace container {
 template<typename T> class fifo {
@@ -101,12 +100,12 @@ public:
             return popValue;
         }
         push(value);
-        return static_cast<T>(NAN);
+        return T(0);
     }
 
     T front() const {
         if (!m_front) {
-            return static_cast<T>(NAN);
+            return T(0);
         }
 
         return m_front->value;

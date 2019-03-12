@@ -224,13 +224,13 @@ void Measurement::writeData(const QByteArray& buffer)
     for (auto it = buffer.begin(); it != buffer.end(); ++it) {
 
         if (currentChanel == dataChanel()) {
-            std::memcpy(&sample, it, sizeof(float));
+            memcpy(&sample, it, sizeof(float));
             dataStack->add((m_polarity ? -1 * sample : sample));
             dataMeter.add(sample);
         }
 
         if (currentChanel == referenceChanel()) {
-            std::memcpy(&sample, it, sizeof(float));
+            memcpy(&sample, it, sizeof(float));
             referenceStack->add(sample);
             referenceMeter.add(sample);
         }
@@ -271,7 +271,11 @@ void Measurement::averaging()
     for (unsigned int i = 0; i < _dataLength ; i++) {
 
         float magnitude = m_dataFT.af(i).abs() / m_dataFT.bf(i).abs();
+#ifdef WIN64
+        if (magnitude/0.f == magnitude) {
+#else
         if (std::isnan(magnitude)) {
+#endif
             magnitude = 0.f;
         }
         magnitudeAvg.append(i,  (m_lpf ? m_magnitudeLPFs[i](magnitude).real         : magnitude ));

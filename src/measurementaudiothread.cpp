@@ -58,11 +58,12 @@ void MeasurementAudioThread::selectDevice(const QAudioDeviceInfo &deviceInfo, bo
     m_format.setSampleType(QAudioFormat::Float);
 
     m_audio = new QAudioInput(m_device, m_format, this);
+#ifndef WIN64
     m_audio->setBufferSize(
                 static_cast<int>(sizeof(float)) *
                 static_cast<int>(m_chanelCount) *
                 8*1024);
-
+#endif
     emit deviceChanged();
 
     if (restart) {

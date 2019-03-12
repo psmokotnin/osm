@@ -24,22 +24,24 @@ Meter::Meter(unsigned long size) :
     m_integrator(0.f)
 {
 }
-void Meter::add(const float data) noexcept
+void Meter::add(const float &data) noexcept
 {
-    float d = abs(data);
+    float d = std::abs(data);
     m_integrator -= m_data.pushnpop(d, m_size);
     m_integrator += d;
     while( m_data.size() > m_size) {
         m_integrator -= m_data.front();
         m_data.pop();
     }
+    if (m_integrator < 0.f)
+        m_integrator = 0.f;
 }
 float Meter::value() const noexcept
 {
     if (m_data.size() == 0)
         return -INFINITY;
 
-    return 20*log10(m_integrator / m_data.size());//dBV
+    return 20.f * std::log10(m_integrator / m_data.size());//dBV
 }
 void Meter::reset() noexcept
 {
