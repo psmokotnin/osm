@@ -3,7 +3,7 @@ Crossplatform measurement software for tuning sound systems.
 
 **Supported systems:** MacOs, Windows, Linux
 
-Current version: v0.0.2
+Current version: v0.0.3
 
 [Project page](https://psmokotnin.github.io/osm/)
 
