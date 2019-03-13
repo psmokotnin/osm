@@ -55,6 +55,7 @@ Measurement::Measurement(QObject *parent) : Fftchart::Source(parent),
 
     m_deconvolution.setSize(m_deconvolutionSize);
     _impulseData = new TimeData[m_deconvolutionSize];
+    m_deconvLPFs.resize(m_deconvolutionSize);
 
     dataStack = new AudioStack(_fftSize);
     referenceStack = new AudioStack(_fftSize);
@@ -278,8 +279,8 @@ void Measurement::averaging()
 #endif
             magnitude = 0.f;
         }
-        magnitudeAvg.append(i,  (m_lpf ? m_magnitudeLPFs[i](magnitude).real         : magnitude ));
-        moduleAvg.append(i,     (m_lpf ? m_moduleLPFs[i](m_dataFT.af(i).abs()).real : m_dataFT.af(i).abs() ));
+        magnitudeAvg.append(i,  (m_lpf ? m_magnitudeLPFs[i](magnitude)         : magnitude ));
+        moduleAvg.append(i,     (m_lpf ? m_moduleLPFs[i](m_dataFT.af(i).abs()) : m_dataFT.af(i).abs() ));
 
         p.polar(m_dataFT.bf(i).arg() - m_dataFT.af(i).arg());
         pahseAvg.append(i,      (m_lpf ? m_phaseLPFs[i](p) : p ));
@@ -299,7 +300,7 @@ void Measurement::averaging()
             t -= static_cast<int>(m_deconvolutionSize);
             j -= m_deconvolutionSize;
         }
-        _impulseData[j].value.real = deconvAvg.value(i);
+        _impulseData[j].value.real = (m_lpf ? m_deconvLPFs[i](deconvAvg.value(i)) : deconvAvg.value(i));
         _impulseData[j].time  = t * kt;//ms
     }
     estimatedDelayAvg.append(0, m_deconvolution.maxPoint());

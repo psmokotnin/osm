@@ -88,7 +88,8 @@ private:
     Averaging<float> deconvAvg;
     Averaging<unsigned int> estimatedDelayAvg;
 
-    container::array<Filter> m_moduleLPFs, m_magnitudeLPFs, m_phaseLPFs;
+    container::array<Filter<float>> m_moduleLPFs, m_magnitudeLPFs, m_deconvLPFs;
+    container::array<Filter<complex>> m_phaseLPFs;
     Averaging<float> magnitudeAvg, moduleAvg;
     Averaging<complex> pahseAvg;
 

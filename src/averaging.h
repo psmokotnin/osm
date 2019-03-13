@@ -74,5 +74,13 @@ protected:
     void checkDepth(unsigned int i);
 };
 
+template<> void Averaging<unsigned int>::append(unsigned int i, const unsigned int &value);
+template<> void Averaging<float>::append(unsigned int i, const float &value);
+template<> void Averaging<complex>::append(unsigned int i, const complex &value);
+
+template <> unsigned int Averaging<unsigned int>::value(unsigned int i);
+template <> float Averaging<float>::value(unsigned int i);
+template <> complex Averaging<complex>::value(unsigned int i);
+
 
 #endif // AVERAGING_H

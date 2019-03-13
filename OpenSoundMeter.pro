@@ -18,7 +18,6 @@ SOURCES += src/main.cpp \
     src/chart/painteditem.cpp \
     src/ssemath.cpp \
     src/chart/source.cpp \
-    src/filter.cpp \
     src/meter.cpp \
     src/measurement.cpp \
     src/chart/variablechart.cpp \
