@@ -44,7 +44,14 @@ void GeneratorThread::init()
     m_sources << new SinNoise(this);
 
     m_device = QAudioDeviceInfo::defaultOutputDevice();
-    m_format.setSampleRate(48000);
+    //get current device and check avalible sample rate
+    if(m_device.supportedSampleRates().last() < 48000)
+    {
+        m_format.setSampleRate(m_device.supportedSampleRates().last());
+    }
+    else {
+        m_format.setSampleRate(48000);
+    }
     m_format.setSampleSize(32);
     m_format.setCodec("audio/pcm");
     m_format.setByteOrder(QAudioFormat::LittleEndian);

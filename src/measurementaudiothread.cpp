@@ -49,8 +49,14 @@ void MeasurementAudioThread::selectDevice(const QAudioDeviceInfo &deviceInfo, bo
             m_chanelCount = formatChanels;
         m_maxChanelCount = std::max(formatChanels, m_maxChanelCount);
     }
-
-    m_format.setSampleRate(48000);
+    //get current device and check avalible sample rate
+    if(deviceInfo.supportedSampleRates().last() < 48000)
+    {
+        m_format.setSampleRate(deviceInfo.supportedSampleRates().last());
+    }
+    else {
+        m_format.setSampleRate(48000);
+    }
     m_format.setChannelCount(static_cast<int>(m_chanelCount));
     m_format.setSampleSize(32);
     m_format.setCodec("audio/pcm");

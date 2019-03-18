@@ -43,6 +43,8 @@ class Measurement : public Fftchart::Source
 
     //fft
     Q_PROPERTY(int fftPower READ fftPower WRITE setFftPower NOTIFY fftPowerChanged)
+    //Current Audio device sample rate
+    Q_PROPERTY(int sampleRate READ sampleRate NOTIFY sampleRateChanged)
 
     //Available input devices
     Q_PROPERTY(QVariant devices READ getDeviceList CONSTANT)
@@ -95,6 +97,8 @@ private:
 
     void calculateDataLength();
     void averaging();
+
+//    int m_sampleRate;
 
 protected:
     unsigned int _fftPower, _setfftPower;
@@ -162,11 +166,21 @@ signals:
     void lpfChanged();
     void chanelsCountChanged();
 
+    void sampleRateChanged(int sampleRate);
+
 public slots:
     void transform();
     void recalculateDataLength();
     QObject *store();
     void writeData(const QByteArray& buffer);
+//    void setSampleRate(int sampleRate)
+//    {
+//        if (m_sampleRate == sampleRate)
+//            return;
+
+//        m_sampleRate = sampleRate;
+//        emit sampleRateChanged(m_sampleRate);
+//    }
 };
 
 #endif // MEASUREMENT_H
