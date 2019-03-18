@@ -22,13 +22,13 @@ import QtQuick.Layouts 1.3
 Item {
     id: chartsLayout
     property int count: 1
-    property alias secondVisible: second.visible
-    property alias thirdVisible: third.visible
+    property alias firstChart: first
+    property alias secondChart: second
+    property alias thirdChart: third
 
     onCountChanged: {
-        secondVisible = count > 1
-        thirdVisible = count > 2
-
+        second.visible = count > 1
+        third.visible = count > 2
         first.height = second.height = third.height = chartsLayout.height / count;
     }
 

@@ -70,7 +70,7 @@ ApplicationWindow {
             //Properties area
             PropetiesBar {
                 id: bottomtab
-                height: 120
+                Layout.preferredHeight: 120
                 Layout.fillWidth: true
             }
         }
@@ -78,7 +78,7 @@ ApplicationWindow {
         SideBar {
             id: righttab
             Layout.fillHeight: true
-            width: 200
+            Layout.preferredWidth: 200
         }
     }
 

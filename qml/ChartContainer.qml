@@ -19,6 +19,7 @@ import QtQuick 2.7
 import QtQuick.Controls 2.2
 
 Item {
+    property Chart chartComponent
     StackView {
         id: chartStack
         anchors.fill: parent
@@ -32,6 +33,8 @@ Item {
         Chart {
             id: chart
             anchors.fill: parent
+            Component.onCompleted: chartComponent = chart
+
         }
     }
 }

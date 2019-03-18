@@ -23,6 +23,7 @@
 #include "src/generator.h"
 #include "src/measurement.h"
 #include "src/chart/variablechart.h"
+#include "src/osmsettings.h"
 
 #ifndef APP_GIT_VERSION
 #define APP_GIT_VERSION "unknow"
@@ -38,6 +39,10 @@ int main(int argc, char *argv[])
     QCoreApplication::setOrganizationName("psmokotnin");
     QCoreApplication::setOrganizationDomain("psmokotnin.github.io");
 
+    //set path for config file
+    OsmSettings::setPath(QSettings::IniFormat,QSettings::UserScope,QCoreApplication::applicationDirPath());
+    //make settings instante
+    OsmSettings s(SETTING_FILE_NAME,QSettings::IniFormat);
     Generator g;
     Measurement m;
 
@@ -50,8 +55,15 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("measurementModel", &m);
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
 
+    //Set poiner to Qml Engine
+    s.engine = &engine;
     if (engine.rootObjects().isEmpty())
         return -1;
 
+    //Store setting before exit:
+    QObject::connect(&app,&QApplication::aboutToQuit,&s,&OsmSettings::storeSettings);
+
+    //Load settings
+    s.loadSettings();
     return QApplication::exec();
 }

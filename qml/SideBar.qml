@@ -32,6 +32,7 @@ import QtQuick.Controls.Material 2.1
 Item {
     property Item list : sideList
     property int colorIndex: 6;
+    property alias chartComboBox: chartsCount
     signal modelAdded(Item item);
     signal modelRemoved(Item item);
 

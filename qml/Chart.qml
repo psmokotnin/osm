@@ -20,6 +20,7 @@ import QtQuick.Controls 2.2
 import FftChart 1.0
 
 Item {
+    property alias chartTypeCB: chartTypeCB
     id: chartview
 
     VariableChart {
@@ -95,6 +96,7 @@ Item {
     }
 
     ComboBox {
+        id:chartTypeCB
         anchors.top: parent.top
         anchors.right: parent.right
         implicitWidth: 130

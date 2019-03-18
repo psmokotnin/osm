@@ -37,7 +37,8 @@ SOURCES += src/main.cpp \
     src/generatorthread.cpp \
     src/measurementaudiothread.cpp \
     src/averaging.cpp \
-    src/chart/xyseriesrenderer.cpp
+    src/chart/xyseriesrenderer.cpp \
+    src/osmsettings.cpp
 
 RESOURCES += qml.qrc \
     shaders/shaders.qrc
@@ -104,7 +105,8 @@ HEADERS += \
     src/averaging.h \
     src/chart/xyseriesrenderer.h \
     src/container/fifo.h \
-    src/container/array.h
+    src/container/array.h \
+    src/osmsettings.h
 
 APP_GIT_VERSION = $$system(git --git-dir $$_PRO_FILE_PWD_/.git --work-tree $$_PRO_FILE_PWD_ describe --always --tags)
 DEFINES += APP_GIT_VERSION=\\\"$$APP_GIT_VERSION\\\"
