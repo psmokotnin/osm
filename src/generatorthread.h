@@ -42,7 +42,7 @@ private:
     int m_chanelCount, m_chanel, m_aux;
     bool m_enabled;
 
-    void _selectDevice(const QAudioDeviceInfo &device);
+    void _selectDevice(const QAudioDeviceInfo &deviceInfo);
     void _updateAudio();
 
 public slots:

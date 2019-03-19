@@ -44,7 +44,7 @@ class Measurement : public Fftchart::Source
     //fft
     Q_PROPERTY(int fftPower READ fftPower WRITE setFftPower NOTIFY fftPowerChanged)
     //Current Audio device sample rate
-    Q_PROPERTY(int sampleRate READ sampleRate NOTIFY sampleRateChanged)
+    Q_PROPERTY(unsigned int sampleRate READ sampleRate WRITE setSampleRate NOTIFY sampleRateChanged)
 
     //Available input devices
     Q_PROPERTY(QVariant devices READ getDeviceList CONSTANT)
@@ -79,6 +79,7 @@ private:
     unsigned long m_delay, m_setDelay;
     long m_estimatedDelay;
     bool m_polarity, m_lpf;
+    unsigned int m_sampleRate;
 
     AudioStack *dataStack,
                *referenceStack;
@@ -98,7 +99,6 @@ private:
     void calculateDataLength();
     void averaging();
 
-//    int m_sampleRate;
 
 protected:
     unsigned int _fftPower, _setfftPower;
@@ -143,7 +143,7 @@ public:
     bool lpf() const {return m_lpf;}
     void setLPF(bool lpf) {m_lpf = lpf;}
 
-    unsigned int sampleRate() const;
+    unsigned int sampleRate() const {return m_sampleRate;}
 
     QVariant getAvailableWindowTypes() const {return m_window.getTypes();}
     int getWindowType() const {return static_cast<int>(m_window.type());}
@@ -165,22 +165,14 @@ signals:
     void estimatedChanged();
     void lpfChanged();
     void chanelsCountChanged();
-
-    void sampleRateChanged(int sampleRate);
+    void sampleRateChanged(unsigned int sampleRate);
 
 public slots:
     void transform();
     void recalculateDataLength();
     QObject *store();
     void writeData(const QByteArray& buffer);
-//    void setSampleRate(int sampleRate)
-//    {
-//        if (m_sampleRate == sampleRate)
-//            return;
-
-//        m_sampleRate = sampleRate;
-//        emit sampleRateChanged(m_sampleRate);
-//    }
+    void setSampleRate(unsigned int sampleRate);
 };
 
 #endif // MEASUREMENT_H

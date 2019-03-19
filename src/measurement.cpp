@@ -36,6 +36,10 @@ Measurement::Measurement(QObject *parent) : Fftchart::Source(parent),
     connect(&m_audioThread, SIGNAL(deviceChanged()), this, SIGNAL(deviceChanged()));
     connect(&m_audioThread, SIGNAL(formatChanged()), this, SIGNAL(chanelsCountChanged()));
     connect(&m_audioThread, SIGNAL(formatChanged()), this, SLOT(recalculateDataLength()));
+    QObject::connect(&m_audioThread, &MeasurementAudioThread::formatChanged,
+                     [&]{
+        this->setSampleRate(static_cast<unsigned int>(m_audioThread.format().sampleRate()));
+    });
 
     _setfftPower = _fftPower = 14;//16 - 65K 0.73Hz;
     _fftSize = static_cast<unsigned int>(pow(2, _fftPower));
@@ -118,7 +122,7 @@ void Measurement::selectDevice(const QAudioDeviceInfo &deviceInfo)
                 Qt::QueuedConnection,
                 Q_ARG(QAudioDeviceInfo, deviceInfo),
                 Q_ARG(bool, active())
-    );
+                );
 }
 //this calls from gui thread
 void Measurement::setFftPower(unsigned int power)
@@ -177,7 +181,7 @@ void Measurement::setActive(bool active)
                 "setActive",
                 Qt::QueuedConnection,
                 Q_ARG(bool, active)
-    );
+                );
     dataMeter.reset();
     referenceMeter.reset();
     emit levelChanged();
@@ -208,10 +212,7 @@ void Measurement::setAverage(unsigned int average)
     magnitudeAvg.setDepth(average);
     pahseAvg.setDepth(average);
 }
-unsigned int Measurement::sampleRate() const
-{
-    return static_cast<unsigned int>(m_audioThread.format().sampleRate());
-}
+
 void Measurement::setWindowType(int t)
 {
     m_window.setType(static_cast<WindowFunction::Type>(t));
@@ -242,6 +243,16 @@ void Measurement::writeData(const QByteArray& buffer)
         it += 3;
     }
 }
+
+void Measurement::setSampleRate(unsigned int sampleRate)
+{
+    if (m_sampleRate == sampleRate)
+        return;
+
+    m_sampleRate = sampleRate;
+    emit sampleRateChanged(m_sampleRate);
+}
+
 void Measurement::transform()
 {
     if (!_active)

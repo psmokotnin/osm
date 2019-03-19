@@ -44,19 +44,6 @@ void GeneratorThread::init()
     m_sources << new SinNoise(this);
 
     m_device = QAudioDeviceInfo::defaultOutputDevice();
-    //get current device and check avalible sample rate
-    if(m_device.supportedSampleRates().last() < 48000)
-    {
-        m_format.setSampleRate(m_device.supportedSampleRates().last());
-    }
-    else {
-        m_format.setSampleRate(48000);
-    }
-    m_format.setSampleSize(32);
-    m_format.setCodec("audio/pcm");
-    m_format.setByteOrder(QAudioFormat::LittleEndian);
-    m_format.setSampleType(QAudioFormat::Float);
-
     _selectDevice(m_device);
     connect(this, SIGNAL(finished()), this, SLOT(finish()));
 }
@@ -98,21 +85,56 @@ void GeneratorThread::selectDevice(const QString &name)
         }
     }
 }
-void GeneratorThread::_selectDevice(const QAudioDeviceInfo &device)
+void GeneratorThread::_selectDevice(const QAudioDeviceInfo &deviceInfo)
 {
-    m_device = device;
-    m_sources[m_type]->close();
-
     if (m_audio) {
         m_audio->stop();
         delete m_audio;
     }
+
+    m_device = deviceInfo;
+    m_sources[m_type]->close();
     m_chanelCount = 1;
     foreach (auto formatChanels, m_device.supportedChannelCounts()) {
         if (formatChanels > m_chanelCount)
             m_chanelCount = formatChanels;
     }
+    //get current device and check avalible sample rate
+    QList<int> supportedSamleRates = m_device.supportedSampleRates();
+
+    if(supportedSamleRates.indexOf(48000) > -1)
+    {
+        m_format.setSampleRate(48000);
+    }
+    else
+    {
+        QListIterator<int> i(supportedSamleRates);
+        if(supportedSamleRates.first() < supportedSamleRates.last())
+        {
+            i.toBack();
+            while (i.hasPrevious()) {
+                if(i.previous() < 48000) {
+                    m_format.setSampleRate(i.next());
+                    break;
+                }
+            }
+        }
+        else {
+            while (i.hasNext()) {
+                if(i.next() < 48000) {
+                    m_format.setSampleRate(i.previous());
+                    break;
+                }
+            }
+        }
+    }
+
     m_format.setChannelCount(m_chanelCount);
+    m_format.setSampleSize(32);
+    m_format.setCodec("audio/pcm");
+    m_format.setByteOrder(QAudioFormat::LittleEndian);
+    m_format.setSampleType(QAudioFormat::Float);
+
     m_audio = new QAudioOutput(m_device, m_format, this);
 #ifndef WIN64
     m_audio->setBufferSize(

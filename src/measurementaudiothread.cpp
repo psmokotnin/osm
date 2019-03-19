@@ -38,6 +38,7 @@ void MeasurementAudioThread::selectDevice(const QAudioDeviceInfo &deviceInfo, bo
         m_audio->stop();
         delete m_audio;
     }
+
     m_maxChanelCount = 0;
 
     m_device = deviceInfo;
@@ -50,13 +51,35 @@ void MeasurementAudioThread::selectDevice(const QAudioDeviceInfo &deviceInfo, bo
         m_maxChanelCount = std::max(formatChanels, m_maxChanelCount);
     }
     //get current device and check avalible sample rate
-    if(deviceInfo.supportedSampleRates().last() < 48000)
+    QList<int> supportedSamleRates = m_device.supportedSampleRates();
+
+    if(supportedSamleRates.indexOf(48000) > -1)
     {
-        m_format.setSampleRate(deviceInfo.supportedSampleRates().last());
-    }
-    else {
         m_format.setSampleRate(48000);
     }
+    else
+    {
+        QListIterator<int> i(supportedSamleRates);
+        if(supportedSamleRates.first() < supportedSamleRates.last())
+        {
+            i.toBack();
+            while (i.hasPrevious()) {
+                if(i.previous() < 48000) {
+                    m_format.setSampleRate(i.next());
+                    break;
+                }
+            }
+        }
+        else {
+            while (i.hasNext()) {
+                if(i.next() < 48000) {
+                    m_format.setSampleRate(i.previous());
+                    break;
+                }
+            }
+        }
+    }
+
     m_format.setChannelCount(static_cast<int>(m_chanelCount));
     m_format.setSampleSize(32);
     m_format.setCodec("audio/pcm");
@@ -81,7 +104,7 @@ void MeasurementAudioThread::setActive(bool active)
     if (active && (
                 m_audio->state() == QAudio::IdleState ||
                 m_audio->state() == QAudio::StoppedState)
-       ) {
+            ) {
         startAudio();
         return ;
     }
@@ -94,15 +117,15 @@ void MeasurementAudioThread::startAudio()
 {
     auto io = m_audio->start();
     connect(io, &QIODevice::readyRead,
-                [&, io]() {
-                    int len = m_audio->bytesReady();
-                    QByteArray buffer(len, 0x1);
-                    qint64 l;
+            [&, io]() {
+        int len = m_audio->bytesReady();
+        QByteArray buffer(len, 0x1);
+        qint64 l;
 
-                    while ((l = io->read(buffer.data(), len)) && l > 0) {
-                        emit recived(buffer);
-                    }
-        });
+        while ((l = io->read(buffer.data(), len)) && l > 0) {
+            emit recived(buffer);
+        }
+    });
 
     m_format = m_audio->format();
     m_chanelCount = static_cast<unsigned int>(m_format.channelCount());
