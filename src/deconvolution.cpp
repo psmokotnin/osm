@@ -19,7 +19,6 @@
 #include <complex>
 Deconvolution::Deconvolution(unsigned int size) :
     m_size(size),
-    m_maxPoint(0),
     fft(size),
     ifft(size)
 {
@@ -43,14 +42,20 @@ void Deconvolution::transform(WindowFunction *window)
     //reverse
     ifft.fast(nullptr, true, true);
 
-    float max = 0.0;
     for (unsigned int i = 0; i < m_size; i++) {
         m_data[i] = ifft.af(i).real / m_size;
-        if (max < abs(m_data[i])) {
-            max = abs(m_data[i]);
-            m_maxPoint = i;
-        }
     }
+}
+float Deconvolution::get(const unsigned int i) const
+{
+#ifdef WIN64
+    if (m_data[i]/0.f == m_data[i]) {
+#else
+    if (std::isnan(m_data[i])) {
+#endif
+        return 0.f;
+    }
+    return m_data[i];
 }
 void Deconvolution::setSize(unsigned int size)
 {

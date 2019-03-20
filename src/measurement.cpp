@@ -25,9 +25,11 @@ Measurement::Measurement(QObject *parent) : Fftchart::Source(parent),
     m_average(0),
     m_delay(0), m_setDelay(0),
     m_estimatedDelay(0),
-    m_polarity(false), m_lpf(true),
+    m_polarity(false),
     dataMeter(12000), referenceMeter(12000), //250ms
-    m_window(WindowFunction::Type::hann)
+    m_window(WindowFunction::Type::hann),
+    m_averageType(AverageType::LPF),
+    m_filtersFrequency(Filter::Frequency::FOURTHHZ)
 {
     _name = "Measurement";
     setObjectName(_name);
@@ -65,8 +67,6 @@ Measurement::Measurement(QObject *parent) : Fftchart::Source(parent),
     magnitudeAvg.setSize(fftSize());
     deconvAvg.setSize(m_deconvolutionSize);
     deconvAvg.reset();
-    estimatedDelayAvg.setSize(1);
-    estimatedDelayAvg.reset();
 
     setAverage(1);
     m_timer.setInterval(80);//12.5 per sec
@@ -151,6 +151,24 @@ void Measurement::updateFftPower()
         emit fftPowerChanged(_fftPower);
     }
 }
+void Measurement::setFiltersFrequency(Filter::Frequency frequency)
+{
+    if (m_filtersFrequency != frequency) {
+        m_filtersFrequency = frequency;
+
+        auto setFrequency = [&m_filtersFrequency = m_filtersFrequency](Filter::BesselLPF<float> *f) {
+            f->setFrequency(m_filtersFrequency);
+        };
+
+        m_moduleLPFs.each(setFrequency);
+        m_magnitudeLPFs.each(setFrequency);
+        m_deconvLPFs.each(setFrequency);
+
+        m_phaseLPFs.each([&m_filtersFrequency = m_filtersFrequency](Filter::BesselLPF<complex> *f){
+            f->setFrequency(m_filtersFrequency);
+        });
+    }
+}
 void Measurement::recalculateDataLength()
 {
     std::lock_guard<std::mutex> guard(dataMutex);
@@ -203,7 +221,6 @@ void Measurement::setAverage(unsigned int average)
 {
     m_average = average;
     deconvAvg.setDepth(average);
-    estimatedDelayAvg.setDepth(average);
     moduleAvg.setDepth(average);
     magnitudeAvg.setDepth(average);
     pahseAvg.setDepth(average);
@@ -279,32 +296,62 @@ void Measurement::averaging()
 #endif
             magnitude = 0.f;
         }
-        magnitudeAvg.append(i,  (m_lpf ? m_magnitudeLPFs[i](magnitude)         : magnitude ));
-        moduleAvg.append(i,     (m_lpf ? m_moduleLPFs[i](m_dataFT.af(i).abs()) : m_dataFT.af(i).abs() ));
-
         p.polar(m_dataFT.bf(i).arg() - m_dataFT.af(i).arg());
-        pahseAvg.append(i,      (m_lpf ? m_phaseLPFs[i](p) : p ));
 
-        _ftdata[i].magnitude = magnitudeAvg.value(i);
-        _ftdata[i].module    = moduleAvg.value(i);
-        _ftdata[i].phase     = pahseAvg.value(i).arg();
+        switch (averageType()) {
+            case AverageType::OFF:
+                _ftdata[i].magnitude = magnitude;
+                _ftdata[i].module    = m_dataFT.af(i).abs();
+                _ftdata[i].phase     = p.arg();
+            break;
+
+            case AverageType::LPF:
+                _ftdata[i].magnitude = m_magnitudeLPFs[i](magnitude);
+                _ftdata[i].module    = m_moduleLPFs[i](m_dataFT.af(i).abs());
+                _ftdata[i].phase     = m_phaseLPFs[i](p).arg();
+            break;
+
+            case AverageType::FIFO:
+                magnitudeAvg.append(i, magnitude );
+                moduleAvg.append(i,    m_dataFT.af(i).abs() );
+                pahseAvg.append(i,     p);
+
+                _ftdata[i].magnitude = magnitudeAvg.value(i);
+                _ftdata[i].module    = moduleAvg.value(i);
+                _ftdata[i].phase     = pahseAvg.value(i).arg();
+            break;
+        }
     }
 
     int t = 0;
     float kt = 1000.f / sampleRate();
+    float max(0.f);
     for (unsigned int i = 0, j = m_deconvolutionSize / 2 - 1; i < m_deconvolutionSize; i++, j++, t++) {
-
-        deconvAvg.append(i, m_deconvolution.get(i));
 
         if (t > static_cast<int>(m_deconvolutionSize / 2)) {
             t -= static_cast<int>(m_deconvolutionSize);
             j -= m_deconvolutionSize;
         }
-        _impulseData[j].value.real = (m_lpf ? m_deconvLPFs[i](deconvAvg.value(i)) : deconvAvg.value(i));
+
+        switch (averageType()) {
+            case AverageType::OFF:
+                _impulseData[j].value.real = m_deconvolution.get(i);
+            break;
+            case AverageType::LPF:
+                _impulseData[j].value.real = m_deconvLPFs[i](m_deconvolution.get(i));
+            break;
+            case AverageType::FIFO:
+                deconvAvg.append(i, m_deconvolution.get(i));
+                _impulseData[j].value.real = deconvAvg.value(i);
+            break;
+        }
+
+        if (max < abs(_impulseData[j].value.real)) {
+            max = abs(_impulseData[j].value.real);
+            m_estimatedDelay = i;
+        }
         _impulseData[j].time  = t * kt;//ms
     }
-    estimatedDelayAvg.append(0, m_deconvolution.maxPoint());
-    m_estimatedDelay = estimatedDelayAvg.value(0);
     emit estimatedChanged();
 }
 QObject *Measurement::store()

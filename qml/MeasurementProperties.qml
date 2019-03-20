@@ -20,6 +20,8 @@ import QtQuick.Controls 2.2
 import QtQuick.Layouts 1.3
 import QtQuick.Dialogs 1.2
 
+import Measurement 1.0
+
 Item {
     property var dataObject
 
@@ -28,6 +30,16 @@ Item {
         anchors.fill: parent
 
         RowLayout {
+
+            ComboBox {
+                id: averageType
+                implicitWidth: 120
+                model: ["off", "LPF", "FIFO"]
+                currentIndex: dataObject.averageType
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("average type")
+                onCurrentIndexChanged: dataObject.averageType = currentIndex;
+            }
 
             SpinBox {
                 implicitWidth: 120
@@ -39,15 +51,25 @@ Item {
 
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("average count")
+
+                visible: dataObject.averageType === Measurement.FIFO;
             }
-            CheckBox {
-                text: qsTr("LPF")
+
+            ComboBox {
                 implicitWidth: 120
-                checked: dataObject.lpf
-                onCheckStateChanged: dataObject.lpf = checked
+                model: [ "0.25Hz", "0.5Hz", "1Hz" ]
+                currentIndex: dataObject.filtersFrequency
+                onCurrentIndexChanged: dataObject.filtersFrequency = currentIndex;
 
                 ToolTip.visible: hovered
-                ToolTip.text: qsTr("data low pass filter")
+                ToolTip.text: qsTr("LPF frequency")
+
+                visible: dataObject.averageType === Measurement.LPF;
+            }
+
+            Rectangle {
+                implicitWidth: 120
+                visible: dataObject.averageType === Measurement.OFF;
             }
 
             CheckBox {

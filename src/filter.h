@@ -20,10 +20,21 @@
 
 #include "complex.h"
 
-template <typename T> class Filter
+namespace Filter {
+
+    Q_NAMESPACE
+/*
+ * Bessel Low Pass Filter 5th order
+ */
+enum class Frequency {FOURTHHZ, HALFHZ, ONEHZ};
+Q_ENUM_NS(Frequency)
+
+template <typename T> class BesselLPF
 {
     unsigned int _p = 3;
     T _x[6], _y[6];
+
+    float _gain, _k[5];
 
     unsigned int p(unsigned int i) const noexcept {
         unsigned int p = _p + i;
@@ -38,14 +49,51 @@ template <typename T> class Filter
     }
 
 public:
-    explicit Filter() {}
+    explicit BesselLPF()
+    {
+        setFrequency(Frequency::FOURTHHZ);
+    }
+
+    void setFrequency(Frequency frequency) noexcept {
+        switch (frequency) {
+        case Frequency::FOURTHHZ :
+            _gain =  1.327313202e+05f;
+            _k[0] =  0.4600089841f;
+            _k[1] = -2.6653917847f;
+            _k[2] =  6.2006547950f;
+            _k[3] = -7.2408808951f;
+            _k[4] =  4.2453678122f;
+            break;
+        case Frequency::HALFHZ :
+            _gain =  5.908173436e+03f;
+            _k[0] =  0.2116396822f;
+            _k[1] = -1.3993115731f;
+            _k[2] =  3.7525227570f;
+            _k[3] = -5.1097576527f;
+            _k[4] =  3.5394905611f;
+            break;
+        case Frequency::ONEHZ :
+            _gain =  3.508023803e+02f;
+            _k[0] =  0.0448577871f;
+            _k[1] = -0.3690099172f;
+            _k[2] =  1.2719460080f;
+            _k[3] = -2.3219218420f;
+            _k[4] =  2.2829085146;
+            break;
+        }
+        reset();
+    }
+    void reset() noexcept {
+        _x[0] = _x[1] = _x[2] = _x[3] = _x[4] = _x[5] = T(0);
+        _y[0] = _y[1] = _y[2] = _y[3] = _y[4] = _y[5] = T(0);
+    }
     /**
      * @url http://www-users.cs.york.ac.uk/~fisher/cgi-bin/mkfscript
      */
     T operator()(const T &v) {
         _p = p(1);
 
-        _x[p(5)] = v / static_cast<float>(1.327313202e+05);
+        _x[p(5)] = v / _gain;
         _y[p(5)] =
                ( x(0) * 1.0)
              + ( x(1) * 5.0)
@@ -54,15 +102,15 @@ public:
              + ( x(4) * 5.0)
              + ( x(5) * 1.0)
 
-             + ( y(0) * static_cast<float>( 0.4600089841 ))
-             + ( y(1) * static_cast<float>(-2.6653917847 ))
-             + ( y(2) * static_cast<float>( 6.2006547950 ))
-             + ( y(3) * static_cast<float>(-7.2408808951 ))
-             + ( y(4) * static_cast<float>( 4.2453678122 ));
+             + ( y(0) * _k[0])
+             + ( y(1) * _k[1])
+             + ( y(2) * _k[2])
+             + ( y(3) * _k[3])
+             + ( y(4) * _k[4]);
 
         return y(5);
     }
 
 };
-
+}
 #endif // FILTER_H

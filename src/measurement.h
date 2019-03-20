@@ -55,10 +55,11 @@ class Measurement : public Fftchart::Source
     Q_PROPERTY(unsigned long delay READ delay WRITE setDelay NOTIFY delayChanged)
     Q_PROPERTY(long estimated READ estimated NOTIFY estimatedChanged)
 
+    Q_PROPERTY(AverageType averageType READ averageType WRITE setAverageType NOTIFY averageTypeChanged)
     Q_PROPERTY(int average READ average WRITE setAverage NOTIFY averageChanged)
+    Q_PROPERTY(Filter::Frequency filtersFrequency READ filtersFrequency WRITE setFiltersFrequency NOTIFY filtersFrequencyChanged)
 
     Q_PROPERTY(bool polarity READ polarity WRITE setPolarity NOTIFY polarityChanged)
-    Q_PROPERTY(bool lpf READ lpf WRITE setLPF NOTIFY lpfChanged)
 
     //routing
     Q_PROPERTY(int chanelsCount READ chanelsCount NOTIFY chanelsCountChanged)
@@ -69,6 +70,11 @@ class Measurement : public Fftchart::Source
     Q_PROPERTY(int window READ getWindowType WRITE setWindowType NOTIFY windowTypeChanged)
     Q_PROPERTY(QVariant windows READ getAvailableWindowTypes CONSTANT)
 
+public:
+    enum AverageType {OFF, LPF, FIFO};
+    Q_ENUMS(AverageType)
+    Q_ENUMS(Filter::Frequency)
+
 private:
     QTimer m_timer;
     QThread m_timerThread;
@@ -76,7 +82,7 @@ private:
     unsigned int m_average;
     unsigned long m_delay, m_setDelay;
     long m_estimatedDelay;
-    bool m_polarity, m_lpf;
+    bool m_polarity;
 
     AudioStack *dataStack,
                *referenceStack;
@@ -85,13 +91,15 @@ private:
     WindowFunction m_window;
     FourierTransform m_dataFT;
     Deconvolution m_deconvolution;
-    Averaging<float> deconvAvg;
-    Averaging<unsigned int> estimatedDelayAvg;
 
-    container::array<Filter<float>> m_moduleLPFs, m_magnitudeLPFs, m_deconvLPFs;
-    container::array<Filter<complex>> m_phaseLPFs;
+    Averaging<float> deconvAvg;
+    AverageType m_averageType;
     Averaging<float> magnitudeAvg, moduleAvg;
     Averaging<complex> pahseAvg;
+
+    Filter::Frequency m_filtersFrequency;
+    container::array<Filter::BesselLPF<float>> m_moduleLPFs, m_magnitudeLPFs, m_deconvLPFs;
+    container::array<Filter::BesselLPF<complex>> m_phaseLPFs;
 
     void calculateDataLength();
     void averaging();
@@ -136,8 +144,16 @@ public:
     bool polarity() const {return m_polarity;}
     void setPolarity(bool polarity) {m_polarity = polarity;}
 
-    bool lpf() const {return m_lpf;}
-    void setLPF(bool lpf) {m_lpf = lpf;}
+    Filter::Frequency filtersFrequency() {return m_filtersFrequency;}
+    void setFiltersFrequency(Filter::Frequency frequency);
+
+    AverageType averageType() {return m_averageType;}
+    void setAverageType(AverageType type) {
+        if (m_averageType != type) {
+            m_averageType = type;
+            emit averageTypeChanged();
+        }
+    }
 
     unsigned int sampleRate() const;
 
@@ -159,8 +175,9 @@ signals:
     void referenceChanelChanged();
     void windowTypeChanged();
     void estimatedChanged();
-    void lpfChanged();
     void chanelsCountChanged();
+    void averageTypeChanged();
+    void filtersFrequencyChanged();
 
 public slots:
     void transform();

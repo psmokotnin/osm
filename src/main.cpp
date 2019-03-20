@@ -42,6 +42,8 @@ int main(int argc, char *argv[])
     Measurement m;
 
     qmlRegisterType<Fftchart::VariableChart>("FftChart", 1, 0, "VariableChart");
+    qmlRegisterUncreatableMetaObject(Filter::staticMetaObject, "Measurement", 1, 0, "FilterFrequency", "Error: only enums");
+    qmlRegisterType<Measurement>("Measurement", 1, 0, "Measurement");
 
     QQmlApplicationEngine engine;
 

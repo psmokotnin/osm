@@ -25,7 +25,7 @@
 class Deconvolution
 {
 private:
-    unsigned int m_size, m_maxPoint;
+    unsigned int m_size;
     container::array<float> m_data;
     FourierTransform fft, ifft;
 
@@ -34,8 +34,7 @@ public:
     ~Deconvolution() = default;
     void add(float in, float out);
     void transform(WindowFunction *window);
-    float get(const unsigned int i) const {return m_data[i];}
-    unsigned int maxPoint() const noexcept {return m_maxPoint;}
+    float get(const unsigned int i) const;
     void setSize(unsigned int size);
 };
 

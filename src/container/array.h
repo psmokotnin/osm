@@ -76,6 +76,15 @@ public:
     const T& operator [](const unsigned int &i) const {
         return m_data[i];
     }
+
+    void each(std::function<void(T*)> f) {
+        if (!m_data)
+            return;
+
+        for (size_t i = 0; i < m_size; ++i) {
+            f(&m_data[i]);
+        }
+    }
 };
 }
 
