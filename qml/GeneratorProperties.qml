@@ -47,9 +47,9 @@ Item {
                 onCurrentIndexChanged: generatorModel.chanel = currentIndex
                 displayText: "chanel: " + (currentIndex + 1)
                 delegate: ItemDelegate {
-                          text: modelData + 1
-                          width: parent.width
-                      }
+                    text: modelData + 1
+                    width: parent.width
+                }
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("chanel number")
             }
@@ -60,9 +60,9 @@ Item {
                 onCurrentIndexChanged: generatorModel.aux = currentIndex
                 displayText: "aux: " + (currentIndex + 1)
                 delegate: ItemDelegate {
-                          text: modelData + 1
-                          width: parent.width
-                      }
+                    text: modelData + 1
+                    width: parent.width
+                }
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("aux chanel number")
             }
@@ -102,6 +102,14 @@ Item {
                 ToolTip.text: qsTr("signal type")
             }
 
+            Button{
+                id: octaveDown
+                text: qsTr("Octave Down")
+                visible: type.currentText == 'Sin';
+                enabled: frequencySpinBox.value/2 >= frequencySpinBox.from
+                onClicked: frequencySpinBox.value /= 2
+            }
+
             //Sin frequency
             SpinBox {
                 visible: type.currentText == 'Sin';
@@ -114,6 +122,14 @@ Item {
 
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("frequency for sin")
+            }
+
+            Button {
+                id:octaveUp
+                text: qsTr("Octave Up")
+                visible: type.currentText == 'Sin';
+                enabled: frequencySpinBox.value*2 <= frequencySpinBox.to
+                onClicked: frequencySpinBox.value *= 2
             }
         }
     }
