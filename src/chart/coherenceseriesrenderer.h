@@ -15,11 +15,22 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-attribute highp vec4 posAttr;
-uniform highp mat4 matrix;
+#ifndef COHERENCESERIESRENDERER_H
+#define COHERENCESERIESRENDERER_H
 
-void main() {
-    vec4 p = posAttr;
-    p.x = log(p.x);
-    gl_Position = matrix * p;
+#include "frequencybasedseriesrenderer.h"
+
+namespace Fftchart {
+class CoherenceSeriesRenderer : public FrequencyBasedSeriesRenderer
+{
+public:
+    CoherenceSeriesRenderer();
+    void renderSeries() override;
+    void synchronize(QQuickFramebufferObject *item) override;
+
+private:
+    int m_posAttr;
+};
 }
+
+#endif // COHERENCESERIESRENDERER_H

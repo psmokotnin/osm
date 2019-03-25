@@ -15,11 +15,21 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-attribute highp vec4 posAttr;
-uniform highp mat4 matrix;
+#ifndef COHERENCEPLOT_H
+#define COHERENCEPLOT_H
 
-void main() {
-    vec4 p = posAttr;
-    p.x = log(p.x);
-    gl_Position = matrix * p;
+#include "xyplot.h"
+
+namespace Fftchart {
+class CoherencePlot : public XYPlot
+{
+    Q_OBJECT
+
+protected:
+    virtual SeriesFBO* createSeriesFromSource(Source *source) override;
+
+public:
+    CoherencePlot(QQuickItem *parent = Q_NULLPTR);
+};
 }
+#endif // COHERENCEPLOT_H

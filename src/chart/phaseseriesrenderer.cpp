@@ -37,6 +37,7 @@ PhaseSeriesRenderer::PhaseSeriesRenderer() : m_pointsPerOctave(0)
     m_matrixUniform = m_program.uniformLocation("matrix");
     m_minmaxUniform = m_program.uniformLocation("minmax");
     m_screenUniform = m_program.uniformLocation("screen");
+    m_coherenceSpline = m_program.uniformLocation("coherenceSpline");
 }
 void PhaseSeriesRenderer::synchronize(QQuickFramebufferObject *item)
 {
@@ -44,6 +45,7 @@ void PhaseSeriesRenderer::synchronize(QQuickFramebufferObject *item)
 
     if (auto *plot = dynamic_cast<PhasePlot*>(m_item->parent())) {
         m_pointsPerOctave = plot->pointsPerOctave();
+        m_coherence = plot->coherence();
     }
 }
 void PhaseSeriesRenderer::renderSeries()
@@ -62,7 +64,7 @@ void PhaseSeriesRenderer::renderSeries()
     openGLFunctions->glVertexAttribPointer(static_cast<GLuint>(m_posAttr), 2, GL_FLOAT, GL_FALSE, 0, static_cast<const void *>(vertices));
     openGLFunctions->glEnableVertexAttribArray(0);
 
-    float xadd, xmul;
+    float xadd, xmul, coherence(0);
     xadd = -1.0f * logf(xMin);
     xmul = m_width / logf(xMax / xMin);
 
@@ -71,7 +73,7 @@ void PhaseSeriesRenderer::renderSeries()
      * pass spline data to shaders
      * fragment shader draws phase spline function
      */
-    auto accumulate = [&value, &lValue, &tvalue, &ltvalue, m_source = m_source] (unsigned int ai)
+    auto accumulate = [&value, &lValue, &tvalue, &ltvalue, m_source = m_source, &coherence, m_coherence = m_coherence] (unsigned int ai)
     {
         tvalue = m_source->phase(ai);
         //make phase linear (non periodic) function
@@ -84,11 +86,12 @@ void PhaseSeriesRenderer::renderSeries()
         lValue = tvalue;
         value += tvalue;
         ltvalue = m_source->phase(ai);
+        coherence += (m_coherence ? std::powf(m_source->coherence(ai), 2) : 1.f);
     };
-    auto collected = [m_program = &m_program, openGLFunctions = openGLFunctions, &vertices, &value,
+    auto collected = [m_program = &m_program, openGLFunctions = openGLFunctions, &vertices, &value, &coherence,
                     m_splineA = m_splineA, m_frequency1 = m_frequency1, m_frequency2 = m_frequency2,
-                    xadd, xmul]
-            (float f1, float f2, GLfloat *ac)
+                    xadd, xmul, m_coherenceSpline = m_coherenceSpline]
+            (float f1, float f2, GLfloat *ac, GLfloat *c)
     {
         vertices[0] =  f1;
         vertices[1] = -D_PI;
@@ -100,6 +103,7 @@ void PhaseSeriesRenderer::renderSeries()
         vertices[7] = -D_PI;
 
         m_program->setUniformValueArray(m_splineA, ac, 1, 4);
+        m_program->setUniformValueArray(m_coherenceSpline, c, 1, 4);
         float fx1 = (logf(f1) + xadd) * xmul;
         float fx2 = (logf(f2) + xadd) * xmul;
         m_program->setUniformValue(m_frequency1, fx1);
@@ -107,9 +111,10 @@ void PhaseSeriesRenderer::renderSeries()
         openGLFunctions->glDrawArrays(GL_QUADS, 0, 4);
 
         value = 0.0f;
+        coherence = 0.f;
     };
 
-    iterateForSpline(m_pointsPerOctave, &value, accumulate, collected);
+    iterateForSpline(m_pointsPerOctave, &value, &coherence, accumulate, collected);
 
     openGLFunctions->glDisableVertexAttribArray(0);
 }

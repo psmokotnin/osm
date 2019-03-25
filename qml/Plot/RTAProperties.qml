@@ -95,6 +95,16 @@ Item {
             }
         }
 
+        CheckBox {
+            text: qsTr("coherence")
+            implicitWidth: 120
+            checked: dataObject.coherence
+            onCheckStateChanged: dataObject.coherence = checked
+
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("use coherence as alpha channel")
+        }
+
         Button {
             text: qsTr("Save Image");
             onClicked: fileDialog.open();

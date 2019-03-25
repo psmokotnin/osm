@@ -31,10 +31,14 @@ Q_ENUM_NS(Frequency)
 
 template <typename T> class BesselLPF
 {
-    unsigned int _p = 3;
-    T _x[6], _y[6];
+public:
+    static const unsigned int ORDER = 5;
 
-    float _gain, _k[5];
+private:
+    unsigned int _p = 3;
+    T _x[ORDER + 1], _y[ORDER + 1];
+
+    float _gain, _k[ORDER];
 
     unsigned int p(unsigned int i) const noexcept {
         unsigned int p = _p + i;

@@ -30,8 +30,10 @@ public:
 
 private:
     int m_posAttr, m_splineA,
-        m_frequency1, m_frequency2;
+        m_frequency1, m_frequency2,
+        m_coherenceSpline;
     unsigned int m_pointsPerOctave;
+    bool m_coherence;
 };
 }
 #endif // PHASESERIESRENDERER_H

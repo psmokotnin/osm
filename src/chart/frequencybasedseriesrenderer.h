@@ -32,9 +32,9 @@ protected:
             );
 
     void iterateForSpline(unsigned int pointsPerOctave,
-                float *value,
+                float *value, float *coherence,
                 const std::function<void (unsigned int)> &accumulate,
-                const std::function<void(float f1, float f2, GLfloat *a)> &collected
+                const std::function<void(float f1, float f2, GLfloat *a, GLfloat *c)> &collected
             );
 
 public:

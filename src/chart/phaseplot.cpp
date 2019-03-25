@@ -21,7 +21,7 @@
 using namespace Fftchart;
 
 PhasePlot::PhasePlot(QQuickItem *parent): XYPlot(parent),
-    m_pointsPerOctave(12)
+    m_pointsPerOctave(12), m_coherence(true)
 {
     x.configure(AxisType::logarithmic, 20.f, 20000.f);
     x.setISOLabels();
@@ -43,4 +43,11 @@ void PhasePlot::setPointsPerOctave(unsigned int p)
 
     m_pointsPerOctave = p;
     emit pointsPerOctaveChanged();
+}
+void PhasePlot::setCoherence(bool coherence) noexcept
+{
+    if (m_coherence != coherence) {
+        m_coherence = coherence;
+        emit coherenceChanged();
+    }
 }

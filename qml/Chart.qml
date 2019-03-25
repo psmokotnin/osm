@@ -18,6 +18,7 @@
 import QtQuick 2.7
 import QtQuick.Controls 2.2
 import FftChart 1.0
+import QtQuick.Controls.Material 2.2
 
 Item {
     id: chartview
@@ -60,6 +61,9 @@ Item {
             case "Impulse":
                 opener.propertiesQml = "qrc:/Plot/ImpulseProperties.qml";
                 break;
+            case "Coherence":
+                opener.propertiesQml = "qrc:/Plot/CoherenceProperties.qml";
+                break;
             }
         }
 
@@ -97,8 +101,10 @@ Item {
     ComboBox {
         anchors.top: parent.top
         anchors.right: parent.right
-        implicitWidth: 130
-        model: ["RTA", "Magnitude", "Phase", "Impulse"]
+        implicitWidth: 135
+        implicitHeight: Material.buttonHeight
+        background: null
+        model: ["RTA", "Magnitude", "Phase", "Impulse", "Coherence"]
         currentIndex: 0
         onCurrentIndexChanged: {
             var pb = applicationWindow.properiesbar;

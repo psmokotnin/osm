@@ -67,6 +67,8 @@ Measurement::Measurement(QObject *parent) : Fftchart::Source(parent),
     magnitudeAvg.setSize(fftSize());
     deconvAvg.setSize(m_deconvolutionSize);
     deconvAvg.reset();
+    m_coherence.setSize(fftSize());
+    m_coherence.setDepth(Filter::BesselLPF<float>::ORDER);
 
     setAverage(1);
     m_timer.setInterval(80);//12.5 per sec
@@ -142,6 +144,7 @@ void Measurement::updateFftPower()
         moduleAvg.setSize(_fftSize);
         magnitudeAvg.setSize(_fftSize);
         pahseAvg.setSize(_fftSize);
+        m_coherence.setSize(fftSize());
 
         calculateDataLength();
         m_moduleLPFs.resize(_dataLength);
@@ -163,7 +166,6 @@ void Measurement::setFiltersFrequency(Filter::Frequency frequency)
         m_moduleLPFs.each(setFrequency);
         m_magnitudeLPFs.each(setFrequency);
         m_deconvLPFs.each(setFrequency);
-
         m_phaseLPFs.each([&m_filtersFrequency = m_filtersFrequency](Filter::BesselLPF<complex> *f){
             f->setFrequency(m_filtersFrequency);
         });
@@ -219,11 +221,22 @@ void Measurement::updateDelay()
 }
 void Measurement::setAverage(unsigned int average)
 {
-    m_average = average;
-    deconvAvg.setDepth(average);
-    moduleAvg.setDepth(average);
-    magnitudeAvg.setDepth(average);
-    pahseAvg.setDepth(average);
+    if (m_average != average) {
+        std::lock_guard<std::mutex> guard(dataMutex);
+        m_average = average;
+        deconvAvg.setDepth(average);
+        moduleAvg.setDepth(average);
+        magnitudeAvg.setDepth(average);
+        pahseAvg.setDepth(average);
+    }
+}
+void Measurement::setAverageType(AverageType type)
+{
+    if (m_averageType != type) {
+        std::lock_guard<std::mutex> guard(dataMutex);
+        m_averageType = type;
+        emit averageTypeChanged();
+    }
 }
 unsigned int Measurement::sampleRate() const
 {
@@ -239,6 +252,7 @@ void Measurement::writeData(const QByteArray& buffer)
     float sample;
     auto totalChanels = static_cast<unsigned int>(m_audioThread.format().channelCount());
     unsigned int currentChanel = 0;
+    std::lock_guard<std::mutex> guard(dataMutex);
     for (auto it = buffer.begin(); it != buffer.end(); ++it) {
 
         if (currentChanel == dataChanel()) {
@@ -292,7 +306,7 @@ void Measurement::averaging()
 #ifdef WIN64
         if (magnitude/0.f == magnitude) {
 #else
-        if (std::isnan(magnitude)) {
+        if (std::isnan(magnitude) || std::isinf(magnitude)) {
 #endif
             magnitude = 0.f;
         }
@@ -321,6 +335,9 @@ void Measurement::averaging()
                 _ftdata[i].phase     = pahseAvg.value(i).arg();
             break;
         }
+
+        m_coherence.append(i, m_dataFT.bf(i), m_dataFT.af(i));
+        _ftdata[i].coherence = m_coherence.value(i);
     }
 
     int t = 0;

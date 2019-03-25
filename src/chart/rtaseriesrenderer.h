@@ -41,6 +41,7 @@ protected:
 private:
     int m_posAttr;
     unsigned int m_pointsPerOctave, m_mode;
+    bool m_coherence;
 };
 }
 #endif // RTASERIES_H

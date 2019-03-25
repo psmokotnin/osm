@@ -20,6 +20,7 @@
 #include "magnitudeplot.h"
 #include "phaseplot.h"
 #include "impulseplot.h"
+#include "coherenceplot.h"
 
 using namespace Fftchart;
 
@@ -49,6 +50,10 @@ void VariableChart::initType()
 
     case Impulse:
         newPlot = new ImpulsePlot(this);
+        break;
+
+    case Coherence:
+        newPlot = new CoherencePlot(this);
         break;
 
     default:

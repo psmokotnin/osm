@@ -25,5 +25,6 @@
         <file alias="FloatSpinBox.qml">qml/FloatSpinBox.qml</file>
         <file alias="Plot/PhaseProperties.qml">qml/Plot/PhaseProperties.qml</file>
         <file alias="Plot/MagnitudeProperties.qml">qml/Plot/MagnitudeProperties.qml</file>
+        <file alias="Plot/CoherenceProperties.qml">qml/Plot/CoherenceProperties.qml</file>
     </qresource>
 </RCC>

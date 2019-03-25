@@ -37,7 +37,10 @@ SOURCES += src/main.cpp \
     src/generatorthread.cpp \
     src/measurementaudiothread.cpp \
     src/averaging.cpp \
-    src/chart/xyseriesrenderer.cpp
+    src/chart/xyseriesrenderer.cpp \
+    src/coherence.cpp \
+    src/chart/coherenceplot.cpp \
+    src/chart/coherenceseriesrenderer.cpp
 
 RESOURCES += qml.qrc \
     shaders/shaders.qrc
@@ -104,7 +107,10 @@ HEADERS += \
     src/averaging.h \
     src/chart/xyseriesrenderer.h \
     src/container/fifo.h \
-    src/container/array.h
+    src/container/array.h \
+    src/coherence.h \
+    src/chart/coherenceplot.h \
+    src/chart/coherenceseriesrenderer.h
 
 APP_GIT_VERSION = $$system(git --git-dir $$_PRO_FILE_PWD_/.git --work-tree $$_PRO_FILE_PWD_ describe --tags $(git --git-dir $$_PRO_FILE_PWD_/.git --work-tree $$_PRO_FILE_PWD_ rev-list --tags --max-count=1))
 DEFINES += APP_GIT_VERSION=\\\"$$APP_GIT_VERSION\\\"

@@ -23,7 +23,7 @@ using namespace Fftchart;
 RTAPlot::RTAPlot(QQuickItem *parent): XYPlot(parent),
     m_mode(0),
     m_pointsPerOctave(12),
-    m_spline(false)
+    m_spline(false), m_coherence(false)
 {
     x.configure(AxisType::logarithmic, 20.f, 20000.f);
     x.setISOLabels();
@@ -43,4 +43,11 @@ void RTAPlot::setPointsPerOctave(unsigned int p)
 
     m_pointsPerOctave = p;
     emit pointsPerOctaveChanged();
+}
+void RTAPlot::setCoherence(bool coherence) noexcept
+{
+    if (m_coherence != coherence) {
+        m_coherence = coherence;
+        emit coherenceChanged();
+    }
 }

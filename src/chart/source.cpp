@@ -62,6 +62,13 @@ float Source::phase(unsigned int i) const noexcept
 
     return _ftdata[i].phase;
 }
+float Source::coherence(unsigned int i) const noexcept
+{
+    if (i >= _dataLength)
+        return 0.0;
+
+    return _ftdata[i].coherence;
+}
 float Source::impulseTime(unsigned int i) const noexcept
 {
     if (i >= m_deconvolutionSize)

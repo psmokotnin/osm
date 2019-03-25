@@ -62,6 +62,7 @@ public:
 
     void setISOLabels() {_labels = ISO_LABELS;}
     void autoLabels(unsigned int ticks);
+    void setLabels(std::vector<float> labels) noexcept {_labels = labels;needUpdate();}
 
     void setType(AxisType t) {_type = t;needUpdate();}
     AxisType type() const {return _type;}

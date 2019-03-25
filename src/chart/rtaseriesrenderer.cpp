@@ -15,6 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+#include <cmath>
 #include "rtaseriesrenderer.h"
 #include "rtaplot.h"
 
@@ -38,6 +39,7 @@ void RTASeriesRenderer::synchronize(QQuickFramebufferObject *item)
     if (auto *plot = dynamic_cast<RTAPlot*>(m_item->parent())) {
         m_pointsPerOctave = plot->pointsPerOctave();
         m_mode = plot->mode();
+        m_coherence = plot->coherence();
     }
 }
 void RTASeriesRenderer::renderSeries()
@@ -86,6 +88,15 @@ void RTASeriesRenderer::renderLine()
     for (unsigned int i = 1, j = 0; i < count; ++i, j += 2) {
         vertices[2] = m_source->frequency(i);
         vertices[3] = 20 * log10f(m_source->module(i) / m_source->fftSize());
+        if (m_coherence) {
+            m_program.setUniformValue(
+                m_colorUniform,
+                static_cast<GLfloat>(m_source->color().redF()),
+                static_cast<GLfloat>(m_source->color().greenF()),
+                static_cast<GLfloat>(m_source->color().blueF()),
+                static_cast<GLfloat>(std::powf(m_source->coherence(i), 2))
+            );
+        }
         if (i > 1) {
             openGLFunctions->glDrawArrays(GL_LINE_STRIP, 0, 2);
         }

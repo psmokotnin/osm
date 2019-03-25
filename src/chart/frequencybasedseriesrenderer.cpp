@@ -83,38 +83,50 @@ void FrequencyBasedSeriesRenderer::iterate(
     }
 }
 void FrequencyBasedSeriesRenderer::iterateForSpline(unsigned int pointsPerOctave,
-             float *value,
+             float *value, float *coherence,
              const std::function<void (unsigned int)> &accumulate,
-             const std::function<void(float f1, float f2, GLfloat *a)> &collected
+             const std::function<void(float f1, float f2, GLfloat *a, GLfloat *c)> &collected
         )
 {
     bool bCollected = false;
     unsigned int bCount = 0;
-    float splinePoint[4], f[4];
-    GLfloat a[4];
+    float splinePoint[4], csplinePoint[4], f[4];
+    GLfloat a[4], c[4];
 
-    auto it = [value, &collected, &splinePoint, &f, &a, &bCollected, &bCount]
+    auto it = [value, coherence, &collected, &splinePoint, &csplinePoint, &f, &a, &c, &bCollected, &bCount]
             (float bandStart, float bandEnd, unsigned int count)
     {
         Q_UNUSED(bandStart)
 
         *value /= count;
+        *coherence /= count;
 
         if (bCollected) {
             splinePoint[0]  = splinePoint[1];f[0] = f[1];
             splinePoint[1]  = splinePoint[2];f[1] = f[2];
             splinePoint[2]  = splinePoint[3];f[2] = f[3];
+
+            csplinePoint[0]  = csplinePoint[1];
+            csplinePoint[1]  = csplinePoint[2];
+            csplinePoint[2]  = csplinePoint[3];
         }
         f[bCount] = (bandStart + bandEnd) / 2.f;
         splinePoint[bCount] = *value;
+        csplinePoint[bCount] = *coherence;
 
         if (bCount == 3) {
             a[0] = (     splinePoint[0] + 4 * splinePoint[1] +     splinePoint[2]) / 6;
             a[1] = (-1 * splinePoint[0] +                          splinePoint[2]) / 2;
             a[2] = (     splinePoint[0] - 2 * splinePoint[1] +     splinePoint[2]) / 2;
             a[3] = (-1 * splinePoint[0] + 3 * splinePoint[1] - 3 * splinePoint[2] + splinePoint[3]) / 6;
+
+            c[0] = (     csplinePoint[0] + 4 * csplinePoint[1] +     csplinePoint[2]) / 6;
+            c[1] = (-1 * csplinePoint[0] +                           csplinePoint[2]) / 2;
+            c[2] = (     csplinePoint[0] - 2 * csplinePoint[1] +     csplinePoint[2]) / 2;
+            c[3] = (-1 * csplinePoint[0] + 3 * csplinePoint[1] - 3 * csplinePoint[2] + csplinePoint[3]) / 6;
+
             bCollected = true;
-            collected(f[1], f[2], static_cast<float *>(a));
+            collected(f[1], f[2], static_cast<float *>(a), c);
         } else {
             ++bCount;
         }

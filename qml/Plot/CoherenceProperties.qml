@@ -32,71 +32,40 @@ Item {
     RowLayout {
         spacing: 0
 
-        SpinBox {
+        Root.FloatSpinBox {
+            min: dataObject.xLowLimit
+            max: dataObject.xHighLimit
             value: dataObject.xmin
+            tooltiptext: qsTr("x from")
             onValueChanged: dataObject.xmin = value
-            from: dataObject.xLowLimit
-            to: dataObject.xHighLimit
-            editable: true
-            ToolTip.visible: hovered
-            ToolTip.text: qsTr("x from")
         }
 
-        SpinBox {
+        Root.FloatSpinBox {
+            min: dataObject.xLowLimit
+            max: dataObject.xHighLimit
             value: dataObject.xmax
+            tooltiptext: qsTr("x to")
             onValueChanged: dataObject.xmax = value
-            from: dataObject.xLowLimit
-            to: dataObject.xHighLimit
-            editable: true
-            ToolTip.visible: hovered
-            ToolTip.text: qsTr("x to")
         }
 
-        SpinBox {
+        Root.FloatSpinBox {
+            min: dataObject.yLowLimit
+            max: dataObject.yHighLimit
             value: dataObject.ymin
+            tooltiptext: qsTr("y from")
             onValueChanged: dataObject.ymin = value
-            from: dataObject.yLowLimit
-            to: dataObject.yHighLimit
-            editable: true
-            ToolTip.visible: hovered
-            ToolTip.text: qsTr("y from")
         }
 
-        SpinBox {
+        Root.FloatSpinBox {
+            min: dataObject.yLowLimit
+            max: dataObject.yHighLimit
             value: dataObject.ymax
+            tooltiptext: qsTr("y to")
             onValueChanged: dataObject.ymax = value
-            from: dataObject.yLowLimit
-            to: dataObject.yHighLimit
-            editable: true
-            ToolTip.visible: hovered
-            ToolTip.text: qsTr("y to")
         }
     }
     RowLayout {
         spacing: 0
-
-        Root.TitledCombo {
-            title: qsTr("ppo")
-            model: [3, 6, 12, 24, 48]
-            currentIndex: {
-                var ppo = dataObject.pointsPerOctave;
-                model.indexOf(ppo);
-            }
-            onCurrentIndexChanged: {
-                var ppo = model[currentIndex];
-                dataObject.pointsPerOctave = ppo;
-            }
-        }
-
-        CheckBox {
-            text: qsTr("coherence")
-            implicitWidth: 120
-            checked: dataObject.coherence
-            onCheckStateChanged: dataObject.coherence = checked
-
-            ToolTip.visible: hovered
-            ToolTip.text: qsTr("use coherence as alpha channel")
-        }
 
         Button {
             text: qsTr("Save Image");
@@ -116,6 +85,5 @@ Item {
             }
         }
     }
-
   }
 }

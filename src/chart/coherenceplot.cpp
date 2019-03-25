@@ -15,11 +15,21 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-attribute highp vec4 posAttr;
-uniform highp mat4 matrix;
+#include "coherenceplot.h"
+#include "coherenceseriesrenderer.h"
 
-void main() {
-    vec4 p = posAttr;
-    p.x = log(p.x);
-    gl_Position = matrix * p;
+using namespace Fftchart;
+
+CoherencePlot::CoherencePlot(QQuickItem *parent): XYPlot(parent)
+{
+    x.configure(AxisType::logarithmic, 20.f, 20000.f);
+    x.setISOLabels();
+    std::vector<float> labels {0.f, 0.2f, 0.4f, 0.6f, 0.8f, 1.f};
+    y.configure(AxisType::linear, 0.f, 1.f);
+    y.setLabels(labels);
+    setFlag(QQuickItem::ItemHasContents);
+}
+SeriesFBO* CoherencePlot::createSeriesFromSource(Source *source)
+{
+    return new SeriesFBO(source, [](){return new CoherenceSeriesRenderer();}, this);
 }

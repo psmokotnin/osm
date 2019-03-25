@@ -27,12 +27,13 @@ class RTAPlot : public XYPlot
 
     Q_PROPERTY(unsigned int mode READ mode WRITE setMode NOTIFY modeChanged)
     Q_PROPERTY(unsigned int pointsPerOctave READ pointsPerOctave WRITE setPointsPerOctave NOTIFY pointsPerOctaveChanged)
+    Q_PROPERTY(bool coherence READ coherence WRITE setCoherence NOTIFY coherenceChanged)
 
 protected:
     virtual SeriesFBO* createSeriesFromSource(Source *source) override;
     unsigned int m_mode;
     unsigned int m_pointsPerOctave;
-    bool m_spline;
+    bool m_spline, m_coherence;
 
 public:
     RTAPlot(QQuickItem *parent = Q_NULLPTR);
@@ -43,9 +44,13 @@ public:
     unsigned int pointsPerOctave() {return m_pointsPerOctave;}
     void setPointsPerOctave(unsigned int p);
 
+    bool coherence() const noexcept {return  m_coherence;}
+    void setCoherence(bool coherence) noexcept;
+
 signals:
     void modeChanged();
     void pointsPerOctaveChanged();
+    void coherenceChanged();
 };
 }
 #endif // RTAPLOT_H

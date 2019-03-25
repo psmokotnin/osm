@@ -25,9 +25,11 @@ class PhasePlot : public XYPlot
 {
     Q_OBJECT
     Q_PROPERTY(unsigned int pointsPerOctave READ pointsPerOctave WRITE setPointsPerOctave NOTIFY pointsPerOctaveChanged)
+    Q_PROPERTY(bool coherence READ coherence WRITE setCoherence NOTIFY coherenceChanged)
 
 protected:
     unsigned int m_pointsPerOctave;
+    bool m_coherence;
     virtual SeriesFBO* createSeriesFromSource(Source *source) override;
 
 public:
@@ -35,8 +37,12 @@ public:
     unsigned int pointsPerOctave() {return m_pointsPerOctave;}
     void setPointsPerOctave(unsigned int p);
 
+    bool coherence() const noexcept {return  m_coherence;}
+    void setCoherence(bool coherence) noexcept;
+
 signals:
     void pointsPerOctaveChanged();
+    void coherenceChanged();
 };
 };
 #endif // PHASEPLOT_H

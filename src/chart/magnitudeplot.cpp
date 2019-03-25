@@ -21,7 +21,7 @@
 using namespace Fftchart;
 
 MagnitudePlot::MagnitudePlot(QQuickItem *parent): XYPlot(parent),
-    m_pointsPerOctave(12)
+    m_pointsPerOctave(12), m_coherence(true)
 {
     x.configure(AxisType::logarithmic, 20.f, 20000.f);
     x.setISOLabels();
@@ -31,4 +31,11 @@ MagnitudePlot::MagnitudePlot(QQuickItem *parent): XYPlot(parent),
 SeriesFBO* MagnitudePlot::createSeriesFromSource(Source *source)
 {
     return new SeriesFBO(source, [](){return new MagnitudeSeriesRenderer();}, this);
+}
+void MagnitudePlot::setCoherence(bool coherence) noexcept
+{
+    if (m_coherence != coherence) {
+        m_coherence = coherence;
+        emit coherenceChanged();
+    }
 }

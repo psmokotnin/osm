@@ -36,6 +36,7 @@ QT_CHARTS_USE_NAMESPACE
 #include "deconvolution.h"
 #include "filter.h"
 #include "measurementaudiothread.h"
+#include "coherence.h"
 
 class Measurement : public Fftchart::Source
 {
@@ -96,11 +97,11 @@ private:
     AverageType m_averageType;
     Averaging<float> magnitudeAvg, moduleAvg;
     Averaging<complex> pahseAvg;
+    Coherence m_coherence;
 
     Filter::Frequency m_filtersFrequency;
     container::array<Filter::BesselLPF<float>> m_moduleLPFs, m_magnitudeLPFs, m_deconvLPFs;
     container::array<Filter::BesselLPF<complex>> m_phaseLPFs;
-
     void calculateDataLength();
     void averaging();
 
@@ -148,12 +149,7 @@ public:
     void setFiltersFrequency(Filter::Frequency frequency);
 
     AverageType averageType() {return m_averageType;}
-    void setAverageType(AverageType type) {
-        if (m_averageType != type) {
-            m_averageType = type;
-            emit averageTypeChanged();
-        }
-    }
+    void setAverageType(AverageType type);
 
     unsigned int sampleRate() const;
 

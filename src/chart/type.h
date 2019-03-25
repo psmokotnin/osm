@@ -23,13 +23,14 @@
 
 namespace Fftchart {
 
-    enum Type {RTA, Magnitude, Phase, Scope, Impulse};
+    enum Type {RTA, Magnitude, Phase, Scope, Impulse, Coherence};
     static std::map<Type, QString> typeMap = {
         {RTA,       "RTA"},
         {Magnitude, "Magnitude"},
         {Phase,     "Phase"},
         {Scope,     "Scope"},
-        {Impulse,   "Impulse"}
+        {Impulse,   "Impulse"},
+        {Coherence, "Coherence"}
     };
 }
 #endif // TYPE_H

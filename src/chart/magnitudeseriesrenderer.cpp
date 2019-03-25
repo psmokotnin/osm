@@ -36,6 +36,7 @@ MagnitudeSeriesRenderer::MagnitudeSeriesRenderer() : m_pointsPerOctave(0)
     m_matrixUniform = m_program.uniformLocation("matrix");
     m_minmaxUniform = m_program.uniformLocation("minmax");
     m_screenUniform = m_program.uniformLocation("screen");
+    m_coherenceSpline = m_program.uniformLocation("coherenceSpline");
 }
 void MagnitudeSeriesRenderer::synchronize(QQuickFramebufferObject *item)
 {
@@ -43,6 +44,7 @@ void MagnitudeSeriesRenderer::synchronize(QQuickFramebufferObject *item)
 
     if (auto *plot = dynamic_cast<MagnitudePlot*>(m_item->parent())) {
         m_pointsPerOctave = plot->pointsPerOctave();
+        m_coherence = plot->coherence();
     }
 }
 void MagnitudeSeriesRenderer::renderSeries()
@@ -51,7 +53,7 @@ void MagnitudeSeriesRenderer::renderSeries()
         return;
 
     GLfloat vertices[8];
-    float value = 0.f;
+    float value = 0.f, coherence = 0.f;
 
     setUniforms();
     openGLFunctions->glVertexAttribPointer(static_cast<GLuint>(m_posAttr), 2, GL_FLOAT, GL_FALSE, 0, static_cast<const void *>(vertices));
@@ -66,14 +68,15 @@ void MagnitudeSeriesRenderer::renderSeries()
      * pass spline data to shaders
      * fragment shader draws spline function
      */
-    auto accumulate = [m_source = m_source, &value] (unsigned int i)
+    auto accumulate = [m_source = m_source, &value, &coherence, m_coherence = m_coherence] (unsigned int i)
     {
         value += m_source->magnitude(i);
+        coherence += (m_coherence ? std::powf(m_source->coherence(i), 2) : 1.f);
     };
-    auto collected = [m_program = &m_program, openGLFunctions = openGLFunctions, &vertices, &value,
+    auto collected = [m_program = &m_program, openGLFunctions = openGLFunctions, &vertices, &value, &coherence,
             m_splineA = m_splineA, m_frequency1 = m_frequency1, m_frequency2 = m_frequency2,
-            xadd, xmul, yMin = yMin, yMax = yMax]
-            (float f1, float f2, GLfloat *ac)
+            xadd, xmul, yMin = yMin, yMax = yMax, m_coherenceSpline = m_coherenceSpline]
+            (float f1, float f2, GLfloat *ac, GLfloat *c)
     {
         vertices[0] = f1;
         vertices[1] = yMin;
@@ -85,6 +88,7 @@ void MagnitudeSeriesRenderer::renderSeries()
         vertices[7] = yMin;
 
         m_program->setUniformValueArray(m_splineA, ac, 1, 4);
+        m_program->setUniformValueArray(m_coherenceSpline, c, 1, 4);
         float fx1 = (logf(f1) + xadd) * xmul;
         float fx2 = (logf(f2) + xadd) * xmul;
         m_program->setUniformValue(m_frequency1, fx1);
@@ -92,8 +96,9 @@ void MagnitudeSeriesRenderer::renderSeries()
         openGLFunctions->glDrawArrays(GL_QUADS, 0, 4);
 
         value = 0.0f;
+        coherence = 0.f;
     };
 
-    iterateForSpline(m_pointsPerOctave, &value, accumulate, collected);
+    iterateForSpline(m_pointsPerOctave, &value, &coherence, accumulate, collected);
     openGLFunctions->glDisableVertexAttribArray(0);
 }

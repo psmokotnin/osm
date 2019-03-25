@@ -22,6 +22,7 @@ uniform float frequency2;
 uniform float width;
 uniform vec2 screen;
 uniform vec4 minmax;
+uniform vec4 coherenceSpline;
 
 #define PI 3.1415926535897932384626433832795
 
@@ -59,6 +60,10 @@ void main() {
         dist = distance(coord, currentDist);
         if (dist < width / 2.0) {
             gl_FragColor = m_color;
+            gl_FragColor.a = coherenceSpline[0] +
+                    coherenceSpline[1] * i +
+                    coherenceSpline[2] * i*i +
+                    coherenceSpline[3] * i*i*i;
             return;
         }
     }

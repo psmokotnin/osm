@@ -15,11 +15,28 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-attribute highp vec4 posAttr;
-uniform highp mat4 matrix;
+#ifndef COHERENCE_H
+#define COHERENCE_H
 
-void main() {
-    vec4 p = posAttr;
-    p.x = log(p.x);
-    gl_Position = matrix * p;
-}
+#include <cmath>
+#include "./complex.h"
+#include "container/array.h"
+
+class Coherence
+{
+private:
+    container::array<container::array<float>> Grr, Gmm;
+    container::array<container::array<complex>> Grm;
+    unsigned int m_subpointer;
+    size_t m_depth;
+
+public:
+    Coherence();
+
+    void setDepth(const size_t &depth) noexcept;
+    void setSize(const size_t &size) noexcept;
+    void append(unsigned int i, complex refernce, complex measurement) noexcept;
+    float value(unsigned int i) const noexcept;
+};
+
+#endif // COHERENCE_H
