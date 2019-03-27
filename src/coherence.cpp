@@ -50,8 +50,8 @@ void Coherence::append(unsigned int i, complex refernce, complex measurement) no
     if (m_subpointer >= m_depth)
         m_subpointer = 0;
 
-    Grr[i][m_subpointer] = std::powf(refernce.abs(), 2);
-    Gmm[i][m_subpointer] = std::powf(measurement.abs(), 2);
+    Grr[i][m_subpointer] = std::pow(refernce.abs(), 2.f);
+    Gmm[i][m_subpointer] = std::pow(measurement.abs(), 2.f);
     Grm[i][m_subpointer] = refernce.conjugate() * measurement;
 }
 float Coherence::value(unsigned int i) const noexcept
@@ -64,5 +64,5 @@ float Coherence::value(unsigned int i) const noexcept
         Crr += Grr[i][j];
         Cmm += Gmm[i][j];
     }
-    return std::powf(Crm.abs(), 2) / (Crr * Cmm);
+    return std::pow(Crm.abs(), 2.f) / (Crr * Cmm);
 }
