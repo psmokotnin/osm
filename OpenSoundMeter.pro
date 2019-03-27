@@ -112,7 +112,7 @@ HEADERS += \
     src/chart/coherenceplot.h \
     src/chart/coherenceseriesrenderer.h
 
-APP_GIT_VERSION = $$system(git --git-dir $$_PRO_FILE_PWD_/.git --work-tree $$_PRO_FILE_PWD_ describe --tags $(git --git-dir $$_PRO_FILE_PWD_/.git --work-tree $$_PRO_FILE_PWD_ rev-list --tags --max-count=1))
+APP_GIT_VERSION = $$system(git --git-dir $$_PRO_FILE_PWD_/.git --work-tree $$_PRO_FILE_PWD_ describe --tags $$system(git --git-dir $$_PRO_FILE_PWD_/.git --work-tree $$_PRO_FILE_PWD_ rev-list --tags --max-count=1))
 DEFINES += APP_GIT_VERSION=\\\"$$APP_GIT_VERSION\\\"
 
 FORMS +=
