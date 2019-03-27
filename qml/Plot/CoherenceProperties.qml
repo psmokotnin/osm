@@ -28,24 +28,51 @@ Item {
 
     ColumnLayout {
         spacing: 0
+        anchors.fill: parent
 
     RowLayout {
         spacing: 0
 
-        Root.FloatSpinBox {
-            min: dataObject.xLowLimit
-            max: dataObject.xHighLimit
+        SpinBox {
             value: dataObject.xmin
-            tooltiptext: qsTr("x from")
             onValueChanged: dataObject.xmin = value
+            from: dataObject.xLowLimit
+            to: dataObject.xHighLimit
+            editable: true
+            implicitWidth: 170
+            Layout.fillWidth: true
+
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("x from")
+
+            textFromValue: function(value, locale) {
+                return Number(value) + "Hz"
+            }
+
+            valueFromText: function(text, locale) {
+                return parseInt(text)
+            }
         }
 
-        Root.FloatSpinBox {
-            min: dataObject.xLowLimit
-            max: dataObject.xHighLimit
+        SpinBox {
             value: dataObject.xmax
-            tooltiptext: qsTr("x to")
             onValueChanged: dataObject.xmax = value
+            from: dataObject.xLowLimit
+            to: dataObject.xHighLimit
+            editable: true
+            implicitWidth: 170
+            Layout.fillWidth: true
+
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("x to")
+
+            textFromValue: function(value, locale) {
+                return Number(value) + "Hz"
+            }
+
+            valueFromText: function(text, locale) {
+                return parseInt(text)
+            }
         }
 
         Root.FloatSpinBox {
@@ -54,6 +81,8 @@ Item {
             value: dataObject.ymin
             tooltiptext: qsTr("y from")
             onValueChanged: dataObject.ymin = value
+            implicitWidth: 170
+            Layout.fillWidth: true
         }
 
         Root.FloatSpinBox {
@@ -62,15 +91,18 @@ Item {
             value: dataObject.ymax
             tooltiptext: qsTr("y to")
             onValueChanged: dataObject.ymax = value
+            implicitWidth: 170
+            Layout.fillWidth: true
+        }
+
+        Button {
+            text: qsTr("Save Image");
+            implicitWidth: 120
+            onClicked: fileDialog.open();
         }
     }
     RowLayout {
         spacing: 0
-
-        Button {
-            text: qsTr("Save Image");
-            onClicked: fileDialog.open();
-        }
 
         FileDialog {
             id: fileDialog

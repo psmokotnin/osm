@@ -27,98 +27,127 @@ Item {
     property var dataObject
 
     ColumnLayout {
+        anchors.fill: parent
         spacing: 0
 
-    RowLayout {
-        spacing: 0
+        RowLayout {
+            spacing: 0
 
-        Root.FloatSpinBox {
-            step: 1.0
-            value: dataObject.xmin
-            onValueChanged: dataObject.xmin = value
-            from: dataObject.xLowLimit
-            to: dataObject.xHighLimit
-            editable: true
-            ToolTip.visible: hovered
-            ToolTip.text: qsTr("x from")
-        }
+            SpinBox {
+                value: dataObject.xmin
+                onValueChanged: dataObject.xmin = value
+                from: dataObject.xLowLimit
+                to: dataObject.xHighLimit
+                editable: true
+                implicitWidth: 170
+                Layout.fillWidth: true
 
-        Root.FloatSpinBox {
-            step: 1.0
-            value: dataObject.xmax
-            onValueChanged: dataObject.xmax = value
-            from: dataObject.xLowLimit
-            to: dataObject.xHighLimit
-            editable: true
-            ToolTip.visible: hovered
-            ToolTip.text: qsTr("x to")
-        }
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("x from")
 
-        Root.FloatSpinBox {
-            step: 1.0
-            scale: dataObject.yScale
-            value: dataObject.ymin
-            onValueChanged: dataObject.ymin = value
-            from: dataObject.yLowLimit
-            to: dataObject.yHighLimit
-            editable: true
-            tooltiptext: qsTr("y from")
-        }
+                textFromValue: function(value, locale) {
+                    return Number(value) + "Hz"
+                }
 
-        Root.FloatSpinBox {
-            step: 1.0
-            scale: dataObject.yScale
-            value: dataObject.ymax
-            onValueChanged: dataObject.ymax = value
-            min: dataObject.yLowLimit
-            max: dataObject.yHighLimit
-            tooltiptext: qsTr("y to")
-        }
-    }
-    RowLayout {
-        spacing: 0
-
-        Root.TitledCombo {
-            title: qsTr("ppo")
-            model: [3, 6, 12, 24, 48]
-            currentIndex: {
-                var ppo = dataObject.pointsPerOctave;
-                model.indexOf(ppo);
+                valueFromText: function(text, locale) {
+                    return parseInt(text)
+                }
             }
-            onCurrentIndexChanged: {
-                var ppo = model[currentIndex];
-                dataObject.pointsPerOctave = ppo;
+
+            SpinBox {
+                value: dataObject.xmax
+                onValueChanged: dataObject.xmax = value
+                from: dataObject.xLowLimit
+                to: dataObject.xHighLimit
+                editable: true
+                implicitWidth: 170
+                Layout.fillWidth: true
+
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("x to")
+
+                textFromValue: function(value, locale) {
+                    return Number(value) + "Hz"
+                }
+
+                valueFromText: function(text, locale) {
+                    return parseInt(text)
+                }
+            }
+
+            Root.FloatSpinBox {
+                step: 1.0
+                decimals: 0
+                scale: dataObject.yScale
+                value: dataObject.ymin
+                onValueChanged: dataObject.ymin = value
+                from: dataObject.yLowLimit
+                to: dataObject.yHighLimit
+                editable: true
+                implicitWidth: 170
+                Layout.fillWidth: true
+                tooltiptext: qsTr("y from")
+            }
+
+            Root.FloatSpinBox {
+                step: 1.0
+                decimals: 0
+                scale: dataObject.yScale
+                value: dataObject.ymax
+                onValueChanged: dataObject.ymax = value
+                min: dataObject.yLowLimit
+                max: dataObject.yHighLimit
+                implicitWidth: 170
+                Layout.fillWidth: true
+                tooltiptext: qsTr("y to")
+            }
+
+            Button {
+                text: qsTr("Save Image");
+                implicitWidth: 120
+                onClicked: fileDialog.open();
             }
         }
+        RowLayout {
+            spacing: 0
 
-        CheckBox {
-            text: qsTr("coherence")
-            implicitWidth: 120
-            checked: dataObject.coherence
-            onCheckStateChanged: dataObject.coherence = checked
+            Root.TitledCombo {
+                title: qsTr("ppo")
+                implicitWidth: 170
+                model: [3, 6, 12, 24, 48]
+                currentIndex: {
+                    var ppo = dataObject.pointsPerOctave;
+                    model.indexOf(ppo);
+                }
+                onCurrentIndexChanged: {
+                    var ppo = model[currentIndex];
+                    dataObject.pointsPerOctave = ppo;
+                }
+            }
 
-            ToolTip.visible: hovered
-            ToolTip.text: qsTr("use coherence as alpha channel")
+            CheckBox {
+                text: qsTr("coherence")
+                implicitWidth: 170
+                checked: dataObject.coherence
+                onCheckStateChanged: dataObject.coherence = checked
+
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("use coherence as alpha channel")
+            }
+
+            FileDialog {
+                id: fileDialog
+                selectExisting: false
+                title: "Please choose a file's name"
+                folder: shortcuts.home
+                defaultSuffix: "png"
+                onAccepted: {
+                    dataObject.parent.grabToImage(function(result) {
+                        result.saveToFile(dataObject.parent.urlForGrab(fileDialog.fileUrl));
+                    });
+                }
+            }
         }
-
-        Button {
-            text: qsTr("Save Image");
-            onClicked: fileDialog.open();
-        }
-
-    FileDialog {
-        id: fileDialog
-        selectExisting: false
-        title: "Please choose a file's name"
-        folder: shortcuts.home
-        defaultSuffix: "png"
-        onAccepted: {
-            dataObject.parent.grabToImage(function(result) {
-                result.saveToFile(dataObject.parent.urlForGrab(fileDialog.fileUrl));
-            });
-        }
-    }
-    }
 
     }
 }

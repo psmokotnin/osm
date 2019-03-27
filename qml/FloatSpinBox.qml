@@ -29,12 +29,15 @@ Item {
     property real scale : 1.0
     property string tooltiptext
     property bool editable: true
+    property int implicitWidth: 120
     width: spinbox.width
     height: spinbox.height
 
     SpinBox {
         id: spinbox
         property bool completed: false
+        implicitWidth: floatspinbox.implicitWidth
+        anchors.fill: parent
 
         /*
         value changes before a component is completed while applying limits (from and to)

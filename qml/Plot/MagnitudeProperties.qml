@@ -28,55 +28,107 @@ Item {
 
     ColumnLayout {
         spacing: 0
+        anchors.fill: parent
 
-    RowLayout {
-        spacing: 0
+        RowLayout {
+            spacing: 0
 
-        SpinBox {
-            value: dataObject.xmin
-            onValueChanged: dataObject.xmin = value
-            from: dataObject.xLowLimit
-            to: dataObject.xHighLimit
-            editable: true
-            ToolTip.visible: hovered
-            ToolTip.text: qsTr("x from")
+            SpinBox {
+                value: dataObject.xmin
+                onValueChanged: dataObject.xmin = value
+                from: dataObject.xLowLimit
+                to: dataObject.xHighLimit
+                editable: true
+                implicitWidth: 170
+                Layout.fillWidth: true
+
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("x from")
+
+                textFromValue: function(value, locale) {
+                    return Number(value) + "Hz"
+                }
+
+                valueFromText: function(text, locale) {
+                    return parseInt(text)
+                }
+            }
+
+            SpinBox {
+                value: dataObject.xmax
+                onValueChanged: dataObject.xmax = value
+                from: dataObject.xLowLimit
+                to: dataObject.xHighLimit
+                editable: true
+                implicitWidth: 170
+                Layout.fillWidth: true
+
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("x to")
+
+                textFromValue: function(value, locale) {
+                    return Number(value) + "Hz"
+                }
+
+                valueFromText: function(text, locale) {
+                    return parseInt(text)
+                }
+            }
+
+            SpinBox {
+                value: dataObject.ymin
+                onValueChanged: dataObject.ymin = value
+                from: dataObject.yLowLimit
+                to: dataObject.yHighLimit
+                editable: true
+                implicitWidth: 170
+                Layout.fillWidth: true
+
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("y from")
+
+                textFromValue: function(value, locale) {
+                    return Number(value) + "dB"
+                }
+
+                valueFromText: function(text, locale) {
+                    return parseInt(text)
+                }
+            }
+
+            SpinBox {
+                value: dataObject.ymax
+                onValueChanged: dataObject.ymax = value
+                from: dataObject.yLowLimit
+                to: dataObject.yHighLimit
+                editable: true
+                implicitWidth: 170
+                Layout.fillWidth: true
+
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("y to")
+
+                textFromValue: function(value, locale) {
+                    return Number(value) + "dB"
+                }
+
+                valueFromText: function(text, locale) {
+                    return parseInt(text)
+                }
+            }
+
+            Button {
+                text: qsTr("Save Image");
+                implicitWidth: 120
+                onClicked: fileDialog.open();
+            }
         }
-
-        SpinBox {
-            value: dataObject.xmax
-            onValueChanged: dataObject.xmax = value
-            from: dataObject.xLowLimit
-            to: dataObject.xHighLimit
-            editable: true
-            ToolTip.visible: hovered
-            ToolTip.text: qsTr("x to")
-        }
-
-        SpinBox {
-            value: dataObject.ymin
-            onValueChanged: dataObject.ymin = value
-            from: dataObject.yLowLimit
-            to: dataObject.yHighLimit
-            editable: true
-            ToolTip.visible: hovered
-            ToolTip.text: qsTr("y from")
-        }
-
-        SpinBox {
-            value: dataObject.ymax
-            onValueChanged: dataObject.ymax = value
-            from: dataObject.yLowLimit
-            to: dataObject.yHighLimit
-            editable: true
-            ToolTip.visible: hovered
-            ToolTip.text: qsTr("y to")
-        }
-    }
     RowLayout {
         spacing: 0
 
         Root.TitledCombo {
             title: qsTr("ppo")
+            implicitWidth: 170
             model: [3, 6, 12, 24, 48]
             currentIndex: {
                 var ppo = dataObject.pointsPerOctave;
@@ -89,18 +141,13 @@ Item {
         }
 
         CheckBox {
-            text: qsTr("coherence")
-            implicitWidth: 120
+            text: qsTr("use coherence")
+            implicitWidth: 170
             checked: dataObject.coherence
             onCheckStateChanged: dataObject.coherence = checked
 
             ToolTip.visible: hovered
             ToolTip.text: qsTr("use coherence as alpha channel")
-        }
-
-        Button {
-            text: qsTr("Save Image");
-            onClicked: fileDialog.open();
         }
 
         FileDialog {

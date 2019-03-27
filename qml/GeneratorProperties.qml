@@ -22,7 +22,88 @@ import QtQuick.Layouts 1.3
 Item {
     ColumnLayout {
         anchors.fill: parent
-        spacing: 10
+        spacing: 0
+
+        RowLayout {
+            Layout.alignment: Qt.AlignTop
+
+            //generator type
+            ComboBox {
+                id: type
+                implicitWidth: 120
+                currentIndex: generatorModel.type
+                model: generatorModel.types
+                onCurrentIndexChanged: generatorModel.type = currentIndex
+
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("signal type")
+            }
+
+            SpinBox {
+                id: gainSpinBox
+                implicitWidth: 180
+                value: generatorModel.gain
+                from: -90
+                to: 0
+                editable: true
+                onValueChanged: generatorModel.gain = value
+                textFromValue: function(value, locale) {
+                    return Number(value) + "dB"
+                }
+
+                valueFromText: function(text, locale) {
+                    return parseInt(text)
+                }
+
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("gain")
+            }
+
+            Rectangle {
+                Layout.fillWidth: true
+            }
+
+            //Sin frequency
+            SpinBox {
+                id: frequencySpinBox
+                implicitWidth: 180
+                visible: type.currentText == 'Sin';
+                value: generatorModel.frequency
+                from: 20
+                to: 20000
+                editable: true
+                onValueChanged: generatorModel.frequency = value
+
+                textFromValue: function(value, locale) {
+                    return Number(value) + "Hz"
+                }
+
+                valueFromText: function(text, locale) {
+                    return parseInt(text)
+                }
+
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("frequency for sin")
+            }
+
+            Button {
+                id: octaveDown
+                implicitWidth: 120
+                text: qsTr("Octave Down")
+                visible: type.currentText == 'Sin';
+                enabled: frequencySpinBox.value/2 >= frequencySpinBox.from
+                onClicked: frequencySpinBox.value /= 2
+            }
+
+            Button {
+                id:octaveUp
+                implicitWidth: 120
+                text: qsTr("Octave Up")
+                visible: type.currentText == 'Sin';
+                enabled: frequencySpinBox.value*2 <= frequencySpinBox.to
+                onClicked: frequencySpinBox.value *= 2
+            }
+        }
 
         RowLayout {
             //list of available output devices:
@@ -42,6 +123,7 @@ Item {
             }
 
             ComboBox {
+                implicitWidth: 120
                 model: generatorModel.chanelsCount
                 currentIndex: generatorModel.chanel
                 onCurrentIndexChanged: generatorModel.chanel = currentIndex
@@ -55,6 +137,7 @@ Item {
             }
 
             ComboBox {
+                implicitWidth: 120
                 model: generatorModel.chanelsCount
                 currentIndex: generatorModel.aux
                 onCurrentIndexChanged: generatorModel.aux = currentIndex
@@ -67,70 +150,6 @@ Item {
                 ToolTip.text: qsTr("aux chanel number")
             }
 
-        }
-        RowLayout {
-            spacing: 10
-            Layout.alignment: Qt.AlignTop
-
-            SpinBox {
-                id: gainSpinBox
-                value: generatorModel.gain
-                from: -90
-                to: 0
-                editable: true
-                onValueChanged: generatorModel.gain = value
-                textFromValue: function(value, locale) {
-                    return Number(value) + "dB"
-                }
-
-                valueFromText: function(text, locale) {
-                    return parseInt(text)
-                }
-
-                ToolTip.visible: hovered
-                ToolTip.text: qsTr("gain")
-            }
-
-            //generator type
-            ComboBox {
-                id: type
-                currentIndex: generatorModel.type
-                model: generatorModel.types
-                onCurrentIndexChanged: generatorModel.type = currentIndex
-
-                ToolTip.visible: hovered
-                ToolTip.text: qsTr("signal type")
-            }
-
-            Button{
-                id: octaveDown
-                text: qsTr("Octave Down")
-                visible: type.currentText == 'Sin';
-                enabled: frequencySpinBox.value/2 >= frequencySpinBox.from
-                onClicked: frequencySpinBox.value /= 2
-            }
-
-            //Sin frequency
-            SpinBox {
-                visible: type.currentText == 'Sin';
-                id: frequencySpinBox
-                value: generatorModel.frequency
-                from: 20
-                to: 20000
-                editable: true
-                onValueChanged: generatorModel.frequency = value
-
-                ToolTip.visible: hovered
-                ToolTip.text: qsTr("frequency for sin")
-            }
-
-            Button {
-                id:octaveUp
-                text: qsTr("Octave Up")
-                visible: type.currentText == 'Sin';
-                enabled: frequencySpinBox.value*2 <= frequencySpinBox.to
-                onClicked: frequencySpinBox.value *= 2
-            }
         }
     }
 }

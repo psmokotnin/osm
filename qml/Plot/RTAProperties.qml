@@ -27,6 +27,7 @@ Item {
     property var dataObject
 
     ColumnLayout {
+        anchors.fill: parent
         spacing: 0
 
     RowLayout {
@@ -38,8 +39,19 @@ Item {
             from: dataObject.xLowLimit
             to: dataObject.xHighLimit
             editable: true
+            implicitWidth: 170
+            Layout.fillWidth: true
+
             ToolTip.visible: hovered
             ToolTip.text: qsTr("x from")
+
+            textFromValue: function(value, locale) {
+                return Number(value) + "Hz"
+            }
+
+            valueFromText: function(text, locale) {
+                return parseInt(text)
+            }
         }
 
         SpinBox {
@@ -48,8 +60,19 @@ Item {
             from: dataObject.xLowLimit
             to: dataObject.xHighLimit
             editable: true
+            implicitWidth: 170
+            Layout.fillWidth: true
+
             ToolTip.visible: hovered
             ToolTip.text: qsTr("x to")
+
+            textFromValue: function(value, locale) {
+                return Number(value) + "Hz"
+            }
+
+            valueFromText: function(text, locale) {
+                return parseInt(text)
+            }
         }
 
         SpinBox {
@@ -58,8 +81,19 @@ Item {
             from: dataObject.yLowLimit
             to: dataObject.yHighLimit
             editable: true
+            implicitWidth: 170
+            Layout.fillWidth: true
+
             ToolTip.visible: hovered
             ToolTip.text: qsTr("y from")
+
+            textFromValue: function(value, locale) {
+                return Number(value) + "dB"
+            }
+
+            valueFromText: function(text, locale) {
+                return parseInt(text)
+            }
         }
 
         SpinBox {
@@ -68,8 +102,25 @@ Item {
             from: dataObject.yLowLimit
             to: dataObject.yHighLimit
             editable: true
+            implicitWidth: 170
+            Layout.fillWidth: true
+
             ToolTip.visible: hovered
             ToolTip.text: qsTr("y to")
+
+            textFromValue: function(value, locale) {
+                return Number(value) + "dB"
+            }
+
+            valueFromText: function(text, locale) {
+                return parseInt(text)
+            }
+        }
+
+        Button {
+            text: qsTr("Save Image");
+            implicitWidth: 120
+            onClicked: fileDialog.open();
         }
     }
     RowLayout {
@@ -77,6 +128,7 @@ Item {
 
         Root.TitledCombo {
             id: mode
+            implicitWidth: 170
             title: qsTr("mode")
             model: ["line", "bars", "lines"]
             currentIndex: dataObject.mode;
@@ -85,6 +137,7 @@ Item {
 
         Root.TitledCombo {
             title: qsTr("ppo")
+            implicitWidth: 170
             visible: mode.model[mode.currentIndex] === "bars"
             model: [3, 6, 12, 24, 48]
             Component.onCompleted: {
@@ -96,18 +149,13 @@ Item {
         }
 
         CheckBox {
-            text: qsTr("coherence")
-            implicitWidth: 120
+            text: qsTr("use coherence")
+            implicitWidth: 170
             checked: dataObject.coherence
             onCheckStateChanged: dataObject.coherence = checked
 
             ToolTip.visible: hovered
             ToolTip.text: qsTr("use coherence as alpha channel")
-        }
-
-        Button {
-            text: qsTr("Save Image");
-            onClicked: fileDialog.open();
         }
 
         FileDialog {
