@@ -126,7 +126,7 @@ Item {
             }
 
             CheckBox {
-                text: qsTr("coherence")
+                text: qsTr("use coherence")
                 implicitWidth: 170
                 checked: dataObject.coherence
                 onCheckStateChanged: dataObject.coherence = checked
