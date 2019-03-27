@@ -22,7 +22,8 @@
 using namespace Fftchart;
 RTASeriesRenderer::RTASeriesRenderer() :
     m_pointsPerOctave(0),
-    m_mode(0)
+    m_mode(0),
+    m_coherence(false)
 {
     m_program.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/logx.vert");
     m_program.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/color.frag");
@@ -87,14 +88,14 @@ void RTASeriesRenderer::renderLine()
 
     for (unsigned int i = 1, j = 0; i < count; ++i, j += 2) {
         vertices[2] = m_source->frequency(i);
-        vertices[3] = 20 * log10f(m_source->module(i) / m_source->fftSize());
+        vertices[3] = 20 * log10f(2 * m_source->module(i) / m_source->fftSize());
         if (m_coherence) {
             m_program.setUniformValue(
                 m_colorUniform,
                 static_cast<GLfloat>(m_source->color().redF()),
                 static_cast<GLfloat>(m_source->color().greenF()),
                 static_cast<GLfloat>(m_source->color().blueF()),
-                static_cast<GLfloat>(std::powf(m_source->coherence(i), 2))
+                static_cast<GLfloat>(m_source->coherence(i))
             );
         }
         if (i > 1) {

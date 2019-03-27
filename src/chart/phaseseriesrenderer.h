@@ -29,7 +29,7 @@ public:
     void synchronize(QQuickFramebufferObject *item) override;
 
 private:
-    int m_posAttr, m_splineA,
+    int m_posAttr, m_splineRe, m_splineIm,
         m_frequency1, m_frequency2,
         m_coherenceSpline;
     unsigned int m_pointsPerOctave;

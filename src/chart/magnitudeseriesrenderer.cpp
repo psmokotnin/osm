@@ -21,7 +21,7 @@
 
 using namespace Fftchart;
 
-MagnitudeSeriesRenderer::MagnitudeSeriesRenderer() : m_pointsPerOctave(0)
+MagnitudeSeriesRenderer::MagnitudeSeriesRenderer() : m_pointsPerOctave(0), m_coherence(false)
 {
     m_program.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/logx.vert");
     m_program.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/magnitude.frag");
@@ -76,7 +76,7 @@ void MagnitudeSeriesRenderer::renderSeries()
     auto collected = [m_program = &m_program, openGLFunctions = openGLFunctions, &vertices, &value, &coherence,
             m_splineA = m_splineA, m_frequency1 = m_frequency1, m_frequency2 = m_frequency2,
             xadd, xmul, yMin = yMin, yMax = yMax, m_coherenceSpline = m_coherenceSpline]
-            (float f1, float f2, GLfloat *ac, GLfloat *c)
+            (float f1, float f2, float *ac, float *c)
     {
         vertices[0] = f1;
         vertices[1] = yMin;
@@ -87,8 +87,8 @@ void MagnitudeSeriesRenderer::renderSeries()
         vertices[6] = f2;
         vertices[7] = yMin;
 
-        m_program->setUniformValueArray(m_splineA, ac, 1, 4);
-        m_program->setUniformValueArray(m_coherenceSpline, c, 1, 4);
+        m_program->setUniformValueArray(m_splineA, static_cast<GLfloat *>(ac), 1, 4);
+        m_program->setUniformValueArray(m_coherenceSpline, static_cast<GLfloat *>(c), 1, 4);
         float fx1 = (logf(f1) + xadd) * xmul;
         float fx2 = (logf(f2) + xadd) * xmul;
         m_program->setUniformValue(m_frequency1, fx1);
@@ -99,6 +99,6 @@ void MagnitudeSeriesRenderer::renderSeries()
         coherence = 0.f;
     };
 
-    iterateForSpline(m_pointsPerOctave, &value, &coherence, accumulate, collected);
+    iterateForSpline<float>(m_pointsPerOctave, &value, &coherence, accumulate, collected);
     openGLFunctions->glDisableVertexAttribArray(0);
 }

@@ -16,7 +16,8 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 uniform vec4 m_color;
-uniform vec4 splineA;
+uniform vec4 splineRe;
+uniform vec4 splineIm;
 uniform float frequency1;
 uniform float frequency2;
 uniform float width;
@@ -24,20 +25,22 @@ uniform vec2 screen;
 uniform vec4 minmax;
 uniform vec4 coherenceSpline;
 
-#define PI 3.1415926535897932384626433832795
-
 float spline(float t) {
-    float y =
-            splineA[0] +
-            splineA[1] * t +
-            splineA[2] * t*t +
-            splineA[3] * t*t*t
+    float re =
+            splineRe[0] +
+            splineRe[1] * t +
+            splineRe[2] * t*t +
+            splineRe[3] * t*t*t
     ;
+    float im =
+            splineIm[0] +
+            splineIm[1] * t +
+            splineIm[2] * t*t +
+            splineIm[3] * t*t*t
+    ;
+    float alpha = atan(im, re);
 
-    while (y >  PI) {y -= 2.0*PI;}
-    while (y < -PI) {y += 2.0*PI;}
-
-    return screen.y - (y - minmax[2]) * screen.y / (minmax[3] - minmax[2]);
+    return screen.y - (alpha - minmax[2]) * screen.y / (minmax[3] - minmax[2]);
 }
 
 void main() {

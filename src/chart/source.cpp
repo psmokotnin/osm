@@ -55,10 +55,10 @@ float Source::magnitude(unsigned int i) const noexcept
         return 0.0;
     return 20 * log10f(_ftdata[i].magnitude);
 }
-float Source::phase(unsigned int i) const noexcept
+complex Source::phase(unsigned int i) const noexcept
 {
     if (i >= _dataLength)
-        return 0.0;
+        return complex(0.0);
 
     return _ftdata[i].phase;
 }

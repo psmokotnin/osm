@@ -42,7 +42,7 @@ protected:
         float frequency;
         float module;
         float magnitude;
-        float phase;
+        complex phase;
         float coherence;
     } *_ftdata;
 
@@ -75,7 +75,7 @@ public:
     float frequency(unsigned int i) const noexcept;
     float module(unsigned int i) const noexcept;
     float magnitude(unsigned int i) const noexcept;
-    float phase(unsigned int i) const noexcept;
+    complex phase(unsigned int i) const noexcept;
     float coherence(unsigned int i) const noexcept;
 
     unsigned int impulseSize() const noexcept {return m_deconvolutionSize;}

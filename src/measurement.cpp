@@ -316,13 +316,13 @@ void Measurement::averaging()
             case AverageType::OFF:
                 _ftdata[i].magnitude = magnitude;
                 _ftdata[i].module    = m_dataFT.af(i).abs();
-                _ftdata[i].phase     = p.arg();
+                _ftdata[i].phase     = p;
             break;
 
             case AverageType::LPF:
                 _ftdata[i].magnitude = m_magnitudeLPFs[i](magnitude);
                 _ftdata[i].module    = m_moduleLPFs[i](m_dataFT.af(i).abs());
-                _ftdata[i].phase     = m_phaseLPFs[i](p).arg();
+                _ftdata[i].phase     = m_phaseLPFs[i](p);
             break;
 
             case AverageType::FIFO:
@@ -332,7 +332,7 @@ void Measurement::averaging()
 
                 _ftdata[i].magnitude = magnitudeAvg.value(i);
                 _ftdata[i].module    = moduleAvg.value(i);
-                _ftdata[i].phase     = pahseAvg.value(i).arg();
+                _ftdata[i].phase     = pahseAvg.value(i);
             break;
         }
 
