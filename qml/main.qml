@@ -30,6 +30,7 @@ ApplicationWindow {
     property alias dataSourceList : righttab
 
     visible: true
+    flags: Qt.Window
 
     width: 1000
     height: 600
