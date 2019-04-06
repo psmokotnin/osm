@@ -23,35 +23,36 @@
 #include <math.h>
 #include "container/array.h"
 
-class WindowFunction
+class WindowFunction : QObject
 {
-public:
-    enum class Type {rectangular, hann, hamming, flat_top, blackman_harris, HFT223D};
+    Q_OBJECT
 
+public:
+    enum Type {rectangular, hann, hamming, flat_top, blackman_harris, HFT223D};
+    Q_ENUM(Type)
     static const std::map<Type, QString> TypeMap;
 
 private:
     Type m_type;
-    unsigned long m_size;
-    container::array<float> m_data;//container::array
+    unsigned int m_size;
+    container::array<float> m_data;
     float m_gain;
 
     //calculate data for current type
     void calculate();
 
 public:
-    explicit WindowFunction(Type type);
-    ~WindowFunction() = default;
+    explicit WindowFunction(Type type, QObject *parent = nullptr);
 
-    void setSize(unsigned long size);
-    unsigned long size() const {return m_size;}
+    void setSize(unsigned int size);
+    unsigned int size() const {return m_size;}
 
     Type type() const {return m_type;}
     void setType(Type t);
     QVariant getTypes() const;
 
     float gain() const {return m_gain;}
-    const float& get(unsigned long k) const { return m_data[k]; }
+    const float& get(unsigned int k) const { return m_data[k]; }
 
 };
 QDebug operator<<(QDebug dbg, const WindowFunction::Type &t);

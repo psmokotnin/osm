@@ -22,6 +22,7 @@
 #include "axis.h"
 #include "source.h"
 #include "seriesfbo.h"
+#include "../settings.h"
 
 namespace Fftchart {
 class Plot : public QQuickItem
@@ -41,9 +42,10 @@ protected:
 
     void applyWidthForSeries(SeriesFBO *s);
     void applyHeightForSeries(SeriesFBO *s);
+    Settings *m_settings;
 
 public:
-    explicit Plot(QQuickItem *parent);
+    explicit Plot(Settings *settings, QQuickItem *parent);
     void clear();
     void disconnectFromParent();
     QSGNode *updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *);
@@ -53,6 +55,9 @@ public:
 
     Q_INVOKABLE virtual qreal x2v(qreal x) const noexcept = 0;
     Q_INVOKABLE virtual qreal y2v(qreal y) const noexcept = 0;
+
+    virtual void setSettings(Settings *settings) noexcept {m_settings = settings;}
+    virtual void storeSettings() noexcept = 0;
 
 signals:
 

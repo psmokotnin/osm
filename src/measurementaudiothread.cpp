@@ -64,7 +64,7 @@ void MeasurementAudioThread::selectDevice(const QAudioDeviceInfo &deviceInfo, bo
                 static_cast<int>(m_chanelCount) *
                 8*1024);
 #endif
-    emit deviceChanged();
+    emit deviceChanged(m_device.deviceName());
 
     if (restart) {
         startAudio();

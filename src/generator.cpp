@@ -17,24 +17,47 @@
  */
 #include "generator.h"
 
-Generator::Generator(QObject *parent) : QObject(parent),
-    m_thread(parent)
+Generator::Generator(Settings *settings, QObject *parent) : QObject(parent),
+    m_thread(parent), m_settings(settings)
 {
     QMetaObject::invokeMethod(&m_thread, "init", Qt::QueuedConnection);
 
     connect(&m_thread, SIGNAL(enabledChanged(bool)),  this, SIGNAL(enabledChanged(bool)),   Qt::QueuedConnection);
-    connect(&m_thread, SIGNAL(deviceChanged()),       this, SIGNAL(deviceChanged()),        Qt::QueuedConnection);
-    connect(&m_thread, SIGNAL(typeChanged()),         this, SIGNAL(typeChanged()),          Qt::QueuedConnection);
+    connect(&m_thread, SIGNAL(deviceChanged(QString)),this, SIGNAL(deviceChanged()),        Qt::QueuedConnection);
+    connect(&m_thread, SIGNAL(typeChanged(int)),      this, SIGNAL(typeChanged()),          Qt::QueuedConnection);
     connect(&m_thread, SIGNAL(frequencyChanged(int)), this, SIGNAL(frequencyChanged(int)),  Qt::QueuedConnection);
     connect(&m_thread, SIGNAL(gainChanged(float)),    this, SIGNAL(gainChanged(float)),     Qt::QueuedConnection);
-    connect(&m_thread, SIGNAL(chanelChanged(int)),    this, SIGNAL(chanelChanged(int)),     Qt::QueuedConnection);
+    connect(&m_thread, SIGNAL(channelChanged(int)),   this, SIGNAL(channelChanged(int)),    Qt::QueuedConnection);
     connect(&m_thread, SIGNAL(auxChanged(int)),       this, SIGNAL(auxChanged(int)),        Qt::QueuedConnection);
-    connect(&m_thread, SIGNAL(chanelsCountChanged()), this, SIGNAL(chanelsCountChanged()),  Qt::QueuedConnection);
+    connect(&m_thread, SIGNAL(channelsCountChanged()),this, SIGNAL(channelsCountChanged()), Qt::QueuedConnection);
+
+    loadSettings();
 }
 Generator::~Generator()
 {
     m_thread.quit();
     m_thread.wait();
+}
+void Generator::loadSettings()
+{
+    if (m_settings) {
+        setType(m_settings->reactValue<GeneratorThread, int>(
+                       "type", &m_thread, &GeneratorThread::typeChanged, m_thread.type()).toInt());
+
+        setFrequency(m_settings->reactValue<GeneratorThread, int>(
+                       "frequency", &m_thread, &GeneratorThread::frequencyChanged, m_thread.frequency()).toInt());
+
+        setGain(m_settings->reactValue<GeneratorThread, float>(
+                       "gain", &m_thread, &GeneratorThread::gainChanged, m_thread.gain()).toFloat());
+
+        setChannel(m_settings->reactValue<GeneratorThread, int>(
+                       "channel", &m_thread, &GeneratorThread::channelChanged, m_thread.channel()).toInt());
+        setAux(m_settings->reactValue<GeneratorThread, int>(
+                       "aux", &m_thread, &GeneratorThread::auxChanged, m_thread.aux()).toInt());
+
+        selectDevice(m_settings->reactValue<GeneratorThread, QString>(
+                       "device", &m_thread, &GeneratorThread::deviceChanged, m_thread.deviceName()).toString());
+    }
 }
 void Generator::setEnabled(bool enabled)
 {
@@ -81,21 +104,21 @@ void Generator::setGain(float gain)
                 Q_ARG(float, gain)
     );
 }
-void Generator::setChanel(int chanel)
+void Generator::setChannel(int channel)
 {
     QMetaObject::invokeMethod(
                 &m_thread,
-                "setChanel",
+                "setChannel",
                 Qt::QueuedConnection,
-                Q_ARG(int, chanel)
+                Q_ARG(int, channel)
     );
 }
-void Generator::setAux(int chanel)
+void Generator::setAux(int channel)
 {
     QMetaObject::invokeMethod(
                 &m_thread,
                 "setAux",
                 Qt::QueuedConnection,
-                Q_ARG(int, chanel)
+                Q_ARG(int, channel)
     );
 }

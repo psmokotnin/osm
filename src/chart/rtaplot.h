@@ -36,9 +36,9 @@ protected:
     bool m_spline, m_coherence;
 
 public:
-    RTAPlot(QQuickItem *parent = Q_NULLPTR);
+    RTAPlot(Settings *settings, QQuickItem *parent = Q_NULLPTR);
 
-    void setMode(unsigned int mode) {if (m_mode == mode) return; m_mode = mode; emit modeChanged();}
+    void setMode(unsigned int mode);
     unsigned int mode() {return m_mode;}
 
     unsigned int pointsPerOctave() {return m_pointsPerOctave;}
@@ -47,10 +47,13 @@ public:
     bool coherence() const noexcept {return  m_coherence;}
     void setCoherence(bool coherence) noexcept;
 
+    virtual void setSettings(Settings *settings) noexcept override;
+    virtual void storeSettings() noexcept override;
+
 signals:
-    void modeChanged();
-    void pointsPerOctaveChanged();
-    void coherenceChanged();
+    void modeChanged(unsigned int);
+    void pointsPerOctaveChanged(unsigned int);
+    void coherenceChanged(bool);
 };
 }
 #endif // RTAPLOT_H

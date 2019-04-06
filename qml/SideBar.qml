@@ -39,7 +39,7 @@ Item {
         id: chartsCount
         anchors.horizontalCenter: parent.horizontalCenter
         model: ["Single", "Double", "Three"]
-        currentIndex: 0
+        currentIndex: charts.count - 1
         onCurrentIndexChanged: {
             applicationWindow.charts.count = currentIndex + 1
         }

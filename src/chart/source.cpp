@@ -30,11 +30,25 @@ Source::Source(QObject *parent) : QObject(parent),
 {
 
 }
+void Source::setName(QString name)
+{
+    if (_name != name) {
+        _name = name;
+        emit nameChanged(_name);
+    }
+}
+void Source::setColor(QColor color)
+{
+    if (_color != color) {
+        _color = color;
+        emit colorChanged(_color);
+    }
+}
 void Source::setGlobalColor(int globalValue)
 {
     if (globalValue < 19) {
         _color = Qt::GlobalColor(globalValue);
-        emit colorChanged();
+        emit colorChanged(_color);
     }
 }
 float Source::frequency(unsigned int i) const noexcept

@@ -29,7 +29,9 @@ protected:
     virtual SeriesFBO* createSeriesFromSource(Source *source) override;
 
 public:
-    ImpulsePlot(QQuickItem *parent = Q_NULLPTR);
+    ImpulsePlot(Settings *settings, QQuickItem *parent = Q_NULLPTR);
+    virtual void setSettings(Settings *settings) noexcept override;
+    virtual void storeSettings() noexcept override;
 };
 }
 #endif // IMPULSEPLOT_H

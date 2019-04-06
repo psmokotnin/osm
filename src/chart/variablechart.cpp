@@ -27,6 +27,7 @@ using namespace Fftchart;
 VariableChart::VariableChart(QQuickItem *parent) :
     QQuickItem(parent),
     s_plot(nullptr),
+    m_settings(nullptr),
     m_selected(RTA)
 {
     setFlag(QQuickItem::ItemHasContents);
@@ -37,23 +38,23 @@ void VariableChart::initType()
     Plot* newPlot = nullptr;
     switch (m_selected) {
     case RTA:
-        newPlot = new RTAPlot(this);
+        newPlot = new RTAPlot(m_settings, this);
         break;
 
     case Magnitude:
-        newPlot = new MagnitudePlot(this);
+        newPlot = new MagnitudePlot(m_settings, this);
         break;
 
     case Phase:
-        newPlot = new PhasePlot(this);
+        newPlot = new PhasePlot(m_settings, this);
         break;
 
     case Impulse:
-        newPlot = new ImpulsePlot(this);
+        newPlot = new ImpulsePlot(m_settings, this);
         break;
 
     case Coherence:
-        newPlot = new CoherencePlot(this);
+        newPlot = new CoherencePlot(m_settings, this);
         break;
 
     default:
@@ -67,6 +68,7 @@ void VariableChart::initType()
         s_plot->setParent(nullptr);
         s_plot->setParentItem(nullptr);
         s_plot->deleteLater();
+        newPlot->storeSettings();
     }
 
     s_plot = newPlot;
@@ -90,6 +92,11 @@ void VariableChart::setTypeByString(const QString &type)
             setType(it.first);
         }
     }
+}
+void VariableChart::setSettings(Settings *settings) noexcept
+{
+    m_settings = settings;
+    s_plot->setSettings(m_settings);
 }
 void VariableChart::appendDataSource(Source *source)
 {

@@ -17,7 +17,7 @@
  */
 #include "windowfunction.h"
 
-WindowFunction::WindowFunction(Type type):
+WindowFunction::WindowFunction(Type type, QObject *parent) : QObject(parent),
     m_type(type),
     m_size(0),
     m_gain(1.f)
@@ -32,7 +32,7 @@ const std::map<WindowFunction::Type, QString> WindowFunction::TypeMap = {
     {WindowFunction::Type::blackman_harris, "Blackman Harris"},
     {WindowFunction::Type::HFT223D, "HFT223D"}
 };
-void WindowFunction::setSize(unsigned long size)
+void WindowFunction::setSize(unsigned int size)
 {
     if (m_size != size) {
         m_size = size;
@@ -56,7 +56,7 @@ QVariant WindowFunction::getTypes() const
 void WindowFunction::calculate()
 {
     float cg = 0.0;
-    for (unsigned long i = 0; i < m_size; i++) {
+    for (unsigned int i = 0; i < m_size; i++) {
         double z = 2.0 * M_PI * i / m_size, dataTemp;
 
         switch (m_type) {

@@ -21,6 +21,7 @@
 #include "type.h"
 #include "source.h"
 #include "plot.h"
+#include "../settings.h"
 
 namespace Fftchart {
 
@@ -28,10 +29,12 @@ class VariableChart : public QQuickItem
 {
     Q_OBJECT
     Q_PROPERTY(QString type READ typeString WRITE setTypeByString NOTIFY typeChanged)
+    Q_PROPERTY(Settings *settings READ settings WRITE setSettings NOTIFY settingsChanged)
     Q_PROPERTY(QQuickItem *plot READ plot() NOTIFY typeChanged)
 
 private:
     Plot * s_plot;
+    Settings *m_settings;
     Type m_selected;
 
 protected:
@@ -43,6 +46,9 @@ public:
     void setType(const Type &type);
     void setTypeByString(const QString &type);
 
+    Settings *settings() const noexcept {return m_settings;}
+    void setSettings(Settings *settings) noexcept;
+
     Q_INVOKABLE void appendDataSource(Source *source);
     Q_INVOKABLE void removeDataSource(Source *source);
     Plot* plot() {return s_plot;}
@@ -51,6 +57,7 @@ public:
 
 signals:
     void typeChanged();
+    void settingsChanged();
 };
 
 }

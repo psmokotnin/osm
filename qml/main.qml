@@ -32,8 +32,19 @@ ApplicationWindow {
     visible: true
     flags: Qt.Window
 
-    width: 1000
-    height: 600
+    Component.onCompleted: {
+        var mainwindowSettings = applicationSettings.getGroup("mainwindow");
+
+        x       = mainwindowSettings.value("x", (Screen.width  - width)  / 2);
+        y       = mainwindowSettings.value("y", (Screen.height - height) / 2);
+        width   = mainwindowSettings.value("width", 1000);
+        height  = mainwindowSettings.value("height", 600);
+
+        applicationWindow.onWidthChanged.connect(function() {applicationSettings.setValue("mainwindow/width", width)});
+        applicationWindow.onHeightChanged.connect(function() {applicationSettings.setValue("mainwindow/height", height)});
+        applicationWindow.onXChanged.connect(function() {applicationSettings.setValue("mainwindow/x", x)});
+        applicationWindow.onYChanged.connect(function() {applicationSettings.setValue("mainwindow/y", y)});
+    }
     minimumWidth: 1000
     minimumHeight: 600
 

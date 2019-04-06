@@ -124,21 +124,21 @@ Item {
 
             ComboBox {
                 implicitWidth: 120
-                model: generatorModel.chanelsCount
-                currentIndex: generatorModel.chanel
-                onCurrentIndexChanged: generatorModel.chanel = currentIndex
-                displayText: "chanel: " + (currentIndex + 1)
+                model: generatorModel.channelsCount
+                currentIndex: generatorModel.channel
+                onCurrentIndexChanged: generatorModel.channel = currentIndex
+                displayText: "ch: " + (currentIndex + 1)
                 delegate: ItemDelegate {
                     text: modelData + 1
                     width: parent.width
                 }
                 ToolTip.visible: hovered
-                ToolTip.text: qsTr("chanel number")
+                ToolTip.text: qsTr("channel number")
             }
 
             ComboBox {
                 implicitWidth: 120
-                model: generatorModel.chanelsCount
+                model: generatorModel.channelsCount
                 currentIndex: generatorModel.aux
                 onCurrentIndexChanged: generatorModel.aux = currentIndex
                 displayText: "aux: " + (currentIndex + 1)
@@ -147,7 +147,7 @@ Item {
                     width: parent.width
                 }
                 ToolTip.visible: hovered
-                ToolTip.text: qsTr("aux chanel number")
+                ToolTip.text: qsTr("aux channel number")
             }
 
         }

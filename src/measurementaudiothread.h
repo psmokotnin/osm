@@ -63,7 +63,7 @@ public slots:
     void selectDevice(const QAudioDeviceInfo &deviceInfo, bool restart);
 
 signals:
-    void deviceChanged();
+    void deviceChanged(QString);
     void recived(const QByteArray&);
     void formatChanged();
 };

@@ -40,7 +40,8 @@ SOURCES += src/main.cpp \
     src/chart/xyseriesrenderer.cpp \
     src/coherence.cpp \
     src/chart/coherenceplot.cpp \
-    src/chart/coherenceseriesrenderer.cpp
+    src/chart/coherenceseriesrenderer.cpp \
+    src/settings.cpp
 
 RESOURCES += qml.qrc \
     shaders/shaders.qrc
@@ -110,7 +111,8 @@ HEADERS += \
     src/container/array.h \
     src/coherence.h \
     src/chart/coherenceplot.h \
-    src/chart/coherenceseriesrenderer.h
+    src/chart/coherenceseriesrenderer.h \
+    src/settings.h
 
 APP_GIT_VERSION = $$system(git --git-dir $$_PRO_FILE_PWD_/.git --work-tree $$_PRO_FILE_PWD_ describe --tags $$system(git --git-dir $$_PRO_FILE_PWD_/.git --work-tree $$_PRO_FILE_PWD_ rev-list --tags --max-count=1))
 DEFINES += APP_GIT_VERSION=\\\"$$APP_GIT_VERSION\\\"

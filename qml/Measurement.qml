@@ -74,7 +74,9 @@ Item {
         }
 
         Component.onCompleted: {
-            dataModel.color = applicationWindow.dataSourceList.nextColor();
+            if (!dataModel.isColorValid()) {
+                dataModel.color = applicationWindow.dataSourceList.nextColor();
+            }
         }
     }
 }

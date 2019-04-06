@@ -20,7 +20,7 @@
 
 using namespace Fftchart;
 
-CoherencePlot::CoherencePlot(QQuickItem *parent): XYPlot(parent)
+CoherencePlot::CoherencePlot(Settings *settings, QQuickItem *parent): XYPlot(settings, parent)
 {
     x.configure(AxisType::logarithmic, 20.f, 20000.f);
     x.setISOLabels();
@@ -32,4 +32,17 @@ CoherencePlot::CoherencePlot(QQuickItem *parent): XYPlot(parent)
 SeriesFBO* CoherencePlot::createSeriesFromSource(Source *source)
 {
     return new SeriesFBO(source, [](){return new CoherenceSeriesRenderer();}, this);
+}
+void CoherencePlot::setSettings(Settings *settings) noexcept
+{
+    if (settings && (settings->value("type") == "Coherence")) {
+        XYPlot::setSettings(settings);
+    }
+}
+void CoherencePlot::storeSettings() noexcept
+{
+    if (!m_settings)
+        return;
+
+    XYPlot::storeSettings();
 }

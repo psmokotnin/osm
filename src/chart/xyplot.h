@@ -54,25 +54,27 @@ protected:
     float xScale() const {return x.scale();}
     float yScale() const {return y.scale();}
 
-    void setXMin(float v) {if (qFuzzyCompare(v, x.min())) return;x.setMin(v); emit xminChanged(); update();}
-    void setXMax(float v) {if (qFuzzyCompare(v, x.max())) return;x.setMax(v); emit xmaxChanged(); update();}
-    void setYMin(float v) {if (qFuzzyCompare(v, y.min())) return;y.setMin(v); emit yminChanged(); update();}
-    void setYMax(float v) {if (qFuzzyCompare(v, y.max())) return;y.setMax(v); emit ymaxChanged(); update();}
+    void setXMin(float v);
+    void setXMax(float v);
+    void setYMin(float v);
+    void setYMax(float v);
 
 public:
-    XYPlot(QQuickItem *parent);
+    XYPlot(Settings *settings, QQuickItem *parent);
 
     Axis *xAxis() {return &x;}
     Axis *yAxis() {return &y;}
 
-    Q_INVOKABLE qreal x2v(qreal mouseX) const noexcept;
-    Q_INVOKABLE qreal y2v(qreal mouseY) const noexcept;
+    Q_INVOKABLE qreal x2v(qreal mouseX) const noexcept override;
+    Q_INVOKABLE qreal y2v(qreal mouseY) const noexcept override;
+    virtual void setSettings(Settings *settings) noexcept override;
+    virtual void storeSettings() noexcept override;
 
 signals:
-    void xminChanged();
-    void xmaxChanged();
-    void yminChanged();
-    void ymaxChanged();
+    void xminChanged(float);
+    void xmaxChanged(float);
+    void yminChanged(float);
+    void ymaxChanged(float);
 };
 }
 

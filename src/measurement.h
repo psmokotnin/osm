@@ -37,6 +37,7 @@ QT_CHARTS_USE_NAMESPACE
 #include "filter.h"
 #include "measurementaudiothread.h"
 #include "coherence.h"
+#include "settings.h"
 
 class Measurement : public Fftchart::Source
 {
@@ -53,7 +54,7 @@ class Measurement : public Fftchart::Source
     Q_PROPERTY(float level READ level NOTIFY levelChanged)
     Q_PROPERTY(float referenceLevel READ referenceLevel NOTIFY referenceLevelChanged)
 
-    Q_PROPERTY(unsigned long delay READ delay WRITE setDelay NOTIFY delayChanged)
+    Q_PROPERTY(unsigned int delay READ delay WRITE setDelay NOTIFY delayChanged)
     Q_PROPERTY(long estimated READ estimated NOTIFY estimatedChanged)
 
     Q_PROPERTY(AverageType averageType READ averageType WRITE setAverageType NOTIFY averageTypeChanged)
@@ -68,20 +69,22 @@ class Measurement : public Fftchart::Source
     Q_PROPERTY(int referenceChanel READ referenceChanel WRITE setReferenceChanel NOTIFY referenceChanelChanged)
 
     //data window type
-    Q_PROPERTY(int window READ getWindowType WRITE setWindowType NOTIFY windowTypeChanged)
+    Q_PROPERTY(WindowFunction::Type window READ getWindowType WRITE setWindowType NOTIFY windowTypeChanged)
     Q_PROPERTY(QVariant windows READ getAvailableWindowTypes CONSTANT)
 
 public:
     enum AverageType {OFF, LPF, FIFO};
     Q_ENUMS(AverageType)
     Q_ENUMS(Filter::Frequency)
+    Q_ENUMS(WindowFunction::Type)
 
 private:
     QTimer m_timer;
     QThread m_timerThread;
     MeasurementAudioThread m_audioThread;
+    Settings *m_settings;
     unsigned int m_average;
-    unsigned long m_delay, m_setDelay;
+    unsigned int m_delay, m_setDelay;
     long m_estimatedDelay;
     bool m_polarity;
 
@@ -111,7 +114,7 @@ protected:
     void updateDelay();
 
 public:
-    explicit Measurement(QObject *parent = nullptr);
+    explicit Measurement(Settings *settings = nullptr, QObject *parent = nullptr);
     ~Measurement();
 
     unsigned int fftPower() const {return _fftPower;}
@@ -127,53 +130,56 @@ public:
     void selectDevice(const QAudioDeviceInfo &deviceInfo);
 
     unsigned int dataChanel() const {return m_audioThread.dataChanel();}
-    void setDataChanel(unsigned int n) {m_audioThread.setDataChanel(n);}
+    void setDataChanel(unsigned int n);
 
     unsigned int referenceChanel() const {return m_audioThread.referenceChanel();}
-    void setReferenceChanel(unsigned int n) {m_audioThread.setReferenceChanel(n);}
+    void setReferenceChanel(unsigned int n);
     unsigned int chanelsCount() const {return m_audioThread.chanelsCount();}
 
     float level() const {return dataMeter.value();}
     float referenceLevel() const {return referenceMeter.value();}
 
-    unsigned long delay() const {return m_delay;}
-    void setDelay(unsigned long delay);
+    unsigned int delay() const {return m_delay;}
+    void setDelay(unsigned int delay);
 
     unsigned int average() const {return m_average;}
     void setAverage(unsigned int average);
 
     bool polarity() const {return m_polarity;}
-    void setPolarity(bool polarity) {m_polarity = polarity;}
+    void setPolarity(bool polarity);
 
     Filter::Frequency filtersFrequency() {return m_filtersFrequency;}
     void setFiltersFrequency(Filter::Frequency frequency);
+    void setFiltersFrequency(QVariant frequency) {setFiltersFrequency(static_cast<Filter::Frequency>(frequency.toInt()));}
 
     AverageType averageType() {return m_averageType;}
     void setAverageType(AverageType type);
+    void setAverageType(QVariant type) {setAverageType(static_cast<AverageType>(type.toInt()));}
 
     unsigned int sampleRate() const;
 
     QVariant getAvailableWindowTypes() const {return m_window.getTypes();}
-    int getWindowType() const {return static_cast<int>(m_window.type());}
-    void setWindowType(int t);
+    WindowFunction::Type getWindowType() const {return m_window.type();}
+    void setWindowType(WindowFunction::Type type);
+    void setWindowType(QVariant type) {setWindowType(static_cast<WindowFunction::Type>(type.toInt()));}
 
     long estimated() const noexcept;
 
 signals:
     void fftPowerChanged(unsigned int power);
-    void deviceChanged();
+    void deviceChanged(QString);
     void levelChanged();
-    void delayChanged();
+    void delayChanged(unsigned int);
     void referenceLevelChanged();
-    void averageChanged();
-    void polarityChanged();
-    void dataChanelChanged();
-    void referenceChanelChanged();
-    void windowTypeChanged();
+    void averageChanged(unsigned int);
+    void polarityChanged(bool);
+    void dataChanelChanged(unsigned int);
+    void referenceChanelChanged(unsigned int);
+    void windowTypeChanged(WindowFunction::Type);
     void estimatedChanged();
     void chanelsCountChanged();
-    void averageTypeChanged();
-    void filtersFrequencyChanged();
+    void averageTypeChanged(AverageType);
+    void filtersFrequencyChanged(Filter::Frequency);
 
 public slots:
     void transform();

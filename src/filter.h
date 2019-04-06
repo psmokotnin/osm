@@ -26,7 +26,7 @@ namespace Filter {
 /*
  * Bessel Low Pass Filter 5th order
  */
-enum class Frequency {FOURTHHZ, HALFHZ, ONEHZ};
+enum Frequency {FOURTHHZ, HALFHZ, ONEHZ};
 Q_ENUM_NS(Frequency)
 
 template <typename T> class BesselLPF

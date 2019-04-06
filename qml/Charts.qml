@@ -21,45 +21,69 @@ import QtQuick.Layouts 1.3
 
 Item {
     id: chartsLayout
-    property int count: 1
-    property alias secondVisible: second.visible
-    property alias thirdVisible: third.visible
+    property int count: applicationSettings.value("layout/charts/count", 1)
 
-    onCountChanged: {
-        secondVisible = count > 1
-        thirdVisible = count > 2
+    Component.onCompleted: {
+        chartsLayout.onCountChanged.connect(updateCount);
+    }
 
+    function updateCount() {
         first.height = second.height = third.height = chartsLayout.height / count;
+        applicationSettings.setValue("layout/charts/count", count)
     }
 
     SplitView {
         id: sv
         anchors.fill: parent
         orientation: Qt.Vertical
-        readonly property int minimunHeight: 150
+        readonly property int minimunHeight: 100
 
-         ChartContainer {
+         Chart {
              id: first
              Layout.fillWidth: true
              Layout.minimumHeight: sv.minimunHeight
              Layout.preferredWidth: parent.width
              Layout.fillHeight: true
+             height: applicationSettings.value("layout/charts/1/height")
+             onHeightChanged: applicationSettings.setValue("layout/charts/1/height", height)
+             type: applicationSettings.value("layout/charts/1/type", "RTA")
+             onTypeChanged: applicationSettings.setValue("layout/charts/1/type", type)
+
+             Component.onCompleted: {
+                 settings = applicationSettings.getGroup("layout/charts/1");
+             }
          }
 
-         ChartContainer {
+         Chart {
              id: second
-             visible: false
+             visible: chartsLayout.count > 1
              Layout.fillWidth: true
              Layout.minimumHeight: sv.minimunHeight
              Layout.preferredWidth: parent.width
+             height: applicationSettings.value("layout/charts/2/height")
+             onHeightChanged: applicationSettings.setValue("layout/charts/2/height", height)
+             type: applicationSettings.value("layout/charts/2/type", "RTA")
+             onTypeChanged: applicationSettings.setValue("layout/charts/2/type", type)
+
+             Component.onCompleted: {
+                 settings = applicationSettings.getGroup("layout/charts/2");
+             }
          }
 
-         ChartContainer {
+         Chart {
              id: third
-             visible: false
+             visible: chartsLayout.count > 2
              Layout.fillWidth: true
              Layout.minimumHeight: sv.minimunHeight
              Layout.preferredWidth: parent.width
+             height: applicationSettings.value("layout/charts/3/height")
+             onHeightChanged: applicationSettings.setValue("layout/charts/3/height", height)
+             type: applicationSettings.value("layout/charts/3/type", "RTA")
+             onTypeChanged: applicationSettings.setValue("layout/charts/3/type", type)
+
+             Component.onCompleted: {
+                 settings = applicationSettings.getGroup("layout/charts/3");
+             }
          }
      }
 

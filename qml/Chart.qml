@@ -22,6 +22,8 @@ import QtQuick.Controls.Material 2.2
 
 Item {
     id: chartview
+    property alias type: chart.type
+    property alias settings: chart.settings
 
     VariableChart {
         id: chart
@@ -105,7 +107,7 @@ Item {
         implicitHeight: Material.buttonHeight
         background: null
         model: ["RTA", "Magnitude", "Phase", "Impulse", "Coherence"]
-        currentIndex: 0
+        currentIndex: model.indexOf(type)
         onCurrentIndexChanged: {
             var pb = applicationWindow.properiesbar;
             var reopen = false;

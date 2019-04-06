@@ -21,7 +21,7 @@
 
 using namespace Fftchart;
 
-ImpulsePlot::ImpulsePlot(QQuickItem *parent): XYPlot(parent)
+ImpulsePlot::ImpulsePlot(Settings *settings, QQuickItem *parent): XYPlot(settings, parent)
 {
     x.configure(AxisType::linear, -20.0, 20.0, 41);
     x.setMin(-5.f);
@@ -34,4 +34,17 @@ ImpulsePlot::ImpulsePlot(QQuickItem *parent): XYPlot(parent)
 SeriesFBO* ImpulsePlot::createSeriesFromSource(Source *source)
 {
     return new SeriesFBO(source, [](){return new ImpulseSeriesRenderer();}, this);
+}
+void ImpulsePlot::setSettings(Settings *settings) noexcept
+{
+    if (settings && (settings->value("type") == "Impulse")) {
+        XYPlot::setSettings(settings);
+    }
+}
+void ImpulsePlot::storeSettings() noexcept
+{
+    if (!m_settings)
+        return;
+
+    XYPlot::storeSettings();
 }

@@ -33,16 +33,19 @@ protected:
     virtual SeriesFBO* createSeriesFromSource(Source *source) override;
 
 public:
-    PhasePlot(QQuickItem *parent = Q_NULLPTR);
+    PhasePlot(Settings *settings, QQuickItem *parent = Q_NULLPTR);
     unsigned int pointsPerOctave() {return m_pointsPerOctave;}
     void setPointsPerOctave(unsigned int p);
 
     bool coherence() const noexcept {return  m_coherence;}
     void setCoherence(bool coherence) noexcept;
 
+    virtual void setSettings(Settings *settings) noexcept override;
+    virtual void storeSettings() noexcept override;
+
 signals:
-    void pointsPerOctaveChanged();
-    void coherenceChanged();
+    void pointsPerOctaveChanged(unsigned int);
+    void coherenceChanged(bool);
 };
 };
 #endif // PHASEPLOT_H

@@ -22,6 +22,7 @@
 #include <QDebug>
 
 #include "generatorthread.h"
+#include "settings.h"
 
 class Generator : public QObject
 {
@@ -46,15 +47,18 @@ class Generator : public QObject
     //Gain
     Q_PROPERTY(float gain READ gain WRITE setGain NOTIFY gainChanged)
 
-    Q_PROPERTY(int chanelsCount READ chanelsCount NOTIFY chanelsCountChanged)
-    Q_PROPERTY(int chanel READ chanel WRITE setChanel NOTIFY chanelChanged)
+    Q_PROPERTY(int channelsCount READ channelsCount NOTIFY channelsCountChanged)
+    Q_PROPERTY(int channel READ channel WRITE setChannel NOTIFY channelChanged)
     Q_PROPERTY(int aux READ aux WRITE setAux NOTIFY auxChanged)
 
 private:
     GeneratorThread m_thread;
+    Settings *m_settings;
+
+    void loadSettings();
 
 public:
-    explicit Generator(QObject* parent = nullptr);
+    explicit Generator(Settings *settings, QObject* parent = nullptr);
     ~Generator();
 
     bool getEnabled() const {return m_thread.enabled();}
@@ -75,11 +79,11 @@ public:
     float gain() const {return m_thread.gain();}
     void setGain(float gain);
 
-    int chanelsCount() const {return m_thread.chanelsCount();}
-    int chanel() const {return m_thread.chanel();}
-    void setChanel(int chanel);
+    int channelsCount() const {return m_thread.channelsCount();}
+    int channel() const {return m_thread.channel();}
+    void setChannel(int channel);
     int aux() const {return m_thread.aux();}
-    void setAux(int chanel);
+    void setAux(int channel);
 
 signals:
     void enabledChanged(bool);
@@ -87,8 +91,8 @@ signals:
     void frequencyChanged(int f);
     void deviceChanged();
     void gainChanged(float);
-    void chanelsCountChanged();
-    void chanelChanged(int);
+    void channelsCountChanged();
+    void channelChanged(int);
     void auxChanged(int);
 
 public slots:

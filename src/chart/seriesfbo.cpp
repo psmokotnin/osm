@@ -25,7 +25,7 @@ SeriesFBO::SeriesFBO(Source* s, RendererCreator rc, QQuickItem *parent):
     m_source(s)
 {
     setFlag(QQuickItem::ItemHasContents);
-    connect(s, SIGNAL(colorChanged()),  SLOT(update()));
+    connect(s, SIGNAL(colorChanged(QColor)),  SLOT(update()));
     connect(s, SIGNAL(readyRead()),     SLOT(update()));
     connect(s, SIGNAL(activeChanged()), SLOT(update()));
 

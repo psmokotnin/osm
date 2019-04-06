@@ -19,8 +19,8 @@
 
 using namespace Fftchart;
 
-XYPlot::XYPlot(QQuickItem *parent) :
-    Plot(parent),
+XYPlot::XYPlot(Settings *settings, QQuickItem *parent) :
+    Plot(settings, parent),
     x(AxisDirection::horizontal, this),
     y(AxisDirection::vertical, this)
 {}
@@ -32,4 +32,59 @@ qreal XYPlot::x2v(qreal mouseX) const noexcept
 qreal XYPlot::y2v(qreal mouseY) const noexcept
 {
     return y.coordToValue(mouseY);
+}
+void XYPlot::setXMin(float v)
+{
+    if (qFuzzyCompare(v, x.min()))
+        return;
+
+    x.setMin(v);
+    emit xminChanged(x.min());
+    update();
+}
+void XYPlot::setXMax(float v)
+{
+    if (qFuzzyCompare(v, x.max()))
+        return;
+
+    x.setMax(v);
+    emit xmaxChanged(x.max());
+    update();
+}
+void XYPlot::setYMin(float v)
+{
+    if (qFuzzyCompare(v, y.min()))
+        return;
+
+    y.setMin(v);
+    emit yminChanged(y.min());
+    update();
+}
+void XYPlot::setYMax(float v)
+{
+    if (qFuzzyCompare(v, y.max()))
+        return;
+
+    y.setMax(v);
+    emit ymaxChanged(y.max());
+    update();
+}
+void XYPlot::setSettings(Settings *settings) noexcept
+{
+    Plot::setSettings(settings);
+    x.setMin(m_settings->reactValue<XYPlot, float>("xmin", this, &XYPlot::xminChanged, x.min()).toFloat());
+    x.setMax(m_settings->reactValue<XYPlot, float>("xmax", this, &XYPlot::xmaxChanged, x.max()).toFloat());
+    y.setMin(m_settings->reactValue<XYPlot, float>("ymin", this, &XYPlot::yminChanged, y.min()).toFloat());
+    y.setMax(m_settings->reactValue<XYPlot, float>("ymax", this, &XYPlot::ymaxChanged, y.max()).toFloat());
+}
+void XYPlot::storeSettings() noexcept
+{
+    if (!m_settings)
+        return;
+
+    m_settings->setValue("xmin", x.min());
+    m_settings->setValue("xmax", x.max());
+    m_settings->setValue("ymin", y.min());
+    m_settings->setValue("ymax", y.max());
+
 }

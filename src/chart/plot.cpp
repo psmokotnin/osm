@@ -23,8 +23,8 @@
 
 using namespace Fftchart;
 
-Plot::Plot(QQuickItem *parent) :
-    QQuickItem(parent)
+Plot::Plot(Settings *settings, QQuickItem *parent) :
+    QQuickItem(parent), m_settings(settings)
 {
     connect(parent, SIGNAL(widthChanged()), this, SLOT(parentWidthChanged()));
     connect(parent, SIGNAL(heightChanged()), this, SLOT(parentHeightChanged()));

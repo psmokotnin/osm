@@ -34,16 +34,19 @@ protected:
     virtual SeriesFBO* createSeriesFromSource(Source *source) override;
 
 public:
-    MagnitudePlot(QQuickItem *parent = Q_NULLPTR);
-    unsigned int pointsPerOctave() {return m_pointsPerOctave;}
-    void setPointsPerOctave(unsigned int p) {if (m_pointsPerOctave == p) return; m_pointsPerOctave = p; emit pointsPerOctaveChanged();}
+    MagnitudePlot(Settings *settings, QQuickItem *parent = Q_NULLPTR);
+    unsigned int pointsPerOctave() const noexcept {return m_pointsPerOctave;}
+    void setPointsPerOctave(unsigned int p) noexcept;
 
     bool coherence() const noexcept {return  m_coherence;}
     void setCoherence(bool coherence) noexcept;
 
+    virtual void setSettings(Settings *settings) noexcept override;
+    virtual void storeSettings() noexcept override;
+
 signals:
-    void pointsPerOctaveChanged();
-    void coherenceChanged();
+    void pointsPerOctaveChanged(unsigned int);
+    void coherenceChanged(bool);
 };
 }
 

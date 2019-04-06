@@ -20,7 +20,7 @@
 
 using namespace Fftchart;
 
-PhasePlot::PhasePlot(QQuickItem *parent): XYPlot(parent),
+PhasePlot::PhasePlot(Settings *settings, QQuickItem *parent): XYPlot(settings, parent),
     m_pointsPerOctave(12), m_coherence(true)
 {
     x.configure(AxisType::logarithmic, 20.f, 20000.f);
@@ -42,12 +42,31 @@ void PhasePlot::setPointsPerOctave(unsigned int p)
         return;
 
     m_pointsPerOctave = p;
-    emit pointsPerOctaveChanged();
+    emit pointsPerOctaveChanged(m_pointsPerOctave);
 }
 void PhasePlot::setCoherence(bool coherence) noexcept
 {
     if (m_coherence != coherence) {
         m_coherence = coherence;
-        emit coherenceChanged();
+        emit coherenceChanged(m_coherence);
     }
+}
+void PhasePlot::setSettings(Settings *settings) noexcept
+{
+    if (settings && (settings->value("type") == "Phase")) {
+        XYPlot::setSettings(settings);
+        setCoherence(
+            m_settings->reactValue<PhasePlot, bool>("coherence", this, &PhasePlot::coherenceChanged, m_coherence).toBool());
+        setPointsPerOctave(
+            m_settings->reactValue<PhasePlot, unsigned int>("pointsPerOctave", this, &PhasePlot::pointsPerOctaveChanged, m_pointsPerOctave).toUInt());
+    }
+}
+void PhasePlot::storeSettings() noexcept
+{
+    if (!m_settings)
+        return;
+
+    XYPlot::storeSettings();
+    m_settings->setValue("coherence", m_coherence);
+    m_settings->setValue("pointsPerOctave", m_pointsPerOctave);
 }

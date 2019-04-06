@@ -64,10 +64,11 @@ public:
     virtual void setActive(bool active) {_active = active; emit activeChanged();}
 
     QString name() const noexcept {return _name;}
-    void setName(QString name) {_name = name; emit nameChanged();}
+    void setName(QString name);
 
     QColor color() const noexcept {return _color;}
-    void setColor(QColor color) {_color = color; emit colorChanged();}
+    void setColor(QColor color);
+    Q_INVOKABLE bool isColorValid() {return _color.isValid();}
 
     unsigned int size() const  noexcept {return _dataLength;}
     unsigned int fftSize() const  noexcept {return _fftSize;}
@@ -89,8 +90,8 @@ public:
 
 signals:
     void activeChanged();
-    void nameChanged();
-    void colorChanged();
+    void nameChanged(QString);
+    void colorChanged(QColor);
     void readyRead();
 
 public slots:
