@@ -33,15 +33,13 @@ Item {
         MulticolorCheckBox {
             id: checkbox
             Layout.alignment: Qt.AlignVCenter
-
+            checked: dataModel.active
             checkedColor: dataModel.color
 
             onCheckStateChanged: {
                 dataModel.active = checked
             }
-            Component.onCompleted: {
-                checked = dataModel.active
-            }
+            error: dataModel.error
         }
 
         ColumnLayout {
@@ -52,6 +50,7 @@ Item {
                 text:  dataModel.name
 
                 PropertiesOpener {
+                   id:opener
                    propertiesQml: "qrc:/MeasurementProperties.qml"
                    pushObject: measurement.dataModel
                 }
@@ -73,10 +72,30 @@ Item {
             onColorChanged: checkbox.checkedColor = dataModel.color
         }
 
+        Connections {
+            target: dataModel
+            onSampleRateChanged: {
+                    var pb = applicationWindow.properiesbar;
+                    var reopen = false;
+                    if (pb.currentObject === dataModel) {
+                        pb.reset();
+                        reopen = true;
+                    }
+                    if (reopen) {
+                        pb.open(dataModel, opener.propertiesQml);
+                    }
+                }
+        }
+
         Component.onCompleted: {
             if (!dataModel.isColorValid()) {
                 dataModel.color = applicationWindow.dataSourceList.nextColor();
             }
+            dataModel.errorChanged.connect(function(error) {
+                if (error) {
+                    applicationWindow.message.showError(qsTr("Can't start the %1.<br/>Device is not supported.").arg(dataModel.name));
+                }
+            });
         }
     }
 }

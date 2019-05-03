@@ -24,8 +24,8 @@ Settings::Settings(const QString &group, QObject *parent) : QObject(parent), m_g
     if (!m_settings) {
         Settings::m_settings = new QSettings(
             QSettings::UserScope,
-            QCoreApplication::instance()->organizationName(),
-            QCoreApplication::instance()->applicationName(), nullptr
+            QCoreApplication::organizationName(),
+            QCoreApplication::applicationName(), nullptr
         );
     }
 }

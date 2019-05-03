@@ -28,6 +28,7 @@ ApplicationWindow {
     property alias properiesbar: bottomtab
     property alias charts: charts
     property alias dataSourceList : righttab
+    property alias message : message
 
     visible: true
     flags: Qt.Window
@@ -104,5 +105,9 @@ ApplicationWindow {
 
     Updater {
         id: update
+    }
+
+    Message {
+        id: message
     }
 }

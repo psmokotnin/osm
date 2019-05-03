@@ -42,14 +42,7 @@ void GeneratorThread::init()
     m_sources << new PinkNoise(this);
     m_sources << new WhiteNoise(this);
     m_sources << new SinNoise(this);
-
     m_device = QAudioDeviceInfo::defaultOutputDevice();
-    m_format.setSampleRate(48000);
-    m_format.setSampleSize(32);
-    m_format.setCodec("audio/pcm");
-    m_format.setByteOrder(QAudioFormat::LittleEndian);
-    m_format.setSampleType(QAudioFormat::Float);
-
     _selectDevice(m_device);
     connect(this, SIGNAL(finished()), this, SLOT(finish()));
 }
@@ -85,6 +78,10 @@ void GeneratorThread::selectDevice(const QString &name)
     if (name == deviceName())
         return;
 
+    QStringList devices = getDeviceList().value<QStringList>();
+    if (devices.indexOf(name) == -1) {
+        return;
+    }
     foreach (auto &deviceInfo, QAudioDeviceInfo::availableDevices(QAudio::AudioOutput)) {
         if (name == deviceInfo.deviceName()) {
             _selectDevice(deviceInfo);
@@ -95,31 +92,41 @@ void GeneratorThread::_selectDevice(const QAudioDeviceInfo &device)
 {
     m_device = device;
     m_sources[m_type]->close();
-
-    if (m_audio) {
-        m_audio->stop();
-        delete m_audio;
-    }
-    m_channelCount = 1;
-    foreach (auto formatChanels, m_device.supportedChannelCounts()) {
-        if (formatChanels > m_channelCount)
-            m_channelCount = formatChanels;
-    }
-    m_format.setChannelCount(m_channelCount);
-    m_audio = new QAudioOutput(m_device, m_format, this);
-#ifndef WIN64
-    m_audio->setBufferSize(
-                static_cast<int>(sizeof(float)) *
-                static_cast<int>(m_channelCount) *
-                8*1024);
-#endif
     _updateAudio();
     emit deviceChanged(m_device.deviceName());
-    emit channelsCountChanged();
 }
 void GeneratorThread::_updateAudio()
 {
+    if (m_audio) {
+        m_audio->stop();
+        delete m_audio;
+        m_audio = nullptr;
+    }
+
     if (m_enabled) {
+
+        m_channelCount = 1;
+        foreach (auto formatChanels, m_device.supportedChannelCounts()) {
+            if (formatChanels > m_channelCount)
+                m_channelCount = formatChanels;
+        }
+        m_format = m_device.preferredFormat();
+        m_format.setSampleSize(32);
+        m_format.setCodec("audio/pcm");
+        m_format.setByteOrder(QAudioFormat::LittleEndian);
+        m_format.setSampleType(QAudioFormat::Float);
+        m_format.setChannelCount(m_channelCount);
+        if (!m_device.isFormatSupported(m_format)) {
+            m_format = m_device.nearestFormat(m_format);
+        }
+        m_audio = new QAudioOutput(m_device, m_format, this);
+#ifndef WIN64
+        m_audio->setBufferSize(
+                    static_cast<int>(sizeof(float)) *
+                    static_cast<int>(m_channelCount) *
+                    8*1024);
+#endif
+
         if (m_sources[m_type]->openMode() == QIODevice::NotOpen) {
             m_sources[m_type]->open(QIODevice::ReadOnly);
         }
@@ -129,8 +136,8 @@ void GeneratorThread::_updateAudio()
         m_sources[m_type]->setChanelCount(m_channelCount);
         m_sources[m_type]->setSamplerate(m_format.sampleRate());
         m_audio->start(m_sources[m_type]);
-    } else {
-        m_audio->stop();
+
+        emit channelsCountChanged();
     }
 }
 QVariant GeneratorThread::getAvailableTypes() const
@@ -144,8 +151,21 @@ QVariant GeneratorThread::getAvailableTypes() const
 QVariant GeneratorThread::getDeviceList() const
 {
     QStringList deviceList;
+    QAudioFormat format44, format48;
+    format48.setChannelCount(2);
+    format48.setSampleRate(48000);
+    format48.setSampleSize(32);
+    format48.setCodec("audio/pcm");
+    format48.setByteOrder(QAudioFormat::LittleEndian);
+    format48.setSampleType(QAudioFormat::Float);
+
+    format44 = format48;
+    format44.setSampleRate(44100);
+
     foreach (const QAudioDeviceInfo &deviceInfo, QAudioDeviceInfo::availableDevices(QAudio::AudioOutput)) {
-        deviceList << deviceInfo.deviceName();
+        if (deviceInfo.isFormatSupported(format44) || deviceInfo.isFormatSupported(format48)) {
+            deviceList << deviceInfo.deviceName();
+        }
     }
     return QVariant::fromValue(deviceList);
 }

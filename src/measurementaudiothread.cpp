@@ -19,7 +19,8 @@
 
 MeasurementAudioThread::MeasurementAudioThread(QObject *parent):
     QThread(parent),
-    m_audio(nullptr)
+    m_audio(nullptr),
+    m_sampleRate(48000)
 {
     start();
     QObject::moveToThread(this);
@@ -36,34 +37,11 @@ void MeasurementAudioThread::selectDevice(const QAudioDeviceInfo &deviceInfo, bo
 {
     if (m_audio) {
         m_audio->stop();
-        delete m_audio;
+        m_audio->deleteLater();
+        m_audio = nullptr;
     }
     m_maxChanelCount = 0;
-
     m_device = deviceInfo;
-
-    m_chanelCount = std::max(m_dataChanel, m_referenceChanel) + 1;
-    foreach (auto c, m_device.supportedChannelCounts()) {
-        auto formatChanels = static_cast<unsigned int>(c);
-        if (formatChanels > m_chanelCount)
-            m_chanelCount = formatChanels;
-        m_maxChanelCount = std::max(formatChanels, m_maxChanelCount);
-    }
-
-    m_format.setSampleRate(48000);
-    m_format.setChannelCount(static_cast<int>(m_chanelCount));
-    m_format.setSampleSize(32);
-    m_format.setCodec("audio/pcm");
-    m_format.setByteOrder(QAudioFormat::LittleEndian);
-    m_format.setSampleType(QAudioFormat::Float);
-
-    m_audio = new QAudioInput(m_device, m_format, this);
-#ifndef WIN64
-    m_audio->setBufferSize(
-                static_cast<int>(sizeof(float)) *
-                static_cast<int>(m_chanelCount) *
-                8*1024);
-#endif
     emit deviceChanged(m_device.deviceName());
 
     if (restart) {
@@ -72,21 +50,55 @@ void MeasurementAudioThread::selectDevice(const QAudioDeviceInfo &deviceInfo, bo
 }
 void MeasurementAudioThread::setActive(bool active)
 {
-    if (active && (
-                m_audio->state() == QAudio::IdleState ||
-                m_audio->state() == QAudio::StoppedState)
-       ) {
-        startAudio();
-        return ;
+    if (m_device.isNull()) {
+        emit deviceError();
+        return;
+    }
+    if (active) {
+        return startAudio();
     }
 
-    if (!active && m_audio->state() == QAudio::ActiveState) {
+    if (!active && m_audio && m_audio->state() != QAudio::StoppedState) {
         m_audio->stop();
     }
 }
 void MeasurementAudioThread::startAudio()
 {
+    m_chanelCount = std::max(m_dataChanel, m_referenceChanel) + 1;
+    foreach (auto c, m_device.supportedChannelCounts()) {
+        auto formatChanels = static_cast<unsigned int>(c);
+        if (formatChanels > m_chanelCount)
+            m_chanelCount = formatChanels;
+        m_maxChanelCount = std::max(formatChanels, m_maxChanelCount);
+    }
+
+    m_format = m_device.preferredFormat();  //automatic sample rate
+    m_format.setChannelCount(static_cast<int>(m_chanelCount));
+    m_format.setSampleSize(32);
+    m_format.setCodec("audio/pcm");
+    m_format.setByteOrder(QAudioFormat::LittleEndian);
+    m_format.setSampleType(QAudioFormat::Float);
+    if (!m_device.isFormatSupported(m_format)) {
+        m_format = m_device.nearestFormat(m_format);
+    }
+
+    if (m_audio)
+        m_audio->deleteLater();
+
+    m_audio = new QAudioInput(m_device, m_format, this);
+#ifndef WIN64
+    m_audio->setBufferSize(
+                static_cast<int>(sizeof(float)) *
+                static_cast<int>(m_chanelCount) *
+                8*1024);
+#endif
+    connect(m_audio, &QAudioInput::stateChanged, this, &MeasurementAudioThread::audioStateChanged);
+
     auto io = m_audio->start();
+    if (m_audio->error() == QAudio::OpenError) {
+        emit deviceError();
+        return;
+    }
     connect(io, &QIODevice::readyRead,
                 [&, io]() {
                     int len = m_audio->bytesReady();
@@ -97,8 +109,36 @@ void MeasurementAudioThread::startAudio()
                         emit recived(buffer);
                     }
         });
-
     m_format = m_audio->format();
+    m_sampleRate = m_format.sampleRate();
     m_chanelCount = static_cast<unsigned int>(m_format.channelCount());
     emit formatChanged();
+}
+void MeasurementAudioThread::audioStateChanged(QAudio::State state)
+{
+    if (m_audio->error() != QAudio::NoError) {
+        if (!m_try) {
+            m_try = true;
+            startAudio();
+        } else {
+            emit deviceError();
+            m_audio->stop();
+        }
+    }
+
+    switch (state) {
+        case QAudio::ActiveState:
+            emit started();
+            m_try = false;
+            break;
+
+        case QAudio::IdleState:
+        case QAudio::StoppedState:
+            emit stopped();
+            break;
+
+        case QAudio::SuspendedState:
+        case QAudio::InterruptedState:
+            break;
+    }
 }

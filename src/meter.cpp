@@ -45,7 +45,7 @@ float Meter::value() const noexcept
 }
 void Meter::reset() noexcept
 {
-    while (!m_data.size()) {
+    while (m_data.size()) {
         m_data.pop();
     }
     m_integrator = 0.f;

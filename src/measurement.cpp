@@ -26,7 +26,7 @@ Measurement::Measurement(Settings *settings, QObject *parent) : Fftchart::Source
     m_average(1),
     m_delay(0), m_setDelay(0),
     m_estimatedDelay(0),
-    m_polarity(false),
+    m_polarity(false), m_error(false),
     dataMeter(12000), referenceMeter(12000), //250ms
     m_window(WindowFunction::Type::hann, this),
     m_averageType(AverageType::LPF),
@@ -40,6 +40,8 @@ Measurement::Measurement(Settings *settings, QObject *parent) : Fftchart::Source
     connect(&m_audioThread, SIGNAL(deviceChanged(QString)), this, SIGNAL(deviceChanged(QString)));
     connect(&m_audioThread, SIGNAL(formatChanged()), this, SIGNAL(chanelsCountChanged()));
     connect(&m_audioThread, SIGNAL(formatChanged()), this, SLOT(recalculateDataLength()));
+    connect(&m_audioThread, SIGNAL(formatChanged()), this, SIGNAL(sampleRateChanged()));
+    connect(&m_audioThread, SIGNAL(deviceError()), this, SLOT(setError()));
 
     QAudioDeviceInfo device(QAudioDeviceInfo::defaultInputDevice());
 
@@ -55,7 +57,6 @@ Measurement::Measurement(Settings *settings, QObject *parent) : Fftchart::Source
     setPolarity(    m_settings->reactValue<Measurement, bool>(              "polarity",     this,   &Measurement::polarityChanged,      polarity()).toBool());
     selectDevice(   m_settings->reactValue<Measurement, QString>(           "device",       this,   &Measurement::deviceChanged,        device.deviceName()).toString());
 
-    //_setfftPower = _fftPower = 14;//16 - 65K 0.73Hz;
     _setfftPower = _fftPower = m_settings->reactValue<Measurement, unsigned int>(
                    "fftpower", this, &Measurement::fftPowerChanged, 14).toUInt();
     _fftSize = static_cast<unsigned int>(pow(2, _fftPower));
@@ -74,9 +75,6 @@ Measurement::Measurement(Settings *settings, QObject *parent) : Fftchart::Source
     _impulseData = new TimeData[m_deconvolutionSize];
     m_deconvLPFs.resize(m_deconvolutionSize);
 
-    dataStack = new AudioStack(_fftSize);
-    referenceStack = new AudioStack(_fftSize);
-
     pahseAvg.setSize(fftSize());
     moduleAvg.setSize(fftSize());
     magnitudeAvg.setSize(fftSize());
@@ -91,6 +89,7 @@ Measurement::Measurement(Settings *settings, QObject *parent) : Fftchart::Source
     connect(&m_timerThread, SIGNAL(started()), &m_timer, SLOT(start()), Qt::DirectConnection);
     connect(&m_timerThread, SIGNAL(finished()), &m_timer, SLOT(stop()), Qt::DirectConnection);
     m_timerThread.start();
+    setActive(true);
 }
 Measurement::~Measurement()
 {
@@ -99,15 +98,25 @@ Measurement::~Measurement()
 
     m_timerThread.quit();
     m_timerThread.wait();
-
-    delete dataStack;
-    delete referenceStack;
 }
 QVariant Measurement::getDeviceList() const
 {
     QStringList deviceList;
+    QAudioFormat format44, format48;
+    format48.setChannelCount(2);
+    format48.setSampleRate(48000);
+    format48.setSampleSize(32);
+    format48.setCodec("audio/pcm");
+    format48.setByteOrder(QAudioFormat::LittleEndian);
+    format48.setSampleType(QAudioFormat::Float);
+
+    format44 = format48;
+    format44.setSampleRate(44100);
+
     foreach (const QAudioDeviceInfo &deviceInfo, QAudioDeviceInfo::availableDevices(QAudio::AudioInput)) {
-        deviceList << deviceInfo.deviceName();
+        if (deviceInfo.isFormatSupported(format44) || deviceInfo.isFormatSupported(format48)) {
+            deviceList << deviceInfo.deviceName();
+        }
     }
     return QVariant::fromValue(deviceList);
 }
@@ -120,6 +129,10 @@ void Measurement::selectDevice(const QString &name)
     if (name == deviceName())
         return;
 
+    QStringList devices = getDeviceList().value<QStringList>();
+    if (devices.indexOf(name) == -1) {
+        return;
+    }
     foreach (const QAudioDeviceInfo &deviceInfo, QAudioDeviceInfo::availableDevices(QAudio::AudioInput)) {
         if (name == deviceInfo.deviceName()) {
             selectDevice(deviceInfo);
@@ -220,7 +233,12 @@ void Measurement::calculateDataLength()
 }
 void Measurement::setActive(bool active)
 {
+    if (active == _active)
+        return;
+
     Fftchart::Source::setActive(active);
+    m_error = false;
+    emit errorChanged(m_error);
 
     QMetaObject::invokeMethod(
                 &m_audioThread,
@@ -230,6 +248,16 @@ void Measurement::setActive(bool active)
     );
     dataMeter.reset();
     referenceMeter.reset();
+    emit levelChanged();
+    emit referenceLevelChanged();
+}
+void Measurement::setError()
+{
+    Fftchart::Source::setActive(false);
+    m_error = true;
+    dataMeter.reset();
+    referenceMeter.reset();
+    emit errorChanged(m_error);
     emit levelChanged();
     emit referenceLevelChanged();
 }
@@ -244,8 +272,15 @@ void Measurement::updateDelay()
     if (m_delay != m_setDelay) {
         long delta = static_cast<long>(m_delay) - static_cast<long>(m_setDelay);
         m_delay = m_setDelay;
-        referenceStack->setSize(fftSize() + m_delay);
-        referenceStack->rewind(delta);
+        bool direction = std::signbit(delta);
+        delta = std::abs(delta);
+        for (long i = 0; i != delta; ++i) {
+            if (direction) {
+                reference.push(0.f);
+            } else {
+                data.push(0.f);
+            }
+        }
         emit delayChanged(m_delay);
     }
 }
@@ -278,7 +313,7 @@ void Measurement::setAverageType(AverageType type)
 }
 unsigned int Measurement::sampleRate() const
 {
-    return static_cast<unsigned int>(m_audioThread.format().sampleRate());
+    return static_cast<unsigned int>(m_audioThread.sampleRate());
 }
 void Measurement::setWindowType(WindowFunction::Type type)
 {
@@ -298,13 +333,13 @@ void Measurement::writeData(const QByteArray& buffer)
 
         if (currentChanel == dataChanel()) {
             memcpy(&sample, it, sizeof(float));
-            dataStack->add((m_polarity ? -1 * sample : sample));
+            data.pushnpop((m_polarity ? -1 * sample : sample), 48000);
             dataMeter.add(sample);
         }
 
         if (currentChanel == referenceChanel()) {
             memcpy(&sample, it, sizeof(float));
-            referenceStack->add(sample);
+            reference.pushnpop(sample, 48000);
             referenceMeter.add(sample);
         }
         ++currentChanel;
@@ -316,18 +351,20 @@ void Measurement::writeData(const QByteArray& buffer)
 }
 void Measurement::transform()
 {
-    if (!_active)
+    if (!_active || m_error)
         return;
 
     lock();
     updateFftPower();
     updateDelay();
-    while (dataStack->isNext() && referenceStack->isNext()) {
-        dataStack->next();
-        referenceStack->next();
 
-        m_dataFT.add(dataStack->current(), referenceStack->current());
-        m_deconvolution.add(referenceStack->current(), dataStack->current());
+    float d, r;
+    while (data.size() > 0 && reference.size() > 0) {
+        d = data.pop();
+        r = reference.pop();
+
+        m_dataFT.add(d, r);
+        m_deconvolution.add(r, d);
     }
     m_dataFT.ufast(&m_window);
     m_deconvolution.transform(&m_window);

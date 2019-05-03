@@ -9,7 +9,6 @@ SOURCES += src/main.cpp \
     src/whitenoise.cpp \
     src/sinnoise.cpp \
     src/complex.cpp \
-    src/audiostack.cpp \
     src/stored.cpp \
     src/fouriertransform.cpp \
     src/deconvolution.cpp \
@@ -76,7 +75,6 @@ HEADERS += \
     src/sinnoise.h \
     src/sample.h \
     src/complex.h \
-    src/audiostack.h \
     src/stored.h \
     src/fouriertransform.h \
     src/ssemath.h \

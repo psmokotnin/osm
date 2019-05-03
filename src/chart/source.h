@@ -61,7 +61,7 @@ public:
     Q_INVOKABLE void destroy() {deleteLater();}//Schedules ~Source() from qml
 
     bool active() const noexcept {return _active;}
-    virtual void setActive(bool active) {_active = active; emit activeChanged();}
+    virtual void setActive(bool active);
 
     QString name() const noexcept {return _name;}
     void setName(QString name);

@@ -26,9 +26,16 @@ Source::Source(QObject *parent) : QObject(parent),
     _dataLength(1),
     m_deconvolutionSize(1),
     _fftSize(1),
-    _active(true)
+    _active(false)
 {
 
+}
+void Source::setActive(bool active)
+{
+    if (_active != active) {
+        _active = active;
+        emit activeChanged();
+    }
 }
 void Source::setName(QString name)
 {

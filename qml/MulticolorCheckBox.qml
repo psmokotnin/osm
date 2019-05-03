@@ -29,6 +29,7 @@ CheckBox {
     id: control
 
     property color checkedColor;
+    property bool error : false;
 
     //colored rectangular
     Rectangle {
@@ -55,6 +56,16 @@ CheckBox {
 
         scale: control.checkState === Qt.Checked ? 1 : 0
         Behavior on scale { NumberAnimation { duration: 100 } }
+    }
+
+    Label {
+        x: checkImage.x + 3
+        y: checkImage.y
+        z: checkImage.z
+        font.pixelSize: checkImage.height - 2
+        text: "X"
+        color: Material.color(Material.Red)
+        visible: control.error
     }
 
     //From source code

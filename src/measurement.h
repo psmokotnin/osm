@@ -26,7 +26,6 @@
 QT_CHARTS_USE_NAMESPACE
 
 #include "sample.h"
-#include "audiostack.h"
 #include "meter.h"
 #include "chart/type.h"
 #include "chart/source.h"
@@ -46,6 +45,8 @@ class Measurement : public Fftchart::Source
     //fft
     Q_PROPERTY(int fftPower READ fftPower WRITE setFftPower NOTIFY fftPowerChanged)
 
+    Q_PROPERTY(int sampleRate READ sampleRate NOTIFY sampleRateChanged)
+
     //Available input devices
     Q_PROPERTY(QVariant devices READ getDeviceList CONSTANT)
     Q_PROPERTY(QString device READ deviceName WRITE selectDevice NOTIFY deviceChanged)
@@ -62,6 +63,7 @@ class Measurement : public Fftchart::Source
     Q_PROPERTY(Filter::Frequency filtersFrequency READ filtersFrequency WRITE setFiltersFrequency NOTIFY filtersFrequencyChanged)
 
     Q_PROPERTY(bool polarity READ polarity WRITE setPolarity NOTIFY polarityChanged)
+    Q_PROPERTY(bool error MEMBER m_error NOTIFY errorChanged)
 
     //routing
     Q_PROPERTY(int chanelsCount READ chanelsCount NOTIFY chanelsCountChanged)
@@ -86,10 +88,9 @@ private:
     unsigned int m_average;
     unsigned int m_delay, m_setDelay;
     long m_estimatedDelay;
-    bool m_polarity;
+    bool m_polarity, m_error;
 
-    AudioStack *dataStack,
-               *referenceStack;
+    container::fifo<float> data, reference;
     Meter dataMeter, referenceMeter;
 
     WindowFunction m_window;
@@ -167,6 +168,7 @@ public:
 
 signals:
     void fftPowerChanged(unsigned int power);
+    void sampleRateChanged();
     void deviceChanged(QString);
     void levelChanged();
     void delayChanged(unsigned int);
@@ -180,12 +182,14 @@ signals:
     void chanelsCountChanged();
     void averageTypeChanged(AverageType);
     void filtersFrequencyChanged(Filter::Frequency);
+    void errorChanged(bool);
 
 public slots:
     void transform();
     void recalculateDataLength();
     QObject *store();
     void writeData(const QByteArray& buffer);
+    void setError();
 };
 
 #endif // MEASUREMENT_H

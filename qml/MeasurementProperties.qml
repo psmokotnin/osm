@@ -122,16 +122,16 @@ Item {
                 onValueChanged: dataObject.delay = value
 
                 textFromValue: function(value, locale) {
-                    return Number(value / 48).toLocaleString(locale, 'f', 2) + "ms";
+                    return Number(1000 * value / dataObject.sampleRate).toLocaleString(locale, 'f', 2) + "ms";
                 }
 
                 valueFromText: function(text, locale) {
-                    return Number.fromLocaleString(locale, text.replace("ms", "")) * 48;
+                    return Number.fromLocaleString(locale, text.replace("ms", "")) * dataObject.sampleRate / 1000;
                 }
 
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("estimated delay time: <b>%L1ms</b>")
-                    .arg(Number(dataObject.estimated / 48).toLocaleString(locale, 'f', 2));
+                    .arg(Number(1000 * dataObject.estimated / dataObject.sampleRate).toLocaleString(locale, 'f', 2));
             }
 
             Button {

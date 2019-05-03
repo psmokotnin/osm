@@ -38,6 +38,8 @@ private:
         m_dataChanel = 0,
         m_referenceChanel = 1
     ;
+    int m_sampleRate;
+    bool m_try = false;
 
     void startAudio();
 
@@ -57,15 +59,21 @@ public:
     int bufferSize() const {return m_audio->bufferSize();}
     int bytesReady() const {return  m_audio->bytesReady();}
 
+    int sampleRate() const noexcept {return m_sampleRate;}
+
 public slots:
     void setActive(bool active);
     void stop();
     void selectDevice(const QAudioDeviceInfo &deviceInfo, bool restart);
+    void audioStateChanged(QAudio::State state);
 
 signals:
     void deviceChanged(QString);
     void recived(const QByteArray&);
     void formatChanged();
+    void started();
+    void stopped();
+    void deviceError();
 };
 
 #endif // MEASUREMENTAUDIOTHREAD_H
