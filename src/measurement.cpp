@@ -55,7 +55,9 @@ Measurement::Measurement(Settings *settings, QObject *parent) : Fftchart::Source
     setDataChanel(  m_settings->reactValue<Measurement, unsigned int>(      "route/data",   this,   &Measurement::dataChanelChanged,    dataChanel()).toUInt());
     setReferenceChanel(m_settings->reactValue<Measurement, unsigned int>(   "route/reference", this,&Measurement::referenceChanelChanged, referenceChanel()).toUInt());
     setPolarity(    m_settings->reactValue<Measurement, bool>(              "polarity",     this,   &Measurement::polarityChanged,      polarity()).toBool());
-    selectDevice(   m_settings->reactValue<Measurement, QString>(           "device",       this,   &Measurement::deviceChanged,        device.deviceName()).toString());
+    if (!selectDevice(   m_settings->reactValue<Measurement, QString>(           "device",       this,   &Measurement::deviceChanged,        device.deviceName()).toString())) {
+        selectDevice(device);
+    }
 
     _setfftPower = _fftPower = m_settings->reactValue<Measurement, unsigned int>(
                    "fftpower", this, &Measurement::fftPowerChanged, 14).toUInt();
@@ -124,20 +126,22 @@ QString Measurement::deviceName() const
 {
     return m_audioThread.device().deviceName();
 }
-void Measurement::selectDevice(const QString &name)
+bool Measurement::selectDevice(const QString &name)
 {
     if (name == deviceName())
-        return;
+        return true;
 
     QStringList devices = getDeviceList().value<QStringList>();
     if (devices.indexOf(name) == -1) {
-        return;
+        return false;
     }
     foreach (const QAudioDeviceInfo &deviceInfo, QAudioDeviceInfo::availableDevices(QAudio::AudioInput)) {
         if (name == deviceInfo.deviceName()) {
             selectDevice(deviceInfo);
+            return true;
         }
     }
+    return false;
 }
 void Measurement::selectDevice(const QAudioDeviceInfo &deviceInfo)
 {

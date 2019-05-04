@@ -127,7 +127,7 @@ public:
     void setDevice(QString deviceName);
 
     QString deviceName() const;
-    void selectDevice(const QString &name);
+    bool selectDevice(const QString &name);
     void selectDevice(const QAudioDeviceInfo &deviceInfo);
 
     unsigned int dataChanel() const {return m_audioThread.dataChanel();}
