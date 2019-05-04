@@ -73,6 +73,9 @@ void MeasurementAudioThread::startAudio()
     }
 
     m_format = m_device.preferredFormat();  //automatic sample rate
+    if (m_format.sampleRate() < 44100) {
+        m_format.setSampleRate(44100);
+    }
     m_format.setChannelCount(static_cast<int>(m_chanelCount));
     m_format.setSampleSize(32);
     m_format.setCodec("audio/pcm");

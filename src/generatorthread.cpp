@@ -116,6 +116,9 @@ void GeneratorThread::_updateAudio()
         m_format.setByteOrder(QAudioFormat::LittleEndian);
         m_format.setSampleType(QAudioFormat::Float);
         m_format.setChannelCount(m_channelCount);
+        if (m_format.sampleRate() < 44100) {
+            m_format.setSampleRate(44100);
+        }
         if (!m_device.isFormatSupported(m_format)) {
             m_format = m_device.nearestFormat(m_format);
         }
