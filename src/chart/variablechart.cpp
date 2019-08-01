@@ -21,12 +21,14 @@
 #include "phaseplot.h"
 #include "impulseplot.h"
 #include "coherenceplot.h"
+#include "src/sourcelist.h"
 
 using namespace Fftchart;
 
 VariableChart::VariableChart(QQuickItem *parent) :
     QQuickItem(parent),
     s_plot(nullptr),
+    m_sources(nullptr),
     m_settings(nullptr),
     m_selected(RTA)
 {
@@ -82,6 +84,11 @@ void VariableChart::setType(const Type &type)
     if (m_selected != type) {
         m_selected = type;
         initType();
+        if (m_sources) {
+            for (int i = 0; i < m_sources->count(); ++i) {
+                appendDataSource(m_sources->items()[i]);
+            }
+        }
         emit typeChanged();
     }
 }
@@ -109,4 +116,31 @@ void VariableChart::removeDataSource(Source *source)
     if (s_plot) {
         s_plot->removeDataSource(source);
     }
+}
+
+void VariableChart::setSources(SourceList *sourceList)
+{
+    if (m_sources == sourceList)
+        return;
+
+    if (m_sources)
+        m_sources->disconnect(this);
+
+    m_sources = sourceList;
+
+    if (m_sources) {
+        for (int i = 0; i < m_sources->count(); ++i) {
+            appendDataSource(m_sources->items()[i]);
+        }
+
+        connect(m_sources, &SourceList::postItemAppended, this, [=](Fftchart::Source *source) {
+            appendDataSource(source);
+        });
+
+        connect(m_sources, &SourceList::preItemRemoved, this, [=](int index) {
+            auto source = m_sources->get(index);
+            removeDataSource(source);
+        });
+    }
+    emit sourcesChanged();
 }

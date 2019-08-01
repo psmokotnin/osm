@@ -23,6 +23,8 @@
 #include "plot.h"
 #include "../settings.h"
 
+class SourceList;
+
 namespace Fftchart {
 
 class VariableChart : public QQuickItem
@@ -31,9 +33,11 @@ class VariableChart : public QQuickItem
     Q_PROPERTY(QString type READ typeString WRITE setTypeByString NOTIFY typeChanged)
     Q_PROPERTY(Settings *settings READ settings WRITE setSettings NOTIFY settingsChanged)
     Q_PROPERTY(QQuickItem *plot READ plot() NOTIFY typeChanged)
+    Q_PROPERTY(SourceList *sources READ sources WRITE setSources NOTIFY sourcesChanged)
 
 private:
     Plot * s_plot;
+    SourceList *m_sources;
     Settings *m_settings;
     Type m_selected;
 
@@ -55,9 +59,13 @@ public:
 
     Q_INVOKABLE QString urlForGrab(QUrl url) const {return url.toLocalFile();}
 
+    SourceList *sources() const {return m_sources;}
+    void setSources(SourceList *sourceList);
+
 signals:
     void typeChanged();
     void settingsChanged();
+    void sourcesChanged();
 };
 
 }

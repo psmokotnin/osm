@@ -116,15 +116,16 @@ protected:
 
 public:
     explicit Measurement(Settings *settings = nullptr, QObject *parent = nullptr);
-    ~Measurement();
+    ~Measurement() override;
+    Q_INVOKABLE QJsonObject toJSON() const noexcept override;
+    void fromJSON(QJsonObject data) noexcept override;
 
     unsigned int fftPower() const {return _fftPower;}
     void setFftPower(unsigned int power);
 
-    void setActive(bool active);
+    void setActive(bool active) override;
 
     QVariant getDeviceList() const;
-    void setDevice(QString deviceName);
 
     QString deviceName() const;
     bool selectDevice(const QString &name);
@@ -149,11 +150,11 @@ public:
     bool polarity() const {return m_polarity;}
     void setPolarity(bool polarity);
 
-    Filter::Frequency filtersFrequency() {return m_filtersFrequency;}
+    Filter::Frequency filtersFrequency() const {return m_filtersFrequency;}
     void setFiltersFrequency(Filter::Frequency frequency);
     void setFiltersFrequency(QVariant frequency) {setFiltersFrequency(static_cast<Filter::Frequency>(frequency.toInt()));}
 
-    AverageType averageType() {return m_averageType;}
+    AverageType averageType() const {return m_averageType;}
     void setAverageType(AverageType type);
     void setAverageType(QVariant type) {setAverageType(static_cast<AverageType>(type.toInt()));}
 

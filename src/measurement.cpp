@@ -31,7 +31,7 @@ Measurement::Measurement(Settings *settings, QObject *parent) : Fftchart::Source
     m_window(WindowFunction::Type::hann, this),
     m_averageType(AverageType::LPF),
     m_filtersFrequency(Filter::Frequency::FOURTHHZ),
-    _fftPower(1), _setfftPower(1)
+    _fftPower(14), _setfftPower(14)
 {
     _name = "Measurement";
     setObjectName(_name);
@@ -44,23 +44,25 @@ Measurement::Measurement(Settings *settings, QObject *parent) : Fftchart::Source
     connect(&m_audioThread, SIGNAL(deviceError()), this, SLOT(setError()));
 
     QAudioDeviceInfo device(QAudioDeviceInfo::defaultInputDevice());
-
-    setName(        m_settings->reactValue<Measurement, QString>(           "name",         this,   &Measurement::nameChanged,          name()).toString());
-    setColor(       m_settings->reactValue<Measurement, QColor>(            "color",        this,   &Measurement::colorChanged,         color()).value<QColor>());
-    setDelay(       m_settings->reactValue<Measurement, unsigned int>(      "delay",        this,   &Measurement::delayChanged,         delay()).toUInt());
-    setAverageType( m_settings->reactValue<Measurement, AverageType>(       "average/type", this,   &Measurement::averageTypeChanged,   averageType()));
-    setAverage(     m_settings->reactValue<Measurement, unsigned int>(      "average/fifo", this,   &Measurement::averageChanged,       average()).toUInt());
-    setFiltersFrequency(m_settings->reactValue<Measurement, Filter::Frequency>("average/lpf", this, &Measurement::filtersFrequencyChanged, filtersFrequency()));
-    setWindowType(  m_settings->reactValue<Measurement, WindowFunction::Type>("window",     this,   &Measurement::windowTypeChanged,    m_window.type()));
-    setDataChanel(  m_settings->reactValue<Measurement, unsigned int>(      "route/data",   this,   &Measurement::dataChanelChanged,    dataChanel()).toUInt());
-    setReferenceChanel(m_settings->reactValue<Measurement, unsigned int>(   "route/reference", this,&Measurement::referenceChanelChanged, referenceChanel()).toUInt());
-    setPolarity(    m_settings->reactValue<Measurement, bool>(              "polarity",     this,   &Measurement::polarityChanged,      polarity()).toBool());
-    if (!selectDevice(   m_settings->reactValue<Measurement, QString>(           "device",       this,   &Measurement::deviceChanged,        device.deviceName()).toString())) {
+    if (m_settings) {
+        setName(        m_settings->reactValue<Measurement, QString>(           "name",         this,   &Measurement::nameChanged,          name()).toString());
+        setColor(       m_settings->reactValue<Measurement, QColor>(            "color",        this,   &Measurement::colorChanged,         color()).value<QColor>());
+        setDelay(       m_settings->reactValue<Measurement, unsigned int>(      "delay",        this,   &Measurement::delayChanged,         delay()).toUInt());
+        setAverageType( m_settings->reactValue<Measurement, AverageType>(       "average/type", this,   &Measurement::averageTypeChanged,   averageType()));
+        setAverage(     m_settings->reactValue<Measurement, unsigned int>(      "average/fifo", this,   &Measurement::averageChanged,       average()).toUInt());
+        setFiltersFrequency(m_settings->reactValue<Measurement, Filter::Frequency>("average/lpf", this, &Measurement::filtersFrequencyChanged, filtersFrequency()));
+        setWindowType(  m_settings->reactValue<Measurement, WindowFunction::Type>("window",     this,   &Measurement::windowTypeChanged,    m_window.type()));
+        setDataChanel(  m_settings->reactValue<Measurement, unsigned int>(      "route/data",   this,   &Measurement::dataChanelChanged,    dataChanel()).toUInt());
+        setReferenceChanel(m_settings->reactValue<Measurement, unsigned int>(   "route/reference", this,&Measurement::referenceChanelChanged, referenceChanel()).toUInt());
+        setPolarity(    m_settings->reactValue<Measurement, bool>(              "polarity",     this,   &Measurement::polarityChanged,      polarity()).toBool());
+        if (!selectDevice(   m_settings->reactValue<Measurement, QString>(           "device",       this,   &Measurement::deviceChanged,        device.deviceName()).toString())) {
+            selectDevice(device);
+        }
+        _setfftPower = _fftPower = m_settings->reactValue<Measurement, unsigned int>(
+                       "fftpower", this, &Measurement::fftPowerChanged, fftPower()).toUInt();
+    } else {;
         selectDevice(device);
     }
-
-    _setfftPower = _fftPower = m_settings->reactValue<Measurement, unsigned int>(
-                   "fftpower", this, &Measurement::fftPowerChanged, 14).toUInt();
     _fftSize = static_cast<unsigned int>(pow(2, _fftPower));
     m_deconvolutionSize = static_cast<unsigned int>(pow(2, 12));
 
@@ -100,6 +102,61 @@ Measurement::~Measurement()
 
     m_timerThread.quit();
     m_timerThread.wait();
+}
+
+QJsonObject Measurement::toJSON() const noexcept
+{
+    QJsonObject data;
+    data["active"]          = active();
+    data["name"]            = name();
+    data["delay"]           = static_cast<int>(delay());
+    data["averageType"]     = averageType();
+    data["average"]         = static_cast<int>(average());
+    data["filtersFrequency"]= static_cast<int>(filtersFrequency());
+    data["window.type"]     = m_window.type();
+    data["dataChanel"]      = static_cast<int>(dataChanel());
+    data["referenceChanel"] = static_cast<int>(referenceChanel());
+    data["polarity"]        = polarity();
+    data["deviceName"]      = deviceName();
+    data["fftpower"]        = static_cast<int>(fftPower());
+
+    QJsonObject color;
+    color["red"]    = _color.red();
+    color["green"]  = _color.green();
+    color["blue"]   = _color.blue();
+    color["alpha"]  = _color.alpha();
+    data["color"]   = color;
+
+    return data;
+}
+
+void Measurement::fromJSON(QJsonObject data) noexcept
+{
+    auto castUInt = [](const QJsonValue &value, unsigned int defaultValue = 0) {
+        return static_cast<unsigned int>(value.toInt(static_cast<int>(defaultValue)));
+    };
+
+    setDelay(            castUInt(data["delay"           ], delay()));
+    setFftPower(         castUInt(data["fftpower"        ], fftPower()));
+    setAverage(          castUInt(data["average"         ], average()));
+    setDataChanel(       castUInt(data["dataChanel"      ], dataChanel()));
+    setReferenceChanel(  castUInt(data["referenceChanel" ], referenceChanel()));
+
+    auto jsonColor = data["color"].toObject();
+    QColor c(
+                jsonColor["red"     ].toInt(0),
+                jsonColor["green"   ].toInt(0),
+                jsonColor["blue"    ].toInt(0),
+                jsonColor["alpha"   ].toInt(1));
+    setColor(c);
+
+    setName(             data["name"             ].toString(name()));
+    setAverageType(      data["averageType"      ].toInt(averageType()));
+    setFiltersFrequency( data["filtersFrequency" ].toInt(filtersFrequency()));
+    setWindowType(       data["window.type"      ].toInt(m_window.type()));
+    setPolarity(         data["polarity"         ].toBool(polarity()));
+    selectDevice(        data["deviceName"       ].toString(deviceName()));
+    setActive(           data["active"           ].toBool(active()));
 }
 QVariant Measurement::getDeviceList() const
 {

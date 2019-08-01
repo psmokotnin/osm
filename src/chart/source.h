@@ -19,6 +19,7 @@
 #define SOURCE_H
 #include <QObject>
 #include <QColor>
+#include <QJsonObject>
 #include <mutex>
 
 #include "../complex.h"
@@ -49,7 +50,7 @@ protected:
     struct TimeData {
         float time; //ms
         complex value;
-    } *_impulseData, *_scopeData;
+    } *_impulseData;
 
     unsigned int _dataLength;
     unsigned int m_deconvolutionSize;
@@ -87,6 +88,9 @@ public:
 
     void lock()   {dataMutex.lock();}
     void unlock() {dataMutex.unlock();}
+
+    virtual Q_INVOKABLE QJsonObject toJSON() const noexcept = 0;
+    virtual void fromJSON(QJsonObject data) noexcept = 0;
 
 signals:
     void activeChanged();

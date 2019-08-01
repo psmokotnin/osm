@@ -23,6 +23,8 @@
 
 #include "src/generator.h"
 #include "src/measurement.h"
+#include "src/sourcemodel.h"
+#include "src/sourcelist.h"
 #include "src/chart/variablechart.h"
 
 #ifndef APP_GIT_VERSION
@@ -41,19 +43,21 @@ int main(int argc, char *argv[])
 
     Settings settings;
     Generator g(settings.getGroup("generator"));
-    Measurement m(settings.getGroup("measurement"));
+    SourceList sourceList;
 
     qmlRegisterType<Fftchart::VariableChart>("FftChart", 1, 0, "VariableChart");
     qmlRegisterUncreatableMetaObject(Filter::staticMetaObject, "Measurement", 1, 0, "FilterFrequency", "Error: only enums");
     qmlRegisterType<Measurement>("Measurement", 1, 0, "Measurement");
+    qmlRegisterType<SourceModel>("SourceModel", 1, 0, "SourceModel");
+    qmlRegisterUncreatableType<SourceList>("SourceModel", 1, 0, "SourceList", QStringLiteral("SourceList should not be created in QML"));
     qmlRegisterType<Settings>("Settings", 1, 0, "Settings");
 
     QQmlApplicationEngine engine;
 
     engine.rootContext()->setContextProperty("appVersion", QString(APP_GIT_VERSION));
     engine.rootContext()->setContextProperty("applicationSettings", &settings);
+    engine.rootContext()->setContextProperty("sourceList", &sourceList);
     engine.rootContext()->setContextProperty("generatorModel", &g);
-    engine.rootContext()->setContextProperty("measurementModel", &m);
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
 
     if (engine.rootObjects().isEmpty())

@@ -16,10 +16,14 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "stored.h"
+#include <QUrl>
+#include <QJsonDocument>
+#include <QJsonArray>
+#include <QFile>
 
 Stored::Stored(QObject *parent) : Fftchart::Source(parent)
 {
-
+    setObjectName("Stored");
 }
 void Stored::build (Fftchart::Source *source)
 {
@@ -32,4 +36,102 @@ void Stored::build (Fftchart::Source *source)
     source->copy(_ftdata, _impulseData);
     source->unlock();
     emit readyRead();
+}
+QJsonObject Stored::toJSON() const noexcept
+{
+    QJsonObject object;
+    object["active"]    = active();
+    object["name"]      = name();
+    object["fftSize"]   = static_cast<int>(fftSize());
+
+    QJsonObject color;
+    color["red"]    = _color.red();
+    color["green"]  = _color.green();
+    color["blue"]   = _color.blue();
+    color["alpha"]  = _color.alpha();
+    object["color"] = color;
+
+    QJsonArray ftdata;
+    for (unsigned int i = 0; i < _dataLength; ++i) {
+
+        //frequecy, module, magnitude, phase, coherence
+        QJsonArray ftcell;
+        ftcell.append(static_cast<double>(_ftdata[i].frequency  ));
+        ftcell.append(static_cast<double>(_ftdata[i].module     ));
+        ftcell.append(static_cast<double>(_ftdata[i].magnitude  ));
+        ftcell.append(static_cast<double>(_ftdata[i].phase.arg()));
+        ftcell.append(static_cast<double>(_ftdata[i].coherence  ));
+
+        ftdata.append(ftcell);
+    }
+    object["ftdata"] = ftdata;
+
+    QJsonArray impulse;
+    for (unsigned int i = 0; i < m_deconvolutionSize; ++i) {
+
+        //time, value
+        QJsonArray impulsecell;
+        impulsecell.append(static_cast<double>(impulseTime(i)));
+        impulsecell.append(static_cast<double>(impulseValue(i)));
+        impulse.append(impulsecell);
+    }
+    object["impulse"] = impulse;
+
+    return object;
+}
+void Stored::fromJSON(QJsonObject data) noexcept
+{
+    auto ftdata         = data["ftdata"].toArray();
+    auto impulse        = data["impulse"].toArray();
+
+    _dataLength         = static_cast<unsigned int>(ftdata.count());
+    m_deconvolutionSize = static_cast<unsigned int>(impulse.count());
+    _ftdata             = new FTData[_dataLength];
+    _impulseData        = new TimeData[m_deconvolutionSize];
+
+    setFftSize(static_cast<unsigned int>(data["fftSize"].toInt()));
+
+    for (int i = 0; i < ftdata.count(); i++) {
+        auto row = ftdata[i].toArray();
+        _ftdata[i].frequency    = static_cast<float>(row[0].toDouble());
+        _ftdata[i].module       = static_cast<float>(row[1].toDouble());
+        _ftdata[i].magnitude    = static_cast<float>(row[2].toDouble());
+        _ftdata[i].phase.polar(   static_cast<float>(row[3].toDouble()));
+        _ftdata[i].coherence    = static_cast<float>(row[4].toDouble());
+    }
+
+    for (int i = 0; i < impulse.count(); i++) {
+        auto row = impulse[i].toArray();
+        _impulseData[i].time    = static_cast<float>(row[0].toDouble());
+        _impulseData[i].value   = static_cast<float>(row[1].toDouble());
+    }
+
+    auto jsonColor = data["color"].toObject();
+    QColor c(
+                jsonColor["red"  ].toInt(0),
+                jsonColor["green"].toInt(0),
+                jsonColor["blue" ].toInt(0),
+                jsonColor["alpha"].toInt(1));
+    setColor(c);
+    setName(data["name"].toString());
+    setActive(data["active"].toBool(active()));
+}
+bool Stored::save(const QUrl &fileName) const noexcept
+{
+    QFile saveFile(fileName.toLocalFile());
+    if (!saveFile.open(QIODevice::WriteOnly)) {
+        qWarning("Couldn't open save file.");
+        return false;
+    }
+
+    QJsonObject object;
+    object["type"] = "stored";
+    object["data"] = toJSON();
+
+    QJsonDocument document(object);
+    if (saveFile.write(document.toJson(QJsonDocument::JsonFormat::Compact)) != -1) {
+        return true;
+    }
+
+    return false;
 }

@@ -21,7 +21,6 @@ import QtQuick.Controls 2.4
 Item {
     property alias stack: propertiesStack
     property var currentObject : null
-    property string currentQml : null
 
     StackView {
         id: propertiesStack

@@ -33,13 +33,14 @@ Item {
         MulticolorCheckBox {
             id: checkbox
             Layout.alignment: Qt.AlignVCenter
-            checked: dataModel.active
-            checkedColor: dataModel.color
+            checked: (dataModel ? dataModel.active : false)
+            checkedColor: (dataModel ? dataModel.color : "none")
 
             onCheckStateChanged: {
-                dataModel.active = checked
+                if (dataModel)
+                    dataModel.active = checked
             }
-            error: dataModel.error
+            error: (dataModel ? dataModel.error : false)
         }
 
         ColumnLayout {
@@ -47,7 +48,7 @@ Item {
 
             Label {
                 Layout.fillWidth: true
-                text:  dataModel.name
+                text:  (dataModel ? dataModel.name : "")
 
                 PropertiesOpener {
                    id:opener
@@ -57,12 +58,12 @@ Item {
             }
 
             Meter {
-                dBV: dataModel.level
+                dBV: (dataModel ? dataModel.level : 0)
                 width: parent.width
             }
 
             Meter {
-                dBV: dataModel.referenceLevel
+                dBV: (dataModel ? dataModel.referenceLevel : 0)
                 width: parent.width
             }
         }

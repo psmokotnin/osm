@@ -209,8 +209,9 @@ Item {
                 text: qsTr("Store");
                 onClicked: {
                     var stored = dataObject.store();
-                    stored.name = 'Stored #' + (applicationWindow.dataSourceList.list.model.count - 1);
-                    applicationWindow.dataSourceList.addStored(stored);
+                    stored.name = 'Stored #' + (sourceList.count - 0);
+                    stored.active = true;
+                    sourceList.appendItem(stored, true);
                 }
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("store current measurement")

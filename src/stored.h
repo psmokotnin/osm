@@ -19,6 +19,7 @@
 #define STORED_H
 
 #include "chart/source.h"
+#include <QJsonObject>
 
 class Stored: public Fftchart::Source
 {
@@ -27,5 +28,10 @@ class Stored: public Fftchart::Source
 public:
     explicit Stored(QObject *parent = nullptr);
     void build (Fftchart::Source *source);
+
+    Q_INVOKABLE bool save(const QUrl &fileName) const noexcept;
+    Q_INVOKABLE QJsonObject toJSON() const noexcept override;
+    void fromJSON(QJsonObject data) noexcept override;
 };
+
 #endif // STORED_H

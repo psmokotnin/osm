@@ -50,13 +50,15 @@ void RTAPlot::setPointsPerOctave(unsigned int p)
 
     m_pointsPerOctave = p;
     emit pointsPerOctaveChanged(m_pointsPerOctave);
+    update();
 }
 void RTAPlot::setCoherence(bool coherence) noexcept
 {
-    if (m_coherence != coherence) {
-        m_coherence = coherence;
-        emit coherenceChanged(m_coherence);
-    }
+    if (m_coherence == coherence)
+        return;
+    m_coherence = coherence;
+    emit coherenceChanged(m_coherence);
+    update();
 }
 void RTAPlot::setSettings(Settings *settings) noexcept
 {

@@ -6,6 +6,8 @@ SOURCES += src/main.cpp \
     src/generator.cpp \
     src/pinknoise.cpp \
     src/outputdevice.cpp \
+    src/sourcelist.cpp \
+    src/sourcemodel.cpp \
     src/whitenoise.cpp \
     src/sinnoise.cpp \
     src/complex.cpp \
@@ -71,6 +73,8 @@ HEADERS += \
     src/generator.h \
     src/pinknoise.h \
     src/outputdevice.h \
+    src/sourcelist.h \
+    src/sourcemodel.h \
     src/whitenoise.h \
     src/sinnoise.h \
     src/sample.h \

@@ -43,13 +43,16 @@ void PhasePlot::setPointsPerOctave(unsigned int p)
 
     m_pointsPerOctave = p;
     emit pointsPerOctaveChanged(m_pointsPerOctave);
+    update();
 }
 void PhasePlot::setCoherence(bool coherence) noexcept
 {
-    if (m_coherence != coherence) {
-        m_coherence = coherence;
-        emit coherenceChanged(m_coherence);
-    }
+    if (m_coherence == coherence)
+        return;
+
+    m_coherence = coherence;
+    emit coherenceChanged(m_coherence);
+    update();
 }
 void PhasePlot::setSettings(Settings *settings) noexcept
 {

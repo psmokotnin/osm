@@ -28,23 +28,13 @@ Item {
     VariableChart {
         id: chart
         anchors.fill: parent
+        sources: sourceList
 
         Component.onCompleted: {
-
-            applicationWindow.dataSourceList.modelAdded.connect(function(item) {
-                chart.appendDataSource(item.dataModel);
-            });
-
-            applicationWindow.dataSourceList.modelRemoved.connect(function(item) {
-                chart.removeDataSource(item.dataModel);
-            });
-
-            appnedSeries();
             initOpener();
         }
 
         onTypeChanged: function() {
-            appnedSeries();
             initOpener();
         }
 
@@ -66,19 +56,6 @@ Item {
             case "Coherence":
                 opener.propertiesQml = "qrc:/Plot/CoherenceProperties.qml";
                 break;
-            }
-        }
-
-        function appnedSeries() {
-            for (var i = 0;
-                 i < applicationWindow.dataSourceList.list.model.count;
-                 i ++
-                 ) {
-                    var item = applicationWindow.dataSourceList.list.model.get(i);
-
-                    if (item.chartable) {
-                        chart.appendDataSource(item.dataModel);
-                    }
             }
         }
     }

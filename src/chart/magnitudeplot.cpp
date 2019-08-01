@@ -39,13 +39,15 @@ void MagnitudePlot::setPointsPerOctave(unsigned int p) noexcept
 
     m_pointsPerOctave = p;
     emit pointsPerOctaveChanged(m_pointsPerOctave);
+    update();
 }
 void MagnitudePlot::setCoherence(bool coherence) noexcept
 {
-    if (m_coherence != coherence) {
-        m_coherence = coherence;
-        emit coherenceChanged(m_coherence);
-    }
+    if (m_coherence == coherence)
+        return;
+    m_coherence = coherence;
+    emit coherenceChanged(m_coherence);
+    update();
 }
 void MagnitudePlot::setSettings(Settings *settings) noexcept
 {

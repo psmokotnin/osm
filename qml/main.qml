@@ -21,6 +21,8 @@ import QtQuick.Controls.Material 2.1
 import QtQuick.Layouts 1.1
 import QtQuick.Window 2.2
 import QtQuick.Controls 1.4
+import QtQuick.Dialogs 1.2
+import SourceModel 1.0
 
 ApplicationWindow {
     id:applicationWindow
@@ -53,6 +55,32 @@ ApplicationWindow {
     Material.accent: Material.Indigo
 
     menuBar: MenuBar {
+            Menu {
+                title: qsTr("&File")
+                MenuItem {
+                    text: qsTr("&New")
+                    shortcut: StandardKey.New
+                    onTriggered: {
+                        applicationWindow.properiesbar.clear();
+                        sourceList.reset();
+                    }
+                }
+                MenuItem {
+                    text: qsTr("&Save")
+                    shortcut: StandardKey.Save
+                    onTriggered: saveDialog.open();
+                }
+                MenuItem {
+                    text: qsTr("&Load")
+                    shortcut: StandardKey.Open
+                    onTriggered: openDialog.open()
+                }
+                MenuItem {
+                    text: qsTr("&Append measurement")
+                    onTriggered: sourceList.addMeasurement();
+                }
+            }
+
             Menu {
                 title: qsTr("&Help")
                 MenuItem {
@@ -109,5 +137,30 @@ ApplicationWindow {
 
     Message {
         id: message
+    }
+
+    FileDialog {
+        id: saveDialog
+        selectExisting: false
+        title: qsTr("Please choose a file's name")
+        folder: shortcuts.home
+        defaultSuffix: "osm"
+        nameFilters: ["Open Sound Meter (*.osm)"]
+        onAccepted: sourceList.save(saveDialog.fileUrl);
+    }
+
+    FileDialog {
+        id: openDialog
+        selectExisting: true
+        title: qsTr("Please choose a file's name")
+        folder: shortcuts.home
+        defaultSuffix: "osm"
+        nameFilters: ["Open Sound Meter (*.osm)"]
+        onAccepted: function() {
+            applicationWindow.properiesbar.clear();
+            if (!sourceList.load(openDialog.fileUrl)) {
+                message.showError(qsTr("could not open the file"));
+            }
+        }
     }
 }

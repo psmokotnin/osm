@@ -25,7 +25,7 @@ Item {
     property var dataObject
 
     RowLayout {
-        spacing: 0
+        spacing: 5
 
         TextField {
             placeholderText: qsTr("title")
@@ -49,8 +49,24 @@ Item {
         Button {
             text: qsTr("Delete");
             onClicked: {
-                applicationWindow.dataSourceList.remove(dataObject);
+                sourceList.removeItem(dataObject);
                 applicationWindow.properiesbar.clear();
+            }
+        }
+
+        Button {
+            text: qsTr("Save data");
+            onClicked: fileDialog.open();
+        }
+
+        FileDialog {
+            id: fileDialog
+            selectExisting: false
+            title: "Please choose a file's name"
+            folder: shortcuts.home
+            defaultSuffix: "osm"
+            onAccepted: {
+                dataObject.save(fileDialog.fileUrl);
             }
         }
 

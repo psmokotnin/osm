@@ -34,7 +34,7 @@ Item {
             id: checkbox
             Layout.alignment: Qt.AlignVCenter
 
-            checkedColor: dataModel.color
+            checkedColor: (dataModel ? dataModel.color : "")
 
             onCheckStateChanged: {
                 dataModel.active = checked
@@ -49,7 +49,7 @@ Item {
 
             Label {
                 Layout.fillWidth: true
-                text:  dataModel.name
+                text:  (dataModel ? dataModel.name : "")
 
                 PropertiesOpener {
                    propertiesQml: "qrc:/StoredProperties.qml"

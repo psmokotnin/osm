@@ -22,7 +22,6 @@ using namespace Fftchart;
 Source::Source(QObject *parent) : QObject(parent),
     _ftdata(nullptr),
     _impulseData(nullptr),
-    _scopeData(nullptr),
     _dataLength(1),
     m_deconvolutionSize(1),
     _fftSize(1),
