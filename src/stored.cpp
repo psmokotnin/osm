@@ -21,7 +21,7 @@
 #include <QJsonArray>
 #include <QFile>
 
-Stored::Stored(QObject *parent) : Fftchart::Source(parent)
+Stored::Stored(QObject *parent) : Fftchart::Source(parent), m_notes()
 {
     setObjectName("Stored");
 }
@@ -42,6 +42,7 @@ QJsonObject Stored::toJSON() const noexcept
     QJsonObject object;
     object["active"]    = active();
     object["name"]      = name();
+    object["notes"]     = notes();
     object["fftSize"]   = static_cast<int>(fftSize());
 
     QJsonObject color;
@@ -114,6 +115,7 @@ void Stored::fromJSON(QJsonObject data) noexcept
                 jsonColor["alpha"].toInt(1));
     setColor(c);
     setName(data["name"].toString());
+    setNotes(data["notes"].toString());
     setActive(data["active"].toBool(active()));
 }
 bool Stored::save(const QUrl &fileName) const noexcept
@@ -134,4 +136,11 @@ bool Stored::save(const QUrl &fileName) const noexcept
     }
 
     return false;
+}
+void Stored::setNotes(const QString &notes) noexcept
+{
+    if (m_notes != notes) {
+        m_notes = notes;
+        emit notesChanged();
+    }
 }

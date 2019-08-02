@@ -515,6 +515,38 @@ QObject *Measurement::store()
     auto *store = new Stored(this);
     store->build(this);
 
+    QString avg;
+    switch (m_averageType) {
+    case OFF:
+        avg = "none";
+        break;
+    case LPF:
+        avg = "LPF ";
+        switch (m_filtersFrequency) {
+        case Filter::Frequency::FOURTHHZ: ;
+            avg += "0.25 Hz";
+            break;
+        case Filter::Frequency::HALFHZ: ;
+            avg += "0.5 Hz";
+            break;
+        case Filter::Frequency::ONEHZ: ;
+            avg += "1 Hz";
+            break;
+        }
+        break;
+    case FIFO:
+        avg = "FIFO " + QString::number(m_average);
+        break;
+    }
+    store->setNotes(
+        "FFT Power: " + QString::number(fftPower()) + "\t" +
+        "delay: " + QString("%1").arg(1000.0 * delay() / sampleRate(), 0, 'f', 2) + "ms \t" +
+        (polarity() ? "polarity inversed" : "") + "\n"
+        "Window: " + m_window.name() + "\t"
+        "Average: " + avg
+
+                        );
+
     return store;
 }
 long Measurement::estimated() const noexcept

@@ -48,6 +48,7 @@ public:
     unsigned int size() const {return m_size;}
 
     Type type() const {return m_type;}
+    QString name() const noexcept {return WindowFunction::TypeMap.at(m_type);}
     void setType(Type t);
     QVariant getTypes() const;
 

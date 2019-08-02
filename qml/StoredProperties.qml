@@ -17,61 +17,95 @@
  */
 import QtQuick 2.7
 import QtQuick.Controls 2.2
-import QtQuick.Layouts 1.3
+import QtQuick.Layouts 1.13
 import QtQuick.Dialogs 1.2
 
-Item {
+import QtQuick.Controls.Material 2.12
 
+Item {
     property var dataObject
 
-    RowLayout {
-        spacing: 5
+    RowLayout
+    {
+        spacing: 0
+        anchors.fill: parent
 
-        TextField {
-            placeholderText: qsTr("title")
-            text: dataObject.name
-            onTextEdited: dataObject.name = text
 
-        }
+        ColumnLayout {
+            Layout.preferredWidth: 200
+            Layout.fillHeight: true
 
-        ColorPicker {
-            id: colorPicker
+            RowLayout {
+                ColorPicker {
+                    id: colorPicker
 
-            Layout.preferredWidth: 25
-            Layout.preferredHeight: 25
-            Layout.margins: 5
+                    Layout.preferredWidth: 25
+                    Layout.preferredHeight: 25
+                    Layout.margins: 5
 
-            onColorChanged: {
-                dataObject.color = color
+                    onColorChanged: {
+                        dataObject.color = color
+                    }
+                    Component.onCompleted: {
+                        colorPicker.color = dataObject.color
+                    }
+                }
+
+                TextField {
+                    placeholderText: qsTr("title")
+                    text: dataObject.name
+                    onTextEdited: dataObject.name = text
+                }
+            }
+            RowLayout {
+                Button {
+                    text: qsTr("Delete");
+                    onClicked: {
+                        sourceList.removeItem(dataObject);
+                        applicationWindow.properiesbar.clear();
+                    }
+                }
+                Button {
+                    text: qsTr("Save data");
+                    onClicked: fileDialog.open();
+                }
             }
         }
 
-        Button {
-            text: qsTr("Delete");
-            onClicked: {
-                sourceList.removeItem(dataObject);
-                applicationWindow.properiesbar.clear();
+        ScrollView {
+            id: scrollTextArea
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            ScrollBar.vertical.policy: ScrollBar.AlwaysOn
+            ScrollBar.vertical.interactive: false
+
+            TextArea {
+                id:ta
+                padding: 5
+                placeholderText: qsTr("notes")
+                text: dataObject.notes;
+                onTextChanged: dataObject.notes = text;
+                font.italic: true
+                wrapMode: TextEdit.WrapAnywhere
+                background: Rectangle{
+                    height: scrollTextArea.height
+                    width:  scrollTextArea.width
+                    border.color: ta.activeFocus ? ta.Material.accentColor : ta.Material.hintTextColor
+                    border.width: ta.activeFocus ? 2 : 1
+                    color: "transparent"
+                }
             }
         }
+    }
 
-        Button {
-            text: qsTr("Save data");
-            onClicked: fileDialog.open();
-        }
-
-        FileDialog {
-            id: fileDialog
-            selectExisting: false
-            title: "Please choose a file's name"
-            folder: shortcuts.home
-            defaultSuffix: "osm"
-            onAccepted: {
-                dataObject.save(fileDialog.fileUrl);
-            }
-        }
-
-        Component.onCompleted: {
-            colorPicker.color = dataObject.color
+    FileDialog {
+        id: fileDialog
+        selectExisting: false
+        title: "Please choose a file's name"
+        folder: shortcuts.home
+        defaultSuffix: "osm"
+        onAccepted: {
+            dataObject.save(fileDialog.fileUrl);
         }
     }
 }

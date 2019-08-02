@@ -24,6 +24,9 @@
 class Stored: public Fftchart::Source
 {
     Q_OBJECT
+    Q_PROPERTY(QString notes READ notes WRITE setNotes NOTIFY notesChanged)
+
+    QString m_notes;
 
 public:
     explicit Stored(QObject *parent = nullptr);
@@ -32,6 +35,12 @@ public:
     Q_INVOKABLE bool save(const QUrl &fileName) const noexcept;
     Q_INVOKABLE QJsonObject toJSON() const noexcept override;
     void fromJSON(QJsonObject data) noexcept override;
+
+    QString notes() const noexcept {return m_notes;}
+    void setNotes(const QString &notes) noexcept;
+
+signals:
+    void notesChanged();
 };
 
 #endif // STORED_H
