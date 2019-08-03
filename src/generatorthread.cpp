@@ -103,25 +103,26 @@ void GeneratorThread::_updateAudio()
         m_audio = nullptr;
     }
 
+
+    m_channelCount = 1;
+    foreach (auto formatChanels, m_device.supportedChannelCounts()) {
+        if (formatChanels > m_channelCount)
+            m_channelCount = formatChanels;
+    }
+    m_format = m_device.preferredFormat();
+    m_format.setSampleSize(32);
+    m_format.setCodec("audio/pcm");
+    m_format.setByteOrder(QAudioFormat::LittleEndian);
+    m_format.setSampleType(QAudioFormat::Float);
+    m_format.setChannelCount(m_channelCount);
+    if (m_format.sampleRate() < 44100) {
+        m_format.setSampleRate(44100);
+    }
+    if (!m_device.isFormatSupported(m_format)) {
+        m_format = m_device.nearestFormat(m_format);
+    }
     if (m_enabled) {
 
-        m_channelCount = 1;
-        foreach (auto formatChanels, m_device.supportedChannelCounts()) {
-            if (formatChanels > m_channelCount)
-                m_channelCount = formatChanels;
-        }
-        m_format = m_device.preferredFormat();
-        m_format.setSampleSize(32);
-        m_format.setCodec("audio/pcm");
-        m_format.setByteOrder(QAudioFormat::LittleEndian);
-        m_format.setSampleType(QAudioFormat::Float);
-        m_format.setChannelCount(m_channelCount);
-        if (m_format.sampleRate() < 44100) {
-            m_format.setSampleRate(44100);
-        }
-        if (!m_device.isFormatSupported(m_format)) {
-            m_format = m_device.nearestFormat(m_format);
-        }
         m_audio = new QAudioOutput(m_device, m_format, this);
 #ifndef WIN64
         m_audio->setBufferSize(
