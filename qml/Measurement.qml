@@ -24,6 +24,7 @@ Item {
 
     property var dataModel;
     property bool chartable : true;
+    property string propertiesQml: "qrc:/MeasurementProperties.qml"
     height: 50
     width: (parent ? parent.width : 0)
 
@@ -49,12 +50,6 @@ Item {
             Label {
                 Layout.fillWidth: true
                 text:  (dataModel ? dataModel.name : "")
-
-                PropertiesOpener {
-                   id:opener
-                   propertiesQml: "qrc:/MeasurementProperties.qml"
-                   pushObject: measurement.dataModel
-                }
             }
 
             Meter {

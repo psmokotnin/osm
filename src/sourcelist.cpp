@@ -62,6 +62,22 @@ void SourceList::reset() noexcept
     clean();
     addMeasurement();
 }
+bool SourceList::move(int from, int to) noexcept
+{
+    if (from == to)
+        return false;
+
+    if (from < to) {
+        return move(to, from);
+    }
+
+    emit preItemMoved(from, to);
+    Fftchart::Source* item = mItems.takeAt(from);
+    mItems.insert((to > from ? to - 1 : to), item);
+    emit postItemMoved();
+
+    return true;
+}
 bool SourceList::save(const QUrl &fileName) const noexcept
 {
     QFile saveFile(fileName.toLocalFile());
@@ -147,7 +163,6 @@ bool SourceList::loadList(const QJsonDocument &document) noexcept
 
     return true;
 }
-
 bool SourceList::loadMeasurement(const QJsonObject &data) noexcept
 {
     if (data.isEmpty())
@@ -188,19 +203,19 @@ void SourceList::appendItem(Fftchart::Source *item, bool autocolor)
 
     emit postItemAppended(item);
 }
-
 void SourceList::removeItem(Fftchart::Source *item)
 {
     for (int i = 0; i < mItems.size(); ++i) {
         if (mItems.at(i) == item) {
+            auto item = get(i);
             emit preItemRemoved(i);
             mItems.removeAt(i);
             emit postItemRemoved();
+            item->deleteLater();
             break;
         }
     }
 }
-
 QColor SourceList::nextColor()
 {
     colorIndex += 3;

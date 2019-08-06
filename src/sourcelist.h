@@ -59,6 +59,7 @@ public:
     Q_INVOKABLE void reset() noexcept;
     Q_INVOKABLE bool save(const QUrl &fileName) const noexcept;
     Q_INVOKABLE bool load(const QUrl &fileName) noexcept;
+    Q_INVOKABLE bool move(int from, int to) noexcept;
 
 signals:
     void preItemAppended();
@@ -66,6 +67,9 @@ signals:
 
     void preItemRemoved(int index);
     void postItemRemoved();
+
+    void preItemMoved(int from, int to);
+    void postItemMoved();
 
 public slots:
     Measurement *addMeasurement();

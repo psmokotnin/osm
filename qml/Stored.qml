@@ -24,6 +24,7 @@ Item {
 
     property var dataModel;
     property bool chartable : true;
+    property string propertiesQml: "qrc:/StoredProperties.qml"
     height: 50
     width: parent.width
 
@@ -50,11 +51,6 @@ Item {
             Label {
                 Layout.fillWidth: true
                 text:  (dataModel ? dataModel.name : "")
-
-                PropertiesOpener {
-                   propertiesQml: "qrc:/StoredProperties.qml"
-                   pushObject: store.dataModel
-                }
             }
 
         }

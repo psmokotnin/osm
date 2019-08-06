@@ -16,7 +16,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 import QtQuick 2.7
-import QtQuick.Controls 2.2
+import QtQuick.Controls 2.12
 import QtQuick.Controls.Material 2.1
 import QtQuick.Layouts 1.1
 import QtQuick.Window 2.2
@@ -31,6 +31,7 @@ ApplicationWindow {
     property alias charts: charts
     property alias dataSourceList : righttab
     property alias message : message
+    property alias dialog : dialog
 
     visible: true
     flags: Qt.Window
@@ -138,6 +139,10 @@ ApplicationWindow {
     Message {
         id: message
     }
+
+    ModalDialog {
+          id: dialog
+      }
 
     FileDialog {
         id: saveDialog

@@ -512,7 +512,7 @@ void Measurement::averaging()
 }
 QObject *Measurement::store()
 {
-    auto *store = new Stored(this);
+    auto *store = new Stored();
     store->build(this);
 
     QString avg;

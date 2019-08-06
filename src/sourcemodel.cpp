@@ -88,6 +88,12 @@ void SourceModel::setList(SourceList *list)
         connect(mList, &SourceList::postItemRemoved, this, [=]() {
             endRemoveRows();
         });
+        connect(mList, &SourceList::preItemMoved, this, [=](int from, int to) {
+            beginMoveRows(QModelIndex(), from, from, QModelIndex(), to);
+        });
+        connect(mList, &SourceList::postItemMoved, this, [=]() {
+            endMoveRows();
+        });
     }
 
     endResetModel();

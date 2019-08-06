@@ -58,13 +58,13 @@ Item {
                 }
             }
             RowLayout {
-                Button {
-                    text: qsTr("Delete");
-                    onClicked: {
-                        sourceList.removeItem(dataObject);
-                        applicationWindow.properiesbar.clear();
-                    }
-                }
+//                Button {
+//                    text: qsTr("Delete");
+//                    onClicked: {
+//                        sourceList.removeItem(dataObject);
+//                        applicationWindow.properiesbar.clear();
+//                    }
+//                }
                 Button {
                     text: qsTr("Save data");
                     onClicked: fileDialog.open();
