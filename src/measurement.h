@@ -74,6 +74,10 @@ class Measurement : public Fftchart::Source
     Q_PROPERTY(WindowFunction::Type window READ getWindowType WRITE setWindowType NOTIFY windowTypeChanged)
     Q_PROPERTY(QVariant windows READ getAvailableWindowTypes CONSTANT)
 
+    //calibration
+    Q_PROPERTY(bool calibrationLoaded READ calibrationLoaded NOTIFY calibrationLoadedChanged)
+    Q_PROPERTY(bool calibration READ calibration WRITE setCalibration NOTIFY calibrationChanged)
+
 public:
     enum AverageType {OFF, LPF, FIFO};
     Q_ENUMS(AverageType)
@@ -108,6 +112,12 @@ private:
     container::array<Filter::BesselLPF<complex>> m_phaseLPFs;
     void calculateDataLength();
     void averaging();
+
+    bool m_enableCalibration, m_calibrationLoaded;
+    QList<QVector<float>> m_calibrationList;
+    QVector<float> m_calibrationGain;
+    QVector<float> m_calibrationPhase;
+    void applyCalibration();
 
 protected:
     unsigned int _fftPower, _setfftPower;
@@ -167,6 +177,12 @@ public:
 
     long estimated() const noexcept;
 
+    Q_INVOKABLE bool loadCalibrationFile(const QUrl &fileName) noexcept;
+
+    bool calibrationLoaded() const noexcept {return m_calibrationLoaded;}
+    bool calibration() const noexcept {return m_enableCalibration;}
+    void setCalibration(bool c) noexcept;
+
 signals:
     void fftPowerChanged(unsigned int power);
     void sampleRateChanged();
@@ -184,6 +200,8 @@ signals:
     void averageTypeChanged(AverageType);
     void filtersFrequencyChanged(Filter::Frequency);
     void errorChanged(bool);
+    void calibrationChanged(bool);
+    void calibrationLoadedChanged(bool);
 
 public slots:
     void transform();

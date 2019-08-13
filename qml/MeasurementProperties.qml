@@ -15,10 +15,11 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-import QtQuick 2.7
-import QtQuick.Controls 2.2
+import QtQuick 2.13
+import QtQuick.Controls 2.13
 import QtQuick.Layouts 1.3
 import QtQuick.Dialogs 1.2
+import QtQuick.Controls.Material 2.13
 
 import Measurement 1.0
 
@@ -73,6 +74,63 @@ Item {
             }
 
             CheckBox {
+                id: calibrateOn
+                text: qsTr("calibrate")
+                implicitWidth: 85
+                checked: dataObject.calibration
+                onCheckStateChanged: {
+                    if (checked) {
+                        if (dataObject.calibrationLoaded) {
+                            dataObject.calibration = checked;
+                        } else {
+                            openCalibrationFileDialog.open();
+                        }
+                    } else {
+                        dataObject.calibration = false;
+                    }
+                }
+
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("apply calibration")
+
+                contentItem: Text {
+                    leftPadding: calibrateOn.indicator && !calibrateOn.mirrored ? calibrateOn.indicator.width + calibrateOn.spacing : 0
+                    rightPadding: calibrateOn.indicator && calibrateOn.mirrored ? calibrateOn.indicator.width + calibrateOn.spacing : 0
+                    text: calibrateOn.text
+                    font: calibrateOn.font
+                    color: calibrateOn.enabled ? calibrateOn.Material.foreground : calibrateOn.Material.hintTextColor
+                    elide: Text.ElideNone
+                    verticalAlignment: Text.AlignVCenter
+                }
+            }
+            Button {
+                implicitWidth: 30
+                flat: true
+                spacing: 0
+                text: "..."
+                onClicked: {openCalibrationFileDialog.open();}
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("open calibration file")
+            }
+            FileDialog {
+                id: openCalibrationFileDialog
+                selectExisting: true
+                title: qsTr("Please choose a file's name")
+                folder: shortcuts.home
+                onAccepted: function() {
+                    if (dataObject.loadCalibrationFile(openCalibrationFileDialog.fileUrl)) {
+                        dataObject.calibration = true;
+                    } else {
+                        dataObject.calibration = false;
+                    }
+                }
+                onRejected: {
+                    dataObject.calibration = false;
+                    calibrateOn.checked = dataObject.calibration;
+                }
+            }
+
+            CheckBox {
                 text: qsTr("polarity")
                 implicitWidth: 120
                 checked: dataObject.polarity
@@ -80,15 +138,6 @@ Item {
 
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("inverse polarity at measurement chanel")
-            }
-
-            TextField {
-                placeholderText: qsTr("title")
-                text: dataObject.name
-                onTextEdited: dataObject.name = text
-                implicitWidth: 120
-                ToolTip.visible: hovered
-                ToolTip.text: qsTr("title")
             }
 
             ColorPicker {
@@ -108,17 +157,33 @@ Item {
                 ToolTip.text: qsTr("series color")
             }
 
+            TextField {
+                id:titleField
+                placeholderText: qsTr("title")
+                text: dataObject.name
+                onTextEdited: dataObject.name = text
+                implicitWidth: 100
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("title")
+                Layout.alignment: Qt.AlignVCenter
+            }
+
             RowLayout {
                 Layout.fillWidth: true
             }
 
             SpinBox {
                 id: delaySpin
-                implicitWidth: 180
+                Layout.alignment: Qt.AlignVCenter
+                implicitWidth: 90
                 value: dataObject.delay
+                implicitHeight: titleField.implicitHeight
                 from: 0
                 to: 48000
                 editable: true
+                spacing: 0
+                down.indicator.width: 0
+                up.indicator.width: 0
                 onValueChanged: dataObject.delay = value
 
                 textFromValue: function(value, locale) {

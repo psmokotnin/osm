@@ -78,7 +78,7 @@ Item {
                         reopen = true;
                     }
                     if (reopen) {
-                        pb.open(dataModel, opener.propertiesQml);
+                        pb.open(dataModel, measurement.propertiesQml);
                     }
                 }
         }

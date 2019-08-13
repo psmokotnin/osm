@@ -16,6 +16,10 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include <QThread>
+#include <QFile>
+#include <QUrl>
+#include <QJsonArray>
+
 #include <algorithm>
 #include "measurement.h"
 
@@ -31,6 +35,7 @@ Measurement::Measurement(Settings *settings, QObject *parent) : Fftchart::Source
     m_window(WindowFunction::Type::hann, this),
     m_averageType(AverageType::LPF),
     m_filtersFrequency(Filter::Frequency::FOURTHHZ),
+    m_enableCalibration(false), m_calibrationLoaded(false), m_calibrationList(), m_calibrationGain(),
     _fftPower(14), _setfftPower(14)
 {
     _name = "Measurement";
@@ -127,6 +132,21 @@ QJsonObject Measurement::toJSON() const noexcept
     color["alpha"]  = _color.alpha();
     data["color"]   = color;
 
+    QJsonObject calibration;
+    calibration["enabled"] = m_enableCalibration;
+
+    QJsonArray calibrationListJson;
+    for (auto calibrationRow : m_calibrationList) {
+        QJsonArray calibrationRowJson{};
+        calibrationRowJson.append(static_cast<double>(calibrationRow[0]));//frequency
+        calibrationRowJson.append(static_cast<double>(calibrationRow[1]));//gain
+        calibrationRowJson.append(static_cast<double>(calibrationRow[2]));//phase
+        calibrationListJson.append(calibrationRowJson);
+    }
+    calibration["list"] = calibrationListJson;
+
+
+    data["calibration"] = calibration;
     return data;
 }
 
@@ -157,6 +177,27 @@ void Measurement::fromJSON(QJsonObject data) noexcept
     setPolarity(         data["polarity"         ].toBool(polarity()));
     selectDevice(        data["deviceName"       ].toString(deviceName()));
     setActive(           data["active"           ].toBool(active()));
+
+    QJsonObject calibration = data["calibration"].toObject();
+    if (!calibration.isEmpty()) {
+        QJsonArray calibrationListJson = calibration["list"].toArray();
+        m_calibrationList.clear();
+        for (auto calibrationRowRef : calibrationListJson) {
+            auto calibrationRowJson = calibrationRowRef.toArray();
+            float
+                    frequency   = static_cast<float>(calibrationRowJson[0].toDouble(0.0)),
+                    gain        = static_cast<float>(calibrationRowJson[1].toDouble(0.0)),
+                    phase       = static_cast<float>(calibrationRowJson[2].toDouble(0.0));
+            QVector<float> calibrationData;
+            calibrationData << frequency << gain << phase;
+            m_calibrationList << calibrationData;
+        }
+        m_calibrationLoaded = (m_calibrationList.count() > 0);
+        emit calibrationLoadedChanged(m_calibrationLoaded);
+        applyCalibration();
+
+        setCalibration(calibration["enabled"].toBool());
+    }
 }
 QVariant Measurement::getDeviceList() const
 {
@@ -291,6 +332,7 @@ void Measurement::calculateDataLength()
     for (unsigned int i = 0; i < _dataLength; ++i) {
         _ftdata[i].frequency = static_cast<float>(i * kf);
     }
+    applyCalibration();
 }
 void Measurement::setActive(bool active)
 {
@@ -439,9 +481,20 @@ void Measurement::transform()
 void Measurement::averaging()
 {
     complex p;
+    int j;
     for (unsigned int i = 0; i < _dataLength ; i++) {
 
-        float magnitude = m_dataFT.af(i).abs() / m_dataFT.bf(i).abs();
+        j = static_cast<int>(i);
+        float calibratedA = m_dataFT.af(i).abs();
+
+        if (m_enableCalibration && m_calibrationGain.size() > j) {
+            calibratedA *= m_calibrationGain[j];
+            p.polar(m_dataFT.bf(i).arg() - m_dataFT.af(i).arg() + m_calibrationPhase[j]);
+        } else {
+            p.polar(m_dataFT.bf(i).arg() - m_dataFT.af(i).arg());
+        }
+
+        float magnitude = calibratedA / m_dataFT.bf(i).abs();
 #ifdef WIN64
         if (magnitude/0.f == magnitude) {
 #else
@@ -449,24 +502,23 @@ void Measurement::averaging()
 #endif
             magnitude = 0.f;
         }
-        p.polar(m_dataFT.bf(i).arg() - m_dataFT.af(i).arg());
 
         switch (averageType()) {
             case AverageType::OFF:
                 _ftdata[i].magnitude = magnitude;
-                _ftdata[i].module    = m_dataFT.af(i).abs();
+                _ftdata[i].module    = calibratedA;
                 _ftdata[i].phase     = p;
             break;
 
             case AverageType::LPF:
                 _ftdata[i].magnitude = m_magnitudeLPFs[i](magnitude);
-                _ftdata[i].module    = m_moduleLPFs[i](m_dataFT.af(i).abs());
+                _ftdata[i].module    = m_moduleLPFs[i](calibratedA);
                 _ftdata[i].phase     = m_phaseLPFs[i](p);
             break;
 
             case AverageType::FIFO:
                 magnitudeAvg.append(i, magnitude );
-                moduleAvg.append(i,    m_dataFT.af(i).abs() );
+                moduleAvg.append(i,    calibratedA );
                 pahseAvg.append(i,     p);
 
                 _ftdata[i].magnitude = magnitudeAvg.value(i);
@@ -555,4 +607,102 @@ long Measurement::estimated() const noexcept
         return m_estimatedDelay - m_deconvolutionSize + static_cast<long>(m_delay);
     }
     return m_estimatedDelay + static_cast<long>(m_delay);
+}
+void Measurement::setCalibration(bool c) noexcept
+{
+    if (c != m_enableCalibration) {
+        m_enableCalibration = c;
+        emit calibrationChanged(m_enableCalibration);
+    }
+}
+bool Measurement::loadCalibrationFile(const QUrl &fileName) noexcept
+{
+    QFile loadFile(fileName.toLocalFile());
+    if (!loadFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        qWarning("Couldn't open file");
+        return false;
+    }
+
+    QTextStream in(&loadFile);
+    m_calibrationList.clear();
+    while (!in.atEnd()) {
+        QString line = in.readLine();
+        if (!line.at(0).isDigit())
+            continue;
+
+        QStringList row = line.split("\t");
+        float frequency = 0.f, gain = 0.f, phase = 0.f;
+        if (row.size() > 0) frequency   = row[0].toFloat();
+
+        if (row.size() > 1) gain        = row[1].toFloat();
+        else continue;
+
+        if (row.size() > 2) phase       = row[2].toFloat();
+
+        QVector<float> calibrationData;
+        calibrationData << frequency << gain << phase;
+        m_calibrationList << calibrationData;
+    }
+    loadFile.close();
+
+    m_calibrationLoaded = (m_calibrationList.count() > 0);
+    emit calibrationLoadedChanged(m_calibrationLoaded);
+    applyCalibration();
+    return m_calibrationLoaded;
+}
+void Measurement::applyCalibration()
+{
+    if (!m_calibrationLoaded || !m_calibrationList.size())
+        return;
+
+    m_calibrationGain.resize(static_cast<int>(_dataLength));
+    m_calibrationPhase.resize(static_cast<int>(_dataLength));
+
+    QVector<float> last = m_calibrationList[0];
+    last[0] = 0.f;
+
+    int j = 0;
+    float
+            kg, bg, kp, bp,
+            g1, g2, f1, f2, p1, p2,
+            g, p;
+    bool inList = false;
+    for (int i = 0; i < static_cast<int>(_dataLength); ++i) {
+
+        while (_ftdata[i].frequency > m_calibrationList[j][0]) {
+            last = m_calibrationList[j];
+            if (j + 1 < m_calibrationList.size()) {
+                ++j;
+                inList = true;
+            }
+            else {
+                inList = false;
+                break;
+            }
+        }
+
+        f1 = last[0];
+        g1 = last[1];
+        p1 = last[2];
+        f2 = m_calibrationList[j][0];
+        g2 = m_calibrationList[j][1];
+        p2 = m_calibrationList[j][2];
+
+        if (inList) {
+            kg = (g2 - g1) / (f2 - f1);
+            bg = g2 - f2 * kg;
+
+            kp = (p2 - p1) / (f2 - f1);
+            bp = p2 - f2 * kp;
+
+            g = kg * _ftdata[i].frequency + bg;
+            p = kp * _ftdata[i].frequency + bp;
+        } else {
+            g = m_calibrationList[j][1];
+            p = m_calibrationList[j][2];
+        }
+
+        m_calibrationGain[i] = pow(10.f, 0.05f * g);
+        m_calibrationPhase[i] = p * static_cast<float>(M_PI / 180.0);
+    }
 }
