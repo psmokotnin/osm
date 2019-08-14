@@ -125,6 +125,8 @@ win:QMAKE_CXXFLAGS += -m64 -msse2
 QMAKE_CXXFLAGS_RELEASE -= -O2
 QMAKE_CXXFLAGS_RELEASE += -Ofast
 
+QMAKE_INFO_PLIST = $$PWD/Info.plist
+
 DISTFILES += \
     README.md \
     shaders/fragment.frag \
