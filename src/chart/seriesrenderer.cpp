@@ -25,6 +25,7 @@
 using namespace Fftchart;
 
 SeriesRenderer::SeriesRenderer() :
+    m_retinaScale(1),
     m_colorUniform(0),
     m_width(0), m_height(0)
 {
@@ -44,6 +45,7 @@ void SeriesRenderer::synchronize(QQuickFramebufferObject *item)
         qreal retinaScale = m_item->window()->devicePixelRatio();
         m_width  = static_cast<GLsizei>(m_item->width() * retinaScale);
         m_height = static_cast<GLsizei>(m_item->height() * retinaScale);
+        m_retinaScale = static_cast<GLfloat>(retinaScale);
     }
 }
 void SeriesRenderer::render()

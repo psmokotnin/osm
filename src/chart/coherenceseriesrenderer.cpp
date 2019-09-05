@@ -44,7 +44,7 @@ void CoherenceSeriesRenderer::renderSeries()
     matrix.scale(1  / logf(xMax / xMin), 1.0f, 1.0f);
     matrix.translate(-1 * logf(xMin), 0);
     m_program.setUniformValue(m_matrixUniform, matrix);
-    openGLFunctions->glLineWidth(2);
+    openGLFunctions->glLineWidth(2 * m_retinaScale);
 
     unsigned int count = m_source->size();
     GLfloat vertices[4];
