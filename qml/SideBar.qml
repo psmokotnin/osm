@@ -148,6 +148,7 @@ Item {
                             font.pixelSize: 16
                             onClicked: {
                                 applicationWindow.dialog.accepted.connect(deleteModel);
+                                applicationWindow.dialog.rejected.connect(freeDialog);
                                 applicationWindow.dialog.title = "Delete " + model.source.name + "?";
                                 applicationWindow.dialog.open();
                             }
@@ -156,7 +157,11 @@ Item {
                                     applicationWindow.properiesbar.reset();
                                 }
                                 sourceList.removeItem(model.source);
+                                freeDialog();
+                            }
+                            function freeDialog() {
                                 applicationWindow.dialog.accepted.disconnect(deleteModel);
+                                applicationWindow.dialog.rejected.disconnect(freeDialog);
                             }
                             background: Rectangle {
                                 color: "transparent"
