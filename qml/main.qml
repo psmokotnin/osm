@@ -51,8 +51,9 @@ ApplicationWindow {
     }
     minimumWidth: 1000
     minimumHeight: 600
+    color: darkMode.checked ? "#111111" : "#FFFFFF"
 
-    Material.theme: Material.Light
+    Material.theme: darkMode.checked ? Material.Dark : Material.Light
     Material.accent: Material.Indigo
 
     menuBar: MenuBar {
@@ -79,6 +80,16 @@ ApplicationWindow {
                 MenuItem {
                     text: qsTr("&Append measurement")
                     onTriggered: sourceList.addMeasurement();
+                }
+                MenuItem {
+                    id: darkMode
+                    text: qsTr("&Dark Mode")
+                    checkable: true
+                    checked: applicationSettings.value("darkMode") === "true"
+                    onCheckedChanged: {
+                        applicationSettings.setValue("darkMode", darkMode.checked)
+                        charts.setDarkMode(darkMode.checked)
+                    }
                 }
             }
 

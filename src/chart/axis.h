@@ -67,6 +67,8 @@ public:
     void setType(AxisType t) {_type = t;needUpdate();}
     AxisType type() const {return _type;}
 
+    void setColor(QColor color);
+
 public slots:
     void needUpdate();
     void parentWidthChanged();

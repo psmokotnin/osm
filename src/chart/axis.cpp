@@ -61,6 +61,13 @@ void Axis::configure(AxisType type, float min, float max, unsigned int ticks, fl
         autoLabels(ticks);
     }
 }
+void Axis::setColor(QColor color){
+    if(color == _lineColor) { return; }
+    _lineColor = color;
+    _textColor = color;
+    update();
+}
+
 void Axis::paint(QPainter *painter) noexcept
 {
     QPen linePen(_lineColor, 1);

@@ -144,3 +144,10 @@ void VariableChart::setSources(SourceList *sourceList)
     }
     emit sourcesChanged();
 }
+
+void VariableChart::setDarkMode(bool darkMode) noexcept {
+     if (s_plot) {
+        XYPlot *plot = dynamic_cast<XYPlot*>(s_plot);
+        plot->setDarkMode(darkMode);
+     }
+}

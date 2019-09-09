@@ -80,8 +80,8 @@ QSGNode *Plot::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *)
     auto *n = dynamic_cast<QSGSimpleRectNode *>(oldNode);
     if (!n) {
         n = new QSGSimpleRectNode();
-        n->setColor(Qt::white);
     }
+    n->setColor(m_backgroundColor);
     n->setRect(boundingRect());
     return n;
 }
@@ -110,4 +110,10 @@ void Plot::update()
     foreach(SeriesFBO *seriesfbo, series) {
         seriesfbo->update();
     }
+}
+
+void Plot::setBackgroundColor(QColor backgroundColor){
+    m_backgroundColor = backgroundColor;
+
+    Plot::update();
 }

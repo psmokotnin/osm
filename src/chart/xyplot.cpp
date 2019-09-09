@@ -88,3 +88,21 @@ void XYPlot::storeSettings() noexcept
     m_settings->setValue("ymax", y.max());
 
 }
+void XYPlot::setDarkMode(bool darkMode) noexcept
+{
+    m_darkMode = darkMode;
+
+    QColor darkColor = QColor("#111111");
+    QColor lightColor = QColor("#FFFFFF");
+
+    if(m_darkMode){
+        x.setColor(lightColor);
+        y.setColor(lightColor);
+        setBackgroundColor(darkColor);
+    }
+    else {
+        x.setColor(darkColor);
+        y.setColor(darkColor);
+        setBackgroundColor(lightColor);
+    }
+}

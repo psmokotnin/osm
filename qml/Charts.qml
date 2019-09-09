@@ -32,6 +32,12 @@ Item {
         applicationSettings.setValue("layout/charts/count", count)
     }
 
+    function setDarkMode(darkMode) {
+        first.setDarkMode(darkMode)
+        second.setDarkMode(darkMode)
+        third.setDarkMode(darkMode)
+    }
+
     SplitView {
         id: sv
         anchors.fill: parent
