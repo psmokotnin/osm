@@ -44,6 +44,8 @@ protected:
     void applyHeightForSeries(SeriesFBO *s);
     Settings *m_settings;
 
+    QColor m_backgroundColor;
+
 public:
     explicit Plot(Settings *settings, QQuickItem *parent);
     void clear();
@@ -58,6 +60,8 @@ public:
 
     virtual void setSettings(Settings *settings) noexcept {m_settings = settings;}
     virtual void storeSettings() noexcept = 0;
+
+    void setBackgroundColor(QColor);
 
 signals:
 

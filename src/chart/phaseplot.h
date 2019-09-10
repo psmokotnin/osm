@@ -43,6 +43,8 @@ public:
     virtual void setSettings(Settings *settings) noexcept override;
     virtual void storeSettings() noexcept override;
 
+    void setColor(QColor);
+
 signals:
     void pointsPerOctaveChanged(unsigned int);
     void coherenceChanged(bool);

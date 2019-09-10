@@ -163,9 +163,6 @@ Item {
                                 applicationWindow.dialog.accepted.disconnect(deleteModel);
                                 applicationWindow.dialog.rejected.disconnect(freeDialog);
                             }
-                            background: Rectangle {
-                                color: "transparent"
-                            }
                         }
                     }
 

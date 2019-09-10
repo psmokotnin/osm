@@ -40,6 +40,7 @@ private:
     SourceList *m_sources;
     Settings *m_settings;
     Type m_selected;
+    bool m_darkMode;
 
 protected:
     void initType();
@@ -61,6 +62,9 @@ public:
 
     SourceList *sources() const {return m_sources;}
     void setSources(SourceList *sourceList);
+
+    bool darkMode() const noexcept {return m_darkMode;}
+    Q_INVOKABLE void setDarkMode(bool) noexcept;
 
 signals:
     void typeChanged();

@@ -92,7 +92,7 @@ Item {
                     width:  scrollTextArea.width
                     border.color: ta.activeFocus ? ta.Material.accentColor : ta.Material.hintTextColor
                     border.width: ta.activeFocus ? 2 : 1
-                    color: "transparent"
+                    color: parent.background
                 }
             }
         }
