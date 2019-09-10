@@ -95,7 +95,7 @@ void RTASeriesRenderer::renderLine()
                 static_cast<GLfloat>(m_source->color().redF()),
                 static_cast<GLfloat>(m_source->color().greenF()),
                 static_cast<GLfloat>(m_source->color().blueF()),
-                static_cast<GLfloat>(m_source->coherence(i))
+                static_cast<GLfloat>(powf(m_source->coherence(i), 2))
             );
         }
         if (i > 1) {

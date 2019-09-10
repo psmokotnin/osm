@@ -64,5 +64,5 @@ float Coherence::value(unsigned int i) const noexcept
         Crr += Grr[i][j];
         Cmm += Gmm[i][j];
     }
-    return std::pow(Crm.abs(), 2.f) / (Crr * Cmm);
+    return Crm.abs() / std::sqrt(Crr * Cmm);
 }
