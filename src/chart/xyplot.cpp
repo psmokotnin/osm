@@ -21,9 +21,10 @@ using namespace Fftchart;
 
 XYPlot::XYPlot(Settings *settings, QQuickItem *parent) :
     Plot(settings, parent),
-    x(AxisDirection::horizontal, this),
-    y(AxisDirection::vertical, this)
-{}
+    x(AxisDirection::horizontal, m_palette, this),
+    y(AxisDirection::vertical, m_palette, this)
+{
+}
 
 qreal XYPlot::x2v(qreal mouseX) const noexcept
 {

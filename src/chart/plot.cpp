@@ -24,10 +24,11 @@
 using namespace Fftchart;
 
 Plot::Plot(Settings *settings, QQuickItem *parent) :
-    QQuickItem(parent), m_settings(settings)
+    QQuickItem(parent), m_settings(settings), m_palette(this)
 {
     connect(parent, SIGNAL(widthChanged()), this, SLOT(parentWidthChanged()));
     connect(parent, SIGNAL(heightChanged()), this, SLOT(parentHeightChanged()));
+    connect(&m_palette, SIGNAL(changed()), this, SLOT(update()));
     setWidth(parent->width());
     setHeight(parent->height());
 }
@@ -80,8 +81,8 @@ QSGNode *Plot::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *)
     auto *n = dynamic_cast<QSGSimpleRectNode *>(oldNode);
     if (!n) {
         n = new QSGSimpleRectNode();
-        n->setColor(Qt::white);
     }
+    n->setColor(m_palette.backgroundColor());
     n->setRect(boundingRect());
     return n;
 }

@@ -19,6 +19,7 @@
 #define AXIS_H
 
 #include "painteditem.h"
+#include "palette.h"
 
 namespace Fftchart {
 
@@ -33,13 +34,13 @@ class Axis : public PaintedItem
 private:
     AxisType _type = linear;
     AxisDirection _direction;
-    QColor _lineColor, _textColor;
+    const Palette &m_palette;
     std::vector<float> _labels;
     float _min, _max, _scale;
     float _lowLimit, _highLimit; //stop values
 
 public:
-    Axis(AxisDirection d, QQuickItem *parent = Q_NULLPTR);
+    Axis(AxisDirection d, const Palette &palette, QQuickItem *parent = Q_NULLPTR);
     void paint(QPainter *painter) noexcept;
     float convert(float value, float size) const;
     float reverse(float value, float size) const noexcept;

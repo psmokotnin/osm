@@ -63,6 +63,7 @@ void VariableChart::initType()
         return;
     }
     newPlot->setParentItem(this);
+    newPlot->setDarkMode(darkMode());
 
     if (s_plot) {
         s_plot->clear();
@@ -143,4 +144,12 @@ void VariableChart::setSources(SourceList *sourceList)
         });
     }
     emit sourcesChanged();
+}
+
+void VariableChart::setDarkMode(bool darkMode) noexcept
+{
+    m_darkMode = darkMode;
+    if (s_plot) {
+        s_plot->setDarkMode(darkMode);
+    }
 }

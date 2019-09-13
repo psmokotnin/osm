@@ -34,12 +34,14 @@ class VariableChart : public QQuickItem
     Q_PROPERTY(Settings *settings READ settings WRITE setSettings NOTIFY settingsChanged)
     Q_PROPERTY(QQuickItem *plot READ plot() NOTIFY typeChanged)
     Q_PROPERTY(SourceList *sources READ sources WRITE setSources NOTIFY sourcesChanged)
+    Q_PROPERTY(bool darkMode READ darkMode WRITE setDarkMode)
 
 private:
     Plot * s_plot;
     SourceList *m_sources;
     Settings *m_settings;
     Type m_selected;
+    bool m_darkMode;
 
 protected:
     void initType();
@@ -61,6 +63,9 @@ public:
 
     SourceList *sources() const {return m_sources;}
     void setSources(SourceList *sourceList);
+
+    bool darkMode() const noexcept {return m_darkMode;}
+    void setDarkMode(bool) noexcept;
 
 signals:
     void typeChanged();

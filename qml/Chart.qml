@@ -29,6 +29,7 @@ Item {
         id: chart
         anchors.fill: parent
         sources: sourceList
+        darkMode: applicationWindow.darkMode
 
         Component.onCompleted: {
             initOpener();
