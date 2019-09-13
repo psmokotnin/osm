@@ -34,10 +34,11 @@
 
 int main(int argc, char *argv[])
 {
+    QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
+
     QApplication app(argc, argv);
     QQuickStyle::setStyle("Material");
     QFontDatabase::addApplicationFont(":/fonts/osm.ttf");
-    QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
     QCoreApplication::setApplicationName("Open Sound Meter");
     QCoreApplication::setApplicationVersion(APP_GIT_VERSION);
     QCoreApplication::setOrganizationName("psmokotnin");
