@@ -32,6 +32,7 @@ ApplicationWindow {
     property alias dataSourceList : righttab
     property alias message : message
     property alias dialog : dialog
+    property alias darkMode : darkModeSelect.checked
 
     visible: true
     flags: Qt.Window
@@ -51,9 +52,8 @@ ApplicationWindow {
     }
     minimumWidth: 1000
     minimumHeight: 600
-    color: darkMode.checked ? "#111111" : "#FFFFFF"
-
-    Material.theme: darkMode.checked ? Material.Dark : Material.Light
+    color: darkModeSelect.checked ? Material.backgroundColor : "#FFFFFF"
+    Material.theme: darkModeSelect.checked ? Material.Dark : Material.Light
     Material.accent: Material.Indigo
 
     menuBar: MenuBar {
@@ -81,14 +81,16 @@ ApplicationWindow {
                     text: qsTr("&Append measurement")
                     onTriggered: sourceList.addMeasurement();
                 }
+            }
+            Menu {
+                title: qsTr("&View")
                 MenuItem {
-                    id: darkMode
+                    id: darkModeSelect
                     text: qsTr("&Dark Mode")
                     checkable: true
                     checked: applicationSettings.value("darkMode") === "true"
                     onCheckedChanged: {
-                        applicationSettings.setValue("darkMode", darkMode.checked)
-                        charts.setDarkMode(darkMode.checked)
+                        applicationSettings.setValue("darkMode", darkModeSelect.checked)
                     }
                 }
             }

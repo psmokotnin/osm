@@ -29,17 +29,17 @@ vector<float> Axis::ISO_LABELS = {
     31.5, 63, 125, 250, 500, 1000, 2000, 4000, 8000, 16000
 };
 
-Axis::Axis(AxisDirection d, QQuickItem *parent)
+Axis::Axis(AxisDirection d, const Palette &palette, QQuickItem *parent)
     : PaintedItem(parent),
+      m_palette(palette),
       _min(0.f), _max(1.f), _scale(1.f),
       _lowLimit(0.f), _highLimit(1.f)
 {
     _direction = d;
-    _lineColor = QColor::fromRgbF(0, 0, 0, 0.1);
-    _textColor = QColor::fromRgbF(0, 0, 0, 1);
 
     connect(parent, SIGNAL(widthChanged()), this, SLOT(parentWidthChanged()));
     connect(parent, SIGNAL(heightChanged()), this, SLOT(parentHeightChanged()));
+    connect(&m_palette, SIGNAL(changed()), this, SLOT(update()));
     setWidth(parent->width());
     setHeight(parent->height());
 }
@@ -61,17 +61,10 @@ void Axis::configure(AxisType type, float min, float max, unsigned int ticks, fl
         autoLabels(ticks);
     }
 }
-void Axis::setColor(QColor color){
-    if(color == _lineColor) { return; }
-    _lineColor = color;
-    _textColor = color;
-    update();
-}
-
 void Axis::paint(QPainter *painter) noexcept
 {
-    QPen linePen(_lineColor, 1);
-    QPen textPen(_textColor, 2);
+    QPen linePen(m_palette.lineColor(), 1);
+    QPen textPen(m_palette.textColor(), 2);
 
     painter->setRenderHints(QPainter::Antialiasing, true);
 

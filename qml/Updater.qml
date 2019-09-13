@@ -15,16 +15,22 @@ Popup {
     focus: true
     closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
 
-    Text {
-        id: update;
-        anchors.fill: parent
-        horizontalAlignment: Text.AlignHCenter
-        verticalAlignment: Text.AlignVCenter
-        wrapMode: Text.Wrap
-        textFormat: Text.RichText
-        onLinkActivated: Qt.openUrlExternally(link)
+    background: null
 
-        text: qsTr("Checking for update...")
+    Rectangle {
+        anchors.fill: parent
+
+        Text {
+            id: update;
+            anchors.fill: parent
+            horizontalAlignment: Text.AlignHCenter
+            verticalAlignment: Text.AlignVCenter
+            wrapMode: Text.Wrap
+            textFormat: Text.RichText
+            onLinkActivated: Qt.openUrlExternally(link)
+
+            text: qsTr("Checking for update...")
+        }
     }
 
     Component.onCompleted: {

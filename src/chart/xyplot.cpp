@@ -21,9 +21,10 @@ using namespace Fftchart;
 
 XYPlot::XYPlot(Settings *settings, QQuickItem *parent) :
     Plot(settings, parent),
-    x(AxisDirection::horizontal, this),
-    y(AxisDirection::vertical, this)
-{}
+    x(AxisDirection::horizontal, m_palette, this),
+    y(AxisDirection::vertical, m_palette, this)
+{
+}
 
 qreal XYPlot::x2v(qreal mouseX) const noexcept
 {
@@ -87,22 +88,4 @@ void XYPlot::storeSettings() noexcept
     m_settings->setValue("ymin", y.min());
     m_settings->setValue("ymax", y.max());
 
-}
-void XYPlot::setDarkMode(bool darkMode) noexcept
-{
-    m_darkMode = darkMode;
-
-    QColor darkColor = QColor("#111111");
-    QColor lightColor = QColor("#FFFFFF");
-
-    if(m_darkMode){
-        x.setColor(lightColor);
-        y.setColor(lightColor);
-        setBackgroundColor(darkColor);
-    }
-    else {
-        x.setColor(darkColor);
-        y.setColor(darkColor);
-        setBackgroundColor(lightColor);
-    }
 }

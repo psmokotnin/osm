@@ -38,13 +38,9 @@ class XYPlot : public Plot
     Q_PROPERTY(float xScale READ xScale() CONSTANT)
     Q_PROPERTY(float yScale READ yScale() CONSTANT)
 
-    Q_PROPERTY(bool darkMode READ darkMode WRITE setDarkMode)
-
-
 protected:
     Axis x, y;
 
-    bool m_darkMode;
     float xLowLimit()  const {return x.lowLimit();}
     float xHighLimit() const {return x.highLimit();}
     float yLowLimit()  const {return y.lowLimit();}
@@ -73,9 +69,6 @@ public:
     Q_INVOKABLE qreal y2v(qreal mouseY) const noexcept override;
     virtual void setSettings(Settings *settings) noexcept override;
     virtual void storeSettings() noexcept override;
-
-    bool darkMode() const noexcept {return m_darkMode; }
-    void setDarkMode(bool darkMode) noexcept;
 
 signals:
     void xminChanged(float);

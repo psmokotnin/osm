@@ -24,17 +24,12 @@ Item {
     id: chartview
     property alias type: chart.type
     property alias settings: chart.settings
-    property bool m_darkMode
-
-    function setDarkMode(darkMode) {
-        m_darkMode = darkMode
-        chart.setDarkMode(darkMode)
-    }
 
     VariableChart {
         id: chart
         anchors.fill: parent
         sources: sourceList
+        darkMode: applicationWindow.darkMode
 
         Component.onCompleted: {
             initOpener();
@@ -88,6 +83,7 @@ Item {
         anchors.right: parent.right
         implicitWidth: 135
         implicitHeight: Material.buttonHeight
+        background: null
         model: ["RTA", "Magnitude", "Phase", "Impulse", "Coherence"]
         currentIndex: model.indexOf(type)
         onCurrentIndexChanged: {
@@ -101,7 +97,6 @@ Item {
             if (reopen) {
                 pb.open(chart.plot, opener.propertiesQml);
             }
-            chart.setDarkMode(m_darkMode)
         }
         Component.onCompleted: {
             chart.type = model[currentIndex];

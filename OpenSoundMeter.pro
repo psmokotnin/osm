@@ -3,6 +3,7 @@ TEMPLATE = app
 QT += charts qml quick quickcontrols2 multimedia core opengl
 CONFIG += c++1z
 SOURCES += src/main.cpp \
+    src/chart/palette.cpp \
     src/generator.cpp \
     src/pinknoise.cpp \
     src/outputdevice.cpp \
@@ -70,6 +71,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 HEADERS += \
+    src/chart/palette.h \
     src/generator.h \
     src/pinknoise.h \
     src/outputdevice.h \

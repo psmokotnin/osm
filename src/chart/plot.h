@@ -22,6 +22,7 @@
 #include "axis.h"
 #include "source.h"
 #include "seriesfbo.h"
+#include "palette.h"
 #include "../settings.h"
 
 namespace Fftchart {
@@ -43,8 +44,7 @@ protected:
     void applyWidthForSeries(SeriesFBO *s);
     void applyHeightForSeries(SeriesFBO *s);
     Settings *m_settings;
-
-    QColor m_backgroundColor;
+    Palette m_palette;
 
 public:
     explicit Plot(Settings *settings, QQuickItem *parent);
@@ -61,7 +61,8 @@ public:
     virtual void setSettings(Settings *settings) noexcept {m_settings = settings;}
     virtual void storeSettings() noexcept = 0;
 
-    void setBackgroundColor(QColor);
+    bool darkMode() const noexcept {return m_palette.darkMode(); }
+    void setDarkMode(bool darkMode) noexcept {return m_palette.setDarkMode(darkMode);}
 
 signals:
 

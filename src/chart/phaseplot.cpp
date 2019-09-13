@@ -73,8 +73,3 @@ void PhasePlot::storeSettings() noexcept
     m_settings->setValue("coherence", m_coherence);
     m_settings->setValue("pointsPerOctave", m_pointsPerOctave);
 }
-
-void PhasePlot::setColor(QColor color) {
-    x.setColor(color);
-    y.setColor(color);
-}
