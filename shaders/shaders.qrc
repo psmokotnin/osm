@@ -5,5 +5,6 @@
         <file>color.frag</file>
         <file>magnitude.frag</file>
         <file>pos.vert</file>
+        <file>coherence.frag</file>
     </qresource>
 </RCC>

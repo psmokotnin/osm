@@ -19,6 +19,7 @@
 #define COHERENCESERIESRENDERER_H
 
 #include "frequencybasedseriesrenderer.h"
+#include "coherenceplot.h"
 
 namespace Fftchart {
 class CoherenceSeriesRenderer : public FrequencyBasedSeriesRenderer
@@ -29,7 +30,10 @@ public:
     void synchronize(QQuickFramebufferObject *item) override;
 
 private:
-    int m_posAttr;
+    int m_posAttr, m_splineA,
+        m_frequency1, m_frequency2;
+    unsigned int m_pointsPerOctave;
+    CoherencePlot::Type m_type;
 };
 }
 

@@ -104,6 +104,30 @@ Item {
     RowLayout {
         spacing: 0
 
+        Root.TitledCombo {
+            title: qsTr("ppo")
+            implicitWidth: 170
+            model: [3, 6, 12, 24, 48]
+            currentIndex: {
+                var ppo = dataObject.pointsPerOctave;
+                model.indexOf(ppo);
+            }
+            onCurrentIndexChanged: {
+                var ppo = model[currentIndex];
+                dataObject.pointsPerOctave = ppo;
+            }
+        }
+
+        ComboBox {
+            id: type
+            implicitWidth: 120
+            model: ["normal", "squared"]
+            currentIndex: dataObject.type
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("value type")
+            onCurrentIndexChanged: dataObject.type = currentIndex;
+        }
+
         FileDialog {
             id: fileDialog
             selectExisting: false

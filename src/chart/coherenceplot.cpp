@@ -20,7 +20,8 @@
 
 using namespace Fftchart;
 
-CoherencePlot::CoherencePlot(Settings *settings, QQuickItem *parent): XYPlot(settings, parent)
+CoherencePlot::CoherencePlot(Settings *settings, QQuickItem *parent): XYPlot(settings, parent),
+    m_pointsPerOctave(12), m_type(Type::NORMAL)
 {
     x.configure(AxisType::logarithmic, 20.f, 20000.f);
     x.setISOLabels();
@@ -33,10 +34,34 @@ SeriesFBO* CoherencePlot::createSeriesFromSource(Source *source)
 {
     return new SeriesFBO(source, [](){return new CoherenceSeriesRenderer();}, this);
 }
+void CoherencePlot::setPointsPerOctave(unsigned int p)
+{
+    if (m_pointsPerOctave == p)
+        return;
+
+    m_pointsPerOctave = p;
+    emit pointsPerOctaveChanged(m_pointsPerOctave);
+    update();
+}
+
+void CoherencePlot::setType(CoherencePlot::Type type)
+{
+    if (m_type != type) {
+        m_type = type;
+        emit typeChanged(m_type);
+        update();
+    }
+}
 void CoherencePlot::setSettings(Settings *settings) noexcept
 {
     if (settings && (settings->value("type") == "Coherence")) {
         XYPlot::setSettings(settings);
+
+//BUG: settings file broken
+//        setType(
+//            m_settings->reactValue<CoherencePlot, CoherencePlot::Type>("type", this, &CoherencePlot::typeChanged, m_type));
+        setPointsPerOctave(
+            m_settings->reactValue<CoherencePlot, unsigned int>("pointsPerOctave", this, &CoherencePlot::pointsPerOctaveChanged, m_pointsPerOctave).toUInt());
     }
 }
 void CoherencePlot::storeSettings() noexcept
@@ -45,4 +70,6 @@ void CoherencePlot::storeSettings() noexcept
         return;
 
     XYPlot::storeSettings();
+//    m_settings->setValue("type", m_type);
+    m_settings->setValue("pointsPerOctave", m_pointsPerOctave);
 }

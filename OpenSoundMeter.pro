@@ -131,6 +131,8 @@ QMAKE_INFO_PLIST = $$PWD/Info.plist
 
 DISTFILES += \
     README.md \
+    list.tasks \
+    shaders/coherence.frag \
     shaders/fragment.frag \
     shaders/logx.vert \
     shaders/phase.geom \

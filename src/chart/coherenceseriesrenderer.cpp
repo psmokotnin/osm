@@ -19,48 +19,81 @@
 
 using namespace Fftchart;
 
-CoherenceSeriesRenderer::CoherenceSeriesRenderer()
+CoherenceSeriesRenderer::CoherenceSeriesRenderer() : m_pointsPerOctave(24)
 {
     m_program.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/logx.vert");
-    m_program.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/color.frag");
-
+    m_program.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/coherence.frag");
     m_program.link();
-    m_posAttr       = m_program.attributeLocation("posAttr");
+    m_posAttr = m_program.attributeLocation("posAttr");
+
+    m_splineA       = m_program.uniformLocation("splineA");
+    m_frequency1    = m_program.uniformLocation("frequency1");
+    m_frequency2    = m_program.uniformLocation("frequency2");
+    m_widthUniform  = m_program.uniformLocation("width");
     m_colorUniform  = m_program.uniformLocation("m_color");
     m_matrixUniform = m_program.uniformLocation("matrix");
+    m_minmaxUniform = m_program.uniformLocation("minmax");
+    m_screenUniform = m_program.uniformLocation("screen");
 }
 void CoherenceSeriesRenderer::synchronize(QQuickFramebufferObject *item)
 {
     XYSeriesRenderer::synchronize(item);
+
+    if (auto *plot = dynamic_cast<CoherencePlot*>(m_item->parent())) {
+        m_pointsPerOctave = plot->pointsPerOctave();
+        m_type = plot->type();
+    }
 }
 void CoherenceSeriesRenderer::renderSeries()
 {
     if (!m_source->active())
         return;
 
-    QMatrix4x4 matrix;
+    GLfloat vertices[8];
+    float value = 0.f, coherence = 1.f;
 
-    matrix.ortho(0, 1, yMax, yMin, -1, 1);
-    matrix.scale(1  / logf(xMax / xMin), 1.0f, 1.0f);
-    matrix.translate(-1 * logf(xMin), 0);
-    m_program.setUniformValue(m_matrixUniform, matrix);
-    openGLFunctions->glLineWidth(2 * m_retinaScale);
-
-    unsigned int count = m_source->size();
-    GLfloat vertices[4];
-
+    setUniforms();
     openGLFunctions->glVertexAttribPointer(static_cast<GLuint>(m_posAttr), 2, GL_FLOAT, GL_FALSE, 0, static_cast<const void *>(vertices));
     openGLFunctions->glEnableVertexAttribArray(0);
 
-    for (unsigned int i = 1, j = 0; i < count; ++i, j += 2) {
-        vertices[2] = m_source->frequency(i);
-        vertices[3] = m_source->coherence(i);
-        if (vertices[3] >= 1.f) vertices[3] = 1.f - std::numeric_limits<float>::min();
-        if (i > 1) {
-            openGLFunctions->glDrawArrays(GL_LINE_STRIP, 0, 2);
-        }
-        vertices[0] = vertices[2];
-        vertices[1] = vertices[3];
-    }
+    float xadd, xmul;
+    xadd = -1.0f * logf(xMin);
+    xmul = m_width / logf(xMax / xMin);
+
+    /*
+     * Draw quad for each band from min to max (full height)
+     * pass spline data to shaders
+     * fragment shader draws spline function
+     */
+    auto accumulate = [m_source = m_source, &value, m_type = m_type] (unsigned int i)
+    {
+        value += (m_type == CoherencePlot::Type::SQUARED ? powf(m_source->coherence(i), 2) : m_source->coherence(i));
+    };
+    auto collected = [m_program = &m_program, openGLFunctions = openGLFunctions, &vertices, &value,
+            m_splineA = m_splineA, m_frequency1 = m_frequency1, m_frequency2 = m_frequency2,
+            xadd, xmul, yMin = yMin, yMax = yMax]
+            (float f1, float f2, float *ac, float *c)
+    {
+        Q_UNUSED(c)
+        vertices[0] = f1;
+        vertices[1] = yMin;
+        vertices[2] = f1;
+        vertices[3] = yMax;
+        vertices[4] = f2;
+        vertices[5] = yMax;
+        vertices[6] = f2;
+        vertices[7] = yMin;
+
+        m_program->setUniformValueArray(m_splineA, static_cast<GLfloat *>(ac), 1, 4);
+        float fx1 = (logf(f1) + xadd) * xmul;
+        float fx2 = (logf(f2) + xadd) * xmul;
+        m_program->setUniformValue(m_frequency1, fx1);
+        m_program->setUniformValue(m_frequency2, fx2);
+        openGLFunctions->glDrawArrays(GL_QUADS, 0, 4);
+
+        value = 0.0f;
+    };
+
+    iterateForSpline<float>(m_pointsPerOctave, &value, &coherence, accumulate, collected);
     openGLFunctions->glDisableVertexAttribArray(0);
 }

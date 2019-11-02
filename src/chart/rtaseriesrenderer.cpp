@@ -86,6 +86,11 @@ void RTASeriesRenderer::renderLine()
     openGLFunctions->glVertexAttribPointer(static_cast<GLuint>(m_posAttr), 2, GL_FLOAT, GL_FALSE, 0, static_cast<const void *>(vertices));
     openGLFunctions->glEnableVertexAttribArray(0);
 
+    constexpr float
+            d = 0.85f,
+            a = (1 - d*d),
+            b = d*d / a;
+
     for (unsigned int i = 1, j = 0; i < count; ++i, j += 2) {
         vertices[2] = m_source->frequency(i);
         vertices[3] = 20 * log10f(2 * m_source->module(i) / m_source->fftSize());
@@ -95,7 +100,7 @@ void RTASeriesRenderer::renderLine()
                 static_cast<GLfloat>(m_source->color().redF()),
                 static_cast<GLfloat>(m_source->color().greenF()),
                 static_cast<GLfloat>(m_source->color().blueF()),
-                static_cast<GLfloat>(powf(m_source->coherence(i), 2))
+                static_cast<GLfloat>(powf(m_source->coherence(i), 2) / a - b)
             );
         }
         if (i > 1) {
@@ -107,7 +112,7 @@ void RTASeriesRenderer::renderLine()
     openGLFunctions->glDisableVertexAttribArray(0);
 }
 void RTASeriesRenderer::renderBars()
-{
+{//TODO:add coherence
     float value = 0;
     GLfloat vertices[8];
 
@@ -144,7 +149,7 @@ void RTASeriesRenderer::renderBars()
     openGLFunctions->glDisableVertexAttribArray(0);
 }
 void RTASeriesRenderer::renderLines()
-{
+{//TODO:add coherence
     unsigned int count = m_source->size();
     GLfloat vertices[4];
     openGLFunctions->glVertexAttribPointer(static_cast<GLuint>(m_posAttr), 2, GL_FLOAT, GL_FALSE, 0, static_cast<const void *>(vertices));

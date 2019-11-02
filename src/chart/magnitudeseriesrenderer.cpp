@@ -68,10 +68,14 @@ void MagnitudeSeriesRenderer::renderSeries()
      * pass spline data to shaders
      * fragment shader draws spline function
      */
+    constexpr float
+            d = 0.85f,
+            a = (1 - d*d),
+            b = d*d / a;
     auto accumulate = [m_source = m_source, &value, &coherence, m_coherence = m_coherence] (unsigned int i)
     {
         value += m_source->magnitude(i);
-        coherence += (m_coherence ? powf(m_source->coherence(i), 2) : 1.f);
+        coherence += (m_coherence ? powf(m_source->coherence(i), 2) / a - b : 1.f);
     };
     auto collected = [m_program = &m_program, openGLFunctions = openGLFunctions, &vertices, &value, &coherence,
             m_splineA = m_splineA, m_frequency1 = m_frequency1, m_frequency2 = m_frequency2,

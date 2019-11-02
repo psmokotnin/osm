@@ -24,14 +24,34 @@ namespace Fftchart {
 class CoherencePlot : public XYPlot
 {
     Q_OBJECT
+    Q_PROPERTY(unsigned int pointsPerOctave READ pointsPerOctave WRITE setPointsPerOctave NOTIFY pointsPerOctaveChanged)
+    Q_PROPERTY(Type type READ type WRITE setType NOTIFY typeChanged)
+
+public:
+    enum Type {NORMAL, SQUARED};
+    Q_ENUMS(Type)
 
 protected:
+    unsigned int m_pointsPerOctave;
+    Type m_type;
     virtual SeriesFBO* createSeriesFromSource(Source *source) override;
 
 public:
     CoherencePlot(Settings *settings, QQuickItem *parent = Q_NULLPTR);
+
+    unsigned int pointsPerOctave() {return m_pointsPerOctave;}
+    void setPointsPerOctave(unsigned int p);
+
+    Type type() {return m_type;}
+    void setType(Type);
+    void setType(QVariant type) {setType(static_cast<Type>(type.toInt()));}
+
     virtual void setSettings(Settings *settings) noexcept override;
     virtual void storeSettings() noexcept override;
+
+signals:
+    void pointsPerOctaveChanged(unsigned int);
+    void typeChanged(Type);
 };
 }
 #endif // COHERENCEPLOT_H
