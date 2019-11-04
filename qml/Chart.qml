@@ -51,6 +51,9 @@ Item {
             case "Phase":
                 opener.propertiesQml = "qrc:/Plot/PhaseProperties.qml";
                 break;
+            case "Group Delay":
+                opener.propertiesQml = "qrc:/Plot/GroupDelayProperties.qml";
+                break;
             case "Impulse":
                 opener.propertiesQml = "qrc:/Plot/ImpulseProperties.qml";
                 break;
@@ -81,10 +84,10 @@ Item {
     ComboBox {
         anchors.top: parent.top
         anchors.right: parent.right
-        implicitWidth: 135
+        implicitWidth: 140
         implicitHeight: Material.buttonHeight
         background: null
-        model: ["RTA", "Magnitude", "Phase", "Impulse", "Coherence"]
+        model: ["RTA", "Magnitude", "Phase", "Impulse", "Coherence", "Group Delay"]
         currentIndex: model.indexOf(type)
         onCurrentIndexChanged: {
             var pb = applicationWindow.properiesbar;

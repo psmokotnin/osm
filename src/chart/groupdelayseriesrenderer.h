@@ -1,6 +1,6 @@
 /**
  *  OSM
- *  Copyright (C) 2018  Pavel Smokotnin
+ *  Copyright (C) 2019  Pavel Smokotnin
 
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -15,23 +15,25 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef TYPE_H
-#define TYPE_H
+#ifndef PHASESERIESRENDERER_H
+#define PHASESERIESRENDERER_H
 
-#include <map>
-#include <QString>
-
+#include "frequencybasedseriesrenderer.h"
 namespace Fftchart {
 
-    enum Type {RTA, Magnitude, Phase, Scope, Impulse, Coherence, GroupDelay};
-    static std::map<Type, QString> typeMap = {
-        {RTA,       "RTA"},
-        {Magnitude, "Magnitude"},
-        {Phase,     "Phase"},
-        {Scope,     "Scope"},
-        {Impulse,   "Impulse"},
-        {Coherence, "Coherence"},
-        {GroupDelay, "Group Delay"}
-    };
+class GroupDelaySeriesRenderer : public FrequencyBasedSeriesRenderer
+{
+public:
+    GroupDelaySeriesRenderer();
+    void renderSeries() override;
+    void synchronize(QQuickFramebufferObject *item) override;
+
+private:
+    int m_posAttr, m_splineA,
+        m_frequency1, m_frequency2,
+        m_coherenceSpline;
+    unsigned int m_pointsPerOctave;
+    bool m_coherence;
+};
 }
-#endif // TYPE_H
+#endif // PHASESERIESRENDERER_H

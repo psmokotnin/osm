@@ -28,5 +28,6 @@
         <file alias="Message.qml">qml/Message.qml</file>
         <file>fonts/osm.ttf</file>
         <file alias="ModalDialog.qml">qml/ModalDialog.qml</file>
+        <file alias="Plot/GroupDelayProperties.qml">qml/Plot/GroupDelayProperties.qml</file>
     </qresource>
 </RCC>

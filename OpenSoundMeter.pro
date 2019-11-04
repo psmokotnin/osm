@@ -3,6 +3,8 @@ TEMPLATE = app
 QT += charts qml quick quickcontrols2 multimedia core opengl
 CONFIG += c++1z
 SOURCES += src/main.cpp \
+    src/chart/groupdelayplot.cpp \
+    src/chart/groupdelayseriesrenderer.cpp \
     src/chart/palette.cpp \
     src/generator.cpp \
     src/pinknoise.cpp \
@@ -71,6 +73,8 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 HEADERS += \
+    src/chart/groupdelayplot.h \
+    src/chart/groupdelayseriesrenderer.h \
     src/chart/palette.h \
     src/generator.h \
     src/pinknoise.h \
@@ -131,6 +135,7 @@ QMAKE_INFO_PLIST = $$PWD/Info.plist
 
 DISTFILES += \
     README.md \
+    future.tasks \
     list.tasks \
     shaders/coherence.frag \
     shaders/fragment.frag \

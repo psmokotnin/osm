@@ -65,7 +65,7 @@ Measurement::Measurement(Settings *settings, QObject *parent) : Fftchart::Source
         }
         _setfftPower = _fftPower = m_settings->reactValue<Measurement, unsigned int>(
                        "fftpower", this, &Measurement::fftPowerChanged, fftPower()).toUInt();
-    } else {;
+    } else {
         selectDevice(device);
     }
     _fftSize = static_cast<unsigned int>(pow(2, _fftPower));

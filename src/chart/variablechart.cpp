@@ -21,6 +21,7 @@
 #include "phaseplot.h"
 #include "impulseplot.h"
 #include "coherenceplot.h"
+#include "groupdelayplot.h"
 #include "src/sourcelist.h"
 
 using namespace Fftchart;
@@ -57,6 +58,10 @@ void VariableChart::initType()
 
     case Coherence:
         newPlot = new CoherencePlot(m_settings, this);
+        break;
+
+    case GroupDelay:
+        newPlot = new GroupDelayPlot(m_settings, this);
         break;
 
     default:

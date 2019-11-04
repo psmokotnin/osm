@@ -170,7 +170,7 @@ bool complex::operator!=(const complex& c) const
 QDebug operator<<(QDebug dbg, const complex &c)
 {
     dbg.nospace() << "Complex value: r:"
-        << c.real << " i:" << c.imag;
+        << c.real << " i:" << c.imag << " ";
 
     return dbg.maybeSpace();
 }
