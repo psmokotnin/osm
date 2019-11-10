@@ -75,31 +75,51 @@ Item {
                 }
             }
 
-            Root.FloatSpinBox {
-                step: 1.0
-                decimals: 0
-                scale: dataObject.yScale
-                value: dataObject.ymin
-                onValueChanged: dataObject.ymin = value
-                from: dataObject.yLowLimit
-                to: dataObject.yHighLimit
+            SpinBox {
+                value: dataObject.rotate
+                onValueChanged: {
+                    if (Math.abs(value) > 180) {
+                        value -= Math.abs(value) / value * 360;
+                    }
+                    dataObject.rotate = value;
+                }
+                from: -360
+                to: 360
                 editable: true
                 implicitWidth: 170
                 Layout.fillWidth: true
-                tooltiptext: qsTr("y from")
+
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("rotate")
+
+                textFromValue: function(value, locale) {
+                    return Number(value) + "º"
+                }
+
+                valueFromText: function(text, locale) {
+                    return parseInt(text)
+                }
             }
 
-            Root.FloatSpinBox {
-                step: 1.0
-                decimals: 0
-                scale: dataObject.yScale
-                value: dataObject.ymax
-                onValueChanged: dataObject.ymax = value
-                min: dataObject.yLowLimit
-                max: dataObject.yHighLimit
+            SpinBox {
+                value: dataObject.range
+                onValueChanged: dataObject.range = value;
+                from: 0
+                to: 360
+                editable: true
                 implicitWidth: 170
                 Layout.fillWidth: true
-                tooltiptext: qsTr("y to")
+
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("range")
+
+                textFromValue: function(value, locale) {
+                    return Number(value) + "º"
+                }
+
+                valueFromText: function(text, locale) {
+                    return parseInt(text)
+                }
             }
 
             Button {

@@ -21,7 +21,7 @@
 
 using namespace Fftchart;
 
-PhaseSeriesRenderer::PhaseSeriesRenderer() : m_pointsPerOctave(0), m_coherence(false)
+PhaseSeriesRenderer::PhaseSeriesRenderer() : m_pointsPerOctave(0), m_rotate(0), m_coherence(false)
 {
     m_program.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/logx.vert");
     m_program.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/phase.frag");
@@ -47,6 +47,8 @@ void PhaseSeriesRenderer::synchronize(QQuickFramebufferObject *item)
     if (auto *plot = dynamic_cast<PhasePlot*>(m_item->parent())) {
         m_pointsPerOctave = plot->pointsPerOctave();
         m_coherence = plot->coherence();
+        constexpr float pk = static_cast<float>(-M_PI / 180.0);
+        m_rotate = plot->rotate() *  pk;
     }
 }
 void PhaseSeriesRenderer::renderSeries()
@@ -57,9 +59,7 @@ void PhaseSeriesRenderer::renderSeries()
     GLfloat vertices[8], re[4], im[4];
     complex value(0);
     float coherence = 0.f;
-    constexpr float
-            F_PI = static_cast<float>(M_PI),
-            D_PI = 2 * F_PI;
+    constexpr float F_PI = static_cast<float>(M_PI);
 
     setUniforms();
     openGLFunctions->glVertexAttribPointer(static_cast<GLuint>(m_posAttr), 2, GL_FLOAT, GL_FALSE, 0, static_cast<const void *>(vertices));
@@ -78,9 +78,9 @@ void PhaseSeriesRenderer::renderSeries()
             d = 0.85f,
             a = (1 - d*d),
             b = d*d / a;
-    auto accumulate = [&value, &coherence, m_source = m_source, m_coherence = m_coherence] (unsigned int i)
+    auto accumulate = [&value, &coherence, m_rotate = m_rotate, m_source = m_source, m_coherence = m_coherence] (unsigned int i)
     {
-        value += m_source->phase(i);
+        value += m_source->phase(i).rotate(m_rotate);
         coherence += (m_coherence ? powf(m_source->coherence(i), 2) / a - b : 1.f);
     };
     auto collected = [m_program = &m_program, openGLFunctions = openGLFunctions, &vertices,
@@ -91,13 +91,13 @@ void PhaseSeriesRenderer::renderSeries()
             (float f1, float f2, complex ac[4], float c[4])
     {
         vertices[0] =  f1;
-        vertices[1] = -D_PI;
+        vertices[1] = -F_PI;
         vertices[2] =  f1;
-        vertices[3] =  D_PI;
+        vertices[3] =  F_PI;
         vertices[4] =  f2;
-        vertices[5] =  D_PI;
+        vertices[5] =  F_PI;
         vertices[6] =  f2;
-        vertices[7] = -D_PI;
+        vertices[7] = -F_PI;
 
         re[0] = ac[0].real;im[0] = ac[0].imag;
         re[1] = ac[1].real;im[1] = ac[1].imag;

@@ -21,7 +21,7 @@
 using namespace Fftchart;
 
 PhasePlot::PhasePlot(Settings *settings, QQuickItem *parent): XYPlot(settings, parent),
-    m_pointsPerOctave(12), m_coherence(true)
+    m_pointsPerOctave(12), m_center(0), m_range(360), m_coherence(true)
 {
     x.configure(AxisType::logarithmic, 20.f, 20000.f);
     x.setISOLabels();
@@ -30,6 +30,7 @@ PhasePlot::PhasePlot(Settings *settings, QQuickItem *parent): XYPlot(settings, p
                 static_cast<float>(M_PI),
                 9, 180.f / static_cast<float>(M_PI)
                 );
+    y.setPeriodic(2 * static_cast<float>(M_PI));
     setFlag(QQuickItem::ItemHasContents);
 }
 SeriesFBO* PhasePlot::createSeriesFromSource(Source *source)
@@ -43,6 +44,28 @@ void PhasePlot::setPointsPerOctave(unsigned int p)
 
     m_pointsPerOctave = p;
     emit pointsPerOctaveChanged(m_pointsPerOctave);
+    update();
+}
+
+void PhasePlot::setRotate(int r) noexcept
+{
+    if (m_center == r)
+        return;
+
+    m_center = r;
+    y.setOffset(m_center);
+    emit rotateChanged(m_center);
+    update();
+}
+void PhasePlot::setRange(int range) noexcept
+{
+    if (m_range == range)
+        return;
+
+    m_range = range;
+    setYMin(static_cast<float>(-M_PI) * m_range / 360);
+    setYMax(static_cast<float>( M_PI) * m_range / 360);
+    emit rangeChanged(m_range);
     update();
 }
 void PhasePlot::setCoherence(bool coherence) noexcept
@@ -60,6 +83,10 @@ void PhasePlot::setSettings(Settings *settings) noexcept
         XYPlot::setSettings(settings);
         setCoherence(
             m_settings->reactValue<PhasePlot, bool>("coherence", this, &PhasePlot::coherenceChanged, m_coherence).toBool());
+        setRotate(
+            m_settings->reactValue<PhasePlot, int>("rotate", this, &PhasePlot::rotateChanged, m_center).toInt());
+        setRange(
+            m_settings->reactValue<PhasePlot, int>("range", this, &PhasePlot::rangeChanged, m_range).toInt());
         setPointsPerOctave(
             m_settings->reactValue<PhasePlot, unsigned int>("pointsPerOctave", this, &PhasePlot::pointsPerOctaveChanged, m_pointsPerOctave).toUInt());
     }
@@ -71,5 +98,7 @@ void PhasePlot::storeSettings() noexcept
 
     XYPlot::storeSettings();
     m_settings->setValue("coherence", m_coherence);
+    m_settings->setValue("rotate", m_center);
+    m_settings->setValue("range", m_range);
     m_settings->setValue("pointsPerOctave", m_pointsPerOctave);
 }

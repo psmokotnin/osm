@@ -32,6 +32,7 @@ struct complex
     float arg();
 
     const complex conjugate() const;
+    const complex rotate(const float &a) const;
     void polar(const float &phase);
 
     complex& operator=(const float& r);

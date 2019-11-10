@@ -38,6 +38,8 @@ private:
     std::vector<float> _labels;
     float _min, _max, _scale;
     float _lowLimit, _highLimit; //stop values
+    float m_offset;
+    std::optional<float> m_period;
 
 public:
     Axis(AxisDirection d, const Palette &palette, QQuickItem *parent = Q_NULLPTR);
@@ -67,6 +69,11 @@ public:
 
     void setType(AxisType t) {_type = t;needUpdate();}
     AxisType type() const {return _type;}
+
+    float offset() const {return m_offset;}
+    void setOffset(float offset);
+
+    void setPeriodic(float p);
 
 public slots:
     void needUpdate();

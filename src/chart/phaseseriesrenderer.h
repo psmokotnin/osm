@@ -33,6 +33,7 @@ private:
         m_frequency1, m_frequency2,
         m_coherenceSpline;
     unsigned int m_pointsPerOctave;
+    float m_rotate;
     bool m_coherence;
 };
 }

@@ -33,7 +33,7 @@ Axis::Axis(AxisDirection d, const Palette &palette, QQuickItem *parent)
     : PaintedItem(parent),
       m_palette(palette),
       _min(0.f), _max(1.f), _scale(1.f),
-      _lowLimit(0.f), _highLimit(1.f)
+      _lowLimit(0.f), _highLimit(1.f), m_offset(0.f), m_period()
 {
     _direction = d;
 
@@ -86,7 +86,15 @@ void Axis::paint(QPainter *painter) noexcept
     for_each(_labels.begin(), _labels.end(), [&](float &l) {
 
         try {
-            t = convert(l, size);
+            float lv = l - m_offset / scale();
+
+            if (m_period && !qFuzzyCompare(m_period.value_or(0.f), 0.f)) {
+                while (std::abs(lv) > m_period.value_or(0.f) / 2.f) {
+                    lv -= std::copysign(m_period.value_or(0.f), lv);
+                }
+            }
+
+            t = convert(lv, size);
         } catch (const invalid_argument &e) {
             qDebug() << l << e.what();
             return; //continue
@@ -133,7 +141,15 @@ float Axis::reverse(float value, float size) const noexcept
     if (_type == AxisType::logarithmic) {
         return pow(static_cast<float>(M_E), log(_min) + value * log(_max / _min) / size);
     }
-    return value * (_max - _min) / size + _min;
+    float l = value * (_max - _min) / size + _min + m_offset / scale();
+
+    if (m_period && !qFuzzyCompare(m_period.value_or(0.f), 0.f)) {
+        while (std::abs(l) > m_period.value_or(0.f) / 2.f) {
+            l -= std::copysign(m_period.value_or(0.f), l);
+        }
+    }
+
+    return l;
 }
 float Axis::coordToValue(float coord) const noexcept
 {
@@ -188,4 +204,14 @@ void Axis::setMax(float v)
                    std::max(v, _min)
         );
     needUpdate();
+}
+void Axis::setOffset(float offset)
+{
+    m_offset = offset;
+    needUpdate();
+}
+
+void Axis::setPeriodic(float p)
+{
+    m_period = p;
 }
