@@ -53,21 +53,26 @@ Item {
 
                 TextField {
                     placeholderText: qsTr("title")
+                    width: 135
                     text: dataObject.name
                     onTextEdited: dataObject.name = text
                 }
             }
             RowLayout {
-//                Button {
-//                    text: qsTr("Delete");
-//                    onClicked: {
-//                        sourceList.removeItem(dataObject);
-//                        applicationWindow.properiesbar.clear();
-//                    }
-//                }
-                Button {
-                    text: qsTr("Save data");
-                    onClicked: fileDialog.open();
+
+                ComboBox {
+                    displayText: qsTr("Save data as");
+
+                    implicitWidth: 170
+                    model: ["osm", "cal"]
+
+                    onActivated: function() {
+                        fileDialog.saveas = currentText;
+                        fileDialog.open();
+                    }
+
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("export data")
                 }
             }
         }
@@ -100,12 +105,20 @@ Item {
 
     FileDialog {
         id: fileDialog
+        property string saveas: "osm"
         selectExisting: false
         title: "Please choose a file's name"
         folder: shortcuts.home
-        defaultSuffix: "osm"
+        defaultSuffix: saveas
         onAccepted: {
-            dataObject.save(fileDialog.fileUrl);
+            switch (saveas) {
+                case "osm":
+                    dataObject.save(fileDialog.fileUrl);
+                    break;
+                case "cal":
+                    dataObject.saveCal(fileDialog.fileUrl);
+                    break;
+            }
         }
     }
 }

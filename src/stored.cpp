@@ -137,6 +137,25 @@ bool Stored::save(const QUrl &fileName) const noexcept
 
     return false;
 }
+bool Stored::saveCal(const QUrl &fileName) const noexcept
+{
+    QFile saveFile(fileName.toLocalFile());
+    if (!saveFile.open(QIODevice::WriteOnly)) {
+        qWarning("Couldn't open save file.");
+        return false;
+    }
+
+    QTextStream out(&saveFile);
+    for (unsigned int i = 0; i < _dataLength; ++i) {
+        out << _ftdata[i].frequency << "\t"
+            << -1 * magnitude(i) << "\t"
+            << _ftdata[i].phase.arg() * -180.f / static_cast<float>(M_PI) << "\n";
+
+
+    }
+    saveFile.close();
+    return true;
+}
 void Stored::setNotes(const QString &notes) noexcept
 {
     if (m_notes != notes) {
