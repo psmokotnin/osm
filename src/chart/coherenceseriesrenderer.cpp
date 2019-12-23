@@ -94,6 +94,6 @@ void CoherenceSeriesRenderer::renderSeries()
         value = 0.0f;
     };
 
-    iterateForSpline<float>(m_pointsPerOctave, &value, &coherence, accumulate, collected);
+    iterateForSpline<float, float>(m_pointsPerOctave, &value, &coherence, accumulate, collected);
     openGLFunctions->glDisableVertexAttribArray(0);
 }

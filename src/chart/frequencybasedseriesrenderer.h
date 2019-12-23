@@ -31,18 +31,20 @@ protected:
                 const std::function<void(float start, float end, unsigned int count)> &collected
             );
 
-    template<typename T> void iterateForSpline(unsigned int pointsPerOctave,
+    template<typename T, typename TSpline = T> void iterateForSpline(unsigned int pointsPerOctave,
                 T *value, float *coherence,
                 const std::function<void (unsigned int)> &accumulate,
-                const std::function<void(float f1, float f2, T *a, GLfloat *c)> &collected
+                const std::function<void(float f1, float f2, TSpline *a, GLfloat *c)> &collected,
+                const std::function<TSpline(const T* value, const float *f, const unsigned int & index)> &beforeSpline = {}
             )
     {
         bool bCollected = false;
         unsigned int bCount = 0;
-        T splinePoint[4], a[4];
+        TSpline splinePoint[4], a[4];
         float csplinePoint[4], f[4], c[4];
 
-        auto it = [value, coherence, &collected, &splinePoint, &csplinePoint, &f, &a, &c, &bCollected, &bCount]
+        auto it = [value, coherence, &collected, &splinePoint, &csplinePoint,
+                    &f, &a, &c, &bCollected, &beforeSpline, &bCount]
                 (float bandStart, float bandEnd, unsigned int count)
         {
             Q_UNUSED(bandStart)
@@ -60,7 +62,13 @@ protected:
                 csplinePoint[2]  = csplinePoint[3];
             }
             f[bCount] = (bandStart + bandEnd) / 2.f;
-            splinePoint[bCount] = *value;
+            if (beforeSpline) {
+                splinePoint[bCount] = beforeSpline(value, f, bCount);
+            } else if constexpr (std::is_same<T, TSpline>::value) {
+                splinePoint[bCount] = *value;
+            } else {
+                qDebug() << "could not convert TSpline to T";
+            }
             csplinePoint[bCount] = *coherence;
 
             if (bCount == 3) {

@@ -54,7 +54,7 @@ void GroupDelaySeriesRenderer::renderSeries()
         return;
 
     GLfloat vertices[8];
-    float value(0);
+    complex value(0);
     float coherence = 0.f;
 
     setUniforms();
@@ -65,30 +65,20 @@ void GroupDelaySeriesRenderer::renderSeries()
     xadd = -1.0f * logf(xMin);
     xmul = m_width / logf(xMax / xMin);
 
-    constexpr float
-            d = 0.85f,
-            a = (1 - d*d),
-            b = d*d / a;
+    constexpr float thershold = 0.85f;
     auto accumulate = [&value, &coherence, m_source = m_source, m_coherence = m_coherence] (unsigned int i)
     {
-        if (i > 0) {
-            complex a = m_source->phase(i), b = m_source->phase(i - 1);
-            float ab = (a.real * b.real + a.imag * b.imag) / (a.abs() * b.abs());
-            while(std::abs(ab) > 1.f) {
-                ab = std::copysign(1.f, ab);
-            }
-            float dP = std::acos(ab) /
-                    (m_source->frequency(i) - m_source->frequency(i - 1));
-            value -= dP;
-        }
-        coherence += (m_coherence ? powf(m_source->coherence(i), 2) / a - b : 1.f);
+        value += m_source->phase(i);
+        coherence += (m_coherence ?
+                     (m_source->coherence(i) > thershold ? m_source->coherence(i) : 0.f) :
+                     1.f);
     };
     auto collected = [m_program = &m_program, openGLFunctions = openGLFunctions, &vertices,
                     m_splineA = m_splineA,
                     &value, &coherence,
                     m_frequency1 = m_frequency1, m_frequency2 = m_frequency2,
                     xadd, xmul, yMin = yMin, yMax = yMax, m_coherenceSpline = m_coherenceSpline]
-            (float f1, float f2, float ac[4], float c[4])
+            (float f1, float f2, float ac[4], GLfloat c[4])
     {
         vertices[0] = f1;
         vertices[1] = yMin;
@@ -111,7 +101,22 @@ void GroupDelaySeriesRenderer::renderSeries()
         coherence = 0.f;
     };
 
-    iterateForSpline<float>(m_pointsPerOctave, &value, &coherence, accumulate, collected);
+    complex lastValue(0);
+    auto beforeSpline = [&lastValue] (const complex *value, const float *f, const unsigned int & index) {
+        if (index == 0) {
+            lastValue = *value;
+            return 0.f;
+        }
+
+        float ab = std::atan2(
+                    value->real * lastValue.imag - value->imag * lastValue.real,
+                    value->real * lastValue.real + value->imag * lastValue.imag
+                    );
+        lastValue = *value;
+        return ab / (f[index] - f[index - 1]);
+    };
+
+    iterateForSpline<complex, float>(m_pointsPerOctave, &value, &coherence, accumulate, collected, beforeSpline);
 
     openGLFunctions->glDisableVertexAttribArray(0);
 }

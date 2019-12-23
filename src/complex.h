@@ -28,8 +28,8 @@ struct complex
     complex (float r = 0.0, float i = 0.0): real(r), imag(i) {}
     complex (const complex &c) : real(c.real), imag(c.imag) {}
 
-    float abs();
-    float arg();
+    float abs() const noexcept;
+    float arg() const noexcept;
 
     const complex conjugate() const;
     const complex rotate(const float &a) const;

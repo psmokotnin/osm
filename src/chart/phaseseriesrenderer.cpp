@@ -74,14 +74,13 @@ void PhaseSeriesRenderer::renderSeries()
      * pass spline data to shaders
      * fragment shader draws phase spline function
      */
-    constexpr float
-            d = 0.85f,
-            a = (1 - d*d),
-            b = d*d / a;
+    constexpr float thershold = 0.85f;
     auto accumulate = [&value, &coherence, m_rotate = m_rotate, m_source = m_source, m_coherence = m_coherence] (unsigned int i)
     {
         value += m_source->phase(i).rotate(m_rotate);
-        coherence += (m_coherence ? powf(m_source->coherence(i), 2) / a - b : 1.f);
+        coherence += (m_coherence ?
+                     (m_source->coherence(i) > thershold ? m_source->coherence(i) : 0.f) :
+                     1.f);
     };
     auto collected = [m_program = &m_program, openGLFunctions = openGLFunctions, &vertices,
                     m_splineRe = m_splineRe, m_splineIm = m_splineIm,
@@ -117,7 +116,7 @@ void PhaseSeriesRenderer::renderSeries()
         coherence = 0.f;
     };
 
-    iterateForSpline<complex>(m_pointsPerOctave, &value, &coherence, accumulate, collected);
+    iterateForSpline<complex, complex>(m_pointsPerOctave, &value, &coherence, accumulate, collected);
 
     openGLFunctions->glDisableVertexAttribArray(0);
 }

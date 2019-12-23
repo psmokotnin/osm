@@ -17,11 +17,11 @@
  */
 #include "./complex.h"
 
-float complex::abs()
+float complex::abs() const noexcept
 {
     return sqrtf(powf(real, 2) + powf(imag, 2));
 }
-float complex::arg()
+float complex::arg() const noexcept
 {
     return atan2f(imag, real);
 }

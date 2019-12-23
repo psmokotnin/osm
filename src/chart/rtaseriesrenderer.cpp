@@ -86,10 +86,7 @@ void RTASeriesRenderer::renderLine()
     openGLFunctions->glVertexAttribPointer(static_cast<GLuint>(m_posAttr), 2, GL_FLOAT, GL_FALSE, 0, static_cast<const void *>(vertices));
     openGLFunctions->glEnableVertexAttribArray(0);
 
-    constexpr float
-            d = 0.85f,
-            a = (1 - d*d),
-            b = d*d / a;
+    constexpr float thershold = 0.85f;
 
     for (unsigned int i = 1, j = 0; i < count; ++i, j += 2) {
         vertices[2] = m_source->frequency(i);
@@ -100,7 +97,9 @@ void RTASeriesRenderer::renderLine()
                 static_cast<GLfloat>(m_source->color().redF()),
                 static_cast<GLfloat>(m_source->color().greenF()),
                 static_cast<GLfloat>(m_source->color().blueF()),
-                static_cast<GLfloat>(powf(m_source->coherence(i), 2) / a - b)
+                static_cast<GLfloat>(m_coherence ?
+                                     (m_source->coherence(i) > thershold ? m_source->coherence(i) : 0.f) :
+                                     1.f)
             );
         }
         if (i > 1) {
