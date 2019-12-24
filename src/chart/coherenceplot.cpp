@@ -27,6 +27,7 @@ CoherencePlot::CoherencePlot(Settings *settings, QQuickItem *parent): XYPlot(set
     x.setISOLabels();
     std::vector<float> labels {0.f, 0.2f, 0.4f, 0.6f, 0.8f, 1.f};
     y.configure(AxisType::linear, 0.f, 1.f);
+    y.setCentralLabel(y.min() - 1.f);
     y.setLabels(labels);
     setFlag(QQuickItem::ItemHasContents);
 }

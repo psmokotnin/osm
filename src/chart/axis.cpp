@@ -33,7 +33,7 @@ Axis::Axis(AxisDirection d, const Palette &palette, QQuickItem *parent)
     : PaintedItem(parent),
       m_palette(palette),
       _min(0.f), _max(1.f), _scale(1.f),
-      _lowLimit(0.f), _highLimit(1.f), m_offset(0.f), m_period()
+      _lowLimit(0.f), _highLimit(1.f), m_offset(0.f), m_centralLabel(0.f), m_period()
 {
     _direction = d;
 
@@ -64,6 +64,7 @@ void Axis::configure(AxisType type, float min, float max, unsigned int ticks, fl
 void Axis::paint(QPainter *painter) noexcept
 {
     QPen linePen(m_palette.lineColor(), 1);
+    QPen centerLinePen(m_palette.centerLineColor(), 1);
     QPen textPen(m_palette.textColor(), 2);
 
     painter->setRenderHints(QPainter::Antialiasing, true);
@@ -110,7 +111,11 @@ void Axis::paint(QPainter *painter) noexcept
         if (!limit.contains(p1) || !limit.contains(p2) )
             return;
 
-        painter->setPen(linePen);
+        if (qFuzzyCompare(m_centralLabel, l)) {
+            painter->setPen(centerLinePen);
+        } else {
+            painter->setPen(linePen);
+        }
         painter->drawLine(p1, p2);
 
         painter->setPen(textPen);
@@ -210,7 +215,11 @@ void Axis::setOffset(float offset)
     m_offset = offset;
     needUpdate();
 }
-
+void Axis::setCentralLabel(float central)
+{
+    m_centralLabel = central;
+    needUpdate();
+}
 void Axis::setPeriodic(float p)
 {
     m_period = p;

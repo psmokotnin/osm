@@ -27,7 +27,7 @@ class Palette: public QObject
 {
     Q_OBJECT
 
-    QColor m_lineColor, m_textColor, m_backgroundColor;
+    QColor m_lineColor, m_centerLineColor, m_textColor, m_backgroundColor;
     bool m_darkMode;
     void initColors() noexcept;
 
@@ -37,6 +37,7 @@ public:
     void setDarkMode(bool darkMode) noexcept;
 
     QColor lineColor() const noexcept {return m_lineColor;}
+    QColor centerLineColor() const noexcept {return m_centerLineColor;}
     QColor textColor() const noexcept {return m_textColor;}
     QColor backgroundColor() const noexcept {return m_backgroundColor;}
 

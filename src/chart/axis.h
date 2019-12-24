@@ -38,7 +38,7 @@ private:
     std::vector<float> _labels;
     float _min, _max, _scale;
     float _lowLimit, _highLimit; //stop values
-    float m_offset;
+    float m_offset, m_centralLabel;
     std::optional<float> m_period;
 
 public:
@@ -72,6 +72,9 @@ public:
 
     float offset() const {return m_offset;}
     void setOffset(float offset);
+
+    float centralLabel() const {return m_centralLabel;}
+    void setCentralLabel(float central);
 
     void setPeriodic(float p);
 
