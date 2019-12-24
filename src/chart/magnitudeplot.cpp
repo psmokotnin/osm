@@ -20,8 +20,7 @@
 
 using namespace Fftchart;
 
-MagnitudePlot::MagnitudePlot(Settings *settings, QQuickItem *parent): XYPlot(settings, parent),
-    m_pointsPerOctave(12), m_coherence(true)
+MagnitudePlot::MagnitudePlot(Settings *settings, QQuickItem *parent): FrequencyBasedPlot(settings, parent)
 {
     x.configure(AxisType::logarithmic, 20.f, 20000.f);
     x.setISOLabels();
@@ -32,32 +31,11 @@ SeriesFBO* MagnitudePlot::createSeriesFromSource(Source *source)
 {
     return new SeriesFBO(source, [](){return new MagnitudeSeriesRenderer();}, this);
 }
-void MagnitudePlot::setPointsPerOctave(unsigned int p) noexcept
-{
-    if (m_pointsPerOctave == p)
-        return;
-
-    m_pointsPerOctave = p;
-    emit pointsPerOctaveChanged(m_pointsPerOctave);
-    update();
-}
-void MagnitudePlot::setCoherence(bool coherence) noexcept
-{
-    if (m_coherence == coherence)
-        return;
-    m_coherence = coherence;
-    emit coherenceChanged(m_coherence);
-    update();
-}
 void MagnitudePlot::setSettings(Settings *settings) noexcept
 {
     if (settings && (settings->value("type") == "Magnitude"))
     {
-        XYPlot::setSettings(settings);
-        setCoherence(
-            m_settings->reactValue<MagnitudePlot, bool>("coherence", this, &MagnitudePlot::coherenceChanged, m_coherence).toBool());
-        setPointsPerOctave(
-            m_settings->reactValue<MagnitudePlot, unsigned int>("pointsPerOctave", this, &MagnitudePlot::pointsPerOctaveChanged, m_pointsPerOctave).toUInt());
+        FrequencyBasedPlot::setSettings(settings);
     }
 }
 void MagnitudePlot::storeSettings() noexcept
@@ -65,7 +43,5 @@ void MagnitudePlot::storeSettings() noexcept
     if (!m_settings)
         return;
 
-    XYPlot::storeSettings();
-    m_settings->setValue("coherence", m_coherence);
-    m_settings->setValue("pointsPerOctave", m_pointsPerOctave);
+    FrequencyBasedPlot::storeSettings();
 }

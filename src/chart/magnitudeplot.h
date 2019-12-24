@@ -18,35 +18,21 @@
 #ifndef MAGNITUDEPLOT_H
 #define MAGNITUDEPLOT_H
 
-#include "xyplot.h"
+#include "frequencybasedplot.h"
 
 namespace Fftchart {
-class MagnitudePlot : public XYPlot
+class MagnitudePlot : public FrequencyBasedPlot
 {
     Q_OBJECT
-    Q_PROPERTY(unsigned int pointsPerOctave READ pointsPerOctave WRITE setPointsPerOctave NOTIFY pointsPerOctaveChanged)
-    Q_PROPERTY(bool coherence READ coherence WRITE setCoherence NOTIFY coherenceChanged)
-
 
 protected:
-    unsigned int m_pointsPerOctave;
-    bool m_coherence;
     virtual SeriesFBO* createSeriesFromSource(Source *source) override;
 
 public:
     MagnitudePlot(Settings *settings, QQuickItem *parent = Q_NULLPTR);
-    unsigned int pointsPerOctave() const noexcept {return m_pointsPerOctave;}
-    void setPointsPerOctave(unsigned int p) noexcept;
-
-    bool coherence() const noexcept {return  m_coherence;}
-    void setCoherence(bool coherence) noexcept;
 
     virtual void setSettings(Settings *settings) noexcept override;
     virtual void storeSettings() noexcept override;
-
-signals:
-    void pointsPerOctaveChanged(unsigned int);
-    void coherenceChanged(bool);
 };
 }
 

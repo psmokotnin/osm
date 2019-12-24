@@ -20,8 +20,8 @@
 
 using namespace Fftchart;
 
-PhasePlot::PhasePlot(Settings *settings, QQuickItem *parent): XYPlot(settings, parent),
-    m_pointsPerOctave(12), m_center(0), m_range(360), m_coherence(true)
+PhasePlot::PhasePlot(Settings *settings, QQuickItem *parent): FrequencyBasedPlot(settings, parent),
+    m_center(0), m_range(360)
 {
     x.configure(AxisType::logarithmic, 20.f, 20000.f);
     x.setISOLabels();
@@ -33,18 +33,10 @@ PhasePlot::PhasePlot(Settings *settings, QQuickItem *parent): XYPlot(settings, p
     y.setPeriodic(2 * static_cast<float>(M_PI));
     setFlag(QQuickItem::ItemHasContents);
 }
+
 SeriesFBO* PhasePlot::createSeriesFromSource(Source *source)
 {
     return new SeriesFBO(source, [](){return new PhaseSeriesRenderer();}, this);
-}
-void PhasePlot::setPointsPerOctave(unsigned int p)
-{
-    if (m_pointsPerOctave == p)
-        return;
-
-    m_pointsPerOctave = p;
-    emit pointsPerOctaveChanged(m_pointsPerOctave);
-    update();
 }
 
 void PhasePlot::setRotate(int r) noexcept
@@ -68,27 +60,14 @@ void PhasePlot::setRange(int range) noexcept
     emit rangeChanged(m_range);
     update();
 }
-void PhasePlot::setCoherence(bool coherence) noexcept
-{
-    if (m_coherence == coherence)
-        return;
-
-    m_coherence = coherence;
-    emit coherenceChanged(m_coherence);
-    update();
-}
 void PhasePlot::setSettings(Settings *settings) noexcept
 {
     if (settings && (settings->value("type") == "Phase")) {
-        XYPlot::setSettings(settings);
-        setCoherence(
-            m_settings->reactValue<PhasePlot, bool>("coherence", this, &PhasePlot::coherenceChanged, m_coherence).toBool());
+        FrequencyBasedPlot::setSettings(settings);
         setRotate(
             m_settings->reactValue<PhasePlot, int>("rotate", this, &PhasePlot::rotateChanged, m_center).toInt());
         setRange(
             m_settings->reactValue<PhasePlot, int>("range", this, &PhasePlot::rangeChanged, m_range).toInt());
-        setPointsPerOctave(
-            m_settings->reactValue<PhasePlot, unsigned int>("pointsPerOctave", this, &PhasePlot::pointsPerOctaveChanged, m_pointsPerOctave).toUInt());
     }
 }
 void PhasePlot::storeSettings() noexcept
@@ -96,9 +75,7 @@ void PhasePlot::storeSettings() noexcept
     if (!m_settings)
         return;
 
-    XYPlot::storeSettings();
-    m_settings->setValue("coherence", m_coherence);
+    FrequencyBasedPlot::storeSettings();
     m_settings->setValue("rotate", m_center);
     m_settings->setValue("range", m_range);
-    m_settings->setValue("pointsPerOctave", m_pointsPerOctave);
 }

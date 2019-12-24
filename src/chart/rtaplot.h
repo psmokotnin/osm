@@ -18,22 +18,19 @@
 #ifndef RTAPLOT_H
 #define RTAPLOT_H
 
-#include "xyplot.h"
+#include "frequencybasedplot.h"
 
 namespace Fftchart {
-class RTAPlot : public XYPlot
+class RTAPlot : public FrequencyBasedPlot
 {
     Q_OBJECT
 
     Q_PROPERTY(unsigned int mode READ mode WRITE setMode NOTIFY modeChanged)
-    Q_PROPERTY(unsigned int pointsPerOctave READ pointsPerOctave WRITE setPointsPerOctave NOTIFY pointsPerOctaveChanged)
-    Q_PROPERTY(bool coherence READ coherence WRITE setCoherence NOTIFY coherenceChanged)
 
 protected:
     virtual SeriesFBO* createSeriesFromSource(Source *source) override;
     unsigned int m_mode;
-    unsigned int m_pointsPerOctave;
-    bool m_spline, m_coherence;
+    bool m_spline;
 
 public:
     RTAPlot(Settings *settings, QQuickItem *parent = Q_NULLPTR);
@@ -41,19 +38,11 @@ public:
     void setMode(unsigned int mode);
     unsigned int mode() {return m_mode;}
 
-    unsigned int pointsPerOctave() {return m_pointsPerOctave;}
-    void setPointsPerOctave(unsigned int p);
-
-    bool coherence() const noexcept {return  m_coherence;}
-    void setCoherence(bool coherence) noexcept;
-
     virtual void setSettings(Settings *settings) noexcept override;
     virtual void storeSettings() noexcept override;
 
 signals:
     void modeChanged(unsigned int);
-    void pointsPerOctaveChanged(unsigned int);
-    void coherenceChanged(bool);
 };
 }
 #endif // RTAPLOT_H

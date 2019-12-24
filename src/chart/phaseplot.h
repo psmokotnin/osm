@@ -18,33 +18,25 @@
 #ifndef PHASEPLOT_H
 #define PHASEPLOT_H
 
-#include "xyplot.h"
+#include "frequencybasedplot.h"
 
 namespace Fftchart {
-class PhasePlot : public XYPlot
+class PhasePlot : public FrequencyBasedPlot
 {
     Q_OBJECT
-    Q_PROPERTY(unsigned int pointsPerOctave READ pointsPerOctave WRITE setPointsPerOctave NOTIFY pointsPerOctaveChanged)
+
     Q_PROPERTY(int rotate READ rotate WRITE setRotate NOTIFY rotateChanged)
     Q_PROPERTY(int range READ range WRITE setRange NOTIFY rangeChanged)
-    Q_PROPERTY(bool coherence READ coherence WRITE setCoherence NOTIFY coherenceChanged)
 
 protected:
-    unsigned int m_pointsPerOctave;
-    int m_center, m_range, m_width;
-    bool m_coherence;
     virtual SeriesFBO* createSeriesFromSource(Source *source) override;
+    int m_center, m_range, m_width;
 
 public:
     PhasePlot(Settings *settings, QQuickItem *parent = Q_NULLPTR);
-    unsigned int pointsPerOctave() {return m_pointsPerOctave;}
-    void setPointsPerOctave(unsigned int p);
 
     int rotate() const noexcept{return m_center;}
     void setRotate(int r) noexcept;
-
-    bool coherence() const noexcept {return  m_coherence;}
-    void setCoherence(bool coherence) noexcept;
 
     virtual void setSettings(Settings *settings) noexcept override;
     virtual void storeSettings() noexcept override;
@@ -53,10 +45,8 @@ public:
     void setRange(int range) noexcept;
 
 signals:
-    void pointsPerOctaveChanged(unsigned int);
     void rotateChanged(int);
     void rangeChanged(int);
-    void coherenceChanged(bool);
 };
 };
 #endif // PHASEPLOT_H

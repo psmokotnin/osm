@@ -3,6 +3,7 @@ TEMPLATE = app
 QT += charts qml quick quickcontrols2 multimedia core opengl
 CONFIG += c++1z
 SOURCES += src/main.cpp \
+    src/chart/frequencybasedplot.cpp \
     src/chart/groupdelayplot.cpp \
     src/chart/groupdelayseriesrenderer.cpp \
     src/chart/palette.cpp \
@@ -73,6 +74,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 HEADERS += \
+    src/chart/frequencybasedplot.h \
     src/chart/groupdelayplot.h \
     src/chart/groupdelayseriesrenderer.h \
     src/chart/palette.h \

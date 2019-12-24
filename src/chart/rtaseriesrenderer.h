@@ -42,6 +42,7 @@ private:
     int m_posAttr;
     unsigned int m_pointsPerOctave, m_mode;
     bool m_coherence;
+    float m_coherenceThreshold;
 };
 }
 #endif // RTASERIES_H

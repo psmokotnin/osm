@@ -23,7 +23,7 @@ using namespace Fftchart;
 RTASeriesRenderer::RTASeriesRenderer() :
     m_pointsPerOctave(0),
     m_mode(0),
-    m_coherence(false)
+    m_coherence(false), m_coherenceThreshold(0)
 {
     m_program.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/logx.vert");
     m_program.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/color.frag");
@@ -40,7 +40,9 @@ void RTASeriesRenderer::synchronize(QQuickFramebufferObject *item)
     if (auto *plot = dynamic_cast<RTAPlot*>(m_item->parent())) {
         m_pointsPerOctave = plot->pointsPerOctave();
         m_mode = plot->mode();
-        m_coherence = plot->coherence();
+        //TODO: may be remove
+        //m_coherence = plot->coherence();
+        //m_coherenceThreshold = plot->coherenceThreshold();
     }
 }
 void RTASeriesRenderer::renderSeries()
@@ -86,8 +88,6 @@ void RTASeriesRenderer::renderLine()
     openGLFunctions->glVertexAttribPointer(static_cast<GLuint>(m_posAttr), 2, GL_FLOAT, GL_FALSE, 0, static_cast<const void *>(vertices));
     openGLFunctions->glEnableVertexAttribArray(0);
 
-    constexpr float thershold = 0.85f;
-
     for (unsigned int i = 1, j = 0; i < count; ++i, j += 2) {
         vertices[2] = m_source->frequency(i);
         vertices[3] = 20 * log10f(2 * m_source->module(i) / m_source->fftSize());
@@ -98,7 +98,7 @@ void RTASeriesRenderer::renderLine()
                 static_cast<GLfloat>(m_source->color().greenF()),
                 static_cast<GLfloat>(m_source->color().blueF()),
                 static_cast<GLfloat>(m_coherence ?
-                                     (m_source->coherence(i) > thershold ? m_source->coherence(i) : 0.f) :
+                                     (m_source->coherence(i) > m_coherenceThreshold ? m_source->coherence(i) : 0.f) :
                                      1.f)
             );
         }

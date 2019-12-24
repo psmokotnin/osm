@@ -148,7 +148,10 @@ Item {
             }
         }
 
+        /*
+        TODO: may be remove?
         CheckBox {
+            id: coherence
             text: qsTr("use coherence")
             implicitWidth: 170
             checked: dataObject.coherence
@@ -157,6 +160,17 @@ Item {
             ToolTip.visible: hovered
             ToolTip.text: qsTr("use coherence as alpha channel")
         }
+
+        Root.FloatSpinBox {
+            min: 0.0
+            max: 1.0
+            step: 0.05
+            value: dataObject.coherenceThreshold
+            tooltiptext: qsTr("coherence Threshold")
+            onValueChanged: dataObject.coherenceThreshold = value
+            implicitWidth: 170
+            visible: coherence.checked
+        }*/
 
         FileDialog {
             id: fileDialog

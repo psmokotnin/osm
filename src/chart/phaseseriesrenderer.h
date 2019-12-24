@@ -31,9 +31,10 @@ public:
 private:
     int m_posAttr, m_splineRe, m_splineIm,
         m_frequency1, m_frequency2,
-        m_coherenceSpline;
+        m_coherenceSpline,
+        m_coherenceThresholdU, m_coherenceAlpha;
     unsigned int m_pointsPerOctave;
-    float m_rotate;
+    float m_rotate, m_coherenceThreshold;
     bool m_coherence;
 };
 }

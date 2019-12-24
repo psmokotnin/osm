@@ -20,8 +20,7 @@
 
 using namespace Fftchart;
 
-GroupDelayPlot::GroupDelayPlot(Settings *settings, QQuickItem *parent): XYPlot(settings, parent),
-    m_pointsPerOctave(12), m_coherence(true)
+GroupDelayPlot::GroupDelayPlot(Settings *settings, QQuickItem *parent): FrequencyBasedPlot(settings, parent)
 {
     x.configure(AxisType::logarithmic, 20.f, 20000.f);
     x.setISOLabels();
@@ -39,32 +38,10 @@ SeriesFBO* GroupDelayPlot::createSeriesFromSource(Source *source)
 {
     return new SeriesFBO(source, [](){return new GroupDelaySeriesRenderer();}, this);
 }
-void GroupDelayPlot::setPointsPerOctave(unsigned int p)
-{
-    if (m_pointsPerOctave == p)
-        return;
-
-    m_pointsPerOctave = p;
-    emit pointsPerOctaveChanged(m_pointsPerOctave);
-    update();
-}
-void GroupDelayPlot::setCoherence(bool coherence) noexcept
-{
-    if (m_coherence == coherence)
-        return;
-
-    m_coherence = coherence;
-    emit coherenceChanged(m_coherence);
-    update();
-}
 void GroupDelayPlot::setSettings(Settings *settings) noexcept
 {
     if (settings && (settings->value("type") == "Group Delay")) {
-        XYPlot::setSettings(settings);
-        setCoherence(
-            m_settings->reactValue<GroupDelayPlot, bool>("coherence", this, &GroupDelayPlot::coherenceChanged, m_coherence).toBool());
-        setPointsPerOctave(
-            m_settings->reactValue<GroupDelayPlot, unsigned int>("pointsPerOctave", this, &GroupDelayPlot::pointsPerOctaveChanged, m_pointsPerOctave).toUInt());
+        FrequencyBasedPlot::setSettings(settings);
     }
 }
 void GroupDelayPlot::storeSettings() noexcept
@@ -72,7 +49,5 @@ void GroupDelayPlot::storeSettings() noexcept
     if (!m_settings)
         return;
 
-    XYPlot::storeSettings();
-    m_settings->setValue("coherence", m_coherence);
-    m_settings->setValue("pointsPerOctave", m_pointsPerOctave);
+    FrequencyBasedPlot::storeSettings();
 }

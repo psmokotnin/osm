@@ -21,7 +21,7 @@
 
 using namespace Fftchart;
 
-GroupDelaySeriesRenderer::GroupDelaySeriesRenderer() : m_pointsPerOctave(0), m_coherence(false)
+GroupDelaySeriesRenderer::GroupDelaySeriesRenderer() : m_pointsPerOctave(0), m_coherenceThreshold(0), m_coherence(false)
 {
     m_program.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/logx.vert");
     m_program.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/magnitude.frag");
@@ -37,7 +37,9 @@ GroupDelaySeriesRenderer::GroupDelaySeriesRenderer() : m_pointsPerOctave(0), m_c
     m_matrixUniform = m_program.uniformLocation("matrix");
     m_minmaxUniform = m_program.uniformLocation("minmax");
     m_screenUniform = m_program.uniformLocation("screen");
-    m_coherenceSpline = m_program.uniformLocation("coherenceSpline");
+    m_coherenceSpline     = m_program.uniformLocation("coherenceSpline");
+    m_coherenceThresholdU = m_program.uniformLocation("coherenceThreshold");
+    m_coherenceAlpha      = m_program.uniformLocation("coherenceAlpha");
 }
 void GroupDelaySeriesRenderer::synchronize(QQuickFramebufferObject *item)
 {
@@ -46,6 +48,7 @@ void GroupDelaySeriesRenderer::synchronize(QQuickFramebufferObject *item)
     if (auto *plot = dynamic_cast<GroupDelayPlot*>(m_item->parent())) {
         m_pointsPerOctave = plot->pointsPerOctave();
         m_coherence = plot->coherence();
+        m_coherenceThreshold = plot->coherenceThreshold();
     }
 }
 void GroupDelaySeriesRenderer::renderSeries()
@@ -60,18 +63,17 @@ void GroupDelaySeriesRenderer::renderSeries()
     setUniforms();
     openGLFunctions->glVertexAttribPointer(static_cast<GLuint>(m_posAttr), 2, GL_FLOAT, GL_FALSE, 0, static_cast<const void *>(vertices));
     openGLFunctions->glEnableVertexAttribArray(0);
+    m_program.setUniformValue(m_coherenceThresholdU, m_coherenceThreshold);
+    m_program.setUniformValue(m_coherenceAlpha, m_coherence);
 
     float xadd, xmul;
     xadd = -1.0f * logf(xMin);
     xmul = m_width / logf(xMax / xMin);
 
-    constexpr float thershold = 0.85f;
-    auto accumulate = [&value, &coherence, m_source = m_source, m_coherence = m_coherence] (unsigned int i)
+    auto accumulate = [&value, &coherence, m_source = m_source] (unsigned int i)
     {
         value += m_source->phase(i);
-        coherence += (m_coherence ?
-                     (m_source->coherence(i) > thershold ? m_source->coherence(i) : 0.f) :
-                     1.f);
+        coherence += m_source->coherence(i);
     };
     auto collected = [m_program = &m_program, openGLFunctions = openGLFunctions, &vertices,
                     m_splineA = m_splineA,

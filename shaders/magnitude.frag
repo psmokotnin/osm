@@ -23,6 +23,8 @@ uniform float width;
 uniform vec2 screen;
 uniform vec4 minmax;
 uniform vec4 coherenceSpline;
+uniform float coherenceThreshold;
+uniform bool coherenceAlpha;
 
 float spline(float t) {
     float y =
@@ -42,7 +44,7 @@ void main() {
             currentY, t,
             xs = frequency1,
             xe = frequency2;
-    float dist;
+    float dist, alpha;
     vec2 currentDist, coord = gl_FragCoord.xy;
 
     for (float i = -1. * width; i < width; i += 0.1) {
@@ -54,10 +56,19 @@ void main() {
         dist = distance(coord, currentDist);
         if (dist < width / 2.0) {
             gl_FragColor = m_color;
-            gl_FragColor.a = coherenceSpline[0] +
-                    coherenceSpline[1] * i +
-                    coherenceSpline[2] * i*i +
-                    coherenceSpline[3] * i*i*i;
+            if (coherenceAlpha) {
+                alpha = coherenceSpline[0] +
+                        coherenceSpline[1] * t +
+                        coherenceSpline[2] * t*t +
+                        coherenceSpline[3] * t*t*t;
+                if (alpha < coherenceThreshold) {
+                    discard;
+                } else {
+                    float k = 1.0 / (1.0 - coherenceThreshold),
+                          b = -k * coherenceThreshold;
+                    gl_FragColor.a = sqrt(k * alpha + b);
+                }
+            }
             return;
         }
     }

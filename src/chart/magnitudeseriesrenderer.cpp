@@ -21,7 +21,7 @@
 
 using namespace Fftchart;
 
-MagnitudeSeriesRenderer::MagnitudeSeriesRenderer() : m_pointsPerOctave(0), m_coherence(false)
+MagnitudeSeriesRenderer::MagnitudeSeriesRenderer() : m_pointsPerOctave(0), m_coherenceThreshold(0), m_coherence(false)
 {
     m_program.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/logx.vert");
     m_program.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/magnitude.frag");
@@ -36,15 +36,18 @@ MagnitudeSeriesRenderer::MagnitudeSeriesRenderer() : m_pointsPerOctave(0), m_coh
     m_matrixUniform = m_program.uniformLocation("matrix");
     m_minmaxUniform = m_program.uniformLocation("minmax");
     m_screenUniform = m_program.uniformLocation("screen");
-    m_coherenceSpline = m_program.uniformLocation("coherenceSpline");
+    m_coherenceSpline     = m_program.uniformLocation("coherenceSpline");
+    m_coherenceThresholdU = m_program.uniformLocation("coherenceThreshold");
+    m_coherenceAlpha      = m_program.uniformLocation("coherenceAlpha");
 }
 void MagnitudeSeriesRenderer::synchronize(QQuickFramebufferObject *item)
 {
     XYSeriesRenderer::synchronize(item);
 
     if (auto *plot = dynamic_cast<MagnitudePlot*>(m_item->parent())) {
-        m_pointsPerOctave = plot->pointsPerOctave();
-        m_coherence = plot->coherence();
+        m_pointsPerOctave    = plot->pointsPerOctave();
+        m_coherence          = plot->coherence();
+        m_coherenceThreshold = plot->coherenceThreshold();
     }
 }
 void MagnitudeSeriesRenderer::renderSeries()
@@ -58,6 +61,8 @@ void MagnitudeSeriesRenderer::renderSeries()
     setUniforms();
     openGLFunctions->glVertexAttribPointer(static_cast<GLuint>(m_posAttr), 2, GL_FLOAT, GL_FALSE, 0, static_cast<const void *>(vertices));
     openGLFunctions->glEnableVertexAttribArray(0);
+    m_program.setUniformValue(m_coherenceThresholdU, m_coherenceThreshold);
+    m_program.setUniformValue(m_coherenceAlpha, m_coherence);
 
     float xadd, xmul;
     xadd = -1.0f * logf(xMin);
@@ -68,13 +73,10 @@ void MagnitudeSeriesRenderer::renderSeries()
      * pass spline data to shaders
      * fragment shader draws spline function
      */
-    constexpr float thershold = 0.85f;
-    auto accumulate = [m_source = m_source, &value, &coherence, m_coherence = m_coherence] (unsigned int i)
+    auto accumulate = [m_source = m_source, &value, &coherence] (unsigned int i)
     {
         value += m_source->magnitude(i);
-        coherence += (m_coherence ?
-                     (m_source->coherence(i) > thershold ? m_source->coherence(i) : 0.f) :
-                     1.f);
+        coherence += m_source->coherence(i);
     };
     auto collected = [m_program = &m_program, openGLFunctions = openGLFunctions, &vertices, &value, &coherence,
             m_splineA = m_splineA, m_frequency1 = m_frequency1, m_frequency2 = m_frequency2,

@@ -21,7 +21,7 @@
 
 using namespace Fftchart;
 
-PhaseSeriesRenderer::PhaseSeriesRenderer() : m_pointsPerOctave(0), m_rotate(0), m_coherence(false)
+PhaseSeriesRenderer::PhaseSeriesRenderer() : m_pointsPerOctave(0), m_rotate(0), m_coherenceThreshold(0), m_coherence(false)
 {
     m_program.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/logx.vert");
     m_program.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/phase.frag");
@@ -38,7 +38,9 @@ PhaseSeriesRenderer::PhaseSeriesRenderer() : m_pointsPerOctave(0), m_rotate(0), 
     m_matrixUniform = m_program.uniformLocation("matrix");
     m_minmaxUniform = m_program.uniformLocation("minmax");
     m_screenUniform = m_program.uniformLocation("screen");
-    m_coherenceSpline = m_program.uniformLocation("coherenceSpline");
+    m_coherenceSpline     = m_program.uniformLocation("coherenceSpline");
+    m_coherenceThresholdU = m_program.uniformLocation("coherenceThreshold");
+    m_coherenceAlpha      = m_program.uniformLocation("coherenceAlpha");
 }
 void PhaseSeriesRenderer::synchronize(QQuickFramebufferObject *item)
 {
@@ -49,6 +51,7 @@ void PhaseSeriesRenderer::synchronize(QQuickFramebufferObject *item)
         m_coherence = plot->coherence();
         constexpr float pk = static_cast<float>(-M_PI / 180.0);
         m_rotate = plot->rotate() *  pk;
+        m_coherenceThreshold = plot->coherenceThreshold();
     }
 }
 void PhaseSeriesRenderer::renderSeries()
@@ -64,6 +67,8 @@ void PhaseSeriesRenderer::renderSeries()
     setUniforms();
     openGLFunctions->glVertexAttribPointer(static_cast<GLuint>(m_posAttr), 2, GL_FLOAT, GL_FALSE, 0, static_cast<const void *>(vertices));
     openGLFunctions->glEnableVertexAttribArray(0);
+    m_program.setUniformValue(m_coherenceThresholdU, m_coherenceThreshold);
+    m_program.setUniformValue(m_coherenceAlpha, m_coherence);
 
     float xadd, xmul;
     xadd = -1.0f * logf(xMin);
@@ -74,13 +79,10 @@ void PhaseSeriesRenderer::renderSeries()
      * pass spline data to shaders
      * fragment shader draws phase spline function
      */
-    constexpr float thershold = 0.85f;
-    auto accumulate = [&value, &coherence, m_rotate = m_rotate, m_source = m_source, m_coherence = m_coherence] (unsigned int i)
+    auto accumulate = [&value, &coherence, m_rotate = m_rotate, m_source = m_source] (unsigned int i)
     {
         value += m_source->phase(i).rotate(m_rotate);
-        coherence += (m_coherence ?
-                     (m_source->coherence(i) > thershold ? m_source->coherence(i) : 0.f) :
-                     1.f);
+        coherence += m_source->coherence(i);
     };
     auto collected = [m_program = &m_program, openGLFunctions = openGLFunctions, &vertices,
                     m_splineRe = m_splineRe, m_splineIm = m_splineIm,
