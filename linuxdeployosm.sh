@@ -1,14 +1,12 @@
 #!/bin/bash
 
-APP_GIT_VERSION=$1
+export VERSION=$1
 SOURCE_DIR=$2
 QT_BINS=$3
 
 make clean -j1
-OSM_DESKTOP=OpenSoundMeter_$APP_GIT_VERSION.desktop
+OSM_DESKTOP=OpenSoundMeter_$VERSION.desktop
 LINUXDEPLOYQT=linuxdeployqt-6-x86_64.AppImage
-
-echo "$SOURCE_DIR"
 
 if test -f "$LINUXDEPLOYQT"; then
   echo "$LINUXDEPLOYQT exist"
