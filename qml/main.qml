@@ -21,6 +21,7 @@ import QtQuick.Controls.Material 2.1
 import QtQuick.Layouts 1.1
 import QtQuick.Window 2.2
 import QtQuick.Controls 1.4
+import QtQuick.Controls.Styles 1.4
 import QtQuick.Dialogs 1.2
 import SourceModel 1.0
 
@@ -33,6 +34,10 @@ ApplicationWindow {
     property alias message : message
     property alias dialog : dialog
     property alias darkMode : darkModeSelect.checked
+    //NOTE: Properties for fix Menu colors
+    property string bgC: Material.backgroundColor
+    property string acc: Material.accent
+    property string fgC: Material.foreground
 
     visible: true
     flags: Qt.Window
@@ -57,56 +62,108 @@ ApplicationWindow {
     Material.accent: Material.Indigo
 
     menuBar: MenuBar {
-            Menu {
-                title: qsTr("&File")
-                MenuItem {
-                    text: qsTr("&New")
-                    shortcut: StandardKey.New
-                    onTriggered: {
-                        applicationWindow.properiesbar.clear();
-                        sourceList.reset();
-                    }
-                }
-                MenuItem {
-                    text: qsTr("&Save")
-                    shortcut: StandardKey.Save
-                    onTriggered: saveDialog.open();
-                }
-                MenuItem {
-                    text: qsTr("&Load")
-                    shortcut: StandardKey.Open
-                    onTriggered: openDialog.open()
-                }
-                MenuItem {
-                    text: qsTr("&Append measurement")
-                    onTriggered: sourceList.addMeasurement();
+        //FIXME: CheckBox and Label
+        style: MenuBarStyle{
+            background: Rectangle{ color:Material.backgroundColor}
+            itemDelegate: Rectangle {
+                implicitWidth: menuBarLabel.contentWidth * 1.4
+                implicitHeight: menuBarLabel.contentHeight * 1.5
+                color: styleData.selected || styleData.open ? acc : bgC
+                Label {
+                    id:menuBarLabel
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.bottom: parent.bottom
+                    anchors.bottomMargin: menuBarLabel.contentHeight/5
+                    color: styleData.selected  || styleData.open ? bgC : fgC
+                    text: formatMnemonic(styleData.text,true)
                 }
             }
-            Menu {
-                title: qsTr("&View")
-                MenuItem {
-                    id: darkModeSelect
-                    text: qsTr("&Dark Mode")
-                    checkable: true
-                    checked: applicationSettings.value("darkMode") === "true"
-                    onCheckedChanged: {
-                        applicationSettings.setValue("darkMode", darkModeSelect.checked)
+            menuStyle: MenuStyle {
+                frame: Rectangle {
+                    color: bgC
+                    border.width: 0
+                }
+
+                //FIXME: Colors doesn't set correctly from Material
+                itemDelegate {
+                    background: Rectangle {
+                        color:  styleData.selected || styleData.open ? acc : bgC
+                        border.width: 0
+                    }
+                    label: Label {
+                        color: styleData.selected ? bgC : fgC
+                        text: formatMnemonic(styleData.text,true)
+                    }
+
+                    submenuIndicator: Text {
+                        text: "\u25ba"
+                        color: styleData.selected  || styleData.open ? acc : bgC
+                    }
+
+                    shortcut: Label {
+                        color: styleData.selected ? bgC : fgC
+                        text: styleData.shortcut
+                    }
+
+                    checkmarkIndicator: CheckBox {
+                        checked: styleData.checked
                     }
                 }
             }
 
-            Menu {
-                title: qsTr("&Help")
-                MenuItem {
-                    text: qsTr("About")
-                    onTriggered: aboutpopup.open();
+        }
+
+        Menu {
+            title: qsTr("&File")
+
+            MenuItem {
+                text: qsTr("&New")
+                shortcut: StandardKey.New
+                onTriggered: {
+                    applicationWindow.properiesbar.clear();
+                    sourceList.reset();
                 }
-                MenuItem {
-                    text: qsTr("Check for update")
-                    onTriggered: update.show();
+            }
+            MenuItem {
+                text: qsTr("&Save")
+                shortcut: StandardKey.Save
+                onTriggered: saveDialog.open();
+            }
+            MenuItem {
+                text: qsTr("&Load")
+                shortcut: StandardKey.Open
+                onTriggered: openDialog.open()
+            }
+            MenuItem {
+                text: qsTr("&Append measurement")
+                onTriggered: sourceList.addMeasurement();
+            }
+        }
+        Menu {
+            title: qsTr("&View")
+            MenuItem {
+                id: darkModeSelect
+                text: qsTr("&Dark Mode")
+                checkable: true
+                checked: applicationSettings.value("darkMode") === "true"
+                onCheckedChanged: {
+                    applicationSettings.setValue("darkMode", darkModeSelect.checked)
                 }
             }
         }
+
+        Menu {
+            title: qsTr("&Help")
+            MenuItem {
+                text: qsTr("About")
+                onTriggered: aboutpopup.open();
+            }
+            MenuItem {
+                text: qsTr("Check for update")
+                onTriggered: update.show();
+            }
+        }
+    }
 
     RowLayout {
         anchors.fill: parent
@@ -154,8 +211,8 @@ ApplicationWindow {
     }
 
     ModalDialog {
-          id: dialog
-      }
+        id: dialog
+    }
 
     FileDialog {
         id: saveDialog
