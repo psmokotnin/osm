@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Open Sound Meter
+Comment=FFT based application for tuning sound systems.
+Exec=OpenSoundMeter
+Icon=white
+Categories=AudioVideo;
