@@ -127,6 +127,15 @@ HEADERS += \
 APP_GIT_VERSION = $$system(git --git-dir $$_PRO_FILE_PWD_/.git --work-tree $$_PRO_FILE_PWD_ describe --tags $$system(git --git-dir $$_PRO_FILE_PWD_/.git --work-tree $$_PRO_FILE_PWD_ rev-list --tags --max-count=1))
 DEFINES += APP_GIT_VERSION=\\\"$$APP_GIT_VERSION\\\"
 
+# Special rules for deployment on Linux for AppImage
+
+unix:CONFIG(release, debug|release) {
+    QMAKE_POST_LINK += $$QMAKE_COPY $$PWD/OpenSoundMeter.desktop $$OUT_PWD/OpenSoundMeter_\\"$$APP_GIT_VERSION\\".desktop
+QMAKE_POST_LINK +=&& $$QMAKE_COPY $$PWD/icons/white.png $$OUT_PWD
+QMAKE_POST_LINK +=&& $$QMAKE_COPY $$PWD/linuxdeployosm.sh $$OUT_PWD
+QMAKE_POST_LINK +=  && chmod u+x $$OUT_PWD/linuxdeployosm.sh && $$OUT_PWD/linuxdeployosm.sh $$APP_GIT_VERSION $$PWD $$[QT_INSTALL_BINS]
+}
+
 FORMS +=
 
 win:QMAKE_CXXFLAGS += -m64 -msse2
@@ -136,8 +145,10 @@ QMAKE_CXXFLAGS_RELEASE += -Ofast
 QMAKE_INFO_PLIST = $$PWD/Info.plist
 
 DISTFILES += \
+    OpenSoundMeter.desktop \
     README.md \
     future.tasks \
+    linuxdeployosm.sh \
     list.tasks \
     shaders/coherence.frag \
     shaders/fragment.frag \
