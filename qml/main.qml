@@ -93,6 +93,19 @@ ApplicationWindow {
                         applicationSettings.setValue("darkMode", darkModeSelect.checked)
                     }
                 }
+                MenuItem {
+                    id: calculator
+                    text: qsTr("&Calculator")
+                    shortcut: "Ctrl+C"
+                    checkable: false
+                    onTriggered: {
+                        applicationWindow.properiesbar.open(null, "qrc:/Calculator.qml");
+                    }
+
+                    onCheckedChanged: {
+                        applicationSettings.setValue("darkMode", darkModeSelect.checked)
+                    }
+                }
             }
 
             Menu {

@@ -29,5 +29,6 @@
         <file>fonts/osm.ttf</file>
         <file alias="ModalDialog.qml">qml/ModalDialog.qml</file>
         <file alias="Plot/GroupDelayProperties.qml">qml/Plot/GroupDelayProperties.qml</file>
+        <file alias="Calculator.qml">qml/Calculator.qml</file>
     </qresource>
 </RCC>
