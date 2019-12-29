@@ -129,11 +129,11 @@ DEFINES += APP_GIT_VERSION=\\\"$$APP_GIT_VERSION\\\"
 
 # Special rules for deployment on Linux for AppImage
 
-unix:CONFIG(release, debug|release) {
+unix:!macx:CONFIG(release, debug|release) {
     QMAKE_POST_LINK += $$QMAKE_COPY $$PWD/OpenSoundMeter.desktop $$OUT_PWD/OpenSoundMeter_\\"$$APP_GIT_VERSION\\".desktop
-QMAKE_POST_LINK +=&& $$QMAKE_COPY $$PWD/icons/white.png $$OUT_PWD
-QMAKE_POST_LINK +=&& $$QMAKE_COPY $$PWD/linuxdeployosm.sh $$OUT_PWD
-QMAKE_POST_LINK +=  && chmod u+x $$OUT_PWD/linuxdeployosm.sh && $$OUT_PWD/linuxdeployosm.sh $$APP_GIT_VERSION $$PWD $$[QT_INSTALL_BINS]
+    QMAKE_POST_LINK +=&& $$QMAKE_COPY $$PWD/icons/white.png $$OUT_PWD
+    QMAKE_POST_LINK +=&& $$QMAKE_COPY $$PWD/linuxdeployosm.sh $$OUT_PWD
+    QMAKE_POST_LINK +=  && chmod u+x $$OUT_PWD/linuxdeployosm.sh && $$OUT_PWD/linuxdeployosm.sh $$APP_GIT_VERSION $$PWD $$[QT_INSTALL_BINS]
 }
 
 FORMS +=
