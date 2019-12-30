@@ -61,6 +61,7 @@ void Generator::loadSettings()
 
         selectDevice(m_settings->reactValue<GeneratorThread, QString>(
                          "device", &m_thread, &GeneratorThread::deviceChanged, m_thread.deviceName()).toString());
+        //@TODO: Add settings for SinSweep parameters
     }
 }
 void Generator::setEnabled(bool enabled)

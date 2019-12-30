@@ -17,10 +17,7 @@ public:
 
     SinSweep(QObject *parent);
 
-    float startFrequency() const
-    {
-        return m_start;
-    }
+    float startFrequency() const{return m_start;}
 
 public slots:
     void setStart(int start);
@@ -35,7 +32,7 @@ private:
     double m_phase;
     float m_start;
     float m_end;
-    //TODO: add user defined duration (ms? s? samples?)
+    //TODO: add user defined duration for Log sweep(ms? s? samples?)
     float m_duration;
     Type m_type;
 signals:

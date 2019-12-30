@@ -70,7 +70,6 @@ void GeneratorThread::setEnabled(bool enabled)
         _updateAudio();
         if(m_type == 3 && m_enabled == false)
             qobject_cast<SinSweep*>(m_sources[3])->setFrequency(m_startFrequency);
-        //            setFrequency(qobject_cast<SinSweep*>(m_sources[3])->startFrequency());
         emit enabledChanged(m_enabled);
     }
 }
