@@ -23,6 +23,7 @@
 
 #include "generatorthread.h"
 #include "settings.h"
+#include "sinsweep.h"
 
 class Generator : public QObject
 {
@@ -43,6 +44,9 @@ class Generator : public QObject
 
     //Frequency
     Q_PROPERTY(int frequency READ frequency WRITE setFrequency NOTIFY frequencyChanged)
+    Q_PROPERTY(int startFrequency READ startFrequency WRITE setStartFrequency NOTIFY startFrequencyChanged)
+    Q_PROPERTY(int endFrequency READ endFrequency WRITE setEndFrequency NOTIFY endFrequencyChanged)
+    Q_PROPERTY(SinSweep::Type sweepType READ sweepType WRITE setSweepType NOTIFY sweepTypeChanged)
 
     //Gain
     Q_PROPERTY(float gain READ gain WRITE setGain NOTIFY gainChanged)
@@ -76,6 +80,12 @@ public:
     int frequency() const {return m_thread.frequency();}
     void setFrequency(int f);
 
+    int startFrequency() const {return m_thread.startFrequency();}
+    void setStartFrequency(int f);
+
+    int endFrequency() const {return m_thread.endFrequency();}
+    void setEndFrequency(int f);
+
     float gain() const {return m_thread.gain();}
     void setGain(float gain);
 
@@ -85,17 +95,23 @@ public:
     int aux() const {return m_thread.aux();}
     void setAux(int channel);
 
+    SinSweep::Type sweepType() const {return m_thread.sweepType();}
+
 signals:
     void enabledChanged(bool);
     void typeChanged();
     void frequencyChanged(int f);
+    void startFrequencyChanged(int f);
+    void endFrequencyChanged(int f);
     void deviceChanged();
     void gainChanged(float);
     void channelsCountChanged();
     void channelChanged(int);
     void auxChanged(int);
+    void sweepTypeChanged(SinSweep::Type sweepType);
 
 public slots:
+void setSweepType(SinSweep::Type sweepType);
 };
 
 #endif // GENERATOR_H

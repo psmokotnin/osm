@@ -28,6 +28,7 @@ SinNoise::SinNoise(QObject *parent) : OutputDevice(parent),
 Sample SinNoise::sample()
 {
     m_phase += (2.0 * M_PI * static_cast<double>(m_frequency) / m_sampleRate);
+
     if (m_phase >= 2.0 * M_PI)
         m_phase -= 2.0 * M_PI;
 

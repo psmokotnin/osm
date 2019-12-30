@@ -21,6 +21,7 @@
 #include "whitenoise.h"
 #include "pinknoise.h"
 #include "sinnoise.h"
+#include "sinsweep.h"
 
 GeneratorThread::GeneratorThread(QObject *parent) :
     QThread(parent),
@@ -29,19 +30,24 @@ GeneratorThread::GeneratorThread(QObject *parent) :
     m_gain(-6.f),
     m_type(0),
     m_frequency(1000),
+    m_startFrequency(1000),
+    m_endFrequency(2000),
     m_channelCount(1),
     m_channel(0),
+    m_sweepType(SinSweep::Linear),
     m_aux(1),
     m_enabled(false)
 {
     start();
     QObject::moveToThread(this);
 }
+
 void GeneratorThread::init()
 {
     m_sources << new PinkNoise(this);
     m_sources << new WhiteNoise(this);
     m_sources << new SinNoise(this);
+    m_sources << new SinSweep(this);
     m_device = QAudioDeviceInfo::defaultOutputDevice();
     _selectDevice(m_device);
     connect(this, SIGNAL(finished()), this, SLOT(finish()));
@@ -62,6 +68,9 @@ void GeneratorThread::setEnabled(bool enabled)
     if (m_enabled != enabled) {
         m_enabled = enabled;
         _updateAudio();
+        if(m_type == 3 && m_enabled == false)
+            qobject_cast<SinSweep*>(m_sources[3])->setFrequency(m_startFrequency);
+        //            setFrequency(qobject_cast<SinSweep*>(m_sources[3])->startFrequency());
         emit enabledChanged(m_enabled);
     }
 }
@@ -178,6 +187,30 @@ void GeneratorThread::setFrequency(int frequency)
     if (m_frequency != frequency) {
         m_frequency = frequency;
         emit frequencyChanged(m_frequency);
+    }
+}
+void GeneratorThread::setStartFrequency(int startFrequency)
+{
+    if(m_startFrequency != startFrequency)
+    {
+        m_startFrequency = startFrequency;
+        emit startFrequencyChanged(m_startFrequency);
+    }
+}
+void GeneratorThread::setEndFrequency(int endFrequency)
+{
+    if(m_endFrequency != endFrequency)
+    {
+        m_endFrequency = endFrequency;
+        emit endFrequencyChanged(m_endFrequency);
+    }
+}
+void GeneratorThread::setSweepType(const SinSweep::Type sweepType)
+{
+    if(m_sweepType != sweepType)
+    {
+        m_sweepType = sweepType;
+        emit sweepTypeChanged(m_sweepType);
     }
 }
 void GeneratorThread::setGain(float gain)
