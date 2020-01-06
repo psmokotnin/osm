@@ -115,7 +115,7 @@ void GroupDelaySeriesRenderer::renderSeries()
                     value->real * lastValue.real + value->imag * lastValue.imag
                     );
         lastValue = *value;
-        return ab / (f[index] - f[index - 1]);
+        return ab / (f[index - 1] - f[index]);
     };
 
     iterateForSpline<complex, float>(m_pointsPerOctave, &value, &coherence, accumulate, collected, beforeSpline);

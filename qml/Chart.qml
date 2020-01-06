@@ -82,7 +82,7 @@ Item {
                     obj.frequency = chart.plot.x2v(opener.mouseX);
                     break;
                 case "Impulse":
-                    obj.time = chart.plot.x2v(opener.mouseX);
+                    obj.time = Math.abs(chart.plot.x2v(opener.mouseX));
                     break
             }
             applicationWindow.properiesbar.open(obj, "qrc:/Calculator.qml");
