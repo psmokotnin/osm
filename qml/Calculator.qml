@@ -27,6 +27,7 @@ Item {
     property var frequency: 1000
     property double wave
     property var mode: 0 //0 - meter | 1 - foot
+    property var dataObject
 
     function speedOfSound() {
         return 20.05 * Math.sqrt(273.15 + temp);
@@ -198,8 +199,19 @@ Item {
             implicitWidth: 170
             model: ["meter", "foot"]
             currentIndex: mode
-            onCurrentIndexChanged: mode = currentIndex
+            onCurrentIndexChanged: {
+                if (mode != currentIndex) {
+                    mode = currentIndex
+                }
+            }
         }
     }
   }
+    Component.onCompleted: {
+        if (dataObject && dataObject.frequency) {
+            frequency = dataObject.frequency;
+        } else if (dataObject && dataObject.time) {
+            frequency = 1000 / dataObject.time;
+        }
+    }
 }

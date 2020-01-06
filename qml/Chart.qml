@@ -71,6 +71,22 @@ Item {
         hoverEnabled: true
         onEntered: cursor.visible = true
         onExited: cursor.visible = false
+        onDoubleClicked: {
+            var obj = {};
+            switch(type) {
+                case "RTA":
+                case "Magnitude":
+                case "Phase":
+                case "Group Delay":
+                case "Coherence":
+                    obj.frequency = chart.plot.x2v(opener.mouseX);
+                    break;
+                case "Impulse":
+                    obj.time = chart.plot.x2v(opener.mouseX);
+                    break
+            }
+            applicationWindow.properiesbar.open(obj, "qrc:/Calculator.qml");
+        }
     }
 
     Label {

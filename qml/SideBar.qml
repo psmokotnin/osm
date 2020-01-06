@@ -47,6 +47,19 @@ Item {
             onCurrentIndexChanged: {
                 applicationWindow.charts.count = currentIndex + 1
             }
+
+            Shortcut {
+                sequence: "Ctrl+1"
+                onActivated: chartsCount.currentIndex = 0;
+            }
+            Shortcut {
+                sequence: "Ctrl+2"
+                onActivated: chartsCount.currentIndex = 1;
+            }
+            Shortcut {
+                sequence: "Ctrl+3"
+                onActivated: chartsCount.currentIndex = 2;
+            }
         }
 
         Generator {}
@@ -180,6 +193,33 @@ Item {
                 }
             }
             ScrollIndicator.vertical: ScrollIndicator {}
+
+            Shortcut {
+                sequence: "Ctrl+X"
+                context: Qt.ApplicationShortcut
+                onActivated: {
+                    for (var i = 0; i < sourceList.count; i++) {
+                        if (sourceList.get(i).objectName === "Measurement"){
+                            var stored = sourceList.get(i).store();
+                            stored.name = 'Stored #' + (sourceList.count - 0);
+                            stored.active = true;
+                            sourceList.appendItem(stored, true);
+                        }
+                    }
+                }
+            }
+
+            Shortcut {
+                sequence: "Ctrl+R"
+                context: Qt.ApplicationShortcut
+                onActivated: {
+                    for (var i = 0; i < sourceList.count; i++) {
+                        if (sourceList.get(i).objectName === "Measurement"){
+                            sourceList.get(i).resetAverage();
+                        }
+                    }
+                }
+            }
         }
     }
 }

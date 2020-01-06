@@ -183,6 +183,8 @@ public:
     bool calibration() const noexcept {return m_enableCalibration;}
     void setCalibration(bool c) noexcept;
 
+    Q_INVOKABLE void resetAverage() noexcept;
+
 signals:
     void fftPowerChanged(unsigned int power);
     void sampleRateChanged();

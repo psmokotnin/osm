@@ -79,6 +79,7 @@ ApplicationWindow {
                 }
                 MenuItem {
                     text: qsTr("&Append measurement")
+                    shortcut: "Ctrl+A"
                     onTriggered: sourceList.addMeasurement();
                 }
             }
@@ -87,6 +88,7 @@ ApplicationWindow {
                 MenuItem {
                     id: darkModeSelect
                     text: qsTr("&Dark Mode")
+                    shortcut: "Ctrl+D"
                     checkable: true
                     checked: applicationSettings.value("darkMode") === "true"
                     onCheckedChanged: {
@@ -96,7 +98,7 @@ ApplicationWindow {
                 MenuItem {
                     id: calculator
                     text: qsTr("&Calculator")
-                    shortcut: "Ctrl+C"
+                    shortcut: "Ctrl+W"
                     checkable: false
                     onTriggered: {
                         applicationWindow.properiesbar.open(null, "qrc:/Calculator.qml");
@@ -113,9 +115,11 @@ ApplicationWindow {
                 MenuItem {
                     text: qsTr("About")
                     onTriggered: aboutpopup.open();
+                    shortcut: "Ctrl+H"
                 }
                 MenuItem {
                     text: qsTr("Check for update")
+                    shortcut: "Ctrl+U"
                     onTriggered: update.show();
                 }
             }

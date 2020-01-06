@@ -706,3 +706,17 @@ void Measurement::applyCalibration()
         m_calibrationPhase[i] = p * static_cast<float>(M_PI / 180.0);
     }
 }
+void Measurement::resetAverage() noexcept
+{
+    std::lock_guard<std::mutex> guard(dataMutex);
+    deconvAvg.reset();
+    moduleAvg.reset();
+    magnitudeAvg.reset();
+    pahseAvg.reset();
+
+    auto reset = [](auto *f) {f->reset();};
+    m_moduleLPFs.each(reset);
+    m_magnitudeLPFs.each(reset);
+    m_deconvLPFs.each(reset);
+    m_phaseLPFs.each(reset);
+}

@@ -41,5 +41,10 @@ Item {
                propertiesQml: "qrc:/GeneratorProperties.qml"
             }
         }
+
+        Shortcut {
+            sequence: "Ctrl+G"
+            onActivated: generatorModel.enabled = !generatorModel.enabled;
+        }
     }
 }

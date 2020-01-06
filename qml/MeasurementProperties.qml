@@ -24,6 +24,7 @@ import QtQuick.Controls.Material 2.13
 import Measurement 1.0
 
 Item {
+    id: measurementProperties
     property var dataObject
 
     ColumnLayout {
@@ -272,15 +273,29 @@ Item {
 
             Button {
                 text: qsTr("Store");
-                onClicked: {
-                    var stored = dataObject.store();
-                    stored.name = 'Stored #' + (sourceList.count - 0);
-                    stored.active = true;
-                    sourceList.appendItem(stored, true);
-                }
+                onClicked: measurementProperties.store()
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("store current measurement")
             }
+
+            Shortcut {
+                sequence: "Ctrl+C"
+                onActivated: measurementProperties.store()
+            }
+
+            Shortcut {
+                sequence: "Ctrl+E"
+                onActivated: {
+                    delaySpin.value = dataObject.estimated;
+                }
+            }
         }
     }//ColumnLayout
+
+    function store() {
+        var stored = dataObject.store();
+        stored.name = 'Stored #' + (sourceList.count - 0);
+        stored.active = true;
+        sourceList.appendItem(stored, true);
+    }
 }
