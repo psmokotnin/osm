@@ -7,7 +7,7 @@ Current version: v0.1.1
 
 [Project page](https://opensoundmeter.com/)
 
-![](/docs/images/screens/v0.1.screen.png)
+![](/docs/images/screens/v0.1.1.screen.png)
 
 Qt5.13.1 C++17
 
