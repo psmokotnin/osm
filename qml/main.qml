@@ -21,6 +21,7 @@ import QtQuick.Controls.Material 2.1
 import QtQuick.Layouts 1.1
 import QtQuick.Window 2.2
 import QtQuick.Controls 1.4
+import QtQuick.Controls.Styles 1.4
 import QtQuick.Dialogs 1.2
 import SourceModel 1.0
 
@@ -33,6 +34,10 @@ ApplicationWindow {
     property alias message : message
     property alias dialog : dialog
     property alias darkMode : darkModeSelect.checked
+    //NOTE: Properties for fix Menu colors
+    property string backgroundColor: Material.backgroundColor
+    property string accentColor: Material.accent
+    property string foregroundColor: Material.foreground
 
     visible: true
     flags: Qt.Window
@@ -57,6 +62,56 @@ ApplicationWindow {
     Material.accent: Material.Indigo
 
     menuBar: MenuBar {
+        style: MenuBarStyle{
+                    background: Rectangle{ color:Material.backgroundColor}
+                    itemDelegate: Rectangle {
+                        implicitWidth: menuBarLabel.contentWidth * 1.4
+                        implicitHeight: menuBarLabel.contentHeight * 1.5
+                        color: styleData.selected || styleData.open ? accentColor : backgroundColor
+                        Label {
+                            id:menuBarLabel
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            anchors.bottom: parent.bottom
+                            anchors.bottomMargin: menuBarLabel.contentHeight/5
+                            color: styleData.selected  || styleData.open ? backgroundColor : foregroundColor
+                            text: formatMnemonic(styleData.text,true)
+                        }
+                    }
+                    menuStyle: MenuStyle {
+                        frame: Rectangle {
+                            color: backgroundColor
+                            border.width: 0
+                        }
+
+                        //FIXME: Colors doesn't set correctly from Material
+                        itemDelegate {
+                            background: Rectangle {
+                                color:  styleData.selected || styleData.open ? accentColor : backgroundColor
+                                border.width: 0
+                            }
+                            label: Label {
+                                color: styleData.selected ? backgroundColor : foregroundColor
+                                text: formatMnemonic(styleData.text,true)
+                            }
+
+                            submenuIndicator: Text {
+                                text: "\u25ba"
+                                color: styleData.selected  || styleData.open ? accentColor : backgroundColor
+                            }
+
+                            shortcut: Label {
+                                color: styleData.selected ? backgroundColor : foregroundColor
+                                text: styleData.shortcut
+                            }
+
+                            checkmarkIndicator: CheckBox {
+                                checked: styleData.checked
+                            }
+                        }
+                    }
+
+                }
+
             Menu {
                 title: qsTr("&File")
                 MenuItem {
