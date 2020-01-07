@@ -34,7 +34,6 @@ ApplicationWindow {
     property alias message : message
     property alias dialog : dialog
     property alias darkMode : darkModeSelect.checked
-    //NOTE: Properties for fix Menu colors
     property string backgroundColor: Material.backgroundColor
     property string accentColor: Material.accent
     property string foregroundColor: Material.foreground

@@ -50,6 +50,7 @@ SOURCES += src/main.cpp \
     src/settings.cpp
 
 RESOURCES += qml.qrc \
+    images.qrc \
     shaders/shaders.qrc
 
 # Additional import path used to resolve QML modules in Qt Creator's code model
