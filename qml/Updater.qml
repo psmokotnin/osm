@@ -1,5 +1,4 @@
 import QtQuick 2.0
-
 import QtQuick 2.0
 import QtQuick.Controls 2.1
 import QtQuick.Layouts 1.3
@@ -15,12 +14,7 @@ Popup {
     focus: true
     closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
 
-    background: null
-
-    Rectangle {
-        anchors.fill: parent
-
-        Text {
+        Label {
             id: update;
             anchors.fill: parent
             horizontalAlignment: Text.AlignHCenter
@@ -31,7 +25,6 @@ Popup {
 
             text: qsTr("Checking for update...")
         }
-    }
 
     Component.onCompleted: {
         check (true);
