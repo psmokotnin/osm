@@ -86,6 +86,66 @@ Item {
                 ToolTip.text: qsTr("frequency for sin")
             }
 
+            //Sin Sweep from
+            Label {
+                text: qsTr("Lin")
+            }
+
+            Switch {
+                visible: type.currentText == 'SineSweep';
+                checked: generatorModel.sweepType
+                Component.onCompleted: console.debug(generatorModel.sweepType)
+                onCheckedChanged: checked ? generatorModel.setSweepType(1) : generatorModel.setSweepType(0)
+            }
+
+            Label {
+                text: qsTr("Log")
+            }
+            SpinBox {
+                id: sinSweepStart
+                implicitWidth: 180
+                visible: type.currentText == 'SineSweep';
+                value: generatorModel.startFrequency
+                from: 20
+                to: sinSweepEnd.value-1
+                editable: true
+                onValueChanged: generatorModel.startFrequency = value
+
+                textFromValue: function(value, locale) {
+                    return Number(value) + "Hz"
+                }
+
+                valueFromText: function(text, locale) {
+                    return parseInt(text)
+                }
+
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Start frequency")
+            }
+
+            //Sin Sweep to
+            SpinBox {
+                id: sinSweepEnd
+                implicitWidth: 180
+                visible: type.currentText == 'SineSweep';
+                value: generatorModel.endFrequency
+                from: sinSweepStart.value+1
+                to: 20000
+                editable: true
+                onValueChanged: generatorModel.endFrequency = value
+
+                textFromValue: function(value, locale) {
+                    return Number(value) + "Hz"
+                }
+
+                valueFromText: function(text, locale) {
+                    return parseInt(text)
+                }
+
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("End frequency")
+            }
+
             Button {
                 id: octaveDown
                 implicitWidth: 120

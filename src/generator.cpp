@@ -26,6 +26,10 @@ Generator::Generator(Settings *settings, QObject *parent) : QObject(parent),
     connect(&m_thread, SIGNAL(deviceChanged(QString)),this, SIGNAL(deviceChanged()),        Qt::QueuedConnection);
     connect(&m_thread, SIGNAL(typeChanged(int)),      this, SIGNAL(typeChanged()),          Qt::QueuedConnection);
     connect(&m_thread, SIGNAL(frequencyChanged(int)), this, SIGNAL(frequencyChanged(int)),  Qt::QueuedConnection);
+    connect(&m_thread, SIGNAL(startFrequencyChanged(int)), this, SIGNAL(startFrequencyChanged(int)),  Qt::QueuedConnection);
+    connect(&m_thread, SIGNAL(endFrequencyChanged(int)), this, SIGNAL(endFrequencyChanged(int)),  Qt::QueuedConnection);
+    QObject::connect(&m_thread, &GeneratorThread::sweepTypeChanged, this, &Generator::sweepTypeChanged,  Qt::QueuedConnection);
+
     connect(&m_thread, SIGNAL(gainChanged(float)),    this, SIGNAL(gainChanged(float)),     Qt::QueuedConnection);
     connect(&m_thread, SIGNAL(channelChanged(int)),   this, SIGNAL(channelChanged(int)),    Qt::QueuedConnection);
     connect(&m_thread, SIGNAL(auxChanged(int)),       this, SIGNAL(auxChanged(int)),        Qt::QueuedConnection);
@@ -42,21 +46,22 @@ void Generator::loadSettings()
 {
     if (m_settings) {
         setType(m_settings->reactValue<GeneratorThread, int>(
-                       "type", &m_thread, &GeneratorThread::typeChanged, m_thread.type()).toInt());
+                    "type", &m_thread, &GeneratorThread::typeChanged, m_thread.type()).toInt());
 
         setFrequency(m_settings->reactValue<GeneratorThread, int>(
-                       "frequency", &m_thread, &GeneratorThread::frequencyChanged, m_thread.frequency()).toInt());
+                         "frequency", &m_thread, &GeneratorThread::frequencyChanged, m_thread.frequency()).toInt());
 
         setGain(m_settings->reactValue<GeneratorThread, float>(
-                       "gain", &m_thread, &GeneratorThread::gainChanged, m_thread.gain()).toFloat());
+                    "gain", &m_thread, &GeneratorThread::gainChanged, m_thread.gain()).toFloat());
 
         setChannel(m_settings->reactValue<GeneratorThread, int>(
                        "channel", &m_thread, &GeneratorThread::channelChanged, m_thread.channel()).toInt());
         setAux(m_settings->reactValue<GeneratorThread, int>(
-                       "aux", &m_thread, &GeneratorThread::auxChanged, m_thread.aux()).toInt());
+                   "aux", &m_thread, &GeneratorThread::auxChanged, m_thread.aux()).toInt());
 
         selectDevice(m_settings->reactValue<GeneratorThread, QString>(
-                       "device", &m_thread, &GeneratorThread::deviceChanged, m_thread.deviceName()).toString());
+                         "device", &m_thread, &GeneratorThread::deviceChanged, m_thread.deviceName()).toString());
+        //@TODO: Add settings for SinSweep parameters
     }
 }
 void Generator::setEnabled(bool enabled)
@@ -66,7 +71,7 @@ void Generator::setEnabled(bool enabled)
                 "setEnabled",
                 Qt::QueuedConnection,
                 Q_ARG(bool, enabled)
-    );
+                );
 }
 void Generator::setType(int type)
 {
@@ -75,7 +80,7 @@ void Generator::setType(int type)
                 "setType",
                 Qt::QueuedConnection,
                 Q_ARG(int, type)
-    );
+                );
 }
 void Generator::selectDevice(const QString &name)
 {
@@ -84,7 +89,7 @@ void Generator::selectDevice(const QString &name)
                 "selectDevice",
                 Qt::QueuedConnection,
                 Q_ARG(QString, name)
-    );
+                );
 }
 void Generator::setFrequency(int frequency)
 {
@@ -93,7 +98,26 @@ void Generator::setFrequency(int frequency)
                 "setFrequency",
                 Qt::QueuedConnection,
                 Q_ARG(int, frequency)
-    );
+                );
+}
+
+void Generator::setStartFrequency(int f)
+{
+    QMetaObject::invokeMethod(
+                &m_thread,
+                "setStartFrequency",
+                Qt::QueuedConnection,
+                Q_ARG(int, f)
+                );
+}
+void Generator::setEndFrequency(int f)
+{
+    QMetaObject::invokeMethod(
+                &m_thread,
+                "setEndFrequency",
+                Qt::QueuedConnection,
+                Q_ARG(int, f)
+                );
 }
 void Generator::setGain(float gain)
 {
@@ -102,7 +126,7 @@ void Generator::setGain(float gain)
                 "setGain",
                 Qt::QueuedConnection,
                 Q_ARG(float, gain)
-    );
+                );
 }
 void Generator::setChannel(int channel)
 {
@@ -111,7 +135,7 @@ void Generator::setChannel(int channel)
                 "setChannel",
                 Qt::QueuedConnection,
                 Q_ARG(int, channel)
-    );
+                );
 }
 void Generator::setAux(int channel)
 {
@@ -120,5 +144,15 @@ void Generator::setAux(int channel)
                 "setAux",
                 Qt::QueuedConnection,
                 Q_ARG(int, channel)
-    );
+                );
+}
+
+void Generator::setSweepType(SinSweep::Type sweepType)
+{
+    QMetaObject::invokeMethod(
+                &m_thread,
+                "setSweepType",
+                Qt::QueuedConnection,
+                Q_ARG(SinSweep::Type, sweepType)
+                );
 }

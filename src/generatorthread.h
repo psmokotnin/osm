@@ -22,6 +22,7 @@
 #include <QAudioOutput>
 
 #include "outputdevice.h"
+#include "sinsweep.h"
 
 class GeneratorThread : public QThread
 {
@@ -38,9 +39,10 @@ private:
 
     float m_gain;
     int m_type;
-    int m_frequency;
+    int m_frequency, m_startFrequency, m_endFrequency;
     int m_channelCount, m_channel, m_aux;
     bool m_enabled;
+    SinSweep::Type m_sweepType;
 
     void _selectDevice(const QAudioDeviceInfo &device);
     void _updateAudio();
@@ -64,8 +66,17 @@ public slots:
     int frequency() const {return m_frequency;}
     void setFrequency(int frequency);
 
+    int startFrequency() const {return m_startFrequency;}
+    void setStartFrequency(int startFrequency);
+
+    int endFrequency() const {return m_endFrequency;}
+    void setEndFrequency(int endFrequency);
+
     float gain() const {return m_gain;}
     void setGain(float gain);
+
+    SinSweep::Type sweepType() const {return m_sweepType;}
+    void setSweepType(const SinSweep::Type sweepType);
 
     int channelsCount() const {return m_channelCount;}
     int channel() const {return m_channel;}
@@ -79,10 +90,13 @@ signals:
     void deviceChanged(QString);
     void typeChanged(int);
     void frequencyChanged(int);
+    void startFrequencyChanged(int);
+    void endFrequencyChanged(int);
     void gainChanged(float);
     void channelChanged(int);
     void auxChanged(int);
     void channelsCountChanged();
+    void sweepTypeChanged(SinSweep::Type);
 };
 
 #endif // GENERATORTHREAD_H
