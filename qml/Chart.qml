@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-import QtQuick 2.7
+import QtQuick 2.12
 import QtQuick.Controls 2.2
 import FftChart 1.0
 import QtQuick.Controls.Material 2.2
@@ -66,11 +66,42 @@ Item {
 
     PropertiesOpener {
         id: opener
+        property int mouseButtonClicked: Qt.NoButton
         pushObject: chart.plot;
         cursorShape: "CrossCursor";
         hoverEnabled: true
         onEntered: cursor.visible = true
         onExited: cursor.visible = false
+        acceptedButtons: Qt.LeftButton | Qt.RightButton
+
+        onPressed: {
+                    if (pressedButtons & Qt.LeftButton) {
+                        mouseButtonClicked = Qt.LeftButton
+                    } else if (pressedButtons & Qt.RightButton) {
+                        mouseButtonClicked = Qt.RightButton
+                    }
+                }
+
+        onClicked: function(e) {
+            if (mouseButtonClicked === Qt.LeftButton) {
+                open();
+            } else if (mouseButtonClicked === Qt.RightButton) {
+                var obj = {};
+                switch(type) {
+                    case "RTA":
+                    case "Magnitude":
+                    case "Phase":
+                    case "Group Delay":
+                    case "Coherence":
+                        obj.frequency = chart.plot.x2v(opener.mouseX);
+                        break;
+                    case "Impulse":
+                        obj.time = Math.abs(chart.plot.x2v(opener.mouseX));
+                        break
+                }
+                applicationWindow.properiesbar.open(obj, "qrc:/Calculator.qml");
+            }
+        }
         onDoubleClicked: {
             var obj = {};
             switch(type) {

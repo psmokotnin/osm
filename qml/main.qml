@@ -157,10 +157,12 @@ ApplicationWindow {
                     onTriggered: {
                         applicationWindow.properiesbar.open(null, "qrc:/Calculator.qml");
                     }
-
-                    onCheckedChanged: {
-                        applicationSettings.setValue("darkMode", darkModeSelect.checked)
-                    }
+                }
+                MenuItem {
+                    text: qsTr("&Shortcuts")
+                    shortcut: "Ctrl+K"
+                    checkable: false
+                    onTriggered: shortcutsPopup.open();
                 }
             }
 
@@ -169,7 +171,7 @@ ApplicationWindow {
                 MenuItem {
                     text: qsTr("About")
                     onTriggered: aboutpopup.open();
-                    shortcut: "Ctrl+H"
+                    shortcut: "Ctrl+I"
                 }
                 MenuItem {
                     text: qsTr("Check for update")
@@ -225,8 +227,13 @@ ApplicationWindow {
     }
 
     ModalDialog {
-          id: dialog
-      }
+        id: dialog
+    }
+
+    Shortcuts {
+        id:shortcutsPopup
+        anchors.centerIn: parent
+    }
 
     FileDialog {
         id: saveDialog

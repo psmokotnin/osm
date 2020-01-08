@@ -22,6 +22,9 @@ MouseArea {
     property var pushObject
     anchors.fill: parent
     onClicked: {
+        open()
+    }
+    function open() {
         applicationWindow.properiesbar.open(pushObject, propertiesQml);
     }
 }

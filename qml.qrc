@@ -30,5 +30,6 @@
         <file alias="ModalDialog.qml">qml/ModalDialog.qml</file>
         <file alias="Plot/GroupDelayProperties.qml">qml/Plot/GroupDelayProperties.qml</file>
         <file alias="Calculator.qml">qml/Calculator.qml</file>
+        <file alias="Shortcuts.qml">qml/Shortcuts.qml</file>
     </qresource>
 </RCC>
