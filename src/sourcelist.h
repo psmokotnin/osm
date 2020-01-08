@@ -75,7 +75,7 @@ public slots:
     Measurement *addMeasurement();
     void appendItem(Fftchart::Source *item, bool autocolor = false);
     void removeItem(Fftchart::Source *item);
-    QColor nextColor();
+    Q_INVOKABLE QColor nextColor();
 };
 
 #endif // SOURCELIST_H

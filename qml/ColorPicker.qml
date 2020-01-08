@@ -30,9 +30,24 @@ Item {
     }
 
     MouseArea {
+        property int mouseButtonClicked: Qt.NoButton
         anchors.fill: preview
         cursorShape: "PointingHandCursor"
-        onClicked: colorDialog.open()
+        acceptedButtons: Qt.LeftButton | Qt.RightButton
+        onPressed: {
+            if (pressedButtons & Qt.LeftButton) {
+                mouseButtonClicked = Qt.LeftButton
+            } else if (pressedButtons & Qt.RightButton) {
+                mouseButtonClicked = Qt.RightButton
+            }
+        }
+        onClicked: function(e) {
+            if (mouseButtonClicked === Qt.LeftButton) {
+                colorDialog.open()
+            } else if (mouseButtonClicked === Qt.RightButton) {
+                picker.color = sourceList.nextColor();
+            }
+        }
     }
 
     ColorDialog {

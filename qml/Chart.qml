@@ -102,22 +102,6 @@ Item {
                 applicationWindow.properiesbar.open(obj, "qrc:/Calculator.qml");
             }
         }
-        onDoubleClicked: {
-            var obj = {};
-            switch(type) {
-                case "RTA":
-                case "Magnitude":
-                case "Phase":
-                case "Group Delay":
-                case "Coherence":
-                    obj.frequency = chart.plot.x2v(opener.mouseX);
-                    break;
-                case "Impulse":
-                    obj.time = Math.abs(chart.plot.x2v(opener.mouseX));
-                    break
-            }
-            applicationWindow.properiesbar.open(obj, "qrc:/Calculator.qml");
-        }
     }
 
     Label {
