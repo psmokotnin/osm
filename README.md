@@ -9,7 +9,7 @@ Current version: v0.1.2
 
 ![](/docs/images/screens/v0.1.1.screen.png)
 
-Qt5.13.1 C++17
+Qt5.14.1 C++17
 
 **SSE2:** Software uses SSE2 cpu instructions that is the only one restriction to target platform.
 
