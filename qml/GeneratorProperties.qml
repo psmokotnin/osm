@@ -89,6 +89,7 @@ Item {
             //Sin Sweep from
             Label {
                 text: qsTr("Lin")
+                visible: type.currentText == 'SineSweep';
             }
 
             Switch {
@@ -100,6 +101,7 @@ Item {
 
             Label {
                 text: qsTr("Log")
+                visible: type.currentText == 'SineSweep';
             }
             SpinBox {
                 id: sinSweepStart
