@@ -158,24 +158,24 @@ ApplicationWindow {
                         applicationWindow.properiesbar.open(null, "qrc:/Calculator.qml");
                     }
                 }
-                MenuItem {
-                    text: qsTr("&Shortcuts")
-                    shortcut: "Ctrl+K"
-                    checkable: false
-                    onTriggered: shortcutsPopup.open();
-                }
             }
 
             Menu {
                 title: qsTr("&Help")
                 MenuItem {
+                    text: qsTr("&Shortcuts")
+                    shortcut: "F1"
+                    checkable: false
+                    onTriggered: shortcutsPopup.open();
+                }
+                MenuItem {
                     text: qsTr("About")
                     onTriggered: aboutpopup.open();
-                    shortcut: "Ctrl+I"
+                    shortcut: "F2"
                 }
                 MenuItem {
                     text: qsTr("Check for update")
-                    shortcut: "Ctrl+U"
+                    shortcut: "F3"
                     onTriggered: update.show();
                 }
             }

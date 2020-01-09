@@ -37,7 +37,7 @@ Popup {
         }
 
         Image {
-            source: "qrc:/images/icons/white.png"
+            source: "qrc:/images/icons/whitec.png"
             Layout.preferredHeight: 100
             Layout.preferredWidth: 100
             Layout.alignment: Qt.AlignCenter
