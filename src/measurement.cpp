@@ -338,6 +338,7 @@ void Measurement::setActive(bool active)
 {
     if (active == _active)
         return;
+    std::lock_guard<std::mutex> guard(dataMutex);
 
     Fftchart::Source::setActive(active);
     m_error = false;
@@ -349,6 +350,7 @@ void Measurement::setActive(bool active)
                 Qt::QueuedConnection,
                 Q_ARG(bool, active)
     );
+
     dataMeter.reset();
     referenceMeter.reset();
     emit levelChanged();

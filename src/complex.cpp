@@ -32,7 +32,7 @@ const complex complex::conjugate() const
     rc.imag = -1 * imag;
     return rc;
 }
-
+//TODO: use vector
 const complex complex::rotate(const float &a) const
 {
     complex rc;
@@ -40,6 +40,7 @@ const complex complex::rotate(const float &a) const
     rc.imag = real * sin(a) + imag * cos(a);
     return rc;
 }
+//TODO: use vector
 void complex::polar(const float& phase)
 {
     real = cos(phase);

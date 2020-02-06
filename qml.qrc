@@ -31,5 +31,7 @@
         <file alias="Plot/GroupDelayProperties.qml">qml/Plot/GroupDelayProperties.qml</file>
         <file alias="Calculator.qml">qml/Calculator.qml</file>
         <file alias="Shortcuts.qml">qml/Shortcuts.qml</file>
+        <file alias="Union.qml">qml/Union.qml</file>
+        <file alias="UnionProperties.qml">qml/UnionProperties.qml</file>
     </qresource>
 </RCC>

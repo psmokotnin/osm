@@ -1,6 +1,6 @@
 TEMPLATE = app
 
-QT += charts qml quick quickcontrols2 multimedia core opengl
+QT += qml quick quickcontrols2 multimedia core opengl
 CONFIG += c++1z
 SOURCES += src/main.cpp \
     src/chart/frequencybasedplot.cpp \
@@ -13,6 +13,7 @@ SOURCES += src/main.cpp \
     src/sinsweep.cpp \
     src/sourcelist.cpp \
     src/sourcemodel.cpp \
+    src/union.cpp \
     src/whitenoise.cpp \
     src/sinnoise.cpp \
     src/complex.cpp \
@@ -86,6 +87,7 @@ HEADERS += \
     src/sinsweep.h \
     src/sourcelist.h \
     src/sourcemodel.h \
+    src/union.h \
     src/whitenoise.h \
     src/sinnoise.h \
     src/sample.h \

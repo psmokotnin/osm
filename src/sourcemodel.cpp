@@ -19,7 +19,7 @@
 #include "sourcelist.h"
 
 SourceModel::SourceModel(QObject *parent)
-    : QAbstractListModel(parent), mList(nullptr)
+    : QAbstractListModel(parent), mList(nullptr), m_filter(false), m_addNone(false)
 {
 }
 
@@ -27,7 +27,6 @@ int SourceModel::rowCount(const QModelIndex &parent) const
 {
     if (parent.isValid() || !mList)
         return 0;
-
     return mList->items().size();
 }
 
@@ -40,11 +39,15 @@ QVariant SourceModel::data(const QModelIndex &index, int role) const
     QVariant r;
     switch (role) {
         case NameRole:
-            r.setValue(source->objectName());
+            r.setValue(source ? source->objectName() : QString("None"));
         break;
 
         case SourceRole:
             r.setValue(source);
+        break;
+
+        case TitleRole:
+            r.setValue(source ? source->name() : QString("None"));
         break;
     }
 
@@ -62,11 +65,19 @@ QHash<int, QByteArray> SourceModel::roleNames() const
     QHash<int, QByteArray> names;
     names[SourceRole]   = "source";
     names[NameRole]     = "name";
+    names[TitleRole]    = "title";
     return names;
 }
 void SourceModel::setList(SourceList *list)
 {
     beginResetModel();
+
+    if (m_filter) {
+        list = list->filter(this);
+    }
+    if (m_addNone) {
+        list->appendNone();
+    }
 
     if (mList)
         mList->disconnect(this);
@@ -97,4 +108,22 @@ void SourceModel::setList(SourceList *list)
     }
 
     endResetModel();
+}
+void SourceModel::setFilter(bool filter) noexcept
+{
+    m_filter = filter;
+}
+
+int SourceModel::indexOf(Fftchart::Source *item) const noexcept
+{
+    return mList->indexOf(item);
+}
+
+Fftchart::Source *SourceModel::get(const int &index) const noexcept
+{
+    return mList->get(index);
+}
+void SourceModel::setAddNone(bool addNone) noexcept
+{
+    m_addNone = addNone;
 }

@@ -25,6 +25,7 @@
 #include "chart/source.h"
 
 class Measurement;
+class Union;
 
 class SourceList : public QObject
 {
@@ -48,7 +49,8 @@ private:
     bool loadMeasurement(const QJsonObject &data) noexcept;
     bool loadStored(const QJsonObject &data) noexcept;
 public:
-    explicit SourceList(QObject *parent = nullptr);
+    explicit SourceList(QObject *parent = nullptr, bool appendMeasurement = true);
+    SourceList* filter(QObject *parent) const noexcept;
 
     const QVector<Fftchart::Source *> &items() const;
 
@@ -60,6 +62,7 @@ public:
     Q_INVOKABLE bool save(const QUrl &fileName) const noexcept;
     Q_INVOKABLE bool load(const QUrl &fileName) noexcept;
     Q_INVOKABLE bool move(int from, int to) noexcept;
+    Q_INVOKABLE int indexOf(Fftchart::Source *) const noexcept;
 
 signals:
     void preItemAppended();
@@ -72,9 +75,11 @@ signals:
     void postItemMoved();
 
 public slots:
-    Measurement *addMeasurement();
+    Q_INVOKABLE Measurement *addMeasurement();
+    Q_INVOKABLE Union *addUnion();
     void appendItem(Fftchart::Source *item, bool autocolor = false);
     void removeItem(Fftchart::Source *item);
+    void appendNone();
     Q_INVOKABLE QColor nextColor();
 };
 

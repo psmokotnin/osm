@@ -17,18 +17,40 @@
  */
 #include "sourcelist.h"
 #include "measurement.h"
+#include "union.h"
 
 #include <QUrl>
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <QFile>
 
-SourceList::SourceList(QObject *parent) :
+SourceList::SourceList(QObject *parent, bool appendMeasurement) :
     QObject(parent),
     m_currentFile(),
     colorIndex(3)
 {
-    addMeasurement();
+    if (appendMeasurement) {
+        addMeasurement();
+    }
+}
+
+SourceList* SourceList::filter(QObject *parent) const noexcept
+{
+    SourceList *list = new SourceList(parent, false);
+    for (auto item : items()) {
+        if (item->objectName() == "Measurement" || item->objectName() == "Stored") {
+            list->appendItem(item);
+        }
+    }
+
+    connect(this, &SourceList::preItemAppended, list, &SourceList::preItemAppended);
+    connect(this, &SourceList::postItemAppended, list, &SourceList::postItemAppended);
+    connect(this, &SourceList::preItemRemoved, list, &SourceList::preItemRemoved);
+    connect(this, &SourceList::postItemRemoved, list, &SourceList::postItemRemoved);
+    connect(this, &SourceList::preItemMoved, list, &SourceList::preItemMoved);
+    connect(this, &SourceList::postItemMoved, list, &SourceList::postItemMoved);
+
+    return list;
 }
 const QVector<Fftchart::Source*>& SourceList::items() const
 {
@@ -78,6 +100,11 @@ bool SourceList::move(int from, int to) noexcept
 
     return true;
 }
+
+int SourceList::indexOf(Fftchart::Source *item) const noexcept
+{
+    return mItems.indexOf(item);
+}
 bool SourceList::save(const QUrl &fileName) const noexcept
 {
     QFile saveFile(fileName.toLocalFile());
@@ -125,13 +152,15 @@ bool SourceList::load(const QUrl &fileName) noexcept
         {"stored",      Stored},
     };
 
-    switch(typeMap.at(loadedDocument["type"].toString())) {
-        case List:
-            m_currentFile = fileName;
-            return loadList(loadedDocument);
+    if (typeMap.find(loadedDocument["type"].toString()) != typeMap.end()) {
+        switch(typeMap.at(loadedDocument["type"].toString())) {
+            case List:
+                m_currentFile = fileName;
+                return loadList(loadedDocument);
 
-        case Stored:
-            return loadStored(loadedDocument["data"].toObject());
+            case Stored:
+                return loadStored(loadedDocument["data"].toObject());
+        }
     }
 
     return false;
@@ -150,14 +179,17 @@ bool SourceList::loadList(const QJsonDocument &document) noexcept
     for (const auto item : list) {
         auto object = item.toObject();
 
+        if (typeMap.find(object["type"].toString()) == typeMap.end())
+            continue;
+
         switch(typeMap.at(object["type"].toString())) {
             case Measurement:
                 loadMeasurement(object["data"].toObject());
             break;
 
-        case Stored:
-            loadStored(object["data"].toObject());
-        break;
+            case Stored:
+                loadStored(object["data"].toObject());
+            break;
         }
     }
 
@@ -186,11 +218,21 @@ bool SourceList::loadStored(const QJsonObject &data) noexcept
     nextColor();
     return true;
 }
+Union *SourceList::addUnion()
+{
+    auto *s = new Union();
+    appendItem(s, true);
+    return s;
+}
 Measurement *SourceList::addMeasurement()
 {
     auto *m = new Measurement();
     appendItem(m, true);
     return m;
+}
+void SourceList::appendNone()
+{
+    mItems.prepend(nullptr);
 }
 void SourceList::appendItem(Fftchart::Source *item, bool autocolor)
 {

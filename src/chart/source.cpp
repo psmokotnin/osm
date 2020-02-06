@@ -57,48 +57,54 @@ void Source::setGlobalColor(int globalValue)
         emit colorChanged(_color);
     }
 }
-float Source::frequency(unsigned int i) const noexcept
+const float &Source::frequency(unsigned int i) const noexcept
 {
     if (i >= _dataLength)
-        return 0.0;
+        return c_zero;
     return _ftdata[i].frequency;
 }
-float Source::module(unsigned int i) const noexcept
+const float &Source::module(unsigned int i) const noexcept
 {
     if (i >= _dataLength)
-        return 0.0;
+        return c_zero;
     return _ftdata[i].module;
 }
 float Source::magnitude(unsigned int i) const noexcept
 {
     if (i >= _dataLength)
-        return 0.0;
-    return 20 * log10f(_ftdata[i].magnitude);
+        return c_zero;
+    return 20.f * log10f(_ftdata[i].magnitude);
 }
-complex Source::phase(unsigned int i) const noexcept
+const float &Source::magnitudeRaw(unsigned int i) const noexcept
 {
     if (i >= _dataLength)
-        return complex(0.0);
+        return c_zero;
+    return _ftdata[i].magnitude;
+}
+const complex &Source::phase(unsigned int i) const noexcept
+{
+    if (i <= _dataLength)
+        return _ftdata[i].phase;
 
-    return _ftdata[i].phase;
+    return _ftdata[0].phase;
 }
-float Source::coherence(unsigned int i) const noexcept
+const float &Source::coherence(unsigned int i) const noexcept
 {
     if (i >= _dataLength)
-        return 0.0;
+        return c_zero;
 
     return _ftdata[i].coherence;
 }
-float Source::impulseTime(unsigned int i) const noexcept
+const float &Source::impulseTime(unsigned int i) const noexcept
 {
     if (i >= m_deconvolutionSize)
-        return 0.0;
+        return c_zero;
     return _impulseData[i].time;
 }
-float Source::impulseValue(unsigned int i) const noexcept
+const float &Source::impulseValue(unsigned int i) const noexcept
 {
     if (i >= m_deconvolutionSize)
-        return 0.0;
+        return c_zero;
     return _impulseData[i].value.real;
 }
 void Source::copy(FTData *dataDist, TimeData *timeDist)

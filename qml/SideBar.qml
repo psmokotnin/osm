@@ -80,6 +80,14 @@ Item {
                 dataModel: modelData
             }
         }
+        Component {
+            id: unionDelegate
+            Union {
+                id: item
+                width: sideList.width
+                dataModel: modelData
+            }
+        }
 
         ListView {
             id: sideList
@@ -138,6 +146,7 @@ Item {
                                 switch(model.name) {
                                     case "Measurement": return measurementDelegate;
                                     case "Stored": return storedDelegate;
+                                    case "Union": return unionDelegate;
                                     default: console.log("unknow model " + model.name);return ;
                             }
                         }

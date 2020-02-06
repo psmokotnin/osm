@@ -9,7 +9,7 @@
 	<key>CFBundleIconFile</key>
 	<string>white.icns</string>
 	<key>CFBundleIdentifier</key>
-        <string>psmokotnin.github.io</string>
+        <string>opensoundmeter.com</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleSignature</key>

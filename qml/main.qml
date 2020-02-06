@@ -136,6 +136,11 @@ ApplicationWindow {
                     shortcut: "Ctrl+A"
                     onTriggered: sourceList.addMeasurement();
                 }
+                MenuItem {
+                    text: qsTr("&Append union")
+                    shortcut: "Ctrl+U"
+                    onTriggered: sourceList.addUnion();
+                }
             }
             Menu {
                 title: qsTr("&View")

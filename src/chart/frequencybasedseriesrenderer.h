@@ -49,7 +49,6 @@ protected:
         {
             Q_UNUSED(bandStart)
 
-            *value /= count;
             *coherence /= count;
 
             if (bCollected) {
@@ -63,9 +62,9 @@ protected:
             }
             f[bCount] = (bandStart + bandEnd) / 2.f;
             if (beforeSpline) {
-                splinePoint[bCount] = beforeSpline(value, f, bCount);
+                splinePoint[bCount] = beforeSpline(value, f, bCount) / count;
             } else if constexpr (std::is_same<T, TSpline>::value) {
-                splinePoint[bCount] = *value;
+                splinePoint[bCount] = (*value) / count;
             } else {
                 qDebug() << "could not convert TSpline to T";
             }

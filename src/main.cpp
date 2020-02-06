@@ -24,6 +24,7 @@
 
 #include "src/generator.h"
 #include "src/measurement.h"
+#include "src/union.h"
 #include "src/sourcemodel.h"
 #include "src/sourcelist.h"
 #include "src/chart/variablechart.h"
@@ -42,7 +43,7 @@ int main(int argc, char *argv[])
     QCoreApplication::setApplicationName("Open Sound Meter");
     QCoreApplication::setApplicationVersion(APP_GIT_VERSION);
     QCoreApplication::setOrganizationName("psmokotnin");
-    QCoreApplication::setOrganizationDomain("psmokotnin.github.io");
+    QCoreApplication::setOrganizationDomain("opensoundmeter.com");
 
     Settings settings;
     Generator g(settings.getGroup("generator"));
@@ -51,6 +52,7 @@ int main(int argc, char *argv[])
     qmlRegisterType<Fftchart::VariableChart>("FftChart", 1, 0, "VariableChart");
     qmlRegisterUncreatableMetaObject(Filter::staticMetaObject, "Measurement", 1, 0, "FilterFrequency", "Error: only enums");
     qmlRegisterType<Measurement>("Measurement", 1, 0, "Measurement");
+    qmlRegisterType<Union>("Union", 1, 0, "Union");
     qmlRegisterType<SourceModel>("SourceModel", 1, 0, "SourceModel");
     qmlRegisterUncreatableType<SourceList>("SourceModel", 1, 0, "SourceList", QStringLiteral("SourceList should not be created in QML"));
     qmlRegisterType<Settings>("Settings", 1, 0, "Settings");

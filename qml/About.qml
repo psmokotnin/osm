@@ -49,7 +49,7 @@ Popup {
             Layout.bottomMargin: 50
             textFormat: Text.RichText
             text: qsTr("
-                    <a style='color:%2' href=\"https://psmokotnin.github.io/osm/\">https://psmokotnin.github.io/osm/</a><br><br/>
+                    <a style='color:%2' href=\"https://opensoundmeter.com\">https://opensoundmeter.com</a><br><br/>
                     Copyright (C) 2020  Pavel Smokotnin<br/>
                     Version: %1<br/>
                     License: GPL v3.0

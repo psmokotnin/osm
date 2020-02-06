@@ -21,18 +21,24 @@
 #include <QAbstractListModel>
 
 class SourceList;
+namespace Fftchart {
+    class Source;
+}
 
 class SourceModel : public QAbstractListModel
 {
     Q_OBJECT
     Q_PROPERTY(SourceList *list READ list WRITE setList)
+    Q_PROPERTY(bool filter READ filter WRITE setFilter)
+    Q_PROPERTY(bool addNone READ addNone WRITE setAddNone)
 
 public:
     explicit SourceModel(QObject *parent = nullptr);
 
     enum {
             SourceRole = Qt::UserRole,
-            NameRole    = 1
+            NameRole    = 1,
+            TitleRole   = 2
         };
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -46,8 +52,19 @@ public:
     SourceList *list() const {return mList;}
     void setList(SourceList *list);
 
+    bool filter() const noexcept {return m_filter;}
+    void setFilter(bool filter) noexcept;
+
+    Q_INVOKABLE int indexOf(Fftchart::Source *item) const noexcept;
+    Q_INVOKABLE Fftchart::Source *get(const int &index) const noexcept;
+
+    bool addNone() const noexcept {return m_addNone;}
+    void setAddNone(bool addNone) noexcept;
+
 private:
     SourceList *mList;
+    bool m_filter;
+    bool m_addNone;
 };
 
 #endif // SOURCEMODEL_H
