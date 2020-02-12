@@ -20,10 +20,7 @@
 
 #include <QObject>
 #include <QAudioInput>
-
 #include <QTimer>
-#include <QtCharts/QAbstractSeries>
-QT_CHARTS_USE_NAMESPACE
 
 #include "sample.h"
 #include "meter.h"

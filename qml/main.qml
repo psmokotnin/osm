@@ -137,8 +137,8 @@ ApplicationWindow {
                     onTriggered: sourceList.addMeasurement();
                 }
                 MenuItem {
-                    text: qsTr("&Append union")
-                    shortcut: "Ctrl+U"
+                    text: qsTr("&Add math source")
+                    shortcut: "Ctrl+M"
                     onTriggered: sourceList.addUnion();
                 }
             }
