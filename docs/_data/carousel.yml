@@ -1,20 +1,12 @@
-- src: images/screens/dualchart.png
-- src: images/screens/rta2.png
-  title: RTA
+- src:v0.1.screen.png
+  title:
   description:
-- src: images/screens/windows.png
-  title: Different window functions
-  description: rectangular, Hann, Hamming, flat top, blackman etc
-- src: images/screens/impulse.png
-  title: Impulse response
+- src:v0.1.1.screen.png
+  title:
   description:
-- src: images/screens/Phase.png
-  title: Phase
-  description: 
-- src: images/screens/Magnitude.png
-  title: Magnitude
+- src:v0.1.2.png
+  title:
   description:
-- src: images/screens/rta.png
-  title: Spectrum
+- src:v0.1.3.png
+  title:
   description:
-- src: images/scheme.png
