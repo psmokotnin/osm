@@ -19,7 +19,7 @@
 
 #include <QPen>
 #include <QPainter>
-
+#include <QtMath>
 #include "axis.h"
 
 using namespace std;

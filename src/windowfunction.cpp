@@ -16,6 +16,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "windowfunction.h"
+#include <QtMath>
 
 WindowFunction::WindowFunction(Type type, QObject *parent) : QObject(parent),
     m_type(type),

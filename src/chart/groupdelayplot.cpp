@@ -17,6 +17,7 @@
  */
 #include "groupdelayplot.h"
 #include "groupdelayseriesrenderer.h"
+#include <QtMath>
 
 using namespace Fftchart;
 

@@ -16,6 +16,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "fouriertransform.h"
+#include <QtMath>
 
 #ifndef USE_SSE2
 #define USE_SSE2
@@ -93,7 +94,10 @@ void FourierTransform::set(unsigned int i, const complex &a, const complex &b)
     _fastA[_swapMap[i]] = a;
     _fastB[_swapMap[i]] = b;
 }
-__attribute__((force_align_arg_pointer)) void FourierTransform::fast(WindowFunction *window, bool reverse, bool ultrafast)
+#ifdef __GNUC__
+__attribute__((force_align_arg_pointer))
+#endif 
+void FourierTransform::fast(WindowFunction *window, bool reverse, bool ultrafast)
 {
     if (!reverse) {
         //apply data-window
@@ -107,12 +111,19 @@ __attribute__((force_align_arg_pointer)) void FourierTransform::fast(WindowFunct
 
     complex w;//, ua, va, ub,vb;
     v4sf vw1, vw2, vu, vv, vr, v1, v2, vwl;
+#ifdef _MSC_VER
+    __declspec(align(16))
+#endif 
+    float stored[4];
     unsigned long ultraLimit = _size / 2;
     bool breakloop = false;
     for (unsigned int len = 2, l = 0; len <= _size; len <<= 1, l++, breakloop = false) {
-
-        vwl[0] = vwl[3] = wlen[l].real;
-        vwl[1] = vwl[2] = reverse ? -1 * wlen[l].imag : wlen[l].imag;
+        vwl = _mm_set_ps(
+            wlen[l].real,                               //vwl[0] = vwl[3] = wlen[l].real;
+            reverse ? -1 * wlen[l].imag : wlen[l].imag, //vwl[1] = vwl[2] = reverse ? -1 * wlen[l].imag : wlen[l].imag;
+            reverse ? -1 * wlen[l].imag : wlen[l].imag, 
+            wlen[l].real
+        );
 
         for (unsigned int i = 0, t1 = 0, t2 = len / 2; i < _size && !breakloop; i += len, t1 = i, t2 = i + len / 2) {
             w = 1.0;
@@ -127,25 +138,10 @@ __attribute__((force_align_arg_pointer)) void FourierTransform::fast(WindowFunct
                 }
                 //va = _fastA[i + j + len / 2] * w;
                 //vb = _fastB[i + j + len / 2] * w;
-                v1[0] = _fastA[t2].real;
-                v1[1] = _fastA[t2].real;
-                v1[2] = _fastB[t2].real;
-                v1[3] = _fastB[t2].real;
-
-                vw1[0] = w.real;
-                vw1[1] = w.imag;
-                vw1[2] = w.real;
-                vw1[3] = w.imag;
-
-                v2[0] = -1.f * _fastA[t2].imag;
-                v2[1] = _fastA[t2].imag;
-                v2[2] = -1.f * _fastB[t2].imag;
-                v2[3] = _fastB[t2].imag;
-
-                vw2[0] = w.imag;
-                vw2[1] = w.real;
-                vw2[2] = w.imag;
-                vw2[3] = w.real;
+                v1  = _mm_set_ps(_fastB[t2].real, _fastB[t2].real, _fastA[t2].real, _fastA[t2].real);
+                vw1 = _mm_set_ps(w.imag, w.real, w.imag, w.real);
+                v2  = _mm_set_ps(_fastB[t2].imag, -1.f * _fastB[t2].imag, _fastA[t2].imag, -1.f * _fastA[t2].imag);
+                vw2 = _mm_set_ps(w.real, w.imag, w.real, w.imag);
 
                 v1 = _mm_mul_ps(v1, vw1);
                 v2 = _mm_mul_ps(v2, vw2);
@@ -153,36 +149,35 @@ __attribute__((force_align_arg_pointer)) void FourierTransform::fast(WindowFunct
 
                 //ua = _fastA[i + j];
                 //ub = _fastB[i + j];
-                vu[0] = _fastA[t1].real;//ua
-                vu[1] = _fastA[t1].imag;//ua
-                vu[2] = _fastB[t1].real;//ub
-                vu[3] = _fastB[t1].imag;//ub
+                vu = _mm_set_ps(_fastB[t1].imag, _fastB[t1].real, _fastA[t1].imag, _fastA[t1].real);
 
                 //_fastA[i + j] = ua + va;
                 //_fastB[i + j] = ub + vb;
                 vr = _mm_add_ps(vu, vv);
-                _fastA[t1].real = vr[0];
-                _fastA[t1].imag = vr[1];
-                _fastB[t1].real = vr[2];
-                _fastB[t1].imag = vr[3];
+
+                _mm_store_ps(stored, vr);
+                _fastA[t1].real = stored[0];
+                _fastA[t1].imag = stored[1];
+                _fastB[t1].real = stored[2];
+                _fastB[t1].imag = stored[3];
+
 
                 //_fastA[i + j + len / 2] = ua - va;
                 //_fastB[i + j + len / 2] = ub - vb;
                 vr = _mm_sub_ps(vu, vv);
-                _fastA[t2].real = vr[0];
-                _fastA[t2].imag = vr[1];
-                _fastB[t2].real = vr[2];
-                _fastB[t2].imag = vr[3];
+                _mm_store_ps(stored, vr);
+                _fastA[t2].real = stored[0];
+                _fastA[t2].imag = stored[1];
+                _fastB[t2].real = stored[2];
+                _fastB[t2].imag = stored[3];
 
-                vw1[0] = w.real;
-                vw1[1] = w.imag;
-                vw1[2] = w.real;
-                vw1[3] = w.imag;
+                vw1 = _mm_set_ps(w.imag, w.real, w.imag, w.real);
 
                 //w *= wlen[l];
                 vw1 = _mm_mul_ps(vw1, vwl);
-                w.real = vw1[0] - vw1[1];
-                w.imag = vw1[2] + vw1[3];
+                _mm_store_ps(stored, vw1);
+                w.real = stored[0] - stored[1];
+                w.imag = stored[2] + stored[3];
             }
         }
     }

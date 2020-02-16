@@ -20,6 +20,7 @@
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <QFile>
+#include <QtMath>
 
 Stored::Stored(QObject *parent) : Fftchart::Source(parent), m_notes()
 {

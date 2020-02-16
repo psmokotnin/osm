@@ -56,6 +56,7 @@ public:
     explicit BesselLPF()
     {
         setFrequency(Frequency::FOURTHHZ);
+        reset();
     }
 
     void setFrequency(Frequency frequency) noexcept {
@@ -95,6 +96,9 @@ public:
      * @url http://www-users.cs.york.ac.uk/~fisher/cgi-bin/mkfscript
      */
     T operator()(const T &v) {
+        if (v != v) {   //isnan
+            return y(5);
+        }
         _p = p(1);
 
         _x[p(5)] = v / _gain;

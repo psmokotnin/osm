@@ -17,6 +17,7 @@
  */
 #include "phaseplot.h"
 #include "phaseseriesrenderer.h"
+#include <QtMath>
 
 using namespace Fftchart;
 

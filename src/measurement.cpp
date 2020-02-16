@@ -19,7 +19,7 @@
 #include <QFile>
 #include <QUrl>
 #include <QJsonArray>
-
+#include <QtMath>
 #include <algorithm>
 #include "measurement.h"
 
@@ -377,7 +377,7 @@ void Measurement::updateDelay()
     if (m_delay != m_setDelay) {
         long delta = static_cast<long>(m_delay) - static_cast<long>(m_setDelay);
         m_delay = m_setDelay;
-        bool direction = std::signbit(delta);
+        bool direction = std::signbit(static_cast<double>(delta));
         delta = std::abs(delta);
         for (long i = 0; i != delta; ++i) {
             if (direction) {

@@ -143,7 +143,7 @@ unix:!macx:CONFIG(release, debug|release) {
 
 FORMS +=
 
-win:QMAKE_CXXFLAGS += -m64 -msse2
+win32:QMAKE_CXXFLAGS += -m64 -msse2
 QMAKE_CXXFLAGS_RELEASE -= -O2
 QMAKE_CXXFLAGS_RELEASE += -Ofast
 

@@ -17,7 +17,7 @@
  */
 #ifndef AXIS_H
 #define AXIS_H
-
+#include <optional>
 #include "painteditem.h"
 #include "palette.h"
 
