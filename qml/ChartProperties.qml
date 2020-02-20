@@ -29,6 +29,7 @@ Item {
 
         TitledCombo {
             title: qsTr("ppo")
+            tooltip: qsTr("points per octave")
             model: ["off", 3, 6, 12, 24, 48]
             currentIndex: {
                 var ppo = dataObject.pointsPerOctave;
@@ -44,6 +45,8 @@ Item {
         Button {
             text: qsTr("Save Image");
             onClicked: fileDialog.open();
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("save chart to a file")
         }
     }
 

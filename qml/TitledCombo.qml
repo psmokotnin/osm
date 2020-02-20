@@ -16,7 +16,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 import QtQuick 2.7
-import QtQuick.Controls 2.2
+import QtQuick.Controls 2.12
 import QtQuick.Layouts 1.3
 
 Item {
@@ -27,12 +27,16 @@ Item {
     property string title : ""
     property var model : []
     property int currentIndex : 0
+    property string textRole: ""
+    property string valueRole: ""
+    property string tooltip : ""
 
     RowLayout {
 
         spacing: 1
+        anchors.fill: parent
 
-        Text {
+        Label {
             id: label
             Layout.margins: 5
             text: title
@@ -40,13 +44,18 @@ Item {
 
         ComboBox {
             id: cb
+            Layout.fillWidth: true
             Layout.leftMargin: 5
             Layout.bottomMargin: 5
             model: i.model
             currentIndex: i.currentIndex
+            textRole: i.textRole
+            valueRole: i.valueRole
             onCurrentIndexChanged: {
                 i.currentIndex = currentIndex
             }
+            ToolTip.visible: (tooltip ? hovered : none)
+            ToolTip.text: tooltip
         }
     }
 }

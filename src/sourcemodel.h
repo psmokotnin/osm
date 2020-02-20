@@ -65,6 +65,9 @@ private:
     SourceList *mList;
     bool m_filter;
     bool m_addNone;
+
+signals:
+    void changed();
 };
 
 #endif // SOURCEMODEL_H

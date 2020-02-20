@@ -29,6 +29,7 @@ namespace Fftchart {
 class Plot : public QQuickItem
 {
     Q_OBJECT
+    Q_PROPERTY(Fftchart::Source * filter READ filter WRITE setFilter NOTIFY filterChanged)
 
 protected:
     QList<SeriesFBO*> series;
@@ -45,6 +46,7 @@ protected:
     void applyHeightForSeries(SeriesFBO *s);
     Settings *m_settings;
     Palette m_palette;
+    QPointer<Fftchart::Source> m_filter;
 
 public:
     explicit Plot(Settings *settings, QQuickItem *parent);
@@ -64,7 +66,11 @@ public:
     bool darkMode() const noexcept {return m_palette.darkMode(); }
     void setDarkMode(bool darkMode) noexcept {return m_palette.setDarkMode(darkMode);}
 
+    Fftchart::Source *filter() const noexcept {return m_filter;}
+    void setFilter(Fftchart::Source *filter) noexcept;
+
 signals:
+    void filterChanged(Fftchart::Source *);
 
 protected slots:
     void parentWidthChanged();

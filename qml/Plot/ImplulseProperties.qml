@@ -21,6 +21,7 @@ import QtQuick.Layouts 1.3
 import QtQuick.Dialogs 1.3
 
 import "../" as Root
+import SourceModel 1.0
 
 Item {
     id: chartProperties
@@ -77,10 +78,32 @@ Item {
             text: qsTr("Save Image");
             implicitWidth: 120
             onClicked: fileDialog.open();
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("save chart to a file")
         }
     }
     RowLayout {
         spacing: 0
+
+        RowLayout {
+            Layout.fillWidth: true
+        }
+
+        Root.TitledCombo {
+            title: qsTr("filter")
+            tooltip: qsTr("show only selected source")
+            model: SourceModel {
+                addNone: true
+                list: sourceList
+            }
+            Layout.preferredWidth: 300
+            currentIndex: { model.indexOf(dataObject.filter) }
+            textRole: "title"
+            valueRole: "source"
+            onCurrentIndexChanged: {
+                dataObject.filter = model.get(currentIndex);
+            }
+        }
 
 
         FileDialog {

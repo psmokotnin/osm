@@ -50,7 +50,7 @@ private:
     bool loadStored(const QJsonObject &data) noexcept;
 public:
     explicit SourceList(QObject *parent = nullptr, bool appendMeasurement = true);
-    SourceList* filter(QObject *parent) const noexcept;
+    SourceList* clone(QObject *parent, bool filtered = false) const noexcept;
 
     const QVector<Fftchart::Source *> &items() const;
 
@@ -78,7 +78,7 @@ public slots:
     Q_INVOKABLE Measurement *addMeasurement();
     Q_INVOKABLE Union *addUnion();
     void appendItem(Fftchart::Source *item, bool autocolor = false);
-    void removeItem(Fftchart::Source *item);
+    void removeItem(Fftchart::Source *item, bool deleteItem = true);
     void appendNone();
     Q_INVOKABLE QColor nextColor();
 };

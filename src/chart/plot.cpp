@@ -24,7 +24,7 @@
 using namespace Fftchart;
 
 Plot::Plot(Settings *settings, QQuickItem *parent) :
-    QQuickItem(parent), m_settings(settings), m_palette(this)
+    QQuickItem(parent), m_settings(settings), m_palette(this), m_filter(nullptr)
 {
     connect(parent, SIGNAL(widthChanged()), this, SLOT(parentWidthChanged()));
     connect(parent, SIGNAL(heightChanged()), this, SLOT(parentHeightChanged()));
@@ -75,6 +75,14 @@ void Plot::applyHeightForSeries(SeriesFBO *s)
     float height = static_cast<float>(parentItem()->height()) - padding.top - padding.bottom;
     s->setY(static_cast<qreal>(padding.top));
     s->setHeight(static_cast<qreal>(height));
+}
+void Plot::setFilter(Fftchart::Source *filter) noexcept
+{
+    if (m_filter != filter) {
+        m_filter = filter;
+        update();
+        emit filterChanged(m_filter);
+    }
 }
 QSGNode *Plot::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *)
 {

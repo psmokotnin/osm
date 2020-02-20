@@ -21,6 +21,7 @@ import QtQuick.Layouts 1.3
 import QtQuick.Dialogs 1.3
 
 import "../" as Root
+import SourceModel 1.0
 
 Item {
     id: chartProperties
@@ -121,6 +122,8 @@ Item {
                 text: qsTr("Save Image");
                 implicitWidth: 120
                 onClicked: fileDialog.open();
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("save chart to a file")
             }
         }
     RowLayout {
@@ -128,6 +131,7 @@ Item {
 
         Root.TitledCombo {
             title: qsTr("ppo")
+            tooltip: qsTr("points per octave")
             implicitWidth: 170
             model: [3, 6, 12, 24, 48]
             currentIndex: {
@@ -156,10 +160,32 @@ Item {
             max: 1.0
             step: 0.05
             value: dataObject.coherenceThreshold
-            tooltiptext: qsTr("coherence Threshold")
+            tooltiptext: qsTr("coherence threshold")
             onValueChanged: dataObject.coherenceThreshold = value
             implicitWidth: 170
             visible: coherence.checked
+        }
+
+        RowLayout {
+            Layout.fillWidth: true
+        }
+
+        Root.TitledCombo {
+            id: filter
+            title: qsTr("filter")
+            tooltip: qsTr("show only selected source")
+            model: SourceModel {
+                id: filterModel
+                addNone: true
+                list: sourceList
+            }
+            Layout.preferredWidth: 300
+            currentIndex: { model.indexOf(dataObject.filter) }
+            textRole: "title"
+            valueRole: "source"
+            onCurrentIndexChanged: {
+                dataObject.filter = model.get(currentIndex);
+            }
         }
 
         FileDialog {

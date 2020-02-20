@@ -33,22 +33,26 @@ SourceList::SourceList(QObject *parent, bool appendMeasurement) :
         addMeasurement();
     }
 }
-
-SourceList* SourceList::filter(QObject *parent) const noexcept
+SourceList* SourceList::clone(QObject *parent, bool filtered) const noexcept
 {
     SourceList *list = new SourceList(parent, false);
     for (auto item : items()) {
-        if (item->objectName() == "Measurement" || item->objectName() == "Stored") {
+        if (!filtered || item->objectName() == "Measurement" || item->objectName() == "Stored") {
             list->appendItem(item);
         }
     }
 
-    connect(this, &SourceList::preItemAppended, list, &SourceList::preItemAppended);
-    connect(this, &SourceList::postItemAppended, list, &SourceList::postItemAppended);
-    connect(this, &SourceList::preItemRemoved, list, &SourceList::preItemRemoved);
-    connect(this, &SourceList::postItemRemoved, list, &SourceList::postItemRemoved);
-    connect(this, &SourceList::preItemMoved, list, &SourceList::preItemMoved);
-    connect(this, &SourceList::postItemMoved, list, &SourceList::postItemMoved);
+    connect(this, &SourceList::preItemRemoved, list, [=](int index) {
+        if (!list) return;
+        auto item = get(index);
+        list->removeItem(item, false);
+    });
+    connect(this, &SourceList::postItemAppended, list, [=](auto item){
+        list->appendItem(item, false);
+    });
+    connect(this, &SourceList::preItemMoved, list, [=](int from, int to){
+        list->move(from, to);
+    });
 
     return list;
 }
@@ -245,7 +249,7 @@ void SourceList::appendItem(Fftchart::Source *item, bool autocolor)
 
     emit postItemAppended(item);
 }
-void SourceList::removeItem(Fftchart::Source *item)
+void SourceList::removeItem(Fftchart::Source *item, bool deleteItem)
 {
     for (int i = 0; i < mItems.size(); ++i) {
         if (mItems.at(i) == item) {
@@ -253,7 +257,8 @@ void SourceList::removeItem(Fftchart::Source *item)
             emit preItemRemoved(i);
             mItems.removeAt(i);
             emit postItemRemoved();
-            item->deleteLater();
+            if (deleteItem)
+                item->deleteLater();
             break;
         }
     }

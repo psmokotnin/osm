@@ -74,10 +74,12 @@ void SeriesRenderer::render()
         static_cast<GLfloat>(m_source->color().blueF()),
         static_cast<GLfloat>(m_source->color().alphaF())
     );
-
-    m_source->lock();
-    renderSeries();
-    m_source->unlock();
+    auto plot = static_cast<Fftchart::Plot *>(m_item->parent());
+    if (!plot->filter() || plot->filter() == m_source) {
+        m_source->lock();
+        renderSeries();
+        m_source->unlock();
+    }
 
     m_program.release();
 }

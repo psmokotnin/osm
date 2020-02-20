@@ -72,8 +72,8 @@ void SourceModel::setList(SourceList *list)
 {
     beginResetModel();
 
-    if (m_filter) {
-        list = list->filter(this);
+    if (m_filter || m_addNone) {
+        list = list->clone(this, m_filter);
     }
     if (m_addNone) {
         list->appendNone();
