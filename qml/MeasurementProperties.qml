@@ -176,7 +176,7 @@ Item {
             SpinBox {
                 id: delaySpin
                 Layout.alignment: Qt.AlignVCenter
-                implicitWidth: 90
+                implicitWidth: 80
                 value: dataObject.delay
                 implicitHeight: titleField.implicitHeight
                 from: 0

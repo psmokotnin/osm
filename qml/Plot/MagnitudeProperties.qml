@@ -179,7 +179,7 @@ Item {
                 addNone: true
                 list: sourceList
             }
-            Layout.preferredWidth: 300
+            Layout.preferredWidth: 280
             currentIndex: { model.indexOf(dataObject.filter) }
             textRole: "title"
             valueRole: "source"

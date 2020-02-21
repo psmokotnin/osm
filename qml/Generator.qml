@@ -20,11 +20,11 @@ import QtQuick.Window 2.2
 import QtQuick.Controls 2.2
 
 Item {
-    height: 50
+    height: 40
     width: parent.width
 
     Row {
-        height: 50
+        height: 40
 
         Switch {
             anchors.verticalCenter: parent.verticalCenter

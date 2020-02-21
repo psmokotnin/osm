@@ -41,7 +41,7 @@ Item {
 
             SpinBox {
                 id: gainSpinBox
-                implicitWidth: 180
+                implicitWidth: 170
                 value: generatorModel.gain
                 from: -90
                 to: 0
