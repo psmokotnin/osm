@@ -230,5 +230,31 @@ Item {
                 }
             }
         }
+
+        RowLayout {
+            Button {
+                Layout.fillWidth: true
+                font.family: "Osm"
+                text: " follow"
+                Material.foreground: Material.Indigo
+                flat: true
+                font.pixelSize: 10
+                onClicked: {
+                    Qt.openUrlExternally("https://www.facebook.com/opensoundmeter/");
+                }
+            }
+
+            Button {
+                Layout.fillWidth: true
+                font.family: "Osm"
+                text: "\ue800 support"
+                Material.foreground: Material.Pink
+                flat: true
+                font.pixelSize: 10
+                onClicked: {
+                    Qt.openUrlExternally("https://opensoundmeter.com/support");
+                }
+            }
+        }
     }
 }
