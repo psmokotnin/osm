@@ -57,7 +57,6 @@ void MagnitudeSeriesRenderer::renderSeries()
 
     GLfloat vertices[8];
     float value = 0.f, coherence = 0.f;
-    double dValue = 1.0;
 
     setUniforms();
     openGLFunctions->glVertexAttribPointer(static_cast<GLuint>(m_posAttr), 2, GL_FLOAT, GL_FALSE, 0, static_cast<const void *>(vertices));
@@ -74,12 +73,12 @@ void MagnitudeSeriesRenderer::renderSeries()
      * pass spline data to shaders
      * fragment shader draws spline function
      */
-    auto accumulate = [m_source = m_source, &coherence, &dValue] (unsigned int i)
+    auto accumulate = [m_source = m_source, &coherence, &value] (unsigned int i)
     {
-        dValue    *= static_cast<double>(m_source->magnitudeRaw(i));
         coherence += m_source->coherence(i);
+        value     += m_source->magnitude(i);
     };
-    auto collected = [m_program = &m_program, openGLFunctions = openGLFunctions, &vertices, &dValue, &coherence,
+    auto collected = [m_program = &m_program, openGLFunctions = openGLFunctions, &vertices, &value, &coherence,
             m_splineA = m_splineA, m_frequency1 = m_frequency1, m_frequency2 = m_frequency2,
             xadd, xmul, yMin = yMin, yMax = yMax, m_coherenceSpline = m_coherenceSpline]
             (float f1, float f2, float *ac, float *c)
@@ -101,18 +100,10 @@ void MagnitudeSeriesRenderer::renderSeries()
         m_program->setUniformValue(m_frequency2, fx2);
         openGLFunctions->glDrawArrays(GL_QUADS, 0, 4);
 
-        dValue = 1.0;
+        value = 0.f;
         coherence = 0.f;
     };
 
-    auto beforeSpline = [&dValue] (const float *value, const float *f, const unsigned int & index) {
-        Q_UNUSED(value)
-        Q_UNUSED(f)
-        Q_UNUSED(index)
-
-        return 20.f * static_cast<float>(log10(dValue));
-    };
-
-    iterateForSpline<float, float>(m_pointsPerOctave, &value, &coherence, accumulate, collected, beforeSpline);
+    iterateForSpline<float, float>(m_pointsPerOctave, &value, &coherence, accumulate, collected);
     openGLFunctions->glDisableVertexAttribArray(0);
 }

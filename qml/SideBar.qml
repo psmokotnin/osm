@@ -232,10 +232,13 @@ Item {
         }
 
         RowLayout {
+            spacing: 5
+            Layout.bottomMargin: 8
+
             Button {
                 Layout.fillWidth: true
                 font.family: "Osm"
-                text: " follow"
+                text: "\uf09a follow"
                 Material.foreground: Material.Indigo
                 flat: true
                 font.pixelSize: 10

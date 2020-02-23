@@ -53,7 +53,7 @@ Popup {
                 <tr><td>%1+M</td><td>append new union</td></tr>
                 <tr><td>%1+X</td><td>store all measurements</td></tr>
                 <tr><td>%1+R</td><td>reset aveverages</td></tr>
-                <tr><td>%1+C</td><td>store current measurembnt</td></tr>
+                <tr><td>%1+C</td><td>store current measurement</td></tr>
                 <tr><td>%1+E</td><td>apply estimated delay for current measuremts</td></tr>
 
                 <tr><th colspan='2'>Generator</th></tr>
