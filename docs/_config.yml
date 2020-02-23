@@ -23,16 +23,19 @@ url: "" # the base hostname & protocol for your site, e.g. http://example.com
 #twitter_username: jekyllrb
 github_username:  psmokotnin
 
+description: "Open Sound Meter is a cross-platform measurement application for tuning sound systems in real-time"
+
 
 download_page: "https://github.com/psmokotnin/osm/releases"
 payme_page: "https://www.paypal.me/psmokotnin"
 issues_page: "https://github.com/psmokotnin/osm/issues"
 source_page: "https://github.com/psmokotnin/osm"
+license_page: "https://github.com/psmokotnin/osm/blob/master/LICENSE"
 
 
 # Build settings
 markdown: kramdown
-theme: minima
+#theme: minima
 plugins:
   - jekyll-feed
 

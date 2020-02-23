@@ -2,18 +2,18 @@
 <html lang="{{ page.lang | default: site.lang | default: "en" }}">
 
   {% include head.html %}
+  {% include script.html %}
   
   <body>
 
     {% include header.html %}
 
-    <main>
+    <main role="main">
         {{ content }}
     </main>
     
     {% include footer.html %}
       
-    {% include script.html %}
 
   </body>
 

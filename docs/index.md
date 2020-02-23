@@ -4,71 +4,90 @@
 
 layout: default
 ---
+  
+<!-- Marketing messaging and featurettes
+================================================== -->
+<!-- Wrap the rest of the page in another container to center all the content. -->
 
+<div class="container marketing">
 
-<h1 class="page-title">{{ page.title | escape }}</h1>
-
-<div class="section">
+<!-- Three columns of text below the carousel -->
     <div class="row">
-        <div class="col s6 offset-s3">
-            <p class="light">Hello to the Open Sound Meter project, real time dual-FFT measurement analysis tool for sound system.</p>
-        </div>
-    </div>
-</div>
-<div class="section">
-    <div class="row">
-          <div class="carousel carousel-slider center" data-indicators="true" data-namespace="DIVcarouselcarousel-slider1" style="height: 400px;">
-          <div class="carousel-fixed-item center with-indicators">
-          </div>
-          
-          {% for image in site.data.carousel %}
-            <div class="carousel-item" style="background: url({{ image.src }}) center center / contain no-repeat;">
-                <h2>{{ image.title }}</h2>
-                <p>{{ image.description }}</p>
-            </div>
-          {% endfor %}
-          
-    </div>
-</div>
-
-    <div class="row center">
-        <a href="{{ site.download_page }}" id="download-button" class="btn-large waves-effect waves-light orange">Download</a>
-    </div>
-    
-  <div class="container">
-    <div class="section">
-        <div class="row">
-            
-            <div class="col s12 m4">
-                <div class="icon-block">
-                    <h2 class="center light-blue-text"><i class="material-icons">mood</i></h2>
-                    <h5 class="center">Simple & easy</h5>
-                    <p class="light">You do not need to search functions in the thousands of menus. All required is placed just in front of you. The main goal is to speed up a system's tune at small and medium venues.</p>
-                </div>
-            </div>
+        <div class="col-lg-4">
+            <img src="/images/icons/abc.png" class="bd-placeholder-img" width="140" height="140"/>
+            <h2>Simple</h2>
+            <p align="left">Easy to start. Uncomplicated interface with only needed functions.</p>
+            <p><a class="btn btn-info" href="{{site.download_page}}" role="button">Download</a></p>
+        </div><!-- /.col-lg-4 -->
         
-            <div class="col s12 m4">
-                <div class="icon-block">
-                    <h2 class="center light-blue-text"><i class="material-icons">money_off</i></h2>
-                    <h5 class="center">Free & open source</h5>
-                    <p class="light">Software distributed under GPL-3.0 license. You don't have to pay any fixed price. If you like it, please support me.</p>
-                    <p>
-                        <a class="waves-effect waves-light btn" href="{{ site.payme_page }}" target="_blank">Pay what you want</a>
-                    </p>
-                </div>
-            </div>            
-
-            <div class="col s12 m4">
-                <div class="icon-block">
-                    <h2 class="center light-blue-text"><i class="material-icons">desktop_mac</i></h2>
-                    <h5 class="center">Crossplatform</h5>
-                    <p class="light">{{site.title}} is easy to build on Windows, MacOS or Linux. It's developed in C++ with Qt SDK and no additional libraries.</p>
-                    <p>
-                        <a class="waves-effect waves-light btn orange" href="{{ site.source_page }}" target="_blank">Github</a>
-                    </p>
+        <div class="col-lg-4">
+            <div style="height: 105px;margin-top: 35px;"><img src="/images/icons/heart.svg" class="bd-placeholder-img" width="70" height="70"/></div>
+            <h2>Available</h2>
+            <p align="left">You can pay what you want. Every donation is a great help for further development.</p>
+            <p><a class="btn btn-success" href="#" role="button">Donate</a></p>
+        </div><!-- /.col-lg-4 -->
+        
+        <div class="col-lg-4">
+            <div class="container brand-images ">
+                <div class="row">
+                    <div class="col"><img src="/images/icons/apple-brands.svg" class="bd-placeholder-img"/></div>
+                    <div class="col"><img src="/images/icons/windows-brands.svg" class="bd-placeholder-img"/></div>
+                    <div class="col"><img src="/images/icons/linux-brands.svg" class="bd-placeholder-img"/></div>
                 </div>
             </div>
-            
-        </div>
+            <h2>Crossplatform</h2>
+            <p align="left">Binary builds are available for most major operating systems: macOS, Windows, and Linux.</p>
+        </div><!-- /.col-lg-4 -->
+    </div><!-- /.row -->
+
+
+    <!-- START THE FEATURETTES -->
+
+    <hr class="featurette-divider">
+
+    <div class="row featurette">
+      <div class="col-md-7">
+        <h2 class="featurette-heading">All basic functions</h2>
+        <p class="lead">RTA, magnitude, phase and impulse response, coherence and group delay</p>
+      </div>
+      <div class="col-md-5">
+        <img src="/images/screens/basic.png" class="bd-placeholder-img bd-placeholder-img-lg featurette-image img-fluid mx-auto"/>
+      </div>
     </div>
-  </div>
+
+    <hr class="featurette-divider">
+
+    <div class="row featurette">
+      <div class="col-md-7 order-md-2">
+        <h2 class="featurette-heading">Keep your workspace clean</h2>
+        <p class="lead">You can save and open your measurement projects. Each store automatically collects measurement settings.</p>
+      </div>
+      <div class="col-md-5 order-md-1">
+        <img src="/images/screens/clean.png" class="bd-placeholder-img bd-placeholder-img-lg featurette-image img-fluid mx-auto"/>
+      </div>
+    </div>
+
+    <hr class="featurette-divider">
+
+    <div class="row featurette">
+      <div class="col-md-7">
+        <h2 class="featurette-heading">And something more</h2>
+        <p class="lead">
+            Additional features: 
+            <ul>
+                <li>virtual summation, difference or averaging of up to 4 measurements and stores</li>
+                <li>signal generator</li>
+                <li>automatic check for update</li>
+            </ul>
+        </p>
+      </div>
+      <div class="col-md-5">
+        <img src="/images/screens/sum.png" class="bd-placeholder-img bd-placeholder-img-lg featurette-image img-fluid mx-auto"/>
+      </div>
+    </div>
+
+    <hr class="featurette-divider">
+
+    <!-- /END THE FEATURETTES -->
+
+  </div><!-- /.container -->
