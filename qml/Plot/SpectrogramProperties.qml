@@ -1,6 +1,6 @@
 /**
  *  OSM
- *  Copyright (C) 2019  Pavel Smokotnin
+ *  Copyright (C) 2018  Pavel Smokotnin
 
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -28,8 +28,8 @@ Item {
     property var dataObject
 
     ColumnLayout {
-        spacing: 0
         anchors.fill: parent
+        spacing: 0
 
     RowLayout {
         spacing: 0
@@ -76,24 +76,46 @@ Item {
             }
         }
 
-        Root.FloatSpinBox {
-            min: dataObject.yLowLimit
-            max: dataObject.yHighLimit
+        SpinBox {
             value: dataObject.ymin
-            tooltiptext: qsTr("y from")
             onValueChanged: dataObject.ymin = value
+            from: dataObject.yLowLimit
+            to: dataObject.yHighLimit
+            editable: true
             implicitWidth: 170
             Layout.fillWidth: true
+
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("y from")
+
+            textFromValue: function(value, locale) {
+                return Number(value) + "dB"
+            }
+
+            valueFromText: function(text, locale) {
+                return parseInt(text)
+            }
         }
 
-        Root.FloatSpinBox {
-            min: dataObject.yLowLimit
-            max: dataObject.yHighLimit
+        SpinBox {
             value: dataObject.ymax
-            tooltiptext: qsTr("y to")
             onValueChanged: dataObject.ymax = value
+            from: dataObject.yLowLimit
+            to: dataObject.yHighLimit
+            editable: true
             implicitWidth: 170
             Layout.fillWidth: true
+
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("y to")
+
+            textFromValue: function(value, locale) {
+                return Number(value) + "dB"
+            }
+
+            valueFromText: function(text, locale) {
+                return parseInt(text)
+            }
         }
 
         Button {
@@ -112,39 +134,46 @@ Item {
             tooltip: qsTr("points per octave")
             implicitWidth: 170
             model: [3, 6, 12, 24, 48]
-            currentIndex: {
-                var ppo = dataObject.pointsPerOctave;
-                model.indexOf(ppo);
+            Component.onCompleted: {
+                currentIndex = model.indexOf(dataObject.pointsPerOctave);
             }
             onCurrentIndexChanged: {
-                var ppo = model[currentIndex];
-                dataObject.pointsPerOctave = ppo;
+                dataObject.pointsPerOctave = model[currentIndex];
             }
         }
 
-        Rectangle {
-            width: 5
+        /*
+        TODO: may be remove?
+        CheckBox {
+            id: coherence
+            text: qsTr("use coherence")
+            implicitWidth: 170
+            checked: dataObject.coherence
+            onCheckStateChanged: dataObject.coherence = checked
+
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("use coherence as alpha channel")
         }
 
-        ComboBox {
-            id: type
-            implicitWidth: 120
-            model: ["normal", "squared"]
-            currentIndex: dataObject.type
-            ToolTip.visible: hovered
-            ToolTip.text: qsTr("value type")
-            onCurrentIndexChanged: dataObject.type = currentIndex;
-        }
+        Root.FloatSpinBox {
+            min: 0.0
+            max: 1.0
+            step: 0.05
+            value: dataObject.coherenceThreshold
+            tooltiptext: qsTr("coherence threshold")
+            onValueChanged: dataObject.coherenceThreshold = value
+            implicitWidth: 170
+            visible: coherence.checked
+        }*/
 
         RowLayout {
             Layout.fillWidth: true
         }
 
         Root.TitledCombo {
-            title: qsTr("filter")
-            tooltip: qsTr("show only selected source")
+            title: qsTr("source")
+            tooltip: qsTr("show only this source")
             model: SourceModel {
-                addNone: true
                 list: sourceList
             }
             Layout.preferredWidth: 280

@@ -60,6 +60,9 @@ Item {
             case "Coherence":
                 opener.propertiesQml = "qrc:/Plot/CoherenceProperties.qml";
                 break;
+            case "Spectrogram":
+                opener.propertiesQml = "qrc:/Plot/SpectrogramProperties.qml";
+                break;
             }
         }
     }
@@ -115,19 +118,22 @@ Item {
     ComboBox {
         anchors.top: parent.top
         anchors.right: parent.right
-        implicitWidth: 140
+        implicitWidth: 145
         implicitHeight: Material.buttonHeight
         background: null
-        model: ["RTA", "Magnitude", "Phase", "Impulse", "Coherence", "Group Delay"]
+        model: ["RTA", "Magnitude", "Phase", "Impulse", "Coherence", "Group Delay", "Spectrogram"]
         currentIndex: model.indexOf(type)
         onCurrentIndexChanged: {
             var pb = applicationWindow.properiesbar;
             var reopen = false;
-            if (pb.currentObject == chart.plot) {
+            if (pb.currentObject === chart.plot) {
                 pb.reset();
                 reopen = true;
             }
             chart.type = model[currentIndex];
+            if (model[currentIndex] === "Spectrogram") {
+                chart.plot.filter = sourceList.first;
+            }
             if (reopen) {
                 pb.open(chart.plot, opener.propertiesQml);
             }

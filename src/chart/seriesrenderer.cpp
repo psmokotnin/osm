@@ -64,6 +64,8 @@ void SeriesRenderer::render()
 
     openGLFunctions->glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     openGLFunctions->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    openGLFunctions->glEnable(GL_BLEND);
+    openGLFunctions->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     m_program.bind();
 

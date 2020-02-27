@@ -7,6 +7,8 @@ SOURCES += src/main.cpp \
     src/chart/groupdelayplot.cpp \
     src/chart/groupdelayseriesrenderer.cpp \
     src/chart/palette.cpp \
+    src/chart/spectrogramplot.cpp \
+    src/chart/spectrogramseriesrenderer.cpp \
     src/generator.cpp \
     src/pinknoise.cpp \
     src/outputdevice.cpp \
@@ -81,6 +83,8 @@ HEADERS += \
     src/chart/groupdelayplot.h \
     src/chart/groupdelayseriesrenderer.h \
     src/chart/palette.h \
+    src/chart/spectrogramplot.h \
+    src/chart/spectrogramseriesrenderer.h \
     src/generator.h \
     src/pinknoise.h \
     src/outputdevice.h \
@@ -157,11 +161,13 @@ DISTFILES += \
     list.tasks \
     shaders/coherence.frag \
     shaders/fragment.frag \
+    shaders/interpolateColor.frag \
     shaders/logx.vert \
     shaders/phase.geom \
     shaders/color.frag \
     shaders/magnitude.frag \
-    shaders/pos.vert
+    shaders/pos.vert \
+    shaders/spectrogram.vert
 
 ICON = icons/white.icns
 win32:RC_ICONS = icons/white.ico

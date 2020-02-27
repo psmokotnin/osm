@@ -48,7 +48,7 @@ layout: default
     <div class="row featurette">
       <div class="col-md-7">
         <h2 class="featurette-heading">All basic functions</h2>
-        <p class="lead">RTA, magnitude, phase and impulse response, coherence and group delay</p>
+        <p class="lead">RTA, magnitude, phase and impulse response, coherence, group delay and spectrogram</p>
       </div>
       <div class="col-md-5">
         <img src="/images/screens/basic.png" class="bd-placeholder-img bd-placeholder-img-lg featurette-image img-fluid mx-auto"/>

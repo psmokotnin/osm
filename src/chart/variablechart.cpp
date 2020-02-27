@@ -22,6 +22,7 @@
 #include "impulseplot.h"
 #include "coherenceplot.h"
 #include "groupdelayplot.h"
+#include "spectrogramplot.h"
 #include "src/sourcelist.h"
 
 using namespace Fftchart;
@@ -63,7 +64,9 @@ void VariableChart::initType()
     case GroupDelay:
         newPlot = new GroupDelayPlot(m_settings, this);
         break;
-
+    case Spectrogram:
+        newPlot = new SpectrogramPlot(m_settings, this);
+        break;
     default:
         return;
     }

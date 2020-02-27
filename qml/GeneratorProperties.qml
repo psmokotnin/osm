@@ -95,7 +95,6 @@ Item {
             Switch {
                 visible: type.currentText == 'SineSweep';
                 checked: generatorModel.sweepType
-                Component.onCompleted: console.debug(generatorModel.sweepType)
                 onCheckedChanged: checked ? generatorModel.setSweepType(1) : generatorModel.setSweepType(0)
             }
 

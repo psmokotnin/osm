@@ -1,6 +1,6 @@
 /**
  *  OSM
- *  Copyright (C) 2018  Pavel Smokotnin
+ *  Copyright (C) 2020  Pavel Smokotnin
 
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -15,24 +15,24 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef TYPE_H
-#define TYPE_H
+varying vec4 currentVertexPosition;
+varying vec4 preVertexPosition;
 
-#include <map>
-#include <QString>
+attribute highp vec4 posAttr;
+uniform highp vec4 prePosition;
+uniform highp vec4 postPosition;
+uniform highp mat4 matrix;
 
-namespace Fftchart {
+void main() {
+    vec4 p = posAttr;
+    p.x = log(p.x);
+    gl_Position = matrix * p;
 
-    enum Type {RTA, Magnitude, Phase, Scope, Impulse, Coherence, GroupDelay, Spectrogram};
-    static std::map<Type, QString> typeMap = {
-        {RTA,       "RTA"},
-        {Magnitude, "Magnitude"},
-        {Phase,     "Phase"},
-        {Scope,     "Scope"},
-        {Impulse,   "Impulse"},
-        {Coherence, "Coherence"},
-        {GroupDelay, "Group Delay"},
-        {Spectrogram, "Spectrogram"}
-    };
+    p = prePosition;
+    p.x = log(p.x);
+    preVertexPosition = matrix * p;
+
+    p = postPosition;
+    p.x = log(p.x);
+    currentVertexPosition = matrix * p;
 }
-#endif // TYPE_H

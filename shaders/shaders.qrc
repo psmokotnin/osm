@@ -6,5 +6,7 @@
         <file>magnitude.frag</file>
         <file>pos.vert</file>
         <file>coherence.frag</file>
+        <file>interpolateColor.frag</file>
+        <file>spectrogram.vert</file>
     </qresource>
 </RCC>

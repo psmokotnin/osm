@@ -32,6 +32,7 @@ class SourceList : public QObject
     Q_OBJECT
     Q_PROPERTY(int count READ count)
     Q_PROPERTY(QUrl currentFile READ currentFile)
+    Q_PROPERTY(Fftchart::Source *first READ firstSource)
 
 private:
     QVector<Fftchart::Source*> mItems;
@@ -51,6 +52,8 @@ private:
 public:
     explicit SourceList(QObject *parent = nullptr, bool appendMeasurement = true);
     SourceList* clone(QObject *parent, bool filtered = false) const noexcept;
+
+    Fftchart::Source *firstSource() const noexcept {return mItems.at(0);}
 
     const QVector<Fftchart::Source *> &items() const;
 

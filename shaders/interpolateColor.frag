@@ -1,6 +1,7 @@
+#version 120
 /**
  *  OSM
- *  Copyright (C) 2018  Pavel Smokotnin
+ *  Copyright (C) 2020  Pavel Smokotnin
 
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -15,24 +16,21 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef TYPE_H
-#define TYPE_H
+uniform vec4 m_colorLeft;
+uniform vec4 m_colorRight;
+uniform vec2 screen;
 
-#include <map>
-#include <QString>
+varying vec4 currentVertexPosition;
+varying vec4 preVertexPosition;
 
-namespace Fftchart {
+void main(void)
+{
+    float k = 1.0 / (currentVertexPosition.x - preVertexPosition.x);
+    float b = 1.0 - currentVertexPosition.x * k;
 
-    enum Type {RTA, Magnitude, Phase, Scope, Impulse, Coherence, GroupDelay, Spectrogram};
-    static std::map<Type, QString> typeMap = {
-        {RTA,       "RTA"},
-        {Magnitude, "Magnitude"},
-        {Phase,     "Phase"},
-        {Scope,     "Scope"},
-        {Impulse,   "Impulse"},
-        {Coherence, "Coherence"},
-        {GroupDelay, "Group Delay"},
-        {Spectrogram, "Spectrogram"}
-    };
+    gl_FragColor = mix(
+                m_colorLeft,
+                m_colorRight,
+                k * (2.0 * gl_FragCoord.x / screen.x - 1.0) + b
+    );
 }
-#endif // TYPE_H

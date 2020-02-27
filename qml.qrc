@@ -33,5 +33,6 @@
         <file alias="Shortcuts.qml">qml/Shortcuts.qml</file>
         <file alias="Union.qml">qml/Union.qml</file>
         <file alias="UnionProperties.qml">qml/UnionProperties.qml</file>
+        <file alias="Plot/SpectrogramProperties.qml">qml/Plot/SpectrogramProperties.qml</file>
     </qresource>
 </RCC>

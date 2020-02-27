@@ -1,6 +1,6 @@
 /**
  *  OSM
- *  Copyright (C) 2018  Pavel Smokotnin
+ *  Copyright (C) 2020  Pavel Smokotnin
 
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -15,24 +15,21 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef TYPE_H
-#define TYPE_H
+#ifndef SPECTROGRAMPLOT_H
+#define SPECTROGRAMPLOT_H
 
-#include <map>
-#include <QString>
+#include "frequencybasedplot.h"
 
 namespace Fftchart {
+class SpectrogramPlot : public FrequencyBasedPlot
+{
+    Q_OBJECT
 
-    enum Type {RTA, Magnitude, Phase, Scope, Impulse, Coherence, GroupDelay, Spectrogram};
-    static std::map<Type, QString> typeMap = {
-        {RTA,       "RTA"},
-        {Magnitude, "Magnitude"},
-        {Phase,     "Phase"},
-        {Scope,     "Scope"},
-        {Impulse,   "Impulse"},
-        {Coherence, "Coherence"},
-        {GroupDelay, "Group Delay"},
-        {Spectrogram, "Spectrogram"}
-    };
+protected:
+    virtual SeriesFBO* createSeriesFromSource(Source *source) override;
+
+public:
+    SpectrogramPlot(Settings *settings, QQuickItem *parent = Q_NULLPTR);
+};
 }
-#endif // TYPE_H
+#endif // SPECTROGRAMPLOT_H
