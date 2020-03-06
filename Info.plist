@@ -24,5 +24,7 @@
 	<true/>
         <key>NSMicrophoneUsageDescription</key>
         <string>Audio measurement</string>
+        <key>NSRequiresAquaSystemAppearance</key>
+        <string>true</string>
 </dict>
 </plist>
