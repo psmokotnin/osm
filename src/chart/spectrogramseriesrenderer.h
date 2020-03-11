@@ -19,6 +19,7 @@
 #define SPECTROGRAMSERIESRENDERER_H
 
 #include <deque>
+#include <array>
 #include <QQuickFramebufferObject>
 #include <QOpenGLShaderProgram>
 #include <QElapsedTimer>
