@@ -157,6 +157,28 @@ bool Stored::saveCal(const QUrl &fileName) const noexcept
     saveFile.close();
     return true;
 }
+
+bool Stored::saveFRD(const QUrl &fileName) const noexcept
+{
+    QFile saveFile(fileName.toLocalFile());
+    if (!saveFile.open(QIODevice::WriteOnly)) {
+        qWarning("Couldn't open save file.");
+        return false;
+    }
+
+    QTextStream out(&saveFile);
+    for (unsigned int i = 1; i < _dataLength; ++i) {
+        auto m = magnitude(i);
+        auto p = _ftdata[i].phase.arg() * -180.f / static_cast<float>(M_PI);
+        if (std::isnormal(m) && std::isnormal(p)) {
+            out << _ftdata[i].frequency << " " << m << " " << p << " " << coherence(i) << "\n";
+        }
+
+
+    }
+    saveFile.close();
+    return true;
+}
 void Stored::setNotes(const QString &notes) noexcept
 {
     if (m_notes != notes) {
