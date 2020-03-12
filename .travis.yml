@@ -1,10 +1,10 @@
 language: cpp
 os: linux
-dist: xenial
-compiler: clang
+dist: bionic
+compiler: g++
 
 before_install:
-  - sudo add-apt-repository --yes ppa:beineri/opt-qt-5.14.1-xenial
+  - sudo add-apt-repository --yes ppa:beineri/opt-qt-5.14.1-bionic
   - sudo apt-get update
 
 
