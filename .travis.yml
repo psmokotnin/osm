@@ -1,14 +1,7 @@
 language: cpp
 os: linux
 dist: xenial
-compiler: g++-7
-dist: xenial
-addons:
-  apt:
-    sources:
-      - ubuntu-toolchain-r-test
-    packages:
-      - g++-7
+compiler: clang
 
 before_install:
   - sudo add-apt-repository --yes ppa:beineri/opt-qt-5.14.1-xenial
