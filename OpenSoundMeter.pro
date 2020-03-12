@@ -74,9 +74,9 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 # Default rules for deployment.
-qnx: target.path = /tmp/$${TARGET}/bin
-else: unix:!android: target.path = /opt/$${TARGET}/bin
-!isEmpty(target.path): INSTALLS += target
+#qnx: target.path = /tmp/$${TARGET}/bin
+#else: unix:!android: target.path = /opt/$${TARGET}/bin
+#!isEmpty(target.path): INSTALLS += target
 
 HEADERS += \
     src/chart/frequencybasedplot.h \
@@ -139,8 +139,8 @@ DEFINES += APP_GIT_VERSION=\\\"$$APP_GIT_VERSION\\\"
 # Special rules for deployment on Linux for AppImage
 
 unix:!macx:CONFIG(release, debug|release) {
-    QMAKE_POST_LINK += $$QMAKE_COPY $$PWD/OpenSoundMeter.desktop $$OUT_PWD/OpenSoundMeter_\\"$$APP_GIT_VERSION\\".desktop
-    QMAKE_POST_LINK +=&& $$QMAKE_COPY $$PWD/icons/white.png $$OUT_PWD
+    #QMAKE_POST_LINK += $$QMAKE_COPY $$PWD/OpenSoundMeter.desktop $$OUT_PWD/OpenSoundMeter_\\"$$APP_GIT_VERSION\\".desktop
+    #QMAKE_POST_LINK +=&& $$QMAKE_COPY $$PWD/icons/white.png $$OUT_PWD
     #QMAKE_POST_LINK +=&& $$QMAKE_COPY $$PWD/linuxdeployosm.sh $$OUT_PWD
     #QMAKE_POST_LINK +=  && chmod u+x $$OUT_PWD/linuxdeployosm.sh && $$OUT_PWD/linuxdeployosm.sh $$APP_GIT_VERSION $$PWD $$[QT_INSTALL_BINS]
 }
