@@ -9,6 +9,7 @@ before_install:
 
 
 install:
+  - sudo apt-get install build-essential libgl1-mesa-dev
   - sudo apt-get install qt514base qt514multimedia qt514quickcontrols2
   - source /opt/qt514/bin/qt514-env.sh
 

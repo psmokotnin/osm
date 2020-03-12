@@ -141,8 +141,8 @@ DEFINES += APP_GIT_VERSION=\\\"$$APP_GIT_VERSION\\\"
 unix:!macx:CONFIG(release, debug|release) {
     QMAKE_POST_LINK += $$QMAKE_COPY $$PWD/OpenSoundMeter.desktop $$OUT_PWD/OpenSoundMeter_\\"$$APP_GIT_VERSION\\".desktop
     QMAKE_POST_LINK +=&& $$QMAKE_COPY $$PWD/icons/white.png $$OUT_PWD
-    QMAKE_POST_LINK +=&& $$QMAKE_COPY $$PWD/linuxdeployosm.sh $$OUT_PWD
-    QMAKE_POST_LINK +=  && chmod u+x $$OUT_PWD/linuxdeployosm.sh && $$OUT_PWD/linuxdeployosm.sh $$APP_GIT_VERSION $$PWD $$[QT_INSTALL_BINS]
+    #QMAKE_POST_LINK +=&& $$QMAKE_COPY $$PWD/linuxdeployosm.sh $$OUT_PWD
+    #QMAKE_POST_LINK +=  && chmod u+x $$OUT_PWD/linuxdeployosm.sh && $$OUT_PWD/linuxdeployosm.sh $$APP_GIT_VERSION $$PWD $$[QT_INSTALL_BINS]
 }
 
 lessThan(QT_MAJOR_VERSION, 5) | lessThan(QT_MINOR_VERSION, 14) {
