@@ -74,12 +74,14 @@ void VariableChart::initType()
     newPlot->setDarkMode(darkMode());
 
     if (s_plot) {
+        if (!qobject_cast<SpectrogramPlot*>(s_plot)) {
+            newPlot->setFilter(s_plot->filter());
+        }
         s_plot->clear();
         s_plot->disconnectFromParent();
         s_plot->setParent(nullptr);
         s_plot->setParentItem(nullptr);
         s_plot->deleteLater();
-        newPlot->setFilter(s_plot->filter());
         newPlot->storeSettings();
     }
 
