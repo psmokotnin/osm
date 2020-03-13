@@ -89,7 +89,7 @@ Item {
             ToolTip.text: qsTr("y from")
 
             textFromValue: function(value, locale) {
-                return Number(value) + "dB"
+                return Number(value) + "s"
             }
 
             valueFromText: function(text, locale) {
@@ -110,7 +110,7 @@ Item {
             ToolTip.text: qsTr("y to")
 
             textFromValue: function(value, locale) {
-                return Number(value) + "dB"
+                return Number(value) + "s"
             }
 
             valueFromText: function(text, locale) {
