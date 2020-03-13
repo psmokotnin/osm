@@ -96,6 +96,7 @@ Item {
                     case "Phase":
                     case "Group Delay":
                     case "Coherence":
+                    case "Spectrogram":
                         obj.frequency = chart.plot.x2v(opener.mouseX);
                         break;
                     case "Impulse":
