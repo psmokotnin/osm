@@ -95,7 +95,6 @@ Item {
             Switch {
                 visible: type.currentText == 'SineSweep';
                 checked: generatorModel.sweepType
-                Component.onCompleted: console.debug(generatorModel.sweepType)
                 onCheckedChanged: checked ? generatorModel.setSweepType(1) : generatorModel.setSweepType(0)
             }
 
@@ -103,9 +102,32 @@ Item {
                 text: qsTr("Log")
                 visible: type.currentText == 'SineSweep';
             }
+
+            SpinBox {
+                id: sinSweepDuration
+                implicitWidth: 120
+                visible: type.currentText == 'SineSweep';
+                value: generatorModel.duration
+                from: 1
+                to: 60
+                editable: true
+                onValueChanged: generatorModel.duration = value
+
+                textFromValue: function(value, locale) {
+                    return Number(value) + "s"
+                }
+
+                valueFromText: function(text, locale) {
+                    return parseInt(text)
+                }
+
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Duration")
+            }
+
             SpinBox {
                 id: sinSweepStart
-                implicitWidth: 180
+                implicitWidth: 160
                 visible: type.currentText == 'SineSweep';
                 value: generatorModel.startFrequency
                 from: 20
@@ -128,7 +150,7 @@ Item {
             //Sin Sweep to
             SpinBox {
                 id: sinSweepEnd
-                implicitWidth: 180
+                implicitWidth: 160
                 visible: type.currentText == 'SineSweep';
                 value: generatorModel.endFrequency
                 from: sinSweepStart.value+1

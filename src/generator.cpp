@@ -62,6 +62,22 @@ void Generator::loadSettings()
         selectDevice(m_settings->reactValue<GeneratorThread, QString>(
                          "device", &m_thread, &GeneratorThread::deviceChanged, m_thread.deviceName()).toString());
         //@TODO: Add settings for SinSweep parameters
+        setStartFrequency(m_settings->reactValue<GeneratorThread, int>(
+            "startFrequency", &m_thread, &GeneratorThread::startFrequencyChanged, m_thread.startFrequency()).toInt());
+        setEndFrequency(m_settings->reactValue<GeneratorThread, int>(
+                                      "endFrequency", &m_thread, &GeneratorThread::endFrequencyChanged, m_thread.endFrequency()).toInt());
+        setDuration(m_settings->reactValue<GeneratorThread, int>(
+                                  "duration",
+                                  &m_thread,
+                                  &GeneratorThread::durationChanged,
+                                  m_thread.duration()).toInt()
+                    );
+        setSweepType(m_settings->reactValue<GeneratorThread, int>(
+                                  "sweepType",
+                                  &m_thread,
+                                  &GeneratorThread::sweepTypeChanged,
+                                  m_thread.sweepType()).toInt()
+                    );
     }
 }
 void Generator::setEnabled(bool enabled)
@@ -147,12 +163,22 @@ void Generator::setAux(int channel)
                 );
 }
 
-void Generator::setSweepType(SinSweep::Type sweepType)
+void Generator::setSweepType(int sweepType)
 {
     QMetaObject::invokeMethod(
                 &m_thread,
                 "setSweepType",
                 Qt::QueuedConnection,
-                Q_ARG(SinSweep::Type, sweepType)
+        Q_ARG(SinSweep::Type, static_cast<SinSweep::Type>(sweepType))
                 );
+}
+
+void Generator::setDuration(int duration)
+{
+    QMetaObject::invokeMethod(
+        &m_thread,
+        "setDuration",
+        Qt::QueuedConnection,
+        Q_ARG(int, duration)
+        );
 }

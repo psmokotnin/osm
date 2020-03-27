@@ -32,6 +32,7 @@ GeneratorThread::GeneratorThread(QObject *parent) :
     m_frequency(1000),
     m_startFrequency(1000),
     m_endFrequency(2000),
+    m_duration(1),
     m_channelCount(1),
     m_channel(0),
     m_sweepType(SinSweep::Linear),
@@ -41,6 +42,7 @@ GeneratorThread::GeneratorThread(QObject *parent) :
     start();
     QObject::moveToThread(this);
 }
+
 
 void GeneratorThread::init()
 {
@@ -209,9 +211,18 @@ void GeneratorThread::setSweepType(const SinSweep::Type sweepType)
     if(m_sweepType != sweepType)
     {
         m_sweepType = sweepType;
-        emit sweepTypeChanged(m_sweepType);
+        emit sweepTypeChanged(static_cast<int>(m_sweepType));
     }
 }
+void GeneratorThread::setDuration(int duration)
+{
+    if(m_duration != duration)
+    {
+        m_duration = duration;
+        emit durationChanged(m_duration);
+    }
+}
+
 void GeneratorThread::setGain(float gain)
 {
     if (!qFuzzyCompare(gain, m_gain)) {

@@ -39,7 +39,7 @@ private:
 
     float m_gain;
     int m_type;
-    int m_frequency, m_startFrequency, m_endFrequency;
+    int m_frequency, m_startFrequency, m_endFrequency, m_duration;
     int m_channelCount, m_channel, m_aux;
     bool m_enabled;
     SinSweep::Type m_sweepType;
@@ -72,6 +72,9 @@ public slots:
     int endFrequency() const {return m_endFrequency;}
     void setEndFrequency(int endFrequency);
 
+    int duration() const {return m_duration;}
+    void setDuration(int duration);
+
     float gain() const {return m_gain;}
     void setGain(float gain);
 
@@ -93,10 +96,11 @@ signals:
     void startFrequencyChanged(int);
     void endFrequencyChanged(int);
     void gainChanged(float);
+    void durationChanged(int);
     void channelChanged(int);
     void auxChanged(int);
     void channelsCountChanged();
-    void sweepTypeChanged(SinSweep::Type);
+    void sweepTypeChanged(int);
 };
 
 #endif // GENERATORTHREAD_H

@@ -40,7 +40,7 @@ public:
     qint64 readData(char *data, qint64 maxlen) override;
     virtual Sample sample();
 
-    void setSamplerate(int s) {m_sampleRate = s;}
+    void setSamplerate(int s);
     QString name() const {return m_name;}
 
 public slots:
@@ -48,7 +48,8 @@ public slots:
     void setChanel(int chanel) {m_chanel = chanel;}
     void setAux(int chanel) {m_aux = chanel;}
     void setChanelCount(int count) {m_chanelCount = count;}
-
+signals:
+    void sampleRateChanged(int);
 };
 
 #endif // OUTPUTDEVICE_H

@@ -56,6 +56,12 @@ Sample OutputDevice::sample()
     Sample output = {0.f};
     return output;
 }
+
+void OutputDevice::setSamplerate(int s)
+{
+    m_sampleRate = s;
+    emit sampleRateChanged(m_sampleRate);
+}
 qint64 OutputDevice::writeData(const char *data, qint64 len)
 {
     Q_UNUSED(data);
