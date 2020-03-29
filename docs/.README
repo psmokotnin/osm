@@ -1,0 +1,3 @@
+to run server at localhost:
+
+bundle exec jekyll serve

@@ -24,7 +24,7 @@ layout: default
             <div style="height: 105px;margin-top: 35px;"><img src="/images/icons/heart.svg" class="bd-placeholder-img" width="70" height="70"/></div>
             <h2>Available</h2>
             <p align="left">You can pay what you want. Every donation is a great help for further development.</p>
-            <p><a class="btn btn-success" href="#" role="button">Donate</a></p>
+            <p><a class="btn btn-success" target="_blank" href="{{site.payme_page}}" role="button">Donate</a></p>
         </div><!-- /.col-lg-4 -->
         
         <div class="col-lg-4">
