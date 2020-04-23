@@ -53,6 +53,22 @@ complex& complex::operator=(const float& r)
     return *this;
 }
 
+complex &complex::operator=(const complex &c)
+{
+    real = c.real;
+    imag = c.imag;
+    return *this;
+}
+
+complex &complex::operator=(complex &&c)
+{
+    if (this != &c) {
+        real = std::move(c.real);
+        imag = std::move(c.imag);
+    }
+    return *this;
+}
+
 const complex complex::operator+(const float& r) const
 {
     complex rc;

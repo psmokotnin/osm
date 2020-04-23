@@ -27,6 +27,7 @@ struct complex
     float imag;
     complex (float r = 0.0, float i = 0.0): real(r), imag(i) {}
     complex (const complex &c) : real(c.real), imag(c.imag) {}
+    complex (complex &&c) noexcept : real(std::move(c.real)), imag(std::move(c.imag)) {}
 
     float abs() const noexcept;
     float arg() const noexcept;
@@ -36,6 +37,8 @@ struct complex
     void polar(const float &phase);
 
     complex& operator=(const float& r);
+    complex& operator=(const complex &c);
+    complex& operator=(complex &&c);
 
     const complex operator+(const float& r) const;
     const complex operator+(const complex& c) const;
