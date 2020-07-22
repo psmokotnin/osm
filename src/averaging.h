@@ -62,7 +62,6 @@ public:
     void setDepth(unsigned int depth) {m_depth = depth;}
     unsigned int depth() const {return m_depth;}
 
-    void setGain(float gain) {m_gain = gain;}
     float gain() const {return m_gain;}
 
     void reset() {

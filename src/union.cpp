@@ -63,12 +63,16 @@ void Union::setActive(bool active) noexcept
 void Union::init() noexcept
 {
     std::lock_guard<std::mutex> guard(dataMutex);
+    resize();
+}
+
+void Union::resize()
+{
     Fftchart::Source * primary = m_sources.first();
     _dataLength         = static_cast<unsigned int>(primary ? primary->size() : 1);
     m_deconvolutionSize = static_cast<unsigned int>(primary ? primary->impulseSize() : 1);
     _ftdata             = new FTData[_dataLength];
     _impulseData        = new TimeData[m_deconvolutionSize];
-    setFftSize(primary ? primary->fftSize() : 0);
 }
 Fftchart::Source *Union::getSource(int index) const noexcept
 {
@@ -109,17 +113,23 @@ void Union::calc() noexcept
     std::set<Fftchart::Source *> sources;
     Fftchart::Source * primary = m_sources.first();
     unsigned int count(0);
-    complex a,m;
+    complex a, m;
 
     //nothing selected
     if (!primary)
         return;
 
+    if (primary->size() != size()) {
+        resize();
+    }
+
     for (auto &s : m_sources) {
         if (s) {
             sources.insert(s);
-            if (s->size() != primary->size())
+            if (s->size() != primary->size()) {
+                setActive(false);
                 return;
+            }
             count ++;
         }
     }
@@ -134,8 +144,8 @@ void Union::calc() noexcept
         a = primary->phase(i) * primary->module(i);
         m = primary->phase(i) * primary->magnitudeRaw(i);
         float coherence = primary->coherence(i);
-        for (auto it = m_sources.begin() + 1; it != m_sources.end(); ++it) {
-            if (*it) {
+        for (auto it = sources.begin(); it != sources.end(); ++it) {
+            if (*it && *it != primary) {
                 switch (m_operation) {
                     case SUM:
                     case AVG:

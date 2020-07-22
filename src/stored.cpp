@@ -31,7 +31,6 @@ void Stored::build (Fftchart::Source *source)
     source->lock();
     _dataLength = source->size();
     m_deconvolutionSize = source->impulseSize();
-    setFftSize(source->fftSize());
     _ftdata = new FTData[_dataLength];
     _impulseData = new TimeData[m_deconvolutionSize];
     source->copy(_ftdata, _impulseData);
@@ -44,7 +43,6 @@ QJsonObject Stored::toJSON() const noexcept
     object["active"]    = active();
     object["name"]      = name();
     object["notes"]     = notes();
-    object["fftSize"]   = static_cast<int>(fftSize());
 
     QJsonObject color;
     color["red"]    = _color.red();
@@ -90,8 +88,6 @@ void Stored::fromJSON(QJsonObject data) noexcept
     m_deconvolutionSize = static_cast<unsigned int>(impulse.count());
     _ftdata             = new FTData[_dataLength];
     _impulseData        = new TimeData[m_deconvolutionSize];
-
-    setFftSize(static_cast<unsigned int>(data["fftSize"].toInt()));
 
     for (int i = 0; i < ftdata.count(); i++) {
         auto row = ftdata[i].toArray();

@@ -83,7 +83,7 @@ void SpectrogramSeriesRenderer::renderSeries()
 
     auto accumalte =[m_source = m_source, &value] (unsigned int i)
     {
-        value += powf(m_source->module(i) / m_source->fftSize(), 2);
+        value += powf(m_source->module(i), 2);
     };
     auto collected = [&]
             (float start, float end, unsigned int count)

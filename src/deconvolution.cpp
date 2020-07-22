@@ -30,20 +30,20 @@ void Deconvolution::add(float in, float out)
 {
     fft.add(in, out);
 }
-void Deconvolution::transform(WindowFunction *window)
+void Deconvolution::transform()
 {
     //direct
-    fft.fast(window);
+    fft.transform();
 
     //devision
     for (unsigned int i = 0; i < m_size; i++) {
         ifft.set(i, fft.bf(i) / fft.af(i), 0.f);
     }
     //reverse
-    ifft.fast(nullptr, true, true);
+    ifft.reverse();
 
     for (unsigned int i = 0; i < m_size; i++) {
-        m_data[i] = ifft.af(i).real / m_size;
+        m_data[i] = ifft.af(i).real / sqrtf(m_size);
     }
 }
 float Deconvolution::get(const unsigned int i) const
@@ -65,4 +65,8 @@ void Deconvolution::setSize(unsigned int size)
     ifft.setSize(m_size);
     fft.prepareFast();
     ifft.prepareFast();
+}
+void Deconvolution::setWindowFunctionType(WindowFunction::Type type)
+{
+    fft.setWindowFunctionType(type);
 }

@@ -21,43 +21,91 @@
 #include "complex.h"
 #include "windowfunction.h"
 #include "container/array.h"
+#include "ssemath.h"
 
 class FourierTransform
 {
+public:
+    enum Type {Fast, Log};
+
 private:
     unsigned int _size;
     unsigned int _pointer;
+    Type m_type;
+    WindowFunction m_window;
 
-    //sources
+    //! income data channel
     container::array<float> inA, inB;
 
-    //fft swap map
+    //! fft swap map
     container::array<unsigned int> _swapMap;
 
-    //fast
+    struct LogBasisVector{
+        unsigned int N;
+        float frequency;
+        std::vector<v4sf> w;
+    };
+    container::array<LogBasisVector> logBasis;
+
+    //! containers for fast transform
     container::array<complex> _fastA, _fastB, wlen;
 
 public:
     FourierTransform(unsigned int size = 2);
 
+    //! set input buffer size
     void setSize(unsigned int size);
+    unsigned int size() const {return _size;}
 
+    //! set transform type
+    void setType(Type type);
+
+    //! set type of applied window function
+    void setWindowFunctionType(WindowFunction::Type type);
+
+    //! return vector with frequency list for current type
+    std::vector<float> getFrequencies(unsigned int sampleRate);
+
+    //! add sample to the end of transformed buffer
     void add(float sampleA, float sampleB);
+
+    //! set data in tranformed data
     void set(unsigned int i, const complex &a, const complex &b);
-    //ultrafast - speed up the FFT, but result can't be used for reverse fft
-    void fast(WindowFunction *window, bool reverse = false, bool ultrafast = false);
-    void ufast(WindowFunction *window) {
-        fast(window, false, true);
+
+    //! run FFT ultrafast - speed up the FFT, but result can't be used for reverse fft
+    void fast(bool reverse = false, bool ultrafast = false);
+
+    //! run FFT with setted ultrafast
+    void ufast() {
+        fast(false, true);
     }
 
+    //! run transform
+    void transform(bool ultra = false);
+
+    //! run reverse transform
+    void reverse();
+
+    //! run log transform
+    void log();
+
+    //! prepare transform for current type
+    void prepare();
+
+    //! prepare buffers for FFT. Must be called after setting size and before fast.
     void prepareFast();
 
+    //! prepare log transform
+    void prepareLog();
+
+    //! return i in fast transform for given frequency and sampleRate
     long f2i(double frequency, int sampleRate) const;
 
     unsigned long pointer() const {return _pointer;}
 
-    //get fast transform results
+    //! return fast transform result for channel A
     complex af(unsigned int i) const;
+    //! return fast transform result for channel B
     complex bf(unsigned int i) const;
 };
 

@@ -41,12 +41,45 @@ void WindowFunction::setSize(unsigned int size)
         calculate();
     }
 }
+
+float WindowFunction::pointGain(unsigned int i, unsigned int N) const
+{
+    double z = 2.0 * M_PI * i / N;
+    switch (m_type) {
+        case Type::rectangular:
+            return 1.0;
+
+        case Type::hann:
+            return pow(sin(z / 2), 2);
+
+        case Type::hamming:
+            return 0.54 - 0.46 * cos(z);
+
+        case Type::blackman_harris:
+            return
+                    0.35875                - 0.48829 * cos(z      ) +
+                    0.14128 * cos(2.0 * z) - 0.01168 * cos(3.0 * z);
+
+        case Type::flat_top:
+            return 1 -
+                    1.930 * cos(2 * z) + 1.290 * cos(4 * z) -
+                    0.388 * cos(6 * z) + 0.028 * cos(8 * z);
+
+        case Type::HFT223D:
+            return 1.0 -
+                1.98298997309 * cos(z    ) + 1.75556083063 * cos(2 * z) -
+                1.19037717712 * cos(3 * z) + 0.56155440797 * cos(4 * z) -
+                0.17296769663 * cos(5 * z) + 0.03233247087 * cos(6 * z) -
+                0.00324954578 * cos(7 * z) + 0.00013801040 * cos(8 * z) -
+                0.00000132725 * cos(9 * z);
+    }
+}
 void WindowFunction::setType(Type t)
 {
     m_type = t;
     calculate();
 }
-QVariant WindowFunction::getTypes() const
+QVariant WindowFunction::getTypes()
 {
     QStringList typeList;
     for (const auto &type : TypeMap) {
@@ -58,48 +91,13 @@ void WindowFunction::calculate()
 {
     float cg = 0.0;
     for (unsigned int i = 0; i < m_size; i++) {
-        double z = 2.0 * M_PI * i / m_size, dataTemp;
-
-        switch (m_type) {
-
-            case Type::rectangular:
-                dataTemp = 1.0;
-                break;
-
-            case Type::hann:
-                dataTemp = pow(sin(M_PI * i / m_size), 2);
-                break;
-
-            case Type::hamming:
-                dataTemp = 0.54 - 0.46 * cos(z);
-                break;
-
-            case Type::blackman_harris:
-                dataTemp =
-                        0.35875                - 0.48829 * cos(z      ) +
-                        0.14128 * cos(2.0 * z) - 0.01168 * cos(3.0 * z);
-                break;
-
-            case Type::flat_top:
-                dataTemp = 1 -
-                        1.930 * cos(2 * z) + 1.290 * cos(4 * z) -
-                        0.388 * cos(6 * z) + 0.028 * cos(8 * z);
-                break;
-
-            case Type::HFT223D:
-                dataTemp = 1.0 -
-                    1.98298997309 * cos(z    ) + 1.75556083063 * cos(2 * z) -
-                    1.19037717712 * cos(3 * z) + 0.56155440797 * cos(4 * z) -
-                    0.17296769663 * cos(5 * z) + 0.03233247087 * cos(6 * z) -
-                    0.00324954578 * cos(7 * z) + 0.00013801040 * cos(8 * z) -
-                    0.00000132725 * cos(9 * z);
-                break;
-        }
-        m_data[i] = static_cast<float>(dataTemp);
-        cg += m_data[i];
+        cg += pointGain(i, m_size);
     }
-
     m_gain = cg / m_size;
+
+    for (unsigned int i = 0; i < m_size; i++) {
+        m_data[i] = pointGain(i, m_size) / m_gain;
+    }
 }
 QDebug operator<<(QDebug dbg, const WindowFunction::Type &t)
 {

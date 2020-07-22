@@ -43,6 +43,7 @@ public:
         return m_size;
     }
 
+    //! reallocate memory for the array
     void resize(const size_t &size) {
         if (size != m_size) {
             if (m_data) delete[] m_data;
@@ -51,11 +52,13 @@ public:
         }
     }
 
+    //! resize array and fill with value
     void resize(const size_t &size, const T &value) {
         resize(size);
         fill(value);
     }
 
+    //! fill array with given value
     void fill(const T &value)
     {
         if (!m_data)
@@ -67,13 +70,16 @@ public:
     }
 
     T* pat(const unsigned int &i) const {
+        Q_ASSERT(i < m_size);
         return &m_data[i];
     }
 
     T& operator [](const unsigned int &i) {
+        Q_ASSERT(i < m_size);
         return m_data[i];
     }
     const T& operator [](const unsigned int &i) const {
+        Q_ASSERT(i < m_size);
         return m_data[i];
     }
 

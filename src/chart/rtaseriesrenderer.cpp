@@ -90,7 +90,7 @@ void RTASeriesRenderer::renderLine()
 
     for (unsigned int i = 1, j = 0; i < count; ++i, j += 2) {
         vertices[2] = m_source->frequency(i);
-        vertices[3] = 20 * log10f(2 * m_source->module(i) / m_source->fftSize());
+        vertices[3] = 20 * log10f(m_source->module(i) *.1f);
         if (m_coherence) {
             m_program.setUniformValue(
                 m_colorUniform,
@@ -120,7 +120,7 @@ void RTASeriesRenderer::renderBars()
 
     auto accumalte =[m_source = m_source, &value] (unsigned int i)
     {
-        value += powf(m_source->module(i) / m_source->fftSize(), 2);
+        value += powf(m_source->module(i) *.1f, 2);
     };
 
     auto collected = [&value, &vertices, openGLFunctions = openGLFunctions, minValue = yMin]
@@ -157,7 +157,7 @@ void RTASeriesRenderer::renderLines()
         vertices[0] = m_source->frequency(i);
         vertices[1] = yMin;
         vertices[2] = m_source->frequency(i);
-        vertices[3] = 20 * log10f(m_source->module(i) / m_source->fftSize());
+        vertices[3] = 20 * log10f(m_source->module(i) *.1f);
         openGLFunctions->glDrawArrays(GL_LINES, 0, 2);
     }
 }

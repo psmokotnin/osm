@@ -39,8 +39,8 @@ class Measurement : public Fftchart::Source
 {
     Q_OBJECT
 
-    //fft
-    Q_PROPERTY(int fftPower READ fftPower WRITE setFftPower NOTIFY fftPowerChanged)
+    Q_PROPERTY(Mode mode READ mode WRITE setMode NOTIFY modeChanged)
+    Q_PROPERTY(QVariant modes READ getAvailableModes CONSTANT)
 
     Q_PROPERTY(int sampleRate READ sampleRate NOTIFY sampleRateChanged)
 
@@ -77,15 +77,20 @@ class Measurement : public Fftchart::Source
 
 public:
     enum AverageType {OFF, LPF, FIFO};
-    Q_ENUMS(AverageType)
-    Q_ENUMS(Filter::Frequency)
-    Q_ENUMS(WindowFunction::Type)
+    Q_ENUM(AverageType)
+    enum Mode {FFT10, FFT12, FFT14, FFT15, FFT16, LFT};
+    Q_ENUM(Mode)
+
+    std::map<Mode, QString> modeMap;
+    std::map<Mode, int> FFTsizes;
+    Q_ENUM(Filter::Frequency)
 
 private:
     QTimer m_timer;
     QThread m_timerThread;
     MeasurementAudioThread m_audioThread;
     Settings *m_settings;
+    Mode m_mode, m_currentMode;
     unsigned int m_average;
     unsigned int m_delay, m_setDelay;
     long m_estimatedDelay;
@@ -94,7 +99,7 @@ private:
     container::fifo<float> data, reference;
     Meter dataMeter, referenceMeter;
 
-    WindowFunction m_window;
+    WindowFunction::Type m_windowFunctionType;
     FourierTransform m_dataFT;
     Deconvolution m_deconvolution;
 
@@ -117,7 +122,6 @@ private:
     void applyCalibration();
 
 protected:
-    unsigned int _fftPower, _setfftPower;
     void updateFftPower();
     void updateDelay();
 
@@ -127,8 +131,10 @@ public:
     Q_INVOKABLE QJsonObject toJSON() const noexcept override;
     void fromJSON(QJsonObject data) noexcept override;
 
-    unsigned int fftPower() const {return _fftPower;}
-    void setFftPower(unsigned int power);
+    Mode mode() const {return m_mode;}
+    void setMode(const Measurement::Mode &mode);
+    void setMode(QVariant mode) {setMode(mode.value<Mode>());}
+    QVariant getAvailableModes() const;
 
     void setActive(bool active) override;
 
@@ -167,8 +173,8 @@ public:
 
     unsigned int sampleRate() const;
 
-    QVariant getAvailableWindowTypes() const {return m_window.getTypes();}
-    WindowFunction::Type getWindowType() const {return m_window.type();}
+    QVariant getAvailableWindowTypes() const {return WindowFunction::getTypes();}
+    WindowFunction::Type getWindowType() const {return m_windowFunctionType;}
     void setWindowType(WindowFunction::Type type);
     void setWindowType(QVariant type) {setWindowType(static_cast<WindowFunction::Type>(type.toInt()));}
 
@@ -183,7 +189,7 @@ public:
     Q_INVOKABLE void resetAverage() noexcept;
 
 signals:
-    void fftPowerChanged(unsigned int power);
+    void modeChanged(Measurement::Mode);
     void sampleRateChanged();
     void deviceChanged(QString);
     void levelChanged();
@@ -196,7 +202,7 @@ signals:
     void windowTypeChanged(WindowFunction::Type);
     void estimatedChanged();
     void chanelsCountChanged();
-    void averageTypeChanged(AverageType);
+    void averageTypeChanged(Measurement::AverageType);
     void filtersFrequencyChanged(Filter::Frequency);
     void errorChanged(bool);
     void calibrationChanged(bool);

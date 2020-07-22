@@ -20,7 +20,6 @@ import QtQuick.Controls 2.1
 import QtQuick.Layouts 1.3
 
 Item {
-
     property var dataModel;
     property bool chartable : true;
     property string propertiesQml: "qrc:/UnionProperties.qml"
@@ -56,7 +55,12 @@ Item {
 
         Connections {
             target: dataModel
-            onColorChanged: checkbox.checkedColor = dataModel.color
+            function onColorChanged() {
+                checkbox.checkedColor = dataModel.color;
+            }
+            function onActiveChanged() {
+                checkbox.checked = dataModel.active;
+            }
         }
     }
 }

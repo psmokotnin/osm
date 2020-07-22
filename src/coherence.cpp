@@ -46,9 +46,11 @@ void Coherence::setDepth(const size_t &depth) noexcept
 }
 void Coherence::append(unsigned int i, complex refernce, complex measurement) noexcept
 {
-    ++m_subpointer;
-    if (m_subpointer >= m_depth)
-        m_subpointer = 0;
+    if (i == 0) {
+        ++m_subpointer;
+        if (m_subpointer >= m_depth)
+            m_subpointer = 0;
+    }
 
     Grr[i][m_subpointer] = std::pow(refernce.abs(), 2.f);
     Gmm[i][m_subpointer] = std::pow(measurement.abs(), 2.f);

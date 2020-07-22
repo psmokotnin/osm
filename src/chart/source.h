@@ -54,7 +54,6 @@ protected:
 
     unsigned int _dataLength;
     unsigned int m_deconvolutionSize;
-    unsigned int _fftSize;
     bool _active;
     const float c_zero{0.f};
 
@@ -73,8 +72,6 @@ public:
     Q_INVOKABLE bool isColorValid() {return _color.isValid();}
 
     unsigned int size() const  noexcept {return _dataLength;}
-    unsigned int fftSize() const  noexcept {return _fftSize;}
-    void setFftSize(unsigned int size) {_fftSize = size;}
     const float &frequency(unsigned int i) const noexcept;
     const float &module(unsigned int i) const noexcept;
     float magnitude(unsigned int i) const noexcept;

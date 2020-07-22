@@ -47,13 +47,18 @@ public:
     void setSize(unsigned int size);
     unsigned int size() const {return m_size;}
 
-    Type type() const {return m_type;}
-    QString name() const noexcept {return WindowFunction::TypeMap.at(m_type);}
-    void setType(Type t);
-    QVariant getTypes() const;
+    //! return gain for point \b{i} in vector size \n{N}
+    float pointGain(unsigned int i, unsigned int N) const;
 
-    float gain() const {return m_gain;}
+    Type type() const {return m_type;}
+    void setType(Type t);
+    static QVariant getTypes();
+
+    //! return gain of point k (corrcted with global wf gain data)
     const float& get(unsigned int k) const { return m_data[k]; }
+
+    //! static function return string name of type
+    QString static name(Type type) noexcept {return WindowFunction::TypeMap.at(type);}
 
 };
 QDebug operator<<(QDebug dbg, const WindowFunction::Type &t);

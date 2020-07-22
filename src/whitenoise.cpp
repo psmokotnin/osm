@@ -20,7 +20,7 @@
 WhiteNoise::WhiteNoise(QObject *parent) : OutputDevice(parent)
 {
     m_name = "White";
-    qsrand(1);
+    qsrand(1);//FIXME: deprecated
 }
 Sample WhiteNoise::sample()
 {

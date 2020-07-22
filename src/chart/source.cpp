@@ -24,7 +24,6 @@ Source::Source(QObject *parent) : QObject(parent),
     _impulseData(nullptr),
     _dataLength(1),
     m_deconvolutionSize(1),
-    _fftSize(1),
     _active(false)
 {
 

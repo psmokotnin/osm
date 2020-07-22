@@ -119,7 +119,7 @@ void MeasurementAudioThread::startAudio()
 }
 void MeasurementAudioThread::audioStateChanged(QAudio::State state)
 {
-    if (m_audio->error() != QAudio::NoError) {
+    if (m_audio && m_audio->error() != QAudio::NoError) {
         if (!m_try) {
             m_try = true;
             startAudio();

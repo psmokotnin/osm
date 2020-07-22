@@ -214,13 +214,13 @@ Item {
             Layout.fillWidth: true
 
             ComboBox {
-                id: powerSelect
-                model: [10, 12, 14, 15, 16]
-                currentIndex: { model.indexOf(dataObject.fftPower) }
-                onCurrentIndexChanged: dataObject.fftPower = model[currentIndex]
-                displayText: "Power:" + currentText
+                id: modeSelect
+                model: dataObject.modes
+                currentIndex: dataObject.mode
+                displayText: (dataObject.mode === Measurement.LFT ? "LTW" : "Power:" + currentText)
                 ToolTip.visible: hovered
-                ToolTip.text: qsTr("FFT Size: power of 2")
+                ToolTip.text: qsTr("Transfrom mode")
+                onCurrentIndexChanged: dataObject.mode = currentIndex;
             }
 
             ComboBox {

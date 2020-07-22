@@ -27,16 +27,16 @@ Measurement::Measurement(Settings *settings, QObject *parent) : Fftchart::Source
     m_timer(nullptr), m_timerThread(nullptr),
     m_audioThread(nullptr),
     m_settings(settings),
+    m_mode(FFT14), m_currentMode(),
     m_average(1),
     m_delay(0), m_setDelay(0),
     m_estimatedDelay(0),
     m_polarity(false), m_error(false),
     dataMeter(12000), referenceMeter(12000), //250ms
-    m_window(WindowFunction::Type::hann, this),
+    m_windowFunctionType(WindowFunction::Type::hann),
     m_averageType(AverageType::LPF),
     m_filtersFrequency(Filter::Frequency::FOURTHHZ),
-    m_enableCalibration(false), m_calibrationLoaded(false), m_calibrationList(), m_calibrationGain(),
-    _fftPower(14), _setfftPower(14)
+    m_enableCalibration(false), m_calibrationLoaded(false), m_calibrationList(), m_calibrationGain()
 {
     _name = "Measurement";
     setObjectName(_name);
@@ -50,32 +50,27 @@ Measurement::Measurement(Settings *settings, QObject *parent) : Fftchart::Source
 
     QAudioDeviceInfo device(QAudioDeviceInfo::defaultInputDevice());
     if (m_settings) {
+        setMode(        m_settings->reactValue<Measurement, Mode>(              "mode",         this,   &Measurement::modeChanged,          mode()));
         setName(        m_settings->reactValue<Measurement, QString>(           "name",         this,   &Measurement::nameChanged,          name()).toString());
         setColor(       m_settings->reactValue<Measurement, QColor>(            "color",        this,   &Measurement::colorChanged,         color()).value<QColor>());
         setDelay(       m_settings->reactValue<Measurement, unsigned int>(      "delay",        this,   &Measurement::delayChanged,         delay()).toUInt());
         setAverageType( m_settings->reactValue<Measurement, AverageType>(       "average/type", this,   &Measurement::averageTypeChanged,   averageType()));
         setAverage(     m_settings->reactValue<Measurement, unsigned int>(      "average/fifo", this,   &Measurement::averageChanged,       average()).toUInt());
         setFiltersFrequency(m_settings->reactValue<Measurement, Filter::Frequency>("average/lpf", this, &Measurement::filtersFrequencyChanged, filtersFrequency()));
-        setWindowType(  m_settings->reactValue<Measurement, WindowFunction::Type>("window",     this,   &Measurement::windowTypeChanged,    m_window.type()));
+        setWindowType(  m_settings->reactValue<Measurement, WindowFunction::Type>("window",     this,   &Measurement::windowTypeChanged,    m_windowFunctionType));
         setDataChanel(  m_settings->reactValue<Measurement, unsigned int>(      "route/data",   this,   &Measurement::dataChanelChanged,    dataChanel()).toUInt());
         setReferenceChanel(m_settings->reactValue<Measurement, unsigned int>(   "route/reference", this,&Measurement::referenceChanelChanged, referenceChanel()).toUInt());
         setPolarity(    m_settings->reactValue<Measurement, bool>(              "polarity",     this,   &Measurement::polarityChanged,      polarity()).toBool());
         if (!selectDevice(   m_settings->reactValue<Measurement, QString>(           "device",       this,   &Measurement::deviceChanged,        device.deviceName()).toString())) {
             selectDevice(device);
         }
-        _setfftPower = _fftPower = m_settings->reactValue<Measurement, unsigned int>(
-                       "fftpower", this, &Measurement::fftPowerChanged, fftPower()).toUInt();
     } else {
         selectDevice(device);
     }
-    _fftSize = static_cast<unsigned int>(pow(2, _fftPower));
     m_deconvolutionSize = static_cast<unsigned int>(pow(2, 12));
 
-    m_dataFT.setSize(fftSize());
-    m_window.setSize(fftSize());
-
     calculateDataLength();
-    m_dataFT.prepareFast();
+    m_dataFT.prepare();
     m_moduleLPFs.resize(_dataLength);
     m_magnitudeLPFs.resize(_dataLength);
     m_phaseLPFs.resize(_dataLength);
@@ -83,14 +78,9 @@ Measurement::Measurement(Settings *settings, QObject *parent) : Fftchart::Source
     m_deconvolution.setSize(m_deconvolutionSize);
     _impulseData = new TimeData[m_deconvolutionSize];
     m_deconvLPFs.resize(m_deconvolutionSize);
-
-    pahseAvg.setSize(fftSize());
-    moduleAvg.setSize(fftSize());
-    magnitudeAvg.setSize(fftSize());
     deconvAvg.setSize(m_deconvolutionSize);
     deconvAvg.reset();
-    m_coherence.setSize(fftSize());
-    m_coherence.setDepth(Filter::BesselLPF<float>::ORDER);
+    m_coherence.setDepth(21);//Filter::BesselLPF<float>::ORDER);
 
     m_timer.setInterval(80);//12.5 per sec
     m_timer.moveToThread(&m_timerThread);
@@ -99,6 +89,22 @@ Measurement::Measurement(Settings *settings, QObject *parent) : Fftchart::Source
     connect(&m_timerThread, SIGNAL(finished()), &m_timer, SLOT(stop()), Qt::DirectConnection);
     m_timerThread.start();
     setActive(true);
+
+    modeMap = {
+        {FFT10, "10"},
+        {FFT12, "12"},
+        {FFT14, "14"},
+        {FFT15, "15"},
+        {FFT16, "16"},
+        {LFT,   "LTW"}
+    };
+    FFTsizes = {
+        {FFT10, 10},
+        {FFT12, 12},
+        {FFT14, 14},
+        {FFT15, 15},
+        {FFT16, 16}
+    };
 }
 Measurement::~Measurement()
 {
@@ -108,7 +114,6 @@ Measurement::~Measurement()
     m_timerThread.quit();
     m_timerThread.wait();
 }
-
 QJsonObject Measurement::toJSON() const noexcept
 {
     QJsonObject data;
@@ -118,12 +123,12 @@ QJsonObject Measurement::toJSON() const noexcept
     data["averageType"]     = averageType();
     data["average"]         = static_cast<int>(average());
     data["filtersFrequency"]= static_cast<int>(filtersFrequency());
-    data["window.type"]     = m_window.type();
+    data["window.type"]     = m_windowFunctionType;
     data["dataChanel"]      = static_cast<int>(dataChanel());
     data["referenceChanel"] = static_cast<int>(referenceChanel());
     data["polarity"]        = polarity();
     data["deviceName"]      = deviceName();
-    data["fftpower"]        = static_cast<int>(fftPower());
+    data["mode"]            = mode();
 
     QJsonObject color;
     color["red"]    = _color.red();
@@ -157,7 +162,6 @@ void Measurement::fromJSON(QJsonObject data) noexcept
     };
 
     setDelay(            castUInt(data["delay"           ], delay()));
-    setFftPower(         castUInt(data["fftpower"        ], fftPower()));
     setAverage(          castUInt(data["average"         ], average()));
     setDataChanel(       castUInt(data["dataChanel"      ], dataChanel()));
     setReferenceChanel(  castUInt(data["referenceChanel" ], referenceChanel()));
@@ -171,9 +175,10 @@ void Measurement::fromJSON(QJsonObject data) noexcept
     setColor(c);
 
     setName(             data["name"             ].toString(name()));
+    setMode(             data["mode"             ].toInt(mode()));
     setAverageType(      data["averageType"      ].toInt(averageType()));
     setFiltersFrequency( data["filtersFrequency" ].toInt(filtersFrequency()));
-    setWindowType(       data["window.type"      ].toInt(m_window.type()));
+    setWindowType(       data["window.type"      ].toInt(m_windowFunctionType));
     setPolarity(         data["polarity"         ].toBool(polarity()));
     selectDevice(        data["deviceName"       ].toString(deviceName()));
     setActive(           data["active"           ].toBool(active()));
@@ -265,37 +270,48 @@ void Measurement::setReferenceChanel(unsigned int n)
         emit referenceChanelChanged(referenceChanel());
     }
 }
-//this calls from gui thread
-void Measurement::setFftPower(unsigned int power)
+void Measurement::setMode(const Measurement::Mode &mode)
 {
-    if (_fftPower != power) {
-        _setfftPower = power;
+    if (m_mode != mode) {
+        m_mode = mode;
+        emit modeChanged(m_mode);
     }
+}
+QVariant Measurement::getAvailableModes() const
+{
+    QStringList typeList;
+    for (const auto &type : modeMap) {
+        typeList << type.second;
+    }
+    return typeList;
 }
 //this calls from timer thread
 //should be called while mutex locked
 void Measurement::updateFftPower()
 {
-    if (_fftPower != _setfftPower) {
-        _fftPower = _setfftPower;
-        _fftSize  = static_cast<unsigned int>(pow(2, _fftPower));
+    if (Q_LIKELY(m_mode == m_currentMode)) return;
+    m_currentMode = m_mode;
 
-        m_dataFT.setSize(_fftSize);
-        m_dataFT.prepareFast();
-        m_window.setSize(_fftSize);
+    switch (m_currentMode) {
+    case Mode::LFT:
+         m_dataFT.setType(FourierTransform::Log);
+         break;
 
-        moduleAvg.setSize(_fftSize);
-        magnitudeAvg.setSize(_fftSize);
-        pahseAvg.setSize(_fftSize);
-        m_coherence.setSize(fftSize());
-
-        calculateDataLength();
-        m_moduleLPFs.resize(_dataLength);
-        m_magnitudeLPFs.resize(_dataLength);
-        m_phaseLPFs.resize(_dataLength);
-
-        emit fftPowerChanged(_fftPower);
+    default:
+        m_dataFT.setSize(pow(2, FFTsizes[m_currentMode]));
+        m_dataFT.setType(FourierTransform::Fast);
     }
+    m_dataFT.prepare();
+    calculateDataLength();
+
+    moduleAvg.setSize(size());
+    magnitudeAvg.setSize(size());
+    pahseAvg.setSize(size());
+    m_coherence.setSize(size());
+
+    m_moduleLPFs.resize(size());
+    m_magnitudeLPFs.resize(size());
+    m_phaseLPFs.resize(size());
 }
 void Measurement::setFiltersFrequency(Filter::Frequency frequency)
 {
@@ -313,7 +329,7 @@ void Measurement::setFiltersFrequency(Filter::Frequency frequency)
             f->setFrequency(m_filtersFrequency);
         });
 
-        filtersFrequencyChanged(m_filtersFrequency);
+        emit filtersFrequencyChanged(m_filtersFrequency);
     }
 }
 void Measurement::recalculateDataLength()
@@ -322,15 +338,16 @@ void Measurement::recalculateDataLength()
     calculateDataLength();
 }
 void Measurement::calculateDataLength()
-{        
-    _dataLength = _fftSize / 2;
+{
+    auto frequencyList = m_dataFT.getFrequencies(sampleRate());
+    _dataLength = frequencyList.size();
+
     if (_ftdata)
         delete[] _ftdata;
     _ftdata = new FTData[_dataLength];
-
-    float kf = static_cast<float>(sampleRate()) / _fftSize;
-    for (unsigned int i = 0; i < _dataLength; ++i) {
-        _ftdata[i].frequency = static_cast<float>(i * kf);
+    unsigned int i = 0;
+    for (auto frequency : frequencyList) {
+        _ftdata[i++].frequency = frequency;
     }
     applyCalibration();
 }
@@ -398,7 +415,7 @@ void Measurement::setAverage(unsigned int average)
         moduleAvg.setDepth(m_average);
         magnitudeAvg.setDepth(m_average);
         pahseAvg.setDepth(m_average);
-        averageChanged(m_average);
+        emit averageChanged(m_average);
     }
 }
 void Measurement::setPolarity(bool polarity)
@@ -422,10 +439,15 @@ unsigned int Measurement::sampleRate() const
 }
 void Measurement::setWindowType(WindowFunction::Type type)
 {
-    if (m_window.type() != type) {
-        m_window.setType(type);
-        moduleAvg.setGain(m_window.gain());
-        emit windowTypeChanged(m_window.type());
+    if (m_windowFunctionType != type) {
+        m_windowFunctionType = type;
+        m_dataFT.setWindowFunctionType(m_windowFunctionType);
+        m_deconvolution.setWindowFunctionType(m_windowFunctionType);
+        {
+            std::lock_guard<std::mutex> guard(dataMutex);
+            m_dataFT.prepare();
+        }
+        emit windowTypeChanged(m_windowFunctionType);
     }
 }
 void Measurement::writeData(const QByteArray& buffer)
@@ -471,8 +493,8 @@ void Measurement::transform()
         m_dataFT.add(d, r);
         m_deconvolution.add(r, d);
     }
-    m_dataFT.ufast(&m_window);
-    m_deconvolution.transform(&m_window);
+    m_dataFT.transform(true);
+    m_deconvolution.transform();
     averaging();
     unlock();
 
@@ -488,6 +510,8 @@ void Measurement::averaging()
 
         j = static_cast<int>(i);
         float calibratedA = m_dataFT.af(i).abs();
+        //TODO: think and do
+        //if (calibratedA < someThresholdInDb ) continue;
 
         if (m_enableCalibration && m_calibrationGain.size() > j) {
             calibratedA *= m_calibrationGain[j];
@@ -592,14 +616,22 @@ QObject *Measurement::store()
         avg = "FIFO " + QString::number(m_average);
         break;
     }
+    QString modeNote;
+    switch (mode()) {
+    case LFT:
+        modeNote = "FT log time window";
+        break;
+    default:
+        modeNote = "FFT power " + modeMap[mode()];
+    }
+
     store->setNotes(
-        "FFT Power: " + QString::number(fftPower()) + "\t" +
+        modeNote + "\t" +
         "delay: " + QString("%1").arg(1000.0 * delay() / sampleRate(), 0, 'f', 2) + "ms \t" +
         (polarity() ? "polarity inversed" : "") + "\n"
-        "Window: " + m_window.name() + "\t"
+        "Window: " + WindowFunction::name(m_windowFunctionType) + "\t"
         "Average: " + avg
-
-                        );
+    );
 
     return store;
 }

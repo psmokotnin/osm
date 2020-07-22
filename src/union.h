@@ -52,6 +52,7 @@ private:
     Operation m_operation;
 
     void init() noexcept;
+    void resize();
 
 public:
     explicit Union(Settings *settings = nullptr, QObject *parent = nullptr);
