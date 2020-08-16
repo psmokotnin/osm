@@ -25,6 +25,7 @@
 #include "src/generator.h"
 #include "src/measurement.h"
 #include "src/union.h"
+#include "src/elc.h"
 #include "src/sourcemodel.h"
 #include "src/sourcelist.h"
 #include "src/chart/variablechart.h"
@@ -53,6 +54,8 @@ int main(int argc, char *argv[])
     qmlRegisterUncreatableMetaObject(Filter::staticMetaObject, "Measurement", 1, 0, "FilterFrequency", "Error: only enums");
     qmlRegisterType<Measurement>("Measurement", 1, 0, "Measurement");
     qmlRegisterType<Union>("Union", 1, 0, "Union");
+    qmlRegisterType<Stored>("Stored", 1, 0, "Stored");
+    qmlRegisterType<ELC>("ELC", 1, 0, "ELC");
     qmlRegisterType<SourceModel>("SourceModel", 1, 0, "SourceModel");
     qmlRegisterUncreatableType<SourceList>("SourceModel", 1, 0, "SourceList", QStringLiteral("SourceList should not be created in QML"));
     qmlRegisterType<Settings>("Settings", 1, 0, "Settings");

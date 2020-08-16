@@ -88,6 +88,14 @@ Item {
                 dataModel: modelData
             }
         }
+        Component {
+            id: elcDelegate
+            ELC {
+                id: item
+                width: sideList.width
+                dataModel: modelData
+            }
+        }
 
         ListView {
             id: sideList
@@ -147,6 +155,7 @@ Item {
                                     case "Measurement": return measurementDelegate;
                                     case "Stored": return storedDelegate;
                                     case "Union": return unionDelegate;
+                                    case "ELC": return elcDelegate;
                                     default: console.log("unknow model " + model.name);return ;
                             }
                         }

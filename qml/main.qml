@@ -141,6 +141,11 @@ ApplicationWindow {
                     shortcut: "Ctrl+M"
                     onTriggered: sourceList.addUnion();
                 }
+                MenuItem {
+                    text: qsTr("&Add elc")
+                    shortcut: "Ctrl+E"
+                    onTriggered: sourceList.addElc();
+                }
             }
             Menu {
                 title: qsTr("&View")

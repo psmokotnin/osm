@@ -18,7 +18,7 @@
 #include "sourcelist.h"
 #include "measurement.h"
 #include "union.h"
-
+#include "elc.h"
 #include <QUrl>
 #include <QJsonDocument>
 #include <QJsonArray>
@@ -225,6 +225,13 @@ bool SourceList::loadStored(const QJsonObject &data) noexcept
 Union *SourceList::addUnion()
 {
     auto *s = new Union();
+    appendItem(s, true);
+    return s;
+}
+
+ELC *SourceList::addElc()
+{
+    auto *s = new ELC();
     appendItem(s, true);
     return s;
 }

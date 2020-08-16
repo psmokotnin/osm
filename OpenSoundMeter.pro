@@ -9,6 +9,7 @@ SOURCES += src/main.cpp \
     src/chart/palette.cpp \
     src/chart/spectrogramplot.cpp \
     src/chart/spectrogramseriesrenderer.cpp \
+    src/elc.cpp \
     src/generator.cpp \
     src/pinknoise.cpp \
     src/outputdevice.cpp \
@@ -85,6 +86,7 @@ HEADERS += \
     src/chart/palette.h \
     src/chart/spectrogramplot.h \
     src/chart/spectrogramseriesrenderer.h \
+    src/elc.h \
     src/generator.h \
     src/pinknoise.h \
     src/outputdevice.h \

@@ -34,5 +34,7 @@
         <file alias="Union.qml">qml/Union.qml</file>
         <file alias="UnionProperties.qml">qml/UnionProperties.qml</file>
         <file alias="Plot/SpectrogramProperties.qml">qml/Plot/SpectrogramProperties.qml</file>
+        <file alias="ELC.qml">qml/ELC.qml</file>
+        <file alias="ELCProperties.qml">qml/ELCProperties.qml</file>
     </qresource>
 </RCC>

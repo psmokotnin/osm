@@ -24,8 +24,11 @@
 #include <QUrl>
 #include "chart/source.h"
 
+
 class Measurement;
 class Union;
+class Stored;
+class ELC;
 
 class SourceList : public QObject
 {
@@ -80,6 +83,7 @@ signals:
 public slots:
     Q_INVOKABLE Measurement *addMeasurement();
     Q_INVOKABLE Union *addUnion();
+    Q_INVOKABLE ELC *addElc();
     void appendItem(Fftchart::Source *item, bool autocolor = false);
     void removeItem(Fftchart::Source *item, bool deleteItem = true);
     void appendNone();

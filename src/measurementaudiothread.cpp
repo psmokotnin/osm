@@ -35,6 +35,8 @@ void MeasurementAudioThread::stop()
 }
 void MeasurementAudioThread::selectDevice(const QAudioDeviceInfo &deviceInfo, bool restart)
 {
+    if (m_device == deviceInfo) return;
+
     if (m_audio) {
         m_audio->stop();
         m_audio->deleteLater();
@@ -91,14 +93,15 @@ void MeasurementAudioThread::startAudio()
     m_audio = new QAudioInput(m_device, m_format, this);
 #ifndef WIN64
     m_audio->setBufferSize(
-                static_cast<int>(sizeof(float)) *
+                m_format.sampleSize()/8 *
                 static_cast<int>(m_chanelCount) *
-                8*1024);
+                1024);
 #endif
     connect(m_audio, &QAudioInput::stateChanged, this, &MeasurementAudioThread::audioStateChanged);
 
     auto io = m_audio->start();
     if (m_audio->error() == QAudio::OpenError) {
+        qWarning() << m_audio->error();
         emit deviceError();
         return;
     }
@@ -124,6 +127,7 @@ void MeasurementAudioThread::audioStateChanged(QAudio::State state)
             m_try = true;
             startAudio();
         } else {
+            qWarning() << "audio error: " << m_audio->error();
             emit deviceError();
             m_audio->stop();
         }
