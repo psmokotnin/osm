@@ -20,6 +20,7 @@
 #include "magnitudeplot.h"
 #include "phaseplot.h"
 #include "impulseplot.h"
+#include "stepplot.h"
 #include "coherenceplot.h"
 #include "groupdelayplot.h"
 #include "spectrogramplot.h"
@@ -55,6 +56,10 @@ void VariableChart::initType()
 
     case Impulse:
         newPlot = new ImpulsePlot(m_settings, this);
+        break;
+
+    case Step:
+        newPlot = new StepPlot(m_settings, this);
         break;
 
     case Coherence:

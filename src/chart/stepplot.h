@@ -1,6 +1,6 @@
 /**
  *  OSM
- *  Copyright (C) 2018  Pavel Smokotnin
+ *  Copyright (C) 2020  Pavel Smokotnin
 
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -15,25 +15,27 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef TYPE_H
-#define TYPE_H
+#ifndef FFTCHART_STEPPLOT_H
+#define FFTCHART_STEPPLOT_H
 
-#include <map>
-#include <QString>
+#include "xyplot.h"
+#include "seriesfbo.h"
 
 namespace Fftchart {
 
-    enum Type {RTA, Magnitude, Phase, Scope, Impulse, Step, Coherence, GroupDelay, Spectrogram};
-    static std::map<Type, QString> typeMap = {
-        {RTA,       "RTA"},
-        {Magnitude, "Magnitude"},
-        {Phase,     "Phase"},
-        {Scope,     "Scope"},
-        {Impulse,   "Impulse"},
-        {Step,      "Step"},
-        {Coherence, "Coherence"},
-        {GroupDelay, "Group Delay"},
-        {Spectrogram, "Spectrogram"}
-    };
-}
-#endif // TYPE_H
+class StepPlot : public XYPlot
+{
+    Q_OBJECT
+
+protected:
+    virtual SeriesFBO *createSeriesFromSource(Source *source) override;
+
+public:
+    StepPlot(Settings *settings, QQuickItem *parent = Q_NULLPTR);
+    virtual void setSettings(Settings *settings) noexcept override;
+    virtual void storeSettings() noexcept override;
+};
+
+} // namespace FFtchart
+
+#endif // FFTCHART_STEPPLOT_H

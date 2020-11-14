@@ -1,6 +1,6 @@
 /**
  *  OSM
- *  Copyright (C) 2018  Pavel Smokotnin
+ *  Copyright (C) 2020  Pavel Smokotnin
 
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -15,25 +15,24 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef TYPE_H
-#define TYPE_H
+#ifndef FFTCHART_STEPSERIESRENDERER_H
+#define FFTCHART_STEPSERIESRENDERER_H
 
-#include <map>
-#include <QString>
+#include "xyseriesrenderer.h"
 
 namespace Fftchart {
 
-    enum Type {RTA, Magnitude, Phase, Scope, Impulse, Step, Coherence, GroupDelay, Spectrogram};
-    static std::map<Type, QString> typeMap = {
-        {RTA,       "RTA"},
-        {Magnitude, "Magnitude"},
-        {Phase,     "Phase"},
-        {Scope,     "Scope"},
-        {Impulse,   "Impulse"},
-        {Step,      "Step"},
-        {Coherence, "Coherence"},
-        {GroupDelay, "Group Delay"},
-        {Spectrogram, "Spectrogram"}
-    };
-}
-#endif // TYPE_H
+class StepSeriesRenderer : public XYSeriesRenderer
+{
+public:
+    StepSeriesRenderer();
+    void renderSeries() override;
+
+private:
+    int m_posAttr;
+    int m_matrixUniform;
+};
+
+} // namespace Fftchart
+
+#endif // FFTCHART_STEPSERIESRENDERER_H

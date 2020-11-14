@@ -55,6 +55,7 @@ Item {
                 opener.propertiesQml = "qrc:/Plot/GroupDelayProperties.qml";
                 break;
             case "Impulse":
+            case "Step":
                 opener.propertiesQml = "qrc:/Plot/ImpulseProperties.qml";
                 break;
             case "Coherence":
@@ -122,7 +123,7 @@ Item {
         implicitWidth: 145
         implicitHeight: Material.buttonHeight
         background: null
-        model: ["RTA", "Magnitude", "Phase", "Impulse", "Coherence", "Group Delay", "Spectrogram"]
+        model: ["RTA", "Magnitude", "Phase", "Impulse", "Step", "Coherence", "Group Delay", "Spectrogram"]
         currentIndex: model.indexOf(type)
         onCurrentIndexChanged: {
             var pb = applicationWindow.properiesbar;
