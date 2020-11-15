@@ -48,7 +48,7 @@ public:
     unsigned int size() const {return m_size;}
 
     //! return gain for point \b{i} in vector size \n{N}
-    float pointGain(unsigned int i, unsigned int N) const;
+    float pointGain(float i, unsigned int N) const;
 
     Type type() const {return m_type;}
     void setType(Type t);

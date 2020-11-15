@@ -42,9 +42,15 @@ void WindowFunction::setSize(unsigned int size)
     }
 }
 
-float WindowFunction::pointGain(unsigned int i, unsigned int N) const
+float WindowFunction::pointGain(float i, unsigned int N) const
 {
     double z = 2.0 * M_PI * i / N;
+    if (z < 0) {
+        z = 0;
+    }
+    if (z > 2 * M_PI) {
+        z = 2 * M_PI;
+    }
     switch (m_type) {
         case Type::rectangular:
             return 1.0;

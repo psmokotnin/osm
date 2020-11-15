@@ -19,6 +19,7 @@
 #define FFTCHART_STEPSERIESRENDERER_H
 
 #include "xyseriesrenderer.h"
+#include "../windowfunction.h"
 
 namespace Fftchart {
 
@@ -31,6 +32,8 @@ public:
 private:
     int m_posAttr;
     int m_matrixUniform;
+    WindowFunction m_window;
+    std::vector<float> m_windowed;
 };
 
 } // namespace Fftchart
