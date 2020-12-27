@@ -31,7 +31,7 @@ StepSeriesRenderer::StepSeriesRenderer() : m_window(WindowFunction::hann)
 
 void StepSeriesRenderer::renderSeries()
 {
-    if (!m_source->active())
+    if (!m_source->active() || !m_source->impulseSize())
         return;
 
     QMatrix4x4 matrix;

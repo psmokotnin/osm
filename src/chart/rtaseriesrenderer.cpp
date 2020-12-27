@@ -47,7 +47,7 @@ void RTASeriesRenderer::synchronize(QQuickFramebufferObject *item)
 }
 void RTASeriesRenderer::renderSeries()
 {
-    if (!m_source->active())
+    if (!m_source->active() || !m_source->size())
         return;
 
     QMatrix4x4 matrix;

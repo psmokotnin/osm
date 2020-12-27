@@ -127,9 +127,14 @@ ApplicationWindow {
                     onTriggered: saveDialog.open();
                 }
                 MenuItem {
-                    text: qsTr("&Load")
+                    text: qsTr("&Open")
                     shortcut: StandardKey.Open
                     onTriggered: openDialog.open()
+                }
+                MenuItem {
+                    text: qsTr("&Import")
+                    shortcut: "Ctrl+I"
+                    onTriggered: importDialog.open()
                 }
                 MenuItem {
                     text: qsTr("&Append measurement")
@@ -265,6 +270,21 @@ ApplicationWindow {
         onAccepted: function() {
             applicationWindow.properiesbar.clear();
             if (!sourceList.load(openDialog.fileUrl)) {
+                message.showError(qsTr("could not open the file"));
+            }
+        }
+    }
+
+    FileDialog {
+        id: importDialog
+        selectExisting: true
+        title: qsTr("Please choose a file's name")
+        folder: shortcuts.home
+        defaultSuffix: "txt"
+        nameFilters: ["txt transfer data file (*.txt)"]
+        onAccepted: function() {
+            applicationWindow.properiesbar.clear();
+            if (!sourceList.importTxt(importDialog.fileUrl)) {
                 message.showError(qsTr("could not open the file"));
             }
         }

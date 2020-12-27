@@ -33,24 +33,26 @@ class Source : public QObject
     Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
     Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged)
 
-protected:
-    QString _name;
-    QColor _color;
-
-    std::mutex dataMutex;   //NOTE: shared_mutex (C++17)
-
+public:
     struct FTData {
         float frequency;
         float module;
         float magnitude;
         complex phase;
         float coherence;
-    } *_ftdata;
+    };
 
     struct TimeData {
         float time; //ms
         complex value;
-    } *_impulseData;
+    };
+protected:
+    QString _name;
+    QColor _color;
+
+    std::mutex dataMutex;   //NOTE: shared_mutex (C++17)
+    FTData *_ftdata;
+    TimeData *_impulseData;
 
     unsigned int _dataLength;
     unsigned int m_deconvolutionSize;
@@ -84,6 +86,7 @@ public:
     const float &impulseValue(unsigned int i) const noexcept;
 
     void copy(FTData *dataDist, TimeData *timeDist);
+    void copyFrom(size_t dataSize, size_t timeSize, FTData *dataSrc, TimeData *timeSrc);
 
     void lock()   {dataMutex.lock();}
     void unlock() {dataMutex.unlock();}

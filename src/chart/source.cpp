@@ -22,11 +22,10 @@ using namespace Fftchart;
 Source::Source(QObject *parent) : QObject(parent),
     _ftdata(nullptr),
     _impulseData(nullptr),
-    _dataLength(1),
-    m_deconvolutionSize(1),
+    _dataLength(0),
+    m_deconvolutionSize(0),
     _active(false)
 {
-
 }
 void Source::setActive(bool active)
 {
@@ -110,4 +109,22 @@ void Source::copy(FTData *dataDist, TimeData *timeDist)
 {
     std::copy_n(_ftdata, size(), dataDist);
     std::copy_n(_impulseData, impulseSize(), timeDist);
+}
+
+void Source::copyFrom(size_t dataSize, size_t timeSize, Source::FTData *dataSrc, Source::TimeData *timeSrc)
+{
+    if (_ftdata) {
+        delete[] _ftdata;
+    }
+    if (_impulseData) {
+        delete[] _impulseData;
+    }
+
+    _dataLength = dataSize;
+    m_deconvolutionSize = timeSize;
+    _ftdata = new FTData[_dataLength];
+    _impulseData = new TimeData[m_deconvolutionSize];
+
+    std::copy_n(dataSrc, size(), _ftdata);
+    std::copy_n(timeSrc, impulseSize(), _impulseData);
 }

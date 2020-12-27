@@ -53,7 +53,7 @@ void GroupDelaySeriesRenderer::synchronize(QQuickFramebufferObject *item)
 }
 void GroupDelaySeriesRenderer::renderSeries()
 {
-    if (!m_source->active())
+    if (!m_source->active() || !m_source->size())
         return;
 
     GLfloat vertices[8];

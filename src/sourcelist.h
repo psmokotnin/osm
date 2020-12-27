@@ -67,6 +67,7 @@ public:
     Q_INVOKABLE void reset() noexcept;
     Q_INVOKABLE bool save(const QUrl &fileName) const noexcept;
     Q_INVOKABLE bool load(const QUrl &fileName) noexcept;
+    Q_INVOKABLE bool importTxt(const QUrl &fileName) noexcept;
     Q_INVOKABLE bool move(int from, int to) noexcept;
     Q_INVOKABLE int indexOf(Fftchart::Source *) const noexcept;
 

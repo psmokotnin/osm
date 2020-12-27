@@ -31,7 +31,7 @@ ImpulseSeriesRenderer::ImpulseSeriesRenderer()
 }
 void ImpulseSeriesRenderer::renderSeries()
 {
-    if (!m_source->active())
+    if (!m_source->active() || !m_source->impulseSize())
         return;
 
     QMatrix4x4 matrix;

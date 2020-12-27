@@ -49,7 +49,7 @@ void SpectrogramSeriesRenderer::synchronize(QQuickFramebufferObject *item)
 }
 void SpectrogramSeriesRenderer::renderSeries()
 {
-    if (!m_source->active())
+    if (!m_source->active() || !m_source->size())
         return;
 
     QMatrix4x4 matrix;

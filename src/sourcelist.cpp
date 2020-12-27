@@ -169,6 +169,64 @@ bool SourceList::load(const QUrl &fileName) noexcept
 
     return false;
 }
+bool SourceList::importTxt(const QUrl &fileName) noexcept
+{
+    QFile file(fileName.toLocalFile());
+    if (!file.open(QIODevice::ReadOnly)) {
+        qWarning("Couldn't open file");
+        return false;
+    }
+
+    QString notes;
+    char line[1024];
+    bool fOk, mOk;
+    float frequency, magnitude, maxMagnitude;
+    complex phase;
+
+    std::vector<Fftchart::Source::FTData> d;
+    d.reserve(480); //48 ppo
+    auto s = new Stored();
+
+    while (file.readLine(line, 1024) > 0) {
+        QString qLine(line);
+        notes += line;
+        auto list = qLine.split("\t");
+        fOk = mOk = false;
+
+        if (list.size() > 1) {
+            frequency = list[0].replace(",", ".").toFloat(&fOk);
+            magnitude = list[1].replace(",", ".").toFloat(&mOk);
+            phase.polar(M_PI * (list.size() > 2 ? list[2].replace(",", ".").toFloat() : 0) / 180.f);
+
+            if (fOk && mOk && list.size() > 1) {
+                if (magnitude > maxMagnitude) {
+                    maxMagnitude = magnitude;
+                }
+
+                d.push_back({
+                            frequency,
+                            magnitude,
+                            0,
+                            phase,
+                            1.f
+                        });
+            }
+        }
+    }
+
+    for(auto& row : d) {
+        auto m = row.module;
+        row.module = std::pow(10.f, (m - maxMagnitude) / 20.f);
+        row.magnitude = std::pow(10.f, (m - maxMagnitude + 15.f) / 20.f);
+    }
+
+    s->copyFrom(d.size(), 0, d.data(), nullptr);
+    s->setName("Imported");
+    s->setNotes(notes);
+    appendItem(s, true);
+    return true;
+
+}
 bool SourceList::loadList(const QJsonDocument &document) noexcept
 {
     enum LoadType {Measurement, Stored};

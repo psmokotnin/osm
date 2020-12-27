@@ -57,7 +57,7 @@ void PhaseSeriesRenderer::synchronize(QQuickFramebufferObject *item)
 }
 void PhaseSeriesRenderer::renderSeries()
 {
-    if (!m_source->active())
+    if (!m_source->active() || !m_source->size())
         return;
 
     GLfloat vertices[8], re[4], im[4];

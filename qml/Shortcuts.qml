@@ -47,6 +47,7 @@ Popup {
                 <tr><td width='200'>%1+N</td><td>new project</td></tr>
                 <tr><td>%1+S</td><td>save current measurements and stores</td></tr>
                 <tr><td>%1+O</td><td>open saved project</td></tr>
+                <tr><td>%1+I</td><td>import data</td></tr>
 
                 <tr><th colspan='2'>Measurements</th></tr>
                 <tr><td>%1+A</td><td>append new measurement</td></tr>
