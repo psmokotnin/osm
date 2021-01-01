@@ -29,7 +29,7 @@ Measurement::Measurement(Settings *settings, QObject *parent) : Fftchart::Source
     m_settings(settings),
     m_mode(FFT14), m_currentMode(),
     m_average(1),
-    m_delay(0), m_setDelay(0),
+    m_delay(0), m_setDelay(0), m_gain(1.f),
     m_estimatedDelay(0),
     m_polarity(false), m_error(false),
     dataMeter(12000), referenceMeter(12000), //250ms
@@ -54,6 +54,7 @@ Measurement::Measurement(Settings *settings, QObject *parent) : Fftchart::Source
         setName(        m_settings->reactValue<Measurement, QString>(           "name",         this,   &Measurement::nameChanged,          name()).toString());
         setColor(       m_settings->reactValue<Measurement, QColor>(            "color",        this,   &Measurement::colorChanged,         color()).value<QColor>());
         setDelay(       m_settings->reactValue<Measurement, unsigned int>(      "delay",        this,   &Measurement::delayChanged,         delay()).toUInt());
+        setGain(        m_settings->reactValue<Measurement, float>(             "gain",         this,   &Measurement::gainChanged,          delay()).toFloat());
         setAverageType( m_settings->reactValue<Measurement, AverageType>(       "average/type", this,   &Measurement::averageTypeChanged,   averageType()));
         setAverage(     m_settings->reactValue<Measurement, unsigned int>(      "average/fifo", this,   &Measurement::averageChanged,       average()).toUInt());
         setFiltersFrequency(m_settings->reactValue<Measurement, Filter::Frequency>("average/lpf", this, &Measurement::filtersFrequencyChanged, filtersFrequency()));
@@ -162,6 +163,7 @@ void Measurement::fromJSON(QJsonObject data) noexcept
     };
 
     setDelay(            castUInt(data["delay"           ], delay()));
+    setGain(             castUInt(data["gain"            ], gain()));
     setAverage(          castUInt(data["average"         ], average()));
     setDataChanel(       castUInt(data["dataChanel"      ], dataChanel()));
     setReferenceChanel(  castUInt(data["referenceChanel" ], referenceChanel()));
@@ -337,6 +339,20 @@ void Measurement::recalculateDataLength()
     std::lock_guard<std::mutex> guard(dataMutex);
     calculateDataLength();
 }
+float Measurement::gain() const
+{
+    return 20 * std::log10(m_gain);
+}
+
+void Measurement::setGain(float gain)
+{
+    gain = std::pow(10, gain / 20.f);
+    if (!qFuzzyCompare(m_gain, gain)) {
+        m_gain = gain;
+        emit gainChanged(m_gain);
+    }
+}
+
 void Measurement::calculateDataLength()
 {
     auto frequencyList = m_dataFT.getFrequencies(sampleRate());
@@ -487,7 +503,7 @@ void Measurement::transform()
 
     float d, r;
     while (data.size() > 0 && reference.size() > 0) {
-        d = data.pop();
+        d = data.pop() * m_gain;
         r = reference.pop();
 
         m_dataFT.add(d, r);

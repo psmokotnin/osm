@@ -29,7 +29,9 @@ Item {
     property real scale : 1.0
     property string tooltiptext
     property bool editable: true
+    property bool indicators: true
     property int implicitWidth: 120
+    property string units: ""
     width: spinbox.width
     height: spinbox.height
 
@@ -41,11 +43,18 @@ Item {
 
         /*
         value changes before a component is completed while applying limits (from and to)
-        so we have to stop this event until the component is ccompleted
+        so we have to stop this event until the component is completed
         */
         Component.onCompleted: function() {
             completed = true;
             value = Math.round(floatspinbox.value * floatspinbox.scale * Math.pow(10, floatspinbox.decimals));
+
+            //if indicators is true use default value
+            if (!indicators) {
+                down.indicator.width = 0;
+                up.indicator.height = 0;
+                spacing = 0;
+            }
         }
         onValueChanged: function() {
             if (completed) {
@@ -65,11 +74,20 @@ Item {
         }
 
         textFromValue: function(value, locale) {
-            return Number(value / Math.pow(10, floatspinbox.decimals)).toLocaleString(locale, 'f', floatspinbox.decimals)
+            return Number(value / Math.pow(10, floatspinbox.decimals)).
+                   toLocaleString(locale, 'f', floatspinbox.decimals) +
+                   floatspinbox.units;
         }
 
         valueFromText: function(text, locale) {
-            return Number.fromLocaleString(locale, text) * Math.pow(10, floatspinbox.decimals)
+            let fromLocal = 0;
+            text = text.replace(floatspinbox.units, "");
+            try {
+                fromLocal = Number.fromLocaleString(locale, text);
+            } catch (e) {}
+
+            text = text.replace
+            return fromLocal * Math.pow(10, floatspinbox.decimals)
         }
     }
 }

@@ -54,6 +54,7 @@ class Measurement : public Fftchart::Source
 
     Q_PROPERTY(unsigned int delay READ delay WRITE setDelay NOTIFY delayChanged)
     Q_PROPERTY(long estimated READ estimated NOTIFY estimatedChanged)
+    Q_PROPERTY(float gain READ gain WRITE setGain NOTIFY gainChanged)
 
     Q_PROPERTY(AverageType averageType READ averageType WRITE setAverageType NOTIFY averageTypeChanged)
     Q_PROPERTY(int average READ average WRITE setAverage NOTIFY averageChanged)
@@ -93,6 +94,7 @@ private:
     Mode m_mode, m_currentMode;
     unsigned int m_average;
     unsigned int m_delay, m_setDelay;
+    float m_gain;
     long m_estimatedDelay;
     bool m_polarity, m_error;
 
@@ -188,6 +190,10 @@ public:
 
     Q_INVOKABLE void resetAverage() noexcept;
 
+    //! return and set gain in dB
+    float gain() const;
+    void setGain(float gain);
+
 signals:
     void modeChanged(Measurement::Mode);
     void sampleRateChanged();
@@ -207,6 +213,7 @@ signals:
     void errorChanged(bool);
     void calibrationChanged(bool);
     void calibrationLoadedChanged(bool);
+    void gainChanged(float);
 
 public slots:
     void transform();

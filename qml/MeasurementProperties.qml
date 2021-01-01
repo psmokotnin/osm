@@ -173,6 +173,20 @@ Item {
                 Layout.fillWidth: true
             }
 
+            FloatSpinBox {
+                id: gainSpinBox
+                implicitWidth: 80
+                value: dataObject.gain
+                from: -90
+                to: 20
+                units: "dB"
+                indicators: false
+                onValueChanged: dataObject.gain = value
+                tooltiptext: qsTr("gain")
+                implicitHeight: titleField.implicitHeight
+                Layout.alignment: Qt.AlignVCenter
+            }
+
             SpinBox {
                 id: delaySpin
                 Layout.alignment: Qt.AlignVCenter

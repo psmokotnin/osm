@@ -54,7 +54,7 @@ ApplicationWindow {
         applicationWindow.onXChanged.connect(function() {applicationSettings.setValue("mainwindow/x", x)});
         applicationWindow.onYChanged.connect(function() {applicationSettings.setValue("mainwindow/y", y)});
     }
-    minimumWidth: 1000
+    minimumWidth: 1080
     minimumHeight: 600
     color: darkModeSelect.checked ? Material.backgroundColor : "#FFFFFF"
     Material.theme: darkModeSelect.checked ? Material.Dark : Material.Light

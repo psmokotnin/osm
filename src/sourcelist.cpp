@@ -223,6 +223,7 @@ bool SourceList::importTxt(const QUrl &fileName) noexcept
     s->copyFrom(d.size(), 0, d.data(), nullptr);
     s->setName("Imported");
     s->setNotes(notes);
+    s->setActive(true);
     appendItem(s, true);
     return true;
 
