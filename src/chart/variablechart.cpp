@@ -106,6 +106,7 @@ void VariableChart::setType(const Type &type)
                 appendDataSource(m_sources->items()[i]);
             }
         }
+        updateZOrders();
         emit typeChanged();
     }
 }
@@ -135,6 +136,13 @@ void VariableChart::removeDataSource(Source *source)
     }
 }
 
+void VariableChart::setSourceZIndex(Source *source, int index)
+{
+    if (s_plot) {
+        s_plot->setSourceZIndex(source, index);
+    }
+}
+
 void VariableChart::setSources(SourceList *sourceList)
 {
     if (m_sources == sourceList)
@@ -158,7 +166,10 @@ void VariableChart::setSources(SourceList *sourceList)
             auto source = m_sources->get(index);
             removeDataSource(source);
         });
+
+        connect(m_sources, &SourceList::postItemMoved, this, &VariableChart::updateZOrders);
     }
+    updateZOrders();
     emit sourcesChanged();
 }
 
@@ -168,4 +179,17 @@ void VariableChart::setDarkMode(bool darkMode) noexcept
     if (s_plot) {
         s_plot->setDarkMode(darkMode);
     }
+}
+
+void VariableChart::updateZOrders() noexcept
+{
+    if (!s_plot || !m_sources) {
+        return ;
+    }
+    auto total = m_sources->count();
+    for (auto&& source : *m_sources) {
+        auto z = total - m_sources->indexOf(source);
+        setSourceZIndex(source, z);
+    }
+    update();
 }

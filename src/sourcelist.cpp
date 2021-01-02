@@ -60,6 +60,15 @@ const QVector<Fftchart::Source*>& SourceList::items() const
 {
     return mItems;
 }
+
+SourceList::iterator SourceList::begin() noexcept
+{
+    return mItems.begin();
+}
+SourceList::iterator SourceList::end() noexcept
+{
+    return mItems.end();
+}
 int SourceList::count() const noexcept
 {
     return mItems.size();

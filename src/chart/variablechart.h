@@ -57,6 +57,7 @@ public:
 
     Q_INVOKABLE void appendDataSource(Source *source);
     Q_INVOKABLE void removeDataSource(Source *source);
+    Q_INVOKABLE void setSourceZIndex(Source *source, int index);
     Plot* plot() {return s_plot;}
 
     Q_INVOKABLE QString urlForGrab(QUrl url) const {return url.toLocalFile();}
@@ -66,6 +67,9 @@ public:
 
     bool darkMode() const noexcept {return m_darkMode;}
     void setDarkMode(bool) noexcept;
+
+public slots:
+    void updateZOrders() noexcept;
 
 signals:
     void typeChanged();

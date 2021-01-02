@@ -36,6 +36,7 @@ class SourceList : public QObject
     Q_PROPERTY(int count READ count)
     Q_PROPERTY(QUrl currentFile READ currentFile)
     Q_PROPERTY(Fftchart::Source *first READ firstSource)
+    using iterator = QVector<Fftchart::Source*>::iterator;
 
 private:
     QVector<Fftchart::Source*> mItems;
@@ -52,6 +53,7 @@ private:
     bool loadList(const QJsonDocument &document) noexcept;
     bool loadMeasurement(const QJsonObject &data) noexcept;
     bool loadStored(const QJsonObject &data) noexcept;
+
 public:
     explicit SourceList(QObject *parent = nullptr, bool appendMeasurement = true);
     SourceList* clone(QObject *parent, bool filtered = false) const noexcept;
@@ -59,6 +61,8 @@ public:
     Fftchart::Source *firstSource() const noexcept {return mItems.at(0);}
 
     const QVector<Fftchart::Source *> &items() const;
+    SourceList::iterator begin() noexcept;
+    SourceList::iterator end() noexcept;
 
     int count() const noexcept;
     QUrl currentFile() const noexcept {return m_currentFile;}

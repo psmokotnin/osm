@@ -28,13 +28,12 @@ SeriesFBO::SeriesFBO(Source* s, RendererCreator rc, QQuickItem *parent):
     connect(s, SIGNAL(colorChanged(QColor)),  SLOT(update()));
     connect(s, SIGNAL(readyRead()),     SLOT(update()));
     connect(s, SIGNAL(activeChanged()), SLOT(update()));
-
-    //make measurements be on the top of the sources
-    if (s->objectName() == "Measurement") {
-        setZ(2.0);
-    }
 }
 QQuickFramebufferObject::Renderer *SeriesFBO::createRenderer() const
 {
     return rendererCreator();
+}
+void SeriesFBO::setZIndex(int index)
+{
+    setZ(index);
 }

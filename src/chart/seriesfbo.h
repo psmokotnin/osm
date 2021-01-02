@@ -33,6 +33,7 @@ public:
     explicit SeriesFBO(Source* s, RendererCreator rc, QQuickItem *parent = nullptr);
     Source *source() const { return m_source;}
     QQuickFramebufferObject::Renderer *createRenderer() const override;
+    void setZIndex(int index);
 
 protected:
     RendererCreator rendererCreator;

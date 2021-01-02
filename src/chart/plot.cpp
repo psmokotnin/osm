@@ -112,6 +112,15 @@ void Plot::removeDataSource(Source *source)
         }
     }
 }
+void Plot::setSourceZIndex(Source *source, int index)
+{
+    foreach(SeriesFBO *seriesfbo, series) {
+        if (seriesfbo->source() == source) {
+            seriesfbo->setZIndex(index);
+            return;
+        }
+    }
+}
 void Plot::update()
 {
     QQuickItem::update();
