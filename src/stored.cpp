@@ -165,7 +165,7 @@ bool Stored::saveFRD(const QUrl &fileName) const noexcept
     QTextStream out(&saveFile);
     for (unsigned int i = 1; i < _dataLength; ++i) {
         auto m = magnitude(i);
-        auto p = _ftdata[i].phase.arg() * -180.f / static_cast<float>(M_PI);
+        auto p = _ftdata[i].phase.arg() * 180.f / static_cast<float>(M_PI);
         if (std::isnormal(m) && std::isnormal(p)) {
             out << _ftdata[i].frequency << " " << m << " " << p << " " << coherence(i) << "\n";
         }
