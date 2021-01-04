@@ -87,21 +87,6 @@ Item {
             }
 
             //Sin Sweep from
-            Label {
-                text: qsTr("Lin")
-                visible: type.currentText == 'SineSweep';
-            }
-
-            Switch {
-                visible: type.currentText == 'SineSweep';
-                checked: generatorModel.sweepType
-                onCheckedChanged: checked ? generatorModel.setSweepType(1) : generatorModel.setSweepType(0)
-            }
-
-            Label {
-                text: qsTr("Log")
-                visible: type.currentText == 'SineSweep';
-            }
             SpinBox {
                 id: sinSweepStart
                 implicitWidth: 180

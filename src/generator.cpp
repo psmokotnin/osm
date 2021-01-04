@@ -28,8 +28,6 @@ Generator::Generator(Settings *settings, QObject *parent) : QObject(parent),
     connect(&m_thread, SIGNAL(frequencyChanged(int)), this, SIGNAL(frequencyChanged(int)),  Qt::QueuedConnection);
     connect(&m_thread, SIGNAL(startFrequencyChanged(int)), this, SIGNAL(startFrequencyChanged(int)),  Qt::QueuedConnection);
     connect(&m_thread, SIGNAL(endFrequencyChanged(int)), this, SIGNAL(endFrequencyChanged(int)),  Qt::QueuedConnection);
-    QObject::connect(&m_thread, &GeneratorThread::sweepTypeChanged, this, &Generator::sweepTypeChanged,  Qt::QueuedConnection);
-
     connect(&m_thread, SIGNAL(gainChanged(float)),    this, SIGNAL(gainChanged(float)),     Qt::QueuedConnection);
     connect(&m_thread, SIGNAL(channelChanged(int)),   this, SIGNAL(channelChanged(int)),    Qt::QueuedConnection);
     connect(&m_thread, SIGNAL(auxChanged(int)),       this, SIGNAL(auxChanged(int)),        Qt::QueuedConnection);
@@ -144,15 +142,5 @@ void Generator::setAux(int channel)
                 "setAux",
                 Qt::QueuedConnection,
                 Q_ARG(int, channel)
-                );
-}
-
-void Generator::setSweepType(SinSweep::Type sweepType)
-{
-    QMetaObject::invokeMethod(
-                &m_thread,
-                "setSweepType",
-                Qt::QueuedConnection,
-                Q_ARG(SinSweep::Type, sweepType)
                 );
 }

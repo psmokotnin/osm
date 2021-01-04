@@ -1,43 +1,51 @@
+/**
+ *  OSM
+ *  Copyright (C) 2021  Pavel Smokotnin
+
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 #include "sinsweep.h"
 #include "generatorthread.h"
-#include <QDebug>
+#include <QtMath>
 
-SinSweep::SinSweep(QObject *parent) : OutputDevice(parent),
+SinSweep::SinSweep(GeneratorThread *parent) : OutputDevice(parent),
     m_phase(0.0),
-    m_start(1000.f),
-    m_end(2000.f),
-    m_duration(1),
-    m_type(Linear)
+    m_start(20.f),
+    m_end(20000.f),
+    m_duration(1.f)
 {
     m_name = "SineSweep";
     m_frequency = m_start;
-    QObject::connect(qobject_cast<GeneratorThread*>(parent), &GeneratorThread::startFrequencyChanged, this, &SinSweep::setStart);
-    QObject::connect(qobject_cast<GeneratorThread*>(parent), &GeneratorThread::endFrequencyChanged, this, &SinSweep::setEnd);
-    QObject::connect(qobject_cast<GeneratorThread*>(parent), &GeneratorThread::sweepTypeChanged, this, &SinSweep::setType);
+
+    connect(parent, &GeneratorThread::enabledChanged, this,  &SinSweep::enabledChanged);
+    connect(parent, &GeneratorThread::startFrequencyChanged, this, &SinSweep::setStart);
+    connect(parent, &GeneratorThread::endFrequencyChanged, this, &SinSweep::setEnd);
 }
 
 Sample SinSweep::sample()
 {
-    m_phase += (2.0 * M_PI * static_cast<double>(m_frequency) / m_sampleRate);
-    double fDelta;
+    auto T = m_duration;
+    auto t = m_phase;
+    float phase = 2.f * M_PI * m_start * T / std::log(m_end / m_start);
+    phase *= std::exp(std::log(m_end / m_start) * t / T) - 1;
 
-    switch (m_type) {
-    case Linear:
-        fDelta = (static_cast<double>(m_end) - static_cast<double>(m_start)) / (m_sampleRate * m_duration);
-        break;
-    case Logarithmic:
-        fDelta = (m_frequency / (10 * log(m_frequency))) / ((m_end - m_start) * m_duration);
-        break;
+    m_phase += 1.0 / m_sampleRate;
+    if (m_phase >= m_duration) {
+        m_phase = 0;
     }
 
-    if (m_phase >= 2.0 * M_PI)
-        m_phase -= 2.0 * M_PI;
-
-    Sample output = {m_gain * static_cast<float>(sin(m_phase))};
-    m_frequency += fDelta;
-    if(m_frequency >= m_end)
-        m_frequency = m_start;
-    return output;
+    return {m_gain * std::sin(phase)};
 }
 
 void SinSweep::setEnd(int end)
@@ -52,9 +60,9 @@ void SinSweep::setFrequency(int f)
     m_frequency = static_cast<float>(f);
 }
 
-void SinSweep::setType(SinSweep::Type t)
+void SinSweep::enabledChanged(bool)
 {
-    m_type = t;
+    m_phase = 0;
 }
 
 void SinSweep::setStart(int start)

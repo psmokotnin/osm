@@ -30,11 +30,10 @@ GeneratorThread::GeneratorThread(QObject *parent) :
     m_gain(-6.f),
     m_type(0),
     m_frequency(1000),
-    m_startFrequency(1000),
-    m_endFrequency(2000),
+    m_startFrequency(20),
+    m_endFrequency(20000),
     m_channelCount(1),
     m_channel(0),
-    m_sweepType(SinSweep::Linear),
     m_aux(1),
     m_enabled(false)
 {
@@ -202,14 +201,6 @@ void GeneratorThread::setEndFrequency(int endFrequency)
     {
         m_endFrequency = endFrequency;
         emit endFrequencyChanged(m_endFrequency);
-    }
-}
-void GeneratorThread::setSweepType(const SinSweep::Type sweepType)
-{
-    if(m_sweepType != sweepType)
-    {
-        m_sweepType = sweepType;
-        emit sweepTypeChanged(m_sweepType);
     }
 }
 void GeneratorThread::setGain(float gain)

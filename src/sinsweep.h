@@ -1,29 +1,38 @@
+/**
+ *  OSM
+ *  Copyright (C) 2021  Pavel Smokotnin
+
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 #ifndef SINSWEEP_H
 #define SINSWEEP_H
 
-#include <QtMath>
 #include "outputdevice.h"
-
+class GeneratorThread;
 class SinSweep : public OutputDevice
 {
     Q_OBJECT
+
 public:
-
-    enum Type {
-        Linear,
-        Logarithmic
-    };
-    Q_ENUM(Type);
-
-    SinSweep(QObject *parent);
-
-    float startFrequency() const{return m_start;}
+    explicit SinSweep(GeneratorThread *parent);
+    float startFrequency() const {return m_start;}
 
 public slots:
     void setStart(int start);
     void setEnd(int end);
     void setFrequency(int f);
-    void setType(Type);
+    void enabledChanged(bool);
 
 private:
     Sample sample();
@@ -34,7 +43,7 @@ private:
     float m_end;
     //TODO: add user defined duration for Log sweep(ms? s? samples?)
     float m_duration;
-    Type m_type;
+
 signals:
     void frequencyChanged(int);
 };

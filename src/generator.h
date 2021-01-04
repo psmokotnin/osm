@@ -46,7 +46,6 @@ class Generator : public QObject
     Q_PROPERTY(int frequency READ frequency WRITE setFrequency NOTIFY frequencyChanged)
     Q_PROPERTY(int startFrequency READ startFrequency WRITE setStartFrequency NOTIFY startFrequencyChanged)
     Q_PROPERTY(int endFrequency READ endFrequency WRITE setEndFrequency NOTIFY endFrequencyChanged)
-    Q_PROPERTY(SinSweep::Type sweepType READ sweepType WRITE setSweepType NOTIFY sweepTypeChanged)
 
     //Gain
     Q_PROPERTY(float gain READ gain WRITE setGain NOTIFY gainChanged)
@@ -95,8 +94,6 @@ public:
     int aux() const {return m_thread.aux();}
     void setAux(int channel);
 
-    SinSweep::Type sweepType() const {return m_thread.sweepType();}
-
 signals:
     void enabledChanged(bool);
     void typeChanged();
@@ -108,10 +105,6 @@ signals:
     void channelsCountChanged();
     void channelChanged(int);
     void auxChanged(int);
-    void sweepTypeChanged(SinSweep::Type sweepType);
-
-public slots:
-void setSweepType(SinSweep::Type sweepType);
 };
 
 #endif // GENERATOR_H

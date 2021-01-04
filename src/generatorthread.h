@@ -42,7 +42,6 @@ private:
     int m_frequency, m_startFrequency, m_endFrequency;
     int m_channelCount, m_channel, m_aux;
     bool m_enabled;
-    SinSweep::Type m_sweepType;
 
     void _selectDevice(const QAudioDeviceInfo &device);
     void _updateAudio();
@@ -75,9 +74,6 @@ public slots:
     float gain() const {return m_gain;}
     void setGain(float gain);
 
-    SinSweep::Type sweepType() const {return m_sweepType;}
-    void setSweepType(const SinSweep::Type sweepType);
-
     int channelsCount() const {return m_channelCount;}
     int channel() const {return m_channel;}
     void setChannel(int channel);
@@ -96,7 +92,6 @@ signals:
     void channelChanged(int);
     void auxChanged(int);
     void channelsCountChanged();
-    void sweepTypeChanged(SinSweep::Type);
 };
 
 #endif // GENERATORTHREAD_H
