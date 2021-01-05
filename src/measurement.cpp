@@ -19,6 +19,7 @@
 #include <QFile>
 #include <QUrl>
 #include <QJsonArray>
+#include <QDateTime>
 #include <QtMath>
 #include <algorithm>
 #include "measurement.h"
@@ -646,7 +647,9 @@ QObject *Measurement::store()
         "delay: " + QString("%1").arg(1000.0 * delay() / sampleRate(), 0, 'f', 2) + "ms \t" +
         (polarity() ? "polarity inversed" : "") + "\n"
         "Window: " + WindowFunction::name(m_windowFunctionType) + "\t"
-        "Average: " + avg
+        "Average: " + avg + "\n"
+        "Date: " + QDateTime::currentDateTime().toString()
+
     );
 
     return store;
