@@ -24,12 +24,15 @@ Item {
 
     property var dataModel;
     property bool chartable : true;
+    property bool highlight : false;
     property string propertiesQml: "qrc:/MeasurementProperties.qml"
     height: 50
     width: (parent ? parent.width : 0)
 
     RowLayout {
-        width: parent.width
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.rightMargin: 10
 
         MulticolorCheckBox {
             id: checkbox
@@ -49,6 +52,7 @@ Item {
 
             Label {
                 Layout.fillWidth: true
+                font.bold: highlight
                 text:  (dataModel ? dataModel.name : "")
             }
 

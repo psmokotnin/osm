@@ -22,7 +22,7 @@ using namespace Fftchart;
 SeriesFBO::SeriesFBO(Source* s, RendererCreator rc, QQuickItem *parent):
     QQuickFramebufferObject(parent),
     rendererCreator(std::move(rc)),
-    m_source(s)
+    m_source(s), m_highlighted(false)
 {
     setFlag(QQuickItem::ItemHasContents);
     connect(s, SIGNAL(colorChanged(QColor)),  SLOT(update()));
@@ -36,4 +36,12 @@ QQuickFramebufferObject::Renderer *SeriesFBO::createRenderer() const
 void SeriesFBO::setZIndex(int index)
 {
     setZ(index);
+}
+
+void SeriesFBO::setHighlighted(bool highlighted)
+{
+    if (m_highlighted != highlighted) {
+        m_highlighted = highlighted;
+        update();
+    }
 }

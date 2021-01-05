@@ -34,7 +34,7 @@ Plot::Plot(Settings *settings, QQuickItem *parent) :
 }
 void Plot::clear()
 {
-    for (auto seriesfbo : series) {
+    for (auto&& seriesfbo : series) {
         seriesfbo->deleteLater();
     }
     series.clear();
@@ -119,6 +119,13 @@ void Plot::setSourceZIndex(Source *source, int index)
             seriesfbo->setZIndex(index);
             return;
         }
+    }
+}
+
+void Plot::setHighlighted(Source *source)
+{
+    foreach(SeriesFBO *seriesfbo, series) {
+        seriesfbo->setHighlighted((seriesfbo->source() == source));
     }
 }
 void Plot::update()

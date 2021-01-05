@@ -43,7 +43,7 @@ void ImpulseSeriesRenderer::renderSeries()
     openGLFunctions->glVertexAttribPointer(static_cast<GLuint>(m_posAttr), 2, GL_FLOAT, GL_FALSE, 0, static_cast<const void *>(vertices));
 
     openGLFunctions->glEnableVertexAttribArray(0);
-    openGLFunctions->glLineWidth(2 * m_retinaScale);
+    openGLFunctions->glLineWidth(m_weight * m_retinaScale);
 
     for (unsigned int i = 1, j = 0; i <= m_source->impulseSize() - 1; ++i, j += 2) {
         vertices[2] = m_source->impulseTime(i);

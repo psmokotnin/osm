@@ -35,9 +35,13 @@ public:
     QQuickFramebufferObject::Renderer *createRenderer() const override;
     void setZIndex(int index);
 
+    bool highlighted() const { return m_highlighted; }
+    void setHighlighted(bool highlighted);
+
 protected:
     RendererCreator rendererCreator;
     Source *m_source;
+    bool m_highlighted;
 
 protected slots:
 };

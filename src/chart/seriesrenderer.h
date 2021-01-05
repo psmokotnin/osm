@@ -34,6 +34,7 @@ public:
     virtual ~SeriesRenderer() override = default;
     void render() override final;
     virtual void renderSeries() = 0;
+    virtual void setWeight(unsigned int weight);
 
     QOpenGLFramebufferObject *createFramebufferObject(const QSize &size) override;
     void synchronize(QQuickFramebufferObject *item) override;
@@ -42,10 +43,11 @@ protected:
     Source *m_source = nullptr;
     QQuickFramebufferObject *m_item = nullptr;
     QOpenGLShaderProgram m_program;
-    QOpenGLFunctions * openGLFunctions = nullptr;
+    QOpenGLFunctions *openGLFunctions = nullptr;
     GLfloat m_retinaScale;
     int m_colorUniform;
     GLsizei m_width, m_height;
+    float m_weight;
 };
 }
 #endif // SERIESRENDERER_H

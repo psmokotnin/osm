@@ -36,6 +36,8 @@ class SourceList : public QObject
     Q_PROPERTY(int count READ count)
     Q_PROPERTY(QUrl currentFile READ currentFile)
     Q_PROPERTY(Fftchart::Source *first READ firstSource)
+    Q_PROPERTY(int selectedIndex READ selectedIndex WRITE setSelected NOTIFY selectedChanged)
+    Q_PROPERTY(Fftchart::Source *selected READ selected NOTIFY selectedChanged)
     using iterator = QVector<Fftchart::Source*>::iterator;
 
 private:
@@ -49,6 +51,7 @@ private:
         "#795548", "#9E9E9E", "#607D8B"
     };
     int colorIndex;
+    int m_selected;
 
     bool loadList(const QJsonDocument &document) noexcept;
     bool loadMeasurement(const QJsonObject &data) noexcept;
@@ -75,6 +78,10 @@ public:
     Q_INVOKABLE bool move(int from, int to) noexcept;
     Q_INVOKABLE int indexOf(Fftchart::Source *) const noexcept;
 
+    int selectedIndex() const;
+    Fftchart::Source *selected() const noexcept;
+    void setSelected(int selected);
+
 signals:
     void preItemAppended();
     void postItemAppended(Fftchart::Source *);
@@ -84,6 +91,8 @@ signals:
 
     void preItemMoved(int from, int to);
     void postItemMoved();
+
+    void selectedChanged();
 
 public slots:
     Q_INVOKABLE Measurement *addMeasurement();

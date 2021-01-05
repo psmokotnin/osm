@@ -168,6 +168,15 @@ void VariableChart::setSources(SourceList *sourceList)
         });
 
         connect(m_sources, &SourceList::postItemMoved, this, &VariableChart::updateZOrders);
+
+        connect(m_sources, &SourceList::selectedChanged, this, [this]() {
+            if (s_plot) {
+                updateZOrders();
+                auto selected = m_sources->selected();
+                s_plot->setHighlighted(selected);
+                setSourceZIndex(selected, m_sources->count() + 1);
+            }
+        });
     }
     updateZOrders();
     emit sourcesChanged();

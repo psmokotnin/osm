@@ -56,7 +56,7 @@ void RTASeriesRenderer::renderSeries()
     matrix.scale(1  / logf(xMax / xMin), 1.0f, 1.0f);
     matrix.translate(-1 * logf(xMin), 0);
     m_program.setUniformValue(m_matrixUniform, matrix);
-    openGLFunctions->glLineWidth(2 * m_retinaScale);
+    openGLFunctions->glLineWidth(m_weight * m_retinaScale);
 
     switch (m_mode)
     {

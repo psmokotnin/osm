@@ -70,6 +70,7 @@ Item {
                 id: item
                 width: sideList.width
                 dataModel: modelData
+                highlight: modelHighlight
             }
         }
         Component {
@@ -78,6 +79,7 @@ Item {
                 id: item
                 width: sideList.width
                 dataModel: modelData
+                highlight: modelHighlight
             }
         }
         Component {
@@ -86,6 +88,7 @@ Item {
                 id: item
                 width: sideList.width
                 dataModel: modelData
+                highlight: modelHighlight
             }
         }
         Component {
@@ -94,6 +97,7 @@ Item {
                 id: item
                 width: sideList.width
                 dataModel: modelData
+                highlight: modelHighlight
             }
         }
 
@@ -137,6 +141,14 @@ Item {
                             sourceModel.layoutChanged();
                         }
                     }
+                    onClicked: {
+                        if (sideList.currentIndex != index) {
+                            sideList.currentIndex = index;
+                            sideList.forceActiveFocus();
+                        } else {
+                            sideList.currentIndex = -1
+                        }
+                    }
 
                     Item {
                         id: content
@@ -150,6 +162,7 @@ Item {
                         Loader {
                             id: loaded
                             property var modelData: model.source
+                            property bool modelHighlight: index == sideList.currentIndex
                             sourceComponent:
                                 switch(model.name) {
                                     case "Measurement": return measurementDelegate;
@@ -211,6 +224,13 @@ Item {
                 }
             }
             ScrollIndicator.vertical: ScrollIndicator {}
+            onCurrentIndexChanged: sourceList.selectedIndex = currentIndex
+            currentIndex: -1
+            highlight: Rectangle {
+                border.color: sourceList.selected ? sourceList.selected.color : "black"
+                border.width: 0.5
+                color: "transparent"
+            }
 
             Shortcut {
                 sequence: "Ctrl+X"

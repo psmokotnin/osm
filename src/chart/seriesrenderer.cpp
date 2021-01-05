@@ -27,7 +27,7 @@ using namespace Fftchart;
 SeriesRenderer::SeriesRenderer() :
     m_retinaScale(1),
     m_colorUniform(0),
-    m_width(0), m_height(0)
+    m_width(0), m_height(0), m_weight(2)
 {
 }
 QOpenGLFramebufferObject *SeriesRenderer::createFramebufferObject(const QSize &size)
@@ -41,11 +41,13 @@ QOpenGLFramebufferObject *SeriesRenderer::createFramebufferObject(const QSize &s
 void SeriesRenderer::synchronize(QQuickFramebufferObject *item)
 {
     m_item = item;
-    if ((m_source = dynamic_cast<SeriesFBO*>(item)->source())) {
+    auto seriesFBO = dynamic_cast<SeriesFBO*>(item);
+    if ((m_source = seriesFBO->source())) {
         qreal retinaScale = m_item->window()->devicePixelRatio();
         m_width  = static_cast<GLsizei>(m_item->width() * retinaScale);
         m_height = static_cast<GLsizei>(m_item->height() * retinaScale);
         m_retinaScale = static_cast<GLfloat>(retinaScale);
+        m_weight = seriesFBO->highlighted() ? 3 : 1.5;
     }
 }
 void SeriesRenderer::render()
@@ -84,4 +86,9 @@ void SeriesRenderer::render()
     }
 
     m_program.release();
+}
+
+void SeriesRenderer::setWeight(unsigned int weight)
+{
+    m_weight = weight;
 }

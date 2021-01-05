@@ -24,6 +24,7 @@ Item {
 
     property var dataModel;
     property bool chartable : true;
+    property bool highlight : false;
     property string propertiesQml: "qrc:/StoredProperties.qml"
     height: 50
     width: parent.width
@@ -50,6 +51,7 @@ Item {
 
             Label {
                 Layout.fillWidth: true
+                font.bold: highlight
                 text:  (dataModel ? dataModel.name : "")
             }
 

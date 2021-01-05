@@ -59,7 +59,7 @@ void SpectrogramSeriesRenderer::renderSeries()
     matrix.translate(-1 * logf(xMin), 0);
     m_program.setUniformValue(m_matrixUniform, matrix);
     m_program.setUniformValue(m_screenUniform, m_width, m_height);
-    openGLFunctions->glLineWidth(2 * m_retinaScale);
+    openGLFunctions->glLineWidth(m_weight * m_retinaScale);
     GLfloat vertices[8];
 
     openGLFunctions->glVertexAttribPointer(static_cast<GLuint>(m_posAttr), 2, GL_FLOAT, GL_FALSE, 0, static_cast<const void *>(vertices));

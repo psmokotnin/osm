@@ -45,7 +45,7 @@ void FrequencyBasedSeriesRenderer::setUniforms()
     );
 
     m_program.setUniformValue(m_screenUniform, m_width, m_height);
-    m_program.setUniformValue(m_widthUniform, 2.0f * m_retinaScale);
+    m_program.setUniformValue(m_widthUniform, m_weight * m_retinaScale);
 }
 void FrequencyBasedSeriesRenderer::iterate(
         unsigned int pointsPerOctave,

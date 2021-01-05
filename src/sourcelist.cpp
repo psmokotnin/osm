@@ -237,6 +237,24 @@ bool SourceList::importTxt(const QUrl &fileName) noexcept
     return true;
 
 }
+int SourceList::selectedIndex() const
+{
+    return m_selected;
+}
+
+Fftchart::Source *SourceList::selected() const noexcept
+{
+    return mItems.value(m_selected);
+}
+
+void SourceList::setSelected(int selected)
+{
+    if (m_selected != selected) {
+        m_selected = selected;
+        emit selectedChanged();
+    }
+}
+
 bool SourceList::loadList(const QJsonDocument &document) noexcept
 {
     enum LoadType {Measurement, Stored};
