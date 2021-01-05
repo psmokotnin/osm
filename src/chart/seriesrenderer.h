@@ -48,6 +48,7 @@ protected:
     int m_colorUniform;
     GLsizei m_width, m_height;
     float m_weight;
+    bool m_renderActive;
 };
 }
 #endif // SERIESRENDERER_H

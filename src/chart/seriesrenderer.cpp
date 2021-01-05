@@ -48,6 +48,13 @@ void SeriesRenderer::synchronize(QQuickFramebufferObject *item)
         m_height = static_cast<GLsizei>(m_item->height() * retinaScale);
         m_retinaScale = static_cast<GLfloat>(retinaScale);
         m_weight = seriesFBO->highlighted() ? 3 : 1.5;
+
+        auto plot = static_cast<Fftchart::Plot *>(m_item->parent());
+        if (plot) {
+            m_renderActive = !plot->filter() || plot->filter() == m_source;
+        } else {
+            m_renderActive = false;
+        }
     }
 }
 void SeriesRenderer::render()
@@ -78,8 +85,7 @@ void SeriesRenderer::render()
         static_cast<GLfloat>(m_source->color().blueF()),
         static_cast<GLfloat>(m_source->color().alphaF())
     );
-    auto plot = static_cast<Fftchart::Plot *>(m_item->parent());
-    if (!plot->filter() || plot->filter() == m_source) {
+    if (m_renderActive) {
         m_source->lock();
         renderSeries();
         m_source->unlock();
