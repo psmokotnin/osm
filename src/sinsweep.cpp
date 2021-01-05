@@ -31,6 +31,7 @@ SinSweep::SinSweep(GeneratorThread *parent) : OutputDevice(parent),
     connect(parent, &GeneratorThread::enabledChanged, this,  &SinSweep::enabledChanged);
     connect(parent, &GeneratorThread::startFrequencyChanged, this, &SinSweep::setStart);
     connect(parent, &GeneratorThread::endFrequencyChanged, this, &SinSweep::setEnd);
+    connect(parent, &GeneratorThread::durationChanged, this, &SinSweep::setDuration);
 }
 
 Sample SinSweep::sample()
@@ -58,6 +59,11 @@ void SinSweep::setEnd(int end)
 void SinSweep::setFrequency(int f)
 {
     m_frequency = static_cast<float>(f);
+}
+
+void SinSweep::setDuration(float duration)
+{
+    m_duration = duration;
 }
 
 void SinSweep::enabledChanged(bool)

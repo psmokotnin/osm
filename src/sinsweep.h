@@ -32,6 +32,7 @@ public slots:
     void setStart(int start);
     void setEnd(int end);
     void setFrequency(int f);
+    void setDuration(float duration);
     void enabledChanged(bool);
 
 private:
@@ -41,7 +42,6 @@ private:
     double m_phase;
     float m_start;
     float m_end;
-    //TODO: add user defined duration for Log sweep(ms? s? samples?)
     float m_duration;
 
 signals:

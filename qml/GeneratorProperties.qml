@@ -87,6 +87,18 @@ Item {
             }
 
             //Sin Sweep from
+            FloatSpinBox {
+                //id: sinSweepDuration
+                visible: type.currentText == 'SineSweep';
+                implicitWidth: 180
+                value: generatorModel.duration
+                from: 0.5
+                to: 10
+                units: "sec"
+                onValueChanged: generatorModel.duration = value
+                tooltiptext: qsTr("duration")
+            }
+
             SpinBox {
                 id: sinSweepStart
                 implicitWidth: 180

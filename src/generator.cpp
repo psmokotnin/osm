@@ -29,6 +29,7 @@ Generator::Generator(Settings *settings, QObject *parent) : QObject(parent),
     connect(&m_thread, SIGNAL(startFrequencyChanged(int)), this, SIGNAL(startFrequencyChanged(int)),  Qt::QueuedConnection);
     connect(&m_thread, SIGNAL(endFrequencyChanged(int)), this, SIGNAL(endFrequencyChanged(int)),  Qt::QueuedConnection);
     connect(&m_thread, SIGNAL(gainChanged(float)),    this, SIGNAL(gainChanged(float)),     Qt::QueuedConnection);
+    connect(&m_thread, SIGNAL(durationChanged(float)),this, SIGNAL(durationChanged(float)), Qt::QueuedConnection);
     connect(&m_thread, SIGNAL(channelChanged(int)),   this, SIGNAL(channelChanged(int)),    Qt::QueuedConnection);
     connect(&m_thread, SIGNAL(auxChanged(int)),       this, SIGNAL(auxChanged(int)),        Qt::QueuedConnection);
     connect(&m_thread, SIGNAL(channelsCountChanged()),this, SIGNAL(channelsCountChanged()), Qt::QueuedConnection);
@@ -142,5 +143,20 @@ void Generator::setAux(int channel)
                 "setAux",
                 Qt::QueuedConnection,
                 Q_ARG(int, channel)
+                );
+}
+
+float Generator::duration() const
+{
+    return m_thread.duration();
+}
+
+void Generator::setDuration(float duration)
+{
+    QMetaObject::invokeMethod(
+                &m_thread,
+                "setDuration",
+                Qt::QueuedConnection,
+                Q_ARG(float, duration)
                 );
 }

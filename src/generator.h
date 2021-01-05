@@ -49,6 +49,7 @@ class Generator : public QObject
 
     //Gain
     Q_PROPERTY(float gain READ gain WRITE setGain NOTIFY gainChanged)
+    Q_PROPERTY(float duration READ duration WRITE setDuration NOTIFY durationChanged)
 
     Q_PROPERTY(int channelsCount READ channelsCount NOTIFY channelsCountChanged)
     Q_PROPERTY(int channel READ channel WRITE setChannel NOTIFY channelChanged)
@@ -94,6 +95,9 @@ public:
     int aux() const {return m_thread.aux();}
     void setAux(int channel);
 
+    float duration() const;
+    void setDuration(float duration);
+
 signals:
     void enabledChanged(bool);
     void typeChanged();
@@ -105,6 +109,7 @@ signals:
     void channelsCountChanged();
     void channelChanged(int);
     void auxChanged(int);
+    void durationChanged(float);
 };
 
 #endif // GENERATOR_H

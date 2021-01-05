@@ -37,7 +37,7 @@ private:
     QAudioDeviceInfo m_device;
     QList<OutputDevice*> m_sources;
 
-    float m_gain;
+    float m_gain, m_duration;
     int m_type;
     int m_frequency, m_startFrequency, m_endFrequency;
     int m_channelCount, m_channel, m_aux;
@@ -81,6 +81,9 @@ public slots:
     int aux() const {return m_aux;}
     void setAux(int channel);
 
+    float duration() const;
+    void setDuration(float duration);
+
 signals:
     void enabledChanged(bool);
     void deviceChanged(QString);
@@ -92,6 +95,7 @@ signals:
     void channelChanged(int);
     void auxChanged(int);
     void channelsCountChanged();
+    void durationChanged(float);
 };
 
 #endif // GENERATORTHREAD_H

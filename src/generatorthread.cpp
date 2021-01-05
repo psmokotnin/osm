@@ -27,7 +27,7 @@ GeneratorThread::GeneratorThread(QObject *parent) :
     QThread(parent),
     m_audio(nullptr),
     m_format(), m_device(), m_sources(),
-    m_gain(-6.f),
+    m_gain(-6.f), m_duration(1.f),
     m_type(0),
     m_frequency(1000),
     m_startFrequency(20),
@@ -39,6 +39,19 @@ GeneratorThread::GeneratorThread(QObject *parent) :
 {
     start();
     QObject::moveToThread(this);
+}
+
+float GeneratorThread::duration() const
+{
+    return m_duration;
+}
+
+void GeneratorThread::setDuration(float duration)
+{
+    if (!qFuzzyCompare(duration, m_duration)) {
+        m_duration = duration;
+        emit durationChanged(m_duration);
+    }
 }
 
 void GeneratorThread::init()
