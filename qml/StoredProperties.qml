@@ -64,7 +64,7 @@ Item {
                     displayText: qsTr("Save data as");
 
                     implicitWidth: 170
-                    model: ["osm", "cal", "frd"]
+                    model: ["osm", "cal", "txt", "frd"]
 
                     onActivated: function() {
                         fileDialog.saveas = currentText;
@@ -117,6 +117,9 @@ Item {
                     break;
                 case "cal":
                     dataObject.saveCal(fileDialog.fileUrl);
+                    break;
+                case "txt":
+                    dataObject.saveTXT(fileDialog.fileUrl);
                     break;
                 case "frd":
                     dataObject.saveFRD(fileDialog.fileUrl);

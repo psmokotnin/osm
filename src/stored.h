@@ -35,6 +35,7 @@ public:
     Q_INVOKABLE bool save(const QUrl &fileName) const noexcept;
     Q_INVOKABLE bool saveCal(const QUrl &fileName) const noexcept;
     Q_INVOKABLE bool saveFRD(const QUrl &fileName) const noexcept;
+    Q_INVOKABLE bool saveTXT(const QUrl &fileName) const noexcept;
     Q_INVOKABLE QJsonObject toJSON() const noexcept override;
     void fromJSON(QJsonObject data) noexcept override;
 

@@ -34,7 +34,7 @@ SourceList::SourceList(QObject *parent, bool appendMeasurement) :
     }
 }
 SourceList* SourceList::clone(QObject *parent, bool filtered) const noexcept
-{
+{qDebug() << "clone";
     SourceList *list = new SourceList(parent, false);
     for (auto item : items()) {
         if (!filtered || item->objectName() == "Measurement" || item->objectName() == "Stored") {
@@ -107,8 +107,12 @@ bool SourceList::move(int from, int to) noexcept
     }
 
     emit preItemMoved(from, to);
-    Fftchart::Source* item = mItems.takeAt(from);
-    mItems.insert((to > from ? to - 1 : to), item);
+    if (mItems.size() > from) {
+        Fftchart::Source* item = mItems.takeAt(from);
+        mItems.insert((to > from ? to - 1 : to), item);
+    } else {
+        qWarning() << "move element from out the bounds";
+    }
     emit postItemMoved();
 
     return true;
@@ -189,7 +193,7 @@ bool SourceList::importTxt(const QUrl &fileName) noexcept
     QString notes;
     char line[1024];
     bool fOk, mOk;
-    float frequency, magnitude, maxMagnitude;
+    float frequency, magnitude, maxMagnitude, coherence = 1.f;
     complex phase;
 
     std::vector<Fftchart::Source::FTData> d;
@@ -206,6 +210,7 @@ bool SourceList::importTxt(const QUrl &fileName) noexcept
             frequency = list[0].replace(",", ".").toFloat(&fOk);
             magnitude = list[1].replace(",", ".").toFloat(&mOk);
             phase.polar(M_PI * (list.size() > 2 ? list[2].replace(",", ".").toFloat() : 0) / 180.f);
+            coherence = (list.size() > 3 ? list[3].replace(",", ".").toFloat() : 1);
 
             if (fOk && mOk && list.size() > 1) {
                 if (magnitude > maxMagnitude) {
@@ -217,7 +222,7 @@ bool SourceList::importTxt(const QUrl &fileName) noexcept
                             magnitude,
                             0,
                             phase,
-                            1.f
+                            coherence
                         });
             }
         }

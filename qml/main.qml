@@ -148,7 +148,7 @@ ApplicationWindow {
                 }
                 MenuItem {
                     text: qsTr("&Add elc")
-                    shortcut: "Ctrl+E"
+                    shortcut: "Ctrl+L"
                     onTriggered: sourceList.addElc();
                 }
             }

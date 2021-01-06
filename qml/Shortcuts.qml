@@ -52,6 +52,7 @@ Popup {
                 <tr><th colspan='2'>Measurements</th></tr>
                 <tr><td>%1+A</td><td>append new measurement</td></tr>
                 <tr><td>%1+M</td><td>append new math source</td></tr>
+                <tr><td>%1+L</td><td>append new equal Loudness contour</td></tr>
                 <tr><td>%1+X</td><td>store all measurements</td></tr>
                 <tr><td>%1+R</td><td>reset aveverages</td></tr>
                 <tr><td>%1+C</td><td>store current measurement</td></tr>
