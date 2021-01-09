@@ -87,7 +87,7 @@ void PhaseSeriesRenderer::renderSeries()
     };
     auto collected = [m_program = &m_program, openGLFunctions = openGLFunctions, &vertices,
                     m_splineRe = m_splineRe, m_splineIm = m_splineIm,
-                    &value, &coherence, &re, &im,
+                    &value, &coherence, &re, &im, &F_PI,
                     m_frequency1 = m_frequency1, m_frequency2 = m_frequency2,
                     xadd, xmul, m_coherenceSpline = m_coherenceSpline]
             (float f1, float f2, complex ac[4], float c[4])
