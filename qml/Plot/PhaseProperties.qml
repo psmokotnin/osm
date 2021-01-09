@@ -124,11 +124,12 @@ Item {
             }
 
             Button {
-                text: qsTr("Save Image");
-                implicitWidth: 120
+                font.family: "Osm"
+                text: "\ue804"
+                implicitWidth: 60
                 onClicked: fileDialog.open();
                 ToolTip.visible: hovered
-                ToolTip.text: qsTr("save chart to a file")
+                ToolTip.text: qsTr("save chart as an image")
             }
         }
         RowLayout {

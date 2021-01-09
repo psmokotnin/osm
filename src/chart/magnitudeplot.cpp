@@ -20,7 +20,7 @@
 
 using namespace Fftchart;
 
-MagnitudePlot::MagnitudePlot(Settings *settings, QQuickItem *parent): FrequencyBasedPlot(settings, parent)
+MagnitudePlot::MagnitudePlot(Settings *settings, QQuickItem *parent) : FrequencyBasedPlot(settings, parent), m_invert(false)
 {
     x.configure(AxisType::logarithmic, 20.f, 20000.f);
     x.setISOLabels();
@@ -44,4 +44,17 @@ void MagnitudePlot::storeSettings() noexcept
         return;
 
     FrequencyBasedPlot::storeSettings();
+}
+bool MagnitudePlot::invert() const
+{
+    return m_invert;
+}
+void MagnitudePlot::setInvert(bool invert)
+{
+    if (m_invert == invert)
+        return;
+
+    m_invert = invert;
+    emit invertChanged(m_invert);
+    update();
 }

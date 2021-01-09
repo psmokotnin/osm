@@ -36,7 +36,7 @@ private:
         m_coherenceThresholdU, m_coherenceAlpha;
     unsigned int m_pointsPerOctave;
     float m_coherenceThreshold;
-    bool m_coherence;
+    bool m_coherence, m_invert;
 };
 }
 #endif // MAGNITUDESERIESRENDERER_H

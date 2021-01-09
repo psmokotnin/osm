@@ -24,15 +24,24 @@ namespace Fftchart {
 class MagnitudePlot : public FrequencyBasedPlot
 {
     Q_OBJECT
+    Q_PROPERTY(bool invert READ invert WRITE setInvert NOTIFY invertChanged)
 
 protected:
     virtual SeriesFBO* createSeriesFromSource(Source *source) override;
+
+    bool m_invert;
 
 public:
     MagnitudePlot(Settings *settings, QQuickItem *parent = Q_NULLPTR);
 
     virtual void setSettings(Settings *settings) noexcept override;
     virtual void storeSettings() noexcept override;
+
+    bool invert() const;
+    void setInvert(bool invert);
+
+signals:
+    void invertChanged(bool);
 };
 }
 

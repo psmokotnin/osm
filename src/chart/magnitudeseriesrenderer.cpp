@@ -47,6 +47,7 @@ void MagnitudeSeriesRenderer::synchronize(QQuickFramebufferObject *item)
     if (auto *plot = dynamic_cast<MagnitudePlot*>(m_item->parent())) {
         m_pointsPerOctave    = plot->pointsPerOctave();
         m_coherence          = plot->coherence();
+        m_invert             = plot->invert();
         m_coherenceThreshold = plot->coherenceThreshold();
     }
 }
@@ -73,10 +74,10 @@ void MagnitudeSeriesRenderer::renderSeries()
      * pass spline data to shaders
      * fragment shader draws spline function
      */
-    auto accumulate = [m_source = m_source, &coherence, &value] (unsigned int i)
+    auto accumulate = [this, &coherence, &value] (unsigned int i)
     {
         coherence += m_source->coherence(i);
-        value     += m_source->magnitude(i);
+        value     += (m_invert ? -1 : 1) * m_source->magnitude(i);
     };
     auto collected = [m_program = &m_program, openGLFunctions = openGLFunctions, &vertices, &value, &coherence,
             m_splineA = m_splineA, m_frequency1 = m_frequency1, m_frequency2 = m_frequency2,
