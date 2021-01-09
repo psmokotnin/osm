@@ -118,7 +118,10 @@ Item {
                     id: dragArea
                     property bool held: false
 
-                    anchors { left: parent.left; right: parent.right }
+                    anchors {
+                        left: parent ? parent.left : null
+                        right: parent ? parent.right : null
+                    }
                     height: content.height
 
                     drag.target:    dragArea.held ? content : undefined

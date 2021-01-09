@@ -19,6 +19,7 @@
 #include "measurement.h"
 #include "union.h"
 #include "elc.h"
+#include <qmath.h>
 #include <QUrl>
 #include <QJsonDocument>
 #include <QJsonArray>
@@ -34,7 +35,7 @@ SourceList::SourceList(QObject *parent, bool appendMeasurement) :
     }
 }
 SourceList* SourceList::clone(QObject *parent, bool filtered) const noexcept
-{qDebug() << "clone";
+{
     SourceList *list = new SourceList(parent, false);
     for (auto item : items()) {
         if (!filtered || item->objectName() == "Measurement" || item->objectName() == "Stored") {

@@ -59,7 +59,9 @@ Item {
 
         Connections {
             target: dataModel
-            onColorChanged: checkbox.checkedColor = dataModel.color
+            function onColorChanged() {
+                checkbox.checkedColor = dataModel.color;
+            }
         }
     }
 }

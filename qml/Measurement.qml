@@ -69,12 +69,14 @@ Item {
 
         Connections {
             target: dataModel
-            onColorChanged: checkbox.checkedColor = dataModel.color
+            function onColorChanged() {
+                checkbox.checkedColor = dataModel.color;
+            }
         }
 
         Connections {
             target: dataModel
-            onSampleRateChanged: {
+            function onSampleRateChanged() {
                     var pb = applicationWindow.properiesbar;
                     var reopen = false;
                     if (pb.currentObject === dataModel) {
