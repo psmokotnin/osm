@@ -151,7 +151,7 @@ unix:!macx:CONFIG(release, debug|release) {
     QMAKE_POST_LINK +=  && chmod u+x $$OUT_PWD/linuxdeployosm.sh && $$OUT_PWD/linuxdeployosm.sh $$APP_GIT_VERSION $$PWD $$[QT_INSTALL_BINS]
 }
 
-lessThan(QT_MAJOR_VERSION, 5) | lessThan(QT_MINOR_VERSION, 14) {
+!isEqual(QT_MAJOR_VERSION, 5):lessThan(QT_MINOR_VERSION, 15) {
     error(OpenSoundMeter $$APP_GIT_VERSION  requires Qt 5.14 or newer but Qt $$[QT_VERSION] was detected.)
 }
 
