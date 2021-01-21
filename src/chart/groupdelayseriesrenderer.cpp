@@ -83,9 +83,9 @@ void GroupDelaySeriesRenderer::renderSeries()
             (float f1, float f2, float ac[4], GLfloat c[4])
     {
         vertices[0] = f1;
-        vertices[1] = yMin;
+        vertices[1] = yMax;
         vertices[2] = f1;
-        vertices[3] = yMax;
+        vertices[3] = yMin;
         vertices[4] = f2;
         vertices[5] = yMax;
         vertices[6] = f2;
@@ -97,7 +97,7 @@ void GroupDelaySeriesRenderer::renderSeries()
         float fx2 = (logf(f2) + xadd) * xmul;
         m_program->setUniformValue(m_frequency1, fx1);
         m_program->setUniformValue(m_frequency2, fx2);
-        openGLFunctions->glDrawArrays(GL_QUADS, 0, 4);
+        openGLFunctions->glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
         value = 0.0f;
         coherence = 0.f;

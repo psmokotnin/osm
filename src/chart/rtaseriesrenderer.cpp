@@ -131,15 +131,15 @@ void RTASeriesRenderer::renderBars()
         value = 10 * log10f(value);
 
         vertices[0] = start;
-        vertices[1] = minValue;
+        vertices[1] = value;
         vertices[2] = start;
-        vertices[3] = value;
+        vertices[3] = minValue;
         vertices[4] = end;
         vertices[5] = value;
         vertices[6] = end;
         vertices[7] = minValue;
 
-        openGLFunctions->glDrawArrays(GL_QUADS, 0, 4);
+        openGLFunctions->glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
         value = 0;
     };
 

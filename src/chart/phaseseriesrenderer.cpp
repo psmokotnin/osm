@@ -93,9 +93,9 @@ void PhaseSeriesRenderer::renderSeries()
             (float f1, float f2, complex ac[4], float c[4])
     {
         vertices[0] =  f1;
-        vertices[1] = -F_PI;
+        vertices[1] =  F_PI;
         vertices[2] =  f1;
-        vertices[3] =  F_PI;
+        vertices[3] = -F_PI;
         vertices[4] =  f2;
         vertices[5] =  F_PI;
         vertices[6] =  f2;
@@ -113,7 +113,7 @@ void PhaseSeriesRenderer::renderSeries()
         float fx2 = (logf(f2) + xadd) * xmul;
         m_program->setUniformValue(m_frequency1, fx1);
         m_program->setUniformValue(m_frequency2, fx2);
-        openGLFunctions->glDrawArrays(GL_QUADS, 0, 4);
+        openGLFunctions->glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
         value.real = value.imag = 0.0f;
         coherence = 0.f;

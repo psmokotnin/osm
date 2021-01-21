@@ -143,9 +143,9 @@ void SpectrogramSeriesRenderer::renderSeries()
         for (unsigned int i = 1; i < rowData->size(); ++i) {
 
             vertices[0] = (rowData->at(i-1)[0] + rowData->at(i-1)[1]) / 2;
-            vertices[1] = t + tStep;
+            vertices[1] = t;
             vertices[2] = (rowData->at(i-1)[0] + rowData->at(i-1)[1]) / 2;
-            vertices[3] = t;
+            vertices[3] = t + tStep;
             vertices[4] = (rowData->at(i)[0] + rowData->at(i)[1]) / 2;
             vertices[5] = t;
             vertices[6] = (rowData->at(i)[0] + rowData->at(i)[1]) / 2;
@@ -169,7 +169,7 @@ void SpectrogramSeriesRenderer::renderSeries()
             if (i > 1) {
                 m_program.setUniformValue(m_prePositionAttr,  (rowData->at(i-1)[0] + rowData->at(i-1)[1]) / 2, vertices[3], 0.f, 1.f);
                 m_program.setUniformValue(m_postPositionAttr, (rowData->at(i  )[0] + rowData->at(i  )[1]) / 2, vertices[1], 0.f, 1.f);
-                openGLFunctions->glDrawArrays(GL_QUADS, 0, 4);
+                openGLFunctions->glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
             }
         }
         t += tStep;
