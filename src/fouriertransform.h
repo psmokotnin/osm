@@ -29,33 +29,36 @@ public:
     enum Type {Fast, Log};
 
 private:
-    unsigned int _size;
-    unsigned int _pointer;
+    unsigned int m_size;
+    unsigned int m_pointer;
     Type m_type;
     WindowFunction m_window;
 
     //! income data channel
-    container::array<float> inA, inB;
+    container::array<float> m_inA, m_inB;
 
     //! fft swap map
-    container::array<unsigned int> _swapMap;
+    container::array<unsigned int> m_swapMap;
 
-    struct LogBasisVector{
+    struct LogBasisVector {
         unsigned int N;
         float frequency;
         std::vector<v4sf> w;
     };
-    container::array<LogBasisVector> logBasis;
+    container::array<LogBasisVector> m_logBasis;
 
     //! containers for fast transform
-    container::array<complex> _fastA, _fastB, wlen;
+    container::array<complex> m_fastA, m_fastB, m_wlen;
 
 public:
     FourierTransform(unsigned int size = 2);
 
     //! set input buffer size
     void setSize(unsigned int size);
-    unsigned int size() const {return _size;}
+    unsigned int size() const
+    {
+        return m_size;
+    }
 
     //! set transform type
     void setType(Type type);
@@ -76,7 +79,8 @@ public:
     void fast(bool reverse = false, bool ultrafast = false);
 
     //! run FFT with setted ultrafast
-    void ufast() {
+    void ufast()
+    {
         fast(false, true);
     }
 
@@ -101,7 +105,10 @@ public:
     //! return i in fast transform for given frequency and sampleRate
     long f2i(double frequency, int sampleRate) const;
 
-    unsigned long pointer() const {return _pointer;}
+    unsigned long pointer() const
+    {
+        return m_pointer;
+    }
 
     //! return fast transform result for channel A
     complex af(unsigned int i) const;

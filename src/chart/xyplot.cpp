@@ -21,71 +21,71 @@ using namespace Fftchart;
 
 XYPlot::XYPlot(Settings *settings, QQuickItem *parent) :
     Plot(settings, parent),
-    x(AxisDirection::horizontal, m_palette, this),
-    y(AxisDirection::vertical, m_palette, this)
+    m_x(AxisDirection::Horizontal, m_palette, this),
+    m_y(AxisDirection::Vertical, m_palette, this)
 {
 }
 
 qreal XYPlot::x2v(qreal mouseX) const noexcept
 {
-    return x.coordToValue(mouseX);
+    return m_x.coordToValue(mouseX);
 }
 qreal XYPlot::y2v(qreal mouseY) const noexcept
 {
-    return y.coordToValue(mouseY);
+    return m_y.coordToValue(mouseY);
 }
 void XYPlot::setXMin(float v)
 {
-    if (qFuzzyCompare(v, x.min()))
+    if (qFuzzyCompare(v, m_x.min()))
         return;
 
-    x.setMin(v);
-    emit xminChanged(x.min());
+    m_x.setMin(v);
+    emit xminChanged(m_x.min());
     update();
 }
 void XYPlot::setXMax(float v)
 {
-    if (qFuzzyCompare(v, x.max()))
+    if (qFuzzyCompare(v, m_x.max()))
         return;
 
-    x.setMax(v);
-    emit xmaxChanged(x.max());
+    m_x.setMax(v);
+    emit xmaxChanged(m_x.max());
     update();
 }
 void XYPlot::setYMin(float v)
 {
-    if (qFuzzyCompare(v, y.min()))
+    if (qFuzzyCompare(v, m_y.min()))
         return;
 
-    y.setMin(v);
-    emit yminChanged(y.min());
+    m_y.setMin(v);
+    emit yminChanged(m_y.min());
     update();
 }
 void XYPlot::setYMax(float v)
 {
-    if (qFuzzyCompare(v, y.max()))
+    if (qFuzzyCompare(v, m_y.max()))
         return;
 
-    y.setMax(v);
-    emit ymaxChanged(y.max());
+    m_y.setMax(v);
+    emit ymaxChanged(m_y.max());
     update();
 }
 void XYPlot::setSettings(Settings *settings) noexcept
 {
     Plot::setSettings(settings);
-    x.setMin(m_settings->reactValue<XYPlot, float>("xmin", this, &XYPlot::xminChanged, x.min()).toFloat());
-    x.setMax(m_settings->reactValue<XYPlot, float>("xmax", this, &XYPlot::xmaxChanged, x.max()).toFloat());
-    y.setMin(m_settings->reactValue<XYPlot, float>("ymin", this, &XYPlot::yminChanged, y.min()).toFloat());
-    y.setMax(m_settings->reactValue<XYPlot, float>("ymax", this, &XYPlot::ymaxChanged, y.max()).toFloat());
+    m_x.setMin(m_settings->reactValue<XYPlot, float>("xmin", this, &XYPlot::xminChanged, m_x.min()).toFloat());
+    m_x.setMax(m_settings->reactValue<XYPlot, float>("xmax", this, &XYPlot::xmaxChanged, m_x.max()).toFloat());
+    m_y.setMin(m_settings->reactValue<XYPlot, float>("ymin", this, &XYPlot::yminChanged, m_y.min()).toFloat());
+    m_y.setMax(m_settings->reactValue<XYPlot, float>("ymax", this, &XYPlot::ymaxChanged, m_y.max()).toFloat());
 }
 void XYPlot::storeSettings() noexcept
 {
     if (!m_settings)
         return;
 
-    m_settings->setValue("xmin", x.min());
-    m_settings->setValue("xmax", x.max());
-    m_settings->setValue("ymin", y.min());
-    m_settings->setValue("ymax", y.max());
+    m_settings->setValue("xmin", m_x.min());
+    m_settings->setValue("xmax", m_x.max());
+    m_settings->setValue("ymin", m_y.min());
+    m_settings->setValue("ymax", m_y.max());
 
 }

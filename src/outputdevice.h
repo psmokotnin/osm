@@ -40,14 +40,29 @@ public:
     qint64 readData(char *data, qint64 maxlen) override;
     virtual Sample sample();
 
-    void setSamplerate(int s) {m_sampleRate = s;}
-    QString name() const {return m_name;}
+    void setSamplerate(int s)
+    {
+        m_sampleRate = s;
+    }
+    QString name() const
+    {
+        return m_name;
+    }
 
 public slots:
     void setGain(float gaindB);
-    void setChanel(int chanel) {m_chanel = chanel;}
-    void setAux(int chanel) {m_aux = chanel;}
-    void setChanelCount(int count) {m_chanelCount = count;}
+    void setChanel(int chanel)
+    {
+        m_chanel = chanel;
+    }
+    void setAux(int chanel)
+    {
+        m_aux = chanel;
+    }
+    void setChanelCount(int count)
+    {
+        m_chanelCount = count;
+    }
 
 };
 

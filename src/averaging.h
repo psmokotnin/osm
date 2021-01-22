@@ -28,7 +28,7 @@ template<typename T> class Averaging
 
 private:
     typedef container::fifo<T> dataT;
-    container::array<dataT> data;
+    container::array<dataT> m_data;
 
     container::array<T> m_value;
     container::array<unsigned int> m_collected;
@@ -38,7 +38,7 @@ private:
 
 public:
     Averaging():
-        data(),
+        m_data(),
         m_value(),
         m_collected(),
         m_gain(1.f),
@@ -48,23 +48,36 @@ public:
     void append(unsigned int i, const T &value);
     T value(unsigned int i);
 
-    void setSize(unsigned int size) {
-
+    void setSize(unsigned int size)
+    {
         m_size = size;
-        data.resize(m_size);
+        m_data.resize(m_size);
         m_value.resize(m_size);
         m_collected.resize(m_size);
 
         reset();
     }
-    unsigned int size() const {return m_size;}
+    unsigned int size() const
+    {
+        return m_size;
+    }
 
-    void setDepth(unsigned int depth) {m_depth = depth;}
-    unsigned int depth() const {return m_depth;}
+    void setDepth(unsigned int depth)
+    {
+        m_depth = depth;
+    }
+    unsigned int depth() const
+    {
+        return m_depth;
+    }
 
-    float gain() const {return m_gain;}
+    float gain() const
+    {
+        return m_gain;
+    }
 
-    void reset() {
+    void reset()
+    {
         m_value.fill(T(0));
         m_collected.fill(0);
     }

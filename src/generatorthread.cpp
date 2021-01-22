@@ -61,7 +61,7 @@ void GeneratorThread::init()
     m_sources << new SinNoise(this);
     m_sources << new SinSweep(this);
     m_device = QAudioDeviceInfo::defaultOutputDevice();
-    _selectDevice(m_device);
+    selectDevice(m_device);
     connect(this, SIGNAL(finished()), this, SLOT(finish()));
 }
 /*
@@ -79,7 +79,7 @@ void GeneratorThread::setEnabled(bool enabled)
 {
     if (m_enabled != enabled) {
         m_enabled = enabled;
-        _updateAudio();
+        updateAudio();
         if(m_type == 3 && m_enabled == false)
             qobject_cast<SinSweep*>(m_sources[3])->setFrequency(m_startFrequency);
         emit enabledChanged(m_enabled);
@@ -89,7 +89,7 @@ void GeneratorThread::setType(int type)
 {
     if (m_type != type) {
         m_type = type;
-        _updateAudio();
+        updateAudio();
         emit typeChanged(m_type);
     }
 }
@@ -104,18 +104,18 @@ void GeneratorThread::selectDevice(const QString &name)
     }
     foreach (auto &deviceInfo, QAudioDeviceInfo::availableDevices(QAudio::AudioOutput)) {
         if (name == deviceInfo.deviceName()) {
-            _selectDevice(deviceInfo);
+            selectDevice(deviceInfo);
         }
     }
 }
-void GeneratorThread::_selectDevice(const QAudioDeviceInfo &device)
+void GeneratorThread::selectDevice(const QAudioDeviceInfo &device)
 {
     m_device = device;
     m_sources[m_type]->close();
-    _updateAudio();
+    updateAudio();
     emit deviceChanged(m_device.deviceName());
 }
-void GeneratorThread::_updateAudio()
+void GeneratorThread::updateAudio()
 {
     if (m_audio) {
         m_audio->stop();

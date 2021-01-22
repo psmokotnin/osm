@@ -23,23 +23,23 @@ Coherence::Coherence(): m_subpointer(0), m_depth(1)
 }
 void Coherence::setSize(const size_t &size) noexcept
 {
-    Grr.resize(size);
-    Gmm.resize(size);
-    Grm.resize(size);
+    m_Grr.resize(size);
+    m_Gmm.resize(size);
+    m_Grm.resize(size);
     setDepth(m_depth);
 }
 void Coherence::setDepth(const size_t &depth) noexcept
 {
     m_depth = depth;
-    Gmm.each([&depth](container::array<float> *a) {
+    m_Gmm.each([&depth](container::array<float> *a) {
         a->resize(depth);
         a->fill(0.f);
     });
-    Grr.each([&depth](container::array<float> *a) {
+    m_Grr.each([&depth](container::array<float> *a) {
         a->resize(depth);
         a->fill(0.f);
     });
-    Grm.each([&depth](container::array<complex> *a) {
+    m_Grm.each([&depth](container::array<complex> *a) {
         a->resize(depth);
         a->fill(0);
     });
@@ -52,9 +52,9 @@ void Coherence::append(unsigned int i, complex refernce, complex measurement) no
             m_subpointer = 0;
     }
 
-    Grr[i][m_subpointer] = std::pow(refernce.abs(), 2.f);
-    Gmm[i][m_subpointer] = std::pow(measurement.abs(), 2.f);
-    Grm[i][m_subpointer] = refernce.conjugate() * measurement;
+    m_Grr[i][m_subpointer] = std::pow(refernce.abs(), 2.f);
+    m_Gmm[i][m_subpointer] = std::pow(measurement.abs(), 2.f);
+    m_Grm[i][m_subpointer] = refernce.conjugate() * measurement;
 }
 float Coherence::value(unsigned int i) const noexcept
 {
@@ -62,9 +62,9 @@ float Coherence::value(unsigned int i) const noexcept
     complex Crm(0);
 
     for (unsigned int j = 0; j < m_depth; ++j) {
-        Crm += Grm[i][j];
-        Crr += Grr[i][j];
-        Cmm += Gmm[i][j];
+        Crm += m_Grm[i][j];
+        Crr += m_Grr[i][j];
+        Cmm += m_Gmm[i][j];
     }
     return Crm.abs() / std::sqrt(Crr * Cmm);
 }

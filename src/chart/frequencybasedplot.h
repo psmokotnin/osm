@@ -23,9 +23,11 @@ namespace Fftchart {
 class FrequencyBasedPlot : public XYPlot
 {
     Q_OBJECT
-    Q_PROPERTY(unsigned int pointsPerOctave READ pointsPerOctave WRITE setPointsPerOctave NOTIFY pointsPerOctaveChanged)
+    Q_PROPERTY(unsigned int pointsPerOctave READ pointsPerOctave WRITE setPointsPerOctave NOTIFY
+               pointsPerOctaveChanged)
     Q_PROPERTY(bool coherence READ coherence WRITE setCoherence NOTIFY coherenceChanged)
-    Q_PROPERTY(float coherenceThreshold READ coherenceThreshold WRITE setCoherenceThreshold NOTIFY coherenceThresholdChanged)
+    Q_PROPERTY(float coherenceThreshold READ coherenceThreshold WRITE setCoherenceThreshold NOTIFY
+               coherenceThresholdChanged)
 
 protected:
     unsigned int m_pointsPerOctave;
@@ -38,13 +40,22 @@ public:
     virtual void setSettings(Settings *settings) noexcept override;
     virtual void storeSettings() noexcept override;
 
-    unsigned int pointsPerOctave() const noexcept {return m_pointsPerOctave;}
+    unsigned int pointsPerOctave() const noexcept
+    {
+        return m_pointsPerOctave;
+    }
     void setPointsPerOctave(unsigned int p) noexcept;
 
-    bool coherence() const noexcept {return  m_coherence;}
+    bool coherence() const noexcept
+    {
+        return  m_coherence;
+    }
     void setCoherence(bool coherence) noexcept;
 
-    float coherenceThreshold() const noexcept {return m_coherenceThreshold;}
+    float coherenceThreshold() const noexcept
+    {
+        return m_coherenceThreshold;
+    }
     void setCoherenceThreshold(float coherenceThreshold) noexcept;
 
 signals:

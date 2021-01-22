@@ -23,8 +23,8 @@
 
 namespace Fftchart {
 
-    enum AxisType {linear, logarithmic};
-    enum AxisDirection {vertical, horizontal};
+enum AxisType {Linear, Logarithmic};
+enum AxisDirection {Vertical, Horizontal};
 
 class Axis : public PaintedItem
 {
@@ -32,12 +32,12 @@ class Axis : public PaintedItem
     static std::vector<float> ISO_LABELS;
 
 private:
-    AxisType _type = linear;
-    AxisDirection _direction;
+    AxisType m_type = Linear;
+    AxisDirection m_direction;
     const Palette &m_palette;
-    std::vector<float> _labels;
-    float _min, _max, _scale;
-    float _lowLimit, _highLimit; //stop values
+    std::vector<float> m_labels;
+    float m_min, m_max, m_scale;
+    float m_lowLimit, m_highLimit; //stop values
     float m_offset, m_centralLabel;
     std::optional<float> m_period;
 
@@ -51,29 +51,70 @@ public:
 
     void configure(AxisType type, float min, float max, unsigned int ticks = 0, float scale = 1.0f);
 
-    float lowLimit() const {return _lowLimit;}
-    float highLimit() const {return _highLimit;}
+    float lowLimit() const
+    {
+        return m_lowLimit;
+    }
+    float highLimit() const
+    {
+        return m_highLimit;
+    }
 
     void setMin(float v);
-    float min() const {return _min;}
+    float min() const
+    {
+        return m_min;
+    }
 
-    void setScale(float v) {_scale = v;needUpdate();}
-    float scale() const {return _scale;}
+    void setScale(float v)
+    {
+        m_scale = v;
+        needUpdate();
+    }
+    float scale() const
+    {
+        return m_scale;
+    }
 
     void setMax(float v);
-    float max() const {return _max;}
+    float max() const
+    {
+        return m_max;
+    }
 
-    void setISOLabels() {_labels = ISO_LABELS;}
+    void setISOLabels()
+    {
+        m_labels = ISO_LABELS;
+    }
     void autoLabels(unsigned int ticks);
-    void setLabels(std::vector<float> labels) noexcept {_labels = labels;needUpdate();}
+    void setLabels(std::vector<float> labels) noexcept
+    {
+        m_labels = labels;
+        needUpdate();
+    }
 
-    void setType(AxisType t) {_type = t;needUpdate();}
-    AxisType type() const {return _type;}
+    void setType(AxisType t)
+    {
+        m_type = t;
+        needUpdate();
+    }
 
-    float offset() const {return m_offset;}
+    AxisType type() const
+    {
+        return m_type;
+    }
+
+    float offset() const
+    {
+        return m_offset;
+    }
     void setOffset(float offset);
 
-    float centralLabel() const {return m_centralLabel;}
+    float centralLabel() const
+    {
+        return m_centralLabel;
+    }
+
     void setCentralLabel(float central);
 
     void setPeriodic(float p);

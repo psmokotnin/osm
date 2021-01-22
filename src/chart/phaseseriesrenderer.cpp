@@ -66,14 +66,14 @@ void PhaseSeriesRenderer::renderSeries()
     constexpr float F_PI = static_cast<float>(M_PI);
 
     setUniforms();
-    openGLFunctions->glVertexAttribPointer(static_cast<GLuint>(m_posAttr), 2, GL_FLOAT, GL_FALSE, 0, static_cast<const void *>(vertices));
-    openGLFunctions->glEnableVertexAttribArray(0);
+    m_openGLFunctions->glVertexAttribPointer(static_cast<GLuint>(m_posAttr), 2, GL_FLOAT, GL_FALSE, 0, static_cast<const void *>(vertices));
+    m_openGLFunctions->glEnableVertexAttribArray(0);
     m_program.setUniformValue(m_coherenceThresholdU, m_coherenceThreshold);
     m_program.setUniformValue(m_coherenceAlpha, m_coherence);
 
     float xadd, xmul;
-    xadd = -1.0f * logf(xMin);
-    xmul = m_width / logf(xMax / xMin);
+    xadd = -1.0f * logf(m_xMin);
+    xmul = m_width / logf(m_xMax / m_xMin);
 
     /*
      * Draw quad for each band from -PI to +PI (full height)
@@ -85,7 +85,7 @@ void PhaseSeriesRenderer::renderSeries()
         value += m_source->phase(i).rotate(m_rotate);
         coherence += m_source->coherence(i);
     };
-    auto collected = [m_program = &m_program, openGLFunctions = openGLFunctions, &vertices,
+    auto collected = [m_program = &m_program, m_openGLFunctions = m_openGLFunctions, &vertices,
                     m_splineRe = m_splineRe, m_splineIm = m_splineIm,
                     &value, &coherence, &re, &im, &F_PI,
                     m_frequency1 = m_frequency1, m_frequency2 = m_frequency2,
@@ -113,7 +113,7 @@ void PhaseSeriesRenderer::renderSeries()
         float fx2 = (logf(f2) + xadd) * xmul;
         m_program->setUniformValue(m_frequency1, fx1);
         m_program->setUniformValue(m_frequency2, fx2);
-        openGLFunctions->glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+        m_openGLFunctions->glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
         value.real = value.imag = 0.0f;
         coherence = 0.f;
@@ -121,5 +121,5 @@ void PhaseSeriesRenderer::renderSeries()
 
     iterateForSpline<complex, complex>(m_pointsPerOctave, &value, &coherence, accumulate, collected);
 
-    openGLFunctions->glDisableVertexAttribArray(0);
+    m_openGLFunctions->glDisableVertexAttribArray(0);
 }

@@ -39,20 +39,50 @@ class XYPlot : public Plot
     Q_PROPERTY(float yScale READ yScale() CONSTANT)
 
 protected:
-    Axis x, y;
+    Axis m_x, m_y;
 
-    float xLowLimit()  const {return x.lowLimit();}
-    float xHighLimit() const {return x.highLimit();}
-    float yLowLimit()  const {return y.lowLimit();}
-    float yHighLimit() const {return y.highLimit();}
+    float xLowLimit()  const
+    {
+        return m_x.lowLimit();
+    }
+    float xHighLimit() const
+    {
+        return m_x.highLimit();
+    }
+    float yLowLimit()  const
+    {
+        return m_y.lowLimit();
+    }
+    float yHighLimit() const
+    {
+        return m_y.highLimit();
+    }
 
-    float xmin() const {return x.min();}
-    float xmax() const {return x.max();}
-    float ymin() const {return y.min();}
-    float ymax() const {return y.max();}
+    float xmin() const
+    {
+        return m_x.min();
+    }
+    float xmax() const
+    {
+        return m_x.max();
+    }
+    float ymin() const
+    {
+        return m_y.min();
+    }
+    float ymax() const
+    {
+        return m_y.max();
+    }
 
-    float xScale() const {return x.scale();}
-    float yScale() const {return y.scale();}
+    float xScale() const
+    {
+        return m_x.scale();
+    }
+    float yScale() const
+    {
+        return m_y.scale();
+    }
 
     void setXMin(float v);
     void setXMax(float v);
@@ -62,8 +92,14 @@ protected:
 public:
     XYPlot(Settings *settings, QQuickItem *parent);
 
-    Axis *xAxis() {return &x;}
-    Axis *yAxis() {return &y;}
+    Axis *xAxis()
+    {
+        return &m_x;
+    }
+    Axis *yAxis()
+    {
+        return &m_y;
+    }
 
     Q_INVOKABLE qreal x2v(qreal mouseX) const noexcept override;
     Q_INVOKABLE qreal y2v(qreal mouseY) const noexcept override;

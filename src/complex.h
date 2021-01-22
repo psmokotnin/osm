@@ -21,8 +21,7 @@
 #include <math.h>
 #include <QDebug>
 
-struct complex
-{
+struct complex {
     float real;
     float imag;
     complex (float r = 0.0, float i = 0.0): real(r), imag(i) {}
@@ -36,36 +35,36 @@ struct complex
     const complex rotate(const float &a) const;
     void polar(const float &phase);
 
-    complex& operator=(const float& r);
-    complex& operator=(const complex &c);
-    complex& operator=(complex &&c);
+    complex &operator=(const float &r);
+    complex &operator=(const complex &c);
+    complex &operator=(complex &&c);
 
-    const complex operator+(const float& r) const;
-    const complex operator+(const complex& c) const;
+    const complex operator+(const float &r) const;
+    const complex operator+(const complex &c) const;
 
-    complex& operator+=(const float& r);
-    complex& operator+=(const complex& c);
+    complex &operator+=(const float &r);
+    complex &operator+=(const complex &c);
 
-    const complex operator-(const float& r) const;
-    const complex operator-(const complex& c) const;
+    const complex operator-(const float &r) const;
+    const complex operator-(const complex &c) const;
 
-    complex& operator-=(const float& r);
-    complex& operator-=(const complex& c);
+    complex &operator-=(const float &r);
+    complex &operator-=(const complex &c);
 
-    const complex operator/(const float& r) const;
-    const complex operator/(const complex& c) const;
+    const complex operator/(const float &r) const;
+    const complex operator/(const complex &c) const;
 
-    complex& operator/=(const float& r);
-    complex& operator/=(const complex& c);
+    complex &operator/=(const float &r);
+    complex &operator/=(const complex &c);
 
-    complex operator*(const float& r) const;
-    complex operator*(const complex& c) const;
+    complex operator*(const float &r) const;
+    complex operator*(const complex &c) const;
 
-    complex& operator*=(const float& r);
-    complex& operator*=(const complex& c);
+    complex &operator*=(const float &r);
+    complex &operator*=(const complex &c);
 
-    bool operator==(const complex& c) const;
-    bool operator!=(const complex& c) const;
+    bool operator==(const complex &c) const;
+    bool operator!=(const complex &c) const;
 };
 
 QDebug operator<<(QDebug dbg, const complex &c);

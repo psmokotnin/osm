@@ -27,16 +27,17 @@ class FrequencyBasedSeriesRenderer : public XYSeriesRenderer
 protected:
     void setUniforms();
     void iterate(unsigned int pointsPerOctave,
-                const std::function<void(unsigned int)> &accumulate,
-                const std::function<void(float start, float end, unsigned int count)> &collected
-            );
+                 const std::function<void(unsigned int)> &accumulate,
+                 const std::function<void(float start, float end, unsigned int count)> &collected
+                );
 
     template<typename T, typename TSpline = T> void iterateForSpline(unsigned int pointsPerOctave,
-                T *value, float *coherence,
-                const std::function<void (unsigned int)> &accumulate,
-                const std::function<void(float f1, float f2, TSpline *a, GLfloat *c)> &collected,
-                const std::function<TSpline(const T* value, const float *f, const unsigned int & index)> &beforeSpline = {}
-            )
+                                                                     T *value, float *coherence,
+                                                                     const std::function<void (unsigned int)> &accumulate,
+                                                                     const std::function<void(float f1, float f2, TSpline *a, GLfloat *c)> &collected,
+                                                                     const std::function<TSpline(const T *value, const float *f, const unsigned int &index)>
+                                                                     &beforeSpline = {}
+                                                                    )
     {
         bool bCollected = false;
         unsigned int bCount = 0;
@@ -44,17 +45,19 @@ protected:
         float csplinePoint[4], f[4], c[4];
 
         auto it = [value, coherence, &collected, &splinePoint, &csplinePoint,
-                    &f, &a, &c, &bCollected, &beforeSpline, &bCount]
-                (float bandStart, float bandEnd, unsigned int count)
-        {
+                          &f, &a, &c, &bCollected, &beforeSpline, &bCount]
+        (float bandStart, float bandEnd, unsigned int count) {
             Q_UNUSED(bandStart)
 
             *coherence /= count;
 
             if (bCollected) {
-                splinePoint[0]  = splinePoint[1];f[0] = f[1];
-                splinePoint[1]  = splinePoint[2];f[1] = f[2];
-                splinePoint[2]  = splinePoint[3];f[2] = f[3];
+                splinePoint[0]  = splinePoint[1];
+                f[0] = f[1];
+                splinePoint[1]  = splinePoint[2];
+                f[1] = f[2];
+                splinePoint[2]  = splinePoint[3];
+                f[2] = f[3];
 
                 csplinePoint[0]  = csplinePoint[1];
                 csplinePoint[1]  = csplinePoint[2];

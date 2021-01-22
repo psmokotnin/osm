@@ -22,7 +22,7 @@
 
 class SourceList;
 namespace Fftchart {
-    class Source;
+class Source;
 }
 
 class SourceModel : public QAbstractListModel
@@ -36,33 +36,42 @@ public:
     explicit SourceModel(QObject *parent = nullptr);
 
     enum {
-            SourceRole = Qt::UserRole,
-            NameRole    = 1,
-            TitleRole   = 2
-        };
+        SourceRole = Qt::UserRole,
+        NameRole    = 1,
+        TitleRole   = 2
+    };
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
 
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
-    Qt::ItemFlags flags(const QModelIndex& index) const override;
+    Qt::ItemFlags flags(const QModelIndex &index) const override;
 
     virtual QHash<int, QByteArray> roleNames() const override;
 
-    SourceList *list() const {return mList;}
+    SourceList *list() const
+    {
+        return m_list;
+    }
     void setList(SourceList *list);
 
-    bool filter() const noexcept {return m_filter;}
+    bool filter() const noexcept
+    {
+        return m_filter;
+    }
     void setFilter(bool filter) noexcept;
 
     Q_INVOKABLE int indexOf(Fftchart::Source *item) const noexcept;
     Q_INVOKABLE Fftchart::Source *get(const int &index) const noexcept;
 
-    bool addNone() const noexcept {return m_addNone;}
+    bool addNone() const noexcept
+    {
+        return m_addNone;
+    }
     void setAddNone(bool addNone) noexcept;
 
 private:
-    SourceList *mList;
+    SourceList *m_list;
     bool m_filter;
     bool m_addNone;
 

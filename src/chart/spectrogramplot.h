@@ -26,7 +26,7 @@ class SpectrogramPlot : public FrequencyBasedPlot
     Q_OBJECT
 
 protected:
-    virtual SeriesFBO* createSeriesFromSource(Source *source) override;
+    virtual SeriesFBO *createSeriesFromSource(Source *source) override;
 
 public:
     SpectrogramPlot(Settings *settings, QQuickItem *parent = Q_NULLPTR);

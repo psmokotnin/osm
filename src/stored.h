@@ -39,7 +39,10 @@ public:
     Q_INVOKABLE QJsonObject toJSON() const noexcept override;
     void fromJSON(QJsonObject data) noexcept override;
 
-    QString notes() const noexcept {return m_notes;}
+    QString notes() const noexcept
+    {
+        return m_notes;
+    }
     void setNotes(const QString &notes) noexcept;
 
 signals:

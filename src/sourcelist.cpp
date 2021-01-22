@@ -28,7 +28,7 @@
 SourceList::SourceList(QObject *parent, bool appendMeasurement) :
     QObject(parent),
     m_currentFile(),
-    colorIndex(3)
+    m_colorIndex(3)
 {
     if (appendMeasurement) {
         addMeasurement();
@@ -59,39 +59,39 @@ SourceList* SourceList::clone(QObject *parent, bool filtered) const noexcept
 }
 const QVector<Fftchart::Source*>& SourceList::items() const
 {
-    return mItems;
+    return m_items;
 }
 
 SourceList::iterator SourceList::begin() noexcept
 {
-    return mItems.begin();
+    return m_items.begin();
 }
 SourceList::iterator SourceList::end() noexcept
 {
-    return mItems.end();
+    return m_items.end();
 }
 int SourceList::count() const noexcept
 {
-    return mItems.size();
+    return m_items.size();
 }
 Fftchart::Source * SourceList::get(int i) const noexcept
 {
-    if (i < 0 || i >= mItems.size())
+    if (i < 0 || i >= m_items.size())
         return nullptr;
 
-    return mItems.at(i);
+    return m_items.at(i);
 }
 
 void SourceList::clean() noexcept
 {
-    while (mItems.size() > 0) {
+    while (m_items.size() > 0) {
         emit preItemRemoved(0);
         auto item = get(0);
-        mItems.removeAt(0);
+        m_items.removeAt(0);
         emit postItemRemoved();
         item->deleteLater();
     }
-    colorIndex = 3;
+    m_colorIndex = 3;
 }
 void SourceList::reset() noexcept
 {
@@ -108,9 +108,9 @@ bool SourceList::move(int from, int to) noexcept
     }
 
     emit preItemMoved(from, to);
-    if (mItems.size() > from) {
-        Fftchart::Source* item = mItems.takeAt(from);
-        mItems.insert((to > from ? to - 1 : to), item);
+    if (m_items.size() > from) {
+        Fftchart::Source* item = m_items.takeAt(from);
+        m_items.insert((to > from ? to - 1 : to), item);
     } else {
         qWarning() << "move element from out the bounds";
     }
@@ -121,7 +121,7 @@ bool SourceList::move(int from, int to) noexcept
 
 int SourceList::indexOf(Fftchart::Source *item) const noexcept
 {
-    return mItems.indexOf(item);
+    return m_items.indexOf(item);
 }
 bool SourceList::save(const QUrl &fileName) const noexcept
 {
@@ -135,8 +135,8 @@ bool SourceList::save(const QUrl &fileName) const noexcept
     object["type"] = "sourcelsist";
 
     QJsonArray data;
-    for (int i = 0; i < mItems.size(); ++i) {
-        auto item = mItems.at(i);
+    for (int i = 0; i < m_items.size(); ++i) {
+        auto item = m_items.at(i);
         QJsonObject itemJson;
         itemJson["type"] = item->objectName();
         itemJson["data"] = item->toJSON();
@@ -250,7 +250,7 @@ int SourceList::selectedIndex() const
 
 Fftchart::Source *SourceList::selected() const noexcept
 {
-    return mItems.value(m_selected);
+    return m_items.value(m_selected);
 }
 
 void SourceList::setSelected(int selected)
@@ -335,7 +335,7 @@ Measurement *SourceList::addMeasurement()
 }
 void SourceList::appendNone()
 {
-    mItems.prepend(nullptr);
+    m_items.prepend(nullptr);
 }
 void SourceList::appendItem(Fftchart::Source *item, bool autocolor)
 {
@@ -344,17 +344,17 @@ void SourceList::appendItem(Fftchart::Source *item, bool autocolor)
     if (autocolor) {
         item->setColor(nextColor());
     }
-    mItems.append(item);
+    m_items.append(item);
 
     emit postItemAppended(item);
 }
 void SourceList::removeItem(Fftchart::Source *item, bool deleteItem)
 {
-    for (int i = 0; i < mItems.size(); ++i) {
-        if (mItems.at(i) == item) {
+    for (int i = 0; i < m_items.size(); ++i) {
+        if (m_items.at(i) == item) {
             auto item = get(i);
             emit preItemRemoved(i);
-            mItems.removeAt(i);
+            m_items.removeAt(i);
             emit postItemRemoved();
             if (deleteItem)
                 item->deleteLater();
@@ -364,10 +364,10 @@ void SourceList::removeItem(Fftchart::Source *item, bool deleteItem)
 }
 QColor SourceList::nextColor()
 {
-    colorIndex += 3;
-    if (colorIndex >= colors.length()) {
-        colorIndex -= colors.length();
+    m_colorIndex += 3;
+    if (m_colorIndex >= m_colors.length()) {
+        m_colorIndex -= m_colors.length();
     }
 
-    return colors.at(colorIndex);
+    return m_colors.at(m_colorIndex);
 }

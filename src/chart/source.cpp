@@ -20,111 +20,111 @@
 
 using namespace Fftchart;
 Source::Source(QObject *parent) : QObject(parent),
-    _ftdata(nullptr),
-    _impulseData(nullptr),
-    _dataLength(0),
+    m_ftdata(nullptr),
+    m_impulseData(nullptr),
+    m_dataLength(0),
     m_deconvolutionSize(0),
-    _active(false)
+    m_active(false)
 {
 }
 void Source::setActive(bool active)
 {
-    if (_active != active) {
-        _active = active;
+    if (m_active != active) {
+        m_active = active;
         emit activeChanged();
     }
 }
 void Source::setName(QString name)
 {
-    if (_name != name) {
-        _name = name;
-        emit nameChanged(_name);
+    if (m_name != name) {
+        m_name = name;
+        emit nameChanged(m_name);
     }
 }
 void Source::setColor(QColor color)
 {
-    if (_color != color) {
-        _color = color;
-        emit colorChanged(_color);
+    if (m_color != color) {
+        m_color = color;
+        emit colorChanged(m_color);
     }
 }
 void Source::setGlobalColor(int globalValue)
 {
     if (globalValue < 19) {
-        _color = Qt::GlobalColor(globalValue);
-        emit colorChanged(_color);
+        m_color = Qt::GlobalColor(globalValue);
+        emit colorChanged(m_color);
     }
 }
 const float &Source::frequency(unsigned int i) const noexcept
 {
-    if (i >= _dataLength)
-        return c_zero;
-    return _ftdata[i].frequency;
+    if (i >= m_dataLength)
+        return m_zero;
+    return m_ftdata[i].frequency;
 }
 const float &Source::module(unsigned int i) const noexcept
 {
-    if (i >= _dataLength)
-        return c_zero;
-    return _ftdata[i].module;
+    if (i >= m_dataLength)
+        return m_zero;
+    return m_ftdata[i].module;
 }
 float Source::magnitude(unsigned int i) const noexcept
 {
-    if (i >= _dataLength)
-        return c_zero;
-    return 20.f * log10f(_ftdata[i].magnitude);
+    if (i >= m_dataLength)
+        return m_zero;
+    return 20.f * log10f(m_ftdata[i].magnitude);
 }
 const float &Source::magnitudeRaw(unsigned int i) const noexcept
 {
-    if (i >= _dataLength)
-        return c_zero;
-    return _ftdata[i].magnitude;
+    if (i >= m_dataLength)
+        return m_zero;
+    return m_ftdata[i].magnitude;
 }
 const complex &Source::phase(unsigned int i) const noexcept
 {
-    if (i <= _dataLength)
-        return _ftdata[i].phase;
+    if (i <= m_dataLength)
+        return m_ftdata[i].phase;
 
-    return _ftdata[0].phase;
+    return m_ftdata[0].phase;
 }
 const float &Source::coherence(unsigned int i) const noexcept
 {
-    if (i >= _dataLength)
-        return c_zero;
+    if (i >= m_dataLength)
+        return m_zero;
 
-    return _ftdata[i].coherence;
+    return m_ftdata[i].coherence;
 }
 const float &Source::impulseTime(unsigned int i) const noexcept
 {
     if (i >= m_deconvolutionSize)
-        return c_zero;
-    return _impulseData[i].time;
+        return m_zero;
+    return m_impulseData[i].time;
 }
 const float &Source::impulseValue(unsigned int i) const noexcept
 {
     if (i >= m_deconvolutionSize)
-        return c_zero;
-    return _impulseData[i].value.real;
+        return m_zero;
+    return m_impulseData[i].value.real;
 }
 void Source::copy(FTData *dataDist, TimeData *timeDist)
 {
-    std::copy_n(_ftdata, size(), dataDist);
-    std::copy_n(_impulseData, impulseSize(), timeDist);
+    std::copy_n(m_ftdata, size(), dataDist);
+    std::copy_n(m_impulseData, impulseSize(), timeDist);
 }
 
 void Source::copyFrom(size_t dataSize, size_t timeSize, Source::FTData *dataSrc, Source::TimeData *timeSrc)
 {
-    if (_ftdata) {
-        delete[] _ftdata;
+    if (m_ftdata) {
+        delete[] m_ftdata;
     }
-    if (_impulseData) {
-        delete[] _impulseData;
+    if (m_impulseData) {
+        delete[] m_impulseData;
     }
 
-    _dataLength = dataSize;
+    m_dataLength = dataSize;
     m_deconvolutionSize = timeSize;
-    _ftdata = new FTData[_dataLength];
-    _impulseData = new TimeData[m_deconvolutionSize];
+    m_ftdata = new FTData[m_dataLength];
+    m_impulseData = new TimeData[m_deconvolutionSize];
 
-    std::copy_n(dataSrc, size(), _ftdata);
-    std::copy_n(timeSrc, impulseSize(), _impulseData);
+    std::copy_n(dataSrc, size(), m_ftdata);
+    std::copy_n(timeSrc, impulseSize(), m_impulseData);
 }

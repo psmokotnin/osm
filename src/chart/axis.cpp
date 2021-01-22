@@ -32,10 +32,10 @@ vector<float> Axis::ISO_LABELS = {
 Axis::Axis(AxisDirection d, const Palette &palette, QQuickItem *parent)
     : PaintedItem(parent),
       m_palette(palette),
-      _min(0.f), _max(1.f), _scale(1.f),
-      _lowLimit(0.f), _highLimit(1.f), m_offset(0.f), m_centralLabel(0.f), m_period()
+      m_min(0.f), m_max(1.f), m_scale(1.f),
+      m_lowLimit(0.f), m_highLimit(1.f), m_offset(0.f), m_centralLabel(0.f), m_period()
 {
-    _direction = d;
+    m_direction = d;
 
     connect(parent, SIGNAL(widthChanged()), this, SLOT(parentWidthChanged()));
     connect(parent, SIGNAL(heightChanged()), this, SLOT(parentHeightChanged()));
@@ -52,12 +52,12 @@ void Axis::parentHeightChanged() {
 void Axis::configure(AxisType type, float min, float max, unsigned int ticks, float scale)
 {
     setType(type);
-    _lowLimit = min;
-    _highLimit = max;
+    m_lowLimit = min;
+    m_highLimit = max;
     setMin(min);
     setMax(max);
     setScale(scale);
-    if (type == linear) {
+    if (type == Linear) {
         autoLabels(ticks);
     }
 }
@@ -72,8 +72,8 @@ void Axis::paint(QPainter *painter) noexcept
     QPoint p1, p2;
     QRect textRect(0, 0, 50, 20), lastTextRect;
     float t;
-    float size = (_direction == horizontal ? pwidth() : pheight());
-    int alignFlag = static_cast<int>(_direction == horizontal ?
+    float size = (m_direction == Horizontal ? pwidth() : pheight());
+    int alignFlag = static_cast<int>(m_direction == Horizontal ?
                          Qt::AlignTop | Qt::AlignCenter :
                          Qt::AlignRight | Qt::AlignHCenter
                          );
@@ -84,7 +84,7 @@ void Axis::paint(QPainter *painter) noexcept
                 static_cast<int>(widthf()  - padding.left - padding.right ) + 1,
                 static_cast<int>(heightf() - padding.top  - padding.bottom) + 1
                 );
-    for_each(_labels.begin(), _labels.end(), [&](float &l) {
+    for_each(m_labels.begin(), m_labels.end(), [&](float &l) {
 
         try {
             float lv = l - m_offset / scale();
@@ -101,11 +101,11 @@ void Axis::paint(QPainter *painter) noexcept
             return; //continue
         }
 
-        p1.setX(static_cast<int>(_direction == horizontal ? t + padding.left : padding.left));
-        p2.setX(static_cast<int>(_direction == horizontal ? t + padding.left : widthf() - padding.right));
+        p1.setX(static_cast<int>(m_direction == Horizontal ? t + padding.left : padding.left));
+        p2.setX(static_cast<int>(m_direction == Horizontal ? t + padding.left : widthf() - padding.right));
 
-        p1.setY(static_cast<int>(_direction == horizontal ? heightf() - padding.bottom : heightf() - padding.bottom - t));
-        p2.setY(static_cast<int>(_direction == horizontal ? padding.top : heightf() - padding.bottom - t));
+        p1.setY(static_cast<int>(m_direction == Horizontal ? heightf() - padding.bottom : heightf() - padding.bottom - t));
+        p2.setY(static_cast<int>(m_direction == Horizontal ? padding.top : heightf() - padding.bottom - t));
 
         //do not draw lines out of padding
         if (!limit.contains(p1) || !limit.contains(p2) )
@@ -120,8 +120,8 @@ void Axis::paint(QPainter *painter) noexcept
 
         painter->setPen(textPen);
         textRect.moveTo(
-            p1.x() - (_direction == horizontal ? textRect.width() / 2 : textRect.width() + 5),
-            p1.y() - (_direction == horizontal ? 0 : textRect.height() / 2)
+            p1.x() - (m_direction == Horizontal ? textRect.width() / 2 : textRect.width() + 5),
+            p1.y() - (m_direction == Horizontal ? 0 : textRect.height() / 2)
         );
 
         //don't draw next label if it intersects lastone
@@ -133,20 +133,20 @@ void Axis::paint(QPainter *painter) noexcept
 }
 float Axis::convert(float value, float size) const
 {
-    if (_type == AxisType::logarithmic) {
+    if (m_type == AxisType::Logarithmic) {
         if (value == 0.f) {
             throw invalid_argument("Value can't be zero at logarithmic scale.");
         }
-        return size * (log(value) - log(_min)) / log(_max / _min);
+        return size * (log(value) - log(m_min)) / log(m_max / m_min);
     }
-    return size * (value - _min) / (_max - _min);
+    return size * (value - m_min) / (m_max - m_min);
 }
 float Axis::reverse(float value, float size) const noexcept
 {
-    if (_type == AxisType::logarithmic) {
-        return pow(static_cast<float>(M_E), log(_min) + value * log(_max / _min) / size);
+    if (m_type == AxisType::Logarithmic) {
+        return pow(static_cast<float>(M_E), log(m_min) + value * log(m_max / m_min) / size);
     }
-    float l = value * (_max - _min) / size + _min + m_offset / scale();
+    float l = value * (m_max - m_min) / size + m_min + m_offset / scale();
 
     if (m_period && !qFuzzyCompare(m_period.value_or(0.f), 0.f)) {
         while (std::abs(l) > m_period.value_or(0.f) / 2.f) {
@@ -158,8 +158,8 @@ float Axis::reverse(float value, float size) const noexcept
 }
 float Axis::coordToValue(float coord) const noexcept
 {
-    float size = (_direction == horizontal ? pwidth() : pheight());
-    coord = (_direction == horizontal ?
+    float size = (m_direction == Horizontal ? pwidth() : pheight());
+    coord = (m_direction == Horizontal ?
                coord - padding.left :
                static_cast<float>(height()) - coord - padding.bottom);
     return reverse(coord, size) * scale();
@@ -170,24 +170,24 @@ qreal Axis::coordToValue(qreal coord) const noexcept
 }
 void Axis::autoLabels(unsigned int ticks)
 {
-    _labels.clear();
+    m_labels.clear();
     float l, step;
     //make symetrical labels if _min and _max have different signs
-    if (std::abs(_min + _max) < std::max(abs(_min), std::abs(_max))) {
+    if (std::abs(m_min + m_max) < std::max(abs(m_min), std::abs(m_max))) {
         l = 0;
-        _labels.push_back(l);
+        m_labels.push_back(l);
         ticks --;
-        step = 2 * std::max(std::abs(_min), std::abs(_max)) / ticks;
+        step = 2 * std::max(std::abs(m_min), std::abs(m_max)) / ticks;
         for (unsigned int i = 0; i < ticks / 2; i++) {
             l += step;
-            _labels.push_back(l);
-            _labels.push_back(-1 * l);
+            m_labels.push_back(l);
+            m_labels.push_back(-1 * l);
         }
     } else {
-        l = _min;
-        step = std::abs(_max - _min) / ticks;
+        l = m_min;
+        step = std::abs(m_max - m_min) / ticks;
         for (unsigned int i = 0; i <= ticks; i++) {
-            _labels.push_back(l);
+            m_labels.push_back(l);
             l += step;
         }
     }
@@ -198,15 +198,15 @@ void Axis::needUpdate()
 }
 void Axis::setMin(float v)
 {
-    _min = std::max(_lowLimit,
-                    std::min(v, _max)
+    m_min = std::max(m_lowLimit,
+                    std::min(v, m_max)
         );
     needUpdate();
 }
 void Axis::setMax(float v)
 {
-    _max = std::min(_highLimit,
-                   std::max(v, _min)
+    m_max = std::min(m_highLimit,
+                   std::max(v, m_min)
         );
     needUpdate();
 }

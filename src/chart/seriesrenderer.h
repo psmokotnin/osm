@@ -43,7 +43,7 @@ protected:
     Source *m_source = nullptr;
     QQuickFramebufferObject *m_item = nullptr;
     QOpenGLShaderProgram m_program;
-    QOpenGLFunctions *openGLFunctions = nullptr;
+    QOpenGLFunctions *m_openGLFunctions = nullptr;
     GLfloat m_retinaScale;
     int m_colorUniform;
     GLsizei m_width, m_height;

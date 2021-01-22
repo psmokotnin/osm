@@ -33,16 +33,17 @@ Measurement::Measurement(Settings *settings, QObject *parent) : Fftchart::Source
     m_delay(0), m_setDelay(0), m_gain(1.f),
     m_estimatedDelay(0),
     m_polarity(false), m_error(false),
-    dataMeter(12000), referenceMeter(12000), //250ms
-    m_windowFunctionType(WindowFunction::Type::hann),
+    m_dataMeter(12000), m_referenceMeter(12000), //250ms
+    m_windowFunctionType(WindowFunction::Type::Hann),
     m_averageType(AverageType::LPF),
-    m_filtersFrequency(Filter::Frequency::FOURTHHZ),
+    m_filtersFrequency(Filter::Frequency::FourthHz),
     m_enableCalibration(false), m_calibrationLoaded(false), m_calibrationList(), m_calibrationGain()
 {
-    _name = "Measurement";
-    setObjectName(_name);
+    m_name = "Measurement";
+    setObjectName(m_name);
 
-    connect(&m_audioThread, SIGNAL(recived(const QByteArray&)), SLOT(writeData(const QByteArray&)), Qt::DirectConnection);
+    connect(&m_audioThread, SIGNAL(recived(const QByteArray &)), SLOT(writeData(const QByteArray &)),
+            Qt::DirectConnection);
     connect(&m_audioThread, SIGNAL(deviceChanged(QString)), this, SIGNAL(deviceChanged(QString)));
     connect(&m_audioThread, SIGNAL(formatChanged()), this, SIGNAL(chanelsCountChanged()));
     connect(&m_audioThread, SIGNAL(formatChanged()), this, SLOT(recalculateDataLength()));
@@ -51,19 +52,32 @@ Measurement::Measurement(Settings *settings, QObject *parent) : Fftchart::Source
 
     QAudioDeviceInfo device(QAudioDeviceInfo::defaultInputDevice());
     if (m_settings) {
-        setMode(        m_settings->reactValue<Measurement, Mode>(              "mode",         this,   &Measurement::modeChanged,          mode()));
-        setName(        m_settings->reactValue<Measurement, QString>(           "name",         this,   &Measurement::nameChanged,          name()).toString());
-        setColor(       m_settings->reactValue<Measurement, QColor>(            "color",        this,   &Measurement::colorChanged,         color()).value<QColor>());
-        setDelay(       m_settings->reactValue<Measurement, unsigned int>(      "delay",        this,   &Measurement::delayChanged,         delay()).toUInt());
-        setGain(        m_settings->reactValue<Measurement, float>(             "gain",         this,   &Measurement::gainChanged,          delay()).toFloat());
-        setAverageType( m_settings->reactValue<Measurement, AverageType>(       "average/type", this,   &Measurement::averageTypeChanged,   averageType()));
-        setAverage(     m_settings->reactValue<Measurement, unsigned int>(      "average/fifo", this,   &Measurement::averageChanged,       average()).toUInt());
-        setFiltersFrequency(m_settings->reactValue<Measurement, Filter::Frequency>("average/lpf", this, &Measurement::filtersFrequencyChanged, filtersFrequency()));
-        setWindowType(  m_settings->reactValue<Measurement, WindowFunction::Type>("window",     this,   &Measurement::windowTypeChanged,    m_windowFunctionType));
-        setDataChanel(  m_settings->reactValue<Measurement, unsigned int>(      "route/data",   this,   &Measurement::dataChanelChanged,    dataChanel()).toUInt());
-        setReferenceChanel(m_settings->reactValue<Measurement, unsigned int>(   "route/reference", this,&Measurement::referenceChanelChanged, referenceChanel()).toUInt());
-        setPolarity(    m_settings->reactValue<Measurement, bool>(              "polarity",     this,   &Measurement::polarityChanged,      polarity()).toBool());
-        if (!selectDevice(   m_settings->reactValue<Measurement, QString>(           "device",       this,   &Measurement::deviceChanged,        device.deviceName()).toString())) {
+        setMode(        m_settings->reactValue<Measurement, Mode>(              "mode",         this,
+                                                                                &Measurement::modeChanged,          mode()));
+        setName(        m_settings->reactValue<Measurement, QString>(           "name",         this,
+                                                                                &Measurement::nameChanged,          name()).toString());
+        setColor(       m_settings->reactValue<Measurement, QColor>(            "color",        this,
+                                                                                &Measurement::colorChanged,         color()).value<QColor>());
+        setDelay(       m_settings->reactValue<Measurement, unsigned int>(      "delay",        this,
+                                                                                &Measurement::delayChanged,         delay()).toUInt());
+        setGain(        m_settings->reactValue<Measurement, float>(             "gain",         this,
+                                                                                &Measurement::gainChanged,          delay()).toFloat());
+        setAverageType( m_settings->reactValue<Measurement, AverageType>(       "average/type", this,
+                                                                                &Measurement::averageTypeChanged,   averageType()));
+        setAverage(     m_settings->reactValue<Measurement, unsigned int>(      "average/fifo", this,
+                                                                                &Measurement::averageChanged,       average()).toUInt());
+        setFiltersFrequency(m_settings->reactValue<Measurement, Filter::Frequency>("average/lpf", this,
+                                                                                   &Measurement::filtersFrequencyChanged, filtersFrequency()));
+        setWindowType(  m_settings->reactValue<Measurement, WindowFunction::Type>("window",     this,
+                                                                                  &Measurement::windowTypeChanged,    m_windowFunctionType));
+        setDataChanel(  m_settings->reactValue<Measurement, unsigned int>(      "route/data",   this,
+                                                                                &Measurement::dataChanelChanged,    dataChanel()).toUInt());
+        setReferenceChanel(m_settings->reactValue<Measurement, unsigned int>(   "route/reference", this,
+                                                                                &Measurement::referenceChanelChanged, referenceChanel()).toUInt());
+        setPolarity(    m_settings->reactValue<Measurement, bool>(              "polarity",     this,
+                                                                                &Measurement::polarityChanged,      polarity()).toBool());
+        if (!selectDevice(   m_settings->reactValue<Measurement, QString>(           "device",       this,
+                                                                                     &Measurement::deviceChanged,        device.deviceName()).toString())) {
             selectDevice(device);
         }
     } else {
@@ -73,15 +87,15 @@ Measurement::Measurement(Settings *settings, QObject *parent) : Fftchart::Source
 
     calculateDataLength();
     m_dataFT.prepare();
-    m_moduleLPFs.resize(_dataLength);
-    m_magnitudeLPFs.resize(_dataLength);
-    m_phaseLPFs.resize(_dataLength);
+    m_moduleLPFs.resize(m_dataLength);
+    m_magnitudeLPFs.resize(m_dataLength);
+    m_phaseLPFs.resize(m_dataLength);
 
     m_deconvolution.setSize(m_deconvolutionSize);
-    _impulseData = new TimeData[m_deconvolutionSize];
+    m_impulseData = new TimeData[m_deconvolutionSize];
     m_deconvLPFs.resize(m_deconvolutionSize);
-    deconvAvg.setSize(m_deconvolutionSize);
-    deconvAvg.reset();
+    m_deconvAvg.setSize(m_deconvolutionSize);
+    m_deconvAvg.reset();
     m_coherence.setDepth(21);//Filter::BesselLPF<float>::ORDER);
 
     m_timer.setInterval(80);//12.5 per sec
@@ -124,7 +138,7 @@ QJsonObject Measurement::toJSON() const noexcept
     data["delay"]           = static_cast<int>(delay());
     data["averageType"]     = averageType();
     data["average"]         = static_cast<int>(average());
-    data["filtersFrequency"]= static_cast<int>(filtersFrequency());
+    data["filtersFrequency"] = static_cast<int>(filtersFrequency());
     data["window.type"]     = m_windowFunctionType;
     data["dataChanel"]      = static_cast<int>(dataChanel());
     data["referenceChanel"] = static_cast<int>(referenceChanel());
@@ -133,10 +147,10 @@ QJsonObject Measurement::toJSON() const noexcept
     data["mode"]            = mode();
 
     QJsonObject color;
-    color["red"]    = _color.red();
-    color["green"]  = _color.green();
-    color["blue"]   = _color.blue();
-    color["alpha"]  = _color.alpha();
+    color["red"]    = m_color.red();
+    color["green"]  = m_color.green();
+    color["blue"]   = m_color.blue();
+    color["alpha"]  = m_color.alpha();
     data["color"]   = color;
 
     QJsonObject calibration;
@@ -159,7 +173,7 @@ QJsonObject Measurement::toJSON() const noexcept
 
 void Measurement::fromJSON(QJsonObject data) noexcept
 {
-    auto castUInt = [](const QJsonValue &value, unsigned int defaultValue = 0) {
+    auto castUInt = [](const QJsonValue & value, unsigned int defaultValue = 0) {
         return static_cast<unsigned int>(value.toInt(static_cast<int>(defaultValue)));
     };
 
@@ -171,10 +185,10 @@ void Measurement::fromJSON(QJsonObject data) noexcept
 
     auto jsonColor = data["color"].toObject();
     QColor c(
-                jsonColor["red"     ].toInt(0),
-                jsonColor["green"   ].toInt(0),
-                jsonColor["blue"    ].toInt(0),
-                jsonColor["alpha"   ].toInt(1));
+        jsonColor["red"     ].toInt(0),
+        jsonColor["green"   ].toInt(0),
+        jsonColor["blue"    ].toInt(0),
+        jsonColor["alpha"   ].toInt(1));
     setColor(c);
 
     setName(             data["name"             ].toString(name()));
@@ -193,9 +207,9 @@ void Measurement::fromJSON(QJsonObject data) noexcept
         for (auto calibrationRowRef : calibrationListJson) {
             auto calibrationRowJson = calibrationRowRef.toArray();
             float
-                    frequency   = static_cast<float>(calibrationRowJson[0].toDouble(0.0)),
-                    gain        = static_cast<float>(calibrationRowJson[1].toDouble(0.0)),
-                    phase       = static_cast<float>(calibrationRowJson[2].toDouble(0.0));
+            frequency   = static_cast<float>(calibrationRowJson[0].toDouble(0.0)),
+            gain        = static_cast<float>(calibrationRowJson[1].toDouble(0.0)),
+            phase       = static_cast<float>(calibrationRowJson[2].toDouble(0.0));
             QVector<float> calibrationData;
             calibrationData << frequency << gain << phase;
             m_calibrationList << calibrationData;
@@ -221,7 +235,8 @@ QVariant Measurement::getDeviceList() const
     format44 = format48;
     format44.setSampleRate(44100);
 
-    foreach (const QAudioDeviceInfo &deviceInfo, QAudioDeviceInfo::availableDevices(QAudio::AudioInput)) {
+    foreach (const QAudioDeviceInfo &deviceInfo,
+             QAudioDeviceInfo::availableDevices(QAudio::AudioInput)) {
         if (deviceInfo.isFormatSupported(format44) || deviceInfo.isFormatSupported(format48)) {
             deviceList << deviceInfo.deviceName();
         }
@@ -241,7 +256,8 @@ bool Measurement::selectDevice(const QString &name)
     if (devices.indexOf(name) == -1) {
         return false;
     }
-    foreach (const QAudioDeviceInfo &deviceInfo, QAudioDeviceInfo::availableDevices(QAudio::AudioInput)) {
+    foreach (const QAudioDeviceInfo &deviceInfo,
+             QAudioDeviceInfo::availableDevices(QAudio::AudioInput)) {
         if (name == deviceInfo.deviceName()) {
             selectDevice(deviceInfo);
             return true;
@@ -252,11 +268,11 @@ bool Measurement::selectDevice(const QString &name)
 void Measurement::selectDevice(const QAudioDeviceInfo &deviceInfo)
 {
     QMetaObject::invokeMethod(
-                &m_audioThread,
-                "selectDevice",
-                Qt::QueuedConnection,
-                Q_ARG(QAudioDeviceInfo, deviceInfo),
-                Q_ARG(bool, active())
+        &m_audioThread,
+        "selectDevice",
+        Qt::QueuedConnection,
+        Q_ARG(QAudioDeviceInfo, deviceInfo),
+        Q_ARG(bool, active())
     );
 }
 void Measurement::setDataChanel(unsigned int n)
@@ -297,8 +313,8 @@ void Measurement::updateFftPower()
 
     switch (m_currentMode) {
     case Mode::LFT:
-         m_dataFT.setType(FourierTransform::Log);
-         break;
+        m_dataFT.setType(FourierTransform::Log);
+        break;
 
     default:
         m_dataFT.setSize(pow(2, FFTsizes[m_currentMode]));
@@ -307,9 +323,9 @@ void Measurement::updateFftPower()
     m_dataFT.prepare();
     calculateDataLength();
 
-    moduleAvg.setSize(size());
-    magnitudeAvg.setSize(size());
-    pahseAvg.setSize(size());
+    m_moduleAvg.setSize(size());
+    m_magnitudeAvg.setSize(size());
+    m_pahseAvg.setSize(size());
     m_coherence.setSize(size());
 
     m_moduleLPFs.resize(size());
@@ -337,7 +353,7 @@ void Measurement::setFiltersFrequency(Filter::Frequency frequency)
 }
 void Measurement::recalculateDataLength()
 {
-    std::lock_guard<std::mutex> guard(dataMutex);
+    std::lock_guard<std::mutex> guard(m_dataMutex);
     calculateDataLength();
 }
 float Measurement::gain() const
@@ -357,36 +373,36 @@ void Measurement::setGain(float gain)
 void Measurement::calculateDataLength()
 {
     auto frequencyList = m_dataFT.getFrequencies(sampleRate());
-    _dataLength = frequencyList.size();
+    m_dataLength = frequencyList.size();
 
-    if (_ftdata)
-        delete[] _ftdata;
-    _ftdata = new FTData[_dataLength];
+    if (m_ftdata)
+        delete[] m_ftdata;
+    m_ftdata = new FTData[m_dataLength];
     unsigned int i = 0;
     for (auto frequency : frequencyList) {
-        _ftdata[i++].frequency = frequency;
+        m_ftdata[i++].frequency = frequency;
     }
     applyCalibration();
 }
 void Measurement::setActive(bool active)
 {
-    if (active == _active)
+    if (active == m_active)
         return;
-    std::lock_guard<std::mutex> guard(dataMutex);
+    std::lock_guard<std::mutex> guard(m_dataMutex);
 
     Fftchart::Source::setActive(active);
     m_error = false;
     emit errorChanged(m_error);
 
     QMetaObject::invokeMethod(
-                &m_audioThread,
-                "setActive",
-                Qt::QueuedConnection,
-                Q_ARG(bool, active)
+        &m_audioThread,
+        "setActive",
+        Qt::QueuedConnection,
+        Q_ARG(bool, active)
     );
 
-    dataMeter.reset();
-    referenceMeter.reset();
+    m_dataMeter.reset();
+    m_referenceMeter.reset();
     emit levelChanged();
     emit referenceLevelChanged();
 }
@@ -394,8 +410,8 @@ void Measurement::setError()
 {
     Fftchart::Source::setActive(false);
     m_error = true;
-    dataMeter.reset();
-    referenceMeter.reset();
+    m_dataMeter.reset();
+    m_referenceMeter.reset();
     emit errorChanged(m_error);
     emit levelChanged();
     emit referenceLevelChanged();
@@ -415,9 +431,9 @@ void Measurement::updateDelay()
         delta = std::abs(delta);
         for (long i = 0; i != delta; ++i) {
             if (direction) {
-                reference.push(0.f);
+                m_reference.push(0.f);
             } else {
-                data.push(0.f);
+                m_data.push(0.f);
             }
         }
         emit delayChanged(m_delay);
@@ -426,12 +442,12 @@ void Measurement::updateDelay()
 void Measurement::setAverage(unsigned int average)
 {
     if (m_average != average) {
-        std::lock_guard<std::mutex> guard(dataMutex);
+        std::lock_guard<std::mutex> guard(m_dataMutex);
         m_average = average;
-        deconvAvg.setDepth(m_average);
-        moduleAvg.setDepth(m_average);
-        magnitudeAvg.setDepth(m_average);
-        pahseAvg.setDepth(m_average);
+        m_deconvAvg.setDepth(m_average);
+        m_moduleAvg.setDepth(m_average);
+        m_magnitudeAvg.setDepth(m_average);
+        m_pahseAvg.setDepth(m_average);
         emit averageChanged(m_average);
     }
 }
@@ -445,7 +461,7 @@ void Measurement::setPolarity(bool polarity)
 void Measurement::setAverageType(AverageType type)
 {
     if (m_averageType != type) {
-        std::lock_guard<std::mutex> guard(dataMutex);
+        std::lock_guard<std::mutex> guard(m_dataMutex);
         m_averageType = type;
         emit averageTypeChanged(m_averageType);
     }
@@ -461,30 +477,30 @@ void Measurement::setWindowType(WindowFunction::Type type)
         m_dataFT.setWindowFunctionType(m_windowFunctionType);
         m_deconvolution.setWindowFunctionType(m_windowFunctionType);
         {
-            std::lock_guard<std::mutex> guard(dataMutex);
+            std::lock_guard<std::mutex> guard(m_dataMutex);
             m_dataFT.prepare();
         }
         emit windowTypeChanged(m_windowFunctionType);
     }
 }
-void Measurement::writeData(const QByteArray& buffer)
+void Measurement::writeData(const QByteArray &buffer)
 {
     float sample;
     auto totalChanels = static_cast<unsigned int>(m_audioThread.format().channelCount());
     unsigned int currentChanel = 0;
-    std::lock_guard<std::mutex> guard(dataMutex);
+    std::lock_guard<std::mutex> guard(m_dataMutex);
     for (auto it = buffer.begin(); it != buffer.end(); ++it) {
 
         if (currentChanel == dataChanel()) {
             memcpy(&sample, it, sizeof(float));
-            data.pushnpop((m_polarity ? -1 * sample : sample), 48000);
-            dataMeter.add(sample);
+            m_data.pushnpop((m_polarity ? -1 * sample : sample), 48000);
+            m_dataMeter.add(sample);
         }
 
         if (currentChanel == referenceChanel()) {
             memcpy(&sample, it, sizeof(float));
-            reference.pushnpop(sample, 48000);
-            referenceMeter.add(sample);
+            m_reference.pushnpop(sample, 48000);
+            m_referenceMeter.add(sample);
         }
         ++currentChanel;
         if (currentChanel >= totalChanels) {
@@ -495,7 +511,7 @@ void Measurement::writeData(const QByteArray& buffer)
 }
 void Measurement::transform()
 {
-    if (!_active || m_error)
+    if (!m_active || m_error)
         return;
 
     lock();
@@ -503,9 +519,9 @@ void Measurement::transform()
     updateDelay();
 
     float d, r;
-    while (data.size() > 0 && reference.size() > 0) {
-        d = data.pop() * m_gain;
-        r = reference.pop();
+    while (m_data.size() > 0 && m_reference.size() > 0) {
+        d = m_data.pop() * m_gain;
+        r = m_reference.pop();
 
         m_dataFT.add(d, r);
         m_deconvolution.add(r, d);
@@ -523,7 +539,7 @@ void Measurement::averaging()
 {
     complex p;
     int j;
-    for (unsigned int i = 0; i < _dataLength ; i++) {
+    for (unsigned int i = 0; i < m_dataLength ; i++) {
 
         j = static_cast<int>(i);
         float calibratedA = m_dataFT.af(i).abs();
@@ -539,7 +555,7 @@ void Measurement::averaging()
 
         float magnitude = calibratedA / m_dataFT.bf(i).abs();
 #ifdef WIN64
-        if (magnitude/0.f == magnitude) {
+        if (magnitude / 0.f == magnitude) {
 #else
         if (std::isnan(magnitude) || std::isinf(magnitude)) {
 #endif
@@ -547,31 +563,31 @@ void Measurement::averaging()
         }
 
         switch (averageType()) {
-            case AverageType::OFF:
-                _ftdata[i].magnitude = magnitude;
-                _ftdata[i].module    = calibratedA;
-                _ftdata[i].phase     = p;
+        case AverageType::Off:
+            m_ftdata[i].magnitude = magnitude;
+            m_ftdata[i].module    = calibratedA;
+            m_ftdata[i].phase     = p;
             break;
 
-            case AverageType::LPF:
-                _ftdata[i].magnitude = m_magnitudeLPFs[i](magnitude);
-                _ftdata[i].module    = m_moduleLPFs[i](calibratedA);
-                _ftdata[i].phase     = m_phaseLPFs[i](p);
+        case AverageType::LPF:
+            m_ftdata[i].magnitude = m_magnitudeLPFs[i](magnitude);
+            m_ftdata[i].module    = m_moduleLPFs[i](calibratedA);
+            m_ftdata[i].phase     = m_phaseLPFs[i](p);
             break;
 
-            case AverageType::FIFO:
-                magnitudeAvg.append(i, magnitude );
-                moduleAvg.append(i,    calibratedA );
-                pahseAvg.append(i,     p);
+        case AverageType::FIFO:
+            m_magnitudeAvg.append(i, magnitude );
+            m_moduleAvg.append(i,    calibratedA );
+            m_pahseAvg.append(i,     p);
 
-                _ftdata[i].magnitude = magnitudeAvg.value(i);
-                _ftdata[i].module    = moduleAvg.value(i);
-                _ftdata[i].phase     = pahseAvg.value(i);
+            m_ftdata[i].magnitude = m_magnitudeAvg.value(i);
+            m_ftdata[i].module    = m_moduleAvg.value(i);
+            m_ftdata[i].phase     = m_pahseAvg.value(i);
             break;
         }
 
         m_coherence.append(i, m_dataFT.bf(i), m_dataFT.af(i));
-        _ftdata[i].coherence = m_coherence.value(i);
+        m_ftdata[i].coherence = m_coherence.value(i);
     }
 
     int t = 0;
@@ -585,23 +601,23 @@ void Measurement::averaging()
         }
 
         switch (averageType()) {
-            case AverageType::OFF:
-                _impulseData[j].value.real = m_deconvolution.get(i);
+        case AverageType::Off:
+            m_impulseData[j].value.real = m_deconvolution.get(i);
             break;
-            case AverageType::LPF:
-                _impulseData[j].value.real = m_deconvLPFs[i](m_deconvolution.get(i));
+        case AverageType::LPF:
+            m_impulseData[j].value.real = m_deconvLPFs[i](m_deconvolution.get(i));
             break;
-            case AverageType::FIFO:
-                deconvAvg.append(i, m_deconvolution.get(i));
-                _impulseData[j].value.real = deconvAvg.value(i);
+        case AverageType::FIFO:
+            m_deconvAvg.append(i, m_deconvolution.get(i));
+            m_impulseData[j].value.real = m_deconvAvg.value(i);
             break;
         }
 
-        if (max < abs(_impulseData[j].value.real)) {
-            max = abs(_impulseData[j].value.real);
+        if (max < abs(m_impulseData[j].value.real)) {
+            max = abs(m_impulseData[j].value.real);
             m_estimatedDelay = i;
         }
-        _impulseData[j].time  = t * kt;//ms
+        m_impulseData[j].time  = t * kt;//ms
     }
     emit estimatedChanged();
 }
@@ -612,19 +628,22 @@ QObject *Measurement::store()
 
     QString avg;
     switch (m_averageType) {
-    case OFF:
+    case Off:
         avg = "none";
         break;
     case LPF:
         avg = "LPF ";
         switch (m_filtersFrequency) {
-        case Filter::Frequency::FOURTHHZ: ;
+        case Filter::Frequency::FourthHz:
+            ;
             avg += "0.25 Hz";
             break;
-        case Filter::Frequency::HALFHZ: ;
+        case Filter::Frequency::HalfHz:
+            ;
             avg += "0.5 Hz";
             break;
-        case Filter::Frequency::ONEHZ: ;
+        case Filter::Frequency::OneHz:
+            ;
             avg += "1 Hz";
             break;
         }
@@ -708,27 +727,26 @@ void Measurement::applyCalibration()
     if (!m_calibrationLoaded || !m_calibrationList.size())
         return;
 
-    m_calibrationGain.resize(static_cast<int>(_dataLength));
-    m_calibrationPhase.resize(static_cast<int>(_dataLength));
+    m_calibrationGain.resize(static_cast<int>(m_dataLength));
+    m_calibrationPhase.resize(static_cast<int>(m_dataLength));
 
     QVector<float> last = m_calibrationList[0];
     last[0] = 0.f;
 
     int j = 0;
     float
-            kg, bg, kp, bp,
-            g1, g2, f1, f2, p1, p2,
-            g, p;
+    kg, bg, kp, bp,
+    g1, g2, f1, f2, p1, p2,
+    g, p;
     bool inList = false;
-    for (int i = 0; i < static_cast<int>(_dataLength); ++i) {
+    for (int i = 0; i < static_cast<int>(m_dataLength); ++i) {
 
-        while (_ftdata[i].frequency > m_calibrationList[j][0]) {
+        while (m_ftdata[i].frequency > m_calibrationList[j][0]) {
             last = m_calibrationList[j];
             if (j + 1 < m_calibrationList.size()) {
                 ++j;
                 inList = true;
-            }
-            else {
+            } else {
                 inList = false;
                 break;
             }
@@ -748,8 +766,8 @@ void Measurement::applyCalibration()
             kp = (p2 - p1) / (f2 - f1);
             bp = p2 - f2 * kp;
 
-            g = kg * _ftdata[i].frequency + bg;
-            p = kp * _ftdata[i].frequency + bp;
+            g = kg * m_ftdata[i].frequency + bg;
+            p = kp * m_ftdata[i].frequency + bp;
         } else {
             g = m_calibrationList[j][1];
             p = m_calibrationList[j][2];
@@ -761,13 +779,15 @@ void Measurement::applyCalibration()
 }
 void Measurement::resetAverage() noexcept
 {
-    std::lock_guard<std::mutex> guard(dataMutex);
-    deconvAvg.reset();
-    moduleAvg.reset();
-    magnitudeAvg.reset();
-    pahseAvg.reset();
+    std::lock_guard<std::mutex> guard(m_dataMutex);
+    m_deconvAvg.reset();
+    m_moduleAvg.reset();
+    m_magnitudeAvg.reset();
+    m_pahseAvg.reset();
 
-    auto reset = [](auto *f) {f->reset();};
+    auto reset = [](auto * f) {
+        f->reset();
+    };
     m_moduleLPFs.each(reset);
     m_magnitudeLPFs.each(reset);
     m_deconvLPFs.each(reset);

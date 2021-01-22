@@ -29,11 +29,11 @@ Stored::Stored(QObject *parent) : Fftchart::Source(parent), m_notes()
 void Stored::build (Fftchart::Source *source)
 {
     source->lock();
-    _dataLength = source->size();
+    m_dataLength = source->size();
     m_deconvolutionSize = source->impulseSize();
-    _ftdata = new FTData[_dataLength];
-    _impulseData = new TimeData[m_deconvolutionSize];
-    source->copy(_ftdata, _impulseData);
+    m_ftdata = new FTData[m_dataLength];
+    m_impulseData = new TimeData[m_deconvolutionSize];
+    source->copy(m_ftdata, m_impulseData);
     source->unlock();
     emit readyRead();
 }
@@ -45,22 +45,22 @@ QJsonObject Stored::toJSON() const noexcept
     object["notes"]     = notes();
 
     QJsonObject color;
-    color["red"]    = _color.red();
-    color["green"]  = _color.green();
-    color["blue"]   = _color.blue();
-    color["alpha"]  = _color.alpha();
+    color["red"]    = m_color.red();
+    color["green"]  = m_color.green();
+    color["blue"]   = m_color.blue();
+    color["alpha"]  = m_color.alpha();
     object["color"] = color;
 
     QJsonArray ftdata;
-    for (unsigned int i = 0; i < _dataLength; ++i) {
+    for (unsigned int i = 0; i < m_dataLength; ++i) {
 
         //frequecy, module, magnitude, phase, coherence
         QJsonArray ftcell;
-        ftcell.append(static_cast<double>(_ftdata[i].frequency  ));
-        ftcell.append(static_cast<double>(_ftdata[i].module     ));
-        ftcell.append(static_cast<double>(_ftdata[i].magnitude  ));
-        ftcell.append(static_cast<double>(_ftdata[i].phase.arg()));
-        ftcell.append(static_cast<double>(_ftdata[i].coherence  ));
+        ftcell.append(static_cast<double>(m_ftdata[i].frequency  ));
+        ftcell.append(static_cast<double>(m_ftdata[i].module     ));
+        ftcell.append(static_cast<double>(m_ftdata[i].magnitude  ));
+        ftcell.append(static_cast<double>(m_ftdata[i].phase.arg()));
+        ftcell.append(static_cast<double>(m_ftdata[i].coherence  ));
 
         ftdata.append(ftcell);
     }
@@ -84,24 +84,24 @@ void Stored::fromJSON(QJsonObject data) noexcept
     auto ftdata         = data["ftdata"].toArray();
     auto impulse        = data["impulse"].toArray();
 
-    _dataLength         = static_cast<unsigned int>(ftdata.count());
+    m_dataLength         = static_cast<unsigned int>(ftdata.count());
     m_deconvolutionSize = static_cast<unsigned int>(impulse.count());
-    _ftdata             = new FTData[_dataLength];
-    _impulseData        = new TimeData[m_deconvolutionSize];
+    m_ftdata             = new FTData[m_dataLength];
+    m_impulseData        = new TimeData[m_deconvolutionSize];
 
     for (int i = 0; i < ftdata.count(); i++) {
         auto row = ftdata[i].toArray();
-        _ftdata[i].frequency    = static_cast<float>(row[0].toDouble());
-        _ftdata[i].module       = static_cast<float>(row[1].toDouble());
-        _ftdata[i].magnitude    = static_cast<float>(row[2].toDouble());
-        _ftdata[i].phase.polar(   static_cast<float>(row[3].toDouble()));
-        _ftdata[i].coherence    = static_cast<float>(row[4].toDouble());
+        m_ftdata[i].frequency    = static_cast<float>(row[0].toDouble());
+        m_ftdata[i].module       = static_cast<float>(row[1].toDouble());
+        m_ftdata[i].magnitude    = static_cast<float>(row[2].toDouble());
+        m_ftdata[i].phase.polar(   static_cast<float>(row[3].toDouble()));
+        m_ftdata[i].coherence    = static_cast<float>(row[4].toDouble());
     }
 
     for (int i = 0; i < impulse.count(); i++) {
         auto row = impulse[i].toArray();
-        _impulseData[i].time    = static_cast<float>(row[0].toDouble());
-        _impulseData[i].value   = static_cast<float>(row[1].toDouble());
+        m_impulseData[i].time    = static_cast<float>(row[0].toDouble());
+        m_impulseData[i].value   = static_cast<float>(row[1].toDouble());
     }
 
     auto jsonColor = data["color"].toObject();
@@ -143,10 +143,10 @@ bool Stored::saveCal(const QUrl &fileName) const noexcept
     }
 
     QTextStream out(&saveFile);
-    for (unsigned int i = 0; i < _dataLength; ++i) {
-        out << _ftdata[i].frequency << "\t"
+    for (unsigned int i = 0; i < m_dataLength; ++i) {
+        out << m_ftdata[i].frequency << "\t"
             << -1 * magnitude(i) << "\t"
-            << _ftdata[i].phase.arg() * -180.f / static_cast<float>(M_PI) << "\n";
+            << m_ftdata[i].phase.arg() * -180.f / static_cast<float>(M_PI) << "\n";
 
 
     }
@@ -163,11 +163,11 @@ bool Stored::saveFRD(const QUrl &fileName) const noexcept
     }
 
     QTextStream out(&saveFile);
-    for (unsigned int i = 1; i < _dataLength; ++i) {
+    for (unsigned int i = 1; i < m_dataLength; ++i) {
         auto m = magnitude(i);
-        auto p = _ftdata[i].phase.arg() * 180.f / static_cast<float>(M_PI);
+        auto p = m_ftdata[i].phase.arg() * 180.f / static_cast<float>(M_PI);
         if (std::isnormal(m) && std::isnormal(p)) {
-            out << _ftdata[i].frequency << " " << m << " " << p << " " << coherence(i) << "\n";
+            out << m_ftdata[i].frequency << " " << m << " " << p << " " << coherence(i) << "\n";
         }
 
 
@@ -188,11 +188,11 @@ bool Stored::saveTXT(const QUrl &fileName) const noexcept
     notes.replace("\t", " ");
     out << notes << "\n\n";
 
-    for (unsigned int i = 1; i < _dataLength; ++i) {
+    for (unsigned int i = 1; i < m_dataLength; ++i) {
         auto m = magnitude(i);
-        auto p = _ftdata[i].phase.arg() * 180.f / static_cast<float>(M_PI);
+        auto p = m_ftdata[i].phase.arg() * 180.f / static_cast<float>(M_PI);
         if (std::isnormal(m) && std::isnormal(p)) {
-            out << _ftdata[i].frequency << "\t" << m << "\t" << p << "\t" << coherence(i) << "\n";
+            out << m_ftdata[i].frequency << "\t" << m << "\t" << p << "\t" << coherence(i) << "\n";
         }
 
 

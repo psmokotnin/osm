@@ -20,31 +20,36 @@
 
 #include <cmath>
 #include <mutex>
+#include <QtGlobal>
 
 namespace container {
-template<typename T> class array {
+template<typename T> class array
+{
 
 private:
-    T* m_data;
+    T *m_data;
     size_t m_size;
 
 public:
-    array() :m_data(nullptr), m_size(0) {}
-    array(size_t size, T value) :m_data(nullptr), m_size(0)
+    array() : m_data(nullptr), m_size(0) {}
+    array(size_t size, T value) : m_data(nullptr), m_size(0)
     {
         resize(size, value);
     }
 
-    ~array() {
+    ~array()
+    {
         delete[] m_data;
     }
 
-    size_t size() const {
+    size_t size() const
+    {
         return m_size;
     }
 
     //! reallocate memory for the array
-    void resize(const size_t &size) {
+    void resize(const size_t &size)
+    {
         if (size != m_size) {
             if (m_data) delete[] m_data;
             m_data = new T[size];
@@ -53,7 +58,8 @@ public:
     }
 
     //! resize array and fill with value
-    void resize(const size_t &size, const T &value) {
+    void resize(const size_t &size, const T &value)
+    {
         resize(size);
         fill(value);
     }
@@ -69,21 +75,25 @@ public:
         }
     }
 
-    T* pat(const unsigned int &i) const {
+    T *pat(const unsigned int &i) const
+    {
         Q_ASSERT(i < m_size);
         return &m_data[i];
     }
 
-    T& operator [](const unsigned int &i) {
+    T &operator [](const unsigned int &i)
+    {
         Q_ASSERT(i < m_size);
         return m_data[i];
     }
-    const T& operator [](const unsigned int &i) const {
+    const T &operator [](const unsigned int &i) const
+    {
         Q_ASSERT(i < m_size);
         return m_data[i];
     }
 
-    void each(std::function<void(T*)> f) {
+    void each(std::function<void(T *)> f)
+    {
         if (!m_data)
             return;
 

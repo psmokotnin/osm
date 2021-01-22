@@ -25,41 +25,47 @@ class Settings : public QObject
 {
     Q_OBJECT
 
-    static QSettings* m_settings;
+    static QSettings *m_settings;
     QString m_group;
 
 public:
     explicit Settings(const QString &group = "", QObject *parent = nullptr);
-    QSettings *parent() {return dynamic_cast<QSettings*>(QObject::parent());}
+    QSettings *parent()
+    {
+        return dynamic_cast<QSettings *>(QObject::parent());
+    }
     Q_INVOKABLE void setValue(const QString &key, const QVariant &value);
     Q_INVOKABLE QVariant value(const QString &key, const QVariant &defaultValue = QVariant());
     Q_INVOKABLE Settings *getGroup(const QString &groupName);
 
     template <typename C, typename T>
     QVariant reactValue(
-            const QString &key,
-            const C *sender,
-            void (C::* signal)(T),
-            const QVariant &defaultValue = QVariant())
+        const QString &key,
+        const C *sender,
+        void (C::* signal)(T),
+        const QVariant &defaultValue = QVariant())
     {
-       connect(sender, signal, [t = this, key = key](const T &newvalue) {
-           t->setValue(key, newvalue);
-       });
-       return value(key, defaultValue);
+        connect(sender, signal, [t = this, key = key](const T & newvalue) {
+            t->setValue(key, newvalue);
+        });
+        return value(key, defaultValue);
     }
 
 
 protected:
-    class group_guard {
-        QString guarded;
+    class group_guard
+    {
+        QString m_guarded;
 
     public:
-        explicit group_guard(const QString &name): guarded(name) {
-            if (!guarded.isEmpty())
-                m_settings->beginGroup(guarded);
+        explicit group_guard(const QString &name): m_guarded(name)
+        {
+            if (!m_guarded.isEmpty())
+                m_settings->beginGroup(m_guarded);
         }
-        ~group_guard() {
-            if (!guarded.isEmpty())
+        ~group_guard()
+        {
+            if (!m_guarded.isEmpty())
                 m_settings->endGroup();
         }
     };

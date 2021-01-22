@@ -37,7 +37,7 @@ class VariableChart : public QQuickItem
     Q_PROPERTY(bool darkMode READ darkMode WRITE setDarkMode)
 
 private:
-    Plot * s_plot;
+    Plot *m_plot;
     SourceList *m_sources;
     Settings *m_settings;
     Type m_selected;
@@ -52,20 +52,35 @@ public:
     void setType(const Type &type);
     void setTypeByString(const QString &type);
 
-    Settings *settings() const noexcept {return m_settings;}
+    Settings *settings() const noexcept
+    {
+        return m_settings;
+    }
     void setSettings(Settings *settings) noexcept;
 
     Q_INVOKABLE void appendDataSource(Source *source);
     Q_INVOKABLE void removeDataSource(Source *source);
     Q_INVOKABLE void setSourceZIndex(Source *source, int index);
-    Plot* plot() {return s_plot;}
+    Plot *plot()
+    {
+        return m_plot;
+    }
 
-    Q_INVOKABLE QString urlForGrab(QUrl url) const {return url.toLocalFile();}
+    Q_INVOKABLE QString urlForGrab(QUrl url) const
+    {
+        return url.toLocalFile();
+    }
 
-    SourceList *sources() const {return m_sources;}
+    SourceList *sources() const
+    {
+        return m_sources;
+    }
     void setSources(SourceList *sourceList);
 
-    bool darkMode() const noexcept {return m_darkMode;}
+    bool darkMode() const noexcept
+    {
+        return m_darkMode;
+    }
     void setDarkMode(bool) noexcept;
 
 public slots:

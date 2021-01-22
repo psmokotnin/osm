@@ -27,17 +27,16 @@ class MeasurementAudioThread : public QThread
     Q_OBJECT
 
 private:
-    QAudioInput* m_audio;
+    QAudioInput *m_audio;
 
     QAudioDeviceInfo m_device;
     QAudioFormat m_format;
 
-    unsigned int
-        m_chanelCount = 2,   //how many chanels will be presented in writeData
-        m_maxChanelCount = 2,//max supported channels by selected device
-        m_dataChanel = 0,
-        m_referenceChanel = 1
-    ;
+    unsigned int m_chanelCount = 2,   //how many chanels will be presented in writeData
+                 m_maxChanelCount = 2,//max supported channels by selected device
+                 m_dataChanel = 0,
+                 m_referenceChanel = 1
+                                     ;
     int m_sampleRate;
     bool m_try = false;
 
@@ -46,20 +45,50 @@ private:
 public:
     explicit MeasurementAudioThread(QObject *parent);
 
-    QAudioFormat format() const {return m_format;}
-    QAudioDeviceInfo device() const {return m_device;}
-    unsigned int chanelsCount() const {return m_maxChanelCount;}
+    QAudioFormat format() const
+    {
+        return m_format;
+    }
+    QAudioDeviceInfo device() const
+    {
+        return m_device;
+    }
+    unsigned int chanelsCount() const
+    {
+        return m_maxChanelCount;
+    }
 
-    unsigned int referenceChanel() const {return m_referenceChanel;}
-    void setReferenceChanel(unsigned int n) {m_referenceChanel = n;}
+    unsigned int referenceChanel() const
+    {
+        return m_referenceChanel;
+    }
+    void setReferenceChanel(unsigned int n)
+    {
+        m_referenceChanel = n;
+    }
 
-    unsigned int dataChanel() const {return m_dataChanel;}
-    void setDataChanel(unsigned int n) {m_dataChanel = n;}
+    unsigned int dataChanel() const
+    {
+        return m_dataChanel;
+    }
+    void setDataChanel(unsigned int n)
+    {
+        m_dataChanel = n;
+    }
 
-    int bufferSize() const {return m_audio->bufferSize();}
-    int bytesReady() const {return  m_audio->bytesReady();}
+    int bufferSize() const
+    {
+        return m_audio->bufferSize();
+    }
+    int bytesReady() const
+    {
+        return  m_audio->bytesReady();
+    }
 
-    int sampleRate() const noexcept {return m_sampleRate;}
+    int sampleRate() const noexcept
+    {
+        return m_sampleRate;
+    }
 
 public slots:
     void setActive(bool active);
@@ -69,7 +98,7 @@ public slots:
 
 signals:
     void deviceChanged(QString);
-    void recived(const QByteArray&);
+    void recived(const QByteArray &);
     void formatChanged();
     void started();
     void stopped();

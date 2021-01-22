@@ -22,12 +22,12 @@ using namespace Fftchart;
 
 SpectrogramPlot::SpectrogramPlot(Settings *settings, QQuickItem *parent): FrequencyBasedPlot(settings, parent)
 {
-    x.configure(AxisType::logarithmic, 20.f, 20000.f);
-    x.setISOLabels();
-    y.configure(AxisType::linear, 0.f,    4.f,  4);
+    m_x.configure(AxisType::Logarithmic, 20.f, 20000.f);
+    m_x.setISOLabels();
+    m_y.configure(AxisType::Linear, 0.f,    4.f,  4);
     setPointsPerOctave(48);
     setFlag(QQuickItem::ItemHasContents);
-    y.setCentralLabel(y.min() - 1.f);
+    m_y.setCentralLabel(m_y.min() - 1.f);
     connect(this, SIGNAL(pointsPerOctaveChanged(unsigned int)), this, SLOT(update()));
 }
 SeriesFBO* SpectrogramPlot::createSeriesFromSource(Source *source)

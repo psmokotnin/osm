@@ -19,15 +19,15 @@
 #include "averaging.h"
 
 template <> void Averaging<complex>::checkDepth(unsigned int i) {
-    while (data.pat(i)->size() > m_depth) {
-        m_value[i] -= data.pat(i)->front();
-        data.pat(i)->pop();
+    while (m_data.pat(i)->size() > m_depth) {
+        m_value[i] -= m_data.pat(i)->front();
+        m_data.pat(i)->pop();
         m_collected[i]--;
     }
 };
 template<> void Averaging<complex>::append(unsigned int i, const complex &value)
 {
-    data.pat(i)->push(value);
+    m_data.pat(i)->push(value);
     m_value[i] += value;
     m_collected[i]++;
     checkDepth(i);
@@ -41,8 +41,8 @@ template <> complex Averaging<complex>::value(unsigned int i)
 };
 
 template <> void Averaging<float>::checkDepth(unsigned int i) {
-    while (data.pat(i)->size() > m_depth) {
-        float value = data.pat(i)->front();
+    while (m_data.pat(i)->size() > m_depth) {
+        float value = m_data.pat(i)->front();
 #ifdef WIN64
         if (value/0.f != value) {
 #else
@@ -51,12 +51,12 @@ template <> void Averaging<float>::checkDepth(unsigned int i) {
             m_value[i] -= value;
             m_collected[i]--;
         }
-        data.pat(i)->pop();
+        m_data.pat(i)->pop();
     }
 };
 template<> void Averaging<float>::append(unsigned int i, const float &value)
 {
-    data.pat(i)->push(value);
+    m_data.pat(i)->push(value);
 #ifdef WIN64
         if (value/0.f != value) {
 #else
@@ -76,15 +76,15 @@ template <> float Averaging<float>::value(unsigned int i)
 };
 
 template <> void Averaging<unsigned int>::checkDepth(unsigned int i) {
-    while (data.pat(i)->size() > m_depth) {
-        m_value[i] -= data.pat(i)->front();
-        data.pat(i)->pop();
+    while (m_data.pat(i)->size() > m_depth) {
+        m_value[i] -= m_data.pat(i)->front();
+        m_data.pat(i)->pop();
         m_collected[i]--;
     }
 };
 template<> void Averaging<unsigned int>::append(unsigned int i, const unsigned int &value)
 {
-    data.pat(i)->push(value);
+    m_data.pat(i)->push(value);
     m_value[i] += value;
     m_collected[i]++;
     checkDepth(i);

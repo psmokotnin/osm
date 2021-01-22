@@ -37,7 +37,7 @@ void RTASeriesRenderer::synchronize(QQuickFramebufferObject *item)
 {
     XYSeriesRenderer::synchronize(item);
 
-    if (auto *plot = dynamic_cast<RTAPlot*>(m_item->parent())) {
+    if (auto *plot = dynamic_cast<RTAPlot *>(m_item->parent())) {
         m_pointsPerOctave = plot->pointsPerOctave();
         m_mode = plot->mode();
         //TODO: may be remove
@@ -52,45 +52,45 @@ void RTASeriesRenderer::renderSeries()
 
     QMatrix4x4 matrix;
 
-    matrix.ortho(0, 1, yMax, yMin, -1, 1);
-    matrix.scale(1  / logf(xMax / xMin), 1.0f, 1.0f);
-    matrix.translate(-1 * logf(xMin), 0);
+    matrix.ortho(0, 1, m_yMax, m_yMin, -1, 1);
+    matrix.scale(1  / logf(m_xMax / m_xMin), 1.0f, 1.0f);
+    matrix.translate(-1 * logf(m_xMin), 0);
     m_program.setUniformValue(m_matrixUniform, matrix);
-    openGLFunctions->glLineWidth(m_weight * m_retinaScale);
+    m_openGLFunctions->glLineWidth(m_weight * m_retinaScale);
 
-    switch (m_mode)
-    {
-        //line
-        case 0:
-            renderLine();
+    switch (m_mode) {
+    //line
+    case 0:
+        renderLine();
         break;
 
-        //bars
-        case 1:
-            renderBars();
+    //bars
+    case 1:
+        renderBars();
         break;
 
-        //lines
-        case 2:
-            renderLines();
+    //lines
+    case 2:
+        renderLines();
         break;
 
-        default:
-            return;
+    default:
+        return;
     }
-    openGLFunctions->glDisableVertexAttribArray(0);
+    m_openGLFunctions->glDisableVertexAttribArray(0);
 }
 void RTASeriesRenderer::renderLine()
 {
     unsigned int count = m_source->size();
     GLfloat vertices[4];
 
-    openGLFunctions->glVertexAttribPointer(static_cast<GLuint>(m_posAttr), 2, GL_FLOAT, GL_FALSE, 0, static_cast<const void *>(vertices));
-    openGLFunctions->glEnableVertexAttribArray(0);
+    m_openGLFunctions->glVertexAttribPointer(static_cast<GLuint>(m_posAttr), 2, GL_FLOAT, GL_FALSE, 0,
+                                             static_cast<const void *>(vertices));
+    m_openGLFunctions->glEnableVertexAttribArray(0);
 
     for (unsigned int i = 1, j = 0; i < count; ++i, j += 2) {
         vertices[2] = m_source->frequency(i);
-        vertices[3] = 20 * log10f(m_source->module(i) *.1f);
+        vertices[3] = 20 * log10f(m_source->module(i) * .1f);
         if (m_coherence) {
             m_program.setUniformValue(
                 m_colorUniform,
@@ -103,29 +103,29 @@ void RTASeriesRenderer::renderLine()
             );
         }
         if (i > 1) {
-            openGLFunctions->glDrawArrays(GL_LINE_STRIP, 0, 2);
+            m_openGLFunctions->glDrawArrays(GL_LINE_STRIP, 0, 2);
         }
         vertices[0] = vertices[2];
         vertices[1] = vertices[3];
     }
-    openGLFunctions->glDisableVertexAttribArray(0);
+    m_openGLFunctions->glDisableVertexAttribArray(0);
 }
 void RTASeriesRenderer::renderBars()
-{//TODO:add coherence
+{
+    //TODO:add coherence
     float value = 0;
     GLfloat vertices[8];
 
-    openGLFunctions->glVertexAttribPointer(static_cast<GLuint>(m_posAttr), 2, GL_FLOAT, GL_FALSE, 0, static_cast<const void *>(vertices));
-    openGLFunctions->glEnableVertexAttribArray(0);
+    m_openGLFunctions->glVertexAttribPointer(static_cast<GLuint>(m_posAttr), 2, GL_FLOAT, GL_FALSE, 0,
+                                             static_cast<const void *>(vertices));
+    m_openGLFunctions->glEnableVertexAttribArray(0);
 
-    auto accumalte =[m_source = m_source, &value] (unsigned int i)
-    {
-        value += powf(m_source->module(i) *.1f, 2);
+    auto accumalte = [m_source = m_source, &value] (unsigned int i) {
+        value += powf(m_source->module(i) * .1f, 2);
     };
 
-    auto collected = [&value, &vertices, openGLFunctions = openGLFunctions, minValue = yMin]
-            (float start, float end, unsigned int count)
-    {
+    auto collected = [&value, &vertices, openGLFunctions = m_openGLFunctions, minValue = m_yMin]
+    (float start, float end, unsigned int count) {
         Q_UNUSED(count)
 
         value = 10 * log10f(value);
@@ -145,19 +145,21 @@ void RTASeriesRenderer::renderBars()
 
     iterate(m_pointsPerOctave, accumalte, collected);
 
-    openGLFunctions->glDisableVertexAttribArray(0);
+    m_openGLFunctions->glDisableVertexAttribArray(0);
 }
 void RTASeriesRenderer::renderLines()
-{//TODO:add coherence
+{
+    //TODO:add coherence
     unsigned int count = m_source->size();
     GLfloat vertices[4];
-    openGLFunctions->glVertexAttribPointer(static_cast<GLuint>(m_posAttr), 2, GL_FLOAT, GL_FALSE, 0, static_cast<const void *>(vertices));
-    openGLFunctions->glEnableVertexAttribArray(0);
+    m_openGLFunctions->glVertexAttribPointer(static_cast<GLuint>(m_posAttr), 2, GL_FLOAT, GL_FALSE, 0,
+                                             static_cast<const void *>(vertices));
+    m_openGLFunctions->glEnableVertexAttribArray(0);
     for (unsigned int i = 0; i < count; ++i) {
         vertices[0] = m_source->frequency(i);
-        vertices[1] = yMin;
+        vertices[1] = m_yMin;
         vertices[2] = m_source->frequency(i);
-        vertices[3] = 20 * log10f(m_source->module(i) *.1f);
-        openGLFunctions->glDrawArrays(GL_LINES, 0, 2);
+        vertices[3] = 20 * log10f(m_source->module(i) * .1f);
+        m_openGLFunctions->glDrawArrays(GL_LINES, 0, 2);
     }
 }

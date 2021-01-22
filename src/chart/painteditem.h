@@ -34,10 +34,22 @@ protected:
     } padding;
 
     QString format(float v);
-    float pwidth() const noexcept  {return widthf()  - (padding.left + padding.right); }
-    float pheight() const noexcept {return heightf() - (padding.top  + padding.bottom);}
-    float widthf() const noexcept  {return static_cast<float>(width()); }
-    float heightf() const noexcept {return static_cast<float>(height());}
+    float pwidth() const noexcept
+    {
+        return widthf()  - (padding.left + padding.right);
+    }
+    float pheight() const noexcept
+    {
+        return heightf() - (padding.top  + padding.bottom);
+    }
+    float widthf() const noexcept
+    {
+        return static_cast<float>(width());
+    }
+    float heightf() const noexcept
+    {
+        return static_cast<float>(height());
+    }
 
 public:
     PaintedItem (QQuickItem *parent = Q_NULLPTR);

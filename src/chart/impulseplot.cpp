@@ -23,12 +23,12 @@ using namespace Fftchart;
 
 ImpulsePlot::ImpulsePlot(Settings *settings, QQuickItem *parent): XYPlot(settings, parent)
 {
-    x.configure(AxisType::linear, -20.0, 20.0, 41);
-    x.setMin(-5.f);
-    x.setMax(5.f);
-    y.configure(AxisType::linear, -2.0, 2.0, 21);
-    y.setMin(-1.f);
-    y.setMax(1.f);
+    m_x.configure(AxisType::Linear, -20.0, 20.0, 41);
+    m_x.setMin(-5.f);
+    m_x.setMax(5.f);
+    m_y.configure(AxisType::Linear, -2.0, 2.0, 21);
+    m_y.setMin(-1.f);
+    m_y.setMax(1.f);
     setFlag(QQuickItem::ItemHasContents);
 }
 SeriesFBO* ImpulsePlot::createSeriesFromSource(Source *source)

@@ -24,7 +24,7 @@ namespace Fftchart {
 class XYSeriesRenderer : public SeriesRenderer
 {
 protected:
-    float xMin, xMax, yMin, yMax;
+    float m_xMin, m_xMax, m_yMin, m_yMax;
 
 public:
     XYSeriesRenderer();

@@ -29,19 +29,25 @@ class PhasePlot : public FrequencyBasedPlot
     Q_PROPERTY(int range READ range WRITE setRange NOTIFY rangeChanged)
 
 protected:
-    virtual SeriesFBO* createSeriesFromSource(Source *source) override;
+    virtual SeriesFBO *createSeriesFromSource(Source *source) override;
     int m_center, m_range, m_width;
 
 public:
     PhasePlot(Settings *settings, QQuickItem *parent = Q_NULLPTR);
 
-    int rotate() const noexcept{return m_center;}
+    int rotate() const noexcept
+    {
+        return m_center;
+    }
     void setRotate(int r) noexcept;
 
     virtual void setSettings(Settings *settings) noexcept override;
     virtual void storeSettings() noexcept override;
 
-    int range() const noexcept {return m_range;}
+    int range() const noexcept
+    {
+        return m_range;
+    }
     void setRange(int range) noexcept;
 
 signals:

@@ -24,14 +24,14 @@ using namespace Fftchart;
 PhasePlot::PhasePlot(Settings *settings, QQuickItem *parent): FrequencyBasedPlot(settings, parent),
     m_center(0), m_range(360)
 {
-    x.configure(AxisType::logarithmic, 20.f, 20000.f);
-    x.setISOLabels();
-    y.configure(AxisType::linear,
+    m_x.configure(AxisType::Logarithmic, 20.f, 20000.f);
+    m_x.setISOLabels();
+    m_y.configure(AxisType::Linear,
                 static_cast<float>(-M_PI),
                 static_cast<float>(M_PI),
                 9, 180.f / static_cast<float>(M_PI)
                 );
-    y.setPeriodic(2 * static_cast<float>(M_PI));
+    m_y.setPeriodic(2 * static_cast<float>(M_PI));
     setFlag(QQuickItem::ItemHasContents);
 }
 
@@ -46,7 +46,7 @@ void PhasePlot::setRotate(int r) noexcept
         return;
 
     m_center = r;
-    y.setOffset(m_center);
+    m_y.setOffset(m_center);
     emit rotateChanged(m_center);
     update();
 }

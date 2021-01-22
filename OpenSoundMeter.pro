@@ -152,7 +152,7 @@ unix:!macx:CONFIG(release, debug|release) {
 }
 
 !isEqual(QT_MAJOR_VERSION, 5):lessThan(QT_MINOR_VERSION, 15) {
-    error(OpenSoundMeter $$APP_GIT_VERSION  requires Qt 5.14 or newer but Qt $$[QT_VERSION] was detected.)
+    error(OpenSoundMeter $$APP_GIT_VERSION  requires Qt 5.15 or newer but Qt $$[QT_VERSION] was detected.)
 }
 
 FORMS +=
@@ -161,7 +161,9 @@ win32:QMAKE_CXXFLAGS += -m64 -msse2
 QMAKE_CXXFLAGS_RELEASE -= -O2
 QMAKE_CXXFLAGS_RELEASE += -Ofast
 
-QMAKE_INFO_PLIST = $$PWD/Info.plist
+!ios {
+    QMAKE_INFO_PLIST = $$PWD/Info.plist
+}
 
 DISTFILES += \
     OpenSoundMeter.desktop \
@@ -177,7 +179,8 @@ DISTFILES += \
     shaders/color.frag \
     shaders/magnitude.frag \
     shaders/pos.vert \
-    shaders/spectrogram.vert
+    shaders/spectrogram.vert \
+    style.astylerc
 
 ICON = icons/white.icns
 win32:RC_ICONS = icons/white.ico

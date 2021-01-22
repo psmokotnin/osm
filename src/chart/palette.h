@@ -33,13 +33,28 @@ class Palette: public QObject
 
 public:
     Palette(QObject *parent);
-    bool darkMode()const noexcept {return m_darkMode;}
+    bool darkMode()const noexcept
+    {
+        return m_darkMode;
+    }
     void setDarkMode(bool darkMode) noexcept;
 
-    QColor lineColor() const noexcept {return m_lineColor;}
-    QColor centerLineColor() const noexcept {return m_centerLineColor;}
-    QColor textColor() const noexcept {return m_textColor;}
-    QColor backgroundColor() const noexcept {return m_backgroundColor;}
+    QColor lineColor() const noexcept
+    {
+        return m_lineColor;
+    }
+    QColor centerLineColor() const noexcept
+    {
+        return m_centerLineColor;
+    }
+    QColor textColor() const noexcept
+    {
+        return m_textColor;
+    }
+    QColor backgroundColor() const noexcept
+    {
+        return m_backgroundColor;
+    }
 
 signals:
     void changed();

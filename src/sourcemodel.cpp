@@ -19,23 +19,23 @@
 #include "sourcelist.h"
 
 SourceModel::SourceModel(QObject *parent)
-    : QAbstractListModel(parent), mList(nullptr), m_filter(false), m_addNone(false)
+    : QAbstractListModel(parent), m_list(nullptr), m_filter(false), m_addNone(false)
 {
 }
 
 int SourceModel::rowCount(const QModelIndex &parent) const
 {
-    if (parent.isValid() || !mList)
+    if (parent.isValid() || !m_list)
         return 0;
-    return mList->items().size();
+    return m_list->items().size();
 }
 
 QVariant SourceModel::data(const QModelIndex &index, int role) const
 {
-    if (!index.isValid() || !mList)
+    if (!index.isValid() || !m_list)
         return QVariant();
 
-    Fftchart::Source* source = mList->items().at(index.row());
+    Fftchart::Source* source = m_list->items().at(index.row());
     QVariant r;
     switch (role) {
         case NameRole:
@@ -79,30 +79,30 @@ void SourceModel::setList(SourceList *list)
         list->appendNone();
     }
 
-    if (mList)
-        mList->disconnect(this);
+    if (m_list)
+        m_list->disconnect(this);
 
-    mList = list;
+    m_list = list;
 
-    if (mList) {
-        connect(mList, &SourceList::preItemAppended, this, [=]() {
-            const int index = mList->items().size();
+    if (m_list) {
+        connect(m_list, &SourceList::preItemAppended, this, [=]() {
+            const int index = m_list->items().size();
             beginInsertRows(QModelIndex(), index, index);
         });
-        connect(mList, &SourceList::postItemAppended, this, [=](Fftchart::Source *) {
+        connect(m_list, &SourceList::postItemAppended, this, [=](Fftchart::Source *) {
             endInsertRows();
         });
 
-        connect(mList, &SourceList::preItemRemoved, this, [=](int index) {
+        connect(m_list, &SourceList::preItemRemoved, this, [=](int index) {
             beginRemoveRows(QModelIndex(), index, index);
         });
-        connect(mList, &SourceList::postItemRemoved, this, [=]() {
+        connect(m_list, &SourceList::postItemRemoved, this, [=]() {
             endRemoveRows();
         });
-        connect(mList, &SourceList::preItemMoved, this, [=](int from, int to) {
+        connect(m_list, &SourceList::preItemMoved, this, [=](int from, int to) {
             beginMoveRows(QModelIndex(), from, from, QModelIndex(), to);
         });
-        connect(mList, &SourceList::postItemMoved, this, [=]() {
+        connect(m_list, &SourceList::postItemMoved, this, [=]() {
             endMoveRows();
         });
     }
@@ -116,12 +116,12 @@ void SourceModel::setFilter(bool filter) noexcept
 
 int SourceModel::indexOf(Fftchart::Source *item) const noexcept
 {
-    return mList->indexOf(item);
+    return m_list->indexOf(item);
 }
 
 Fftchart::Source *SourceModel::get(const int &index) const noexcept
 {
-    return mList->get(index);
+    return m_list->get(index);
 }
 void SourceModel::setAddNone(bool addNone) noexcept
 {

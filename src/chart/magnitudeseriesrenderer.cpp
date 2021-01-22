@@ -60,14 +60,14 @@ void MagnitudeSeriesRenderer::renderSeries()
     float value = 0.f, coherence = 0.f;
 
     setUniforms();
-    openGLFunctions->glVertexAttribPointer(static_cast<GLuint>(m_posAttr), 2, GL_FLOAT, GL_FALSE, 0, static_cast<const void *>(vertices));
-    openGLFunctions->glEnableVertexAttribArray(0);
+    m_openGLFunctions->glVertexAttribPointer(static_cast<GLuint>(m_posAttr), 2, GL_FLOAT, GL_FALSE, 0, static_cast<const void *>(vertices));
+    m_openGLFunctions->glEnableVertexAttribArray(0);
     m_program.setUniformValue(m_coherenceThresholdU, m_coherenceThreshold);
     m_program.setUniformValue(m_coherenceAlpha, m_coherence);
 
     float xadd, xmul;
-    xadd = -1.0f * logf(xMin);
-    xmul = m_width / logf(xMax / xMin);
+    xadd = -1.0f * logf(m_xMin);
+    xmul = m_width / logf(m_xMax / m_xMin);
 
     /*
      * Draw quad for each band from min to max (full height)
@@ -79,19 +79,19 @@ void MagnitudeSeriesRenderer::renderSeries()
         coherence += m_source->coherence(i);
         value     += (m_invert ? -1 : 1) * m_source->magnitude(i);
     };
-    auto collected = [m_program = &m_program, openGLFunctions = openGLFunctions, &vertices, &value, &coherence,
+    auto collected = [m_program = &m_program, m_openGLFunctions = m_openGLFunctions, &vertices, &value, &coherence,
             m_splineA = m_splineA, m_frequency1 = m_frequency1, m_frequency2 = m_frequency2,
-            xadd, xmul, yMin = yMin, yMax = yMax, m_coherenceSpline = m_coherenceSpline]
+            xadd, xmul, m_yMin = m_yMin, m_yMax = m_yMax, m_coherenceSpline = m_coherenceSpline]
             (float f1, float f2, float *ac, float *c)
     {
         vertices[0] = f1;
-        vertices[1] = yMax;
+        vertices[1] = m_yMax;
         vertices[2] = f1;
-        vertices[3] = yMin;
+        vertices[3] = m_yMin;
         vertices[4] = f2;
-        vertices[5] = yMax;
+        vertices[5] = m_yMax;
         vertices[6] = f2;
-        vertices[7] = yMin;
+        vertices[7] = m_yMin;
 
         m_program->setUniformValueArray(m_splineA, static_cast<GLfloat *>(ac), 1, 4);
         m_program->setUniformValueArray(m_coherenceSpline, static_cast<GLfloat *>(c), 1, 4);
@@ -99,12 +99,12 @@ void MagnitudeSeriesRenderer::renderSeries()
         float fx2 = (logf(f2) + xadd) * xmul;
         m_program->setUniformValue(m_frequency1, fx1);
         m_program->setUniformValue(m_frequency2, fx2);
-        openGLFunctions->glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+        m_openGLFunctions->glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
         value = 0.f;
         coherence = 0.f;
     };
 
     iterateForSpline<float, float>(m_pointsPerOctave, &value, &coherence, accumulate, collected);
-    openGLFunctions->glDisableVertexAttribArray(0);
+    m_openGLFunctions->glDisableVertexAttribArray(0);
 }

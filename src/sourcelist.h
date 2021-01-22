@@ -38,19 +38,19 @@ class SourceList : public QObject
     Q_PROPERTY(Fftchart::Source *first READ firstSource)
     Q_PROPERTY(int selectedIndex READ selectedIndex WRITE setSelected NOTIFY selectedChanged)
     Q_PROPERTY(Fftchart::Source *selected READ selected NOTIFY selectedChanged)
-    using iterator = QVector<Fftchart::Source*>::iterator;
+    using iterator = QVector<Fftchart::Source *>::iterator;
 
 private:
-    QVector<Fftchart::Source*> mItems;
+    QVector<Fftchart::Source *> m_items;
     QUrl m_currentFile;
-    const QList<QColor> colors {
+    const QList<QColor> m_colors {
         "#F44336", "#FFEB3B", "#9C27B0", "#673AB7",
         "#3F51B5", "#2196F3", "#03A9F4", "#00BCD4",
         "#009688", "#4CAF50", "#8BC34A", "#CDDC39",
         "#E91E63", "#FFC107", "#FF9800", "#FF5722",
         "#795548", "#9E9E9E", "#607D8B"
     };
-    int colorIndex;
+    int m_colorIndex;
     int m_selected;
 
     bool loadList(const QJsonDocument &document) noexcept;
@@ -59,16 +59,22 @@ private:
 
 public:
     explicit SourceList(QObject *parent = nullptr, bool appendMeasurement = true);
-    SourceList* clone(QObject *parent, bool filtered = false) const noexcept;
+    SourceList *clone(QObject *parent, bool filtered = false) const noexcept;
 
-    Fftchart::Source *firstSource() const noexcept {return mItems.at(0);}
+    Fftchart::Source *firstSource() const noexcept
+    {
+        return m_items.at(0);
+    }
 
     const QVector<Fftchart::Source *> &items() const;
     SourceList::iterator begin() noexcept;
     SourceList::iterator end() noexcept;
 
     int count() const noexcept;
-    QUrl currentFile() const noexcept {return m_currentFile;}
+    QUrl currentFile() const noexcept
+    {
+        return m_currentFile;
+    }
     Q_INVOKABLE Fftchart::Source *get(int i) const noexcept;
     Q_INVOKABLE void clean() noexcept;
     Q_INVOKABLE void reset() noexcept;
@@ -95,13 +101,13 @@ signals:
     void selectedChanged();
 
 public slots:
+    Q_INVOKABLE QColor nextColor();
     Q_INVOKABLE Measurement *addMeasurement();
     Q_INVOKABLE Union *addUnion();
     Q_INVOKABLE ELC *addElc();
     void appendItem(Fftchart::Source *item, bool autocolor = false);
     void removeItem(Fftchart::Source *item, bool deleteItem = true);
     void appendNone();
-    Q_INVOKABLE QColor nextColor();
 };
 
 #endif // SOURCELIST_H

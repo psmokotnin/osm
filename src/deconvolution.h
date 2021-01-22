@@ -27,7 +27,7 @@ class Deconvolution
 private:
     unsigned int m_size;
     container::array<float> m_data;
-    FourierTransform fft, ifft;
+    FourierTransform m_fft, m_ifft;
 
 public:
     explicit Deconvolution(unsigned int size = 8);

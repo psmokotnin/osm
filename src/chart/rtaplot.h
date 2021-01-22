@@ -28,7 +28,7 @@ class RTAPlot : public FrequencyBasedPlot
     Q_PROPERTY(unsigned int mode READ mode WRITE setMode NOTIFY modeChanged)
 
 protected:
-    virtual SeriesFBO* createSeriesFromSource(Source *source) override;
+    virtual SeriesFBO *createSeriesFromSource(Source *source) override;
     unsigned int m_mode;
     bool m_spline;
 
@@ -36,7 +36,10 @@ public:
     RTAPlot(Settings *settings, QQuickItem *parent = Q_NULLPTR);
 
     void setMode(unsigned int mode);
-    unsigned int mode() {return m_mode;}
+    unsigned int mode()
+    {
+        return m_mode;
+    }
 
     virtual void setSettings(Settings *settings) noexcept override;
     virtual void storeSettings() noexcept override;

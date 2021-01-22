@@ -27,7 +27,7 @@ class MagnitudePlot : public FrequencyBasedPlot
     Q_PROPERTY(bool invert READ invert WRITE setInvert NOTIFY invertChanged)
 
 protected:
-    virtual SeriesFBO* createSeriesFromSource(Source *source) override;
+    virtual SeriesFBO *createSeriesFromSource(Source *source) override;
 
     bool m_invert;
 

@@ -19,8 +19,8 @@
 #define PHASESERIESRENDERER_H
 
 #include "frequencybasedseriesrenderer.h"
-namespace Fftchart {
 
+namespace Fftchart {
 class GroupDelaySeriesRenderer : public FrequencyBasedSeriesRenderer
 {
 public:

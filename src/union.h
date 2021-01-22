@@ -34,11 +34,11 @@ class Union : public Fftchart::Source
     Q_PROPERTY(Operation operation READ operation WRITE setOperation NOTIFY operationChanged)
 
 public:
-    enum Operation {SUM, DIFF, AVG};
+    enum Operation {Sum, Diff, Avg};
     const std::map<Operation, QString> operationMap = {
-        {SUM,       "Summation"},
-        {DIFF,      "Difference"},
-        {AVG,       "Average"}
+        {Sum,       "Summation"},
+        {Diff,      "Difference"},
+        {Avg,       "Average"}
     };
     Q_ENUMS(Operation)
 
@@ -58,7 +58,10 @@ public:
     explicit Union(Settings *settings = nullptr, QObject *parent = nullptr);
     ~Union() override;
 
-    int count() const noexcept {return m_sources.count();}
+    int count() const noexcept
+    {
+        return m_sources.count();
+    }
 
     Q_INVOKABLE Fftchart::Source *getSource(int index) const noexcept;
     Q_INVOKABLE void setSource(int index, Fftchart::Source *s) noexcept;
@@ -66,7 +69,10 @@ public:
     Q_INVOKABLE QJsonObject toJSON() const noexcept override;
     void fromJSON(QJsonObject data) noexcept override;
 
-    Operation operation() const noexcept {return m_operation;}
+    Operation operation() const noexcept
+    {
+        return m_operation;
+    }
     void setOperation(const Operation &operation) noexcept;
 
     void setActive(bool active) noexcept override;

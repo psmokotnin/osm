@@ -30,7 +30,7 @@ using namespace Fftchart;
 
 VariableChart::VariableChart(QQuickItem *parent) :
     QQuickItem(parent),
-    s_plot(nullptr),
+    m_plot(nullptr),
     m_sources(nullptr),
     m_settings(nullptr),
     m_selected(RTA)
@@ -78,19 +78,19 @@ void VariableChart::initType()
     newPlot->setParentItem(this);
     newPlot->setDarkMode(darkMode());
 
-    if (s_plot) {
-        if (!qobject_cast<SpectrogramPlot*>(s_plot)) {
-            newPlot->setFilter(s_plot->filter());
+    if (m_plot) {
+        if (!qobject_cast<SpectrogramPlot*>(m_plot)) {
+            newPlot->setFilter(m_plot->filter());
         }
-        s_plot->clear();
-        s_plot->disconnectFromParent();
-        s_plot->setParent(nullptr);
-        s_plot->setParentItem(nullptr);
-        s_plot->deleteLater();
+        m_plot->clear();
+        m_plot->disconnectFromParent();
+        m_plot->setParent(nullptr);
+        m_plot->setParentItem(nullptr);
+        m_plot->deleteLater();
         newPlot->storeSettings();
     }
 
-    s_plot = newPlot;
+    m_plot = newPlot;
 }
 QString VariableChart::typeString() const
 {
@@ -121,25 +121,25 @@ void VariableChart::setTypeByString(const QString &type)
 void VariableChart::setSettings(Settings *settings) noexcept
 {
     m_settings = settings;
-    s_plot->setSettings(m_settings);
+    m_plot->setSettings(m_settings);
 }
 void VariableChart::appendDataSource(Source *source)
 {
-    if (s_plot) {
-        s_plot->appendDataSource(source);
+    if (m_plot) {
+        m_plot->appendDataSource(source);
     }
 }
 void VariableChart::removeDataSource(Source *source)
 {
-    if (s_plot) {
-        s_plot->removeDataSource(source);
+    if (m_plot) {
+        m_plot->removeDataSource(source);
     }
 }
 
 void VariableChart::setSourceZIndex(Source *source, int index)
 {
-    if (s_plot) {
-        s_plot->setSourceZIndex(source, index);
+    if (m_plot) {
+        m_plot->setSourceZIndex(source, index);
     }
 }
 
@@ -170,10 +170,10 @@ void VariableChart::setSources(SourceList *sourceList)
         connect(m_sources, &SourceList::postItemMoved, this, &VariableChart::updateZOrders);
 
         connect(m_sources, &SourceList::selectedChanged, this, [this]() {
-            if (s_plot) {
+            if (m_plot) {
                 updateZOrders();
                 auto selected = m_sources->selected();
-                s_plot->setHighlighted(selected);
+                m_plot->setHighlighted(selected);
                 setSourceZIndex(selected, m_sources->count() + 1);
             }
         });
@@ -185,14 +185,14 @@ void VariableChart::setSources(SourceList *sourceList)
 void VariableChart::setDarkMode(bool darkMode) noexcept
 {
     m_darkMode = darkMode;
-    if (s_plot) {
-        s_plot->setDarkMode(darkMode);
+    if (m_plot) {
+        m_plot->setDarkMode(darkMode);
     }
 }
 
 void VariableChart::updateZOrders() noexcept
 {
-    if (!s_plot || !m_sources) {
+    if (!m_plot || !m_sources) {
         return ;
     }
     auto total = m_sources->count();

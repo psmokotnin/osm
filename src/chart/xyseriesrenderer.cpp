@@ -21,10 +21,10 @@
 using namespace Fftchart;
 
 XYSeriesRenderer::XYSeriesRenderer():
-    xMin(0.f),
-    xMax(0.f),
-    yMin(0.f),
-    yMax(0.f)
+    m_xMin(0.f),
+    m_xMax(0.f),
+    m_yMin(0.f),
+    m_yMax(0.f)
 {
 
 }
@@ -33,9 +33,9 @@ void XYSeriesRenderer::synchronize(QQuickFramebufferObject *item)
     SeriesRenderer::synchronize(item);
 
     if (auto *plot = dynamic_cast<XYPlot*>(m_item->parent())) {
-        xMin = plot->xAxis()->min();
-        xMax = plot->xAxis()->max();
-        yMin = plot->yAxis()->min();
-        yMax = plot->yAxis()->max();
+        m_xMin = plot->xAxis()->min();
+        m_xMax = plot->xAxis()->max();
+        m_yMin = plot->yAxis()->min();
+        m_yMax = plot->yAxis()->max();
     }
 }

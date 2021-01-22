@@ -21,12 +21,13 @@
 #include <cmath>
 
 namespace container {
-template<typename T> class fifo {
+template<typename T> class fifo
+{
 
 private:
     struct Cell {
         T value;
-        Cell* next = nullptr;
+        Cell *next = nullptr;
     };
 
     Cell *m_front, *m_end;
@@ -35,7 +36,6 @@ private:
 public:
     fifo(): m_front(nullptr), m_end(nullptr), m_size(0)
     {
-
     }
 
     ~fifo()
@@ -52,7 +52,7 @@ public:
 
     void push(const T &value)
     {
-        Cell* p = new Cell;
+        Cell *p = new Cell;
         p->value = value;
         if (m_end) {
             m_end->next = p;
@@ -71,7 +71,7 @@ public:
         }
 
         T value = m_front->value;
-        Cell* next = m_front->next;
+        Cell *next = m_front->next;
 
         if (m_end == m_front) {
             m_end = nullptr;
@@ -103,7 +103,8 @@ public:
         return T(0);
     }
 
-    T front() const {
+    T front() const
+    {
         if (!m_front) {
             return T(0);
         }
@@ -111,7 +112,8 @@ public:
         return m_front->value;
     }
 
-    size_t size() const {
+    size_t size() const
+    {
         return m_size;
     }
 };

@@ -29,11 +29,11 @@ namespace Fftchart {
 class Plot : public QQuickItem
 {
     Q_OBJECT
-    Q_PROPERTY(Fftchart::Source * filter READ filter WRITE setFilter NOTIFY filterChanged)
+    Q_PROPERTY(Fftchart::Source *filter READ filter WRITE setFilter NOTIFY filterChanged)
 
 protected:
-    QList<SeriesFBO*> series;
-    virtual SeriesFBO* createSeriesFromSource(Source *source) = 0;
+    QList<SeriesFBO *> series;
+    virtual SeriesFBO *createSeriesFromSource(Source *source) = 0;
 
     const struct Padding {
         float   left    = 50.f,
@@ -62,13 +62,25 @@ public:
     Q_INVOKABLE virtual qreal x2v(qreal x) const noexcept = 0;
     Q_INVOKABLE virtual qreal y2v(qreal y) const noexcept = 0;
 
-    virtual void setSettings(Settings *settings) noexcept {m_settings = settings;}
+    virtual void setSettings(Settings *settings) noexcept
+    {
+        m_settings = settings;
+    }
     virtual void storeSettings() noexcept = 0;
 
-    bool darkMode() const noexcept {return m_palette.darkMode(); }
-    void setDarkMode(bool darkMode) noexcept {return m_palette.setDarkMode(darkMode);}
+    bool darkMode() const noexcept
+    {
+        return m_palette.darkMode();
+    }
+    void setDarkMode(bool darkMode) noexcept
+    {
+        return m_palette.setDarkMode(darkMode);
+    }
 
-    Fftchart::Source *filter() const noexcept {return m_filter;}
+    Fftchart::Source *filter() const noexcept
+    {
+        return m_filter;
+    }
     void setFilter(Fftchart::Source *filter) noexcept;
 
 signals:

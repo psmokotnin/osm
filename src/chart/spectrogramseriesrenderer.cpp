@@ -54,16 +54,16 @@ void SpectrogramSeriesRenderer::renderSeries()
 
     QMatrix4x4 matrix;
 
-    matrix.ortho(0, 1, yMax, yMin, -1, 1);
-    matrix.scale(1  / logf(xMax / xMin), 1.0f, 1.0f);
-    matrix.translate(-1 * logf(xMin), 0);
+    matrix.ortho(0, 1, m_yMax, m_yMin, -1, 1);
+    matrix.scale(1  / logf(m_xMax / m_xMin), 1.0f, 1.0f);
+    matrix.translate(-1 * logf(m_xMin), 0);
     m_program.setUniformValue(m_matrixUniform, matrix);
     m_program.setUniformValue(m_screenUniform, m_width, m_height);
-    openGLFunctions->glLineWidth(m_weight * m_retinaScale);
+    m_openGLFunctions->glLineWidth(m_weight * m_retinaScale);
     GLfloat vertices[8];
 
-    openGLFunctions->glVertexAttribPointer(static_cast<GLuint>(m_posAttr), 2, GL_FLOAT, GL_FALSE, 0, static_cast<const void *>(vertices));
-    openGLFunctions->glEnableVertexAttribArray(0);
+    m_openGLFunctions->glVertexAttribPointer(static_cast<GLuint>(m_posAttr), 2, GL_FLOAT, GL_FALSE, 0, static_cast<const void *>(vertices));
+    m_openGLFunctions->glEnableVertexAttribArray(0);
 
     float floor = -140.f, min = -90.f, max = -10.f, mid = (max + min) / 2;
     float alpha;
@@ -169,10 +169,10 @@ void SpectrogramSeriesRenderer::renderSeries()
             if (i > 1) {
                 m_program.setUniformValue(m_prePositionAttr,  (rowData->at(i-1)[0] + rowData->at(i-1)[1]) / 2, vertices[3], 0.f, 1.f);
                 m_program.setUniformValue(m_postPositionAttr, (rowData->at(i  )[0] + rowData->at(i  )[1]) / 2, vertices[1], 0.f, 1.f);
-                openGLFunctions->glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+                m_openGLFunctions->glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
             }
         }
         t += tStep;
     }
-    openGLFunctions->glDisableVertexAttribArray(0);
+    m_openGLFunctions->glDisableVertexAttribArray(0);
 }

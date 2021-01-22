@@ -32,10 +32,10 @@ public:
     explicit GeneratorThread(QObject *parent);
 
 private:
-    QAudioOutput* m_audio;
+    QAudioOutput *m_audio;
     QAudioFormat m_format;
     QAudioDeviceInfo m_device;
-    QList<OutputDevice*> m_sources;
+    QList<OutputDevice *> m_sources;
 
     float m_gain, m_duration;
     int m_type;
@@ -43,17 +43,23 @@ private:
     int m_channelCount, m_channel, m_aux;
     bool m_enabled;
 
-    void _selectDevice(const QAudioDeviceInfo &device);
-    void _updateAudio();
+    void selectDevice(const QAudioDeviceInfo &device);
+    void updateAudio();
 
 public slots:
     void init();
     void finish();
 
-    bool enabled() const {return m_enabled;}
+    bool enabled() const
+    {
+        return m_enabled;
+    }
     void setEnabled(bool enable);
 
-    int type() const {return m_type;}
+    int type() const
+    {
+        return m_type;
+    }
     void setType(int type);
 
     QVariant getDeviceList() const;
@@ -62,23 +68,44 @@ public slots:
     QString deviceName() const;
     QVariant getAvailableTypes() const;
 
-    int frequency() const {return m_frequency;}
+    int frequency() const
+    {
+        return m_frequency;
+    }
     void setFrequency(int frequency);
 
-    int startFrequency() const {return m_startFrequency;}
+    int startFrequency() const
+    {
+        return m_startFrequency;
+    }
     void setStartFrequency(int startFrequency);
 
-    int endFrequency() const {return m_endFrequency;}
+    int endFrequency() const
+    {
+        return m_endFrequency;
+    }
     void setEndFrequency(int endFrequency);
 
-    float gain() const {return m_gain;}
+    float gain() const
+    {
+        return m_gain;
+    }
     void setGain(float gain);
 
-    int channelsCount() const {return m_channelCount;}
-    int channel() const {return m_channel;}
+    int channelsCount() const
+    {
+        return m_channelCount;
+    }
+    int channel() const
+    {
+        return m_channel;
+    }
     void setChannel(int channel);
 
-    int aux() const {return m_aux;}
+    int aux() const
+    {
+        return m_aux;
+    }
     void setAux(int channel);
 
     float duration() const;

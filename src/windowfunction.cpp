@@ -26,11 +26,11 @@ WindowFunction::WindowFunction(Type type, QObject *parent) : QObject(parent),
 
 }
 const std::map<WindowFunction::Type, QString> WindowFunction::TypeMap = {
-    {WindowFunction::Type::rectangular, "Rectangular"},
-    {WindowFunction::Type::hann, "Hann"},
-    {WindowFunction::Type::hamming, "Hamming"},
-    {WindowFunction::Type::flat_top, "Flat Top"},
-    {WindowFunction::Type::blackman_harris, "Blackman Harris"},
+    {WindowFunction::Type::Rectangular, "Rectangular"},
+    {WindowFunction::Type::Hann, "Hann"},
+    {WindowFunction::Type::Hamming, "Hamming"},
+    {WindowFunction::Type::FlatTop, "Flat Top"},
+    {WindowFunction::Type::BlackmanHarris, "Blackman Harris"},
     {WindowFunction::Type::HFT223D, "HFT223D"}
 };
 void WindowFunction::setSize(unsigned int size)
@@ -52,21 +52,21 @@ float WindowFunction::pointGain(float i, unsigned int N) const
         z = 2 * M_PI;
     }
     switch (m_type) {
-        case Type::rectangular:
+        case Type::Rectangular:
             return 1.0;
 
-        case Type::hann:
+        case Type::Hann:
             return pow(sin(z / 2), 2);
 
-        case Type::hamming:
+        case Type::Hamming:
             return 0.54 - 0.46 * cos(z);
 
-        case Type::blackman_harris:
+        case Type::BlackmanHarris:
             return
                     0.35875                - 0.48829 * cos(z      ) +
                     0.14128 * cos(2.0 * z) - 0.01168 * cos(3.0 * z);
 
-        case Type::flat_top:
+        case Type::FlatTop:
             return 1 -
                     1.930 * cos(2 * z) + 1.290 * cos(4 * z) -
                     0.388 * cos(6 * z) + 0.028 * cos(8 * z);

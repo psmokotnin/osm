@@ -24,11 +24,11 @@ Union::Union(Settings *settings, QObject *parent): Fftchart::Source(parent),
     m_settings(settings),
     m_sources(4),
     m_timer(nullptr), m_timerThread(nullptr),
-    m_operation(SUM)
+    m_operation(Sum)
 {
-    _name = "Union";
+    m_name = "Union";
     m_sources.fill(nullptr);
-    setObjectName(_name);
+    setObjectName(m_name);
 
     m_timer.setInterval(80);//12.5 per sec
     m_timer.setSingleShot(true);
@@ -55,24 +55,24 @@ void Union::setOperation(const Operation &operation) noexcept
 
 void Union::setActive(bool active) noexcept
 {
-    if (active == _active)
+    if (active == m_active)
         return;
     Fftchart::Source::setActive(active);
     update();
 }
 void Union::init() noexcept
 {
-    std::lock_guard<std::mutex> guard(dataMutex);
+    std::lock_guard<std::mutex> guard(m_dataMutex);
     resize();
 }
 
 void Union::resize()
 {
     Fftchart::Source * primary = m_sources.first();
-    _dataLength         = static_cast<unsigned int>(primary ? primary->size() : 1);
+    m_dataLength         = static_cast<unsigned int>(primary ? primary->size() : 1);
     m_deconvolutionSize = static_cast<unsigned int>(primary ? primary->impulseSize() : 1);
-    _ftdata             = new FTData[_dataLength];
-    _impulseData        = new TimeData[m_deconvolutionSize];
+    m_ftdata             = new FTData[m_dataLength];
+    m_impulseData        = new TimeData[m_deconvolutionSize];
 }
 Fftchart::Source *Union::getSource(int index) const noexcept
 {
@@ -109,7 +109,7 @@ void Union::calc() noexcept
     if (!active())
         return;
 
-    std::lock_guard<std::mutex> guard(dataMutex);
+    std::lock_guard<std::mutex> guard(m_dataMutex);
     std::set<Fftchart::Source *> sources;
     Fftchart::Source * primary = m_sources.first();
     unsigned int count(0);
@@ -147,14 +147,14 @@ void Union::calc() noexcept
         for (auto it = sources.begin(); it != sources.end(); ++it) {
             if (*it && *it != primary) {
                 switch (m_operation) {
-                    case SUM:
-                    case AVG:
-                        _ftdata[i].module += (*it)->module(i);
+                    case Sum:
+                    case Avg:
+                        m_ftdata[i].module += (*it)->module(i);
                         a += (*it)->phase(i) * (*it)->module(i);
                         m += (*it)->phase(i) * (*it)->magnitudeRaw(i);
                     break;
-                    case DIFF:
-                        _ftdata[i].module -= (*it)->module(i);
+                    case Diff:
+                        m_ftdata[i].module -= (*it)->module(i);
                         a -= (*it)->phase(i) * (*it)->module(i);
                         m -= (*it)->phase(i) * (*it)->magnitudeRaw(i);
                     break;
@@ -163,15 +163,15 @@ void Union::calc() noexcept
                 coherence = std::max(coherence, (*it)->coherence(i));
             }
         }
-        if (m_operation == AVG) {
+        if (m_operation == Avg) {
             a /= count;
             m /= count;
         }
-        _ftdata[i].frequency  = primary->frequency(i);
-        _ftdata[i].module     = a.abs();
-        _ftdata[i].phase      = m;
-        _ftdata[i].magnitude  = m.abs();
-        _ftdata[i].coherence  = coherence;
+        m_ftdata[i].frequency  = primary->frequency(i);
+        m_ftdata[i].module     = a.abs();
+        m_ftdata[i].phase      = m;
+        m_ftdata[i].magnitude  = m.abs();
+        m_ftdata[i].coherence  = coherence;
     }
 
     for (auto &s : sources) {

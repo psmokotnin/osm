@@ -21,14 +21,14 @@
 using namespace Fftchart;
 
 CoherencePlot::CoherencePlot(Settings *settings, QQuickItem *parent): XYPlot(settings, parent),
-    m_pointsPerOctave(12), m_type(Type::NORMAL)
+    m_pointsPerOctave(12), m_type(Type::Normal)
 {
-    x.configure(AxisType::logarithmic, 20.f, 20000.f);
-    x.setISOLabels();
+    m_x.configure(AxisType::Logarithmic, 20.f, 20000.f);
+    m_x.setISOLabels();
     std::vector<float> labels {0.f, 0.2f, 0.4f, 0.6f, 0.8f, 1.f};
-    y.configure(AxisType::linear, 0.f, 1.f);
-    y.setCentralLabel(y.min() - 1.f);
-    y.setLabels(labels);
+    m_y.configure(AxisType::Linear, 0.f, 1.f);
+    m_y.setCentralLabel(m_y.min() - 1.f);
+    m_y.setLabels(labels);
     setFlag(QQuickItem::ItemHasContents);
 }
 SeriesFBO* CoherencePlot::createSeriesFromSource(Source *source)

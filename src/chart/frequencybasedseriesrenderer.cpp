@@ -31,17 +31,17 @@ FrequencyBasedSeriesRenderer::FrequencyBasedSeriesRenderer() :
 void FrequencyBasedSeriesRenderer::setUniforms()
 {
     QMatrix4x4 matrix;
-    matrix.ortho(0, 1, yMax, yMin, -1, 1);
-    matrix.scale(1  / logf(xMax / xMin), 1.0f, 1.0f);
-    matrix.translate(-1 * logf(xMin), 0);
+    matrix.ortho(0, 1, m_yMax, m_yMin, -1, 1);
+    matrix.scale(1  / logf(m_xMax / m_xMin), 1.0f, 1.0f);
+    matrix.translate(-1 * logf(m_xMin), 0);
     m_program.setUniformValue(m_matrixUniform, matrix);
 
     m_program.setUniformValue(
         m_minmaxUniform,
-        static_cast<GLfloat>(xMin),
-        static_cast<GLfloat>(xMax),
-        static_cast<GLfloat>(yMin),
-        static_cast<GLfloat>(yMax)
+        static_cast<GLfloat>(m_xMin),
+        static_cast<GLfloat>(m_xMax),
+        static_cast<GLfloat>(m_yMin),
+        static_cast<GLfloat>(m_yMax)
     );
 
     m_program.setUniformValue(m_screenUniform, m_width, m_height);

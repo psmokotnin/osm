@@ -23,10 +23,10 @@ using namespace Fftchart;
 RTAPlot::RTAPlot(Settings *settings, QQuickItem *parent): FrequencyBasedPlot(settings, parent),
     m_mode(0), m_spline(false)
 {
-    x.configure(AxisType::logarithmic, 20.f, 20000.f);
-    x.setISOLabels();
-    y.configure(AxisType::linear, -140.f,    0.f,  14);
-    y.setCentralLabel(y.min() - 1.f);
+    m_x.configure(AxisType::Logarithmic, 20.f, 20000.f);
+    m_x.setISOLabels();
+    m_y.configure(AxisType::Linear, -140.f,    0.f,  14);
+    m_y.setCentralLabel(m_y.min() - 1.f);
     setFlag(QQuickItem::ItemHasContents);
     connect(this, SIGNAL(modeChanged(unsigned int)), this, SLOT(update()));
     connect(this, SIGNAL(pointsPerOctaveChanged(unsigned int)), this, SLOT(update()));

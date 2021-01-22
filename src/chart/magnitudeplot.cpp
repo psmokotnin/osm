@@ -20,21 +20,23 @@
 
 using namespace Fftchart;
 
-MagnitudePlot::MagnitudePlot(Settings *settings, QQuickItem *parent) : FrequencyBasedPlot(settings, parent), m_invert(false)
+MagnitudePlot::MagnitudePlot(Settings *settings, QQuickItem *parent) : FrequencyBasedPlot(settings,
+                                                                                              parent), m_invert(false)
 {
-    x.configure(AxisType::logarithmic, 20.f, 20000.f);
-    x.setISOLabels();
-    y.configure(AxisType::linear, -18.f, 18.f,  13);
+    m_x.configure(AxisType::Logarithmic, 20.f, 20000.f);
+    m_x.setISOLabels();
+    m_y.configure(AxisType::Linear, -18.f, 18.f,  13);
     setFlag(QQuickItem::ItemHasContents);
 }
-SeriesFBO* MagnitudePlot::createSeriesFromSource(Source *source)
+SeriesFBO *MagnitudePlot::createSeriesFromSource(Source *source)
 {
-    return new SeriesFBO(source, [](){return new MagnitudeSeriesRenderer();}, this);
+    return new SeriesFBO(source, []() {
+        return new MagnitudeSeriesRenderer();
+    }, this);
 }
 void MagnitudePlot::setSettings(Settings *settings) noexcept
 {
-    if (settings && (settings->value("type") == "Magnitude"))
-    {
+    if (settings && (settings->value("type") == "Magnitude")) {
         FrequencyBasedPlot::setSettings(settings);
     }
 }

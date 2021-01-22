@@ -26,7 +26,7 @@ class ImpulsePlot : public XYPlot
     Q_OBJECT
 
 protected:
-    virtual SeriesFBO* createSeriesFromSource(Source *source) override;
+    virtual SeriesFBO *createSeriesFromSource(Source *source) override;
 
 public:
     ImpulsePlot(Settings *settings, QQuickItem *parent = Q_NULLPTR);

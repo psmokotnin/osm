@@ -26,7 +26,10 @@ class SinSweep : public OutputDevice
 
 public:
     explicit SinSweep(GeneratorThread *parent);
-    float startFrequency() const {return m_start;}
+    float startFrequency() const
+    {
+        return m_start;
+    }
 
 public slots:
     void setStart(int start);

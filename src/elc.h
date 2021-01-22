@@ -32,7 +32,10 @@ public:
     Q_INVOKABLE QJsonObject toJSON() const noexcept override;
     void fromJSON(QJsonObject data) noexcept override;
 
-    float loudness() const noexcept {return m_loudness;}
+    float loudness() const noexcept
+    {
+        return m_loudness;
+    }
     void setLoudness(float loudness);
 
 private:

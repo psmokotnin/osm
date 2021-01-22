@@ -28,7 +28,7 @@ class WindowFunction : QObject
     Q_OBJECT
 
 public:
-    enum Type {rectangular, hann, hamming, flat_top, blackman_harris, HFT223D};
+    enum Type {Rectangular, Hann, Hamming, FlatTop, BlackmanHarris, HFT223D};
     Q_ENUM(Type)
     static const std::map<Type, QString> TypeMap;
 
@@ -45,20 +45,32 @@ public:
     explicit WindowFunction(Type type, QObject *parent = nullptr);
 
     void setSize(unsigned int size);
-    unsigned int size() const {return m_size;}
+    unsigned int size() const
+    {
+        return m_size;
+    }
 
     //! return gain for point \b{i} in vector size \n{N}
     float pointGain(float i, unsigned int N) const;
 
-    Type type() const {return m_type;}
+    Type type() const
+    {
+        return m_type;
+    }
     void setType(Type t);
     static QVariant getTypes();
 
     //! return gain of point k (corrcted with global wf gain data)
-    const float& get(unsigned int k) const { return m_data[k]; }
+    const float &get(unsigned int k) const
+    {
+        return m_data[k];
+    }
 
     //! static function return string name of type
-    QString static name(Type type) noexcept {return WindowFunction::TypeMap.at(type);}
+    QString static name(Type type) noexcept
+    {
+        return WindowFunction::TypeMap.at(type);
+    }
 
 };
 QDebug operator<<(QDebug dbg, const WindowFunction::Type &t);

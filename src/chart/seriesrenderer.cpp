@@ -35,7 +35,7 @@ QOpenGLFramebufferObject *SeriesRenderer::createFramebufferObject(const QSize &s
     QOpenGLFramebufferObjectFormat format;
     format.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
 
-    openGLFunctions = QOpenGLContext::currentContext()->functions();
+    m_openGLFunctions = QOpenGLContext::currentContext()->functions();
     return new QOpenGLFramebufferObject(size, format);
 }
 void SeriesRenderer::synchronize(QQuickFramebufferObject *item)
@@ -64,17 +64,17 @@ void SeriesRenderer::render()
         return;
     }
 
-    openGLFunctions->glViewport(
+    m_openGLFunctions->glViewport(
         0,
         0,
         m_width,
         m_height
     );
 
-    openGLFunctions->glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-    openGLFunctions->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-    openGLFunctions->glEnable(GL_BLEND);
-    openGLFunctions->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    m_openGLFunctions->glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    m_openGLFunctions->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    m_openGLFunctions->glEnable(GL_BLEND);
+    m_openGLFunctions->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     m_program.bind();
 

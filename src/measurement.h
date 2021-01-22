@@ -58,7 +58,8 @@ class Measurement : public Fftchart::Source
 
     Q_PROPERTY(AverageType averageType READ averageType WRITE setAverageType NOTIFY averageTypeChanged)
     Q_PROPERTY(int average READ average WRITE setAverage NOTIFY averageChanged)
-    Q_PROPERTY(Filter::Frequency filtersFrequency READ filtersFrequency WRITE setFiltersFrequency NOTIFY filtersFrequencyChanged)
+    Q_PROPERTY(Filter::Frequency filtersFrequency READ filtersFrequency WRITE setFiltersFrequency NOTIFY
+               filtersFrequencyChanged)
 
     Q_PROPERTY(bool polarity READ polarity WRITE setPolarity NOTIFY polarityChanged)
     Q_PROPERTY(bool error MEMBER m_error NOTIFY errorChanged)
@@ -66,10 +67,12 @@ class Measurement : public Fftchart::Source
     //routing
     Q_PROPERTY(int chanelsCount READ chanelsCount NOTIFY chanelsCountChanged)
     Q_PROPERTY(int dataChanel READ dataChanel WRITE setDataChanel NOTIFY dataChanelChanged)
-    Q_PROPERTY(int referenceChanel READ referenceChanel WRITE setReferenceChanel NOTIFY referenceChanelChanged)
+    Q_PROPERTY(int referenceChanel READ referenceChanel WRITE setReferenceChanel NOTIFY
+               referenceChanelChanged)
 
     //data window type
-    Q_PROPERTY(WindowFunction::Type window READ getWindowType WRITE setWindowType NOTIFY windowTypeChanged)
+    Q_PROPERTY(WindowFunction::Type window READ getWindowType WRITE setWindowType NOTIFY
+               windowTypeChanged)
     Q_PROPERTY(QVariant windows READ getAvailableWindowTypes CONSTANT)
 
     //calibration
@@ -77,7 +80,7 @@ class Measurement : public Fftchart::Source
     Q_PROPERTY(bool calibration READ calibration WRITE setCalibration NOTIFY calibrationChanged)
 
 public:
-    enum AverageType {OFF, LPF, FIFO};
+    enum AverageType {Off, LPF, FIFO};
     Q_ENUM(AverageType)
     enum Mode {FFT10, FFT12, FFT14, FFT15, FFT16, LFT};
     Q_ENUM(Mode)
@@ -98,17 +101,17 @@ private:
     long m_estimatedDelay;
     bool m_polarity, m_error;
 
-    container::fifo<float> data, reference;
-    Meter dataMeter, referenceMeter;
+    container::fifo<float> m_data, m_reference;
+    Meter m_dataMeter, m_referenceMeter;
 
     WindowFunction::Type m_windowFunctionType;
     FourierTransform m_dataFT;
     Deconvolution m_deconvolution;
 
-    Averaging<float> deconvAvg;
+    Averaging<float> m_deconvAvg;
     AverageType m_averageType;
-    Averaging<float> magnitudeAvg, moduleAvg;
-    Averaging<complex> pahseAvg;
+    Averaging<float> m_magnitudeAvg, m_moduleAvg;
+    Averaging<complex> m_pahseAvg;
     Coherence m_coherence;
 
     Filter::Frequency m_filtersFrequency;
@@ -133,9 +136,15 @@ public:
     Q_INVOKABLE QJsonObject toJSON() const noexcept override;
     void fromJSON(QJsonObject data) noexcept override;
 
-    Mode mode() const {return m_mode;}
+    Mode mode() const
+    {
+        return m_mode;
+    }
     void setMode(const Measurement::Mode &mode);
-    void setMode(QVariant mode) {setMode(mode.value<Mode>());}
+    void setMode(QVariant mode)
+    {
+        setMode(mode.value<Mode>());
+    }
     QVariant getAvailableModes() const;
 
     void setActive(bool active) override;
@@ -146,46 +155,97 @@ public:
     bool selectDevice(const QString &name);
     void selectDevice(const QAudioDeviceInfo &deviceInfo);
 
-    unsigned int dataChanel() const {return m_audioThread.dataChanel();}
+    unsigned int dataChanel() const
+    {
+        return m_audioThread.dataChanel();
+    }
     void setDataChanel(unsigned int n);
 
-    unsigned int referenceChanel() const {return m_audioThread.referenceChanel();}
+    unsigned int referenceChanel() const
+    {
+        return m_audioThread.referenceChanel();
+    }
     void setReferenceChanel(unsigned int n);
-    unsigned int chanelsCount() const {return m_audioThread.chanelsCount();}
+    unsigned int chanelsCount() const
+    {
+        return m_audioThread.chanelsCount();
+    }
 
-    float level() const {return dataMeter.value();}
-    float referenceLevel() const {return referenceMeter.value();}
+    float level() const
+    {
+        return m_dataMeter.value();
+    }
+    float referenceLevel() const
+    {
+        return m_referenceMeter.value();
+    }
 
-    unsigned int delay() const {return m_delay;}
+    unsigned int delay() const
+    {
+        return m_delay;
+    }
     void setDelay(unsigned int delay);
 
-    unsigned int average() const {return m_average;}
+    unsigned int average() const
+    {
+        return m_average;
+    }
     void setAverage(unsigned int average);
 
-    bool polarity() const {return m_polarity;}
+    bool polarity() const
+    {
+        return m_polarity;
+    }
     void setPolarity(bool polarity);
 
-    Filter::Frequency filtersFrequency() const {return m_filtersFrequency;}
+    Filter::Frequency filtersFrequency() const
+    {
+        return m_filtersFrequency;
+    }
     void setFiltersFrequency(Filter::Frequency frequency);
-    void setFiltersFrequency(QVariant frequency) {setFiltersFrequency(static_cast<Filter::Frequency>(frequency.toInt()));}
+    void setFiltersFrequency(QVariant frequency)
+    {
+        setFiltersFrequency(static_cast<Filter::Frequency>(frequency.toInt()));
+    }
 
-    AverageType averageType() const {return m_averageType;}
+    AverageType averageType() const
+    {
+        return m_averageType;
+    }
     void setAverageType(AverageType type);
-    void setAverageType(QVariant type) {setAverageType(static_cast<AverageType>(type.toInt()));}
+    void setAverageType(QVariant type)
+    {
+        setAverageType(static_cast<AverageType>(type.toInt()));
+    }
 
     unsigned int sampleRate() const;
 
-    QVariant getAvailableWindowTypes() const {return WindowFunction::getTypes();}
-    WindowFunction::Type getWindowType() const {return m_windowFunctionType;}
+    QVariant getAvailableWindowTypes() const
+    {
+        return WindowFunction::getTypes();
+    }
+    WindowFunction::Type getWindowType() const
+    {
+        return m_windowFunctionType;
+    }
     void setWindowType(WindowFunction::Type type);
-    void setWindowType(QVariant type) {setWindowType(static_cast<WindowFunction::Type>(type.toInt()));}
+    void setWindowType(QVariant type)
+    {
+        setWindowType(static_cast<WindowFunction::Type>(type.toInt()));
+    }
 
     long estimated() const noexcept;
 
     Q_INVOKABLE bool loadCalibrationFile(const QUrl &fileName) noexcept;
 
-    bool calibrationLoaded() const noexcept {return m_calibrationLoaded;}
-    bool calibration() const noexcept {return m_enableCalibration;}
+    bool calibrationLoaded() const noexcept
+    {
+        return m_calibrationLoaded;
+    }
+    bool calibration() const noexcept
+    {
+        return m_enableCalibration;
+    }
     void setCalibration(bool c) noexcept;
 
     Q_INVOKABLE void resetAverage() noexcept;
@@ -219,7 +279,7 @@ public slots:
     void transform();
     void recalculateDataLength();
     QObject *store();
-    void writeData(const QByteArray& buffer);
+    void writeData(const QByteArray &buffer);
     void setError();
 };
 

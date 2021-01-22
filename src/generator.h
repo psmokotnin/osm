@@ -44,7 +44,8 @@ class Generator : public QObject
 
     //Frequency
     Q_PROPERTY(int frequency READ frequency WRITE setFrequency NOTIFY frequencyChanged)
-    Q_PROPERTY(int startFrequency READ startFrequency WRITE setStartFrequency NOTIFY startFrequencyChanged)
+    Q_PROPERTY(int startFrequency READ startFrequency WRITE setStartFrequency NOTIFY
+               startFrequencyChanged)
     Q_PROPERTY(int endFrequency READ endFrequency WRITE setEndFrequency NOTIFY endFrequencyChanged)
 
     //Gain
@@ -62,37 +63,73 @@ private:
     void loadSettings();
 
 public:
-    explicit Generator(Settings *settings, QObject* parent = nullptr);
+    explicit Generator(Settings *settings, QObject *parent = nullptr);
     ~Generator();
 
-    bool getEnabled() const {return m_thread.enabled();}
+    bool getEnabled() const
+    {
+        return m_thread.enabled();
+    }
     void setEnabled(bool enable);
 
-    int getType() const {return m_thread.type();}
+    int getType() const
+    {
+        return m_thread.type();
+    }
     void setType(int t);
 
-    QVariant getAvailableTypes(void) const {return m_thread.getAvailableTypes();}
-    QVariant getDeviceList(void) const {return m_thread.getDeviceList();}
+    QVariant getAvailableTypes(void) const
+    {
+        return m_thread.getAvailableTypes();
+    }
+    QVariant getDeviceList(void) const
+    {
+        return m_thread.getDeviceList();
+    }
 
-    QString deviceName() const {return m_thread.deviceName();}
+    QString deviceName() const
+    {
+        return m_thread.deviceName();
+    }
     void selectDevice(const QString &name);
 
-    int frequency() const {return m_thread.frequency();}
+    int frequency() const
+    {
+        return m_thread.frequency();
+    }
     void setFrequency(int f);
 
-    int startFrequency() const {return m_thread.startFrequency();}
+    int startFrequency() const
+    {
+        return m_thread.startFrequency();
+    }
     void setStartFrequency(int f);
 
-    int endFrequency() const {return m_thread.endFrequency();}
+    int endFrequency() const
+    {
+        return m_thread.endFrequency();
+    }
     void setEndFrequency(int f);
 
-    float gain() const {return m_thread.gain();}
+    float gain() const
+    {
+        return m_thread.gain();
+    }
     void setGain(float gain);
 
-    int channelsCount() const {return m_thread.channelsCount();}
-    int channel() const {return m_thread.channel();}
+    int channelsCount() const
+    {
+        return m_thread.channelsCount();
+    }
+    int channel() const
+    {
+        return m_thread.channel();
+    }
     void setChannel(int channel);
-    int aux() const {return m_thread.aux();}
+    int aux() const
+    {
+        return m_thread.aux();
+    }
     void setAux(int channel);
 
     float duration() const;

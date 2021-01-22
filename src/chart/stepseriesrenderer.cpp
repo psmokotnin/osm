@@ -19,7 +19,7 @@
 
 using namespace Fftchart;
 
-StepSeriesRenderer::StepSeriesRenderer() : m_window(WindowFunction::hann)
+StepSeriesRenderer::StepSeriesRenderer() : m_window(WindowFunction::Hann)
 {
     m_program.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/pos.vert");
     m_program.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/color.frag");
@@ -40,12 +40,12 @@ void StepSeriesRenderer::renderSeries()
     float windowSize = 20.f;//ms
     float offsetValue = m_source->impulseValue(1) * m_window.pointGain(m_source->impulseTime(1) / windowSize + 0.5, 1);
 
-    matrix.ortho(xMin, xMax, yMax, yMin, -1, 1);
+    matrix.ortho(m_xMin, m_xMax, m_yMax, m_yMin, -1, 1);
     m_program.setUniformValue(m_matrixUniform, matrix);
-    openGLFunctions->glVertexAttribPointer(static_cast<GLuint>(m_posAttr), 2, GL_FLOAT, GL_FALSE, 0, static_cast<const void *>(vertices));
+    m_openGLFunctions->glVertexAttribPointer(static_cast<GLuint>(m_posAttr), 2, GL_FLOAT, GL_FALSE, 0, static_cast<const void *>(vertices));
 
-    openGLFunctions->glEnableVertexAttribArray(0);
-    openGLFunctions->glLineWidth(m_weight * m_retinaScale);
+    m_openGLFunctions->glEnableVertexAttribArray(0);
+    m_openGLFunctions->glLineWidth(m_weight * m_retinaScale);
 
     for (unsigned int i = 1, j = 0; i <= m_source->impulseSize() - 1; ++i, j += 2) {
         res += m_source->impulseValue(i) * m_window.pointGain(m_source->impulseTime(i) / windowSize + 0.5, 1);
@@ -53,11 +53,11 @@ void StepSeriesRenderer::renderSeries()
         vertices[3] = res - offsetValue;
 
         if (i > 1) {
-            openGLFunctions->glDrawArrays(GL_LINE_STRIP, 0, 2);
+            m_openGLFunctions->glDrawArrays(GL_LINE_STRIP, 0, 2);
         }
         vertices[0] = vertices[2];
         vertices[1] = vertices[3];
     }
 
-    openGLFunctions->glDisableVertexAttribArray(0);
+    m_openGLFunctions->glDisableVertexAttribArray(0);
 }
