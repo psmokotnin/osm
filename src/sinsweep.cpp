@@ -46,7 +46,7 @@ Sample SinSweep::sample()
         m_phase = 0;
     }
 
-    return {m_gain * std::sin(phase)};
+    return {m_gain *std::sin(phase)};
 }
 
 void SinSweep::setEnd(int end)

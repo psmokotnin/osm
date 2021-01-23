@@ -61,8 +61,7 @@ const float &Source::frequency(unsigned int i) const noexcept
         return m_zero;
     return m_ftdata[i].frequency;
 }
-const float &Source::module(unsigned int i) const noexcept
-{
+const float &Source::module(unsigned int i) const noexcept {
     if (i >= m_dataLength)
         return m_zero;
     return m_ftdata[i].module;
@@ -111,7 +110,8 @@ void Source::copy(FTData *dataDist, TimeData *timeDist)
     std::copy_n(m_impulseData, impulseSize(), timeDist);
 }
 
-void Source::copyFrom(size_t dataSize, size_t timeSize, Source::FTData *dataSrc, Source::TimeData *timeSrc)
+void Source::copyFrom(size_t dataSize, size_t timeSize, Source::FTData *dataSrc,
+                      Source::TimeData *timeSrc)
 {
     if (m_ftdata) {
         delete[] m_ftdata;

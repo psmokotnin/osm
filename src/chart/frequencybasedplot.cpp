@@ -18,7 +18,8 @@
 #include "frequencybasedplot.h"
 using namespace Fftchart;
 
-FrequencyBasedPlot::FrequencyBasedPlot(Settings *settings, QQuickItem *parent): XYPlot(settings, parent),
+FrequencyBasedPlot::FrequencyBasedPlot(Settings *settings, QQuickItem *parent): XYPlot(settings,
+                                                                                           parent),
     m_pointsPerOctave(12), m_coherenceThreshold(0.7f), m_coherence(true)
 {
 
@@ -53,11 +54,14 @@ void FrequencyBasedPlot::setSettings(Settings *settings) noexcept
 {
     XYPlot::setSettings(settings);
     setCoherence(
-        m_settings->reactValue<FrequencyBasedPlot, bool>("coherence", this, &FrequencyBasedPlot::coherenceChanged, m_coherence).toBool());
+        m_settings->reactValue<FrequencyBasedPlot, bool>("coherence", this,
+                                                         &FrequencyBasedPlot::coherenceChanged, m_coherence).toBool());
     setCoherenceThreshold(
-        m_settings->reactValue<FrequencyBasedPlot, float>("coherenceThreshold", this, &FrequencyBasedPlot::coherenceThresholdChanged, m_coherenceThreshold).toFloat());
+        m_settings->reactValue<FrequencyBasedPlot, float>("coherenceThreshold", this,
+                                                          &FrequencyBasedPlot::coherenceThresholdChanged, m_coherenceThreshold).toFloat());
     setPointsPerOctave(
-        m_settings->reactValue<FrequencyBasedPlot, unsigned int>("ppo", this, &FrequencyBasedPlot::pointsPerOctaveChanged, m_pointsPerOctave).toUInt());
+        m_settings->reactValue<FrequencyBasedPlot, unsigned int>("ppo", this,
+                                                                 &FrequencyBasedPlot::pointsPerOctaveChanged, m_pointsPerOctave).toUInt());
 }
 void FrequencyBasedPlot::storeSettings() noexcept
 {

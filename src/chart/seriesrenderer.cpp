@@ -41,7 +41,7 @@ QOpenGLFramebufferObject *SeriesRenderer::createFramebufferObject(const QSize &s
 void SeriesRenderer::synchronize(QQuickFramebufferObject *item)
 {
     m_item = item;
-    auto seriesFBO = dynamic_cast<SeriesFBO*>(item);
+    auto seriesFBO = dynamic_cast<SeriesFBO *>(item);
     if ((m_source = seriesFBO->source())) {
         qreal retinaScale = m_item->window()->devicePixelRatio();
         m_width  = static_cast<GLsizei>(m_item->width() * retinaScale);

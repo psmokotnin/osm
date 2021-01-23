@@ -32,7 +32,7 @@ void XYSeriesRenderer::synchronize(QQuickFramebufferObject *item)
 {
     SeriesRenderer::synchronize(item);
 
-    if (auto *plot = dynamic_cast<XYPlot*>(m_item->parent())) {
+    if (auto *plot = dynamic_cast<XYPlot *>(m_item->parent())) {
         m_xMin = plot->xAxis()->min();
         m_xMax = plot->xAxis()->max();
         m_yMin = plot->yAxis()->min();

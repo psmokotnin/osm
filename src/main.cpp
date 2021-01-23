@@ -37,6 +37,7 @@
 int main(int argc, char *argv[])
 {
     QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
+    //qputenv("QSG_RHI", "1");
 
     QApplication app(argc, argv);
     QQuickStyle::setStyle("Material");
@@ -51,13 +52,15 @@ int main(int argc, char *argv[])
     SourceList sourceList;
 
     qmlRegisterType<Fftchart::VariableChart>("FftChart", 1, 0, "VariableChart");
-    qmlRegisterUncreatableMetaObject(Filter::staticMetaObject, "Measurement", 1, 0, "FilterFrequency", "Error: only enums");
+    qmlRegisterUncreatableMetaObject(Filter::staticMetaObject, "Measurement", 1, 0, "FilterFrequency",
+                                     "Error: only enums");
     qmlRegisterType<Measurement>("Measurement", 1, 0, "Measurement");
     qmlRegisterType<Union>("Union", 1, 0, "Union");
     qmlRegisterType<Stored>("Stored", 1, 0, "Stored");
     qmlRegisterType<ELC>("ELC", 1, 0, "ELC");
     qmlRegisterType<SourceModel>("SourceModel", 1, 0, "SourceModel");
-    qmlRegisterUncreatableType<SourceList>("SourceModel", 1, 0, "SourceList", QStringLiteral("SourceList should not be created in QML"));
+    qmlRegisterUncreatableType<SourceList>("SourceModel", 1, 0, "SourceList",
+                                           QStringLiteral("SourceList should not be created in QML"));
     qmlRegisterType<Settings>("Settings", 1, 0, "Settings");
 
     QQmlApplicationEngine engine;

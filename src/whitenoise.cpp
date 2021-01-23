@@ -20,10 +20,9 @@
 WhiteNoise::WhiteNoise(QObject *parent) : OutputDevice(parent)
 {
     m_name = "White";
-    qsrand(1);//FIXME: deprecated
 }
 Sample WhiteNoise::sample()
 {
-    Sample s = {m_gain * static_cast<float>(qrand()) / RAND_MAX};
+    Sample s = {m_gain *static_cast<float>(m_generator.bounded(2.0) - 1.0)};
     return s;
 }

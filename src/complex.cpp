@@ -41,12 +41,12 @@ const complex complex::rotate(const float &a) const
     return rc;
 }
 //TODO: use vector
-void complex::polar(const float& phase)
+void complex::polar(const float &phase)
 {
     real = cos(phase);
     imag = sin(phase);
 }
-complex& complex::operator=(const float& r)
+complex &complex::operator=(const float &r)
 {
     real = r;
     imag = 0.0;
@@ -69,14 +69,14 @@ complex &complex::operator=(complex &&c)
     return *this;
 }
 
-const complex complex::operator+(const float& r) const
+const complex complex::operator+(const float &r) const
 {
     complex rc;
     rc.real = real + r;
     rc.imag = imag;
     return rc;
 }
-const complex complex::operator+(const complex& c) const
+const complex complex::operator+(const complex &c) const
 {
     complex rc;
     rc.real = real + c.real;
@@ -84,26 +84,26 @@ const complex complex::operator+(const complex& c) const
     return rc;
 }
 
-complex& complex::operator+=(const float& r)
+complex &complex::operator+=(const float &r)
 {
     real += r;
     return *this;
 }
-complex& complex::operator+=(const complex& c)
+complex &complex::operator+=(const complex &c)
 {
     real += c.real;
     imag += c.imag;
     return *this;
 }
 
-const complex complex::operator-(const float& r) const
+const complex complex::operator-(const float &r) const
 {
     complex rc;
     rc.real = real - r;
     rc.imag = imag;
     return rc;
 }
-const complex complex::operator-(const complex& c) const
+const complex complex::operator-(const complex &c) const
 {
     complex rc;
     rc.real = real - c.real;
@@ -111,26 +111,26 @@ const complex complex::operator-(const complex& c) const
     return rc;
 }
 
-complex& complex::operator-=(const float& r)
+complex &complex::operator-=(const float &r)
 {
     real -= r;
     return *this;
 }
-complex& complex::operator-=(const complex& c)
+complex &complex::operator-=(const complex &c)
 {
     real -= c.real;
     imag -= c.imag;
     return *this;
 }
 
-const complex complex::operator/(const float& r) const
+const complex complex::operator/(const float &r) const
 {
     complex rc;
     rc.real = real / r;
     rc.imag = imag / r;
     return rc;
 }
-const complex complex::operator/(const complex& c) const
+const complex complex::operator/(const complex &c) const
 {
     complex rc;
     float d = c.real * c.real + c.imag * c.imag;
@@ -140,13 +140,13 @@ const complex complex::operator/(const complex& c) const
 
     return rc;
 }
-complex& complex::operator/=(const float& r)
+complex &complex::operator/=(const float &r)
 {
     real /= r;
     imag /= r;
     return *this;
 }
-complex& complex::operator/=(const complex& c)
+complex &complex::operator/=(const complex &c)
 {
     float r = real, d = c.real * c.real + c.imag * c.imag;
 
@@ -156,14 +156,14 @@ complex& complex::operator/=(const complex& c)
     return *this;
 }
 
-complex complex::operator*(const float& r) const
+complex complex::operator*(const float &r) const
 {
     complex rc;
     rc.real = real * r;
     rc.imag = imag * r;
     return rc;
 }
-complex complex::operator*(const complex& c) const
+complex complex::operator*(const complex &c) const
 {
     complex rc;
     rc.real = real * c.real - imag * c.imag;
@@ -171,31 +171,31 @@ complex complex::operator*(const complex& c) const
     return rc;
 }
 
-complex& complex::operator*=(const float& r)
+complex &complex::operator*=(const float &r)
 {
     real *= r;
     imag *= r;
     return *this;
 }
-complex& complex::operator*=(const complex& c)
+complex &complex::operator*=(const complex &c)
 {
     float r = real;
     real = real * c.real - imag * c.imag;
     imag = r * c.imag + imag * c.real;
     return *this;
 }
-bool complex::operator==(const complex& c) const
+bool complex::operator==(const complex &c) const
 {
     return (real == c.real && imag == c.imag);
 }
-bool complex::operator!=(const complex& c) const
+bool complex::operator!=(const complex &c) const
 {
     return (real != c.real || imag != c.imag);
 }
 QDebug operator<<(QDebug dbg, const complex &c)
 {
     dbg.nospace() << "Complex value: r:"
-        << c.real << " i:" << c.imag << " ";
+                  << c.real << " i:" << c.imag << " ";
 
     return dbg.maybeSpace();
 }

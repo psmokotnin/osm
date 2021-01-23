@@ -19,6 +19,7 @@
 #define WHITENOISE_H
 
 #include "outputdevice.h"
+#include <QRandomGenerator>
 
 class WhiteNoise : public OutputDevice
 {
@@ -29,6 +30,7 @@ public:
 
 private:
     Sample sample() override;
+    QRandomGenerator m_generator;
 };
 
 #endif // WHITENOISE_H

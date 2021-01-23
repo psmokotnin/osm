@@ -31,9 +31,11 @@ CoherencePlot::CoherencePlot(Settings *settings, QQuickItem *parent): XYPlot(set
     m_y.setLabels(labels);
     setFlag(QQuickItem::ItemHasContents);
 }
-SeriesFBO* CoherencePlot::createSeriesFromSource(Source *source)
+SeriesFBO *CoherencePlot::createSeriesFromSource(Source *source)
 {
-    return new SeriesFBO(source, [](){return new CoherenceSeriesRenderer();}, this);
+    return new SeriesFBO(source, []() {
+        return new CoherenceSeriesRenderer();
+    }, this);
 }
 void CoherencePlot::setPointsPerOctave(unsigned int p)
 {
@@ -62,7 +64,8 @@ void CoherencePlot::setSettings(Settings *settings) noexcept
 //        setType(
 //            m_settings->reactValue<CoherencePlot, CoherencePlot::Type>("type", this, &CoherencePlot::typeChanged, m_type));
         setPointsPerOctave(
-            m_settings->reactValue<CoherencePlot, unsigned int>("pointsPerOctave", this, &CoherencePlot::pointsPerOctaveChanged, m_pointsPerOctave).toUInt());
+            m_settings->reactValue<CoherencePlot, unsigned int>("pointsPerOctave", this,
+                                                                &CoherencePlot::pointsPerOctaveChanged, m_pointsPerOctave).toUInt());
     }
 }
 void CoherencePlot::storeSettings() noexcept

@@ -34,7 +34,7 @@ SourceList::SourceList(QObject *parent, bool appendMeasurement) :
         addMeasurement();
     }
 }
-SourceList* SourceList::clone(QObject *parent, bool filtered) const noexcept
+SourceList *SourceList::clone(QObject *parent, bool filtered) const noexcept
 {
     SourceList *list = new SourceList(parent, false);
     for (auto item : items()) {
@@ -43,21 +43,21 @@ SourceList* SourceList::clone(QObject *parent, bool filtered) const noexcept
         }
     }
 
-    connect(this, &SourceList::preItemRemoved, list, [=](int index) {
+    connect(this, &SourceList::preItemRemoved, list, [ = ](int index) {
         if (!list) return;
         auto item = get(index);
         list->removeItem(item, false);
     });
-    connect(this, &SourceList::postItemAppended, list, [=](auto item){
+    connect(this, &SourceList::postItemAppended, list, [ = ](auto item) {
         list->appendItem(item, false);
     });
-    connect(this, &SourceList::preItemMoved, list, [=](int from, int to){
+    connect(this, &SourceList::preItemMoved, list, [ = ](int from, int to) {
         list->move(from, to);
     });
 
     return list;
 }
-const QVector<Fftchart::Source*>& SourceList::items() const
+const QVector<Fftchart::Source *> &SourceList::items() const
 {
     return m_items;
 }
@@ -74,7 +74,7 @@ int SourceList::count() const noexcept
 {
     return m_items.size();
 }
-Fftchart::Source * SourceList::get(int i) const noexcept
+Fftchart::Source *SourceList::get(int i) const noexcept
 {
     if (i < 0 || i >= m_items.size())
         return nullptr;
@@ -109,7 +109,7 @@ bool SourceList::move(int from, int to) noexcept
 
     emit preItemMoved(from, to);
     if (m_items.size() > from) {
-        Fftchart::Source* item = m_items.takeAt(from);
+        Fftchart::Source *item = m_items.takeAt(from);
         m_items.insert((to > from ? to - 1 : to), item);
     } else {
         qWarning() << "move element from out the bounds";
@@ -171,13 +171,13 @@ bool SourceList::load(const QUrl &fileName) noexcept
     };
 
     if (typeMap.find(loadedDocument["type"].toString()) != typeMap.end()) {
-        switch(typeMap.at(loadedDocument["type"].toString())) {
-            case List:
-                m_currentFile = fileName;
-                return loadList(loadedDocument);
+        switch (typeMap.at(loadedDocument["type"].toString())) {
+        case List:
+            m_currentFile = fileName;
+            return loadList(loadedDocument);
 
-            case Stored:
-                return loadStored(loadedDocument["data"].toObject());
+        case Stored:
+            return loadStored(loadedDocument["data"].toObject());
         }
     }
 
@@ -219,17 +219,17 @@ bool SourceList::importTxt(const QUrl &fileName) noexcept
                 }
 
                 d.push_back({
-                            frequency,
-                            magnitude,
-                            0,
-                            phase,
-                            coherence
-                        });
+                    frequency,
+                    magnitude,
+                    0,
+                    phase,
+                    coherence
+                });
             }
         }
     }
 
-    for(auto& row : d) {
+    for (auto &row : d) {
         auto m = row.module;
         row.module = std::pow(10.f, (m - maxMagnitude) / 20.f);
         row.magnitude = std::pow(10.f, (m - maxMagnitude + 15.f) / 20.f);
@@ -278,13 +278,13 @@ bool SourceList::loadList(const QJsonDocument &document) noexcept
         if (typeMap.find(object["type"].toString()) == typeMap.end())
             continue;
 
-        switch(typeMap.at(object["type"].toString())) {
-            case Measurement:
-                loadMeasurement(object["data"].toObject());
+        switch (typeMap.at(object["type"].toString())) {
+        case Measurement:
+            loadMeasurement(object["data"].toObject());
             break;
 
-            case Stored:
-                loadStored(object["data"].toObject());
+        case Stored:
+            loadStored(object["data"].toObject());
             break;
         }
     }

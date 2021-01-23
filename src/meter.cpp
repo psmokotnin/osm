@@ -29,7 +29,7 @@ void Meter::add(const float &data) noexcept
     float d = std::abs(data);
     m_integrator -= m_data.pushnpop(d, m_size);
     m_integrator += d;
-    while( m_data.size() > m_size) {
+    while ( m_data.size() > m_size) {
         m_integrator -= m_data.front();
         m_data.pop();
     }

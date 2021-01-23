@@ -27,17 +27,19 @@ PhasePlot::PhasePlot(Settings *settings, QQuickItem *parent): FrequencyBasedPlot
     m_x.configure(AxisType::Logarithmic, 20.f, 20000.f);
     m_x.setISOLabels();
     m_y.configure(AxisType::Linear,
-                static_cast<float>(-M_PI),
-                static_cast<float>(M_PI),
-                9, 180.f / static_cast<float>(M_PI)
-                );
+                  static_cast<float>(-M_PI),
+                  static_cast<float>(M_PI),
+                  9, 180.f / static_cast<float>(M_PI)
+                 );
     m_y.setPeriodic(2 * static_cast<float>(M_PI));
     setFlag(QQuickItem::ItemHasContents);
 }
 
-SeriesFBO* PhasePlot::createSeriesFromSource(Source *source)
+SeriesFBO *PhasePlot::createSeriesFromSource(Source *source)
 {
-    return new SeriesFBO(source, [](){return new PhaseSeriesRenderer();}, this);
+    return new SeriesFBO(source, []() {
+        return new PhaseSeriesRenderer();
+    }, this);
 }
 
 void PhasePlot::setRotate(int r) noexcept
@@ -66,7 +68,8 @@ void PhasePlot::setSettings(Settings *settings) noexcept
     if (settings && (settings->value("type") == "Phase")) {
         FrequencyBasedPlot::setSettings(settings);
         setRotate(
-            m_settings->reactValue<PhasePlot, int>("rotate", this, &PhasePlot::rotateChanged, m_center).toInt());
+            m_settings->reactValue<PhasePlot, int>("rotate", this, &PhasePlot::rotateChanged,
+                                                   m_center).toInt());
         setRange(
             m_settings->reactValue<PhasePlot, int>("range", this, &PhasePlot::rangeChanged, m_range).toInt());
     }

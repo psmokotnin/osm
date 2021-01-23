@@ -73,10 +73,14 @@ void XYPlot::setYMax(float v)
 void XYPlot::setSettings(Settings *settings) noexcept
 {
     Plot::setSettings(settings);
-    m_x.setMin(m_settings->reactValue<XYPlot, float>("xmin", this, &XYPlot::xminChanged, m_x.min()).toFloat());
-    m_x.setMax(m_settings->reactValue<XYPlot, float>("xmax", this, &XYPlot::xmaxChanged, m_x.max()).toFloat());
-    m_y.setMin(m_settings->reactValue<XYPlot, float>("ymin", this, &XYPlot::yminChanged, m_y.min()).toFloat());
-    m_y.setMax(m_settings->reactValue<XYPlot, float>("ymax", this, &XYPlot::ymaxChanged, m_y.max()).toFloat());
+    m_x.setMin(m_settings->reactValue<XYPlot, float>("xmin", this, &XYPlot::xminChanged,
+                                                     m_x.min()).toFloat());
+    m_x.setMax(m_settings->reactValue<XYPlot, float>("xmax", this, &XYPlot::xmaxChanged,
+                                                     m_x.max()).toFloat());
+    m_y.setMin(m_settings->reactValue<XYPlot, float>("ymin", this, &XYPlot::yminChanged,
+                                                     m_y.min()).toFloat());
+    m_y.setMax(m_settings->reactValue<XYPlot, float>("ymax", this, &XYPlot::ymaxChanged,
+                                                     m_y.max()).toFloat());
 }
 void XYPlot::storeSettings() noexcept
 {

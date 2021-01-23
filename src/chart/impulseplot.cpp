@@ -31,9 +31,11 @@ ImpulsePlot::ImpulsePlot(Settings *settings, QQuickItem *parent): XYPlot(setting
     m_y.setMax(1.f);
     setFlag(QQuickItem::ItemHasContents);
 }
-SeriesFBO* ImpulsePlot::createSeriesFromSource(Source *source)
+SeriesFBO *ImpulsePlot::createSeriesFromSource(Source *source)
 {
-    return new SeriesFBO(source, [](){return new ImpulseSeriesRenderer();}, this);
+    return new SeriesFBO(source, []() {
+        return new ImpulseSeriesRenderer();
+    }, this);
 }
 void ImpulsePlot::setSettings(Settings *settings) noexcept
 {

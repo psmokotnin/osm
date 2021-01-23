@@ -93,9 +93,9 @@ void MeasurementAudioThread::startAudio()
     m_audio = new QAudioInput(m_device, m_format, this);
 #ifndef WIN64
     m_audio->setBufferSize(
-                m_format.sampleSize()/8 *
-                static_cast<int>(m_chanelCount) *
-                1024);
+        m_format.sampleSize() / 8 *
+        static_cast<int>(m_chanelCount) *
+        1024);
 #endif
     connect(m_audio, &QAudioInput::stateChanged, this, &MeasurementAudioThread::audioStateChanged);
 
@@ -106,15 +106,15 @@ void MeasurementAudioThread::startAudio()
         return;
     }
     connect(io, &QIODevice::readyRead,
-                [&, io]() {
-                    int len = m_audio->bytesReady();
-                    QByteArray buffer(len, 0x1);
-                    qint64 l;
+    [ &, io]() {
+        int len = m_audio->bytesReady();
+        QByteArray buffer(len, 0x1);
+        qint64 l;
 
-                    while ((l = io->read(buffer.data(), len)) && l > 0) {
-                        emit recived(buffer);
-                    }
-        });
+        while ((l = io->read(buffer.data(), len)) && l > 0) {
+            emit recived(buffer);
+        }
+    });
     m_format = m_audio->format();
     m_sampleRate = m_format.sampleRate();
     m_chanelCount = static_cast<unsigned int>(m_format.channelCount());
@@ -134,18 +134,18 @@ void MeasurementAudioThread::audioStateChanged(QAudio::State state)
     }
 
     switch (state) {
-        case QAudio::ActiveState:
-            emit started();
-            m_try = false;
-            break;
+    case QAudio::ActiveState:
+        emit started();
+        m_try = false;
+        break;
 
-        case QAudio::IdleState:
-        case QAudio::StoppedState:
-            emit stopped();
-            break;
+    case QAudio::IdleState:
+    case QAudio::StoppedState:
+        emit stopped();
+        break;
 
-        case QAudio::SuspendedState:
-        case QAudio::InterruptedState:
-            break;
+    case QAudio::SuspendedState:
+    case QAudio::InterruptedState:
+        break;
     }
 }

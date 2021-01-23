@@ -31,9 +31,11 @@ RTAPlot::RTAPlot(Settings *settings, QQuickItem *parent): FrequencyBasedPlot(set
     connect(this, SIGNAL(modeChanged(unsigned int)), this, SLOT(update()));
     connect(this, SIGNAL(pointsPerOctaveChanged(unsigned int)), this, SLOT(update()));
 }
-SeriesFBO* RTAPlot::createSeriesFromSource(Source *source)
+SeriesFBO *RTAPlot::createSeriesFromSource(Source *source)
 {
-    return new SeriesFBO(source, [](){return new RTASeriesRenderer();}, this);
+    return new SeriesFBO(source, []() {
+        return new RTASeriesRenderer();
+    }, this);
 }
 void RTAPlot::setMode(unsigned int mode)
 {
@@ -48,7 +50,8 @@ void RTAPlot::setSettings(Settings *settings) noexcept
         FrequencyBasedPlot::setSettings(settings);
 
         setMode(
-            m_settings->reactValue<RTAPlot, unsigned int>("mode", this, &RTAPlot::modeChanged, m_mode).toUInt());
+            m_settings->reactValue<RTAPlot, unsigned int>("mode", this, &RTAPlot::modeChanged,
+                                                          m_mode).toUInt());
     }
 }
 void RTAPlot::storeSettings() noexcept

@@ -40,7 +40,8 @@ void ImpulseSeriesRenderer::renderSeries()
     matrix.ortho(m_xMin, m_xMax, m_yMax, m_yMin, -1, 1);
     m_program.setUniformValue(m_matrixUniform, matrix);
 
-    m_openGLFunctions->glVertexAttribPointer(static_cast<GLuint>(m_posAttr), 2, GL_FLOAT, GL_FALSE, 0, static_cast<const void *>(vertices));
+    m_openGLFunctions->glVertexAttribPointer(static_cast<GLuint>(m_posAttr), 2, GL_FLOAT, GL_FALSE, 0,
+                                             static_cast<const void *>(vertices));
 
     m_openGLFunctions->glEnableVertexAttribArray(0);
     m_openGLFunctions->glLineWidth(m_weight * m_retinaScale);

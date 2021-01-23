@@ -21,23 +21,26 @@
 
 using namespace Fftchart;
 
-GroupDelayPlot::GroupDelayPlot(Settings *settings, QQuickItem *parent): FrequencyBasedPlot(settings, parent)
+GroupDelayPlot::GroupDelayPlot(Settings *settings, QQuickItem *parent): FrequencyBasedPlot(settings,
+                                                                                               parent)
 {
     m_x.configure(AxisType::Logarithmic, 20.f, 20000.f);
     m_x.setISOLabels();
     m_y.configure(AxisType::Linear,
-                -50.f * static_cast<float>(M_PI) / 500,  //min
-                50.f  * static_cast<float>(M_PI) / 500,   //max
-                21,     //ticks
-                500.f / static_cast<float>(M_PI)    //scale
-                );
+                  -50.f * static_cast<float>(M_PI) / 500,  //min
+                  50.f  * static_cast<float>(M_PI) / 500,   //max
+                  21,     //ticks
+                  500.f / static_cast<float>(M_PI)    //scale
+                 );
     m_y.setMin(-40.f * static_cast<float>(M_PI) / 500);
     m_y.setMax( 10.f * static_cast<float>(M_PI) / 500);
     setFlag(QQuickItem::ItemHasContents);
 }
-SeriesFBO* GroupDelayPlot::createSeriesFromSource(Source *source)
+SeriesFBO *GroupDelayPlot::createSeriesFromSource(Source *source)
 {
-    return new SeriesFBO(source, [](){return new GroupDelaySeriesRenderer();}, this);
+    return new SeriesFBO(source, []() {
+        return new GroupDelaySeriesRenderer();
+    }, this);
 }
 void GroupDelayPlot::setSettings(Settings *settings) noexcept
 {

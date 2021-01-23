@@ -21,7 +21,8 @@
 
 using namespace Fftchart;
 
-MagnitudeSeriesRenderer::MagnitudeSeriesRenderer() : m_pointsPerOctave(0), m_coherenceThreshold(0), m_coherence(false)
+MagnitudeSeriesRenderer::MagnitudeSeriesRenderer() : m_pointsPerOctave(0), m_coherenceThreshold(0),
+    m_coherence(false)
 {
     m_program.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/logx.vert");
     m_program.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/magnitude.frag");
@@ -44,7 +45,7 @@ void MagnitudeSeriesRenderer::synchronize(QQuickFramebufferObject *item)
 {
     XYSeriesRenderer::synchronize(item);
 
-    if (auto *plot = dynamic_cast<MagnitudePlot*>(m_item->parent())) {
+    if (auto *plot = dynamic_cast<MagnitudePlot *>(m_item->parent())) {
         m_pointsPerOctave    = plot->pointsPerOctave();
         m_coherence          = plot->coherence();
         m_invert             = plot->invert();
@@ -60,7 +61,8 @@ void MagnitudeSeriesRenderer::renderSeries()
     float value = 0.f, coherence = 0.f;
 
     setUniforms();
-    m_openGLFunctions->glVertexAttribPointer(static_cast<GLuint>(m_posAttr), 2, GL_FLOAT, GL_FALSE, 0, static_cast<const void *>(vertices));
+    m_openGLFunctions->glVertexAttribPointer(static_cast<GLuint>(m_posAttr), 2, GL_FLOAT, GL_FALSE, 0,
+                                             static_cast<const void *>(vertices));
     m_openGLFunctions->glEnableVertexAttribArray(0);
     m_program.setUniformValue(m_coherenceThresholdU, m_coherenceThreshold);
     m_program.setUniformValue(m_coherenceAlpha, m_coherence);
@@ -74,16 +76,15 @@ void MagnitudeSeriesRenderer::renderSeries()
      * pass spline data to shaders
      * fragment shader draws spline function
      */
-    auto accumulate = [this, &coherence, &value] (unsigned int i)
-    {
+    auto accumulate = [this, &coherence, &value] (unsigned int i) {
         coherence += m_source->coherence(i);
         value     += (m_invert ? -1 : 1) * m_source->magnitude(i);
     };
-    auto collected = [m_program = &m_program, m_openGLFunctions = m_openGLFunctions, &vertices, &value, &coherence,
-            m_splineA = m_splineA, m_frequency1 = m_frequency1, m_frequency2 = m_frequency2,
-            xadd, xmul, m_yMin = m_yMin, m_yMax = m_yMax, m_coherenceSpline = m_coherenceSpline]
-            (float f1, float f2, float *ac, float *c)
-    {
+    auto collected = [m_program = &m_program, m_openGLFunctions = m_openGLFunctions, &vertices, &value,
+                                &coherence,
+                                m_splineA = m_splineA, m_frequency1 = m_frequency1, m_frequency2 = m_frequency2,
+                                xadd, xmul, m_yMin = m_yMin, m_yMax = m_yMax, m_coherenceSpline = m_coherenceSpline]
+    (float f1, float f2, float * ac, float * c) {
         vertices[0] = f1;
         vertices[1] = m_yMax;
         vertices[2] = f1;

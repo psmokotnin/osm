@@ -18,7 +18,8 @@
 #include <cmath>
 #include "averaging.h"
 
-template <> void Averaging<complex>::checkDepth(unsigned int i) {
+template <> void Averaging<complex>::checkDepth(unsigned int i)
+{
     while (m_data.pat(i)->size() > m_depth) {
         m_value[i] -= m_data.pat(i)->front();
         m_data.pat(i)->pop();
@@ -40,11 +41,12 @@ template <> complex Averaging<complex>::value(unsigned int i)
     return m_value[i] / (m_collected[i] * m_gain);
 };
 
-template <> void Averaging<float>::checkDepth(unsigned int i) {
+template <> void Averaging<float>::checkDepth(unsigned int i)
+{
     while (m_data.pat(i)->size() > m_depth) {
         float value = m_data.pat(i)->front();
 #ifdef WIN64
-        if (value/0.f != value) {
+        if (value / 0.f != value) {
 #else
         if (!std::isnan(value)) {
 #endif
@@ -58,9 +60,9 @@ template<> void Averaging<float>::append(unsigned int i, const float &value)
 {
     m_data.pat(i)->push(value);
 #ifdef WIN64
-        if (value/0.f != value) {
+    if (value / 0.f != value) {
 #else
-        if (!std::isnan(value)) {
+    if (!std::isnan(value)) {
 #endif
         m_value[i] += value;
         m_collected[i]++;
@@ -75,7 +77,8 @@ template <> float Averaging<float>::value(unsigned int i)
     return m_value[i] / (m_collected[i] * m_gain);
 };
 
-template <> void Averaging<unsigned int>::checkDepth(unsigned int i) {
+template <> void Averaging<unsigned int>::checkDepth(unsigned int i)
+{
     while (m_data.pat(i)->size() > m_depth) {
         m_value[i] -= m_data.pat(i)->front();
         m_data.pat(i)->pop();

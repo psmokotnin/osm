@@ -68,7 +68,7 @@ void Union::init() noexcept
 
 void Union::resize()
 {
-    Fftchart::Source * primary = m_sources.first();
+    Fftchart::Source *primary = m_sources.first();
     m_dataLength         = static_cast<unsigned int>(primary ? primary->size() : 1);
     m_deconvolutionSize = static_cast<unsigned int>(primary ? primary->impulseSize() : 1);
     m_ftdata             = new FTData[m_dataLength];
@@ -111,7 +111,7 @@ void Union::calc() noexcept
 
     std::lock_guard<std::mutex> guard(m_dataMutex);
     std::set<Fftchart::Source *> sources;
-    Fftchart::Source * primary = m_sources.first();
+    Fftchart::Source *primary = m_sources.first();
     unsigned int count(0);
     complex a, m;
 
@@ -147,16 +147,16 @@ void Union::calc() noexcept
         for (auto it = sources.begin(); it != sources.end(); ++it) {
             if (*it && *it != primary) {
                 switch (m_operation) {
-                    case Sum:
-                    case Avg:
-                        m_ftdata[i].module += (*it)->module(i);
-                        a += (*it)->phase(i) * (*it)->module(i);
-                        m += (*it)->phase(i) * (*it)->magnitudeRaw(i);
+                case Sum:
+                case Avg:
+                    m_ftdata[i].module += (*it)->module(i);
+                    a += (*it)->phase(i) * (*it)->module(i);
+                    m += (*it)->phase(i) * (*it)->magnitudeRaw(i);
                     break;
-                    case Diff:
-                        m_ftdata[i].module -= (*it)->module(i);
-                        a -= (*it)->phase(i) * (*it)->module(i);
-                        m -= (*it)->phase(i) * (*it)->magnitudeRaw(i);
+                case Diff:
+                    m_ftdata[i].module -= (*it)->module(i);
+                    a -= (*it)->phase(i) * (*it)->module(i);
+                    m -= (*it)->phase(i) * (*it)->magnitudeRaw(i);
                     break;
                 }
 

@@ -32,7 +32,9 @@ StepPlot::StepPlot(Settings *settings, QQuickItem *parent) : XYPlot(settings, pa
 
 SeriesFBO *StepPlot::createSeriesFromSource(Source *source)
 {
-    return new SeriesFBO(source, [](){return new StepSeriesRenderer();}, this);
+    return new SeriesFBO(source, []() {
+        return new StepSeriesRenderer();
+    }, this);
 }
 
 void StepPlot::setSettings(Settings *settings) noexcept

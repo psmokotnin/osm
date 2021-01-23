@@ -21,7 +21,8 @@
 
 using namespace Fftchart;
 
-GroupDelaySeriesRenderer::GroupDelaySeriesRenderer() : m_pointsPerOctave(0), m_coherenceThreshold(0), m_coherence(false)
+GroupDelaySeriesRenderer::GroupDelaySeriesRenderer() : m_pointsPerOctave(0),
+    m_coherenceThreshold(0), m_coherence(false)
 {
     m_program.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/logx.vert");
     m_program.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/magnitude.frag");
@@ -45,7 +46,7 @@ void GroupDelaySeriesRenderer::synchronize(QQuickFramebufferObject *item)
 {
     XYSeriesRenderer::synchronize(item);
 
-    if (auto *plot = dynamic_cast<GroupDelayPlot*>(m_item->parent())) {
+    if (auto *plot = dynamic_cast<GroupDelayPlot *>(m_item->parent())) {
         m_pointsPerOctave = plot->pointsPerOctave();
         m_coherence = plot->coherence();
         m_coherenceThreshold = plot->coherenceThreshold();
@@ -61,7 +62,8 @@ void GroupDelaySeriesRenderer::renderSeries()
     float coherence = 0.f;
 
     setUniforms();
-    m_openGLFunctions->glVertexAttribPointer(static_cast<GLuint>(m_posAttr), 2, GL_FLOAT, GL_FALSE, 0, static_cast<const void *>(vertices));
+    m_openGLFunctions->glVertexAttribPointer(static_cast<GLuint>(m_posAttr), 2, GL_FLOAT, GL_FALSE, 0,
+                                             static_cast<const void *>(vertices));
     m_openGLFunctions->glEnableVertexAttribArray(0);
     m_program.setUniformValue(m_coherenceThresholdU, m_coherenceThreshold);
     m_program.setUniformValue(m_coherenceAlpha, m_coherence);
@@ -70,18 +72,16 @@ void GroupDelaySeriesRenderer::renderSeries()
     xadd = -1.0f * logf(m_xMin);
     xmul = m_width / logf(m_xMax / m_xMin);
 
-    auto accumulate = [&value, &coherence, m_source = m_source] (unsigned int i)
-    {
+    auto accumulate = [&value, &coherence, m_source = m_source] (unsigned int i) {
         value += m_source->phase(i);
         coherence += m_source->coherence(i);
     };
     auto collected = [m_program = &m_program, m_openGLFunctions = m_openGLFunctions, &vertices,
-                    m_splineA = m_splineA,
-                    &value, &coherence,
-                    m_frequency1 = m_frequency1, m_frequency2 = m_frequency2,
-                    xadd, xmul, m_yMin = m_yMin, m_yMax = m_yMax, m_coherenceSpline = m_coherenceSpline]
-            (float f1, float f2, float ac[4], GLfloat c[4])
-    {
+                                m_splineA = m_splineA,
+                                &value, &coherence,
+                                m_frequency1 = m_frequency1, m_frequency2 = m_frequency2,
+                                xadd, xmul, m_yMin = m_yMin, m_yMax = m_yMax, m_coherenceSpline = m_coherenceSpline]
+    (float f1, float f2, float ac[4], GLfloat c[4]) {
         vertices[0] = f1;
         vertices[1] = m_yMax;
         vertices[2] = f1;
@@ -104,21 +104,23 @@ void GroupDelaySeriesRenderer::renderSeries()
     };
 
     complex lastValue(0);
-    auto beforeSpline = [&lastValue] (const complex *value, const float *f, const unsigned int & index) {
+    auto beforeSpline = [&lastValue] (const complex * value, const float * f,
+    const unsigned int &index) {
         if (index == 0) {
             lastValue = *value;
             return 0.f;
         }
 
         float ab = std::atan2(
-                    value->real * lastValue.imag - value->imag * lastValue.real,
-                    value->real * lastValue.real + value->imag * lastValue.imag
-                    );
+                       value->real * lastValue.imag - value->imag * lastValue.real,
+                       value->real * lastValue.real + value->imag * lastValue.imag
+                   );
         lastValue = *value;
         return ab / (f[index - 1] - f[index]);
     };
 
-    iterateForSpline<complex, float>(m_pointsPerOctave, &value, &coherence, accumulate, collected, beforeSpline);
+    iterateForSpline<complex, float>(m_pointsPerOctave, &value, &coherence, accumulate, collected,
+                                     beforeSpline);
 
     m_openGLFunctions->glDisableVertexAttribArray(0);
 }

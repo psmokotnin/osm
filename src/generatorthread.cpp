@@ -80,8 +80,8 @@ void GeneratorThread::setEnabled(bool enabled)
     if (m_enabled != enabled) {
         m_enabled = enabled;
         updateAudio();
-        if(m_type == 3 && m_enabled == false)
-            qobject_cast<SinSweep*>(m_sources[3])->setFrequency(m_startFrequency);
+        if (m_type == 3 && m_enabled == false)
+            qobject_cast<SinSweep *>(m_sources[3])->setFrequency(m_startFrequency);
         emit enabledChanged(m_enabled);
     }
 }
@@ -146,9 +146,9 @@ void GeneratorThread::updateAudio()
         m_audio = new QAudioOutput(m_device, m_format, this);
 #ifndef WIN64
         m_audio->setBufferSize(
-                    static_cast<int>(sizeof(float)) *
-                    static_cast<int>(m_channelCount) *
-                    8*1024);
+            static_cast<int>(sizeof(float)) *
+            static_cast<int>(m_channelCount) *
+            8 * 1024);
 #endif
 
         if (m_sources[m_type]->openMode() == QIODevice::NotOpen) {
@@ -167,7 +167,7 @@ void GeneratorThread::updateAudio()
 QVariant GeneratorThread::getAvailableTypes() const
 {
     QStringList nameList;
-    foreach (OutputDevice* o, m_sources) {
+    foreach (OutputDevice *o, m_sources) {
         nameList << o->name();
     }
     return QVariant::fromValue(nameList);
@@ -186,7 +186,8 @@ QVariant GeneratorThread::getDeviceList() const
     format44 = format48;
     format44.setSampleRate(44100);
 
-    foreach (const QAudioDeviceInfo &deviceInfo, QAudioDeviceInfo::availableDevices(QAudio::AudioOutput)) {
+    foreach (const QAudioDeviceInfo &deviceInfo,
+             QAudioDeviceInfo::availableDevices(QAudio::AudioOutput)) {
         if (deviceInfo.isFormatSupported(format44) || deviceInfo.isFormatSupported(format48)) {
             deviceList << deviceInfo.deviceName();
         }
@@ -202,16 +203,14 @@ void GeneratorThread::setFrequency(int frequency)
 }
 void GeneratorThread::setStartFrequency(int startFrequency)
 {
-    if(m_startFrequency != startFrequency)
-    {
+    if (m_startFrequency != startFrequency) {
         m_startFrequency = startFrequency;
         emit startFrequencyChanged(m_startFrequency);
     }
 }
 void GeneratorThread::setEndFrequency(int endFrequency)
 {
-    if(m_endFrequency != endFrequency)
-    {
+    if (m_endFrequency != endFrequency) {
         m_endFrequency = endFrequency;
         emit endFrequencyChanged(m_endFrequency);
     }

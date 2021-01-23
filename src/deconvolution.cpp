@@ -49,7 +49,7 @@ void Deconvolution::transform()
 float Deconvolution::get(const unsigned int i) const
 {
 #ifdef WIN64
-    if (m_data[i]/0.f == m_data[i]) {
+    if (m_data[i] / 0.f == m_data[i]) {
 #else
     if (std::isnan(m_data[i])) {
 #endif

@@ -52,32 +52,32 @@ float WindowFunction::pointGain(float i, unsigned int N) const
         z = 2 * M_PI;
     }
     switch (m_type) {
-        case Type::Rectangular:
-            return 1.0;
+    case Type::Rectangular:
+        return 1.0;
 
-        case Type::Hann:
-            return pow(sin(z / 2), 2);
+    case Type::Hann:
+        return pow(sin(z / 2), 2);
 
-        case Type::Hamming:
-            return 0.54 - 0.46 * cos(z);
+    case Type::Hamming:
+        return 0.54 - 0.46 * cos(z);
 
-        case Type::BlackmanHarris:
-            return
-                    0.35875                - 0.48829 * cos(z      ) +
-                    0.14128 * cos(2.0 * z) - 0.01168 * cos(3.0 * z);
+    case Type::BlackmanHarris:
+        return
+            0.35875                - 0.48829 * cos(z      ) +
+            0.14128 * cos(2.0 * z) - 0.01168 * cos(3.0 * z);
 
-        case Type::FlatTop:
-            return 1 -
-                    1.930 * cos(2 * z) + 1.290 * cos(4 * z) -
-                    0.388 * cos(6 * z) + 0.028 * cos(8 * z);
+    case Type::FlatTop:
+        return 1 -
+               1.930 * cos(2 * z) + 1.290 * cos(4 * z) -
+               0.388 * cos(6 * z) + 0.028 * cos(8 * z);
 
-        case Type::HFT223D:
-            return 1.0 -
-                1.98298997309 * cos(z    ) + 1.75556083063 * cos(2 * z) -
-                1.19037717712 * cos(3 * z) + 0.56155440797 * cos(4 * z) -
-                0.17296769663 * cos(5 * z) + 0.03233247087 * cos(6 * z) -
-                0.00324954578 * cos(7 * z) + 0.00013801040 * cos(8 * z) -
-                0.00000132725 * cos(9 * z);
+    case Type::HFT223D:
+        return 1.0 -
+               1.98298997309 * cos(z    ) + 1.75556083063 * cos(2 * z) -
+               1.19037717712 * cos(3 * z) + 0.56155440797 * cos(4 * z) -
+               0.17296769663 * cos(5 * z) + 0.03233247087 * cos(6 * z) -
+               0.00324954578 * cos(7 * z) + 0.00013801040 * cos(8 * z) -
+               0.00000132725 * cos(9 * z);
     }
 }
 void WindowFunction::setType(Type t)

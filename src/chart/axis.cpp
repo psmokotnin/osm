@@ -43,10 +43,12 @@ Axis::Axis(AxisDirection d, const Palette &palette, QQuickItem *parent)
     setWidth(parent->width());
     setHeight(parent->height());
 }
-void Axis::parentWidthChanged() {
+void Axis::parentWidthChanged()
+{
     setWidth(parentItem()->width());
 }
-void Axis::parentHeightChanged() {
+void Axis::parentHeightChanged()
+{
     setHeight(parentItem()->height());
 }
 void Axis::configure(AxisType type, float min, float max, unsigned int ticks, float scale)
@@ -74,17 +76,17 @@ void Axis::paint(QPainter *painter) noexcept
     float t;
     float size = (m_direction == Horizontal ? pwidth() : pheight());
     int alignFlag = static_cast<int>(m_direction == Horizontal ?
-                         Qt::AlignTop | Qt::AlignCenter :
-                         Qt::AlignRight | Qt::AlignHCenter
-                         );
+                                     Qt::AlignTop | Qt::AlignCenter :
+                                     Qt::AlignRight | Qt::AlignHCenter
+                                    );
 
     QRect limit(
-                static_cast<int>(padding.left),
-                static_cast<int>(padding.top),
-                static_cast<int>(widthf()  - padding.left - padding.right ) + 1,
-                static_cast<int>(heightf() - padding.top  - padding.bottom) + 1
-                );
-    for_each(m_labels.begin(), m_labels.end(), [&](float &l) {
+        static_cast<int>(padding.left),
+        static_cast<int>(padding.top),
+        static_cast<int>(widthf()  - padding.left - padding.right ) + 1,
+        static_cast<int>(heightf() - padding.top  - padding.bottom) + 1
+    );
+    for_each(m_labels.begin(), m_labels.end(), [&](float & l) {
 
         try {
             float lv = l - m_offset / scale();
@@ -104,7 +106,8 @@ void Axis::paint(QPainter *painter) noexcept
         p1.setX(static_cast<int>(m_direction == Horizontal ? t + padding.left : padding.left));
         p2.setX(static_cast<int>(m_direction == Horizontal ? t + padding.left : widthf() - padding.right));
 
-        p1.setY(static_cast<int>(m_direction == Horizontal ? heightf() - padding.bottom : heightf() - padding.bottom - t));
+        p1.setY(static_cast<int>(m_direction == Horizontal ? heightf() - padding.bottom : heightf() -
+                                 padding.bottom - t));
         p2.setY(static_cast<int>(m_direction == Horizontal ? padding.top : heightf() - padding.bottom - t));
 
         //do not draw lines out of padding
@@ -160,8 +163,8 @@ float Axis::coordToValue(float coord) const noexcept
 {
     float size = (m_direction == Horizontal ? pwidth() : pheight());
     coord = (m_direction == Horizontal ?
-               coord - padding.left :
-               static_cast<float>(height()) - coord - padding.bottom);
+             coord - padding.left :
+             static_cast<float>(height()) - coord - padding.bottom);
     return reverse(coord, size) * scale();
 }
 qreal Axis::coordToValue(qreal coord) const noexcept
@@ -199,15 +202,15 @@ void Axis::needUpdate()
 void Axis::setMin(float v)
 {
     m_min = std::max(m_lowLimit,
-                    std::min(v, m_max)
-        );
+                     std::min(v, m_max)
+                    );
     needUpdate();
 }
 void Axis::setMax(float v)
 {
     m_max = std::min(m_highLimit,
-                   std::max(v, m_min)
-        );
+                     std::max(v, m_min)
+                    );
     needUpdate();
 }
 void Axis::setOffset(float offset)

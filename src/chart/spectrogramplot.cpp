@@ -20,7 +20,8 @@
 
 using namespace Fftchart;
 
-SpectrogramPlot::SpectrogramPlot(Settings *settings, QQuickItem *parent): FrequencyBasedPlot(settings, parent)
+SpectrogramPlot::SpectrogramPlot(Settings *settings,
+                                 QQuickItem *parent): FrequencyBasedPlot(settings, parent)
 {
     m_x.configure(AxisType::Logarithmic, 20.f, 20000.f);
     m_x.setISOLabels();
@@ -30,7 +31,9 @@ SpectrogramPlot::SpectrogramPlot(Settings *settings, QQuickItem *parent): Freque
     m_y.setCentralLabel(m_y.min() - 1.f);
     connect(this, SIGNAL(pointsPerOctaveChanged(unsigned int)), this, SLOT(update()));
 }
-SeriesFBO* SpectrogramPlot::createSeriesFromSource(Source *source)
+SeriesFBO *SpectrogramPlot::createSeriesFromSource(Source *source)
 {
-    return new SeriesFBO(source, [](){return new SpectrogramSeriesRenderer();}, this);
+    return new SeriesFBO(source, []() {
+        return new SpectrogramSeriesRenderer();
+    }, this);
 }

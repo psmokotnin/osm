@@ -40,7 +40,7 @@ VariableChart::VariableChart(QQuickItem *parent) :
 }
 void VariableChart::initType()
 {
-    Plot* newPlot = nullptr;
+    Plot *newPlot = nullptr;
     switch (m_selected) {
     case RTA:
         newPlot = new RTAPlot(m_settings, this);
@@ -79,7 +79,7 @@ void VariableChart::initType()
     newPlot->setDarkMode(darkMode());
 
     if (m_plot) {
-        if (!qobject_cast<SpectrogramPlot*>(m_plot)) {
+        if (!qobject_cast<SpectrogramPlot *>(m_plot)) {
             newPlot->setFilter(m_plot->filter());
         }
         m_plot->clear();
@@ -158,11 +158,11 @@ void VariableChart::setSources(SourceList *sourceList)
             appendDataSource(m_sources->items()[i]);
         }
 
-        connect(m_sources, &SourceList::postItemAppended, this, [=](Fftchart::Source *source) {
+        connect(m_sources, &SourceList::postItemAppended, this, [ = ](Fftchart::Source * source) {
             appendDataSource(source);
         });
 
-        connect(m_sources, &SourceList::preItemRemoved, this, [=](int index) {
+        connect(m_sources, &SourceList::preItemRemoved, this, [ = ](int index) {
             auto source = m_sources->get(index);
             removeDataSource(source);
         });
@@ -196,7 +196,7 @@ void VariableChart::updateZOrders() noexcept
         return ;
     }
     auto total = m_sources->count();
-    for (auto&& source : *m_sources) {
+    for (auto &&source : *m_sources) {
         auto z = total - m_sources->indexOf(source);
         setSourceZIndex(source, z);
     }

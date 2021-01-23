@@ -61,23 +61,21 @@ std::vector<float> FourierTransform::getFrequencies(unsigned int sampleRate)
     std::vector<float> list;
 
     switch (m_type) {
-    case Fast:
-        {
-            list.resize(m_size / 2);
-            float kf = static_cast<float>(sampleRate) / m_size;
-            for (unsigned int i = 0; i < m_size / 2; ++i) {
-                list[i] = static_cast<float>(i * kf);
-            }
+    case Fast: {
+        list.resize(m_size / 2);
+        float kf = static_cast<float>(sampleRate) / m_size;
+        for (unsigned int i = 0; i < m_size / 2; ++i) {
+            list[i] = static_cast<float>(i * kf);
         }
-        break;
-    case Log:
-        {
-            list.resize(m_logBasis.size());
-            for (unsigned int i = 0; i < list.size(); ++i) {
-                list[i] = sampleRate * m_logBasis[i].frequency;
-            }
+    }
+    break;
+    case Log: {
+        list.resize(m_logBasis.size());
+        for (unsigned int i = 0; i < list.size(); ++i) {
+            list[i] = sampleRate * m_logBasis[i].frequency;
         }
-        break;
+    }
+    break;
     }
     return list;
 }
@@ -102,7 +100,7 @@ void FourierTransform::prepareFast()
 
     for (unsigned int i = 1, j = 0; i < m_size; ++i) {
         unsigned int bit = m_size >> 1;
-        for (; j>= bit; bit >>= 1)
+        for (; j >= bit; bit >>= 1)
             j -= bit;
         j += bit;
         if (i < j) {
@@ -168,20 +166,22 @@ GNU_ALIGN void FourierTransform::fast(bool reverse, bool ultrafast)
     v4sf vw1, vw2, vu, vv, vr, v1, v2, vwl, norm;
 #ifdef _MSC_VER
     __declspec(align(16))
-#endif 
+#endif
     float stored[4];
     unsigned long ultraLimit = m_size / 2;
     bool breakloop = false;
     norm = _mm_set1_ps(1.f / sqrtf(m_size));
     for (unsigned int len = 2, l = 0; len <= m_size; len <<= 1, l++, breakloop = false) {
         vwl = _mm_set_ps(
-            m_wlen[l].real,                               //vwl[0] = vwl[3] = wlen[l].real;
-            reverse ? -1 * m_wlen[l].imag : m_wlen[l].imag, //vwl[1] = vwl[2] = reverse ? -1 * wlen[l].imag : wlen[l].imag;
-            reverse ? -1 * m_wlen[l].imag : m_wlen[l].imag, 
-            m_wlen[l].real
-        );
+                  m_wlen[l].real,                               //vwl[0] = vwl[3] = wlen[l].real;
+                  reverse ? -1 * m_wlen[l].imag :
+                  m_wlen[l].imag, //vwl[1] = vwl[2] = reverse ? -1 * wlen[l].imag : wlen[l].imag;
+                  reverse ? -1 * m_wlen[l].imag : m_wlen[l].imag,
+                  m_wlen[l].real
+              );
 
-        for (unsigned int i = 0, t1 = 0, t2 = len / 2; i < m_size && !breakloop; i += len, t1 = i, t2 = i + len / 2) {
+        for (unsigned int i = 0, t1 = 0, t2 = len / 2; i < m_size
+                && !breakloop; i += len, t1 = i, t2 = i + len / 2) {
             w = 1.0;
             for (unsigned long j = 0; j < len / 2; ++j, ++t1, ++t2) {
                 //t1 = i + j
@@ -196,7 +196,8 @@ GNU_ALIGN void FourierTransform::fast(bool reverse, bool ultrafast)
                 //vb = _fastB[i + j + len / 2] * w;
                 v1  = _mm_set_ps(m_fastB[t2].real, m_fastB[t2].real, m_fastA[t2].real, m_fastA[t2].real);
                 vw1 = _mm_set_ps(w.imag, w.real, w.imag, w.real);
-                v2  = _mm_set_ps(m_fastB[t2].imag, -1.f * m_fastB[t2].imag, m_fastA[t2].imag, -1.f * m_fastA[t2].imag);
+                v2  = _mm_set_ps(m_fastB[t2].imag, -1.f * m_fastB[t2].imag, m_fastA[t2].imag,
+                                 -1.f * m_fastA[t2].imag);
                 vw2 = _mm_set_ps(w.real, w.imag, w.real, w.imag);
 
                 v1 = _mm_mul_ps(v1, vw1);

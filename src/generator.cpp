@@ -22,17 +22,28 @@ Generator::Generator(Settings *settings, QObject *parent) : QObject(parent),
 {
     QMetaObject::invokeMethod(&m_thread, "init", Qt::QueuedConnection);
 
-    connect(&m_thread, SIGNAL(enabledChanged(bool)),  this, SIGNAL(enabledChanged(bool)),   Qt::QueuedConnection);
-    connect(&m_thread, SIGNAL(deviceChanged(QString)),this, SIGNAL(deviceChanged()),        Qt::QueuedConnection);
-    connect(&m_thread, SIGNAL(typeChanged(int)),      this, SIGNAL(typeChanged()),          Qt::QueuedConnection);
-    connect(&m_thread, SIGNAL(frequencyChanged(int)), this, SIGNAL(frequencyChanged(int)),  Qt::QueuedConnection);
-    connect(&m_thread, SIGNAL(startFrequencyChanged(int)), this, SIGNAL(startFrequencyChanged(int)),  Qt::QueuedConnection);
-    connect(&m_thread, SIGNAL(endFrequencyChanged(int)), this, SIGNAL(endFrequencyChanged(int)),  Qt::QueuedConnection);
-    connect(&m_thread, SIGNAL(gainChanged(float)),    this, SIGNAL(gainChanged(float)),     Qt::QueuedConnection);
-    connect(&m_thread, SIGNAL(durationChanged(float)),this, SIGNAL(durationChanged(float)), Qt::QueuedConnection);
-    connect(&m_thread, SIGNAL(channelChanged(int)),   this, SIGNAL(channelChanged(int)),    Qt::QueuedConnection);
-    connect(&m_thread, SIGNAL(auxChanged(int)),       this, SIGNAL(auxChanged(int)),        Qt::QueuedConnection);
-    connect(&m_thread, SIGNAL(channelsCountChanged()),this, SIGNAL(channelsCountChanged()), Qt::QueuedConnection);
+    connect(&m_thread, SIGNAL(enabledChanged(bool)),  this, SIGNAL(enabledChanged(bool)),
+            Qt::QueuedConnection);
+    connect(&m_thread, SIGNAL(deviceChanged(QString)), this, SIGNAL(deviceChanged()),
+            Qt::QueuedConnection);
+    connect(&m_thread, SIGNAL(typeChanged(int)),      this, SIGNAL(typeChanged()),
+            Qt::QueuedConnection);
+    connect(&m_thread, SIGNAL(frequencyChanged(int)), this, SIGNAL(frequencyChanged(int)),
+            Qt::QueuedConnection);
+    connect(&m_thread, SIGNAL(startFrequencyChanged(int)), this, SIGNAL(startFrequencyChanged(int)),
+            Qt::QueuedConnection);
+    connect(&m_thread, SIGNAL(endFrequencyChanged(int)), this, SIGNAL(endFrequencyChanged(int)),
+            Qt::QueuedConnection);
+    connect(&m_thread, SIGNAL(gainChanged(float)),    this, SIGNAL(gainChanged(float)),
+            Qt::QueuedConnection);
+    connect(&m_thread, SIGNAL(durationChanged(float)), this, SIGNAL(durationChanged(float)),
+            Qt::QueuedConnection);
+    connect(&m_thread, SIGNAL(channelChanged(int)),   this, SIGNAL(channelChanged(int)),
+            Qt::QueuedConnection);
+    connect(&m_thread, SIGNAL(auxChanged(int)),       this, SIGNAL(auxChanged(int)),
+            Qt::QueuedConnection);
+    connect(&m_thread, SIGNAL(channelsCountChanged()), this, SIGNAL(channelsCountChanged()),
+            Qt::QueuedConnection);
 
     loadSettings();
 }
@@ -66,84 +77,84 @@ void Generator::loadSettings()
 void Generator::setEnabled(bool enabled)
 {
     QMetaObject::invokeMethod(
-                &m_thread,
-                "setEnabled",
-                Qt::QueuedConnection,
-                Q_ARG(bool, enabled)
-                );
+        &m_thread,
+        "setEnabled",
+        Qt::QueuedConnection,
+        Q_ARG(bool, enabled)
+    );
 }
 void Generator::setType(int type)
 {
     QMetaObject::invokeMethod(
-                &m_thread,
-                "setType",
-                Qt::QueuedConnection,
-                Q_ARG(int, type)
-                );
+        &m_thread,
+        "setType",
+        Qt::QueuedConnection,
+        Q_ARG(int, type)
+    );
 }
 void Generator::selectDevice(const QString &name)
 {
     QMetaObject::invokeMethod(
-                &m_thread,
-                "selectDevice",
-                Qt::QueuedConnection,
-                Q_ARG(QString, name)
-                );
+        &m_thread,
+        "selectDevice",
+        Qt::QueuedConnection,
+        Q_ARG(QString, name)
+    );
 }
 void Generator::setFrequency(int frequency)
 {
     QMetaObject::invokeMethod(
-                &m_thread,
-                "setFrequency",
-                Qt::QueuedConnection,
-                Q_ARG(int, frequency)
-                );
+        &m_thread,
+        "setFrequency",
+        Qt::QueuedConnection,
+        Q_ARG(int, frequency)
+    );
 }
 
 void Generator::setStartFrequency(int f)
 {
     QMetaObject::invokeMethod(
-                &m_thread,
-                "setStartFrequency",
-                Qt::QueuedConnection,
-                Q_ARG(int, f)
-                );
+        &m_thread,
+        "setStartFrequency",
+        Qt::QueuedConnection,
+        Q_ARG(int, f)
+    );
 }
 void Generator::setEndFrequency(int f)
 {
     QMetaObject::invokeMethod(
-                &m_thread,
-                "setEndFrequency",
-                Qt::QueuedConnection,
-                Q_ARG(int, f)
-                );
+        &m_thread,
+        "setEndFrequency",
+        Qt::QueuedConnection,
+        Q_ARG(int, f)
+    );
 }
 void Generator::setGain(float gain)
 {
     QMetaObject::invokeMethod(
-                &m_thread,
-                "setGain",
-                Qt::QueuedConnection,
-                Q_ARG(float, gain)
-                );
+        &m_thread,
+        "setGain",
+        Qt::QueuedConnection,
+        Q_ARG(float, gain)
+    );
 }
 void Generator::setChannel(int channel)
 {
     QMetaObject::invokeMethod(
-                &m_thread,
-                "setChannel",
-                Qt::QueuedConnection,
-                Q_ARG(int, channel)
-                );
+        &m_thread,
+        "setChannel",
+        Qt::QueuedConnection,
+        Q_ARG(int, channel)
+    );
 }
 void Generator::setAux(int channel)
 {
     QMetaObject::invokeMethod(
-                &m_thread,
-                "setAux",
-                Qt::QueuedConnection,
-                Q_ARG(int, channel)
-                );
+        &m_thread,
+        "setAux",
+        Qt::QueuedConnection,
+        Q_ARG(int, channel)
+    );
 }
 
 float Generator::duration() const
@@ -154,9 +165,9 @@ float Generator::duration() const
 void Generator::setDuration(float duration)
 {
     QMetaObject::invokeMethod(
-                &m_thread,
-                "setDuration",
-                Qt::QueuedConnection,
-                Q_ARG(float, duration)
-                );
+        &m_thread,
+        "setDuration",
+        Qt::QueuedConnection,
+        Q_ARG(float, duration)
+    );
 }

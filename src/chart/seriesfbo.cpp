@@ -19,7 +19,7 @@
 
 using namespace Fftchart;
 
-SeriesFBO::SeriesFBO(Source* s, RendererCreator rc, QQuickItem *parent):
+SeriesFBO::SeriesFBO(Source *s, RendererCreator rc, QQuickItem *parent):
     QQuickFramebufferObject(parent),
     m_rendererCreator(std::move(rc)),
     m_source(s), m_highlighted(false)

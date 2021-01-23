@@ -34,7 +34,7 @@ Plot::Plot(Settings *settings, QQuickItem *parent) :
 }
 void Plot::clear()
 {
-    for (auto&& seriesfbo : series) {
+    for (auto &&seriesfbo : series) {
         seriesfbo->deleteLater();
     }
     series.clear();
@@ -47,14 +47,14 @@ void Plot::disconnectFromParent()
 void Plot::parentWidthChanged()
 {
     setWidth(parentItem()->width());
-    foreach (SeriesFBO *s, findChildren<SeriesFBO*>()) {
+    foreach (SeriesFBO *s, findChildren<SeriesFBO *>()) {
         applyWidthForSeries(s);
     }
 }
 void Plot::parentHeightChanged()
 {
     setHeight(parentItem()->height());
-    foreach (SeriesFBO *s, findChildren<SeriesFBO*>()) {
+    foreach (SeriesFBO *s, findChildren<SeriesFBO *>()) {
         applyHeightForSeries(s);
     }
 }
@@ -103,7 +103,7 @@ void Plot::appendDataSource(Source *source)
 }
 void Plot::removeDataSource(Source *source)
 {
-    foreach(SeriesFBO *seriesfbo, series) {
+    foreach (SeriesFBO *seriesfbo, series) {
         if (seriesfbo->source() == source) {
             seriesfbo->deleteLater();
             series.removeOne(seriesfbo);
@@ -114,7 +114,7 @@ void Plot::removeDataSource(Source *source)
 }
 void Plot::setSourceZIndex(Source *source, int index)
 {
-    foreach(SeriesFBO *seriesfbo, series) {
+    foreach (SeriesFBO *seriesfbo, series) {
         if (seriesfbo->source() == source) {
             seriesfbo->setZIndex(index);
             return;
@@ -124,7 +124,7 @@ void Plot::setSourceZIndex(Source *source, int index)
 
 void Plot::setHighlighted(Source *source)
 {
-    foreach(SeriesFBO *seriesfbo, series) {
+    foreach (SeriesFBO *seriesfbo, series) {
         seriesfbo->setHighlighted((seriesfbo->source() == source));
     }
 }
@@ -132,7 +132,7 @@ void Plot::update()
 {
     QQuickItem::update();
 
-    foreach(SeriesFBO *seriesfbo, series) {
+    foreach (SeriesFBO *seriesfbo, series) {
         seriesfbo->update();
     }
 }

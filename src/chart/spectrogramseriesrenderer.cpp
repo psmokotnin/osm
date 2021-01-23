@@ -43,7 +43,7 @@ SpectrogramSeriesRenderer::SpectrogramSeriesRenderer():
 void SpectrogramSeriesRenderer::synchronize(QQuickFramebufferObject *item)
 {
     XYSeriesRenderer::synchronize(item);
-    if (auto *plot = dynamic_cast<SpectrogramPlot*>(m_item->parent())) {
+    if (auto *plot = dynamic_cast<SpectrogramPlot *>(m_item->parent())) {
         m_pointsPerOctave = plot->pointsPerOctave();
     }
 }
@@ -62,7 +62,8 @@ void SpectrogramSeriesRenderer::renderSeries()
     m_openGLFunctions->glLineWidth(m_weight * m_retinaScale);
     GLfloat vertices[8];
 
-    m_openGLFunctions->glVertexAttribPointer(static_cast<GLuint>(m_posAttr), 2, GL_FLOAT, GL_FALSE, 0, static_cast<const void *>(vertices));
+    m_openGLFunctions->glVertexAttribPointer(static_cast<GLuint>(m_posAttr), 2, GL_FLOAT, GL_FALSE, 0,
+                                             static_cast<const void *>(vertices));
     m_openGLFunctions->glEnableVertexAttribArray(0);
 
     float floor = -140.f, min = -90.f, max = -10.f, mid = (max + min) / 2;
@@ -73,7 +74,7 @@ void SpectrogramSeriesRenderer::renderSeries()
     static const QColor qred("#F44336"), qgreen("#8BC34A"), qblue("#2196F3");
     QColor pointColor;
 
-    auto mix = [] (const QColor& first, const QColor &second, qreal k) {
+    auto mix = [] (const QColor & first, const QColor & second, qreal k) {
         QColor mixedColor;
         mixedColor.setRedF(  k * (second.redF()   - first.redF())   + first.redF());
         mixedColor.setBlueF( k * (second.blueF()  - first.blueF())  + first.blueF());
@@ -81,13 +82,11 @@ void SpectrogramSeriesRenderer::renderSeries()
         return mixedColor;
     };
 
-    auto accumalte =[m_source = m_source, &value] (unsigned int i)
-    {
+    auto accumalte = [m_source = m_source, &value] (unsigned int i) {
         value += powf(m_source->module(i), 2);
     };
     auto collected = [&]
-            (float start, float end, unsigned int count)
-    {
+    (float start, float end, unsigned int count) {
         Q_UNUSED(count)
 
         value = 10 * log10f(value);
@@ -142,9 +141,9 @@ void SpectrogramSeriesRenderer::renderSeries()
 
         for (unsigned int i = 1; i < rowData->size(); ++i) {
 
-            vertices[0] = (rowData->at(i-1)[0] + rowData->at(i-1)[1]) / 2;
+            vertices[0] = (rowData->at(i - 1)[0] + rowData->at(i - 1)[1]) / 2;
             vertices[1] = t;
-            vertices[2] = (rowData->at(i-1)[0] + rowData->at(i-1)[1]) / 2;
+            vertices[2] = (rowData->at(i - 1)[0] + rowData->at(i - 1)[1]) / 2;
             vertices[3] = t + tStep;
             vertices[4] = (rowData->at(i)[0] + rowData->at(i)[1]) / 2;
             vertices[5] = t;
@@ -167,8 +166,10 @@ void SpectrogramSeriesRenderer::renderSeries()
             );
 
             if (i > 1) {
-                m_program.setUniformValue(m_prePositionAttr,  (rowData->at(i-1)[0] + rowData->at(i-1)[1]) / 2, vertices[3], 0.f, 1.f);
-                m_program.setUniformValue(m_postPositionAttr, (rowData->at(i  )[0] + rowData->at(i  )[1]) / 2, vertices[1], 0.f, 1.f);
+                m_program.setUniformValue(m_prePositionAttr,  (rowData->at(i - 1)[0] + rowData->at(i - 1)[1]) / 2,
+                                          vertices[3], 0.f, 1.f);
+                m_program.setUniformValue(m_postPositionAttr, (rowData->at(i  )[0] + rowData->at(i  )[1]) / 2,
+                                          vertices[1], 0.f, 1.f);
                 m_openGLFunctions->glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
             }
         }

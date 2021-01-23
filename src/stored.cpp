@@ -106,10 +106,10 @@ void Stored::fromJSON(QJsonObject data) noexcept
 
     auto jsonColor = data["color"].toObject();
     QColor c(
-                jsonColor["red"  ].toInt(0),
-                jsonColor["green"].toInt(0),
-                jsonColor["blue" ].toInt(0),
-                jsonColor["alpha"].toInt(1));
+        jsonColor["red"  ].toInt(0),
+        jsonColor["green"].toInt(0),
+        jsonColor["blue" ].toInt(0),
+        jsonColor["alpha"].toInt(1));
     setColor(c);
     setName(data["name"].toString());
     setNotes(data["notes"].toString());

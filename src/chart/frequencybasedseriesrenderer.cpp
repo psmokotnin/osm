@@ -48,9 +48,9 @@ void FrequencyBasedSeriesRenderer::setUniforms()
     m_program.setUniformValue(m_widthUniform, m_weight * m_retinaScale);
 }
 void FrequencyBasedSeriesRenderer::iterate(
-        unsigned int pointsPerOctave,
-        const std::function<void(unsigned int)> &accumulate,
-        const std::function<void(float start, float end, unsigned int count)> &collected)
+    unsigned int pointsPerOctave,
+    const std::function<void(unsigned int)> &accumulate,
+    const std::function<void(float start, float end, unsigned int count)> &collected)
 {
     unsigned int count = 0;
 
@@ -58,9 +58,9 @@ void FrequencyBasedSeriesRenderer::iterate(
 
     float _frequencyFactor = powf(2.f, 1.f / pointsPerOctave);
     float bandStart = startFrequency,
-        bandEnd   = bandStart * _frequencyFactor,
-        lastBandEnd = bandStart,
-        frequency;
+          bandEnd   = bandStart * _frequencyFactor,
+          lastBandEnd = bandStart,
+          frequency;
 
     for (unsigned int i = 1; i < m_source->size(); ++i) {
         frequency = m_source->frequency(i);

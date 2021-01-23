@@ -35,19 +35,19 @@ QVariant SourceModel::data(const QModelIndex &index, int role) const
     if (!index.isValid() || !m_list)
         return QVariant();
 
-    Fftchart::Source* source = m_list->items().at(index.row());
+    Fftchart::Source *source = m_list->items().at(index.row());
     QVariant r;
     switch (role) {
-        case NameRole:
-            r.setValue(source ? source->objectName() : QString("None"));
+    case NameRole:
+        r.setValue(source ? source->objectName() : QString("None"));
         break;
 
-        case SourceRole:
-            r.setValue(source);
+    case SourceRole:
+        r.setValue(source);
         break;
 
-        case TitleRole:
-            r.setValue(source ? source->name() : QString("None"));
+    case TitleRole:
+        r.setValue(source ? source->name() : QString("None"));
         break;
     }
 
@@ -85,24 +85,24 @@ void SourceModel::setList(SourceList *list)
     m_list = list;
 
     if (m_list) {
-        connect(m_list, &SourceList::preItemAppended, this, [=]() {
+        connect(m_list, &SourceList::preItemAppended, this, [ = ]() {
             const int index = m_list->items().size();
             beginInsertRows(QModelIndex(), index, index);
         });
-        connect(m_list, &SourceList::postItemAppended, this, [=](Fftchart::Source *) {
+        connect(m_list, &SourceList::postItemAppended, this, [ = ](Fftchart::Source *) {
             endInsertRows();
         });
 
-        connect(m_list, &SourceList::preItemRemoved, this, [=](int index) {
+        connect(m_list, &SourceList::preItemRemoved, this, [ = ](int index) {
             beginRemoveRows(QModelIndex(), index, index);
         });
-        connect(m_list, &SourceList::postItemRemoved, this, [=]() {
+        connect(m_list, &SourceList::postItemRemoved, this, [ = ]() {
             endRemoveRows();
         });
-        connect(m_list, &SourceList::preItemMoved, this, [=](int from, int to) {
+        connect(m_list, &SourceList::preItemMoved, this, [ = ](int from, int to) {
             beginMoveRows(QModelIndex(), from, from, QModelIndex(), to);
         });
-        connect(m_list, &SourceList::postItemMoved, this, [=]() {
+        connect(m_list, &SourceList::postItemMoved, this, [ = ]() {
             endMoveRows();
         });
     }

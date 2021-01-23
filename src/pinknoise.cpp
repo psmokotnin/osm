@@ -71,7 +71,7 @@ Sample PinkNoise::sample()
     sum = m_runningSum + newRandom;
 
     /* Scale to range of -1.0 to 0.9999. */
-    Sample output = {m_gain * m_scalar * sum};
+    Sample output = {m_gain *m_scalar * sum};
     return output;
 }
 
