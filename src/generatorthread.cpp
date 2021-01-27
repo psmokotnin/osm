@@ -115,7 +115,8 @@ void GeneratorThread::selectDevice(const QAudioDeviceInfo &device)
     updateAudio();
     emit deviceChanged(m_device.deviceName());
 }
-void GeneratorThread::updateAudio()
+//DESC: cclang changes an order. It cause crash with MOTU
+__attribute__((optnone)) void GeneratorThread::updateAudio()
 {
     if (m_audio) {
         m_audio->stop();
@@ -142,7 +143,6 @@ void GeneratorThread::updateAudio()
         m_format = m_device.nearestFormat(m_format);
     }
     if (m_enabled) {
-
         m_audio = new QAudioOutput(m_device, m_format, this);
 #ifndef WIN64
         m_audio->setBufferSize(
@@ -150,7 +150,6 @@ void GeneratorThread::updateAudio()
             static_cast<int>(m_channelCount) *
             8 * 1024);
 #endif
-
         if (m_sources[m_type]->openMode() == QIODevice::NotOpen) {
             m_sources[m_type]->open(QIODevice::ReadOnly);
         }
