@@ -15,8 +15,6 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <set>
-
 #include "union.h"
 #include "stored.h"
 
@@ -24,7 +22,8 @@ Union::Union(Settings *settings, QObject *parent): Fftchart::Source(parent),
     m_settings(settings),
     m_sources(4),
     m_timer(nullptr), m_timerThread(nullptr),
-    m_operation(Sum)
+    m_operation(Sum),
+    m_type(Vector)
 {
     m_name = "Union";
     m_sources.fill(nullptr);
@@ -59,6 +58,18 @@ void Union::setActive(bool active) noexcept
         return;
     Fftchart::Source::setActive(active);
     update();
+}
+Union::Type Union::type() const
+{
+    return m_type;
+}
+void Union::setType(const Type &type)
+{
+    if (m_type != type) {
+        m_type = type;
+        emit typeChanged();
+        update();
+    }
 }
 void Union::init() noexcept
 {
@@ -98,7 +109,6 @@ void Union::setSource(int index, Fftchart::Source *s) noexcept
         update();
     }
 }
-
 void Union::update() noexcept
 {
     if (!m_timer.isActive())
@@ -106,18 +116,19 @@ void Union::update() noexcept
 }
 void Union::calc() noexcept
 {
+    std::set<Fftchart::Source *> sources;
+
     if (!active())
         return;
 
     std::lock_guard<std::mutex> guard(m_dataMutex);
-    std::set<Fftchart::Source *> sources;
     Fftchart::Source *primary = m_sources.first();
-    unsigned int count(0);
-    complex a, m;
+    unsigned int count = 0;
 
-    //nothing selected
-    if (!primary)
+    if (!primary) {
+        setActive(false);
         return;
+    }
 
     if (primary->size() != size()) {
         resize();
@@ -138,6 +149,68 @@ void Union::calc() noexcept
     for (auto &s : sources) {
         if (s) s->lock();
     }
+
+    switch (m_type) {
+    case Vector:
+        calcVector(count, sources, primary);
+        break;
+    case Polar:
+        calcPolar(count, sources, primary);
+        break;
+    }
+
+    for (auto &s : sources) {
+        if (s) s->unlock();
+    }
+    emit readyRead();
+}
+void Union::calcPolar(unsigned int count, std::set<Source *> sources,
+                      Fftchart::Source *primary) noexcept
+{
+    float magnitude, phase, module, coherence;
+
+    for (unsigned int i = 0; i < primary->size(); i++) {
+        magnitude = primary->magnitudeRaw(i);
+        phase = primary->phase(i).arg();
+        module = primary->module(i);
+        coherence = primary->coherence(i);
+        for (auto it = sources.begin(); it != sources.end(); ++it) {
+            if (*it && *it != primary) {
+                switch (m_operation) {
+                case Sum:
+                case Avg:
+                    magnitude += (*it)->magnitudeRaw(i);
+                    phase += (*it)->phase(i).arg();
+                    module += (*it)->module(i);
+                    break;
+                case Diff:
+                    magnitude -= (*it)->magnitudeRaw(i);
+                    phase -= (*it)->phase(i).arg();
+                    module -= (*it)->module(i);
+                    break;
+                }
+
+                coherence = std::max(coherence, (*it)->coherence(i));
+            }
+        }
+        if (m_operation == Avg) {
+            magnitude /= count;
+            phase /= count;
+            module /= count;
+        }
+        complex p;
+        p.polar(phase);
+        m_ftdata[i].frequency  = primary->frequency(i);
+        m_ftdata[i].module     = module;
+        m_ftdata[i].phase      = p;
+        m_ftdata[i].magnitude  = magnitude;
+        m_ftdata[i].coherence  = coherence;
+    }
+}
+void Union::calcVector(unsigned int count, std::set<Fftchart::Source *> sources,
+                       Fftchart::Source *primary) noexcept
+{
+    complex a, m;
 
     for (unsigned int i = 0; i < primary->size(); i++) {
 
@@ -173,11 +246,6 @@ void Union::calc() noexcept
         m_ftdata[i].magnitude  = m.abs();
         m_ftdata[i].coherence  = coherence;
     }
-
-    for (auto &s : sources) {
-        if (s) s->unlock();
-    }
-    emit readyRead();
 }
 QJsonObject Union::toJSON() const noexcept
 {
@@ -185,7 +253,6 @@ QJsonObject Union::toJSON() const noexcept
     //TODO: do
     return data;
 }
-
 void Union::fromJSON(QJsonObject data) noexcept
 {
     //TODO: do

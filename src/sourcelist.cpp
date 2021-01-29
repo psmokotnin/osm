@@ -194,7 +194,7 @@ bool SourceList::importTxt(const QUrl &fileName) noexcept
     QString notes;
     char line[1024];
     bool fOk, mOk;
-    float frequency, magnitude, maxMagnitude, coherence = 1.f;
+    float frequency, magnitude, maxMagnitude = -100, coherence = 1.f;
     complex phase;
 
     std::vector<Fftchart::Source::FTData> d;

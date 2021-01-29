@@ -23,6 +23,7 @@
 #include <QTimer>
 #include <QThread>
 
+#include <set>
 #include "chart/source.h"
 #include "settings.h"
 
@@ -32,15 +33,18 @@ class Union : public Fftchart::Source
 
     Q_PROPERTY(int count READ count NOTIFY countChanged)
     Q_PROPERTY(Operation operation READ operation WRITE setOperation NOTIFY operationChanged)
+    Q_PROPERTY(Type type READ type WRITE setType NOTIFY typeChanged)
 
 public:
     enum Operation {Sum, Diff, Avg};
+    enum Type {Vector, Polar};
     const std::map<Operation, QString> operationMap = {
         {Sum,       "Summation"},
         {Diff,      "Difference"},
         {Avg,       "Average"}
     };
     Q_ENUMS(Operation)
+    Q_ENUMS(Type)
 
 private:
     Settings *m_settings;
@@ -50,9 +54,13 @@ private:
     QTimer m_timer;
     QThread m_timerThread;
     Operation m_operation;
+    Type m_type;
 
     void init() noexcept;
     void resize();
+    void calcPolar(unsigned int count, std::set<Fftchart::Source *> sources,
+                   Fftchart::Source *primary) noexcept;
+    void calcVector(unsigned int count, std::set<Source *> sources, Fftchart::Source *primary) noexcept;
 
 public:
     explicit Union(Settings *settings = nullptr, QObject *parent = nullptr);
@@ -77,6 +85,9 @@ public:
 
     void setActive(bool active) noexcept override;
 
+    Type type() const;
+    void setType(const Type &type);
+
 public slots:
     void update() noexcept;
     void calc() noexcept;
@@ -86,5 +97,6 @@ signals:
     void countChanged(int);
     void operationChanged(Operation);
     void needUpdate();
+    void typeChanged();
 };
 #endif // UNION_H

@@ -38,6 +38,12 @@ Item {
                 onCurrentIndexChanged: dataObject.operation = currentIndex;
             }
 
+            ComboBox {
+                model: ["Vector", "Polar"]
+                currentIndex: dataObject.type
+                onCurrentIndexChanged: dataObject.type = currentIndex;
+            }
+
             Label {
                 text: qsTr("Sources must have the same size")
                 Layout.fillWidth: true
