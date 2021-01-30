@@ -145,8 +145,8 @@ bool Stored::saveCal(const QUrl &fileName) const noexcept
     QTextStream out(&saveFile);
     for (unsigned int i = 0; i < m_dataLength; ++i) {
         out << m_ftdata[i].frequency << "\t"
-            << -1 * magnitude(i) << "\t"
-            << m_ftdata[i].phase.arg() * -180.f / static_cast<float>(M_PI) << "\n";
+            << magnitude(i) << "\t"
+            << m_ftdata[i].phase.arg() * 180.f / static_cast<float>(M_PI) << "\n";
 
 
     }

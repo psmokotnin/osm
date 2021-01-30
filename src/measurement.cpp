@@ -547,8 +547,8 @@ void Measurement::averaging()
         //if (calibratedA < someThresholdInDb ) continue;
 
         if (m_enableCalibration && m_calibrationGain.size() > j) {
-            calibratedA *= m_calibrationGain[j];
-            p.polar(m_dataFT.bf(i).arg() - m_dataFT.af(i).arg() + m_calibrationPhase[j]);
+            calibratedA /= m_calibrationGain[j];
+            p.polar(m_dataFT.bf(i).arg() - m_dataFT.af(i).arg() - m_calibrationPhase[j]);
         } else {
             p.polar(m_dataFT.bf(i).arg() - m_dataFT.af(i).arg());
         }
