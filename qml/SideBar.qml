@@ -232,7 +232,15 @@ Item {
             highlight: Rectangle {
                 border.color: sourceList.selected ? sourceList.selected.color : "black"
                 border.width: 0.5
+                visible: sourceList.selected ? true : false
                 color: "transparent"
+            }
+
+            Connections {
+                target: sourceList
+                function onSelectedChanged() {
+                    sideList.currentIndex = sourceList.selectedIndex;
+                }
             }
 
             Shortcut {

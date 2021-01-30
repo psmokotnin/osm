@@ -157,6 +157,8 @@ void VariableChart::setSources(SourceList *sourceList)
         for (int i = 0; i < m_sources->count(); ++i) {
             appendDataSource(m_sources->items()[i]);
         }
+        auto selected = m_sources->selected();
+        m_plot->setHighlighted(selected);
 
         connect(m_sources, &SourceList::postItemAppended, this, [ = ](Fftchart::Source * source) {
             appendDataSource(source);
@@ -170,6 +172,15 @@ void VariableChart::setSources(SourceList *sourceList)
         connect(m_sources, &SourceList::postItemMoved, this, &VariableChart::updateZOrders);
 
         connect(m_sources, &SourceList::selectedChanged, this, [this]() {
+            if (m_plot) {
+                updateZOrders();
+                auto selected = m_sources->selected();
+                m_plot->setHighlighted(selected);
+                setSourceZIndex(selected, m_sources->count() + 1);
+            }
+        });
+
+        connect(this, &VariableChart::typeChanged, this, [this]() {
             if (m_plot) {
                 updateZOrders();
                 auto selected = m_sources->selected();

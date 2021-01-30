@@ -28,7 +28,8 @@
 SourceList::SourceList(QObject *parent, bool appendMeasurement) :
     QObject(parent),
     m_currentFile(),
-    m_colorIndex(3)
+    m_colorIndex(3),
+    m_selected(-1)
 {
     if (appendMeasurement) {
         addMeasurement();
@@ -84,6 +85,8 @@ Fftchart::Source *SourceList::get(int i) const noexcept
 
 void SourceList::clean() noexcept
 {
+    m_selected = -1;
+    emit selectedChanged();
     while (m_items.size() > 0) {
         emit preItemRemoved(0);
         auto item = get(0);
@@ -288,7 +291,6 @@ bool SourceList::loadList(const QJsonDocument &document) noexcept
             break;
         }
     }
-
     return true;
 }
 bool SourceList::loadMeasurement(const QJsonObject &data) noexcept
