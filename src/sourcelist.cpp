@@ -188,6 +188,14 @@ bool SourceList::load(const QUrl &fileName) noexcept
 }
 bool SourceList::importTxt(const QUrl &fileName) noexcept
 {
+    return importFile(fileName, "\t");
+}
+bool SourceList::importCsv(const QUrl &fileName) noexcept
+{
+    return importFile(fileName, ",");
+}
+bool SourceList::importFile(const QUrl &fileName, QString separator) noexcept
+{
     QFile file(fileName.toLocalFile());
     if (!file.open(QIODevice::ReadOnly)) {
         qWarning("Couldn't open file");
@@ -207,7 +215,7 @@ bool SourceList::importTxt(const QUrl &fileName) noexcept
     while (file.readLine(line, 1024) > 0) {
         QString qLine(line);
         notes += line;
-        auto list = qLine.split("\t");
+        auto list = qLine.split(separator);
         fOk = mOk = false;
 
         if (list.size() > 1) {
@@ -237,14 +245,13 @@ bool SourceList::importTxt(const QUrl &fileName) noexcept
         row.module = std::pow(10.f, (m - maxMagnitude) / 20.f);
         row.magnitude = std::pow(10.f, (m - maxMagnitude + 15.f) / 20.f);
     }
-
+    qDebug() << d.size();
     s->copyFrom(d.size(), 0, d.data(), nullptr);
-    s->setName("Imported");
+    s->setName(fileName.fileName());
     s->setNotes(notes);
     s->setActive(true);
     appendItem(s, true);
     return true;
-
 }
 int SourceList::selectedIndex() const
 {

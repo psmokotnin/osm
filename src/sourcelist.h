@@ -56,6 +56,7 @@ private:
     bool loadList(const QJsonDocument &document) noexcept;
     bool loadMeasurement(const QJsonObject &data) noexcept;
     bool loadStored(const QJsonObject &data) noexcept;
+    bool importFile(const QUrl &fileName, QString separator) noexcept;
 
 public:
     explicit SourceList(QObject *parent = nullptr, bool appendMeasurement = true);
@@ -81,6 +82,7 @@ public:
     Q_INVOKABLE bool save(const QUrl &fileName) const noexcept;
     Q_INVOKABLE bool load(const QUrl &fileName) noexcept;
     Q_INVOKABLE bool importTxt(const QUrl &fileName) noexcept;
+    Q_INVOKABLE bool importCsv(const QUrl &fileName) noexcept;
     Q_INVOKABLE bool move(int from, int to) noexcept;
     Q_INVOKABLE int indexOf(Fftchart::Source *) const noexcept;
 

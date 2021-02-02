@@ -45,6 +45,7 @@ Measurement::Measurement(Settings *settings, QObject *parent) : Fftchart::Source
     connect(&m_audioThread, SIGNAL(recived(const QByteArray &)), SLOT(writeData(const QByteArray &)),
             Qt::DirectConnection);
     connect(&m_audioThread, SIGNAL(deviceChanged(QString)), this, SIGNAL(deviceChanged(QString)));
+    connect(&m_audioThread, SIGNAL(deviceChanged(QString)), this, SIGNAL(chanelsCountChanged()));
     connect(&m_audioThread, SIGNAL(formatChanged()), this, SIGNAL(chanelsCountChanged()));
     connect(&m_audioThread, SIGNAL(formatChanged()), this, SLOT(recalculateDataLength()));
     connect(&m_audioThread, SIGNAL(formatChanged()), this, SIGNAL(sampleRateChanged()));

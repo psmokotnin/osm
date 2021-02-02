@@ -132,7 +132,6 @@ Item {
                 textRole: "title"
                 valueRole: "source"
                 Layout.fillWidth: true
-                enabled: dataObject.count > 2
                 onCurrentIndexChanged: {
                     dataObject.setSource(2, model.get(currentIndex));
                 }
@@ -148,7 +147,6 @@ Item {
                 textRole: "title"
                 valueRole: "source"
                 Layout.fillWidth: true
-                enabled: dataObject.count > 3
                 onCurrentIndexChanged: {
                     dataObject.setSource(3, model.get(currentIndex));
                 }

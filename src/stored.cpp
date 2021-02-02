@@ -122,7 +122,6 @@ bool Stored::save(const QUrl &fileName) const noexcept
         qWarning("Couldn't open save file.");
         return false;
     }
-
     QJsonObject object;
     object["type"] = "stored";
     object["data"] = toJSON();
@@ -141,7 +140,6 @@ bool Stored::saveCal(const QUrl &fileName) const noexcept
         qWarning("Couldn't open save file.");
         return false;
     }
-
     QTextStream out(&saveFile);
     for (unsigned int i = 0; i < m_dataLength; ++i) {
         out << m_ftdata[i].frequency << "\t"
@@ -161,16 +159,13 @@ bool Stored::saveFRD(const QUrl &fileName) const noexcept
         qWarning("Couldn't open save file.");
         return false;
     }
-
     QTextStream out(&saveFile);
-    for (unsigned int i = 1; i < m_dataLength; ++i) {
+    for (unsigned int i = 0; i < m_dataLength; ++i) {
         auto m = magnitude(i);
         auto p = m_ftdata[i].phase.arg() * 180.f / static_cast<float>(M_PI);
         if (std::isnormal(m) && std::isnormal(p)) {
             out << m_ftdata[i].frequency << " " << m << " " << p << " " << coherence(i) << "\n";
         }
-
-
     }
     saveFile.close();
     return true;
@@ -182,20 +177,15 @@ bool Stored::saveTXT(const QUrl &fileName) const noexcept
         qWarning("Couldn't open save file.");
         return false;
     }
-
     QTextStream out(&saveFile);
-    auto notes = m_notes;
-    notes.replace("\t", " ");
-    out << notes << "\n\n";
+    out << "Created with Open Sound Meter\n\n";
 
-    for (unsigned int i = 1; i < m_dataLength; ++i) {
+    for (unsigned int i = 0; i < m_dataLength; ++i) {
         auto m = magnitude(i);
         auto p = m_ftdata[i].phase.arg() * 180.f / static_cast<float>(M_PI);
         if (std::isnormal(m) && std::isnormal(p)) {
             out << m_ftdata[i].frequency << "\t" << m << "\t" << p << "\t" << coherence(i) << "\n";
         }
-
-
     }
     saveFile.close();
     return true;

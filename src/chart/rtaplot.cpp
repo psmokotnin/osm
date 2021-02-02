@@ -25,7 +25,7 @@ RTAPlot::RTAPlot(Settings *settings, QQuickItem *parent): FrequencyBasedPlot(set
 {
     m_x.configure(AxisType::Logarithmic, 20.f, 20000.f);
     m_x.setISOLabels();
-    m_y.configure(AxisType::Linear, -140.f,    0.f,  14);
+    m_y.configure(AxisType::Linear, -140.f, 40.f,  15);
     m_y.setCentralLabel(m_y.min() - 1.f);
     setFlag(QQuickItem::ItemHasContents);
     connect(this, SIGNAL(modeChanged(unsigned int)), this, SLOT(update()));
