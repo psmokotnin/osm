@@ -88,11 +88,13 @@ Measurement::Measurement(Settings *settings, QObject *parent) : Fftchart::Source
 
     calculateDataLength();
     m_dataFT.prepare();
+    m_dataFT.setWindowFunctionType(m_windowFunctionType);
     m_moduleLPFs.resize(m_dataLength);
     m_magnitudeLPFs.resize(m_dataLength);
     m_phaseLPFs.resize(m_dataLength);
 
     m_deconvolution.setSize(m_deconvolutionSize);
+    m_deconvolution.setWindowFunctionType(m_windowFunctionType);
     m_impulseData = new TimeData[m_deconvolutionSize];
     m_deconvLPFs.resize(m_deconvolutionSize);
     m_deconvAvg.setSize(m_deconvolutionSize);

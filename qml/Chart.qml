@@ -115,6 +115,8 @@ Item {
         x: opener.mouseX + cursor.fontInfo.pixelSize / 2
         y: opener.mouseY - cursor.height / 2
         visible: opener.containsMouse
+        style: Text.Outline;
+        styleColor: "#99FFFFFF"
     }
 
     ComboBox {

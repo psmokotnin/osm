@@ -64,7 +64,7 @@ void MeasurementAudioThread::setActive(bool active)
         m_audio->stop();
     }
 }
-void MeasurementAudioThread::startAudio()
+__attribute__((optnone)) void MeasurementAudioThread::startAudio()
 {
     m_chanelCount = std::max(m_dataChanel, m_referenceChanel) + 1;
     foreach (auto c, m_device.supportedChannelCounts()) {
@@ -87,8 +87,9 @@ void MeasurementAudioThread::startAudio()
         m_format = m_device.nearestFormat(m_format);
     }
 
-    if (m_audio)
+    if (m_audio) {
         m_audio->deleteLater();
+    }
 
     m_audio = new QAudioInput(m_device, m_format, this);
 #ifndef WIN64
@@ -98,7 +99,6 @@ void MeasurementAudioThread::startAudio()
         1024);
 #endif
     connect(m_audio, &QAudioInput::stateChanged, this, &MeasurementAudioThread::audioStateChanged);
-
     auto io = m_audio->start();
     if (m_audio->error() == QAudio::OpenError) {
         qWarning() << m_audio->error();

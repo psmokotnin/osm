@@ -24,12 +24,33 @@ namespace Fftchart {
 class SpectrogramPlot : public FrequencyBasedPlot
 {
     Q_OBJECT
+    Q_PROPERTY(int min READ min WRITE setMin NOTIFY minChanged)
+    Q_PROPERTY(int mid READ mid WRITE setMid NOTIFY midChanged)
+    Q_PROPERTY(int max READ max WRITE setMax NOTIFY maxChanged)
 
 protected:
     virtual SeriesFBO *createSeriesFromSource(Source *source) override;
 
+    int m_min, m_mid, m_max;
+
 public:
     SpectrogramPlot(Settings *settings, QQuickItem *parent = Q_NULLPTR);
+    void setSettings(Settings *settings) noexcept override;
+    void storeSettings() noexcept override;
+
+    int min() const;
+    void setMin(int min);
+
+    int mid() const;
+    void setMid(int mid);
+
+    int max() const;
+    void setMax(int max);
+
+signals:
+    void minChanged(int);
+    void midChanged(int);
+    void maxChanged(int);
 };
 }
 #endif // SPECTROGRAMPLOT_H

@@ -161,8 +161,10 @@ win32:QMAKE_CXXFLAGS += -m64 -msse2
 QMAKE_CXXFLAGS_RELEASE -= -O2
 QMAKE_CXXFLAGS_RELEASE += -Ofast
 
-!ios {
-    QMAKE_INFO_PLIST = $$PWD/Info.plist
+!debug {
+    !ios {
+        QMAKE_INFO_PLIST = $$PWD/Info.plist
+    }
 }
 
 DISTFILES += \

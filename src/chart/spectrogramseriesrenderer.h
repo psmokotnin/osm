@@ -46,6 +46,7 @@ protected:
 private:
     int m_posAttr, m_prePositionAttr, m_postPositionAttr;
     int m_colorLeftUniform, m_colorRightUniform;
+    int m_min, m_mid, m_max;
     unsigned int m_pointsPerOctave;
     QElapsedTimer m_timer;
 };

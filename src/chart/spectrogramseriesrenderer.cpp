@@ -45,6 +45,9 @@ void SpectrogramSeriesRenderer::synchronize(QQuickFramebufferObject *item)
     XYSeriesRenderer::synchronize(item);
     if (auto *plot = dynamic_cast<SpectrogramPlot *>(m_item->parent())) {
         m_pointsPerOctave = plot->pointsPerOctave();
+        m_min = plot->min();
+        m_mid = plot->mid();
+        m_max = plot->max();
     }
 }
 void SpectrogramSeriesRenderer::renderSeries()
@@ -66,7 +69,7 @@ void SpectrogramSeriesRenderer::renderSeries()
                                              static_cast<const void *>(vertices));
     m_openGLFunctions->glEnableVertexAttribArray(0);
 
-    float floor = -140.f, min = -90.f, max = -10.f, mid = (max + min) / 2;
+    float floor = -140.f;
     float alpha;
 
     historyRowData rowData;
@@ -95,21 +98,21 @@ void SpectrogramSeriesRenderer::renderSeries()
         if (!std::isnormal(value) || value < floor) {
             value = floor;
         }
-        if (value > max) {
-            value = max;
+        if (value > m_max) {
+            value = m_max;
         }
 
-        if (value < min) {
+        if (value < m_min) {
             // transparent -> blue
             pointColor = qblue;
             pointColor = qblue;
-            alpha = (value - floor) / (min   - floor);
-        } else if (value < mid) {
+            alpha = (value - floor) / (m_min   - floor);
+        } else if (value < m_mid) {
             // blue -> green
-            pointColor = mix(qblue, qgreen, static_cast<qreal>((value - min) / (mid - min)));
+            pointColor = mix(qblue, qgreen, static_cast<qreal>((value - m_min) / (m_mid - m_min)));
         } else  {
             // green -> red
-            pointColor = mix(qgreen, qred, static_cast<qreal>((value - mid) / (max - mid)));
+            pointColor = mix(qgreen, qred, static_cast<qreal>((value - m_mid) / (m_max - m_mid)));
         }
 
         historyPoint rgb;

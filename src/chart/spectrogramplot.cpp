@@ -21,7 +21,7 @@
 using namespace Fftchart;
 
 SpectrogramPlot::SpectrogramPlot(Settings *settings,
-                                 QQuickItem *parent): FrequencyBasedPlot(settings, parent)
+                                 QQuickItem *parent): FrequencyBasedPlot(settings, parent), m_min(-90), m_mid(-50), m_max(10)
 {
     m_x.configure(AxisType::Logarithmic, 20.f, 20000.f);
     m_x.setISOLabels();
@@ -31,9 +31,74 @@ SpectrogramPlot::SpectrogramPlot(Settings *settings,
     m_y.setCentralLabel(m_y.min() - 1.f);
     connect(this, SIGNAL(pointsPerOctaveChanged(unsigned int)), this, SLOT(update()));
 }
+
+void SpectrogramPlot::setSettings(Settings *settings) noexcept
+{
+    if (settings && (settings->value("type") == "Spectrogram")) {
+        FrequencyBasedPlot::setSettings(settings);
+    }
+
+    setMin(m_settings->reactValue<SpectrogramPlot, int>("dBMin", this, &SpectrogramPlot::minChanged,
+                                                        m_min).toInt());
+    setMid(m_settings->reactValue<SpectrogramPlot, int>("dBMid", this, &SpectrogramPlot::midChanged,
+                                                        m_mid).toInt());
+    setMax(m_settings->reactValue<SpectrogramPlot, int>("dBMax", this, &SpectrogramPlot::maxChanged,
+                                                        m_max).toInt());
+}
+
+void SpectrogramPlot::storeSettings() noexcept
+{
+    if (!m_settings)
+        return;
+
+    FrequencyBasedPlot::storeSettings();
+    m_settings->setValue("type", "Spectrogram");
+    m_settings->setValue("dBMin", m_min);
+    m_settings->setValue("dBMid", m_mid);
+    m_settings->setValue("dBMax", m_max);
+}
 SeriesFBO *SpectrogramPlot::createSeriesFromSource(Source *source)
 {
     return new SeriesFBO(source, []() {
         return new SpectrogramSeriesRenderer();
     }, this);
+}
+
+int SpectrogramPlot::max() const
+{
+    return m_max;
+}
+
+void SpectrogramPlot::setMax(int max)
+{
+    if (m_max != max) {
+        m_max = max;
+        emit maxChanged(m_max);
+    }
+}
+
+int SpectrogramPlot::mid() const
+{
+    return m_mid;
+}
+
+void SpectrogramPlot::setMid(int mid)
+{
+    if (m_mid != mid) {
+        m_mid = mid;
+        emit midChanged(m_mid);
+    }
+}
+
+int SpectrogramPlot::min() const
+{
+    return m_min;
+}
+
+void SpectrogramPlot::setMin(int min)
+{
+    if (m_min != min) {
+        m_min = min;
+        emit minChanged(m_min);
+    }
 }

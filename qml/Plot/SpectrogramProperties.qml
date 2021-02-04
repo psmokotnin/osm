@@ -143,29 +143,89 @@ Item {
             }
         }
 
-        /*
-        TODO: may be remove?
-        CheckBox {
-            id: coherence
-            text: qsTr("use coherence")
-            implicitWidth: 170
-            checked: dataObject.coherence
-            onCheckStateChanged: dataObject.coherence = checked
-
-            ToolTip.visible: hovered
-            ToolTip.text: qsTr("use coherence as alpha channel")
+        Item {
+            width: 10
         }
 
-        Root.FloatSpinBox {
-            min: 0.0
-            max: 1.0
-            step: 0.05
-            value: dataObject.coherenceThreshold
-            tooltiptext: qsTr("coherence threshold")
-            onValueChanged: dataObject.coherenceThreshold = value
+        SpinBox {
+            value: dataObject.min
+            onValueChanged: dataObject.min = value
+            from: -140
+            to: dataObject.mid - 1
+            editable: true
             implicitWidth: 170
-            visible: coherence.checked
-        }*/
+            Layout.fillWidth: true
+
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("min dB point")
+
+            textFromValue: function(value, locale) {
+                return Number(value) + "dB"
+            }
+
+            valueFromText: function(text, locale) {
+                return parseInt(text)
+            }
+            Rectangle {
+                color: "#2196F3"
+                anchors.fill: parent
+                opacity: 0.15
+            }
+        }
+
+        SpinBox {
+            value: dataObject.mid
+            onValueChanged: dataObject.mid = value
+            from: dataObject.min
+            to: dataObject.max
+            editable: true
+            implicitWidth: 170
+            Layout.fillWidth: true
+
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("mid dB point")
+
+            textFromValue: function(value, locale) {
+                return Number(value) + "dB"
+            }
+
+            valueFromText: function(text, locale) {
+                return parseInt(text)
+            }
+
+            Rectangle {
+                color: "#8BC34A"
+                anchors.fill: parent
+                opacity: 0.15
+            }
+        }
+
+        SpinBox {
+            value: dataObject.max
+            onValueChanged: dataObject.max = value
+            from: dataObject.mid + 1
+            to: 20
+            editable: true
+            implicitWidth: 170
+            Layout.fillWidth: true
+
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("max dB point")
+
+            textFromValue: function(value, locale) {
+                return Number(value) + "dB"
+            }
+
+            valueFromText: function(text, locale) {
+                return parseInt(text)
+            }
+
+            Rectangle {
+                color: "#F44336"
+                anchors.fill: parent
+                opacity: 0.15
+            }
+        }
 
         RowLayout {
             Layout.fillWidth: true
