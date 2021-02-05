@@ -38,8 +38,8 @@ void StepSeriesRenderer::renderSeries()
     GLfloat vertices[4];
     float res = 0.f;
     float windowSize = 20.f;//ms
-    float offsetValue = m_source->impulseValue(1) * m_window.pointGain(m_source->impulseTime(
-                                                                           1) / windowSize + 0.5, 1);
+    float offsetValue = m_source->impulseValue(1) *
+                        m_window.pointGain(m_source->impulseTime(1) / windowSize + 0.5, 1);
 
     matrix.ortho(m_xMin, m_xMax, m_yMax, m_yMin, -1, 1);
     m_program.setUniformValue(m_matrixUniform, matrix);
@@ -50,8 +50,8 @@ void StepSeriesRenderer::renderSeries()
     m_openGLFunctions->glLineWidth(m_weight * m_retinaScale);
 
     for (unsigned int i = 1, j = 0; i <= m_source->impulseSize() - 1; ++i, j += 2) {
-        res += m_source->impulseValue(i) * m_window.pointGain(m_source->impulseTime(i) / windowSize + 0.5,
-                                                              1);
+        res += m_source->impulseValue(i) *
+               m_window.pointGain(m_source->impulseTime(i) / windowSize + 0.5, 1);
         vertices[2] = m_source->impulseTime(i);
         vertices[3] = res - offsetValue;
 

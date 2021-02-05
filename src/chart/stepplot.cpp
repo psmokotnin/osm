@@ -27,6 +27,7 @@ StepPlot::StepPlot(Settings *settings, QQuickItem *parent) : XYPlot(settings, pa
     m_y.configure(AxisType::Linear, -2.0, 2.0, 21);
     m_y.setMin(-1.f);
     m_y.setMax(1.f);
+    m_x.setUnit("ms");
     setFlag(QQuickItem::ItemHasContents);
 }
 

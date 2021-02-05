@@ -29,6 +29,16 @@ vector<float> Axis::ISO_LABELS = {
     31.5, 63, 125, 250, 500, 1000, 2000, 4000, 8000, 16000
 };
 
+QString Axis::unit() const
+{
+    return m_unit;
+}
+
+void Axis::setUnit(const QString &unit)
+{
+    m_unit = unit;
+}
+
 Axis::Axis(AxisDirection d, const Palette &palette, QQuickItem *parent)
     : PaintedItem(parent),
       m_palette(palette),

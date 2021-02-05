@@ -40,6 +40,7 @@ private:
     float m_lowLimit, m_highLimit; //stop values
     float m_offset, m_centralLabel;
     std::optional<float> m_period;
+    QString m_unit;
 
 public:
     Axis(AxisDirection d, const Palette &palette, QQuickItem *parent = Q_NULLPTR);
@@ -118,6 +119,9 @@ public:
     void setCentralLabel(float central);
 
     void setPeriodic(float p);
+
+    QString unit() const;
+    void setUnit(const QString &unit);
 
 public slots:
     void needUpdate();

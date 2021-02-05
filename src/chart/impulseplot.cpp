@@ -29,6 +29,8 @@ ImpulsePlot::ImpulsePlot(Settings *settings, QQuickItem *parent): XYPlot(setting
     m_y.configure(AxisType::Linear, -2.0, 2.0, 21);
     m_y.setMin(-1.f);
     m_y.setMax(1.f);
+    m_x.setUnit("ms");
+    m_y.setUnit("");
     setFlag(QQuickItem::ItemHasContents);
 }
 SeriesFBO *ImpulsePlot::createSeriesFromSource(Source *source)

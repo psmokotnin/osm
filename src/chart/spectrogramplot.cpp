@@ -29,6 +29,8 @@ SpectrogramPlot::SpectrogramPlot(Settings *settings,
     setPointsPerOctave(48);
     setFlag(QQuickItem::ItemHasContents);
     m_y.setCentralLabel(m_y.min() - 1.f);
+    m_x.setUnit("Hz");
+    m_y.setUnit("s");
     connect(this, SIGNAL(pointsPerOctaveChanged(unsigned int)), this, SLOT(update()));
 }
 

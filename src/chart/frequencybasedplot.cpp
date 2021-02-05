@@ -22,7 +22,7 @@ FrequencyBasedPlot::FrequencyBasedPlot(Settings *settings, QQuickItem *parent): 
                                                                                            parent),
     m_pointsPerOctave(12), m_coherenceThreshold(0.7f), m_coherence(true)
 {
-
+    m_x.setUnit("Hz");
 }
 void FrequencyBasedPlot::setCoherenceThreshold(float coherenceThreshold) noexcept
 {

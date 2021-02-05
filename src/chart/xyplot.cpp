@@ -34,6 +34,16 @@ qreal XYPlot::y2v(qreal mouseY) const noexcept
 {
     return m_y.coordToValue(mouseY);
 }
+
+QString XYPlot::xLabel() const
+{
+    return m_x.unit();
+}
+
+QString XYPlot::yLabel() const
+{
+    return m_y.unit();
+}
 void XYPlot::setXMin(float v)
 {
     if (qFuzzyCompare(v, m_x.min()))

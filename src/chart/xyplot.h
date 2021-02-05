@@ -103,6 +103,8 @@ public:
 
     Q_INVOKABLE qreal x2v(qreal mouseX) const noexcept override;
     Q_INVOKABLE qreal y2v(qreal mouseY) const noexcept override;
+    QString xLabel() const override;
+    QString yLabel() const override;
     virtual void setSettings(Settings *settings) noexcept override;
     virtual void storeSettings() noexcept override;
 

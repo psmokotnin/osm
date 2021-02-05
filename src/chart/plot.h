@@ -30,6 +30,8 @@ class Plot : public QQuickItem
 {
     Q_OBJECT
     Q_PROPERTY(Fftchart::Source *filter READ filter WRITE setFilter NOTIFY filterChanged)
+    Q_PROPERTY(QString xLabel READ xLabel)
+    Q_PROPERTY(QString yLabel READ yLabel)
 
 protected:
     QList<SeriesFBO *> series;
@@ -61,6 +63,8 @@ public:
 
     Q_INVOKABLE virtual qreal x2v(qreal x) const noexcept = 0;
     Q_INVOKABLE virtual qreal y2v(qreal y) const noexcept = 0;
+    virtual QString xLabel() const = 0;
+    virtual QString yLabel() const = 0;
 
     virtual void setSettings(Settings *settings) noexcept
     {

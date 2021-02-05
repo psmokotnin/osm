@@ -34,6 +34,7 @@ GroupDelayPlot::GroupDelayPlot(Settings *settings, QQuickItem *parent): Frequenc
                  );
     m_y.setMin(-40.f * static_cast<float>(M_PI) / 500);
     m_y.setMax( 10.f * static_cast<float>(M_PI) / 500);
+    m_y.setUnit("ms");
     setFlag(QQuickItem::ItemHasContents);
 }
 SeriesFBO *GroupDelayPlot::createSeriesFromSource(Source *source)

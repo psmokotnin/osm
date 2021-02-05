@@ -26,6 +26,7 @@ MagnitudePlot::MagnitudePlot(Settings *settings, QQuickItem *parent) : Frequency
     m_x.configure(AxisType::Logarithmic, 20.f, 20000.f);
     m_x.setISOLabels();
     m_y.configure(AxisType::Linear, -18.f, 18.f,  13);
+    m_y.setUnit("dB");
     setFlag(QQuickItem::ItemHasContents);
 }
 SeriesFBO *MagnitudePlot::createSeriesFromSource(Source *source)

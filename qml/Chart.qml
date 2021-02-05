@@ -111,12 +111,13 @@ Item {
 
     Label {
         id: cursor
-        text: "%1".arg(chart.plot.y2v(opener.mouseY)) + "\n" + "%1".arg(chart.plot.x2v(opener.mouseX))
+        text: "%1".arg(chart.plot.y2v(opener.mouseY).toFixed(2)) + chart.plot.yLabel + "\n" +
+              "%1".arg(chart.plot.x2v(opener.mouseX).toFixed(2)) + chart.plot.xLabel;
         x: opener.mouseX + cursor.fontInfo.pixelSize / 2
         y: opener.mouseY - cursor.height / 2
         visible: opener.containsMouse
         style: Text.Outline;
-        styleColor: "#99FFFFFF"
+        styleColor: darkMode ? "#99000000" : "#99FFFFFF"
     }
 
     ComboBox {

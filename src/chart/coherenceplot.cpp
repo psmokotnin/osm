@@ -29,6 +29,7 @@ CoherencePlot::CoherencePlot(Settings *settings, QQuickItem *parent): XYPlot(set
     m_y.configure(AxisType::Linear, 0.f, 1.f);
     m_y.setCentralLabel(m_y.min() - 1.f);
     m_y.setLabels(labels);
+    m_x.setUnit("Hz");
     setFlag(QQuickItem::ItemHasContents);
 }
 SeriesFBO *CoherencePlot::createSeriesFromSource(Source *source)

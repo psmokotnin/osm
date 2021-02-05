@@ -32,6 +32,7 @@ PhasePlot::PhasePlot(Settings *settings, QQuickItem *parent): FrequencyBasedPlot
                   9, 180.f / static_cast<float>(M_PI)
                  );
     m_y.setPeriodic(2 * static_cast<float>(M_PI));
+    m_y.setUnit("°");
     setFlag(QQuickItem::ItemHasContents);
 }
 
