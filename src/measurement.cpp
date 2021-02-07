@@ -666,8 +666,12 @@ QObject *Measurement::store()
 
     store->setNotes(
         modeNote + "\t" +
-        "delay: " + QString("%1").arg(1000.0 * delay() / sampleRate(), 0, 'f', 2) + "ms \t" +
-        (polarity() ? "polarity inversed" : "") + "\n"
+        "delay: " + QString("%1").arg(1000.0 * delay() / sampleRate(), 0, 'f', 2) + "ms " +
+        "gain: " + QString("%1").arg(gain(), 0, 'f', 2) + "dB \n" +
+        deviceName() + QString(" R: %1").arg(referenceChanel() + 1) +
+        QString(" M: %1").arg(dataChanel() + 1) +
+        (polarity() ? " polarity inversed" : "") +
+        (calibration() ? " calibrated" : "") + " \n" +
         "Window: " + WindowFunction::name(m_windowFunctionType) + "\t"
         "Average: " + avg + "\n"
         "Date: " + QDateTime::currentDateTime().toString()

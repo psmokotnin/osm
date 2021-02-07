@@ -2,6 +2,8 @@ TEMPLATE = app
 
 QT += qml quick quickcontrols2 multimedia core opengl
 CONFIG += c++1z
+CONFIG+=sdk_no_version_check
+
 SOURCES += src/main.cpp \
     src/chart/frequencybasedplot.cpp \
     src/chart/groupdelayplot.cpp \
@@ -144,7 +146,7 @@ DEFINES += APP_GIT_VERSION=\\\"$$APP_GIT_VERSION\\\"
 
 # Special rules for deployment on Linux for AppImage
 
-unix:!macx:CONFIG(release, debug|release) {
+unix:!macx:!ios:CONFIG(release, debug|release) {
     QMAKE_POST_LINK += $$QMAKE_COPY $$PWD/OpenSoundMeter.desktop $$OUT_PWD/OpenSoundMeter_\\"$$APP_GIT_VERSION\\".desktop
     QMAKE_POST_LINK +=&& $$QMAKE_COPY $$PWD/icons/white.png $$OUT_PWD
     QMAKE_POST_LINK +=&& $$QMAKE_COPY $$PWD/linuxdeployosm.sh $$OUT_PWD
