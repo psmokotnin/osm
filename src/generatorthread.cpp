@@ -116,7 +116,10 @@ void GeneratorThread::selectDevice(const QAudioDeviceInfo &device)
     emit deviceChanged(m_device.deviceName());
 }
 //DESC: cclang changes an order. It cause crash with MOTU
-__attribute__((optnone)) void GeneratorThread::updateAudio()
+#ifdef Q_OS_MACOS
+__attribute__((optnone))
+#endif
+void GeneratorThread::updateAudio()
 {
     if (m_audio) {
         m_audio->stop();

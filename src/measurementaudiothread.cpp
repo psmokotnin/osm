@@ -64,7 +64,10 @@ void MeasurementAudioThread::setActive(bool active)
         m_audio->stop();
     }
 }
-__attribute__((optnone)) void MeasurementAudioThread::startAudio()
+#ifdef Q_OS_MACOS
+__attribute__((optnone))
+#endif
+void MeasurementAudioThread::startAudio()
 {
     m_chanelCount = std::max(m_dataChanel, m_referenceChanel) + 1;
     foreach (auto c, m_device.supportedChannelCounts()) {
