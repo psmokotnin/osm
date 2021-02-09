@@ -227,10 +227,10 @@ ApplicationWindow {
 
     About {
         id: aboutpopup
-        x: 100
-        y: 100
-        width: parent.width - 200
-        height: parent.height - 200
+        x: 50
+        y: 50
+        width: parent.width - 100
+        height: parent.height - 100
     }
 
     Updater {

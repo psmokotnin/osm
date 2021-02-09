@@ -142,7 +142,6 @@ Item {
         }
 
         Root.TitledCombo {
-            title: qsTr("filter")
             tooltip: qsTr("show only selected source")
             model: SourceModel {
                 addNone: true

@@ -1,5 +1,8 @@
 <RCC>
     <qresource prefix="/images">
         <file>icons/whitec.png</file>
+        <file>icons/qrCode.png</file>
+        <file>icons/pp.jpg</file>
+        <file>icons/white80.png</file>
     </qresource>
 </RCC>

@@ -39,7 +39,7 @@ QVariant SourceModel::data(const QModelIndex &index, int role) const
     QVariant r;
     switch (role) {
     case NameRole:
-        r.setValue(source ? source->objectName() : QString("None"));
+        r.setValue(source ? source->objectName() : QString("All"));
         break;
 
     case SourceRole:
@@ -47,7 +47,7 @@ QVariant SourceModel::data(const QModelIndex &index, int role) const
         break;
 
     case TitleRole:
-        r.setValue(source ? source->name() : QString("None"));
+        r.setValue(source ? source->name() : QString("All"));
         break;
     }
 

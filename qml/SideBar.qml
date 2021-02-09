@@ -67,7 +67,6 @@ Item {
         Component {
             id: measurementDelegate
             Measurement {
-                id: item
                 width: sideList.width
                 dataModel: modelData
                 highlight: modelHighlight
@@ -76,7 +75,6 @@ Item {
         Component {
             id: storedDelegate
             Stored {
-                id: item
                 width: sideList.width
                 dataModel: modelData
                 highlight: modelHighlight
@@ -85,7 +83,6 @@ Item {
         Component {
             id: unionDelegate
             Union {
-                id: item
                 width: sideList.width
                 dataModel: modelData
                 highlight: modelHighlight
@@ -94,7 +91,6 @@ Item {
         Component {
             id: elcDelegate
             ELC {
-                id: item
                 width: sideList.width
                 dataModel: modelData
                 highlight: modelHighlight
@@ -274,28 +270,42 @@ Item {
         RowLayout {
             spacing: 5
             Layout.bottomMargin: 8
+            Layout.alignment: Qt.AlignCenter
 
-            Button {
-                Layout.fillWidth: true
-                font.family: "Osm"
-                text: "\uf09a follow"
-                Material.foreground: Material.Indigo
-                flat: true
-                font.pixelSize: 10
-                onClicked: {
-                    Qt.openUrlExternally("https://www.facebook.com/opensoundmeter/");
+            Image {
+                source: "qrc:/images/icons/white80.png"
+                Layout.preferredHeight: 40
+                Layout.preferredWidth: 40
+                Layout.alignment: Qt.AlignCenter
+
+                RotationAnimation on rotation {
+                    id: rotateImage
+                    from: 0
+                    to: 360
+                    duration: 1200
+                }
+
+                Timer {
+                    interval: 614657
+                    running: true
+                    repeat: true
+                    onTriggered: rotateImage.start()
                 }
             }
 
             Button {
-                Layout.fillWidth: true
-                font.family: "Osm"
-                text: "\ue800 support"
-                Material.foreground: Material.Pink
-                flat: true
+                text: "about"
+                Material.foreground: Material.Indigo
                 font.pixelSize: 10
+                height: 40
+                flat: true
+            }
+
+            MouseArea {
+                anchors.fill: parent
+                cursorShape: Qt.PointingHandCursor
                 onClicked: {
-                    Qt.openUrlExternally("https://opensoundmeter.com/support");
+                    aboutpopup.open();
                 }
             }
         }

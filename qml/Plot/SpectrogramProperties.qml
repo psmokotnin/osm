@@ -232,7 +232,6 @@ Item {
         }
 
         Root.TitledCombo {
-            title: qsTr("source")
             tooltip: qsTr("show only this source")
             model: SourceModel {
                 list: sourceList
