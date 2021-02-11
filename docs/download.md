@@ -29,7 +29,7 @@ title: Download Open Sound Meter
                     </div>
                 </a>
                 
-                <a class="card download linux" href="https://github.com/psmokotnin/osm/releases/download/{{site.current_version}}/Open_Sound_Meter-v0.3-x86_64.AppImage">
+                <a class="card download linux" href="https://github.com/psmokotnin/osm/releases/download/{{site.current_version}}/Open_Sound_Meter-v0.3.1-x86_64.AppImage" target="_blank">
                     <img class="card-img-top" src="/images/icons/linux-brands.svg" alt="Card image cap" style="max-height: 200px;margin: auto;padding: 50px 0;">
                     <div class="card-body text-center">
                         <h5 class="card-title">Linux</h5>
