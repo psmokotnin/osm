@@ -3,6 +3,7 @@
 # To modify the layout, see https://jekyllrb.com/docs/themes/#overriding-theme-defaults
 
 layout: default
+title: Open Sound Meter
 ---
   
 <!-- Marketing messaging and featurettes
@@ -11,20 +12,35 @@ layout: default
 
 <div class="container marketing">
 
+    <div class="row featurette">
+      <div class="col-md-7 order-md-2">
+        <h2 class="featurette-heading">Open Sound Meter</h2>
+        <p class="lead">
+            Sound measurement application for tuning audio systems in real-time <br/>
+            by Pavel Smokotnin
+        </p>
+      </div>
+      <div class="col-md-5 order-md-1">
+        <img src="/images/screens/main.png" class="bd-placeholder-img bd-placeholder-img-lg featurette-image img-fluid mx-auto"/>
+      </div>
+    </div>
+
+    <hr class="featurette-divider">
+    
 <!-- Three columns of text below the carousel -->
     <div class="row">
         <div class="col-lg-4">
             <img src="/images/icons/abc.png" class="bd-placeholder-img" width="140" height="140"/>
             <h2>Simple</h2>
             <p align="left">Easy to start. Uncomplicated interface with only needed functions.</p>
-            <p><a class="btn btn-info" href="{{site.download_page}}" role="button">Download</a></p>
+            <p><a class="btn btn-info" href="/download" role="button">Download</a></p>
         </div><!-- /.col-lg-4 -->
         
         <div class="col-lg-4">
             <div style="height: 105px;margin-top: 35px;"><img src="/images/icons/heart.svg" class="bd-placeholder-img" width="70" height="70"/></div>
             <h2>Available</h2>
             <p align="left">You can pay what you want. Every donation is a great help for further development.</p>
-            <p><a class="btn btn-success" target="_blank" href="{{site.payme_page}}" role="button">Donate</a></p>
+            <p><a class="btn btn-success" href="/about#donate" role="button">Donate</a></p>
         </div><!-- /.col-lg-4 -->
         
         <div class="col-lg-4">
@@ -86,8 +102,6 @@ layout: default
         <img src="/images/screens/sum.png" class="bd-placeholder-img bd-placeholder-img-lg featurette-image img-fluid mx-auto"/>
       </div>
     </div>
-
-    <hr class="featurette-divider">
 
     <!-- /END THE FEATURETTES -->
 
