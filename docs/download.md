@@ -46,19 +46,19 @@ title: Download Open Sound Meter
 </div>
 <script>
 $('.download.mac').click(function() {
-    gtag('event', 'download', {
+    gtag('event', 'downloadmacos', {
         'os' : 'macos'
     });
     return true;
 });
 $('.download.windows').click(function() {
-    gtag('event', 'download', {
+    gtag('event', 'downloadwindows', {
         'os' : 'windows'
     });
     return true;
 });
 $('.download.linux').click(function() {
-    gtag('event', 'download', {
+    gtag('event', 'downloadlinux', {
         'os' : 'linux'
     });
     return true;

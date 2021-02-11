@@ -32,7 +32,7 @@ title: User support. Open Sound Meter
 </div>
 <script>
 $('.download.pdf').click(function() {
-    gtag('event', 'download', {
+    gtag('event', 'downloadpdf', {
         'os' : 'pdf'
     });
     return true;
