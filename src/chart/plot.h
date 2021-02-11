@@ -30,8 +30,8 @@ class Plot : public QQuickItem
 {
     Q_OBJECT
     Q_PROPERTY(Fftchart::Source *filter READ filter WRITE setFilter NOTIFY filterChanged)
-    Q_PROPERTY(QString xLabel READ xLabel)
-    Q_PROPERTY(QString yLabel READ yLabel)
+    Q_PROPERTY(QString xLabel READ xLabel CONSTANT)
+    Q_PROPERTY(QString yLabel READ yLabel CONSTANT)
 
 protected:
     QList<SeriesFBO *> series;

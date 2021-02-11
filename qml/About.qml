@@ -144,7 +144,6 @@ Popup {
 
                 Image {
                     source: "qrc:/images/icons/pp.jpg"
-                    anchors.horizontalCenter: parent.horizontalCenter
                     fillMode: Image.PreserveAspectFit
                     Layout.preferredHeight: 100
                     Layout.preferredWidth: 100
@@ -159,7 +158,6 @@ Popup {
                 }
                 MouseArea {
                     anchors.fill: parent
-                    Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
                     cursorShape: Qt.PointingHandCursor
                     onClicked:  {
                         Qt.openUrlExternally("https://www.paypal.com/paypalme/psmokotnin");

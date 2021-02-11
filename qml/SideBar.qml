@@ -268,14 +268,14 @@ Item {
         }
 
         RowLayout {
-            spacing: 5
+            spacing: 0
             Layout.bottomMargin: 8
             Layout.alignment: Qt.AlignCenter
 
             Image {
                 source: "qrc:/images/icons/white80.png"
-                Layout.preferredHeight: 40
-                Layout.preferredWidth: 40
+                Layout.preferredHeight: 30
+                Layout.preferredWidth: 30
                 Layout.alignment: Qt.AlignCenter
 
                 RotationAnimation on rotation {
