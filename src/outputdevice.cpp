@@ -31,8 +31,8 @@ qint64 OutputDevice::readData(char *data, qint64 maxlen)
 {
     qint64 total = 0;
     int chanel = m_chanelCount;
-    const float zero = 0.f;
     Sample src = {0.f};
+    std::memset(data, 0, maxlen);
 
     while (maxlen - total > 0) {
         if (chanel >= m_chanelCount) {
@@ -42,8 +42,6 @@ qint64 OutputDevice::readData(char *data, qint64 maxlen)
 
         if (chanel == m_chanel || chanel == m_aux) {
             memcpy(data + total, &src.f, sizeof(float));
-        } else {
-            memcpy(data + total, &zero, sizeof(float));
         }
         total += sizeof(float);
 

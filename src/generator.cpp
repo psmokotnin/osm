@@ -24,8 +24,6 @@ Generator::Generator(Settings *settings, QObject *parent) : QObject(parent),
 
     connect(&m_thread, SIGNAL(enabledChanged(bool)),  this, SIGNAL(enabledChanged(bool)),
             Qt::QueuedConnection);
-    connect(&m_thread, SIGNAL(deviceChanged(QString)), this, SIGNAL(deviceChanged()),
-            Qt::QueuedConnection);
     connect(&m_thread, SIGNAL(typeChanged(int)),      this, SIGNAL(typeChanged()),
             Qt::QueuedConnection);
     connect(&m_thread, SIGNAL(frequencyChanged(int)), this, SIGNAL(frequencyChanged(int)),
@@ -42,7 +40,8 @@ Generator::Generator(Settings *settings, QObject *parent) : QObject(parent),
             Qt::QueuedConnection);
     connect(&m_thread, SIGNAL(auxChanged(int)),       this, SIGNAL(auxChanged(int)),
             Qt::QueuedConnection);
-    connect(&m_thread, SIGNAL(channelsCountChanged()), this, SIGNAL(channelsCountChanged()),
+    connect(&m_thread, SIGNAL(deviceIdChanged(audio::DeviceInfo::Id)),  this,
+            SIGNAL(deviceIdChanged(audio::DeviceInfo::Id)),
             Qt::QueuedConnection);
 
     loadSettings();
@@ -52,6 +51,21 @@ Generator::~Generator()
     m_thread.quit();
     m_thread.wait();
 }
+audio::DeviceInfo::Id Generator::deviceId() const
+{
+    return m_thread.deviceId();
+}
+
+void Generator::setDeviceId(const audio::DeviceInfo::Id &deviceId)
+{
+    QMetaObject::invokeMethod(
+        &m_thread,
+        "setDeviceId",
+        Qt::QueuedConnection,
+        Q_ARG(audio::DeviceInfo::Id, deviceId)
+    );
+}
+
 void Generator::loadSettings()
 {
     if (m_settings) {
@@ -69,8 +83,8 @@ void Generator::loadSettings()
         setAux(m_settings->reactValue<GeneratorThread, int>(
                    "aux", &m_thread, &GeneratorThread::auxChanged, m_thread.aux()).toInt());
 
-        selectDevice(m_settings->reactValue<GeneratorThread, QString>(
-                         "device", &m_thread, &GeneratorThread::deviceChanged, m_thread.deviceName()).toString());
+        setDeviceId(m_settings->reactValue<GeneratorThread, audio::DeviceInfo::Id>(
+                        "deviceId", &m_thread, &GeneratorThread::deviceIdChanged, m_thread.deviceId()).toString());
         //@TODO: Add settings for SinSweep parameters
     }
 }
@@ -90,15 +104,6 @@ void Generator::setType(int type)
         "setType",
         Qt::QueuedConnection,
         Q_ARG(int, type)
-    );
-}
-void Generator::selectDevice(const QString &name)
-{
-    QMetaObject::invokeMethod(
-        &m_thread,
-        "selectDevice",
-        Qt::QueuedConnection,
-        Q_ARG(QString, name)
     );
 }
 void Generator::setFrequency(int frequency)

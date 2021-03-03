@@ -15,7 +15,6 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <QThread>
 #include <QFile>
 #include <QUrl>
 #include <QJsonArray>
@@ -23,12 +22,16 @@
 #include <QtMath>
 #include <algorithm>
 #include "measurement.h"
+#include "audio/client.h"
 
 Measurement::Measurement(Settings *settings, QObject *parent) : Fftchart::Source(parent),
     m_timer(nullptr), m_timerThread(nullptr),
-    m_audioThread(nullptr),
+    m_input(this),
+    m_deviceId(audio::Client::getInstance()->defaultDeviceId(audio::Plugin::Direction::Input)),
+    m_audioStream(nullptr),
     m_settings(settings),
     m_mode(FFT14), m_currentMode(),
+    m_dataChanel(1), m_referenceChanel(0),
     m_average(1),
     m_delay(0), m_setDelay(0), m_gain(1.f),
     m_estimatedDelay(0),
@@ -42,16 +45,6 @@ Measurement::Measurement(Settings *settings, QObject *parent) : Fftchart::Source
     m_name = "Measurement";
     setObjectName(m_name);
 
-    connect(&m_audioThread, SIGNAL(recived(const QByteArray &)), SLOT(writeData(const QByteArray &)),
-            Qt::DirectConnection);
-    connect(&m_audioThread, SIGNAL(deviceChanged(QString)), this, SIGNAL(deviceChanged(QString)));
-    connect(&m_audioThread, SIGNAL(deviceChanged(QString)), this, SIGNAL(chanelsCountChanged()));
-    connect(&m_audioThread, SIGNAL(formatChanged()), this, SIGNAL(chanelsCountChanged()));
-    connect(&m_audioThread, SIGNAL(formatChanged()), this, SLOT(recalculateDataLength()));
-    connect(&m_audioThread, SIGNAL(formatChanged()), this, SIGNAL(sampleRateChanged()));
-    connect(&m_audioThread, SIGNAL(deviceError()), this, SLOT(setError()));
-
-    QAudioDeviceInfo device(QAudioDeviceInfo::defaultInputDevice());
     if (m_settings) {
         setMode(        m_settings->reactValue<Measurement, Mode>(              "mode",         this,
                                                                                 &Measurement::modeChanged,          mode()));
@@ -77,12 +70,8 @@ Measurement::Measurement(Settings *settings, QObject *parent) : Fftchart::Source
                                                                                 &Measurement::referenceChanelChanged, referenceChanel()).toUInt());
         setPolarity(    m_settings->reactValue<Measurement, bool>(              "polarity",     this,
                                                                                 &Measurement::polarityChanged,      polarity()).toBool());
-        if (!selectDevice(   m_settings->reactValue<Measurement, QString>(           "device",       this,
-                                                                                     &Measurement::deviceChanged,        device.deviceName()).toString())) {
-            selectDevice(device);
-        }
-    } else {
-        selectDevice(device);
+        selectDevice(   m_settings->reactValue<Measurement, QString>(           "device",       this,
+                                                                                &Measurement::deviceNameChanged,        deviceName()).toString());
     }
     m_deconvolutionSize = static_cast<unsigned int>(pow(2, 12));
 
@@ -109,7 +98,7 @@ Measurement::Measurement(Settings *settings, QObject *parent) : Fftchart::Source
     m_timerThread.start();
     setActive(true);
 
-    modeMap = {
+    m_modeMap = {
         {FFT10, "10"},
         {FFT12, "12"},
         {FFT14, "14"},
@@ -117,7 +106,7 @@ Measurement::Measurement(Settings *settings, QObject *parent) : Fftchart::Source
         {FFT16, "16"},
         {LFT,   "LTW"}
     };
-    FFTsizes = {
+    m_FFTsizes = {
         {FFT10, 10},
         {FFT12, 12},
         {FFT14, 14},
@@ -127,8 +116,7 @@ Measurement::Measurement(Settings *settings, QObject *parent) : Fftchart::Source
 }
 Measurement::~Measurement()
 {
-    m_audioThread.quit();
-    m_audioThread.wait();
+    setActive(false);
 
     m_timerThread.quit();
     m_timerThread.wait();
@@ -173,7 +161,6 @@ QJsonObject Measurement::toJSON() const noexcept
     data["calibration"] = calibration;
     return data;
 }
-
 void Measurement::fromJSON(QJsonObject data) noexcept
 {
     auto castUInt = [](const QJsonValue & value, unsigned int defaultValue = 0) {
@@ -224,73 +211,43 @@ void Measurement::fromJSON(QJsonObject data) noexcept
         setCalibration(calibration["enabled"].toBool());
     }
 }
-QVariant Measurement::getDeviceList() const
+Measurement::Mode Measurement::mode() const
 {
-    QStringList deviceList;
-    QAudioFormat format44, format48;
-    format48.setChannelCount(2);
-    format48.setSampleRate(48000);
-    format48.setSampleSize(32);
-    format48.setCodec("audio/pcm");
-    format48.setByteOrder(QAudioFormat::LittleEndian);
-    format48.setSampleType(QAudioFormat::Float);
-
-    format44 = format48;
-    format44.setSampleRate(44100);
-
-    foreach (const QAudioDeviceInfo &deviceInfo,
-             QAudioDeviceInfo::availableDevices(QAudio::AudioInput)) {
-        if (deviceInfo.isFormatSupported(format44) || deviceInfo.isFormatSupported(format48)) {
-            deviceList << deviceInfo.deviceName();
-        }
-    }
-    return QVariant::fromValue(deviceList);
+    return m_mode;
 }
-QString Measurement::deviceName() const
+unsigned int Measurement::dataChanel() const
 {
-    return m_audioThread.device().deviceName();
+    return m_dataChanel;
 }
-bool Measurement::selectDevice(const QString &name)
+void Measurement::setDataChanel(unsigned int channel)
 {
-    if (name == deviceName())
-        return true;
-
-    QStringList devices = getDeviceList().value<QStringList>();
-    if (devices.indexOf(name) == -1) {
-        return false;
-    }
-    foreach (const QAudioDeviceInfo &deviceInfo,
-             QAudioDeviceInfo::availableDevices(QAudio::AudioInput)) {
-        if (name == deviceInfo.deviceName()) {
-            selectDevice(deviceInfo);
-            return true;
-        }
-    }
-    return false;
-}
-void Measurement::selectDevice(const QAudioDeviceInfo &deviceInfo)
-{
-    QMetaObject::invokeMethod(
-        &m_audioThread,
-        "selectDevice",
-        Qt::QueuedConnection,
-        Q_ARG(QAudioDeviceInfo, deviceInfo),
-        Q_ARG(bool, active())
-    );
-}
-void Measurement::setDataChanel(unsigned int n)
-{
-    if (n != dataChanel()) {
-        m_audioThread.setDataChanel(n);
-        emit dataChanelChanged(dataChanel());
+    if (channel != m_dataChanel) {
+        m_dataChanel = channel;
+        emit dataChanelChanged(m_dataChanel);
     }
 }
-void Measurement::setReferenceChanel(unsigned int n)
+unsigned int Measurement::referenceChanel() const
 {
-    if (n != referenceChanel()) {
-        m_audioThread.setReferenceChanel(n);
-        emit referenceChanelChanged(referenceChanel());
+    return m_referenceChanel;
+}
+void Measurement::setReferenceChanel(unsigned int channel)
+{
+    if (channel != m_referenceChanel) {
+        m_referenceChanel = channel;
+        emit referenceChanelChanged(m_referenceChanel);
     }
+}
+float Measurement::level() const
+{
+    return m_dataMeter.value();
+}
+float Measurement::referenceLevel() const
+{
+    return m_referenceMeter.value();
+}
+unsigned int Measurement::delay() const
+{
+    return m_delay;
 }
 void Measurement::setMode(const Measurement::Mode &mode)
 {
@@ -299,10 +256,15 @@ void Measurement::setMode(const Measurement::Mode &mode)
         emit modeChanged(m_mode);
     }
 }
+
+void Measurement::setMode(QVariant mode)
+{
+    setMode(mode.value<Mode>());
+}
 QVariant Measurement::getAvailableModes() const
 {
     QStringList typeList;
-    for (const auto &type : modeMap) {
+    for (const auto &type : m_modeMap) {
         typeList << type.second;
     }
     return typeList;
@@ -320,7 +282,7 @@ void Measurement::updateFftPower()
         break;
 
     default:
-        m_dataFT.setSize(pow(2, FFTsizes[m_currentMode]));
+        m_dataFT.setSize(pow(2, m_FFTsizes[m_currentMode]));
         m_dataFT.setType(FourierTransform::Fast);
     }
     m_dataFT.prepare();
@@ -354,6 +316,14 @@ void Measurement::setFiltersFrequency(Filter::Frequency frequency)
         emit filtersFrequencyChanged(m_filtersFrequency);
     }
 }
+void Measurement::setFiltersFrequency(QVariant frequency)
+{
+    setFiltersFrequency(static_cast<Filter::Frequency>(frequency.toInt()));
+}
+Measurement::AverageType Measurement::averageType() const
+{
+    return m_averageType;
+}
 void Measurement::recalculateDataLength()
 {
     std::lock_guard<std::mutex> guard(m_dataMutex);
@@ -363,7 +333,6 @@ float Measurement::gain() const
 {
     return 20 * std::log10(m_gain);
 }
-
 void Measurement::setGain(float gain)
 {
     gain = std::pow(10, gain / 20.f);
@@ -372,7 +341,28 @@ void Measurement::setGain(float gain)
         emit gainChanged(m_gain);
     }
 }
+audio::DeviceInfo::Id Measurement::deviceId() const
+{
+    return m_deviceId;
+}
+void Measurement::setDeviceId(const audio::DeviceInfo::Id &deviceId)
+{
+    if (deviceId != m_deviceId) {
+        m_deviceId = deviceId;
+        emit deviceIdChanged(m_deviceId);
+        updateAudio();
+    }
+}
+QString Measurement::deviceName() const
+{
+    return audio::Client::getInstance()->deviceName(m_deviceId);
+}
 
+void Measurement::selectDevice(const QString &name)
+{
+    auto id = audio::Client::getInstance()->deviceIdByName(name);
+    setDeviceId(id);
+}
 void Measurement::calculateDataLength()
 {
     auto frequencyList = m_dataFT.getFrequencies(sampleRate());
@@ -397,12 +387,7 @@ void Measurement::setActive(bool active)
     m_error = false;
     emit errorChanged(m_error);
 
-    QMetaObject::invokeMethod(
-        &m_audioThread,
-        "setActive",
-        Qt::QueuedConnection,
-        Q_ARG(bool, active)
-    );
+    updateAudio();
 
     m_dataMeter.reset();
     m_referenceMeter.reset();
@@ -415,6 +400,7 @@ void Measurement::setError()
     m_error = true;
     m_dataMeter.reset();
     m_referenceMeter.reset();
+    m_input.close();
     emit errorChanged(m_error);
     emit levelChanged();
     emit referenceLevelChanged();
@@ -423,6 +409,11 @@ void Measurement::setError()
 void Measurement::setDelay(unsigned int delay)
 {
     m_setDelay = delay;
+}
+
+unsigned int Measurement::average() const
+{
+    return m_average;
 }
 //this calls from timer thread
 void Measurement::updateDelay()
@@ -454,12 +445,20 @@ void Measurement::setAverage(unsigned int average)
         emit averageChanged(m_average);
     }
 }
+bool Measurement::polarity() const
+{
+    return m_polarity;
+}
 void Measurement::setPolarity(bool polarity)
 {
     if (m_polarity != polarity) {
         m_polarity = polarity;
         emit polarityChanged(m_polarity);
     }
+}
+Filter::Frequency Measurement::filtersFrequency() const
+{
+    return m_filtersFrequency;
 }
 void Measurement::setAverageType(AverageType type)
 {
@@ -469,9 +468,24 @@ void Measurement::setAverageType(AverageType type)
         emit averageTypeChanged(m_averageType);
     }
 }
+void Measurement::setAverageType(QVariant type)
+{
+    setAverageType(static_cast<AverageType>(type.toInt()));
+}
 unsigned int Measurement::sampleRate() const
 {
-    return static_cast<unsigned int>(m_audioThread.sampleRate());
+    if (m_audioStream) {
+        return m_audioStream->format().sampleRate;
+    }
+    return 0;
+}
+QVariant Measurement::getAvailableWindowTypes() const
+{
+    return WindowFunction::getTypes();
+}
+WindowFunction::Type Measurement::getWindowType() const
+{
+    return m_windowFunctionType;
 }
 void Measurement::setWindowType(WindowFunction::Type type)
 {
@@ -486,10 +500,17 @@ void Measurement::setWindowType(WindowFunction::Type type)
         emit windowTypeChanged(m_windowFunctionType);
     }
 }
+void Measurement::setWindowType(QVariant type)
+{
+    setWindowType(static_cast<WindowFunction::Type>(type.toInt()));
+}
 void Measurement::writeData(const QByteArray &buffer)
 {
+    if (!m_audioStream) {
+        return;
+    }
     float sample;
-    auto totalChanels = static_cast<unsigned int>(m_audioThread.format().channelCount());
+    auto totalChanels = m_audioStream->format().channelCount;
     unsigned int currentChanel = 0;
     std::lock_guard<std::mutex> guard(m_dataMutex);
     for (auto it = buffer.begin(); it != buffer.end(); ++it) {
@@ -661,7 +682,7 @@ QObject *Measurement::store()
         modeNote = "FT log time window";
         break;
     default:
-        modeNote = "FFT power " + modeMap[mode()];
+        modeNote = "FFT power " + m_modeMap[mode()];
     }
 
     store->setNotes(
@@ -686,6 +707,14 @@ long Measurement::estimated() const noexcept
         return m_estimatedDelay - m_deconvolutionSize + static_cast<long>(m_delay);
     }
     return m_estimatedDelay + static_cast<long>(m_delay);
+}
+bool Measurement::calibration() const noexcept
+{
+    return m_enableCalibration;
+}
+bool Measurement::calibrationLoaded() const noexcept
+{
+    return m_calibrationLoaded;
 }
 void Measurement::setCalibration(bool c) noexcept
 {
@@ -782,6 +811,28 @@ void Measurement::applyCalibration()
 
         m_calibrationGain[i] = pow(10.f, 0.05f * g);
         m_calibrationPhase[i] = p * static_cast<float>(M_PI / 180.0);
+    }
+}
+void Measurement::updateAudio()
+{
+    if (m_audioStream) {
+        m_input.close();
+        m_audioStream->close();
+    }
+    m_audioStream = nullptr;
+
+    if (m_active) {
+        std::async([this]() {
+            audio::Format format = audio::Client::getInstance()->deviceInputFormat(m_deviceId);
+            emit audioFormatChanged();
+            m_input.setCallback([this](const QByteArray & buffer) {
+                writeData(buffer);
+            });
+            m_audioStream = audio::Client::getInstance()->openInput(m_deviceId, &m_input, format);
+            if (!m_audioStream) {
+                setError();
+            }
+        });
     }
 }
 void Measurement::resetAverage() noexcept

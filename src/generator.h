@@ -25,6 +25,8 @@
 #include "settings.h"
 #include "sinsweep.h"
 
+#include "audio/deviceinfo.h"
+
 class Generator : public QObject
 {
     Q_OBJECT
@@ -37,10 +39,7 @@ class Generator : public QObject
 
     //Available generator types. Constant list.
     Q_PROPERTY(QVariant types READ getAvailableTypes CONSTANT)
-
-    //Available output devices
-    Q_PROPERTY(QVariant devices READ getDeviceList CONSTANT)
-    Q_PROPERTY(QString device READ deviceName WRITE selectDevice NOTIFY deviceChanged)
+    Q_PROPERTY(QString deviceId READ deviceId WRITE setDeviceId NOTIFY deviceIdChanged)
 
     //Frequency
     Q_PROPERTY(int frequency READ frequency WRITE setFrequency NOTIFY frequencyChanged)
@@ -52,7 +51,6 @@ class Generator : public QObject
     Q_PROPERTY(float gain READ gain WRITE setGain NOTIFY gainChanged)
     Q_PROPERTY(float duration READ duration WRITE setDuration NOTIFY durationChanged)
 
-    Q_PROPERTY(int channelsCount READ channelsCount NOTIFY channelsCountChanged)
     Q_PROPERTY(int channel READ channel WRITE setChannel NOTIFY channelChanged)
     Q_PROPERTY(int aux READ aux WRITE setAux NOTIFY auxChanged)
 
@@ -82,16 +80,6 @@ public:
     {
         return m_thread.getAvailableTypes();
     }
-    QVariant getDeviceList(void) const
-    {
-        return m_thread.getDeviceList();
-    }
-
-    QString deviceName() const
-    {
-        return m_thread.deviceName();
-    }
-    void selectDevice(const QString &name);
 
     int frequency() const
     {
@@ -135,18 +123,20 @@ public:
     float duration() const;
     void setDuration(float duration);
 
+    audio::DeviceInfo::Id deviceId() const;
+    void setDeviceId(const audio::DeviceInfo::Id &deviceId);
+
 signals:
     void enabledChanged(bool);
     void typeChanged();
     void frequencyChanged(int f);
     void startFrequencyChanged(int f);
     void endFrequencyChanged(int f);
-    void deviceChanged();
     void gainChanged(float);
-    void channelsCountChanged();
     void channelChanged(int);
     void auxChanged(int);
     void durationChanged(float);
+    void deviceIdChanged(audio::DeviceInfo::Id);
 };
 
 #endif // GENERATOR_H

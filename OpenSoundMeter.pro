@@ -1,10 +1,16 @@
 TEMPLATE = app
 
-QT += qml quick quickcontrols2 multimedia core opengl
+QT += qml quick quickcontrols2 core opengl
 CONFIG += c++1z
 CONFIG+=sdk_no_version_check
 
 SOURCES += src/main.cpp \
+    src/audio/client.cpp \
+    src/audio/deviceinfo.cpp \
+    src/audio/devicemodel.cpp \
+    src/audio/format.cpp \
+    src/audio/plugin.cpp \
+    src/audio/stream.cpp \
     src/chart/frequencybasedplot.cpp \
     src/chart/groupdelayplot.cpp \
     src/chart/groupdelayseriesrenderer.cpp \
@@ -15,6 +21,7 @@ SOURCES += src/main.cpp \
     src/chart/stepseriesrenderer.cpp \
     src/elc.cpp \
     src/generator.cpp \
+    src/inputdevice.cpp \
     src/pinknoise.cpp \
     src/outputdevice.cpp \
     src/sinsweep.cpp \
@@ -49,7 +56,6 @@ SOURCES += src/main.cpp \
     src/chart/frequencybasedseriesrenderer.cpp \
     src/chart/xyplot.cpp \
     src/generatorthread.cpp \
-    src/measurementaudiothread.cpp \
     src/averaging.cpp \
     src/chart/xyseriesrenderer.cpp \
     src/coherence.cpp \
@@ -84,6 +90,12 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 HEADERS += \
+    src/audio/client.h \
+    src/audio/deviceinfo.h \
+    src/audio/devicemodel.h \
+    src/audio/format.h \
+    src/audio/plugin.h \
+    src/audio/stream.h \
     src/chart/frequencybasedplot.h \
     src/chart/groupdelayplot.h \
     src/chart/groupdelayseriesrenderer.h \
@@ -94,6 +106,7 @@ HEADERS += \
     src/chart/stepseriesrenderer.h \
     src/elc.h \
     src/generator.h \
+    src/inputdevice.h \
     src/pinknoise.h \
     src/outputdevice.h \
     src/sinsweep.h \
@@ -131,7 +144,6 @@ HEADERS += \
     src/chart/frequencybasedseriesrenderer.h \
     src/chart/xyplot.h \
     src/generatorthread.h \
-    src/measurementaudiothread.h \
     src/averaging.h \
     src/chart/xyseriesrenderer.h \
     src/container/fifo.h \
@@ -143,6 +155,20 @@ HEADERS += \
 
 APP_GIT_VERSION = $$system(git --git-dir $$_PRO_FILE_PWD_/.git --work-tree $$_PRO_FILE_PWD_ describe --tags $$system(git --git-dir $$_PRO_FILE_PWD_/.git --work-tree $$_PRO_FILE_PWD_ rev-list --tags --max-count=1))
 DEFINES += APP_GIT_VERSION=\\\"$$APP_GIT_VERSION\\\"
+
+#audio plugins:
+macx {
+    HEADERS += \
+        src/audio/plugins/coreaudio.h
+
+    SOURCES += \
+        src/audio/plugins/coreaudio.cpp
+
+    LIBS += \
+        -framework CoreAudio \
+        -framework AudioToolbox
+}
+
 
 # Special rules for deployment on Linux for AppImage
 
