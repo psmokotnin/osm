@@ -130,6 +130,16 @@ void GeneratorThread::updateAudio()
         m_sources[m_type]->setSamplerate(format.sampleRate);
 
         m_audioStream = audio::Client::getInstance()->openOutput(m_deviceId, m_sources[m_type], format);
+        if (m_audioStream) {
+            m_sources[m_type]->setSamplerate(m_audioStream->format().sampleRate);
+            connect(m_audioStream, &audio::Stream::sampleRateChanged, this, [this]() {
+                for (auto &&source : m_sources) {
+                    source->setSamplerate(m_audioStream->format().sampleRate);
+                }
+            });
+        } else {
+            emit deviceError();
+        }
     }
 }
 QVariant GeneratorThread::getAvailableTypes() const

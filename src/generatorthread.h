@@ -120,6 +120,7 @@ signals:
     void auxChanged(int);
     void durationChanged(float);
     void deviceIdChanged(audio::DeviceInfo::Id);
+    void deviceError();
 };
 
 #endif // GENERATORTHREAD_H

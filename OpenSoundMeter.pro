@@ -169,6 +169,41 @@ macx {
         -framework AudioToolbox
 }
 
+win32 {
+    HEADERS += \
+        src/audio/plugins/wasapi.h
+
+    SOURCES += \
+        src/audio/plugins/wasapi.cpp
+
+    LIBS += ole32.lib
+
+    exists($$PWD/../asiosdk/*) {
+        DEFINES += USE_ASIO
+        message("Add ASIO driver Support")
+
+        INCLUDEPATH += \
+            $$PWD/../asiosdk/common \
+            $$PWD/../asiosdk/host \
+            $$PWD/../asiosdk/host/pc
+
+        HEADERS += \
+            src/audio/plugins/asioplugin.h \
+            $$PWD/../asiosdk/common/asio.h \
+            $$PWD/../asiosdk/common/asiosys.h \
+            $$PWD/../asiosdk/host/asiodrivers.h \
+            $$PWD/../asiosdk/host/pc/asiolist.h
+
+        SOURCES += \
+            src/audio/plugins/asioplugin.cpp \
+            $$PWD/../asiosdk/common/asio.cpp \
+            $$PWD/../asiosdk/host/asiodrivers.cpp \
+            $$PWD/../asiosdk/host/pc/asiolist.cpp
+
+        LIBS += Advapi32.lib
+    }
+}
+
 
 # Special rules for deployment on Linux for AppImage
 
@@ -185,7 +220,7 @@ unix:!macx:!ios:CONFIG(release, debug|release) {
 
 FORMS +=
 
-win32:QMAKE_CXXFLAGS += -m64 -msse2
+#win32:QMAKE_CXXFLAGS += -m64 -msse2
 QMAKE_CXXFLAGS_RELEASE -= -O2
 QMAKE_CXXFLAGS_RELEASE += -Ofast
 

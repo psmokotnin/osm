@@ -27,8 +27,11 @@ class DeviceInfo
 {
 public:
     using Id = QString;
-    DeviceInfo(const Id &id, const QString &pluginName);
     using List = QList<DeviceInfo>;
+
+    DeviceInfo();
+    DeviceInfo(const Id &id, const QString &pluginName);
+    bool operator==(const DeviceInfo &right);
 
     Id id() const;
 
@@ -43,9 +46,13 @@ public:
 
     QString pluginName() const;
 
+    unsigned int defaultSampleRate() const;
+    void setDefaultSampleRate(unsigned int defaultSampleRate);
+
 private:
     Id m_id;
     QString m_name;
+    unsigned int m_defaultSampleRate;
     QString m_pluginName;
     QStringList m_inputChannels;
     QStringList m_outputChannels;
@@ -53,5 +60,6 @@ private:
 
 } // namespace audio
 Q_DECLARE_METATYPE(audio::DeviceInfo::Id);
+QDebug operator << (QDebug dbg, const audio::DeviceInfo &info);
 
 #endif // AUDIO_DEVICE_H

@@ -16,14 +16,26 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "deviceinfo.h"
-
+#include <QDebug>
 namespace audio {
+
+DeviceInfo::DeviceInfo() :
+    m_id(), m_name(),
+    m_pluginName(),
+    m_inputChannels(), m_outputChannels()
+{
+}
 
 DeviceInfo::DeviceInfo(const Id &id, const QString &pluginName) :
     m_id(id), m_name(),
     m_pluginName(pluginName),
     m_inputChannels(), m_outputChannels()
 {
+}
+
+bool DeviceInfo::operator==(const DeviceInfo &right)
+{
+    return id() == right.id();
 }
 
 QString DeviceInfo::name() const
@@ -61,9 +73,27 @@ QString DeviceInfo::pluginName() const
     return m_pluginName;
 }
 
+unsigned int DeviceInfo::defaultSampleRate() const
+{
+    return m_defaultSampleRate;
+}
+
+void DeviceInfo::setDefaultSampleRate(unsigned int defaultSampleRate)
+{
+    m_defaultSampleRate = defaultSampleRate;
+}
+
 DeviceInfo::Id DeviceInfo::id() const
 {
     return m_id;
 }
 
 } // namespace audio
+
+QDebug operator << (QDebug dbg, const audio::DeviceInfo &info)
+{
+    dbg.nospace() << "Audio device: {:"
+                  << info.pluginName() << info.id() << " name:" << info.name() << "}";
+
+    return dbg.maybeSpace();
+}

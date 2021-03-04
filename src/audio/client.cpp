@@ -23,6 +23,14 @@
 #include "plugins/coreaudio.h"
 #endif
 
+#ifdef Q_OS_WINDOWS
+#include "plugins/wasapi.h"
+#endif
+
+#ifdef USE_ASIO
+#include "plugins/asioplugin.h"
+#endif
+
 namespace audio {
 
 QSharedPointer<Client> Client::m_instance = nullptr;
@@ -51,13 +59,15 @@ void Client::initPlugins()
 
 #endif
 
+#ifdef USE_ASIO
+    m_plugins.push_back(QSharedPointer<Plugin>(new ASIOPlugin()));
+#endif
+
 #ifdef Q_OS_WINDOWS
+    m_plugins.push_back(QSharedPointer<Plugin>(new WasapiPlugin()));
 #endif
 
 #ifdef Q_OS_LINUX
-#endif
-
-#ifdef ASIO
 #endif
 
     for (auto &&plugin : m_plugins) {
@@ -103,11 +113,14 @@ DeviceInfo::List Client::getDeviceList() const
 
 DeviceInfo::Id Client::defaultDeviceId(const Plugin::Direction &mode) const
 {
-    if (m_plugins.size() > 0) {
-        return m_plugins.first()->defaultDeviceId(mode);
+    for (auto &plugin : m_plugins) {
+        auto device = plugin->defaultDeviceId(mode);
+        if (!device.isEmpty()) {
+            return device;
+        }
     }
     qCritical() << "Can't get default device";
-    return {};
+    return DeviceInfo::Id::Null();
 }
 
 QString Client::deviceName(const DeviceInfo::Id &id) const

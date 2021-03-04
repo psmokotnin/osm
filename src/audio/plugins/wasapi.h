@@ -15,35 +15,33 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "stream.h"
+#ifndef AUDIO_WINAUDIO_H
+#define AUDIO_WINAUDIO_H
+
+#include <mmdeviceapi.h>
+#include "../plugin.h"
 
 namespace audio {
 
-Stream::Stream(const Format &format) : QObject(), m_active(true)
+class WasapiPlugin : public audio::Plugin
 {
-    m_format = format;
-}
+    Q_OBJECT
 
-void Stream::close()
-{
-    m_active = false;
-    emit closeMe();
-}
+public:
+    WasapiPlugin();
+    ~WasapiPlugin();
 
-Format Stream::format() const
-{
-    return m_format;
-}
+    QString name() const override;
+    DeviceInfo::List getDeviceInfoList() const override;
+    DeviceInfo::Id defaultDeviceId(const Direction &mode) const override;
 
-bool Stream::active() const
-{
-    return m_active;
-}
+    Format deviceFormat(const DeviceInfo::Id &id, const Direction &mode) const override;
+    Stream *open(const DeviceInfo::Id &id, const Direction &mode, const Format &format, QIODevice *endpoint) override;
 
-void Stream::setSampleRate(unsigned int sampleRate)
-{
-    m_format.sampleRate = sampleRate;
-    emit sampleRateChanged();
-}
+private:
+    IMMDeviceEnumerator *m_enumerator = nullptr;
+};
 
 } // namespace audio
+
+#endif // AUDIO_WINAUDIO_H

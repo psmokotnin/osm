@@ -18,6 +18,7 @@
 #ifndef AUDIO_STREAM_H
 #define AUDIO_STREAM_H
 
+#include <atomic>
 #include <QObject>
 #include "format.h"
 
@@ -33,13 +34,15 @@ public:
     void close();
     Format format() const;
     bool active() const;
+    void setSampleRate(unsigned int sampleRate);
 
 signals:
     void closeMe();
+    void sampleRateChanged();
 
 private:
     Format m_format;
-    bool m_active;
+    std::atomic<bool> m_active;
 };
 
 } // namespace audio

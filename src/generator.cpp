@@ -43,6 +43,9 @@ Generator::Generator(Settings *settings, QObject *parent) : QObject(parent),
     connect(&m_thread, SIGNAL(deviceIdChanged(audio::DeviceInfo::Id)),  this,
             SIGNAL(deviceIdChanged(audio::DeviceInfo::Id)),
             Qt::QueuedConnection);
+    connect(&m_thread, &GeneratorThread::deviceError, this, [this]() {
+        setEnabled(false);
+    });
 
     loadSettings();
 }

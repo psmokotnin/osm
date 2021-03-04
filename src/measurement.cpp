@@ -31,7 +31,7 @@ Measurement::Measurement(Settings *settings, QObject *parent) : Fftchart::Source
     m_audioStream(nullptr),
     m_settings(settings),
     m_mode(FFT14), m_currentMode(),
-    m_dataChanel(1), m_referenceChanel(0),
+    m_dataChanel(0), m_referenceChanel(1),
     m_average(1),
     m_delay(0), m_setDelay(0), m_gain(1.f),
     m_estimatedDelay(0),
