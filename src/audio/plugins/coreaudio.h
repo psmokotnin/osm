@@ -34,6 +34,7 @@ public:
     Stream *open(const DeviceInfo::Id &id, const Direction &mode, const Format &format, QIODevice *endpoint) override;
 
 private:
+    unsigned int getDEviceDefaultSampleRate(const int &deviceID) const;
     unsigned int getDeviceChannelCount(const int &deviceID, const Direction &direction) const;
     QStringList getDeviceChannelNames(const int &deviceID, const Direction &direction) const;
 };
