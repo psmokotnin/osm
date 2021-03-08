@@ -169,6 +169,17 @@ macx {
         -framework AudioToolbox
 }
 
+ios {
+    HEADERS += \
+        src/audio/plugins/audiosession.h
+
+    SOURCES += \
+    src/audio/plugins/audiosession.mm
+
+    LIBS += \
+        -framework AVFoundation
+}
+
 win32 {
     HEADERS += \
         src/audio/plugins/wasapi.h

@@ -23,6 +23,10 @@
 #include "plugins/coreaudio.h"
 #endif
 
+#ifdef Q_OS_IOS
+#include "plugins/audiosession.h"
+#endif
+
 #ifdef Q_OS_WINDOWS
 #include "plugins/wasapi.h"
 #endif
@@ -56,7 +60,7 @@ void Client::initPlugins()
 #endif
 
 #ifdef Q_OS_IOS
-
+    m_plugins.push_back(QSharedPointer<Plugin>(new AudioSessionPlugin()));
 #endif
 
 #ifdef USE_ASIO
