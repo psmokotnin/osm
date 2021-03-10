@@ -17,6 +17,7 @@
  */
 #include "outputdevice.h"
 #include <cmath>
+#include <cstring>
 
 OutputDevice::OutputDevice(QObject *parent) : QIODevice(parent),
     m_name("Silent"),
