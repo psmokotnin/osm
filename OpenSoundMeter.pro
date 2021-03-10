@@ -215,6 +215,16 @@ win32 {
     }
 }
 
+unix:!macx {
+    HEADERS += \
+        src/audio/plugins/alsa.h
+
+    SOURCES += \
+        src/audio/plugins/alsa.cpp
+
+    LIBS += -lasound
+}
+
 
 # Special rules for deployment on Linux for AppImage
 

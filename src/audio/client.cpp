@@ -31,6 +31,10 @@
 #include "plugins/wasapi.h"
 #endif
 
+#ifdef Q_OS_LINUX
+#include "plugins/alsa.h"
+#endif
+
 #ifdef USE_ASIO
 #include "plugins/asioplugin.h"
 #endif
@@ -72,6 +76,7 @@ void Client::initPlugins()
 #endif
 
 #ifdef Q_OS_LINUX
+    m_plugins.push_back(QSharedPointer<Plugin>(new AlsaPlugin()));
 #endif
 
     for (auto &&plugin : m_plugins) {
