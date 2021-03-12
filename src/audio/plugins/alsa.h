@@ -18,10 +18,16 @@
 #ifndef AUDIO_ALSAPLUGIN_H
 #define AUDIO_ALSAPLUGIN_H
 
+#define ALSA_PCM_NEW_HW_PARAMS_API
+#define ALSA_PCM_NEW_SW_PARAMS_API
+#include <alsa/asoundlib.h>
+#undef ALSA_PCM_NEW_HW_PARAMS_API
+#undef ALSA_PCM_NEW_SW_PARAMS_API
+
 #include "../plugin.h"
-
+#include <QThread>
 namespace audio {
-
+class AlsaPCMDevice;
 class AlsaPlugin : public Plugin
 {
     Q_OBJECT
@@ -39,8 +45,43 @@ public:
 private:
     mutable DeviceInfo::List m_list;
     mutable QMap<Direction, DeviceInfo::Id> m_default;
+    QHash<std::pair<Direction, DeviceInfo::Id>, AlsaPCMDevice *> m_devices;
 };
 
+class AlsaPCMDevice : public QObject
+{
+    Q_OBJECT
+
+public:
+    using Callback = std::function<void(float *, size_t)>;
+    AlsaPCMDevice(const DeviceInfo::Id &id, const Plugin::Direction &mode, const Format &format);
+    ~AlsaPCMDevice();
+
+    bool start();
+    void stop();
+
+    bool isOpen() const;
+    Format format() const;
+
+    snd_pcm_t *handle() const;
+    float *buffer()
+    {
+        return m_buffer.data();
+    }
+
+public slots:
+    void addCallback(Stream *stream, audio::AlsaPCMDevice::Callback callback);
+
+private:
+    QThread *m_thread;
+    QHash<Stream *, Callback> m_callbacks;
+    std::vector<float> m_buffer;
+    DeviceInfo::Id m_id;
+    Plugin::Direction m_mode;
+    Format m_format;
+    snd_pcm_t *m_handle = nullptr;
+};
 } // namespace audio
 
+Q_DECLARE_METATYPE(audio::AlsaPCMDevice::Callback)
 #endif // AUDIO_ALSAPLUGIN_H
