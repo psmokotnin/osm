@@ -18,6 +18,7 @@
 import QtQuick 2.7
 import QtQuick.Controls 2.2
 import QtQuick.Layouts 1.3
+import Audio 1.0
 
 Item {
     ColumnLayout {
@@ -164,50 +165,61 @@ Item {
         }
 
         RowLayout {
-            //list of available output devices:
             ComboBox {
                 id: deviceSelect
-                model: generatorModel.devices
-                displayText: generatorModel.device;
+                model: DeviceModel {
+                    id: deviceModel
+                    scope: DeviceModel.OutputOnly
+                }
+                textRole: "name"
+                valueRole: "id"
 
                 Layout.fillWidth: true
-                currentIndex: model.indexOf(generatorModel.device)
+                currentIndex: model.indexOf(generatorModel.deviceId)
                 onCurrentIndexChanged: function () {
-                    generatorModel.device = model[currentIndex];
+                    var outIndex = outChannel.currentIndex;
+                    var auxIndex = auxChannel.currentIndex;
+                    var channelNames = model.channelNames(currentIndex);
+                    generatorModel.deviceId = model.deviceId(currentIndex);
+                    outChannel.model = channelNames;
+                    auxChannel.model = channelNames;
+                    outChannel.currentIndex = outIndex < channelNames.length ? outIndex : -1;
+                    auxChannel.currentIndex = auxIndex < channelNames.length ? auxIndex : -1;
                 }
 
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("audio output device")
+                Connections {
+                    target: deviceModel
+                    function onModelReset() {
+                        deviceSelect.currentIndex = deviceModel.indexOf(generatorModel.deviceId);
+                        var outIndex = outChannel.currentIndex;
+                        var auxIndex = auxChannel.currentIndex;
+                        outChannel.model = deviceModel.channelNames(deviceSelect.currentIndex);
+                        auxChannel.model = deviceModel.channelNames(deviceSelect.currentIndex);
+                        outChannel.currentIndex = outIndex < outChannel.count ? outIndex : -1;
+                        auxChannel.currentIndex = auxIndex < auxChannel.count ? auxIndex : -1;
+                    }
+                }
             }
 
             ComboBox {
+                id: outChannel
                 implicitWidth: 120
-                model: generatorModel.channelsCount
                 currentIndex: generatorModel.channel
                 onCurrentIndexChanged: generatorModel.channel = currentIndex
-                displayText: "ch: " + (currentIndex + 1)
-                delegate: ItemDelegate {
-                    text: modelData + 1
-                    width: parent.width
-                }
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("channel number")
             }
 
             ComboBox {
+                id: auxChannel
                 implicitWidth: 120
-                model: generatorModel.channelsCount
                 currentIndex: generatorModel.aux
                 onCurrentIndexChanged: generatorModel.aux = currentIndex
-                displayText: "aux: " + (currentIndex + 1)
-                delegate: ItemDelegate {
-                    text: modelData + 1
-                    width: parent.width
-                }
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("aux channel number")
             }
-
         }
     }
 }

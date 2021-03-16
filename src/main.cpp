@@ -30,6 +30,9 @@
 #include "src/sourcelist.h"
 #include "src/chart/variablechart.h"
 
+#include "src/audio/client.h"
+#include "src/audio/devicemodel.h"
+
 #ifndef APP_GIT_VERSION
 #define APP_GIT_VERSION "unknow"
 #endif
@@ -48,9 +51,11 @@ int main(int argc, char *argv[])
     QCoreApplication::setOrganizationDomain("opensoundmeter.com");
 
     Settings settings;
+    audio::Client::getInstance();
     Generator g(settings.getGroup("generator"));
     SourceList sourceList;
 
+    qmlRegisterType<audio::DeviceModel>("Audio", 1, 0, "DeviceModel");
     qmlRegisterType<Fftchart::VariableChart>("FftChart", 1, 0, "VariableChart");
     qmlRegisterUncreatableMetaObject(Filter::staticMetaObject, "Measurement", 1, 0, "FilterFrequency",
                                      "Error: only enums");

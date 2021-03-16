@@ -16,7 +16,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "generatorthread.h"
-#include "QDebug"
+#include "audio/client.h"
 
 #include "whitenoise.h"
 #include "pinknoise.h"
@@ -25,8 +25,9 @@
 
 GeneratorThread::GeneratorThread(QObject *parent) :
     QThread(parent),
-    m_audio(nullptr),
-    m_format(), m_device(), m_sources(),
+    m_deviceId(audio::Client::getInstance()->defaultDeviceId(audio::Plugin::Direction::Output)),
+    m_audioStream(nullptr),
+    m_sources(),
     m_gain(-6.f), m_duration(1.f),
     m_type(0),
     m_frequency(1000),
@@ -39,6 +40,31 @@ GeneratorThread::GeneratorThread(QObject *parent) :
 {
     start();
     QObject::moveToThread(this);
+}
+
+GeneratorThread::~GeneratorThread()
+{
+    for (auto &m_source : m_sources) {
+        m_source->close();
+    }
+
+    if (m_audioStream) {
+        m_audioStream->close();
+    }
+}
+
+audio::DeviceInfo::Id GeneratorThread::deviceId() const
+{
+    return m_deviceId;
+}
+
+void GeneratorThread::setDeviceId(audio::DeviceInfo::Id deviceId)
+{
+    if (m_deviceId != deviceId) {
+        m_deviceId = deviceId;
+        updateAudio();
+        emit deviceIdChanged(m_deviceId);
+    }
 }
 
 float GeneratorThread::duration() const
@@ -60,8 +86,6 @@ void GeneratorThread::init()
     m_sources << new WhiteNoise(this);
     m_sources << new SinNoise(this);
     m_sources << new SinSweep(this);
-    m_device = QAudioDeviceInfo::defaultOutputDevice();
-    selectDevice(m_device);
     connect(this, SIGNAL(finished()), this, SLOT(finish()));
 }
 /*
@@ -70,10 +94,6 @@ void GeneratorThread::init()
 void GeneratorThread::finish()
 {
     setEnabled(false);
-}
-QString GeneratorThread::deviceName() const
-{
-    return m_device.deviceName();
 }
 void GeneratorThread::setEnabled(bool enabled)
 {
@@ -93,77 +113,33 @@ void GeneratorThread::setType(int type)
         emit typeChanged(m_type);
     }
 }
-void GeneratorThread::selectDevice(const QString &name)
-{
-    if (name == deviceName())
-        return;
-
-    QStringList devices = getDeviceList().value<QStringList>();
-    if (devices.indexOf(name) == -1) {
-        return;
-    }
-    foreach (auto &deviceInfo, QAudioDeviceInfo::availableDevices(QAudio::AudioOutput)) {
-        if (name == deviceInfo.deviceName()) {
-            selectDevice(deviceInfo);
-        }
-    }
-}
-void GeneratorThread::selectDevice(const QAudioDeviceInfo &device)
-{
-    m_device = device;
-    m_sources[m_type]->close();
-    updateAudio();
-    emit deviceChanged(m_device.deviceName());
-}
-//DESC: cclang changes an order. It cause crash with MOTU
-#ifdef Q_OS_MACOS
-__attribute__((optnone))
-#endif
 void GeneratorThread::updateAudio()
 {
-    if (m_audio) {
-        m_audio->stop();
-        delete m_audio;
-        m_audio = nullptr;
+    if (m_audioStream) {
+        m_audioStream->close();
     }
+    m_audioStream = nullptr;
 
-
-    m_channelCount = 1;
-    foreach (auto formatChanels, m_device.supportedChannelCounts()) {
-        if (formatChanels > m_channelCount)
-            m_channelCount = formatChanels;
-    }
-    m_format = m_device.preferredFormat();
-    m_format.setSampleSize(32);
-    m_format.setCodec("audio/pcm");
-    m_format.setByteOrder(QAudioFormat::LittleEndian);
-    m_format.setSampleType(QAudioFormat::Float);
-    m_format.setChannelCount(m_channelCount);
-    if (m_format.sampleRate() < 44100) {
-        m_format.setSampleRate(44100);
-    }
-    if (!m_device.isFormatSupported(m_format)) {
-        m_format = m_device.nearestFormat(m_format);
-    }
     if (m_enabled) {
-        m_audio = new QAudioOutput(m_device, m_format, this);
-#ifndef WIN64
-        m_audio->setBufferSize(
-            static_cast<int>(sizeof(float)) *
-            static_cast<int>(m_channelCount) *
-            8 * 1024);
-#endif
-        if (m_sources[m_type]->openMode() == QIODevice::NotOpen) {
-            m_sources[m_type]->open(QIODevice::ReadOnly);
-        }
         m_sources[m_type]->setGain(m_gain);
         m_sources[m_type]->setChanel(m_channel);
         m_sources[m_type]->setAux(m_aux);
-        m_sources[m_type]->setChanelCount(m_channelCount);
-        m_sources[m_type]->setSamplerate(m_format.sampleRate());
-        m_audio->start(m_sources[m_type]);
 
-        emit channelsCountChanged();
+        audio::Format format = audio::Client::getInstance()->deviceOutputFormat(m_deviceId);
+        m_sources[m_type]->setChanelCount(format.channelCount);
+        m_sources[m_type]->setSamplerate(format.sampleRate);
+
+        m_audioStream = audio::Client::getInstance()->openOutput(m_deviceId, m_sources[m_type], format);
+        if (m_audioStream) {
+            m_sources[m_type]->setSamplerate(m_audioStream->format().sampleRate);
+            connect(m_audioStream, &audio::Stream::sampleRateChanged, this, [this]() {
+                for (auto &&source : m_sources) {
+                    source->setSamplerate(m_audioStream->format().sampleRate);
+                }
+            });
+        } else {
+            emit deviceError();
+        }
     }
 }
 QVariant GeneratorThread::getAvailableTypes() const
@@ -173,28 +149,6 @@ QVariant GeneratorThread::getAvailableTypes() const
         nameList << o->name();
     }
     return QVariant::fromValue(nameList);
-}
-QVariant GeneratorThread::getDeviceList() const
-{
-    QStringList deviceList;
-    QAudioFormat format44, format48;
-    format48.setChannelCount(2);
-    format48.setSampleRate(48000);
-    format48.setSampleSize(32);
-    format48.setCodec("audio/pcm");
-    format48.setByteOrder(QAudioFormat::LittleEndian);
-    format48.setSampleType(QAudioFormat::Float);
-
-    format44 = format48;
-    format44.setSampleRate(44100);
-
-    foreach (const QAudioDeviceInfo &deviceInfo,
-             QAudioDeviceInfo::availableDevices(QAudio::AudioOutput)) {
-        if (deviceInfo.isFormatSupported(format44) || deviceInfo.isFormatSupported(format48)) {
-            deviceList << deviceInfo.deviceName();
-        }
-    }
-    return QVariant::fromValue(deviceList);
 }
 void GeneratorThread::setFrequency(int frequency)
 {

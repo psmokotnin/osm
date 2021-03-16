@@ -1,6 +1,6 @@
 /**
  *  OSM
- *  Copyright (C) 2018  Pavel Smokotnin
+ *  Copyright (C) 2021  Pavel Smokotnin
 
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -15,52 +15,25 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef OUTPUTDEVICE_H
-#define OUTPUTDEVICE_H
+#ifndef INPUTDEVICE_H
+#define INPUTDEVICE_H
 
 #include <QIODevice>
-#include <QDebug>
 
-#include "sample.h"
-
-class OutputDevice : public QIODevice
+class InputDevice : public QIODevice
 {
     Q_OBJECT
 
-protected:
-    QString m_name;
-    int m_sampleRate;
-    int m_chanel, m_aux, m_chanelCount;
-    float m_gain;
-
 public:
-    OutputDevice(QObject *parent);
+    InputDevice(QObject *parent);
 
     qint64 writeData(const char *data, qint64 len) override;
     qint64 readData(char *data, qint64 maxlen) override;
-    virtual Sample sample();
 
-    QString name() const
-    {
-        return m_name;
-    }
+    void setCallback(const std::function<void(const QByteArray &buffer)> &callback);
 
-public slots:
-    void setSamplerate(int sampleRate);
-    void setGain(float gaindB);
-    void setChanel(int chanel)
-    {
-        m_chanel = chanel;
-    }
-    void setAux(int chanel)
-    {
-        m_aux = chanel;
-    }
-    void setChanelCount(int count)
-    {
-        m_chanelCount = count;
-    }
-
+private:
+    std::function<void(const QByteArray &buffer)> m_callback = nullptr;
 };
 
-#endif // OUTPUTDEVICE_H
+#endif // INPUTDEVICE_H

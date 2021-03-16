@@ -74,21 +74,6 @@ Item {
             }
         }
 
-        Connections {
-            target: dataModel
-            function onSampleRateChanged() {
-                    var pb = applicationWindow.properiesbar;
-                    var reopen = false;
-                    if (pb.currentObject === dataModel) {
-                        pb.reset();
-                        reopen = true;
-                    }
-                    if (reopen) {
-                        pb.open(dataModel, measurement.propertiesQml);
-                    }
-                }
-        }
-
         Component.onCompleted: {
             if (!dataModel.isColorValid()) {
                 dataModel.color = applicationWindow.dataSourceList.nextColor();

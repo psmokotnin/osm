@@ -19,10 +19,11 @@
 #define GENERATORTHREAD_H
 
 #include <QThread>
-#include <QAudioOutput>
 
 #include "outputdevice.h"
 #include "sinsweep.h"
+#include "audio/deviceinfo.h"
+#include "audio/stream.h"
 
 class GeneratorThread : public QThread
 {
@@ -30,11 +31,11 @@ class GeneratorThread : public QThread
 
 public:
     explicit GeneratorThread(QObject *parent);
+    ~GeneratorThread();
 
 private:
-    QAudioOutput *m_audio;
-    QAudioFormat m_format;
-    QAudioDeviceInfo m_device;
+    audio::DeviceInfo::Id m_deviceId;
+    audio::Stream *m_audioStream;
     QList<OutputDevice *> m_sources;
 
     float m_gain, m_duration;
@@ -42,8 +43,6 @@ private:
     int m_frequency, m_startFrequency, m_endFrequency;
     int m_channelCount, m_channel, m_aux;
     bool m_enabled;
-
-    void selectDevice(const QAudioDeviceInfo &device);
     void updateAudio();
 
 public slots:
@@ -62,10 +61,9 @@ public slots:
     }
     void setType(int type);
 
-    QVariant getDeviceList() const;
-    void selectDevice(const QString &name);
+    audio::DeviceInfo::Id deviceId() const;
+    void setDeviceId(audio::DeviceInfo::Id deviceId);
 
-    QString deviceName() const;
     QVariant getAvailableTypes() const;
 
     int frequency() const
@@ -113,7 +111,6 @@ public slots:
 
 signals:
     void enabledChanged(bool);
-    void deviceChanged(QString);
     void typeChanged(int);
     void frequencyChanged(int);
     void startFrequencyChanged(int);
@@ -121,8 +118,9 @@ signals:
     void gainChanged(float);
     void channelChanged(int);
     void auxChanged(int);
-    void channelsCountChanged();
     void durationChanged(float);
+    void deviceIdChanged(audio::DeviceInfo::Id);
+    void deviceError();
 };
 
 #endif // GENERATORTHREAD_H

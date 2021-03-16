@@ -1,6 +1,6 @@
 /**
  *  OSM
- *  Copyright (C) 2018  Pavel Smokotnin
+ *  Copyright (C) 2021  Pavel Smokotnin
 
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -15,31 +15,30 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "sinnoise.h"
+#include "inputdevice.h"
 
-SinNoise::SinNoise(QObject *parent) : OutputDevice(parent),
-    m_frequency(1000.f),
-    m_phase(0.0)
+InputDevice::InputDevice(QObject *parent) : QIODevice(parent)
 {
-    m_name = "Sin";
-    connect(parent, SIGNAL(frequencyChanged(int)), this, SLOT(setFrequency(int)));
 }
 
-Sample SinNoise::sample()
+qint64 InputDevice::writeData(const char *data, qint64 len)
 {
-    if (!m_sampleRate || !std::isfinite(m_phase)) {
-        m_phase = 0;
-        return { 0 };
+    if (m_callback) {
+        QByteArray buffer(data, len);
+        m_callback(buffer);
     }
-    m_phase += (2.0 * M_PI * static_cast<double>(m_frequency) / m_sampleRate);
-
-    if (m_phase >= 2.0 * M_PI)
-        m_phase -= 2.0 * M_PI;
-
-    Sample output = {m_gain *static_cast<float>(sin(m_phase))};
-    return output;
+    return len;
 }
-void SinNoise::setFrequency(int f)
+
+qint64 InputDevice::readData(char *data, qint64 maxlen)
 {
-    m_frequency = static_cast<float>(f);
+    Q_UNUSED(data);
+    Q_UNUSED(maxlen);
+
+    return -1;
+}
+
+void InputDevice::setCallback(const std::function<void(const QByteArray &buffer)> &callback)
+{
+    m_callback = callback;
 }

@@ -22,6 +22,7 @@ import QtQuick.Dialogs 1.2
 import QtQuick.Controls.Material 2.13
 
 import Measurement 1.0
+import Audio 1.0
 
 Item {
     id: measurementProperties
@@ -247,27 +248,19 @@ Item {
             }
 
             ComboBox {
-                model: dataObject.chanelsCount
+                id: measurementChannel
                 currentIndex: dataObject.dataChanel
                 onCurrentIndexChanged: dataObject.dataChanel = currentIndex
-                displayText: "M ch:" + (currentIndex + 1)
-                delegate: ItemDelegate {
-                          text: modelData + 1
-                          width: parent.width
-                      }
+                displayText: "M: " + currentText
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("measurement chanel number")
             }
 
             ComboBox {
-                model: dataObject.chanelsCount
+                id: referenceChannel
                 currentIndex: dataObject.referenceChanel
                 onCurrentIndexChanged: dataObject.referenceChanel = currentIndex
-                displayText: "R ch:" + (currentIndex + 1)
-                delegate: ItemDelegate {
-                          text: modelData + 1
-                          width: parent.width
-                      }
+                displayText: "R: " + currentText
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("reference chanel number")
             }
@@ -275,14 +268,41 @@ Item {
             ComboBox {
                 id: deviceSelect
                 Layout.fillWidth: true
-                model: dataObject.devices
-                currentIndex: { model.indexOf(dataObject.device) }
-                onCurrentIndexChanged: {
-                    dataObject.device = model[currentIndex]
+                model: DeviceModel {
+                    id: deviceModel
+                    scope: DeviceModel.InputOnly
                 }
+                textRole: "name"
+                valueRole: "id"
+                currentIndex: { model.indexOf(dataObject.deviceId) }
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("audio input device")
-                displayText: dataObject.device
+                onCurrentIndexChanged: {
+                    var measurementIndex = measurementChannel.currentIndex;
+                    var referenceIndex = referenceChannel.currentIndex;
+                    var channelNames = deviceModel.channelNames(deviceSelect.currentIndex);
+                    dataObject.deviceId = model.deviceId(currentIndex);
+                    measurementChannel.model = channelNames;
+                    referenceChannel.model   = channelNames;
+
+                    measurementChannel.currentIndex = measurementIndex < channelNames.length ? measurementIndex : -1;
+                    referenceChannel.currentIndex = referenceIndex < channelNames.length ? referenceIndex : -1;
+                }
+                Connections {
+                    target: deviceModel
+                    function onModelReset() {
+                        deviceSelect.currentIndex = deviceModel.indexOf(dataObject.deviceId);
+                        var measurementIndex = measurementChannel.currentIndex;
+                        var referenceIndex = referenceChannel.currentIndex;
+                        var channelNames = deviceModel.channelNames(deviceSelect.currentIndex);
+
+                        measurementChannel.model = channelNames;
+                        referenceChannel.model   = channelNames;
+
+                        measurementChannel.currentIndex = measurementIndex < channelNames.length ? measurementIndex : -1;
+                        referenceChannel.currentIndex = referenceIndex < channelNames.length ? referenceIndex : -1;
+                    }
+                }
             }
 
             Button {
