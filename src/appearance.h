@@ -25,6 +25,7 @@ class Appearance : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(bool darkMode READ darkMode WRITE setDarkMode NOTIFY darkModeChanged)
+    Q_PROPERTY(bool showBar READ showBar CONSTANT)
     Q_PROPERTY(QWindow::Visibility visibility READ visibility NOTIFY visibilityChanged)
 
 public:
@@ -38,6 +39,8 @@ public:
 
     bool darkMode() const;
     void setDarkMode(const bool &setDark);
+
+    bool showBar() const;
 
     QWindow::Visibility visibility() const;
 

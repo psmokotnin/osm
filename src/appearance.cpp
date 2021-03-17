@@ -53,6 +53,14 @@ void Appearance::setDarkMode(const bool &setDark)
     emit darkModeChanged(setDark);
 }
 
+bool Appearance::showBar() const
+{
+#ifdef Q_OS_IOS
+    return false;
+#endif
+    return true;
+}
+
 QWindow::Visibility Appearance::visibility() const
 {
 #ifdef Q_OS_IOS

@@ -42,7 +42,7 @@ ApplicationWindow {
     flags: Qt.Window
 
     Component.onCompleted: {
-        if (applicationAppearance.visibility === applicationAppearance.FullScreen) {
+        if (applicationAppearance.visibility === Appearance.FullScreen) {
             return ;
         }
 
@@ -65,7 +65,9 @@ ApplicationWindow {
     Material.theme: applicationAppearance.darkMode ? Material.Dark : Material.Light
     Material.accent: Material.Indigo
 
-    menuBar: MenuBar {
+    menuBar: (applicationAppearance.menuBar ? menuBar : null)
+    MenuBar {
+        id: menuBar;
         style: MenuBarStyle{
                     background: Rectangle{ color:Material.backgroundColor}
                     itemDelegate: Rectangle {
