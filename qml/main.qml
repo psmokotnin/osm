@@ -42,12 +42,16 @@ ApplicationWindow {
     flags: Qt.Window
 
     Component.onCompleted: {
+        if (applicationAppearance.visibility === applicationAppearance.FullScreen) {
+            return ;
+        }
+
         var mainwindowSettings = applicationSettings.getGroup("mainwindow");
 
         x       = mainwindowSettings.value("x", (Screen.width  - width)  / 2);
         y       = mainwindowSettings.value("y", (Screen.height - height) / 2);
-        width   = mainwindowSettings.value("width", 1000);
-        height  = mainwindowSettings.value("height", 600);
+        width   = mainwindowSettings.value("width", minimumWidth);
+        height  = mainwindowSettings.value("height", minimumHeight);
 
         applicationWindow.onWidthChanged.connect(function() {applicationSettings.setValue("mainwindow/width", width)});
         applicationWindow.onHeightChanged.connect(function() {applicationSettings.setValue("mainwindow/height", height)});
@@ -56,6 +60,7 @@ ApplicationWindow {
     }
     minimumWidth: 1080
     minimumHeight: 600
+    visibility: applicationAppearance.visibility
     color: applicationAppearance.darkMode ? Material.backgroundColor : "#FFFFFF"
     Material.theme: applicationAppearance.darkMode ? Material.Dark : Material.Light
     Material.accent: Material.Indigo

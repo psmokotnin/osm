@@ -19,23 +19,34 @@
 #define APPEARANCE_H
 
 #include "settings.h"
+#include <QWindow>
 
 class Appearance : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(bool darkMode READ darkMode WRITE setDarkMode NOTIFY darkModeChanged)
+    Q_PROPERTY(QWindow::Visibility visibility READ visibility NOTIFY visibilityChanged)
 
 public:
     explicit Appearance(Settings *settings = nullptr);
 
+    enum Visibility {
+        Automatic = QWindow::Visibility::AutomaticVisibility,
+        FullScreen = QWindow::Visibility::FullScreen
+    };
+    Q_ENUM(Visibility)
+
     bool darkMode() const;
     void setDarkMode(const bool &setDark);
+
+    QWindow::Visibility visibility() const;
 
 public slots:
     bool setDarkModeFromSystem();
 
 signals:
     void darkModeChanged(bool);
+    void visibilityChanged();
 
 private:
     Settings *settings() const;
