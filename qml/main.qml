@@ -24,6 +24,7 @@ import QtQuick.Controls 1.4
 import QtQuick.Controls.Styles 1.4
 import QtQuick.Dialogs 1.2
 import SourceModel 1.0
+import OpenSoundMeter 1.0
 
 ApplicationWindow {
     id:applicationWindow
@@ -33,7 +34,6 @@ ApplicationWindow {
     property alias dataSourceList : righttab
     property alias message : message
     property alias dialog : dialog
-    property alias darkMode : darkModeSelect.checked
     property string backgroundColor: Material.backgroundColor
     property string accentColor: Material.accent
     property string foregroundColor: Material.foreground
@@ -56,8 +56,8 @@ ApplicationWindow {
     }
     minimumWidth: 1080
     minimumHeight: 600
-    color: darkModeSelect.checked ? Material.backgroundColor : "#FFFFFF"
-    Material.theme: darkModeSelect.checked ? Material.Dark : Material.Light
+    color: applicationAppearance.darkMode ? Material.backgroundColor : "#FFFFFF"
+    Material.theme: applicationAppearance.darkMode ? Material.Dark : Material.Light
     Material.accent: Material.Indigo
 
     menuBar: MenuBar {
@@ -159,9 +159,9 @@ ApplicationWindow {
                     text: qsTr("&Dark Mode")
                     shortcut: "Ctrl+D"
                     checkable: true
-                    checked: applicationSettings.value("darkMode") === "true"
+                    checked: applicationAppearance.darkMode
                     onCheckedChanged: {
-                        applicationSettings.setValue("darkMode", darkModeSelect.checked)
+                        applicationAppearance.darkMode = darkModeSelect.checked;
                     }
                 }
                 MenuItem {

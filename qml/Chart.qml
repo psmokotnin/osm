@@ -29,7 +29,7 @@ Item {
         id: chart
         anchors.fill: parent
         sources: sourceList
-        darkMode: applicationWindow.darkMode
+        darkMode: applicationAppearance.darkMode
 
         Component.onCompleted: {
             initOpener();
@@ -117,7 +117,7 @@ Item {
         y: opener.mouseY - cursor.height / 2
         visible: opener.containsMouse
         style: Text.Outline;
-        styleColor: darkMode ? "#99000000" : "#99FFFFFF"
+        styleColor: applicationAppearance.darkMode ? "#99000000" : "#99FFFFFF"
     }
 
     ComboBox {

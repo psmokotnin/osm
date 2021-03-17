@@ -32,6 +32,7 @@
 
 #include "src/audio/client.h"
 #include "src/audio/devicemodel.h"
+#include "src/appearance.h"
 
 #ifndef APP_GIT_VERSION
 #define APP_GIT_VERSION "unknow"
@@ -51,6 +52,7 @@ int main(int argc, char *argv[])
     QCoreApplication::setOrganizationDomain("opensoundmeter.com");
 
     Settings settings;
+    Appearance appearence(&settings);
     audio::Client::getInstance();
     Generator g(settings.getGroup("generator"));
     SourceList sourceList;
@@ -67,11 +69,13 @@ int main(int argc, char *argv[])
     qmlRegisterUncreatableType<SourceList>("SourceModel", 1, 0, "SourceList",
                                            QStringLiteral("SourceList should not be created in QML"));
     qmlRegisterType<Settings>("Settings", 1, 0, "Settings");
+    qmlRegisterType<Appearance>("OpenSoundMeter", 1, 0, "Appearance");
 
     QQmlApplicationEngine engine;
 
     engine.rootContext()->setContextProperty("appVersion", QString(APP_GIT_VERSION));
     engine.rootContext()->setContextProperty("applicationSettings", &settings);
+    engine.rootContext()->setContextProperty("applicationAppearance", &appearence);
     engine.rootContext()->setContextProperty("sourceList", &sourceList);
     engine.rootContext()->setContextProperty("generatorModel", &g);
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));

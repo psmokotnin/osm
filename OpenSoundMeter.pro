@@ -5,6 +5,7 @@ CONFIG += c++1z
 CONFIG+=sdk_no_version_check
 
 SOURCES += src/main.cpp \
+    src/appearance.cpp \
     src/audio/client.cpp \
     src/audio/deviceinfo.cpp \
     src/audio/devicemodel.cpp \
@@ -90,6 +91,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 HEADERS += \
+    src/appearance.h \
     src/audio/client.h \
     src/audio/deviceinfo.h \
     src/audio/devicemodel.h \
