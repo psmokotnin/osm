@@ -53,7 +53,7 @@ void Appearance::setDarkMode(const bool &setDark)
     emit darkModeChanged(setDark);
 }
 
-bool Appearance::showBar() const
+bool Appearance::showMenuBar() const
 {
 #ifdef Q_OS_IOS
     return false;

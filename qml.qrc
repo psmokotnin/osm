@@ -36,5 +36,7 @@
         <file alias="Plot/SpectrogramProperties.qml">qml/Plot/SpectrogramProperties.qml</file>
         <file alias="ELC.qml">qml/ELC.qml</file>
         <file alias="ELCProperties.qml">qml/ELCProperties.qml</file>
+        <file alias="menu/Top.qml">qml/menu/Top.qml</file>
+        <file alias="menu/Side.qml">qml/menu/Side.qml</file>
     </qresource>
 </RCC>

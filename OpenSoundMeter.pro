@@ -217,7 +217,7 @@ win32 {
     }
 }
 
-unix:!macx {
+unix:!macx:!ios {
     HEADERS += \
         src/audio/plugins/alsa.h
 

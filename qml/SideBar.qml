@@ -23,6 +23,7 @@ import QtQml.Models 2.3
 import QtQuick.Controls.Material 2.12
 
 import SourceModel 1.0
+import OpenSoundMeter 1.0
 /**
  * SideBar
  *
@@ -39,26 +40,36 @@ Item {
         anchors.fill: parent
         spacing: 5
 
-        ComboBox {
-            id: chartsCount
+        RowLayout {
             Layout.alignment: Qt.AlignHCenter
-            model: ["Single", "Double", "Three"]
-            currentIndex: charts.count - 1
-            onCurrentIndexChanged: {
-                applicationWindow.charts.count = currentIndex + 1
-            }
+            ComboBox {
+                id: chartsCount
+                Layout.alignment: Qt.AlignHCenter
+                model: ["Single", "Double", "Three"]
+                currentIndex: charts.count - 1
+                onCurrentIndexChanged: {
+                    applicationWindow.charts.count = currentIndex + 1
+                }
 
-            Shortcut {
-                sequence: "Ctrl+1"
-                onActivated: chartsCount.currentIndex = 0;
+                Shortcut {
+                    sequence: "Ctrl+1"
+                    onActivated: chartsCount.currentIndex = 0;
+                }
+                Shortcut {
+                    sequence: "Ctrl+2"
+                    onActivated: chartsCount.currentIndex = 1;
+                }
+                Shortcut {
+                    sequence: "Ctrl+3"
+                    onActivated: chartsCount.currentIndex = 2;
+                }
             }
-            Shortcut {
-                sequence: "Ctrl+2"
-                onActivated: chartsCount.currentIndex = 1;
-            }
-            Shortcut {
-                sequence: "Ctrl+3"
-                onActivated: chartsCount.currentIndex = 2;
+            Button {
+                font.family: "Osm"
+                text: "\uf0C9"
+                flat: true
+                onClicked: applicationWindow.sideMenu.open();
+                visible: applicationAppearance.showMenuBar ? false : true
             }
         }
 
