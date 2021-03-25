@@ -66,6 +66,7 @@ Item {
             }
             Button {
                 font.family: "Osm"
+                font.pixelSize: 30
                 text: "\uf0C9"
                 flat: true
                 onClicked: applicationWindow.sideMenu.open();
@@ -126,8 +127,8 @@ Item {
                     property bool held: false
 
                     anchors {
-                        left: parent ? parent.left : null
-                        right: parent ? parent.right : null
+                        left: parent ? parent.left : false
+                        right: parent ? parent.right : false
                     }
                     height: content.height
 

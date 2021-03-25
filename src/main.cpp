@@ -33,6 +33,7 @@
 #include "src/audio/client.h"
 #include "src/audio/devicemodel.h"
 #include "src/appearance.h"
+#include "src/filesystem/dialog.h"
 
 #ifndef APP_GIT_VERSION
 #define APP_GIT_VERSION "unknow"
@@ -70,6 +71,8 @@ int main(int argc, char *argv[])
                                            QStringLiteral("SourceList should not be created in QML"));
     qmlRegisterType<Settings>("Settings", 1, 0, "Settings");
     qmlRegisterType<Appearance>("OpenSoundMeter", 1, 0, "Appearance");
+    //replace for QQuickControls2 FileDialog:
+    //qmlRegisterType<filesystem::Dialog>("OpenSoundMeter", 1, 0, "FileDialog");
 
     QQmlApplicationEngine engine;
 

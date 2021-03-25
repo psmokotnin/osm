@@ -141,6 +141,9 @@ ApplicationWindow {
         defaultSuffix: "osm"
         nameFilters: ["Open Sound Meter (*.osm)"]
         onAccepted: sourceList.save(saveDialog.fileUrl);
+        Component.onCompleted: {
+            console.log(parent)
+        }
     }
 
     FileDialog {

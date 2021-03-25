@@ -21,6 +21,9 @@ SOURCES += src/main.cpp \
     src/chart/stepplot.cpp \
     src/chart/stepseriesrenderer.cpp \
     src/elc.cpp \
+    src/filesystem/dialog.cpp \
+    src/filesystem/dialogPlugin.cpp \
+    src/filesystem/plugins/widgetdialogplugin.cpp \
     src/generator.cpp \
     src/inputdevice.cpp \
     src/pinknoise.cpp \
@@ -107,6 +110,9 @@ HEADERS += \
     src/chart/stepplot.h \
     src/chart/stepseriesrenderer.h \
     src/elc.h \
+    src/filesystem/dialog.h \
+    src/filesystem/dialogPlugin.h \
+    src/filesystem/plugins/widgetdialogplugin.h \
     src/generator.h \
     src/inputdevice.h \
     src/pinknoise.h \
