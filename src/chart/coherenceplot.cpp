@@ -18,10 +18,12 @@
 #include "coherenceplot.h"
 #include "coherenceseriesrenderer.h"
 
+#include <QPainter>
+
 using namespace Fftchart;
 
 CoherencePlot::CoherencePlot(Settings *settings, QQuickItem *parent): XYPlot(settings, parent),
-    m_pointsPerOctave(12), m_type(Type::Normal)
+    m_pointsPerOctave(12), m_threshold(0.91f), m_thresholdColor("#FF5722"), m_thresholdLine(this), m_type(Type::Normal)
 {
     m_x.configure(AxisType::Logarithmic, 20.f, 20000.f);
     m_x.setISOLabels();
@@ -32,6 +34,34 @@ CoherencePlot::CoherencePlot(Settings *settings, QQuickItem *parent): XYPlot(set
     m_x.setUnit("Hz");
     setFlag(QQuickItem::ItemHasContents);
 }
+float CoherencePlot::threshold() const
+{
+    return m_threshold;
+}
+
+void CoherencePlot::setThreshold(const float &coherenceThreshold)
+{
+    if (!qFuzzyCompare(m_threshold, coherenceThreshold)) {
+        m_threshold = coherenceThreshold;
+        emit thresholdChanged(m_threshold);
+        m_thresholdLine.update();
+    }
+}
+
+QColor CoherencePlot::thresholdColor() const
+{
+    return m_thresholdColor;
+}
+
+void CoherencePlot::setThresholdColor(const QColor &thresholdColor)
+{
+    if (thresholdColor != m_thresholdColor) {
+        m_thresholdColor = thresholdColor;
+        emit thresholdColorChanged(m_thresholdColor);
+        m_thresholdLine.update();
+    }
+}
+
 SeriesFBO *CoherencePlot::createSeriesFromSource(Source *source)
 {
     return new SeriesFBO(source, []() {
@@ -67,6 +97,9 @@ void CoherencePlot::setSettings(Settings *settings) noexcept
         setPointsPerOctave(
             m_settings->reactValue<CoherencePlot, unsigned int>("pointsPerOctave", this,
                                                                 &CoherencePlot::pointsPerOctaveChanged, m_pointsPerOctave).toUInt());
+        setThreshold(
+            m_settings->reactValue<CoherencePlot, float>("threshold", this,
+                                                         &CoherencePlot::thresholdChanged, m_threshold).toFloat());
     }
 }
 void CoherencePlot::storeSettings() noexcept
@@ -77,4 +110,40 @@ void CoherencePlot::storeSettings() noexcept
     XYPlot::storeSettings();
 //    m_settings->setValue("type", m_type);
     m_settings->setValue("pointsPerOctave", m_pointsPerOctave);
+    m_settings->setValue("coherenceThreshold", m_threshold);
+}
+
+CoherenceThresholdLine::CoherenceThresholdLine(QQuickItem *parent) : PaintedItem(parent)
+{
+    connect(parent, &QQuickItem::widthChanged, this, &CoherenceThresholdLine::parentWidthChanged);
+    connect(parent, &QQuickItem::heightChanged, this, &CoherenceThresholdLine::parentHeightChanged);
+    connect(reinterpret_cast<Plot *>(parent), &Plot::updated, this, [this] () {
+        update();
+    });
+    setWidth(parent->width());
+    setHeight(parent->height());
+}
+
+void Fftchart::CoherenceThresholdLine::paint(QPainter *painter)
+{
+    auto plot = reinterpret_cast<CoherencePlot *>(parent());
+    auto y = heightf() - padding.bottom - plot->yAxis()->convert(plot->threshold(), pheight());
+    QColor color(plot->thresholdColor());
+    QPen linePen(color, 1);
+    QPoint p1(padding.left, y),
+           p2(width() - padding.right, y);
+
+    painter->setRenderHints(QPainter::Antialiasing, true);
+    painter->setPen(linePen);
+    painter->drawLine(p1, p2);
+}
+
+void CoherenceThresholdLine::parentWidthChanged()
+{
+    setWidth(parentItem()->width());
+}
+
+void CoherenceThresholdLine::parentHeightChanged()
+{
+    setHeight(parentItem()->height());
 }

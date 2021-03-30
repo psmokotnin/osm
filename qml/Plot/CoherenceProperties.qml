@@ -130,12 +130,37 @@ Item {
 
         ComboBox {
             id: type
-            implicitWidth: 120
+            implicitWidth: 170
             model: ["normal", "squared"]
             currentIndex: dataObject.type
             ToolTip.visible: hovered
             ToolTip.text: qsTr("value type")
             onCurrentIndexChanged: dataObject.type = currentIndex;
+        }
+
+        Root.ColorPicker {
+            id: colorPicker
+
+            Layout.preferredWidth: 25
+            Layout.preferredHeight: 25
+            Layout.margins: 5
+
+            onColorChanged: {
+                dataObject.thresholdColor = color
+            }
+            Component.onCompleted: {
+                colorPicker.color = dataObject.thresholdColor
+            }
+        }
+
+        Root.FloatSpinBox {
+            min: 0.0
+            max: 1.0
+            step: 0.05
+            value: dataObject.threshold
+            tooltiptext: qsTr("coherence threshold")
+            onValueChanged: dataObject.threshold = value
+            implicitWidth: 170
         }
 
         RowLayout {

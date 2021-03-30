@@ -33,6 +33,7 @@ private:
     int m_posAttr, m_splineA,
         m_frequency1, m_frequency2;
     unsigned int m_pointsPerOctave;
+    float m_threshold;
     CoherencePlot::Type m_type;
 };
 }

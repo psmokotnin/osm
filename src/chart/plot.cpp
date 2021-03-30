@@ -131,6 +131,7 @@ void Plot::setHighlighted(Source *source)
 void Plot::update()
 {
     QQuickItem::update();
+    emit updated();
 
     foreach (SeriesFBO *seriesfbo, series) {
         seriesfbo->update();

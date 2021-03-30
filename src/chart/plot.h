@@ -89,6 +89,7 @@ public:
 
 signals:
     void filterChanged(Fftchart::Source *);
+    void updated();
 
 protected slots:
     void parentWidthChanged();

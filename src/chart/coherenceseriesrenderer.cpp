@@ -19,7 +19,7 @@
 
 using namespace Fftchart;
 
-CoherenceSeriesRenderer::CoherenceSeriesRenderer() : m_pointsPerOctave(24)
+CoherenceSeriesRenderer::CoherenceSeriesRenderer() : m_pointsPerOctave(24), m_threshold(0)
 {
     m_program.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/logx.vert");
     m_program.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/coherence.frag");
@@ -42,6 +42,7 @@ void CoherenceSeriesRenderer::synchronize(QQuickFramebufferObject *item)
     if (auto *plot = dynamic_cast<CoherencePlot *>(m_item->parent())) {
         m_pointsPerOctave = plot->pointsPerOctave();
         m_type = plot->type();
+        m_threshold = plot->threshold();
     }
 }
 void CoherenceSeriesRenderer::renderSeries()
@@ -96,4 +97,8 @@ void CoherenceSeriesRenderer::renderSeries()
 
     iterateForSpline<float, float>(m_pointsPerOctave, &value, &coherence, accumulate, collected);
     m_openGLFunctions->glDisableVertexAttribArray(0);
+
+    if (m_threshold > 0.f && m_threshold < 1.f) {
+
+    }
 }
