@@ -18,9 +18,12 @@
 #include "dialog.h"
 #include "dialogPlugin.h"
 
-#if false
+#ifdef Q_OS_IOS
+#   define FILE_DIALOG_PLUGIN IosDialogPlugin
+#   include "plugins/iosdialogplugin.h"
+#elif false
+//  example plugin based on QWidgiet FileDialog:
 #   define FILE_DIALOG_PLUGIN WidgetDialogPlugin
-//example plugin based on QWidgiet FileDialog:
 #   include "plugins/widgetdialogplugin.h"
 #endif
 
@@ -111,7 +114,7 @@ QUrl Dialog::fileUrl() const
     if (m_files.isEmpty()) {
         return {};
     }
-    return QUrl::fromLocalFile(m_files.first());
+    return m_files.first();
 }
 
 void Dialog::setSelectExisting(const bool &existing)

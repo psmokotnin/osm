@@ -60,9 +60,15 @@ void WidgetDialogPlugin::open(const QQuickWindow *window)
 
     auto code = fileDialog->exec();
     switch (code) {
-    case QDialog::Accepted:
-        emit accepted(fileDialog->selectedFiles(), fileDialog->selectedNameFilter());
-        break;
+    case QDialog::Accepted: {
+        QStringList paths = fileDialog->selectedFiles();
+        QList<QUrl> files = {};
+        for (auto &&path : paths) {
+            files.push_back(QUrl::fromLocalFile(path));
+        }
+        emit accepted(files, fileDialog->selectedNameFilter());
+    }
+    break;
     case QDialog::Rejected:
         emit rejected();
         break;

@@ -22,6 +22,7 @@ import QtQuick.Dialogs 1.3
 
 import "../" as Root
 import SourceModel 1.0
+import OpenSoundMeter 1.0
 
 Item {
     id: chartProperties

@@ -9,7 +9,7 @@
 	<key>CFBundleIconFile</key>
 	<string>white.icns</string>
 	<key>CFBundleIdentifier</key>
-        <string>opensoundmeter.com</string>
+	<string>opensoundmeter.com</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleSignature</key>
@@ -22,9 +22,11 @@
 	<string>NSApplication</string>
 	<key>NSSupportsAutomaticGraphicsSwitching</key>
 	<true/>
-        <key>NSMicrophoneUsageDescription</key>
-        <string>Audio measurement</string>
-        <key>NSRequiresAquaSystemAppearance</key>
-        <string>true</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Audio measurement</string>
+	<key>UISupportsDocumentBrowser</key>
+	<true/>
+	<key>NSRequiresAquaSystemAppearance</key>
+	<string>true</string>
 </dict>
 </plist>

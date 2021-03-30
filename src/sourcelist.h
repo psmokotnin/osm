@@ -81,6 +81,7 @@ public:
     Q_INVOKABLE void reset() noexcept;
     Q_INVOKABLE bool save(const QUrl &fileName) const noexcept;
     Q_INVOKABLE bool load(const QUrl &fileName) noexcept;
+    Q_INVOKABLE bool importAuto(const QUrl &fileName) noexcept;
     Q_INVOKABLE bool importTxt(const QUrl &fileName) noexcept;
     Q_INVOKABLE bool importCsv(const QUrl &fileName) noexcept;
     Q_INVOKABLE bool move(int from, int to) noexcept;

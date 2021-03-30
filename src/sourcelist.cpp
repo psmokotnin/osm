@@ -24,6 +24,7 @@
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <QFile>
+#include <QFileInfo>
 
 SourceList::SourceList(QObject *parent, bool appendMeasurement) :
     QObject(parent),
@@ -186,6 +187,20 @@ bool SourceList::load(const QUrl &fileName) noexcept
 
     return false;
 }
+
+bool SourceList::importAuto(const QUrl &fileName) noexcept
+{
+    QFileInfo info(fileName.toLocalFile());
+    auto suffix = info.suffix();
+    if (suffix == "txt") {
+        return importTxt(fileName);
+    }
+    if (suffix == "csv") {
+        return importCsv(fileName);
+    }
+    return false;
+}
+
 bool SourceList::importTxt(const QUrl &fileName) noexcept
 {
     return importFile(fileName, "\t");

@@ -161,6 +161,17 @@ HEADERS += \
     src/chart/coherenceseriesrenderer.h \
     src/settings.h
 
+
+ios: {
+    QMAKE_IOS_DEPLOYMENT_TARGET = 13.0
+    QMAKE_APPLE_TARGETED_DEVICE_FAMILY = 2 #iPad
+    QMAKE_IOS_DEVICE_ARCHS = "arm64"
+    DEFINES += SUPPORT_64_BIT_IOS
+
+    HEADERS += src/filesystem/plugins/iosdialogplugin.h
+    SOURCES += src/filesystem/plugins/iosdialogplugin.mm
+}
+
 APP_GIT_VERSION = $$system(git --git-dir $$_PRO_FILE_PWD_/.git --work-tree $$_PRO_FILE_PWD_ describe --tags $$system(git --git-dir $$_PRO_FILE_PWD_/.git --work-tree $$_PRO_FILE_PWD_ rev-list --tags --max-count=1))
 DEFINES += APP_GIT_VERSION=\\\"$$APP_GIT_VERSION\\\"
 

@@ -16,6 +16,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "dialogPlugin.h"
+#include <QStandardPaths>
 
 namespace filesystem {
 
@@ -70,6 +71,33 @@ void DialogPlugin::setMode(Dialog::Mode mode)
 Dialog::StandardFolder DialogPlugin::folder() const
 {
     return m_startFolder;
+}
+
+QUrl DialogPlugin::folderURL() const
+{
+    QString directory;
+    switch (folder()) {
+    case Dialog::Home:
+        directory = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
+        break;
+    case Dialog::Documents:
+        directory = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
+        break;
+    case Dialog::Images:
+        directory = QStandardPaths::writableLocation(QStandardPaths::PicturesLocation);
+        break;
+    case Dialog::Music:
+        directory = QStandardPaths::writableLocation(QStandardPaths::MusicLocation);
+        break;
+    case Dialog::Movies:
+        directory = QStandardPaths::writableLocation(QStandardPaths::MoviesLocation);
+        break;
+    case Dialog::Desktop:
+        directory = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
+        break;
+    }
+
+    return QUrl::fromLocalFile(directory);
 }
 
 void DialogPlugin::setFolder(Dialog::StandardFolder folder)

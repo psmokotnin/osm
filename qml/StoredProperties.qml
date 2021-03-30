@@ -19,11 +19,13 @@ import QtQuick 2.7
 import QtQuick.Controls 2.2
 import QtQuick.Layouts 1.13
 import QtQuick.Dialogs 1.2
-
 import QtQuick.Controls.Material 2.12
+
+import OpenSoundMeter 1.0
 
 Item {
     property var dataObject
+    property string saveas: "osm"
 
     RowLayout
     {
@@ -67,7 +69,7 @@ Item {
                     model: ["osm", "cal", "txt", "frd"]
 
                     onActivated: function() {
-                        fileDialog.saveas = currentText;
+                        saveas = currentText;
                         fileDialog.open();
                     }
 
@@ -105,7 +107,6 @@ Item {
 
     FileDialog {
         id: fileDialog
-        property string saveas: "osm"
         selectExisting: false
         title: "Please choose a file's name"
         folder: shortcuts.home

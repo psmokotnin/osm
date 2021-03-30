@@ -71,9 +71,10 @@ int main(int argc, char *argv[])
                                            QStringLiteral("SourceList should not be created in QML"));
     qmlRegisterType<Settings>("Settings", 1, 0, "Settings");
     qmlRegisterType<Appearance>("OpenSoundMeter", 1, 0, "Appearance");
+#ifdef Q_OS_IOS
     //replace for QQuickControls2 FileDialog:
-    //qmlRegisterType<filesystem::Dialog>("OpenSoundMeter", 1, 0, "FileDialog");
-
+    qmlRegisterType<filesystem::Dialog>("OpenSoundMeter", 1, 0, "FileDialog");
+#endif
     QQmlApplicationEngine engine;
 
     engine.rootContext()->setContextProperty("appVersion", QString(APP_GIT_VERSION));

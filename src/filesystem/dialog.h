@@ -35,6 +35,7 @@ class Dialog : public QQuickItem
     Q_PROPERTY(QStringList nameFilters READ nameFilters WRITE setNameFilters)
     Q_PROPERTY(Mode mode READ mode WRITE setMode REQUIRED)
 
+    //for QtQuick2 replacement:
     Q_PROPERTY(QUrl fileUrl READ fileUrl)
     Q_PROPERTY(QString selectedNameFilter READ selectedNameFilter)
     Q_PROPERTY(bool selectExisting WRITE setSelectExisting)
@@ -43,9 +44,20 @@ public:
     Dialog(QQuickItem *parent = nullptr);
 
     enum Mode {OpenFile, SaveFile};
-    enum StandardFolder {Home, Documents, Images};
+    enum StandardFolder {Home, Documents, Images, Desktop, Music, Movies};
     Q_ENUM(Mode);
     Q_ENUM(StandardFolder);
+
+    //for QtQuick2 replacement:
+    enum shortcuts {
+        desktop     = StandardFolder::Desktop,
+        documents   = StandardFolder::Documents,
+        home        = StandardFolder::Home,
+        music       = StandardFolder::Music,
+        movies      = StandardFolder::Movies,
+        pictures    = StandardFolder::Images,
+    };
+    Q_ENUM(shortcuts)
 
     QString title() const;
     void setTitle(const QString &title);
@@ -73,7 +85,7 @@ signals:
 
 private:
     DialogPlugin *m_plugin;
-    QStringList m_files;
+    QList<QUrl> m_files;
     QString m_selectedFilter;
 };
 
@@ -81,4 +93,6 @@ private:
 
 Q_DECLARE_METATYPE(filesystem::Dialog::Mode)
 Q_DECLARE_METATYPE(filesystem::Dialog::StandardFolder)
+Q_DECLARE_METATYPE(filesystem::Dialog::shortcuts)
+
 #endif // FILESYSTEM_DIALOG_H

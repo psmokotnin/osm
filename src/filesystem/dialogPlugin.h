@@ -44,12 +44,13 @@ public:
     virtual void setMode(Dialog::Mode mode);
 
     virtual Dialog::StandardFolder folder() const;
+    virtual QUrl folderURL() const;
     virtual void setFolder(Dialog::StandardFolder folder);
 
     virtual void open(const QQuickWindow *window) = 0;
 
 signals:
-    void accepted(QStringList, QString);
+    void accepted(QList<QUrl>, QString);
     void rejected();
 
 private:
