@@ -32,21 +32,38 @@ void audioInterruptHandler(void *userData, unsigned int state)
     auto plugin = reinterpret_cast<AudioSessionPlugin *>(userData);
     switch (state) {
     case AVAudioSessionInterruptionTypeBegan:
-        plugin->stopQueues();
+        plugin->beginIterrupt();
         break;
     case AVAudioSessionInterruptionTypeEnded:
+        plugin->endInterrupt();
         break;
     }
-
 }
+void backgroundModeHandler(void *userData, const bool &background)
+{
+    auto plugin = reinterpret_cast<AudioSessionPlugin *>(userData);
+    if (background) {
+        plugin->beginBackground();
+    } else {
+        plugin->endBackground();
+    }
+}
+
+void routeChangedHandler(void *userData)
+{
+    auto plugin = reinterpret_cast<AudioSessionPlugin *>(userData);
+    if (!plugin->inInterrupt() && !plugin->inBackground()) {
+        emit plugin->deviceListChanged();
+    }
+}
+
 void notificationHandler(CFNotificationCenterRef, void *userData, CFStringRef CFName, const void *,
                          CFDictionaryRef dictionaryRef)
 {
-    auto plugin = reinterpret_cast<AudioSessionPlugin *>(userData);
     auto name = QString::fromCFString(CFName);
 
     if (name == "AVAudioSessionRouteChangeNotification") {
-        emit plugin->deviceListChanged();
+        routeChangedHandler(userData);
         return;
     }
 
@@ -61,12 +78,22 @@ void notificationHandler(CFNotificationCenterRef, void *userData, CFStringRef CF
         }
         return;
     }
+
+    if (name == "UIApplicationDidEnterBackgroundNotification") {
+        backgroundModeHandler(userData, true);
+        return;
+    }
+
+    if (name == "UIApplicationWillEnterForegroundNotification") {
+        backgroundModeHandler(userData, false);
+        return;
+    }
 }
 
 const DeviceInfo::Id AudioSessionPlugin::OUTPUT_DEVICE_ID = "output";
 const DeviceInfo::Id AudioSessionPlugin::INPUT_DEVICE_ID = "input";
 
-AudioSessionPlugin::AudioSessionPlugin() : m_permission(false)
+AudioSessionPlugin::AudioSessionPlugin() : m_permission(false), m_inInterrupt(false), m_inBackground(false)
 {
     [[AVAudioSession sharedInstance] requestRecordPermission: [this] (bool permission) {
                                         m_permission = permission;
@@ -82,7 +109,7 @@ AudioSessionPlugin::AudioSessionPlugin() : m_permission(false)
         &notificationHandler,
         CFSTR("AVAudioSessionRouteChangeNotification"),
         NULL,
-        CFNotificationSuspensionBehaviorDeliverImmediately
+        CFNotificationSuspensionBehaviorDrop
     );
 
     CFNotificationCenterAddObserver(
@@ -90,6 +117,24 @@ AudioSessionPlugin::AudioSessionPlugin() : m_permission(false)
         this,
         &notificationHandler,
         CFSTR("AVAudioSessionInterruptionNotification"),
+        NULL,
+        CFNotificationSuspensionBehaviorDeliverImmediately
+    );
+
+    CFNotificationCenterAddObserver(
+        CFNotificationCenterGetLocalCenter(),
+        this,
+        &notificationHandler,
+        CFSTR("UIApplicationDidEnterBackgroundNotification"),
+        NULL,
+        CFNotificationSuspensionBehaviorDeliverImmediately
+    );
+
+    CFNotificationCenterAddObserver(
+        CFNotificationCenterGetLocalCenter(),
+        this,
+        &notificationHandler,
+        CFSTR("UIApplicationWillEnterForegroundNotification"),
         NULL,
         CFNotificationSuspensionBehaviorDeliverImmediately
     );
@@ -121,7 +166,8 @@ DeviceInfo::List AudioSessionPlugin::getDeviceInfoList() const
         QStringList channelList;
         NSEnumerator *channels = [[object channels] objectEnumerator];
         while (id channel = [channels nextObject]) {
-            channelList << QString::number([channel channelNumber]);//QString::fromNSString([channel channelName]);
+            //QString::fromNSString([channel channelName]);
+            channelList << QString::number([channel channelNumber]);
         }
         info.setInputChannels(channelList);
         list << info;
@@ -162,7 +208,8 @@ Format AudioSessionPlugin::deviceFormat(const DeviceInfo::Id &id, const Plugin::
 
     AVAudioSession *audioSession = AVAudioSession.sharedInstance;
     unsigned int sampleRate = [[AVAudioSession sharedInstance] preferredSampleRate];
-    unsigned int channels = (mode == Input ? [audioSession inputNumberOfChannels] : [audioSession outputNumberOfChannels]);
+    unsigned int channels = static_cast<unsigned int>(mode == Input ? [audioSession inputNumberOfChannels] : [audioSession
+                                                                                                              outputNumberOfChannels]);
     return {
         sampleRate,
         channels
@@ -250,14 +297,52 @@ Stream *AudioSessionPlugin::open(const DeviceInfo::Id &, const Plugin::Direction
 
     auto stream = new Stream(format);
     connect(stream, &Stream::closeMe, this, [queue, endpoint]() {
-        endpoint->close();
+        if (endpoint) {
+            endpoint->close();
+        }
         AudioQueueStop(queue, true);
         AudioQueueDispose(queue, false);
-    });
-    connect(this, &AudioSessionPlugin::stopStreams, this, [stream]() {
-        stream->close();
+    }, Qt::DirectConnection);
+
+    connect(this, &AudioSessionPlugin::restoreStreams, this, [queue, stream]() {
+        auto res = AudioQueueStart(queue, NULL);
+        if (!checkStatus(res, "restart stream")) {
+            AudioQueueDispose(queue, true);
+            stream->close();
+        }
     }, Qt::DirectConnection);
     return stream;
+}
+
+void AudioSessionPlugin::beginIterrupt()
+{
+    m_inInterrupt = true;
+}
+
+void AudioSessionPlugin::endInterrupt()
+{
+    m_inInterrupt = false;
+    emit restoreStreams({});
+}
+
+bool AudioSessionPlugin::inInterrupt() const
+{
+    return m_inInterrupt;
+}
+
+void AudioSessionPlugin::beginBackground()
+{
+    m_inBackground = true;
+}
+
+void AudioSessionPlugin::endBackground()
+{
+    m_inBackground = false;
+}
+
+bool AudioSessionPlugin::inBackground() const
+{
+    return m_inBackground;
 }
 
 void AudioSessionPlugin::stopQueues()

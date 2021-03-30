@@ -26,6 +26,8 @@ class AudioSessionPlugin : public Plugin
 {
     Q_OBJECT
     friend void audioInterruptHandler(void *userData, unsigned int state);
+    friend void backgroundModeHandler(void *userData, const bool &background);
+    friend void routeChangedHandler(void *userData);
     const static DeviceInfo::Id OUTPUT_DEVICE_ID;
     const static DeviceInfo::Id INPUT_DEVICE_ID;
 
@@ -40,12 +42,22 @@ public:
     Format deviceFormat(const DeviceInfo::Id &id, const Direction &mode) const override;
     Stream *open(const DeviceInfo::Id &, const Direction &mode, const Format &format, QIODevice *endpoint) override;
 
+    bool inInterrupt() const;
+    bool inBackground() const;
+
 signals:
     void stopStreams(QPrivateSignal);
+    void restoreStreams(QPrivateSignal);
 
 private:
+    void beginIterrupt();
+    void endInterrupt();
+    
+    void beginBackground();
+    void endBackground();
+
     void stopQueues();
-    bool m_permission;
+    bool m_permission, m_inInterrupt, m_inBackground;
 };
 
 } // namespace audio

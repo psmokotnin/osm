@@ -347,7 +347,7 @@ audio::DeviceInfo::Id Measurement::deviceId() const
 }
 void Measurement::setDeviceId(const audio::DeviceInfo::Id &deviceId)
 {
-    if (deviceId != m_deviceId) {
+    if (!deviceId.isNull() && deviceId != m_deviceId) {
         m_deviceId = deviceId;
         emit deviceIdChanged(m_deviceId);
         updateAudio();
