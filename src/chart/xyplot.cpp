@@ -24,6 +24,18 @@ XYPlot::XYPlot(Settings *settings, QQuickItem *parent) :
     m_x(AxisDirection::Horizontal, m_palette, this),
     m_y(AxisDirection::Vertical, m_palette, this)
 {
+    connect(&m_x, &Axis::minChanged, this, [this](auto value) {
+        emit xminChanged(value);
+    });
+    connect(&m_x, &Axis::maxChanged, this, [this](auto value) {
+        emit xmaxChanged(value);
+    });
+    connect(&m_y, &Axis::minChanged, this, [this](auto value) {
+        emit yminChanged(value);
+    });
+    connect(&m_y, &Axis::maxChanged, this, [this](auto value) {
+        emit ymaxChanged(value);
+    });
 }
 
 qreal XYPlot::x2v(qreal mouseX) const noexcept
@@ -33,6 +45,28 @@ qreal XYPlot::x2v(qreal mouseX) const noexcept
 qreal XYPlot::y2v(qreal mouseY) const noexcept
 {
     return m_y.coordToValue(mouseY);
+}
+
+void XYPlot::beginGesture()
+{
+    m_x.beginGesture();
+    m_y.beginGesture();
+}
+
+void XYPlot::applyGesture(QPointF base, QPointF move, QPointF scale)
+{
+    bool tx = m_x.applyGesture(base.x(), move.x(), scale.x());
+    bool ty = m_y.applyGesture(base.y(), move.y(), scale.y());
+    if (tx || ty) {
+        update();
+    }
+}
+
+void XYPlot::resetAxis()
+{
+    m_x.reset();
+    m_y.reset();
+    update();
 }
 
 QString XYPlot::xLabel() const

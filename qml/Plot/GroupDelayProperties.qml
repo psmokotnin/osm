@@ -78,6 +78,7 @@ Item {
             }
 
             Root.FloatSpinBox {
+                id: yminFloatBox
                 step: 1.0
                 decimals: 0
                 scale: dataObject.yScale
@@ -92,6 +93,7 @@ Item {
             }
 
             Root.FloatSpinBox {
+                id: ymaxFloatBox
                 step: 1.0
                 decimals: 0
                 scale: dataObject.yScale
@@ -102,6 +104,15 @@ Item {
                 implicitWidth: 170
                 Layout.fillWidth: true
                 tooltiptext: qsTr("y to")
+            }
+            Connections {
+                target: dataObject
+                function onYminChanged() {
+                    yminFloatBox.value = dataObject.ymin;
+                }
+                function onYmaxChanged() {
+                    ymaxFloatBox.value = dataObject.ymax;
+                }
             }
 
             Button {

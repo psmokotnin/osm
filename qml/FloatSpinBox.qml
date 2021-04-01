@@ -35,6 +35,10 @@ Item {
     width: spinbox.width
     height: spinbox.height
 
+    onValueChanged: {
+        spinbox.updateValue();
+    }
+
     SpinBox {
         id: spinbox
         property bool completed: false
@@ -56,6 +60,11 @@ Item {
                 spacing = 0;
             }
         }
+
+        function updateValue() {
+            spinbox.value = Math.round(floatspinbox.value * floatspinbox.scale * Math.pow(10, floatspinbox.decimals));
+        }
+
         onValueChanged: function() {
             if (completed) {
                 floatspinbox.value = value / (floatspinbox.scale * Math.pow(10, floatspinbox.decimals))

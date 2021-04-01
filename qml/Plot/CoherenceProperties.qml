@@ -78,6 +78,7 @@ Item {
         }
 
         Root.FloatSpinBox {
+            id: yminFloatBox
             min: dataObject.yLowLimit
             max: dataObject.yHighLimit
             value: dataObject.ymin
@@ -88,6 +89,7 @@ Item {
         }
 
         Root.FloatSpinBox {
+            id: ymaxFloatBox
             min: dataObject.yLowLimit
             max: dataObject.yHighLimit
             value: dataObject.ymax
@@ -95,6 +97,15 @@ Item {
             onValueChanged: dataObject.ymax = value
             implicitWidth: 170
             Layout.fillWidth: true
+        }
+        Connections {
+            target: dataObject
+            function onYminChanged() {
+                yminFloatBox.value = dataObject.ymin;
+            }
+            function onYmaxChanged() {
+                ymaxFloatBox.value = dataObject.ymax;
+            }
         }
 
         Button {

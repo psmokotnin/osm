@@ -68,47 +68,149 @@ Item {
         }
     }
 
-    PropertiesOpener {
-        id: opener
-        property int mouseButtonClicked: Qt.NoButton
-        pushObject: chart.plot;
-        cursorShape: "CrossCursor";
-        hoverEnabled: true
-        onEntered: cursor.visible = true
-        onExited: cursor.visible = false
-        acceptedButtons: Qt.LeftButton | Qt.RightButton
+    MultiPointTouchArea {
+        anchors.fill: parent
+        mouseEnabled: false
 
-        onPressed: {
-                    if (pressedButtons & Qt.LeftButton) {
-                        mouseButtonClicked = Qt.LeftButton
-                    } else if (pressedButtons & Qt.RightButton) {
-                        mouseButtonClicked = Qt.RightButton
-                    }
+        readonly property int gestureNone  : 0;
+        readonly property int gestureZoomX  : 1;
+        readonly property int gestureZoomY  : 2;
+        readonly property int gestureZoomXY : 3;
+        readonly property int gestureMoveX  : 4;
+        readonly property int gestureMoveY  : 5;
+        readonly property int gestureMoveXY : 6;
+
+        property int gesture: gestureNone;
+        touchPoints: [
+            TouchPoint { id: touchPoint1 },
+            TouchPoint { id: touchPoint2 }
+        ]
+        onReleased: {
+            gesture = gestureNone;
+        }
+
+        onGestureStarted: function (gestureEvent) {
+
+            let directionIndexForPoint = function (point) {
+                let direction = Qt.point(point.x - point.startX, point.startY - point.y);
+                let alpha = Math.atan2(direction.y, direction.x) * 180 / Math.PI;
+                if (alpha < 0) {
+                    alpha += 360;
+                }
+                let directionIndex = Math.round((alpha / 45) % 8);
+                if (directionIndex === 8) {
+                    directionIndex = 0;
+                }
+                return directionIndex;
+            }
+
+            if (gestureEvent.touchPoints.length === 2) {
+                let p1 = gestureEvent.touchPoints[0];
+                let p2 = gestureEvent.touchPoints[1];
+
+                let di1 = directionIndexForPoint(p1);
+                let di2 = directionIndexForPoint(p2);
+
+                let gestrureMatrix = [
+                        [gestureMoveX, 0, 0, 0, gestureZoomX, 0, 0, 0],
+                        [0, gestureMoveXY, 0, 0, 0, gestureZoomXY, 0, 0],
+                        [0, 0, gestureMoveY, 0, 0, 0, gestureZoomY, 0],
+                        [0, 0, 0, gestureMoveXY, 0, 0, 0, gestureZoomXY],
+                        [gestureZoomX, 0, 0, 0, gestureMoveX, 0, 0, 0],
+                        [0, gestureZoomXY, 0, 0, 0, gestureMoveXY, 0, 0],
+                        [0, 0, gestureZoomY, 0, 0, 0, gestureMoveY, 0],
+                        [0, 0, 0, gestureZoomXY, 0, 0, 0, gestureMoveXY]
+                    ];
+
+                let currentGesture = gestrureMatrix[di1][di2];
+                if (gesture === gestureNone) {
+                    //begin gesture;
+                    gesture = currentGesture;
+                    chart.plot.beginGesture();
                 }
 
-        onClicked: function(e) {
-            if (mouseButtonClicked === Qt.LeftButton) {
-                open();
-            } else if (mouseButtonClicked === Qt.RightButton) {
-                var obj = {};
-                switch(type) {
-                    case "RTA":
-                    case "Magnitude":
-                    case "Phase":
-                    case "Group Delay":
-                    case "Coherence":
-                    case "Spectrogram":
-                        obj.frequency = chart.plot.x2v(opener.mouseX);
+                if (currentGesture !== gesture) {
+                    return;
+                }
+
+                let base1 = Qt.point(p1.startX, p1.startY);
+                let base2 = Qt.point(p2.startX, p2.startY);
+                let touchPoint1 = Qt.point(p1.x, p1.y);
+                let touchPoint2 = Qt.point(p2.x, p2.y);
+                let move = Qt.point(0, 0);
+                let scale = Qt.point(1, 1);
+
+                switch (gesture) {
+                    case gestureZoomX:
+                        scale.x = Math.abs(base1.x - base2.x) / parseFloat(Math.abs(touchPoint1.x - touchPoint2.x));
                         break;
-                    case "Impulse":
-                        obj.time = Math.abs(chart.plot.x2v(opener.mouseX));
-                        break
+                    case gestureZoomY:
+                        scale.y = Math.abs(base1.y - base2.y) / parseFloat(Math.abs(touchPoint1.y - touchPoint2.y));
+                        break;
+                    case gestureZoomXY:
+                        scale.x = Math.abs(base1.x - base2.x) / parseFloat(Math.abs(touchPoint1.x - touchPoint2.x));
+                        scale.y = Math.abs(base1.y - base2.y) / parseFloat(Math.abs(touchPoint1.y - touchPoint2.y));
+                        break;
+                    case gestureMoveX:
+                        move.x = touchPoint1.x - base1.x;
+                        break;
+                    case gestureMoveY:
+                        move.y = base1.y - touchPoint1.y;
+                        break;
+                    case gestureMoveXY:
+                        move.x = touchPoint1.x - base1.x;
+                        move.y = base1.y - touchPoint1.y;
+                        break;
                 }
-                applicationWindow.properiesbar.open(obj, "qrc:/Calculator.qml");
+                chart.plot.applyGesture(base1, move, scale);
+            }
+        }
+
+        PropertiesOpener {
+            id: opener
+            property int mouseButtonClicked: Qt.NoButton
+            pushObject: chart.plot;
+            cursorShape: "CrossCursor";
+            hoverEnabled: true
+            onEntered: cursor.visible = true
+            onExited: cursor.visible = false
+            acceptedButtons: Qt.LeftButton | Qt.RightButton
+
+            onPressed: {
+                        if (pressedButtons & Qt.LeftButton) {
+                            mouseButtonClicked = Qt.LeftButton
+                        } else if (pressedButtons & Qt.RightButton) {
+                            mouseButtonClicked = Qt.RightButton
+                        }
+                    }
+
+            onClicked: function(e) {
+                if (mouseButtonClicked === Qt.LeftButton) {
+                    open();
+                } else if (mouseButtonClicked === Qt.RightButton) {
+                    var obj = {};
+                    switch(type) {
+                        case "RTA":
+                        case "Magnitude":
+                        case "Phase":
+                        case "Group Delay":
+                        case "Coherence":
+                        case "Spectrogram":
+                            obj.frequency = chart.plot.x2v(opener.mouseX);
+                            break;
+                        case "Impulse":
+                            obj.time = Math.abs(chart.plot.x2v(opener.mouseX));
+                            break
+                    }
+                    applicationWindow.properiesbar.open(obj, "qrc:/Calculator.qml");
+                }
+            }
+
+            onDoubleClicked: {
+                chart.plot.resetAxis();
             }
         }
     }
-
     Label {
         id: cursor
         text: "%1".arg(chart.plot.y2v(opener.mouseY).toFixed(2)) + chart.plot.yLabel + "\n" +

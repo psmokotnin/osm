@@ -42,15 +42,25 @@ private:
     std::optional<float> m_period;
     QString m_unit;
 
+    struct {
+        float min;
+        float max;
+    } m_store, m_reset;
+
 public:
     Axis(AxisDirection d, const Palette &palette, QQuickItem *parent = Q_NULLPTR);
     void paint(QPainter *painter) noexcept;
     float convert(float value, float size) const;
-    float reverse(float value, float size) const noexcept;
+    float reverse(float value, float size, float max = NAN, float min = NAN) const noexcept;
     float coordToValue(float coord) const noexcept;
     qreal coordToValue(qreal coord) const noexcept;
 
     void configure(AxisType type, float min, float max, unsigned int ticks = 0, float scale = 1.0f);
+    void reset();
+    void setReset(float min, float max);
+
+    void beginGesture();
+    bool applyGesture(qreal base, qreal move, qreal scale);
 
     float lowLimit() const
     {
@@ -127,6 +137,10 @@ public slots:
     void needUpdate();
     void parentWidthChanged();
     void parentHeightChanged();
+
+signals:
+    void minChanged(float);
+    void maxChanged(float);
 };
 }
 #endif // AXIS_H

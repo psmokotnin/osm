@@ -36,6 +36,7 @@ Item {
         spacing: 0
 
         Root.FloatSpinBox {
+            id: xminFloatBox
             min: dataObject.xLowLimit
             max: dataObject.xHighLimit
             value: dataObject.xmin
@@ -46,6 +47,7 @@ Item {
         }
 
         Root.FloatSpinBox {
+            id: xmaxFloatBox
             min: dataObject.xLowLimit
             max: dataObject.xHighLimit
             value: dataObject.xmax
@@ -56,6 +58,7 @@ Item {
         }
 
         Root.FloatSpinBox {
+            id: yminFloatBox
             min: dataObject.yLowLimit
             max: dataObject.yHighLimit
             value: dataObject.ymin
@@ -66,6 +69,7 @@ Item {
         }
 
         Root.FloatSpinBox {
+            id: ymaxFloatBox
             min: dataObject.yLowLimit
             max: dataObject.yHighLimit
             value: dataObject.ymax
@@ -73,6 +77,22 @@ Item {
             onValueChanged: dataObject.ymax = value
             implicitWidth: 170
             Layout.fillWidth: true
+        }
+
+        Connections {
+            target: dataObject
+            function onXminChanged() {
+                xminFloatBox.value = dataObject.xmin;
+            }
+            function onXmaxChanged() {
+                xmaxFloatBox.value = dataObject.xmax;
+            }
+            function onYminChanged() {
+                yminFloatBox.value = dataObject.ymin;
+            }
+            function onYmaxChanged() {
+                ymaxFloatBox.value = dataObject.ymax;
+            }
         }
 
         Button {

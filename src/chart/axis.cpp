@@ -72,7 +72,61 @@ void Axis::configure(AxisType type, float min, float max, unsigned int ticks, fl
     if (type == Linear) {
         autoLabels(ticks);
     }
+    m_reset = {
+        m_min,
+        m_max
+    };
 }
+
+void Axis::reset()
+{
+    setMin(m_reset.min);
+    setMax(m_reset.max);
+}
+
+void Axis::setReset(float min, float max)
+{
+    m_reset.min = min;
+    m_reset.max = max;
+}
+
+void Axis::beginGesture()
+{
+    m_store.min = m_min;
+    m_store.max = m_max;
+}
+
+bool Axis::applyGesture(qreal base, qreal move, qreal scale)
+{
+    float size = (m_direction == Horizontal ? pwidth() : pheight());
+    float start = reverse(base, size, m_store.min, m_store.max);
+    float target = reverse(base + move, size, m_store.min, m_store.max);
+
+    auto applyScale = [&scale, &target, this] (float value) {
+        if (m_type == AxisType::Logarithmic) {
+            return std::pow(value, scale) * target / std::pow(target, scale);
+        }
+        return scale * (value - target) + target;
+    };
+    float newMin, newMax;
+    if (m_type == AxisType::Logarithmic) {
+        float delta = target / start;
+        newMin = applyScale(m_store.min) * delta;
+        newMax = applyScale(m_store.max) * delta;
+    } else {
+        float delta = target - start;
+        newMin = applyScale(m_store.min) + delta;
+        newMax = applyScale(m_store.max) + delta;
+    }
+
+    if (newMin >= m_lowLimit && newMax <= m_highLimit) {
+        setMin(newMin);
+        setMax(newMax);
+        return true;
+    }
+    return false;
+}
+
 void Axis::paint(QPainter *painter) noexcept
 {
     QPen linePen(m_palette.lineColor(), 1);
@@ -154,12 +208,16 @@ float Axis::convert(float value, float size) const
     }
     return size * (value - m_min) / (m_max - m_min);
 }
-float Axis::reverse(float value, float size) const noexcept
+float Axis::reverse(float value, float size, float max, float min) const noexcept
 {
-    if (m_type == AxisType::Logarithmic) {
-        return pow(static_cast<float>(M_E), log(m_min) + value * log(m_max / m_min) / size);
+    if (isnan(max) || isnan(min)) {
+        max = m_max;
+        min = m_min;
     }
-    float l = value * (m_max - m_min) / size + m_min + m_offset / scale();
+    if (m_type == AxisType::Logarithmic) {
+        return pow(static_cast<float>(M_E), log(min) + value * log(max / min) / size);
+    }
+    float l = value * (max - min) / size + min + m_offset / scale();
 
     if (m_period && !qFuzzyCompare(m_period.value_or(0.f), 0.f)) {
         while (std::abs(l) > m_period.value_or(0.f) / 2.f) {
@@ -211,17 +269,25 @@ void Axis::needUpdate()
 }
 void Axis::setMin(float v)
 {
-    m_min = std::max(m_lowLimit,
-                     std::min(v, m_max)
-                    );
-    needUpdate();
+    auto newValue = std::max(m_lowLimit,
+                             std::min(v, m_max)
+                            );
+    if (!qFuzzyCompare(newValue, m_min)) {
+        m_min = newValue;
+        needUpdate();
+        emit minChanged(m_min);
+    }
 }
 void Axis::setMax(float v)
 {
-    m_max = std::min(m_highLimit,
-                     std::max(v, m_min)
-                    );
-    needUpdate();
+    auto newValue = std::min(m_highLimit,
+                             std::max(v, m_min)
+                            );
+    if (!qFuzzyCompare(newValue, m_min)) {
+        m_max = newValue;
+        needUpdate();
+        emit maxChanged(m_max);
+    }
 }
 void Axis::setOffset(float offset)
 {

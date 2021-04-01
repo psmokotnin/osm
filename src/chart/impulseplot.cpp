@@ -24,11 +24,11 @@ using namespace Fftchart;
 ImpulsePlot::ImpulsePlot(Settings *settings, QQuickItem *parent): XYPlot(settings, parent)
 {
     m_x.configure(AxisType::Linear, -20.0, 20.0, 41);
-    m_x.setMin(-5.f);
-    m_x.setMax(5.f);
+    m_x.setReset(-5.f, 5.f);
+    m_x.reset();
     m_y.configure(AxisType::Linear, -2.0, 2.0, 21);
-    m_y.setMin(-1.f);
-    m_y.setMax(1.f);
+    m_y.setReset(-1.f, 1.f);
+    m_y.reset();
     m_x.setUnit("ms");
     m_y.setUnit("");
     setFlag(QQuickItem::ItemHasContents);
