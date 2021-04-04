@@ -24,13 +24,18 @@
 
 namespace filesystem {
 
+Q_NAMESPACE
+
+enum class StandardFolder {Home, Documents, Images, Desktop, Music, Movies};
+Q_ENUM_NS(StandardFolder)
+
 class DialogPlugin;
 
 class Dialog : public QQuickItem
 {
     Q_OBJECT
     Q_PROPERTY(QString title READ title WRITE setTitle)
-    Q_PROPERTY(StandardFolder folder READ folder WRITE setFolder)
+    Q_PROPERTY(filesystem::StandardFolder folder READ folder WRITE setFolder)
     Q_PROPERTY(QString defaultSuffix READ defaultSuffix WRITE setDefaultSuffix)
     Q_PROPERTY(QStringList nameFilters READ nameFilters WRITE setNameFilters)
     Q_PROPERTY(Mode mode READ mode WRITE setMode REQUIRED)
@@ -38,26 +43,13 @@ class Dialog : public QQuickItem
     //for QtQuick2 replacement:
     Q_PROPERTY(QUrl fileUrl READ fileUrl)
     Q_PROPERTY(QString selectedNameFilter READ selectedNameFilter)
-    Q_PROPERTY(bool selectExisting WRITE setSelectExisting)
+    Q_PROPERTY(bool selectExisting READ selectExisting WRITE setSelectExisting)
 
 public:
     Dialog(QQuickItem *parent = nullptr);
 
     enum Mode {OpenFile, SaveFile};
-    enum StandardFolder {Home, Documents, Images, Desktop, Music, Movies};
     Q_ENUM(Mode);
-    Q_ENUM(StandardFolder);
-
-    //for QtQuick2 replacement:
-    enum shortcuts {
-        desktop     = StandardFolder::Desktop,
-        documents   = StandardFolder::Documents,
-        home        = StandardFolder::Home,
-        music       = StandardFolder::Music,
-        movies      = StandardFolder::Movies,
-        pictures    = StandardFolder::Images,
-    };
-    Q_ENUM(shortcuts)
 
     QString title() const;
     void setTitle(const QString &title);
@@ -76,6 +68,8 @@ public:
 
     Q_INVOKABLE void open();
     QUrl fileUrl() const;
+
+    bool selectExisting() const;
     void setSelectExisting(const bool &existing);
     QString selectedNameFilter() const;
 
@@ -92,7 +86,5 @@ private:
 } // namespace filesystem
 
 Q_DECLARE_METATYPE(filesystem::Dialog::Mode)
-Q_DECLARE_METATYPE(filesystem::Dialog::StandardFolder)
-Q_DECLARE_METATYPE(filesystem::Dialog::shortcuts)
 
 #endif // FILESYSTEM_DIALOG_H

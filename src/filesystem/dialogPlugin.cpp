@@ -21,7 +21,7 @@
 namespace filesystem {
 
 DialogPlugin::DialogPlugin(QObject *parent) : QObject(parent), m_title(),
-    m_startFolder(Dialog::Home), m_mode(Dialog::OpenFile),
+    m_startFolder(StandardFolder::Home), m_mode(Dialog::OpenFile),
     m_defaultSuffix(), m_nameFilters()
 {
 }
@@ -68,7 +68,7 @@ void DialogPlugin::setMode(Dialog::Mode mode)
     m_mode = mode;
 }
 
-Dialog::StandardFolder DialogPlugin::folder() const
+StandardFolder DialogPlugin::folder() const
 {
     return m_startFolder;
 }
@@ -77,22 +77,22 @@ QUrl DialogPlugin::folderURL() const
 {
     QString directory;
     switch (folder()) {
-    case Dialog::Home:
+    case StandardFolder::Home:
         directory = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
         break;
-    case Dialog::Documents:
+    case StandardFolder::Documents:
         directory = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
         break;
-    case Dialog::Images:
+    case StandardFolder::Images:
         directory = QStandardPaths::writableLocation(QStandardPaths::PicturesLocation);
         break;
-    case Dialog::Music:
+    case StandardFolder::Music:
         directory = QStandardPaths::writableLocation(QStandardPaths::MusicLocation);
         break;
-    case Dialog::Movies:
+    case StandardFolder::Movies:
         directory = QStandardPaths::writableLocation(QStandardPaths::MoviesLocation);
         break;
-    case Dialog::Desktop:
+    case StandardFolder::Desktop:
         directory = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
         break;
     }
@@ -100,7 +100,7 @@ QUrl DialogPlugin::folderURL() const
     return QUrl::fromLocalFile(directory);
 }
 
-void DialogPlugin::setFolder(Dialog::StandardFolder folder)
+void DialogPlugin::setFolder(StandardFolder folder)
 {
     m_startFolder = folder;
 }

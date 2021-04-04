@@ -119,7 +119,7 @@ Item {
                 id: openCalibrationFileDialog
                 selectExisting: true
                 title: qsTr("Please choose a file's name")
-                folder: shortcuts.home
+                folder: (typeof shortcuts !== 'undefined' ? shortcuts.home : Filesystem.StandardFolder.Home)
                 onAccepted: function() {
                     if (dataObject.loadCalibrationFile(openCalibrationFileDialog.fileUrl)) {
                         dataObject.calibration = true;

@@ -73,6 +73,8 @@ int main(int argc, char *argv[])
     qmlRegisterType<Appearance>("OpenSoundMeter", 1, 0, "Appearance");
 #ifdef Q_OS_IOS
     //replace for QQuickControls2 FileDialog:
+    qmlRegisterUncreatableMetaObject(filesystem::staticMetaObject, "OpenSoundMeter", 1, 0, "Filesystem",
+                                     "Access to enums & flags only");
     qmlRegisterType<filesystem::Dialog>("OpenSoundMeter", 1, 0, "FileDialog");
 #endif
     QQmlApplicationEngine engine;

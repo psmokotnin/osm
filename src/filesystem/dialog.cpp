@@ -90,7 +90,7 @@ void Dialog::setMode(Mode mode)
     m_plugin->setMode(mode);
 }
 
-Dialog::StandardFolder Dialog::folder() const
+StandardFolder Dialog::folder() const
 {
     Q_ASSERT(m_plugin);
     return m_plugin->folder();
@@ -115,6 +115,11 @@ QUrl Dialog::fileUrl() const
         return {};
     }
     return m_files.first();
+}
+
+bool Dialog::selectExisting() const
+{
+    return (mode() == OpenFile);
 }
 
 void Dialog::setSelectExisting(const bool &existing)

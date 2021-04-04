@@ -57,7 +57,7 @@ Item {
         id: fileDialog
         selectExisting: false
         title: "Please choose a file's name"
-        folder: shortcuts.home
+        folder: (typeof shortcuts !== 'undefined' ? shortcuts.home : Filesystem.StandardFolder.Home)
         defaultSuffix: "png"
         onAccepted: {
             dataObject.grabToImage(function(result) {

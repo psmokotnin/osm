@@ -44,18 +44,7 @@ void WidgetDialogPlugin::open(const QQuickWindow *window)
     fileDialog->setDefaultSuffix(defaultSuffix());
     fileDialog->setWindowTitle(title());
 
-    QString directory = {};
-    switch (folder()) {
-    case Dialog::Home:
-        directory = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
-        break;
-    case Dialog::Documents:
-        directory = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
-        break;
-    case Dialog::Images:
-        directory = QStandardPaths::writableLocation(QStandardPaths::PicturesLocation);
-        break;
-    }
+    QString directory = folderURL().toLocalFile();
     fileDialog->setDirectory(directory);
 
     auto code = fileDialog->exec();

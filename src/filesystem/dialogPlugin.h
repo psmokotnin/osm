@@ -43,9 +43,9 @@ public:
     virtual Dialog::Mode mode() const;
     virtual void setMode(Dialog::Mode mode);
 
-    virtual Dialog::StandardFolder folder() const;
+    virtual StandardFolder folder() const;
     virtual QUrl folderURL() const;
-    virtual void setFolder(Dialog::StandardFolder folder);
+    virtual void setFolder(StandardFolder folder);
 
     virtual void open(const QQuickWindow *window) = 0;
 
@@ -55,7 +55,7 @@ signals:
 
 private:
     QString m_title;
-    Dialog::StandardFolder m_startFolder;
+    StandardFolder m_startFolder;
     Dialog::Mode m_mode;
     QString m_defaultSuffix;
     QStringList m_nameFilters;

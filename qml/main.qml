@@ -137,20 +137,17 @@ ApplicationWindow {
         id: saveDialog
         selectExisting: false
         title: qsTr("Please choose a file's name")
-        folder: shortcuts.home
+        folder: (typeof shortcuts !== 'undefined' ? shortcuts.home : Filesystem.StandardFolder.Home)
         defaultSuffix: "osm"
         nameFilters: ["Open Sound Meter (*.osm)"]
         onAccepted: sourceList.save(saveDialog.fileUrl);
-        Component.onCompleted: {
-            console.log(parent)
-        }
     }
 
     FileDialog {
         id: openDialog
         selectExisting: true
         title: qsTr("Please choose a file's name")
-        folder: shortcuts.home
+        folder: (typeof shortcuts !== 'undefined' ? shortcuts.home : Filesystem.StandardFolder.Home)
         defaultSuffix: "osm"
         nameFilters: ["Open Sound Meter (*.osm)"]
         onAccepted: function() {
@@ -165,7 +162,7 @@ ApplicationWindow {
         id: importDialog
         selectExisting: true
         title: qsTr("Please choose a file's name")
-        folder: shortcuts.home
+        folder: (typeof shortcuts !== 'undefined' ? shortcuts.home : Filesystem.StandardFolder.Home)
         defaultSuffix: "txt"
         nameFilters: ["txt transfer data file (*.txt)", "csv transfer data file (*.csv)"]
         onAccepted: function() {
