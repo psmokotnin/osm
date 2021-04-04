@@ -37,6 +37,7 @@ Item {
                 onValueChanged: dataObject.loudness = value
                 from: 20
                 to: 80
+                editable: true
             }
 
             Label {

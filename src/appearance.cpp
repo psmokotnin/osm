@@ -69,6 +69,14 @@ QWindow::Visibility Appearance::visibility() const
     return QWindow::Visibility::AutomaticVisibility;
 }
 
+int Appearance::cursorOffset() const
+{
+#ifdef Q_OS_IOS
+    return 40;
+#endif
+    return 0;
+}
+
 bool Appearance::setDarkModeFromSystem()
 {
     bool darkMode = darkModeFromSystem();

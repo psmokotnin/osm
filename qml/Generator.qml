@@ -39,6 +39,9 @@ Item {
 
             PropertiesOpener {
                propertiesQml: "qrc:/GeneratorProperties.qml"
+               onClicked: {
+                   open();
+               }
             }
         }
 

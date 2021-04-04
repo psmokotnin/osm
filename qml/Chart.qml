@@ -85,7 +85,12 @@ Item {
             TouchPoint { id: touchPoint1 },
             TouchPoint { id: touchPoint2 }
         ]
-        onReleased: {
+        onReleased: function(e) {
+            if (gesture === gestureNone && touchPoint1.pressed && !touchPoint2.pressed) {
+                opener.openCalculator();
+                opener.mouseButtonClicked = Qt.NoButton;
+            }
+
             gesture = gestureNone;
         }
 
@@ -135,6 +140,10 @@ Item {
 
                 let base1 = Qt.point(p1.startX, p1.startY);
                 let base2 = Qt.point(p2.startX, p2.startY);
+                let base = Qt.point(
+                        (p1.startX + p2.startX) / 2,
+                        (p1.startY + p2.startY) / 2
+                );
                 let touchPoint1 = Qt.point(p1.x, p1.y);
                 let touchPoint2 = Qt.point(p2.x, p2.y);
                 let move = Qt.point(0, 0);
@@ -162,7 +171,7 @@ Item {
                         move.y = base1.y - touchPoint1.y;
                         break;
                 }
-                chart.plot.applyGesture(base1, move, scale);
+                chart.plot.applyGesture(base, move, scale);
             }
         }
 
@@ -177,46 +186,58 @@ Item {
             acceptedButtons: Qt.LeftButton | Qt.RightButton
 
             onPressed: {
-                        if (pressedButtons & Qt.LeftButton) {
-                            mouseButtonClicked = Qt.LeftButton
-                        } else if (pressedButtons & Qt.RightButton) {
-                            mouseButtonClicked = Qt.RightButton
-                        }
-                    }
+                if (pressedButtons & Qt.LeftButton) {
+                    mouseButtonClicked = Qt.LeftButton;
+                } else if (pressedButtons & Qt.RightButton) {
+                    mouseButtonClicked = Qt.RightButton;
+                }
+            }
 
             onClicked: function(e) {
                 if (mouseButtonClicked === Qt.LeftButton) {
                     open();
                 } else if (mouseButtonClicked === Qt.RightButton) {
-                    var obj = {};
-                    switch(type) {
-                        case "RTA":
-                        case "Magnitude":
-                        case "Phase":
-                        case "Group Delay":
-                        case "Coherence":
-                        case "Spectrogram":
-                            obj.frequency = chart.plot.x2v(opener.mouseX);
-                            break;
-                        case "Impulse":
-                            obj.time = Math.abs(chart.plot.x2v(opener.mouseX));
-                            break
-                    }
-                    applicationWindow.properiesbar.open(obj, "qrc:/Calculator.qml");
+                    openCalculator();
                 }
             }
 
             onDoubleClicked: {
                 chart.plot.resetAxis();
             }
+
+            function openCalculator() {
+                var obj = {};
+                switch(type) {
+                    case "RTA":
+                    case "Magnitude":
+                    case "Phase":
+                    case "Group Delay":
+                    case "Coherence":
+                    case "Spectrogram":
+                        obj.frequency = chart.plot.x2v(opener.mouseX);
+                        break;
+                    case "Impulse":
+                        obj.time = Math.abs(chart.plot.x2v(opener.mouseX));
+                        break
+                }
+                applicationWindow.properiesbar.open(obj, "qrc:/Calculator.qml");
+            }
         }
     }
     Label {
         id: cursor
+        property int xRight;
+        property int xLeft;
+        property int yTop;
+        property int yBottom;
         text: "%1".arg(chart.plot.y2v(opener.mouseY).toFixed(2)) + chart.plot.yLabel + "\n" +
               "%1".arg(chart.plot.x2v(opener.mouseX).toFixed(2)) + chart.plot.xLabel;
-        x: opener.mouseX + cursor.fontInfo.pixelSize / 2
-        y: opener.mouseY - cursor.height / 2
+        xRight:  opener.mouseX + applicationAppearance.cursorOffset + cursor.fontInfo.pixelSize / 2
+        xLeft:   opener.mouseX - applicationAppearance.cursorOffset - cursor.width - cursor.fontInfo.pixelSize / 2
+        yTop:    opener.mouseY - applicationAppearance.cursorOffset - cursor.height / 2
+        yBottom: opener.mouseY + applicationAppearance.cursorOffset + cursor.height / 2
+        x: xRight < parent.width  - width  - 50 ? xRight : xLeft
+        y: yTop   < 2 * height ? yBottom : yTop
         visible: opener.containsMouse
         style: Text.Outline;
         styleColor: applicationAppearance.darkMode ? "#99000000" : "#99FFFFFF"

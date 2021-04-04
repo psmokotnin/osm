@@ -27,6 +27,7 @@ class Appearance : public QObject
     Q_PROPERTY(bool darkMode READ darkMode WRITE setDarkMode NOTIFY darkModeChanged)
     Q_PROPERTY(bool showMenuBar READ showMenuBar CONSTANT)
     Q_PROPERTY(QWindow::Visibility visibility READ visibility NOTIFY visibilityChanged)
+    Q_PROPERTY(int cursorOffset READ cursorOffset CONSTANT)
 
 public:
     explicit Appearance(Settings *settings = nullptr);
@@ -43,6 +44,7 @@ public:
     bool showMenuBar() const;
 
     QWindow::Visibility visibility() const;
+    int cursorOffset() const;
 
 public slots:
     bool setDarkModeFromSystem();
