@@ -334,9 +334,10 @@ Stream *CoreaudioPlugin::open(const DeviceInfo::Id &id, const Plugin::Direction 
     }
 
     auto stream = new Stream(format);
-    connect(stream, &Stream::closeMe, this, [queue]() {
+    connect(stream, &Stream::closeMe, this, [queue, stream]() {
         AudioQueueStop(queue, true);
         AudioQueueDispose(queue, false);
+        delete stream;
     });
     return stream;
 }

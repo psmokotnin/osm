@@ -143,6 +143,7 @@ AudioSessionPlugin::AudioSessionPlugin() : m_permission(false), m_inInterrupt(fa
 
 AudioSessionPlugin::~AudioSessionPlugin()
 {
+    emit stopStreams({});
     [[AVAudioSession sharedInstance] setActive:false error:nil];
 }
 
@@ -207,9 +208,11 @@ Format AudioSessionPlugin::deviceFormat(const DeviceInfo::Id &id, const Plugin::
     Q_UNUSED(id);
 
     AVAudioSession *audioSession = AVAudioSession.sharedInstance;
-    unsigned int sampleRate = [[AVAudioSession sharedInstance] preferredSampleRate];
-    unsigned int channels = static_cast<unsigned int>(mode == Input ? [audioSession inputNumberOfChannels] : [audioSession
-                                                                                                              outputNumberOfChannels]);
+    unsigned int sampleRate = [audioSession preferredSampleRate];
+
+    unsigned int channels = static_cast<unsigned int>(mode == Input ?
+                                                      [audioSession maximumInputNumberOfChannels] :
+                                                      [audioSession maximumOutputNumberOfChannels]);
     return {
         sampleRate,
         channels
@@ -296,15 +299,20 @@ Stream *AudioSessionPlugin::open(const DeviceInfo::Id &, const Plugin::Direction
     }
 
     auto stream = new Stream(format);
-    connect(stream, &Stream::closeMe, this, [queue, endpoint]() {
+    connect(stream, &Stream::closeMe, this, [queue, endpoint, stream]() {
         if (endpoint) {
             endpoint->close();
         }
         AudioQueueStop(queue, true);
         AudioQueueDispose(queue, false);
+        delete stream;
+    }, Qt::DirectConnection);
+    
+    connect(this, &AudioSessionPlugin::stopStreams, stream, [stream]() {
+        stream->close();
     }, Qt::DirectConnection);
 
-    connect(this, &AudioSessionPlugin::restoreStreams, this, [queue, stream]() {
+    connect(this, &AudioSessionPlugin::restoreStreams, stream, [queue, stream]() {
         auto res = AudioQueueStart(queue, NULL);
         if (!checkStatus(res, "restart stream")) {
             AudioQueueDispose(queue, true);
@@ -338,6 +346,7 @@ void AudioSessionPlugin::beginBackground()
 void AudioSessionPlugin::endBackground()
 {
     m_inBackground = false;
+    [[AVAudioSession sharedInstance] setActive:true error:NULL];
 }
 
 bool AudioSessionPlugin::inBackground() const
