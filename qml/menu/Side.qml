@@ -98,7 +98,6 @@ Drawer {
                     }
                     flat: true
                     Layout.fillWidth: true
-                    Layout.alignment: Qt.AlignLeft//!!!!!!!!!!!!!!!!!!FIX!!!
                 }
                 ToolSeparator {
                     visible: separator
@@ -106,33 +105,7 @@ Drawer {
                     Layout.fillWidth: true
                 }
             }
-
-
             model: actions
         }
     }
-
-    ScrollIndicator.vertical: ScrollIndicator { }
-/*
-
-    Menu {
-        title: qsTr("Help")
-        MenuItem {
-            text: qsTr("Shortcuts")
-            shortcut: "F1"
-            checkable: false
-            onTriggered: shortcutsPopup.open();
-        }
-        MenuItem {
-            text: qsTr("About")
-            onTriggered: aboutpopup.open();
-            shortcut: "F2"
-        }
-        MenuItem {
-            text: qsTr("Check for update")
-            shortcut: "F3"
-            onTriggered: update.show();
-        }
-    }
-*/
 }

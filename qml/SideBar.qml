@@ -279,45 +279,61 @@ Item {
             }
         }
 
-        RowLayout {
-            spacing: 0
+        MouseArea {
             Layout.bottomMargin: 8
             Layout.alignment: Qt.AlignCenter
-
-            Image {
-                source: "qrc:/images/icons/white80.png"
-                Layout.preferredHeight: 30
-                Layout.preferredWidth: 30
-                Layout.alignment: Qt.AlignCenter
-
-                RotationAnimation on rotation {
-                    id: rotateImage
-                    from: 0
-                    to: 360
-                    duration: 1200
-                }
-
-                Timer {
-                    interval: 614657
-                    running: true
-                    repeat: true
-                    onTriggered: rotateImage.start()
-                }
+            Layout.preferredHeight: aboutButton.height + aboutButton.topPadding + aboutButton.bottomPadding
+            Layout.fillWidth: true
+            cursorShape: Qt.PointingHandCursor
+            onClicked: {
+                aboutpopup.open();
             }
 
-            Button {
-                text: "about"
-                Material.foreground: Material.Indigo
-                font.pixelSize: 10
-                height: 40
-                flat: true
-            }
-
-            MouseArea {
+            RowLayout {
+                spacing: 0
                 anchors.fill: parent
-                cursorShape: Qt.PointingHandCursor
-                onClicked: {
-                    aboutpopup.open();
+                Layout.alignment: Qt.AlignCenter
+                Item {
+                    Layout.fillWidth: true
+                }
+
+                Image {
+                    id: logoImage
+                    source: "qrc:/images/icons/white80.png"
+                    Layout.preferredHeight: 30
+                    Layout.preferredWidth: 30
+                    Layout.alignment: Qt.AlignCenter
+
+                    RotationAnimation on rotation {
+                        id: rotateImage
+                        from: 0
+                        to: 360
+                        duration: 1200
+                    }
+
+                    Timer {
+                        interval: 614657
+                        running: true
+                        repeat: true
+                        onTriggered: rotateImage.start()
+                    }
+                }
+
+                Label {
+                    id:aboutButton
+                    text: "ABOUT"
+                    verticalAlignment: Text.AlignVCenter
+                    rightPadding: 8
+                    leftPadding: 8
+                    bottomPadding: 8
+                    topPadding: 8
+                    font.pointSize: 11
+                    Material.foreground: Material.Indigo
+                    height: 48
+                }
+
+                Item {
+                    Layout.fillWidth: true
                 }
             }
         }

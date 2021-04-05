@@ -77,8 +77,6 @@ ApplicationWindow {
 
     menuBar: (applicationAppearance.showMenuBar ? topMenu : null)
 
-
-
     RowLayout {
         anchors.fill: parent
         spacing: 0
@@ -112,8 +110,8 @@ ApplicationWindow {
         id: aboutpopup
         x: 50
         y: 50
-        width: parent.width - 100
-        height: parent.height - 100
+        width: applicationWindow.width - 100
+        height: applicationWindow.height - 100
     }
 
     Updater {

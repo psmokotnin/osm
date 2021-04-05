@@ -54,7 +54,7 @@ Popup {
     }
 
     function check (openonavailable) {
-        request('http://api.opensoundmeter.com/check', function (o) {
+        request('http://api.opensoundmeter.com/check/' + Qt.platform.os, function (o) {
 
             if (o.readyState !== 4) { return; }
 

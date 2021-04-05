@@ -91,76 +91,78 @@ Popup {
             Layout.fillWidth: true
             Layout.preferredWidth: parent.width
 
-            ColumnLayout {
-                spacing: 5
-                Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+            MouseArea {
+                cursorShape: Qt.PointingHandCursor
+                onClicked:  {
+                    Qt.openUrlExternally("https://pay.cloudtips.ru/p/28bedd0a");
+                }
+
                 Layout.fillWidth: true
                 Layout.preferredHeight: 100
 
-                Label {
-                    text: "Donate with credit card"
-                    Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-                    Layout.topMargin: 0
-                    color: Material.color(Material.Indigo)
-                }
-
-                Image {
-                    id: qrcode
-                    source: "qrc:/images/icons/qrCode.png"
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    fillMode: Image.PreserveAspectFit
-                    Layout.preferredHeight: 100
-                    Layout.preferredWidth: 100
-                    Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-                }
-
-                Label {
-                    text: "click or scan QR with your phone"
-                    Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-                    Layout.topMargin: 0
-                    color: Material.color(Material.Grey)
-                }
-                MouseArea {
+                ColumnLayout {
+                    spacing: 5
                     anchors.fill: parent
-                    cursorShape: Qt.PointingHandCursor
-                    onClicked:  {
-                        Qt.openUrlExternally("https://pay.cloudtips.ru/p/28bedd0a");
+                    Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+
+                    Label {
+                        text: "Donate with credit card"
+                        Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+                        Layout.topMargin: 0
+                        color: Material.color(Material.Indigo)
+                    }
+
+                    Image {
+                        id: qrcode
+                        source: "qrc:/images/icons/qrCode.png"
+                        fillMode: Image.PreserveAspectFit
+                        Layout.preferredHeight: 100
+                        Layout.preferredWidth: 100
+                        Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+                    }
+
+                    Label {
+                        text: "click or scan QR with your phone"
+                        Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+                        Layout.topMargin: 0
+                        color: Material.color(Material.Grey)
                     }
                 }
             }
 
-            ColumnLayout {
-                spacing: 5
+            MouseArea {
+                cursorShape: Qt.PointingHandCursor
                 Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
                 Layout.fillWidth: true
                 Layout.preferredHeight: 100
-
-                Label {
-                    text: "Donate via PayPal"
-                    Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-                    Layout.topMargin: 0
-                    color: Material.color(Material.Indigo)
+                onClicked:  {
+                    Qt.openUrlExternally("https://www.paypal.com/paypalme/psmokotnin");
                 }
 
-                Image {
-                    source: "qrc:/images/icons/pp.jpg"
-                    fillMode: Image.PreserveAspectFit
-                    Layout.preferredHeight: 100
-                    Layout.preferredWidth: 100
-                    Layout.alignment: Qt.AlignCenter
-                }
-
-                Label {
-                    text: "paypal.me/psmokotnin"
-                    Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-                    Layout.topMargin: 0
-                    color: Material.color(Material.Grey)
-                }
-                MouseArea {
+                ColumnLayout {
+                    spacing: 5
                     anchors.fill: parent
-                    cursorShape: Qt.PointingHandCursor
-                    onClicked:  {
-                        Qt.openUrlExternally("https://www.paypal.com/paypalme/psmokotnin");
+
+                    Label {
+                        text: "Donate via PayPal"
+                        Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+                        Layout.topMargin: 0
+                        color: Material.color(Material.Indigo)
+                    }
+
+                    Image {
+                        source: "qrc:/images/icons/pp.jpg"
+                        fillMode: Image.PreserveAspectFit
+                        Layout.preferredHeight: 100
+                        Layout.preferredWidth: 100
+                        Layout.alignment: Qt.AlignCenter
+                    }
+
+                    Label {
+                        text: "paypal.me/psmokotnin"
+                        Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+                        Layout.topMargin: 0
+                        color: Material.color(Material.Grey)
                     }
                 }
             }
