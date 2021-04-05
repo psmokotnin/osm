@@ -162,8 +162,8 @@ private:
     QTimer m_timer;
     QThread m_timerThread;
     InputDevice m_input;
-    std::map<Mode, QString> m_modeMap;
-    std::map<Mode, int> m_FFTsizes;
+    static const std::map<Mode, QString> m_modeMap;
+    static const std::map<Mode, int> m_FFTsizes;
     audio::DeviceInfo::Id m_deviceId;
     audio::Stream *m_audioStream;
 

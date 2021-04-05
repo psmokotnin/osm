@@ -24,6 +24,22 @@
 #include "measurement.h"
 #include "audio/client.h"
 
+const std::map<Measurement::Mode, QString>Measurement::m_modeMap = {
+    {Measurement::FFT10, "10"},
+    {Measurement::FFT12, "12"},
+    {Measurement::FFT14, "14"},
+    {Measurement::FFT15, "15"},
+    {Measurement::FFT16, "16"},
+    {Measurement::LFT,   "LTW"}
+};
+const std::map<Measurement::Mode, int>Measurement::m_FFTsizes = {
+    {Measurement::FFT10, 10},
+    {Measurement::FFT12, 12},
+    {Measurement::FFT14, 14},
+    {Measurement::FFT15, 15},
+    {Measurement::FFT16, 16}
+};
+
 Measurement::Measurement(Settings *settings, QObject *parent) : Fftchart::Source(parent),
     m_timer(nullptr), m_timerThread(nullptr),
     m_input(this),
@@ -75,8 +91,7 @@ Measurement::Measurement(Settings *settings, QObject *parent) : Fftchart::Source
     }
     m_deconvolutionSize = static_cast<unsigned int>(pow(2, 12));
 
-    calculateDataLength();
-    m_dataFT.prepare();
+    updateFftPower();
     m_dataFT.setWindowFunctionType(m_windowFunctionType);
     m_moduleLPFs.resize(m_dataLength);
     m_magnitudeLPFs.resize(m_dataLength);
@@ -95,24 +110,9 @@ Measurement::Measurement(Settings *settings, QObject *parent) : Fftchart::Source
     connect(&m_timer, SIGNAL(timeout()), SLOT(transform()), Qt::DirectConnection);
     connect(&m_timerThread, SIGNAL(started()), &m_timer, SLOT(start()), Qt::DirectConnection);
     connect(&m_timerThread, SIGNAL(finished()), &m_timer, SLOT(stop()), Qt::DirectConnection);
+    connect(this, &Measurement::audioFormatChanged, this, &Measurement::recalculateDataLength);
     m_timerThread.start();
     setActive(true);
-
-    m_modeMap = {
-        {FFT10, "10"},
-        {FFT12, "12"},
-        {FFT14, "14"},
-        {FFT15, "15"},
-        {FFT16, "16"},
-        {LFT,   "LTW"}
-    };
-    m_FFTsizes = {
-        {FFT10, 10},
-        {FFT12, 12},
-        {FFT14, 14},
-        {FFT15, 15},
-        {FFT16, 16}
-    };
 }
 Measurement::~Measurement()
 {
@@ -282,7 +282,7 @@ void Measurement::updateFftPower()
         break;
 
     default:
-        m_dataFT.setSize(pow(2, m_FFTsizes[m_currentMode]));
+        m_dataFT.setSize(pow(2, m_FFTsizes.at(m_currentMode)));
         m_dataFT.setType(FourierTransform::Fast);
     }
     m_dataFT.prepare();
@@ -512,6 +512,8 @@ void Measurement::writeData(const QByteArray &buffer)
     float sample;
     auto totalChanels = m_audioStream->format().channelCount;
     unsigned int currentChanel = 0;
+    bool forceRef = referenceChanel() >= totalChanels;
+    bool forceData = dataChanel() >= totalChanels;
     std::lock_guard<std::mutex> guard(m_dataMutex);
     for (auto it = buffer.begin(); it != buffer.end(); ++it) {
 
@@ -528,6 +530,14 @@ void Measurement::writeData(const QByteArray &buffer)
         }
         ++currentChanel;
         if (currentChanel >= totalChanels) {
+            if (forceRef) {
+                m_reference.pushnpop(0, 48000);
+                m_referenceMeter.add(0);
+            }
+            if (forceData) {
+                m_data.pushnpop(0, 48000);
+                m_dataMeter.add(0);
+            }
             currentChanel = 0;
         }
         it += 3;
@@ -554,7 +564,6 @@ void Measurement::transform()
     m_deconvolution.transform();
     averaging();
     unlock();
-
     emit readyRead();
     emit levelChanged();
     emit referenceLevelChanged();
@@ -682,7 +691,7 @@ QObject *Measurement::store()
         modeNote = "FT log time window";
         break;
     default:
-        modeNote = "FFT power " + m_modeMap[mode()];
+        modeNote = "FFT power " + m_modeMap.at(mode());
     }
 
     store->setNotes(
@@ -824,14 +833,15 @@ void Measurement::updateAudio()
     if (m_active) {
         std::async([this]() {
             audio::Format format = audio::Client::getInstance()->deviceInputFormat(m_deviceId);
-            emit audioFormatChanged();
             m_input.setCallback([this](const QByteArray & buffer) {
                 writeData(buffer);
             });
             m_audioStream = audio::Client::getInstance()->openInput(m_deviceId, &m_input, format);
             if (!m_audioStream) {
                 setError();
+                return;
             }
+            emit audioFormatChanged();
         });
     }
 }
