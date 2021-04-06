@@ -108,8 +108,9 @@ public slots:
     Q_INVOKABLE Measurement *addMeasurement();
     Q_INVOKABLE Union *addUnion();
     Q_INVOKABLE ELC *addElc();
-    void appendItem(Fftchart::Source *item, bool autocolor = false);
-    void removeItem(Fftchart::Source *item, bool deleteItem = true);
+    Q_INVOKABLE void appendItem(Fftchart::Source *item, bool autocolor = false);
+    Q_INVOKABLE void removeItem(Fftchart::Source *item, bool deleteItem = true);
+    Q_INVOKABLE void cloneItem(Fftchart::Source *item);
     void appendNone();
 };
 

@@ -61,6 +61,8 @@ protected:
 
 public:
     explicit Source(QObject *parent = nullptr);
+    virtual Source *clone() const = 0;
+
     Q_INVOKABLE void destroy()
     {
         deleteLater();   //Schedules ~Source() from qml
@@ -88,23 +90,17 @@ public:
         return m_color.isValid();
     }
 
-    unsigned int size() const  noexcept
-    {
-        return m_dataLength;
-    }
+    virtual unsigned int size() const  noexcept;
     const float &frequency(unsigned int i) const noexcept;
-    const float &module(unsigned int i) const noexcept;
-    float magnitude(unsigned int i) const noexcept;
-    const float &magnitudeRaw(unsigned int i) const noexcept;
-    const complex &phase(unsigned int i) const noexcept;
+    virtual float module(unsigned int i) const noexcept;
+    virtual float magnitude(unsigned int i) const noexcept;
+    virtual float magnitudeRaw(unsigned int i) const noexcept;
+    virtual complex phase(unsigned int i) const noexcept;
     const float &coherence(unsigned int i) const noexcept;
 
-    unsigned int impulseSize() const noexcept
-    {
-        return m_deconvolutionSize;
-    }
-    const float &impulseTime(unsigned int i) const noexcept;
-    const float &impulseValue(unsigned int i) const noexcept;
+    virtual unsigned int impulseSize() const noexcept;
+    virtual float impulseTime(unsigned int i) const noexcept;
+    virtual float impulseValue(unsigned int i) const noexcept;
 
     void copy(FTData *dataDist, TimeData *timeDist);
     void copyFrom(size_t dataSize, size_t timeSize, FTData *dataSrc, TimeData *timeSrc);

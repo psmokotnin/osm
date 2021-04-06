@@ -48,6 +48,11 @@ void Source::setColor(QColor color)
         emit colorChanged(m_color);
     }
 }
+
+unsigned int Source::size() const noexcept
+{
+    return m_dataLength;
+}
 void Source::setGlobalColor(int globalValue)
 {
     if (globalValue < 19) {
@@ -61,7 +66,7 @@ const float &Source::frequency(unsigned int i) const noexcept
         return m_zero;
     return m_ftdata[i].frequency;
 }
-const float &Source::module(unsigned int i) const noexcept {
+float Source::module(unsigned int i) const noexcept {
     if (i >= m_dataLength)
         return m_zero;
     return m_ftdata[i].module;
@@ -72,13 +77,13 @@ float Source::magnitude(unsigned int i) const noexcept
         return m_zero;
     return 20.f * log10f(m_ftdata[i].magnitude);
 }
-const float &Source::magnitudeRaw(unsigned int i) const noexcept
+float Source::magnitudeRaw(unsigned int i) const noexcept
 {
     if (i >= m_dataLength)
         return m_zero;
     return m_ftdata[i].magnitude;
 }
-const complex &Source::phase(unsigned int i) const noexcept
+complex Source::phase(unsigned int i) const noexcept
 {
     if (i <= m_dataLength)
         return m_ftdata[i].phase;
@@ -92,13 +97,18 @@ const float &Source::coherence(unsigned int i) const noexcept
 
     return m_ftdata[i].coherence;
 }
-const float &Source::impulseTime(unsigned int i) const noexcept
+
+unsigned int Source::impulseSize() const noexcept
+{
+    return m_deconvolutionSize;
+}
+float Source::impulseTime(unsigned int i) const noexcept
 {
     if (i >= m_deconvolutionSize)
         return m_zero;
     return m_impulseData[i].time;
 }
-const float &Source::impulseValue(unsigned int i) const noexcept
+float Source::impulseValue(unsigned int i) const noexcept
 {
     if (i >= m_deconvolutionSize)
         return m_zero;

@@ -710,6 +710,32 @@ QObject *Measurement::store()
 
     return store;
 }
+Fftchart::Source *Measurement::clone() const
+{
+    auto cloned = new Measurement(nullptr, parent());
+    cloned->setActive(false);
+    cloned->setMode(mode());
+    cloned->setAverageType(averageType());
+    cloned->setAverage(average());
+    cloned->setFiltersFrequency(filtersFrequency());
+    cloned->setPolarity(polarity());
+    cloned->setDataChanel(dataChanel());
+    cloned->setReferenceChanel(referenceChanel());
+    cloned->setWindowType(getWindowType());
+
+    cloned->setCalibration(calibration());
+    cloned->m_calibrationList = m_calibrationList;
+    cloned->m_calibrationLoaded = m_calibrationLoaded;
+    cloned->applyCalibration();
+
+    cloned->setDelay(delay());
+    cloned->setGain(gain());
+    cloned->setDeviceId(deviceId());
+
+    cloned->setName(name());
+    cloned->setActive(active());
+    return cloned;
+}
 long Measurement::estimated() const noexcept
 {
     if (m_estimatedDelay > m_deconvolutionSize / 2) {

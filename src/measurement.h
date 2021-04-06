@@ -87,6 +87,7 @@ public:
 
     explicit Measurement(Settings *settings = nullptr, QObject *parent = nullptr);
     ~Measurement() override;
+    Source *clone() const override;
 
     void setActive(bool active) override;
 

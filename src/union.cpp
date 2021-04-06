@@ -43,6 +43,17 @@ Union::~Union()
     m_timerThread.quit();
     m_timerThread.wait();
 }
+
+Fftchart::Source *Union::clone() const
+{
+    auto cloned = new Union(nullptr, parent());
+    cloned->m_sources = m_sources;
+    cloned->setOperation(operation());
+    cloned->setType(type());
+    cloned->setName(name());
+    cloned->setActive(active());
+    return cloned;
+}
 void Union::setOperation(const Operation &operation) noexcept
 {
     if (m_operation != operation) {

@@ -28,6 +28,7 @@ class ELC : public Fftchart::Source
 
 public:
     explicit ELC(QObject *parent = nullptr);
+    Source *clone() const override;
 
     Q_INVOKABLE QJsonObject toJSON() const noexcept override;
     void fromJSON(QJsonObject data) noexcept override;

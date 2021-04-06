@@ -386,6 +386,14 @@ void SourceList::removeItem(Fftchart::Source *item, bool deleteItem)
         }
     }
 }
+
+void SourceList::cloneItem(Fftchart::Source *item)
+{
+    auto newItem = item->clone();
+    if (newItem) {
+        appendItem(newItem, true);
+    }
+}
 QColor SourceList::nextColor()
 {
     m_colorIndex += 3;

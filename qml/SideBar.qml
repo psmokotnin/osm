@@ -195,12 +195,15 @@ Item {
                         }
 
                         Button {
+                            id: deleteButton
                             font.family: "Osm"
                             text: "\ue801"
                             anchors.right: parent.right
                             anchors.top: parent.top
                             flat: true
-                            font.pixelSize: 16
+                            font.pixelSize: 14
+                            rightPadding: 4
+                            leftPadding: 4
                             onClicked: {
                                 applicationWindow.dialog.accepted.connect(deleteModel);
                                 applicationWindow.dialog.rejected.connect(freeDialog);
@@ -217,6 +220,23 @@ Item {
                             function freeDialog() {
                                 applicationWindow.dialog.accepted.disconnect(deleteModel);
                                 applicationWindow.dialog.rejected.disconnect(freeDialog);
+                            }
+                            background: Rectangle {
+                                color: "transparent"
+                            }
+                        }
+
+                        Button {
+                            font.family: "Osm"
+                            text: "\uf24d"
+                            anchors.right: deleteButton.left
+                            anchors.top: parent.top
+                            flat: true
+                            font.pixelSize: 14
+                            rightPadding: 4
+                            leftPadding: 4
+                            onClicked: {
+                                sourceList.cloneItem(model.source);
                             }
                             background: Rectangle {
                                 color: "transparent"

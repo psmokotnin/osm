@@ -29,15 +29,36 @@ Item {
 
     RowLayout
     {
-        spacing: 0
         anchors.fill: parent
 
-
         ColumnLayout {
-            Layout.preferredWidth: 200
             Layout.fillHeight: true
 
             RowLayout {
+                FloatSpinBox {
+                    id: gainSpinBox
+                    implicitWidth: 170
+                    value: dataObject.gain
+                    from: -30
+                    to: 30
+                    units: "dB"
+                    onValueChanged: dataObject.gain = value
+                    tooltiptext: qsTr("adjust gain")
+                    Layout.alignment: Qt.AlignVCenter
+                }
+
+                FloatSpinBox {
+                    id: delaySpinBox
+                    implicitWidth: 170
+                    value: dataObject.delay
+                    from: -100
+                    to: 100
+                    units: "ms"
+                    onValueChanged: dataObject.delay = value
+                    tooltiptext: qsTr("adjust delay")
+                    Layout.alignment: Qt.AlignVCenter
+                }
+
                 ColorPicker {
                     id: colorPicker
 
@@ -61,6 +82,30 @@ Item {
                 }
             }
             RowLayout {
+
+                CheckBox {
+                    text: qsTr("inverse")
+                    Layout.leftMargin: 40
+                    Layout.rightMargin: 40
+                    implicitWidth: 90
+                    checked: dataObject.inverse
+                    onCheckStateChanged: dataObject.inverse = checked
+
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("inverse magnitude data")
+                }
+
+                CheckBox {
+                    text: qsTr("polarity")
+                    Layout.leftMargin: 40
+                    Layout.rightMargin: 40
+                    implicitWidth: 90
+                    checked: dataObject.polarity
+                    onCheckStateChanged: dataObject.polarity = checked
+
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("inverse polarity")
+                }
 
                 ComboBox {
                     displayText: qsTr("Save data as");
@@ -129,3 +174,9 @@ Item {
         }
     }
 }
+
+/*##^##
+Designer {
+    D{i:0;autoSize:true;height:480;width:640}
+}
+##^##*/

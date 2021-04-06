@@ -25,11 +25,14 @@ class Stored: public Fftchart::Source
 {
     Q_OBJECT
     Q_PROPERTY(QString notes READ notes WRITE setNotes NOTIFY notesChanged)
-
-    QString m_notes;
+    Q_PROPERTY(bool polarity READ polarity WRITE setPolarity NOTIFY polarityChanged)
+    Q_PROPERTY(bool inverse READ inverse WRITE setInverse NOTIFY inverseChanged)
+    Q_PROPERTY(float gain READ gain WRITE setGain NOTIFY gainChanged)
+    Q_PROPERTY(float delay READ delay WRITE setDelay NOTIFY delayChanged)
 
 public:
     explicit Stored(QObject *parent = nullptr);
+    Source *clone() const override;
     void build (Fftchart::Source *source);
 
     Q_INVOKABLE bool save(const QUrl &fileName) const noexcept;
@@ -45,8 +48,39 @@ public:
     }
     void setNotes(const QString &notes) noexcept;
 
+    bool polarity() const;
+    void setPolarity(bool polarity);
+
+    bool inverse() const;
+    void setInverse(bool inverse);
+
+    float gain() const;
+    void setGain(float gain);
+
+    float delay() const;
+    void setDelay(float delay);
+
+    float module(unsigned int i) const noexcept override;
+    float magnitudeRaw(unsigned int i) const noexcept override;
+    float magnitude(unsigned int i) const noexcept override;
+    complex phase(unsigned int i) const noexcept override;
+
+    float impulseTime(unsigned int i) const noexcept override;
+    float impulseValue(unsigned int i) const noexcept override;
+
 signals:
     void notesChanged();
+    void polarityChanged();
+    void inverseChanged();
+    void gainChanged();
+    void delayChanged();
+
+private:
+    QString m_notes;
+    bool m_polarity;
+    bool m_inverse;
+    float m_gain;
+    float m_delay;
 };
 
 #endif // STORED_H

@@ -22,10 +22,30 @@
 #include <QFile>
 #include <QtMath>
 
-Stored::Stored(QObject *parent) : Fftchart::Source(parent), m_notes()
+Stored::Stored(QObject *parent) : Fftchart::Source(parent), m_notes(),
+    m_polarity(false), m_inverse(false), m_gain(0), m_delay(0)
 {
     setObjectName("Stored");
+    connect(this, &Stored::polarityChanged, this, &Source::readyRead);
+    connect(this, &Stored::inverseChanged, this, &Source::readyRead);
+    connect(this, &Stored::gainChanged, this, &Source::readyRead);
+    connect(this, &Stored::delayChanged, this, &Source::readyRead);
 }
+
+Fftchart::Source *Stored::clone() const
+{
+    auto cloned = new Stored(parent());
+    cloned->build(const_cast<Stored *>(this));
+    cloned->setActive(active());
+    cloned->setName(name());
+    cloned->setInverse(inverse());
+    cloned->setPolarity(polarity());
+    cloned->setDelay(delay());
+    cloned->setGain(gain());
+    cloned->setNotes(notes());
+    return cloned;
+}
+
 void Stored::build (Fftchart::Source *source)
 {
     source->lock();
@@ -196,4 +216,86 @@ void Stored::setNotes(const QString &notes) noexcept
         m_notes = notes;
         emit notesChanged();
     }
+}
+
+bool Stored::polarity() const
+{
+    return m_polarity;
+}
+
+void Stored::setPolarity(bool polarity)
+{
+    if (m_polarity != polarity) {
+        m_polarity = polarity;
+        emit polarityChanged();
+    }
+}
+
+bool Stored::inverse() const
+{
+    return m_inverse;
+}
+
+void Stored::setInverse(bool inverse)
+{
+    if (m_inverse != inverse) {
+        m_inverse = inverse;
+        emit inverseChanged();
+    }
+}
+
+float Stored::gain() const
+{
+    return m_gain;
+}
+
+void Stored::setGain(float gain)
+{
+    if (m_gain != gain) {
+        m_gain = gain;
+        emit gainChanged();
+    }
+}
+
+float Stored::delay() const
+{
+    return m_delay;
+}
+
+void Stored::setDelay(float delay)
+{
+    if (m_delay != delay) {
+        m_delay = delay;
+        emit delayChanged();
+    }
+}
+
+float Stored::module(unsigned int i) const noexcept {
+    return Source::module(i) * std::pow(10, m_gain / 20.f);
+}
+
+float Stored::magnitudeRaw(unsigned int i) const noexcept
+{
+    return Source::magnitudeRaw(i) * std::pow(10, m_gain / 20.f);
+}
+
+float Stored::magnitude(unsigned int i) const noexcept
+{
+    return (inverse() ? -1 : 1) * Source::magnitude(i) + m_gain;
+}
+
+complex Stored::phase(unsigned int i) const noexcept
+{
+    auto alpha = (m_polarity ? M_PI : 0) + 2 * M_PI * m_delay * frequency(i) / 1000.f;
+    return Source::phase(i).rotate(alpha);
+}
+
+float Stored::impulseTime(unsigned int i) const noexcept
+{
+    return Source::impulseTime(i) - m_delay;
+}
+
+float Stored::impulseValue(unsigned int i) const noexcept
+{
+    return (m_polarity ? -1 : 1) * Source::impulseValue(i) * std::pow(10, m_gain / 20.f);;
 }

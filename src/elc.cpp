@@ -25,6 +25,15 @@ ELC::ELC(QObject *parent) : Fftchart::Source(parent), m_loudness(80.f)
     update();
 }
 
+Fftchart::Source *ELC::clone() const
+{
+    auto cloned = new ELC(parent());
+    cloned->setLoudness(loudness());
+    cloned->setName(name());
+    cloned->setActive(active());
+    return cloned;
+}
+
 QJsonObject ELC::toJSON() const noexcept
 {
     QJsonObject object;

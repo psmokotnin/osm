@@ -65,6 +65,7 @@ private:
 public:
     explicit Union(Settings *settings = nullptr, QObject *parent = nullptr);
     ~Union() override;
+    Source *clone() const override;
 
     int count() const noexcept
     {
