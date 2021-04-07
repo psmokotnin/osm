@@ -28,6 +28,7 @@ SOURCES += src/main.cpp \
     src/inputdevice.cpp \
     src/pinknoise.cpp \
     src/outputdevice.cpp \
+    src/profiler.cpp \
     src/sinsweep.cpp \
     src/sourcelist.cpp \
     src/sourcemodel.cpp \
@@ -117,6 +118,7 @@ HEADERS += \
     src/inputdevice.h \
     src/pinknoise.h \
     src/outputdevice.h \
+    src/profiler.h \
     src/sinsweep.h \
     src/sourcelist.h \
     src/sourcemodel.h \
@@ -280,6 +282,7 @@ DISTFILES += \
     shaders/fragment.frag \
     shaders/interpolateColor.frag \
     shaders/logx.vert \
+    #shaders/magnitude.geom \
     shaders/phase.geom \
     shaders/color.frag \
     shaders/magnitude.frag \
