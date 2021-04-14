@@ -1,6 +1,6 @@
 /**
  *  OSM
- *  Copyright (C) 2020  Pavel Smokotnin
+ *  Copyright (C) 2021  Pavel Smokotnin
 
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -19,14 +19,16 @@
 
 using namespace Fftchart;
 
-StepSeriesRenderer::StepSeriesRenderer() : m_window(WindowFunction::Hann)
+StepSeriesRenderer::StepSeriesRenderer() : XYSeriesRenderer(), m_window(WindowFunction::Hann)
 {
     m_program.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/pos.vert");
+    m_program.addShaderFromSourceFile(QOpenGLShader::Geometry, ":/line.geom");
     m_program.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/color.frag");
     m_program.link();
-    m_posAttr = m_program.attributeLocation("posAttr");
     m_colorUniform = m_program.uniformLocation("m_color");
     m_matrixUniform = m_program.uniformLocation("matrix");
+    m_widthUniform  = m_program.uniformLocation("width");
+    m_screenUniform = m_program.uniformLocation("screen");
 }
 
 void StepSeriesRenderer::renderSeries()
@@ -34,33 +36,51 @@ void StepSeriesRenderer::renderSeries()
     if (!m_source->active() || !m_source->impulseSize())
         return;
 
-    QMatrix4x4 matrix;
-    GLfloat vertices[4];
+    unsigned int maxBufferSize = m_source->impulseSize() * 4, verticiesCount = 0;
+    if (m_vertices.size() != maxBufferSize) {
+        m_vertices.resize(maxBufferSize);
+        m_refreshBuffers = true;
+    }
+
     float res = 0.f;
     float windowSize = 20.f;//ms
     float offsetValue = m_source->impulseValue(1) *
                         m_window.pointGain(m_source->impulseTime(1) / windowSize + 0.5, 1);
 
-    matrix.ortho(m_xMin, m_xMax, m_yMax, m_yMin, -1, 1);
-    m_program.setUniformValue(m_matrixUniform, matrix);
-    m_openGLFunctions->glVertexAttribPointer(static_cast<GLuint>(m_posAttr), 2, GL_FLOAT, GL_FALSE, 0,
-                                             static_cast<const void *>(vertices));
-
-    m_openGLFunctions->glEnableVertexAttribArray(0);
-    m_openGLFunctions->glLineWidth(m_weight * m_retinaScale);
-
-    for (unsigned int i = 1, j = 0; i <= m_source->impulseSize() - 1; ++i, j += 2) {
+    for (unsigned int i = 1, j = 0; i < m_source->impulseSize(); ++i, j += 2) {
         res += m_source->impulseValue(i) *
                m_window.pointGain(m_source->impulseTime(i) / windowSize + 0.5, 1);
-        vertices[2] = m_source->impulseTime(i);
-        vertices[3] = res - offsetValue;
-
-        if (i > 1) {
-            m_openGLFunctions->glDrawArrays(GL_LINE_STRIP, 0, 2);
-        }
-        vertices[0] = vertices[2];
-        vertices[1] = vertices[3];
+        m_vertices[j] = m_source->impulseTime(i);
+        m_vertices[j + 1] = res - offsetValue;
+        verticiesCount += 1;
     }
 
+    m_program.setUniformValue(m_matrixUniform, m_matrix);
+    m_program.setUniformValue(m_screenUniform, m_width, m_height);
+    m_program.setUniformValue(m_widthUniform, m_weight * m_retinaScale);
+
+    if (m_refreshBuffers) {
+        m_openGLFunctions->glGenBuffers(1, &m_vertexBufferId);
+        m_openGLFunctions->glGenVertexArrays(1, &m_vertexArrayId);
+    }
+    m_openGLFunctions->glBindVertexArray(m_vertexArrayId);
+    m_openGLFunctions->glBindBuffer(GL_ARRAY_BUFFER, m_vertexBufferId);
+    if (m_refreshBuffers) {
+        m_openGLFunctions->glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * maxBufferSize, nullptr, GL_DYNAMIC_DRAW);
+        m_openGLFunctions->glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat),
+                                                 reinterpret_cast<const void *>(0));
+    }
+    m_openGLFunctions->glBufferSubData(GL_ARRAY_BUFFER, 0, 2 * sizeof(GLfloat) * verticiesCount, m_vertices.data());
+
+    m_openGLFunctions->glEnableVertexAttribArray(0);
+    m_openGLFunctions->glDrawArrays(GL_LINE_STRIP, 0, verticiesCount);
     m_openGLFunctions->glDisableVertexAttribArray(0);
+
+    m_refreshBuffers = false;
+}
+
+void StepSeriesRenderer::updateMatrix()
+{
+    m_matrix = {};
+    m_matrix.ortho(m_xMin, m_xMax, m_yMax, m_yMin, -1, 1);
 }

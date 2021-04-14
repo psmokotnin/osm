@@ -1,6 +1,6 @@
 /**
  *  OSM
- *  Copyright (C) 2019  Pavel Smokotnin
+ *  Copyright (C) 2021  Pavel Smokotnin
 
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,7 +20,8 @@
 
 using namespace Fftchart;
 
-XYSeriesRenderer::XYSeriesRenderer():
+XYSeriesRenderer::XYSeriesRenderer() : SeriesRenderer(),
+    m_matrixUniform(-1),
     m_xMin(0.f),
     m_xMax(0.f),
     m_yMin(0.f),
@@ -33,9 +34,18 @@ void XYSeriesRenderer::synchronize(QQuickFramebufferObject *item)
     SeriesRenderer::synchronize(item);
 
     if (auto *plot = dynamic_cast<XYPlot *>(m_item->parent())) {
-        m_xMin = plot->xAxis()->min();
-        m_xMax = plot->xAxis()->max();
-        m_yMin = plot->yAxis()->min();
-        m_yMax = plot->yAxis()->max();
+        if (
+            m_xMin != plot->xAxis()->min() ||
+            m_xMax != plot->xAxis()->max() ||
+            m_yMin != plot->yAxis()->min() ||
+            m_yMax != plot->yAxis()->max()
+        ) {
+
+            m_xMin = plot->xAxis()->min();
+            m_xMax = plot->xAxis()->max();
+            m_yMin = plot->yAxis()->min();
+            m_yMax = plot->yAxis()->max();
+            updateMatrix();
+        }
     }
 }

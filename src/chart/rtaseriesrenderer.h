@@ -1,6 +1,6 @@
 /**
  *  OSM
- *  Copyright (C) 2018  Pavel Smokotnin
+ *  Copyright (C) 2021  Pavel Smokotnin
 
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -38,11 +38,14 @@ protected:
     void renderLines();
     void renderBars();
 
+    void drawVertices(const GLenum &mode, const GLsizei &count);
+    virtual void updateMatrix() override;
+
 private:
-    int m_posAttr;
+    void initShaders();
+
     unsigned int m_pointsPerOctave, m_mode;
-    bool m_coherence;
-    float m_coherenceThreshold;
+    QOpenGLShader m_vertexShader, m_geometryShader, m_fragmentShader;
 };
 }
 #endif // RTASERIES_H

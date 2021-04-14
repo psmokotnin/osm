@@ -1,6 +1,6 @@
 /**
  *  OSM
- *  Copyright (C) 2019  Pavel Smokotnin
+ *  Copyright (C) 2021  Pavel Smokotnin
 
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,27 +18,23 @@
 #include <cmath>
 #include "groupdelayseriesrenderer.h"
 #include "groupdelayplot.h"
+#include <cstring>
 
 using namespace Fftchart;
 
-GroupDelaySeriesRenderer::GroupDelaySeriesRenderer() : m_pointsPerOctave(0),
-    m_coherenceThreshold(0), m_coherence(false)
+GroupDelaySeriesRenderer::GroupDelaySeriesRenderer() : FrequencyBasedSeriesRenderer(),
+    m_pointsPerOctave(0), m_coherenceThreshold(0), m_coherence(false)
 {
-    m_program.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/logx.vert");
+    m_program.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/magnitude.vert");
+    m_program.addShaderFromSourceFile(QOpenGLShader::Geometry, ":/magnitude.geom");
     m_program.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/magnitude.frag");
     m_program.link();
-    m_posAttr = m_program.attributeLocation("posAttr");
-
-    m_splineA       = m_program.uniformLocation("splineA");
-    m_frequency1    = m_program.uniformLocation("frequency1");
-    m_frequency2    = m_program.uniformLocation("frequency2");
 
     m_widthUniform  = m_program.uniformLocation("width");
     m_colorUniform  = m_program.uniformLocation("m_color");
     m_matrixUniform = m_program.uniformLocation("matrix");
     m_minmaxUniform = m_program.uniformLocation("minmax");
     m_screenUniform = m_program.uniformLocation("screen");
-    m_coherenceSpline     = m_program.uniformLocation("coherenceSpline");
     m_coherenceThresholdU = m_program.uniformLocation("coherenceThreshold");
     m_coherenceAlpha      = m_program.uniformLocation("coherenceAlpha");
 }
@@ -57,55 +53,46 @@ void GroupDelaySeriesRenderer::renderSeries()
     if (!m_source->active() || !m_source->size())
         return;
 
-    GLfloat vertices[8];
-    complex value(0);
-    float coherence = 0.f;
+    unsigned int maxBufferSize = m_pointsPerOctave * 11 * 12, i = 0, verticiesCount = 0;
+    if (m_vertices.size() != maxBufferSize) {
+        m_vertices.resize(maxBufferSize);
+        m_refreshBuffers = true;
+    }
 
-    setUniforms();
-    m_openGLFunctions->glVertexAttribPointer(static_cast<GLuint>(m_posAttr), 2, GL_FLOAT, GL_FALSE, 0,
-                                             static_cast<const void *>(vertices));
-    m_openGLFunctions->glEnableVertexAttribArray(0);
-    m_program.setUniformValue(m_coherenceThresholdU, m_coherenceThreshold);
-    m_program.setUniformValue(m_coherenceAlpha, m_coherence);
+    complex value = 0.f;
+    float coherence = 0.f;
 
     float xadd, xmul;
     xadd = -1.0f * logf(m_xMin);
     xmul = m_width / logf(m_xMax / m_xMin);
 
-    auto accumulate = [&value, &coherence, m_source = m_source] (unsigned int i) {
-        value += m_source->phase(i);
+    auto accumulate = [this, &coherence, &value] (const unsigned int &i) {
         coherence += m_source->coherence(i);
+        value += m_source->phase(i);
     };
-    auto collected = [m_program = &m_program, m_openGLFunctions = m_openGLFunctions, &vertices,
-                                m_splineA = m_splineA,
-                                &value, &coherence,
-                                m_frequency1 = m_frequency1, m_frequency2 = m_frequency2,
-                                xadd, xmul, m_yMin = m_yMin, m_yMax = m_yMax, m_coherenceSpline = m_coherenceSpline]
-    (float f1, float f2, float ac[4], GLfloat c[4]) {
-        vertices[0] = f1;
-        vertices[1] = m_yMax;
-        vertices[2] = f1;
-        vertices[3] = m_yMin;
-        vertices[4] = f2;
-        vertices[5] = m_yMax;
-        vertices[6] = f2;
-        vertices[7] = m_yMin;
 
-        m_program->setUniformValueArray(m_splineA, static_cast<GLfloat *>(ac), 1, 4);
-        m_program->setUniformValueArray(m_coherenceSpline, c, 1, 4);
+    auto collected = [ &, this] (const float & f1, const float & f2, const float * ac, const float * c) {
+        if (i > maxBufferSize) {
+            qCritical("out of range");
+            return;
+        }
         float fx1 = (logf(f1) + xadd) * xmul;
         float fx2 = (logf(f2) + xadd) * xmul;
-        m_program->setUniformValue(m_frequency1, fx1);
-        m_program->setUniformValue(m_frequency2, fx2);
-        m_openGLFunctions->glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
-        value = 0.0f;
+        m_vertices[i + 0] = f1;
+        m_vertices[i + 1] = f2;
+        m_vertices[i + 2] = fx1;
+        m_vertices[i + 3] = fx2;
+        std::memcpy(m_vertices.data() + i + 4, ac, 4 * 4);
+        std::memcpy(m_vertices.data() + i + 8,  c, 4 * 4);
+        verticiesCount ++;
+        i += 12;
+        value = 0.f;
         coherence = 0.f;
     };
 
     complex lastValue(0);
-    auto beforeSpline = [&lastValue] (const complex * value, const float * f,
-    const unsigned int &index) {
+    auto beforeSpline = [&lastValue] (const complex * value, const float * f, const unsigned int &index) {
         if (index == 0) {
             lastValue = *value;
             return 0.f;
@@ -119,8 +106,42 @@ void GroupDelaySeriesRenderer::renderSeries()
         return ab / (f[index - 1] - f[index]);
     };
 
-    iterateForSpline<complex, float>(m_pointsPerOctave, &value, &coherence, accumulate, collected,
-                                     beforeSpline);
+    iterateForSpline<complex, float>(m_pointsPerOctave, &value, &coherence, accumulate, collected, beforeSpline);
 
+    setUniforms();
+    m_program.setUniformValue(m_coherenceThresholdU, m_coherenceThreshold);
+    m_program.setUniformValue(m_coherenceAlpha, m_coherence);
+
+    if (m_refreshBuffers) {
+        m_openGLFunctions->glGenBuffers(1, &m_vertexBufferId);
+        m_openGLFunctions->glGenVertexArrays(1, &m_vertexArrayId);
+    }
+
+    m_openGLFunctions->glBindVertexArray(m_vertexArrayId);
+    m_openGLFunctions->glBindBuffer(GL_ARRAY_BUFFER, m_vertexBufferId);
+
+    if (m_refreshBuffers) {
+        m_openGLFunctions->glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * maxBufferSize, nullptr, GL_DYNAMIC_DRAW);
+        m_openGLFunctions->glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 12 * sizeof(GLfloat),
+                                                 reinterpret_cast<const void *>(0));
+        m_openGLFunctions->glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 12 * sizeof(GLfloat),
+                                                 reinterpret_cast<const void *>(2 * sizeof(GLfloat)));
+        m_openGLFunctions->glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 12 * sizeof(GLfloat),
+                                                 reinterpret_cast<const void *>(4 * sizeof(GLfloat)));
+        m_openGLFunctions->glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 12 * sizeof(GLfloat),
+                                                 reinterpret_cast<const void *>(8 * sizeof(GLfloat)));
+    }
+    m_openGLFunctions->glBufferSubData(GL_ARRAY_BUFFER, 0, 12 * sizeof(GLfloat) * verticiesCount, m_vertices.data());
+
+    m_openGLFunctions->glEnableVertexAttribArray(0);
+    m_openGLFunctions->glEnableVertexAttribArray(1);
+    m_openGLFunctions->glEnableVertexAttribArray(2);
+    m_openGLFunctions->glEnableVertexAttribArray(3);
+    m_openGLFunctions->glDrawArrays(GL_POINTS, 0, verticiesCount);
+    m_openGLFunctions->glDisableVertexAttribArray(3);
+    m_openGLFunctions->glDisableVertexAttribArray(2);
+    m_openGLFunctions->glDisableVertexAttribArray(1);
     m_openGLFunctions->glDisableVertexAttribArray(0);
+
+    m_refreshBuffers = false;
 }

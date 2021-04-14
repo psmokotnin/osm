@@ -1,6 +1,6 @@
 /**
  *  OSM
- *  Copyright (C) 2019  Pavel Smokotnin
+ *  Copyright (C) 2021  Pavel Smokotnin
 
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -25,18 +25,18 @@ class FrequencyBasedSeriesRenderer : public XYSeriesRenderer
 {
 
 protected:
+    virtual void updateMatrix() override;
     void setUniforms();
-    void iterate(unsigned int pointsPerOctave,
-                 const std::function<void(unsigned int)> &accumulate,
-                 const std::function<void(float start, float end, unsigned int count)> &collected
+    void iterate(const unsigned int &pointsPerOctave,
+                 const std::function<void(const unsigned int &)> &accumulate,
+                 const std::function<void(const float &start, const float &end, const unsigned int &count)> &collected
                 );
 
-    template<typename T, typename TSpline = T> void iterateForSpline(unsigned int pointsPerOctave,
+    template<typename T, typename TSpline = T> void iterateForSpline(const unsigned int &pointsPerOctave,
                                                                      T *value, float *coherence,
-                                                                     const std::function<void (unsigned int)> &accumulate,
-                                                                     const std::function<void(float f1, float f2, TSpline *a, GLfloat *c)> &collected,
-                                                                     const std::function<TSpline(const T *value, const float *f, const unsigned int &index)>
-                                                                     &beforeSpline = {}
+                                                                     const std::function<void (const unsigned int &)> &accumulate,
+                                                                     const std::function<void(const float &f1, const float &f2, const TSpline *a, const GLfloat *c)> &collected,
+                                                                     const std::function<TSpline(const T *value, const float *f, const unsigned int &index)> &beforeSpline = {}
                                                                     )
     {
         bool bCollected = false;
@@ -47,7 +47,6 @@ protected:
         auto it = [value, coherence, &collected, &splinePoint, &csplinePoint,
                           &f, &a, &c, &bCollected, &beforeSpline, &bCount]
         (float bandStart, float bandEnd, unsigned int count) {
-            Q_UNUSED(bandStart)
 
             *coherence /= count;
 
@@ -83,7 +82,6 @@ protected:
                 c[1] = (-1 * csplinePoint[0] +                           csplinePoint[2]) / 2;
                 c[2] = (     csplinePoint[0] - 2 * csplinePoint[1] +     csplinePoint[2]) / 2;
                 c[3] = (-1 * csplinePoint[0] + 3 * csplinePoint[1] - 3 * csplinePoint[2] + csplinePoint[3]) / 6;
-
                 bCollected = true;
                 collected(f[1], f[2], a, c);
             } else {
@@ -95,11 +93,9 @@ protected:
 
 public:
     explicit FrequencyBasedSeriesRenderer();
-    virtual void renderSeries() = 0;
 
 protected:
-    int m_matrixUniform,
-        m_minmaxUniform,
+    int m_minmaxUniform,
         m_screenUniform,
         m_widthUniform;
 };

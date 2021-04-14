@@ -260,7 +260,6 @@ bool SourceList::importFile(const QUrl &fileName, QString separator) noexcept
         row.module = std::pow(10.f, (m - maxMagnitude) / 20.f);
         row.magnitude = std::pow(10.f, (m - maxMagnitude + 15.f) / 20.f);
     }
-    qDebug() << d.size();
     s->copyFrom(d.size(), 0, d.data(), nullptr);
     s->setName(fileName.fileName());
     s->setNotes(notes);

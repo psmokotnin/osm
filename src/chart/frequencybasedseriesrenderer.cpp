@@ -1,6 +1,6 @@
 /**
  *  OSM
- *  Copyright (C) 2019  Pavel Smokotnin
+ *  Copyright (C) 2021  Pavel Smokotnin
 
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,22 +20,24 @@
 
 using namespace Fftchart;
 
-FrequencyBasedSeriesRenderer::FrequencyBasedSeriesRenderer() :
-    m_matrixUniform(0),
+FrequencyBasedSeriesRenderer::FrequencyBasedSeriesRenderer() : XYSeriesRenderer(),
     m_minmaxUniform(0),
     m_screenUniform(0),
     m_widthUniform(0)
 {
 
 }
+void FrequencyBasedSeriesRenderer::updateMatrix()
+{
+    m_matrix = {};
+    m_matrix.ortho(0, 1, m_yMax, m_yMin, -1, 1);
+    m_matrix.scale(1  / logf(m_xMax / m_xMin), 1.0f, 1.0f);
+    m_matrix.translate(-1 * logf(m_xMin), 0);
+}
+
 void FrequencyBasedSeriesRenderer::setUniforms()
 {
-    QMatrix4x4 matrix;
-    matrix.ortho(0, 1, m_yMax, m_yMin, -1, 1);
-    matrix.scale(1  / logf(m_xMax / m_xMin), 1.0f, 1.0f);
-    matrix.translate(-1 * logf(m_xMin), 0);
-    m_program.setUniformValue(m_matrixUniform, matrix);
-
+    m_program.setUniformValue(m_matrixUniform, m_matrix);
     m_program.setUniformValue(
         m_minmaxUniform,
         static_cast<GLfloat>(m_xMin),
@@ -47,10 +49,9 @@ void FrequencyBasedSeriesRenderer::setUniforms()
     m_program.setUniformValue(m_screenUniform, m_width, m_height);
     m_program.setUniformValue(m_widthUniform, m_weight * m_retinaScale);
 }
-void FrequencyBasedSeriesRenderer::iterate(
-    unsigned int pointsPerOctave,
-    const std::function<void(unsigned int)> &accumulate,
-    const std::function<void(float start, float end, unsigned int count)> &collected)
+void FrequencyBasedSeriesRenderer::iterate(const unsigned int &pointsPerOctave,
+                                           const std::function<void(const unsigned int &)> &accumulate,
+                                           const std::function<void(const float &start, const float &end, const unsigned int &count)> &collected)
 {
     unsigned int count = 0;
 

@@ -270,32 +270,32 @@ void Stored::setDelay(float delay)
     }
 }
 
-float Stored::module(unsigned int i) const noexcept {
+float Stored::module(const unsigned int &i) const noexcept {
     return Source::module(i) * std::pow(10, m_gain / 20.f);
 }
 
-float Stored::magnitudeRaw(unsigned int i) const noexcept
+float Stored::magnitudeRaw(const unsigned int &i) const noexcept
 {
     return Source::magnitudeRaw(i) * std::pow(10, m_gain / 20.f);
 }
 
-float Stored::magnitude(unsigned int i) const noexcept
+float Stored::magnitude(const unsigned int &i) const noexcept
 {
     return (inverse() ? -1 : 1) * Source::magnitude(i) + m_gain;
 }
 
-complex Stored::phase(unsigned int i) const noexcept
+complex Stored::phase(const unsigned int &i) const noexcept
 {
     auto alpha = (m_polarity ? M_PI : 0) + 2 * M_PI * m_delay * frequency(i) / 1000.f;
     return Source::phase(i).rotate(alpha);
 }
 
-float Stored::impulseTime(unsigned int i) const noexcept
+float Stored::impulseTime(const unsigned int &i) const noexcept
 {
     return Source::impulseTime(i) - m_delay;
 }
 
-float Stored::impulseValue(unsigned int i) const noexcept
+float Stored::impulseValue(const unsigned int &i) const noexcept
 {
     return (m_polarity ? -1 : 1) * Source::impulseValue(i) * std::pow(10, m_gain / 20.f);;
 }

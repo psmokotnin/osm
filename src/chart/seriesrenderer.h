@@ -1,6 +1,6 @@
 /**
  *  OSM
- *  Copyright (C) 2018  Pavel Smokotnin
+ *  Copyright (C) 2021  Pavel Smokotnin
 
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@
 #include <QOpenGLShaderProgram>
 #include <QtGui/QOpenGLFramebufferObject>
 #include <QtGui/QOpenGLFunctions>
+#include <QOpenGLFunctions_3_3_Core>
 
 #include "source.h"
 
@@ -43,12 +44,16 @@ protected:
     Source *m_source = nullptr;
     QQuickFramebufferObject *m_item = nullptr;
     QOpenGLShaderProgram m_program;
-    QOpenGLFunctions *m_openGLFunctions = nullptr;
+    QOpenGLFunctions_3_3_Core *m_openGLFunctions = nullptr;
     GLfloat m_retinaScale;
     int m_colorUniform;
     GLsizei m_width, m_height;
     float m_weight;
     bool m_renderActive;
+
+    bool m_refreshBuffers;
+    unsigned int m_vertexBufferId, m_vertexArrayId;
+    std::vector<GLfloat> m_vertices;
 };
 }
 #endif // SERIESRENDERER_H

@@ -1,6 +1,6 @@
 /**
  *  OSM
- *  Copyright (C) 2019  Pavel Smokotnin
+ *  Copyright (C) 2021  Pavel Smokotnin
 
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -24,6 +24,10 @@ namespace Fftchart {
 class XYSeriesRenderer : public SeriesRenderer
 {
 protected:
+    virtual void updateMatrix() = 0;
+
+    QMatrix4x4 m_matrix;
+    int m_matrixUniform;
     float m_xMin, m_xMax, m_yMin, m_yMax;
 
 public:

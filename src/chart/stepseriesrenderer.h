@@ -1,6 +1,6 @@
 /**
  *  OSM
- *  Copyright (C) 2020  Pavel Smokotnin
+ *  Copyright (C) 2021  Pavel Smokotnin
 
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -29,9 +29,11 @@ public:
     StepSeriesRenderer();
     void renderSeries() override;
 
+protected:
+    virtual void updateMatrix() override;
+
 private:
-    int m_posAttr;
-    int m_matrixUniform;
+    int m_matrixUniform, m_widthUniform, m_screenUniform;
     WindowFunction m_window;
     std::vector<float> m_windowed;
 };

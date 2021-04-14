@@ -20,6 +20,7 @@
 #include <optional>
 #include "painteditem.h"
 #include "palette.h"
+#include <cmath>
 
 namespace Fftchart {
 

@@ -1,6 +1,6 @@
 /**
  *  OSM
- *  Copyright (C) 2020  Pavel Smokotnin
+ *  Copyright (C) 2021  Pavel Smokotnin
 
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -35,7 +35,8 @@ public:
     void synchronize(QQuickFramebufferObject *item) override;
 
 protected:
-    typedef std::array<float, 6> historyPoint;
+    virtual void updateMatrix() override;
+    typedef std::array<float, 5> historyPoint;
     typedef std::vector<historyPoint> historyRowData;
     struct historyRow {
         int time;
@@ -44,11 +45,12 @@ protected:
     std::deque<historyRow> history;
 
 private:
-    int m_posAttr, m_prePositionAttr, m_postPositionAttr;
-    int m_colorLeftUniform, m_colorRightUniform;
     int m_min, m_mid, m_max;
     unsigned int m_pointsPerOctave;
     QElapsedTimer m_timer;
+
+    unsigned int m_indexBufferId, m_sourceSize;
+    std::vector<unsigned int> m_indices;
 };
 }
 #endif // SPECTROGRAMSERIESRENDERER_H

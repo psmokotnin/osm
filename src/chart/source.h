@@ -90,17 +90,17 @@ public:
         return m_color.isValid();
     }
 
-    virtual unsigned int size() const  noexcept;
-    const float &frequency(unsigned int i) const noexcept;
-    virtual float module(unsigned int i) const noexcept;
-    virtual float magnitude(unsigned int i) const noexcept;
-    virtual float magnitudeRaw(unsigned int i) const noexcept;
-    virtual complex phase(unsigned int i) const noexcept;
-    const float &coherence(unsigned int i) const noexcept;
+    const unsigned int &size() const  noexcept;
+    const float &frequency(const unsigned int &i) const noexcept;
+    virtual float module(const unsigned int &i) const noexcept;
+    virtual float magnitude(const unsigned int &i) const noexcept;
+    virtual float magnitudeRaw(const unsigned int &i) const noexcept;
+    virtual complex phase(const unsigned int &i) const noexcept;
+    const float &coherence(const unsigned int &i) const noexcept;
 
     virtual unsigned int impulseSize() const noexcept;
-    virtual float impulseTime(unsigned int i) const noexcept;
-    virtual float impulseValue(unsigned int i) const noexcept;
+    virtual float impulseTime(const unsigned int &i) const noexcept;
+    virtual float impulseValue(const unsigned int &i) const noexcept;
 
     void copy(FTData *dataDist, TimeData *timeDist);
     void copyFrom(size_t dataSize, size_t timeSize, FTData *dataSrc, TimeData *timeSrc);

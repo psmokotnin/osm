@@ -49,7 +49,7 @@ void Source::setColor(QColor color)
     }
 }
 
-unsigned int Source::size() const noexcept
+const unsigned int &Source::size() const noexcept
 {
     return m_dataLength;
 }
@@ -60,37 +60,37 @@ void Source::setGlobalColor(int globalValue)
         emit colorChanged(m_color);
     }
 }
-const float &Source::frequency(unsigned int i) const noexcept
+const float &Source::frequency(const unsigned int &i) const noexcept
 {
     if (i >= m_dataLength)
         return m_zero;
     return m_ftdata[i].frequency;
 }
-float Source::module(unsigned int i) const noexcept {
+float Source::module(const unsigned int &i) const noexcept {
     if (i >= m_dataLength)
         return m_zero;
     return m_ftdata[i].module;
 }
-float Source::magnitude(unsigned int i) const noexcept
+float Source::magnitude(const unsigned int &i) const noexcept
 {
     if (i >= m_dataLength)
         return m_zero;
     return 20.f * log10f(m_ftdata[i].magnitude);
 }
-float Source::magnitudeRaw(unsigned int i) const noexcept
+float Source::magnitudeRaw(const unsigned int &i) const noexcept
 {
     if (i >= m_dataLength)
         return m_zero;
     return m_ftdata[i].magnitude;
 }
-complex Source::phase(unsigned int i) const noexcept
+complex Source::phase(const unsigned int &i) const noexcept
 {
     if (i <= m_dataLength)
         return m_ftdata[i].phase;
 
     return m_ftdata[0].phase;
 }
-const float &Source::coherence(unsigned int i) const noexcept
+const float &Source::coherence(const unsigned int &i) const noexcept
 {
     if (i >= m_dataLength)
         return m_zero;
@@ -102,13 +102,13 @@ unsigned int Source::impulseSize() const noexcept
 {
     return m_deconvolutionSize;
 }
-float Source::impulseTime(unsigned int i) const noexcept
+float Source::impulseTime(const unsigned int &i) const noexcept
 {
     if (i >= m_deconvolutionSize)
         return m_zero;
     return m_impulseData[i].time;
 }
-float Source::impulseValue(unsigned int i) const noexcept
+float Source::impulseValue(const unsigned int &i) const noexcept
 {
     if (i >= m_deconvolutionSize)
         return m_zero;

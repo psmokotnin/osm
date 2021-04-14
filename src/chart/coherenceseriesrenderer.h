@@ -1,6 +1,6 @@
 /**
  *  OSM
- *  Copyright (C) 2019  Pavel Smokotnin
+ *  Copyright (C) 2021  Pavel Smokotnin
 
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@
 
 #include "frequencybasedseriesrenderer.h"
 #include "coherenceplot.h"
+#include <cstring>
 
 namespace Fftchart {
 class CoherenceSeriesRenderer : public FrequencyBasedSeriesRenderer
@@ -30,10 +31,7 @@ public:
     void synchronize(QQuickFramebufferObject *item) override;
 
 private:
-    int m_posAttr, m_splineA,
-        m_frequency1, m_frequency2;
     unsigned int m_pointsPerOctave;
-    float m_threshold;
     CoherencePlot::Type m_type;
 };
 }

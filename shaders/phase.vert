@@ -15,24 +15,31 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef IMPULSESERIESRENDERER_H
-#define IMPULSESERIESRENDERER_H
+#version 330
+uniform highp mat4 matrix;
 
-#include "xyseriesrenderer.h"
+layout (location = 0) in vec2 position;
+layout (location = 1) in vec2 frequencyRange;
+layout (location = 2) in vec4 splineRe;
+layout (location = 3) in vec4 splineIm;
+layout (location = 4) in vec4 cSpline;
 
-namespace Fftchart {
-class ImpulseSeriesRenderer : public XYSeriesRenderer
+out vData
 {
-public:
-    ImpulseSeriesRenderer();
-    void renderSeries() override;
+    vec4 splineRe;
+    vec4 splineIm;
+    vec2 frequency;
+    vec4 coherenceSpline;
+} vertex;
 
-protected:
-    virtual void updateMatrix() override;
+void main() {
+    gl_Position.x = matrix[0][0] * log(position.x) + matrix[3][0];
+    gl_Position.y = matrix[0][0] * log(position.y) + matrix[3][0];
+    gl_Position.z = 0;
+    gl_Position.w = 1;
 
-private:
-    int m_matrixUniform, m_widthUniform, m_screenUniform;
-};
-
+    vertex.splineRe = splineRe;
+    vertex.splineIm = splineIm;
+    vertex.frequency = frequencyRange;
+    vertex.coherenceSpline = cSpline;
 }
-#endif // IMPULSESERIESRENDERER_H

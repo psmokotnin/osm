@@ -29,7 +29,8 @@ Profiler::~Profiler()
 {
     auto &l = m_calls[m_name];
     l.first++;
-    l.second +=  std::chrono::system_clock::now() - m_begin;
+    auto interval = std::chrono::system_clock::now() - m_begin;
+    l.second +=  std::chrono::duration_cast<time_interval>(interval);
     if (m_calls[m_name].first % 60 == 0) {
         qDebug() << "Profile " << m_name <<
                  " average:" <<  (m_calls[m_name].second.count() / m_calls[m_name].first) << "us";

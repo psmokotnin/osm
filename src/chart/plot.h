@@ -32,6 +32,7 @@ class Plot : public QQuickItem
     Q_PROPERTY(Fftchart::Source *filter READ filter WRITE setFilter NOTIFY filterChanged)
     Q_PROPERTY(QString xLabel READ xLabel CONSTANT)
     Q_PROPERTY(QString yLabel READ yLabel CONSTANT)
+    Q_PROPERTY(bool openGLError READ openGLError NOTIFY openGLErrorChanged)
 
 protected:
     QList<SeriesFBO *> series;
@@ -49,6 +50,7 @@ protected:
     Settings *m_settings;
     Palette m_palette;
     QPointer<Fftchart::Source> m_filter;
+    bool m_openGLError;
 
 public:
     explicit Plot(Settings *settings, QQuickItem *parent);
@@ -87,9 +89,13 @@ public:
     }
     void setFilter(Fftchart::Source *filter) noexcept;
 
+    bool openGLError() const;
+    void setOpenGLError(bool openGLError);
+
 signals:
     void filterChanged(Fftchart::Source *);
     void updated();
+    void openGLErrorChanged();
 
 protected slots:
     void parentWidthChanged();

@@ -1,6 +1,6 @@
 /**
  *  OSM
- *  Copyright (C) 2019  Pavel Smokotnin
+ *  Copyright (C) 2021  Pavel Smokotnin
 
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -15,65 +15,48 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-//precision mediump float;
+#version 330
+#ifdef GL_ES
+precision mediump float;
+#endif
 
 uniform vec4 m_color;
-uniform vec4 splineA;
-uniform float frequency1;
-uniform float frequency2;
-uniform float width;
-uniform vec2 screen;
-uniform vec4 minmax;
-uniform vec4 coherenceSpline;
 uniform float coherenceThreshold;
 uniform bool coherenceAlpha;
 
-float spline(float t) {
-    float y =
-            splineA[0] +
-            splineA[1] * t +
-            splineA[2] * t*t +
-            splineA[3] * t*t*t
-    ;
-    return screen.y - (y - minmax[2]) * screen.y / (minmax[3] - minmax[2]);
-}
+in fData
+{
+    vec2 frequency;
+    vec4 coherenceSpline;
+} fragmentData;
+
+out vec4 fragColor;
 
 void main() {
-
-    vec4 color = m_color;
-    float st = 0.0;
-    float
-            currentY, t,
-            xs = frequency1,
-            xe = frequency2;
-    float dist, alpha;
-    vec2 currentDist, coord = gl_FragCoord.xy;
-
-    for (float i = -1. * width; i < width; i += 0.1) {
-        t = (gl_FragCoord.x + i - xs) / (xe - xs);
-        currentY = spline(t);
-        currentDist.x = gl_FragCoord.x + i;
-        currentDist.y = currentY;
-
-        dist = distance(coord, currentDist);
-        if (dist < width / 2.0) {
-            gl_FragColor = m_color;
-            if (coherenceAlpha) {
-                alpha = coherenceSpline[0] +
-                        coherenceSpline[1] * t +
-                        coherenceSpline[2] * t*t +
-                        coherenceSpline[3] * t*t*t;
-                if (alpha < coherenceThreshold) {
-                    discard;
-                } else {
-                    float k = 1.0 / (1.0 - coherenceThreshold),
-                          b = -k * coherenceThreshold;
-                    gl_FragColor.a = sqrt(k * alpha + b);
-                }
-            }
-            return;
-        }
+    fragColor = m_color;
+    if (!coherenceAlpha) {
+        return;
     }
 
-    gl_FragColor = vec4(0.0);
+    float
+            alpha, k, b,
+            xs = fragmentData.frequency[0],
+            xe = fragmentData.frequency[1],
+            t = (gl_FragCoord.x - xs) / (xe - xs)
+            ;
+
+    alpha = fragmentData.coherenceSpline[0] +
+            fragmentData.coherenceSpline[1] * t +
+            fragmentData.coherenceSpline[2] * t*t +
+            fragmentData.coherenceSpline[3] * t*t*t;
+    if (alpha >= 1.0) {
+        return;
+    }
+    if (alpha < coherenceThreshold) {
+        fragColor.a = 0.0;
+    } else {
+        k = 1.0 / (1.0 - coherenceThreshold);
+        b = -k * coherenceThreshold;
+        fragColor.a = sqrt(k * alpha + b);
+    }
 }

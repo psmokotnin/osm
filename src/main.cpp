@@ -42,6 +42,11 @@
 int main(int argc, char *argv[])
 {
     QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
+    QSurfaceFormat surfaceFormat;
+    surfaceFormat.setMajorVersion(3);
+    surfaceFormat.setMinorVersion(3);
+    surfaceFormat.setProfile(QSurfaceFormat::CoreProfile);
+    QSurfaceFormat::setDefaultFormat(surfaceFormat);
     //qputenv("QSG_RHI", "1");
 
     QApplication app(argc, argv);

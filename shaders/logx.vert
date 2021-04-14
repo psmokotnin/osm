@@ -1,6 +1,6 @@
 /**
  *  OSM
- *  Copyright (C) 2019  Pavel Smokotnin
+ *  Copyright (C) 2021  Pavel Smokotnin
 
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -15,11 +15,11 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-attribute highp vec4 posAttr;
+#version 330
 uniform highp mat4 matrix;
 
+layout (location = 0) in vec2 position;
+
 void main() {
-    vec4 p = posAttr;
-    p.x = log(p.x);
-    gl_Position = matrix * p;
+    gl_Position = matrix * vec4(log(position.x), position.y, 0.0, 1.0);
 }

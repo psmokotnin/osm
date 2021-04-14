@@ -6,7 +6,14 @@
         <file>magnitude.frag</file>
         <file>pos.vert</file>
         <file>coherence.frag</file>
-        <file>interpolateColor.frag</file>
         <file>spectrogram.vert</file>
+        <file>magnitude.geom</file>
+        <file>magnitude.vert</file>
+        <file>phase.vert</file>
+        <file>phase.geom</file>
+        <file>line.geom</file>
+        <file>coherence.vert</file>
+        <file>coherence.geom</file>
+        <file>spectrogram.frag</file>
     </qresource>
 </RCC>

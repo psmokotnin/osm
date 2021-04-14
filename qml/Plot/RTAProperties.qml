@@ -155,30 +155,6 @@ Item {
             }
         }
 
-        /*
-        TODO: may be remove?
-        CheckBox {
-            id: coherence
-            text: qsTr("use coherence")
-            implicitWidth: 170
-            checked: dataObject.coherence
-            onCheckStateChanged: dataObject.coherence = checked
-
-            ToolTip.visible: hovered
-            ToolTip.text: qsTr("use coherence as alpha channel")
-        }
-
-        Root.FloatSpinBox {
-            min: 0.0
-            max: 1.0
-            step: 0.05
-            value: dataObject.coherenceThreshold
-            tooltiptext: qsTr("coherence threshold")
-            onValueChanged: dataObject.coherenceThreshold = value
-            implicitWidth: 170
-            visible: coherence.checked
-        }*/
-
         RowLayout {
             Layout.fillWidth: true
         }

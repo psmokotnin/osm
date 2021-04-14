@@ -34,6 +34,15 @@ Item {
         Component.onCompleted: {
             initOpener();
         }
+        Connections {
+            target: chart.plot
+
+            function onOpenGLErrorChanged() {
+                if (chart.plot.openGLError) {
+                    message.showError("OpenGL 3.3 required");
+                }
+            }
+        }
 
         onTypeChanged: function() {
             initOpener();

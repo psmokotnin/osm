@@ -1,6 +1,6 @@
 /**
  *  OSM
- *  Copyright (C) 2020  Pavel Smokotnin
+ *  Copyright (C) 2021  Pavel Smokotnin
 
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -25,54 +25,53 @@
 
 using namespace Fftchart;
 
-SpectrogramSeriesRenderer::SpectrogramSeriesRenderer():
+SpectrogramSeriesRenderer::SpectrogramSeriesRenderer() : FrequencyBasedSeriesRenderer(),
     m_pointsPerOctave(0), m_timer()
 {
     m_program.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/spectrogram.vert");
-    m_program.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/interpolateColor.frag");
+    m_program.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/spectrogram.frag");
 
     m_program.link();
-    m_posAttr       = m_program.attributeLocation("posAttr");
-    m_prePositionAttr    = m_program.uniformLocation("prePosition");
-    m_postPositionAttr    = m_program.uniformLocation("postPosition");
-    m_colorLeftUniform   = m_program.uniformLocation("m_colorLeft");
-    m_colorRightUniform  = m_program.uniformLocation("m_colorRight");
-    m_screenUniform = m_program.uniformLocation("screen");
     m_matrixUniform = m_program.uniformLocation("matrix");
 }
 void SpectrogramSeriesRenderer::synchronize(QQuickFramebufferObject *item)
 {
     XYSeriesRenderer::synchronize(item);
     if (auto *plot = dynamic_cast<SpectrogramPlot *>(m_item->parent())) {
+        if (
+            m_pointsPerOctave != plot->pointsPerOctave() ||
+            m_sourceSize != m_source->size()
+        ) {
+            m_refreshBuffers = true;
+            history.clear();
+        }
+        m_sourceSize = m_source->size();
         m_pointsPerOctave = plot->pointsPerOctave();
         m_min = plot->min();
         m_mid = plot->mid();
         m_max = plot->max();
     }
 }
+
+void SpectrogramSeriesRenderer::updateMatrix()
+{
+    m_matrix = {};
+    m_matrix.ortho(0, 1, m_yMax, m_yMin, -1, 1);
+    m_matrix.scale(1  / logf(m_xMax / m_xMin), 1.0f, 1.0f);
+    m_matrix.translate(-1 * logf(m_xMin), 0);
+}
 void SpectrogramSeriesRenderer::renderSeries()
 {
     if (!m_source->active() || !m_source->size())
         return;
 
-    QMatrix4x4 matrix;
-
-    matrix.ortho(0, 1, m_yMax, m_yMin, -1, 1);
-    matrix.scale(1  / logf(m_xMax / m_xMin), 1.0f, 1.0f);
-    matrix.translate(-1 * logf(m_xMin), 0);
-    m_program.setUniformValue(m_matrixUniform, matrix);
-    m_program.setUniformValue(m_screenUniform, m_width, m_height);
-    m_openGLFunctions->glLineWidth(m_weight * m_retinaScale);
-    GLfloat vertices[8];
-
-    m_openGLFunctions->glVertexAttribPointer(static_cast<GLuint>(m_posAttr), 2, GL_FLOAT, GL_FALSE, 0,
-                                             static_cast<const void *>(vertices));
-    m_openGLFunctions->glEnableVertexAttribArray(0);
-
     float floor = -140.f;
     float alpha;
 
     historyRowData rowData;
+    historyRow row;
+    row.time = static_cast<int>(m_timer.restart());
+    row.data.reserve(m_pointsPerOctave * 11);
     float value = 0.f;
     static const QColor qred("#F44336"), qgreen("#8BC34A"), qblue("#2196F3");
     QColor pointColor;
@@ -84,13 +83,10 @@ void SpectrogramSeriesRenderer::renderSeries()
         mixedColor.setGreenF(k * (second.greenF() - first.greenF()) + first.greenF());
         return mixedColor;
     };
-
-    auto accumalte = [m_source = m_source, &value] (unsigned int i) {
+    auto accumalte = [m_source = m_source, &value] (const unsigned int &i) {
         value += powf(m_source->module(i), 2);
     };
-    auto collected = [&]
-    (float start, float end, unsigned int count) {
-        Q_UNUSED(count)
+    auto collected = [&] (const float & start, const float & end, const unsigned int &) {
 
         value = 10 * log10f(value);
 
@@ -116,67 +112,106 @@ void SpectrogramSeriesRenderer::renderSeries()
         }
 
         historyPoint rgb;
-        rgb[0] = start;
-        rgb[1] = end;
-        rgb[2] = static_cast<float>(pointColor.redF());
-        rgb[3] = static_cast<float>(pointColor.greenF());
-        rgb[4] = static_cast<float>(pointColor.blueF());
-        rgb[5] = alpha;
-        rowData.push_back(rgb);
+        rgb[0] = (start + end) / 2.f;
+        rgb[1] = static_cast<float>(pointColor.redF());
+        rgb[2] = static_cast<float>(pointColor.greenF());
+        rgb[3] = static_cast<float>(pointColor.blueF());
+        rgb[4] = alpha;
+        row.data.push_back(rgb);
 
         value = 0;
     };
+
     iterate(m_pointsPerOctave, accumalte, collected);
 
-    historyRow row;
-    row.time = static_cast<int>(m_timer.restart());
-    row.data = rowData;
-    history.push_back(row);
+    //TODO: change to fifo instead of deque
+    history.push_back(std::move(row));
     if (history.size() > 51) {
         history.pop_front();
     }
 
+    unsigned int maxBufferSize = 51 * (m_pointsPerOctave * 11 + 4) * 6,
+                 verticiesCount = 0, maxIndicesCount = 0, indicesCount = 0;
+    if (m_vertices.size() != maxBufferSize) {
+        m_vertices.resize(maxBufferSize);
+        m_refreshBuffers = true;
+    }
+
+    auto rowSize = history[0].data.size();
+    maxIndicesCount = 51 * (2 * rowSize + 2);
+    if (m_indices.size() != maxIndicesCount) {
+        m_indices.resize(maxIndicesCount);
+        m_refreshBuffers = true;
+    }
+
     float t(0), tStep(0);
+    unsigned int j = 0, index = 0;
+    auto addPoint = [&](const historyPoint & data, const float & time) {
+        if (j > maxBufferSize) {
+            qCritical("out of range");
+            return;
+        }
+        m_vertices[j + 0] = data[0];
+        m_vertices[j + 1] = time;
+        m_vertices[j + 2] = data[1];
+        m_vertices[j + 3] = data[2];
+        m_vertices[j + 4] = data[3];
+        m_vertices[j + 5] = data[4];
+        j += 6;
+        verticiesCount ++;
+    };
+
     for (auto row = history.crbegin(); row != history.crend(); ++row) {
 
         const historyRowData *rowData = &(row->data);
         tStep = row->time / 1000.f;
 
-        for (unsigned int i = 1; i < rowData->size(); ++i) {
-
-            vertices[0] = (rowData->at(i - 1)[0] + rowData->at(i - 1)[1]) / 2;
-            vertices[1] = t;
-            vertices[2] = (rowData->at(i - 1)[0] + rowData->at(i - 1)[1]) / 2;
-            vertices[3] = t + tStep;
-            vertices[4] = (rowData->at(i)[0] + rowData->at(i)[1]) / 2;
-            vertices[5] = t;
-            vertices[6] = (rowData->at(i)[0] + rowData->at(i)[1]) / 2;
-            vertices[7] = t + tStep;
-
-            m_program.setUniformValue(
-                m_colorLeftUniform,
-                rowData->at(i - 1)[2],
-                rowData->at(i - 1)[3],
-                rowData->at(i - 1)[4],
-                rowData->at(i - 1)[5]
-            );
-            m_program.setUniformValue(
-                m_colorRightUniform,
-                rowData->at(i)[2],
-                rowData->at(i)[3],
-                rowData->at(i)[4],
-                rowData->at(i)[5]
-            );
-
-            if (i > 1) {
-                m_program.setUniformValue(m_prePositionAttr,  (rowData->at(i - 1)[0] + rowData->at(i - 1)[1]) / 2,
-                                          vertices[3], 0.f, 1.f);
-                m_program.setUniformValue(m_postPositionAttr, (rowData->at(i  )[0] + rowData->at(i  )[1]) / 2,
-                                          vertices[1], 0.f, 1.f);
-                m_openGLFunctions->glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-            }
+        if (rowData->size() != rowSize) {
+            t += tStep;
+            continue;
         }
+        unsigned int i = 0;
+        m_indices[indicesCount++] = index + i;
+        for (; i < rowData->size(); ++i) {
+            addPoint(rowData->at(i), t);
+            m_indices[indicesCount++] = index + i;
+            m_indices[indicesCount++] = index + i + rowSize;
+        }
+        m_indices[indicesCount++] = index + (i - 1) + rowSize;
         t += tStep;
+        index += rowSize;
     }
+    indicesCount--;
+
+    m_program.setUniformValue(m_matrixUniform, m_matrix);
+    m_openGLFunctions->glLineWidth(m_weight * m_retinaScale);
+
+    if (m_refreshBuffers) {
+        m_openGLFunctions->glGenBuffers(1, &m_vertexBufferId);
+        m_openGLFunctions->glGenVertexArrays(1, &m_vertexArrayId);
+        m_openGLFunctions->glGenBuffers(1, &m_indexBufferId);
+    }
+
+    m_openGLFunctions->glBindVertexArray(m_vertexArrayId);
+    m_openGLFunctions->glBindBuffer(GL_ARRAY_BUFFER, m_vertexBufferId);
+    m_openGLFunctions->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexBufferId);
+
+    if (m_refreshBuffers) {
+        m_openGLFunctions->glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLfloat) * maxIndicesCount, nullptr, GL_DYNAMIC_DRAW);
+        m_openGLFunctions->glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * maxBufferSize, nullptr, GL_DYNAMIC_DRAW);
+        m_openGLFunctions->glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat),
+                                                 reinterpret_cast<const void *>(0));
+        m_openGLFunctions->glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat),
+                                                 reinterpret_cast<const void *>(2 * sizeof(GLfloat)));
+    }
+    m_openGLFunctions->glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(GLfloat) * maxIndicesCount, m_indices.data());
+    m_openGLFunctions->glBufferSubData(GL_ARRAY_BUFFER, 0, 6 * sizeof(GLfloat) * verticiesCount, m_vertices.data());
+
+    m_openGLFunctions->glEnableVertexAttribArray(0);
+    m_openGLFunctions->glEnableVertexAttribArray(1);
+    m_openGLFunctions->glDrawElements(GL_TRIANGLE_STRIP, indicesCount, GL_UNSIGNED_INT, 0);
+    m_openGLFunctions->glDisableVertexAttribArray(1);
     m_openGLFunctions->glDisableVertexAttribArray(0);
+
+    m_refreshBuffers = false;
 }

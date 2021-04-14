@@ -1,6 +1,6 @@
 /**
  *  OSM
- *  Copyright (C) 2019  Pavel Smokotnin
+ *  Copyright (C) 2021  Pavel Smokotnin
 
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -30,10 +30,7 @@ public:
     void synchronize(QQuickFramebufferObject *item) override;
 
 private:
-    int m_posAttr, m_splineA,
-        m_frequency1, m_frequency2,
-        m_coherenceSpline,
-        m_coherenceThresholdU, m_coherenceAlpha;
+    int m_coherenceThresholdU, m_coherenceAlpha;
     unsigned int m_pointsPerOctave;
     float m_coherenceThreshold;
     bool m_coherence, m_invert;

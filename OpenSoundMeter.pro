@@ -279,14 +279,20 @@ DISTFILES += \
     linuxdeployosm.sh \
     list.tasks \
     shaders/coherence.frag \
+    shaders/coherence.geom \
+    shaders/coherence.vert \
     shaders/fragment.frag \
-    shaders/interpolateColor.frag \
+    shaders/line.geom \
     shaders/logx.vert \
-    #shaders/magnitude.geom \
+    shaders/magnitude.geom \
+    shaders/magnitude.vert \
+    shaders/phase.geom \
     shaders/phase.geom \
     shaders/color.frag \
     shaders/magnitude.frag \
+    shaders/phase.vert \
     shaders/pos.vert \
+    shaders/spectrogram.frag \
     shaders/spectrogram.vert \
     style.astylerc
 

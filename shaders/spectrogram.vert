@@ -1,6 +1,6 @@
 /**
  *  OSM
- *  Copyright (C) 2020  Pavel Smokotnin
+ *  Copyright (C) 2021  Pavel Smokotnin
 
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -15,24 +15,16 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-varying vec4 currentVertexPosition;
-varying vec4 preVertexPosition;
+#version 330
 
-attribute highp vec4 posAttr;
-uniform highp vec4 prePosition;
-uniform highp vec4 postPosition;
 uniform highp mat4 matrix;
 
+layout(location = 0) in vec2 position;
+layout(location = 1) in vec4 color;
+
+smooth out vec4 vertexColor;
+
 void main() {
-    vec4 p = posAttr;
-    p.x = log(p.x);
-    gl_Position = matrix * p;
-
-    p = prePosition;
-    p.x = log(p.x);
-    preVertexPosition = matrix * p;
-
-    p = postPosition;
-    p.x = log(p.x);
-    currentVertexPosition = matrix * p;
+    gl_Position = matrix * vec4(log(position.x), position.y, 0.0, 1.0);
+    vertexColor = color;
 }
