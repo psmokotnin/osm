@@ -28,6 +28,8 @@ namespace Fftchart {
 
 class RTASeriesRenderer : public FrequencyBasedSeriesRenderer
 {
+    constexpr const static float LEVEL_NORMALIZATION = -41.38f;
+
 public:
     explicit RTASeriesRenderer();
     void renderSeries() override;

@@ -70,7 +70,7 @@ void RTASeriesRenderer::updateMatrix()
     m_matrix = {};
     m_matrix.ortho(0, 1, m_yMax, m_yMin, -1, 1);
     m_matrix.scale(1  / logf(m_xMax / m_xMin), 1.0f, 1.0f);
-    m_matrix.translate(-1 * logf(m_xMin), 0);
+    m_matrix.translate(-1 * logf(m_xMin), LEVEL_NORMALIZATION);
 }
 void RTASeriesRenderer::renderSeries()
 {
@@ -112,7 +112,7 @@ void RTASeriesRenderer::renderLine()
 
     for (unsigned int i = 0, j = 0; i < count; ++i, j += 2) {
         m_vertices[j] = m_source->frequency(i);
-        m_vertices[j + 1] = 20 * log10f(m_source->module(i) * .1f);
+        m_vertices[j + 1] = 20 * log10f(m_source->module(i));
     }
 
     drawVertices(GL_LINE_STRIP, count);
@@ -128,13 +128,15 @@ void RTASeriesRenderer::renderBars()
     unsigned int verticesCollected = 0;
 
     float value = 0;
-    auto accumalte = [m_source = m_source, &value] (const unsigned int &i) {
-        value += powf(m_source->module(i) * .1f, 2);
+    auto accumalte = [ &, this] (const unsigned int &i) {
+        if (i == 0) {
+            return ;
+        }
+        value += 2 * m_source->module(i) * m_source->module(i) * (m_source->frequency(i) - m_source->frequency(i - 1));
     };
 
     unsigned int i = 0;
-    auto collected = [ &, this]
-    (const float & start, const float & end, const unsigned int &) {
+    auto collected = [ &, this] (const float & start, const float & end, const unsigned int &) {
         if (i > maxBufferSize) {
             qCritical("out of range");
             return;
@@ -191,7 +193,7 @@ void RTASeriesRenderer::renderLines()
         m_vertices[j + 0] = m_source->frequency(i);
         m_vertices[j + 1] = m_yMin;
         m_vertices[j + 2] = m_source->frequency(i);
-        m_vertices[j + 3] = 20 * log10f(m_source->module(i) * .1f);
+        m_vertices[j + 3] = 20 * log10f(m_source->module(i));
     }
 
     drawVertices(GL_LINES, count * 2);
