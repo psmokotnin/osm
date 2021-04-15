@@ -43,10 +43,11 @@ protected:
         unsigned int bCount = 0;
         TSpline splinePoint[4], a[4];
         float csplinePoint[4], f[4], c[4];
+        const T resetValue = *value;
 
         auto it = [value, coherence, &collected, &splinePoint, &csplinePoint,
-                          &f, &a, &c, &bCollected, &beforeSpline, &bCount]
-        (float bandStart, float bandEnd, unsigned int count) {
+                          &f, &a, &c, &bCollected, &beforeSpline, &bCount, &resetValue]
+        (const float & bandStart, const float & bandEnd, const unsigned int &count) {
 
             *coherence /= count;
 
@@ -86,6 +87,7 @@ protected:
                 collected(f[1], f[2], a, c);
             } else {
                 ++bCount;
+                *value = resetValue;
             }
         };
         iterate(pointsPerOctave, accumulate, it);
