@@ -101,8 +101,8 @@ void setVertexData()
 {
     fragmentData.frequency = vertices[0].frequency;
     fragmentData.coherenceSpline = vertices[0].coherenceSpline;
-    gl_Position.z = gl_in[0].gl_Position.z;
-    gl_Position.w = gl_in[0].gl_Position.w;
+    gl_Position.z = 0.f;
+    gl_Position.w = 1.f;
 }
 vec2 spline(float x)
 {

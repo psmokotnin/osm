@@ -282,7 +282,9 @@ DISTFILES += \
     shaders/coherence.geom \
     shaders/coherence.vert \
     shaders/fragment.frag \
+    shaders/groupdelay.frag \
     shaders/groupdelay.geom \
+    shaders/groupdelay.vert \
     shaders/line.geom \
     shaders/logx.vert \
     shaders/magnitude.geom \

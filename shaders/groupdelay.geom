@@ -33,8 +33,7 @@ out vec4 coherenceSpline;
 
 in vData
 {
-    vec4 splineRe;
-    vec4 splineIm;
+    vec4 splineData;
     vec2 frequency;
     vec4 coherenceSpline;
 } vertices[];
@@ -117,34 +116,15 @@ vec2 spline(float x)
     float f0 = gl_in[0].gl_Position.z;
     float f1 = gl_in[0].gl_Position.w;
     float f = f0 * pow(f1 / f0, t);
-    float re =
-            vertices[0].splineRe[0] +
-            vertices[0].splineRe[1] * t +
-            vertices[0].splineRe[2] * t*t +
-            vertices[0].splineRe[3] * t*t*t
-    ;
-    float im =
-            vertices[0].splineIm[0] +
-            vertices[0].splineIm[1] * t +
-            vertices[0].splineIm[2] * t*t +
-            vertices[0].splineIm[3] * t*t*t
-    ;
-    float dre = // dr/dt
-            vertices[0].splineRe[1] +
-            vertices[0].splineRe[2] * 2*t +
-            vertices[0].splineRe[3] * 3*t*t
-    ;
-    float dim = //di/dt
-            vertices[0].splineIm[1] +
-            vertices[0].splineIm[2] * 2*t +
-            vertices[0].splineIm[3] * 3*t*t
+
+    float dPhase = // dPhase/dt
+            vertices[0].splineData[1] +
+            vertices[0].splineData[2] * 2*t +
+            vertices[0].splineData[3] * 3*t*t
     ;
     float dt = 1. / ((log(f1) - log(f0)) * f); // dt/df
-    dre *= dt; // dr/df
-    dim *= dt; // di/df
+    dPhase *= dt; // dPhase/df
 
-    float dalpha = dre * im - dim * re; // -1 * dalpha / df
-
-    r.y = 1. - 2. * (dalpha - minmax[2]) / (minmax[3] - minmax[2]);
+    r.y = 1. - 2. * (-dPhase - minmax[2]) / (minmax[3] - minmax[2]);
     return r;
 }

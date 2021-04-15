@@ -75,8 +75,8 @@ void PhaseSeriesRenderer::renderSeries()
         value += m_source->phase(i);
         coherence += m_source->coherence(i);
     };
-    auto beforeSpline = [this] (const auto & value, auto, auto) {
-        return value->rotate(m_rotate);
+    auto beforeSpline = [this] (const auto * value, auto, const auto & count) {
+        return value->rotate(m_rotate) / count;
     };
     auto collected = [ &, this] (const float & f1, const float & f2, const complex ac[4], const float c[4]) {
         if (i > maxBufferSize) {

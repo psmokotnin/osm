@@ -36,7 +36,7 @@ protected:
                                                                      T *value, float *coherence,
                                                                      const std::function<void (const unsigned int &)> &accumulate,
                                                                      const std::function<void(const float &f1, const float &f2, const TSpline *a, const GLfloat *c)> &collected,
-                                                                     const std::function<TSpline(const T *value, const float *f, const unsigned int &index)> &beforeSpline = {}
+                                                                     const std::function<TSpline(const T *value, const float *f, const unsigned int &count)> &beforeSpline = {}
                                                                     )
     {
         bool bCollected = false;
@@ -64,7 +64,7 @@ protected:
             }
             f[bCount] = (bandStart + bandEnd) / 2.f;
             if (beforeSpline) {
-                splinePoint[bCount] = beforeSpline(value, f, bCount) / count;
+                splinePoint[bCount] = beforeSpline(value, f, count);
             } else if constexpr (std::is_same<T, TSpline>::value) {
                 splinePoint[bCount] = (*value) / count;
             } else {

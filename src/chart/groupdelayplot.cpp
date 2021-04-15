@@ -21,9 +21,10 @@
 
 using namespace Fftchart;
 
-GroupDelayPlot::GroupDelayPlot(Settings *settings, QQuickItem *parent): FrequencyBasedPlot(settings,
-                                                                                               parent)
+GroupDelayPlot::GroupDelayPlot(Settings *settings, QQuickItem *parent) :
+    FrequencyBasedPlot(settings, parent)
 {
+    m_pointsPerOctave = 6;
     m_x.configure(AxisType::Logarithmic, 20.f, 20000.f);
     m_x.setISOLabels();
     m_y.configure(AxisType::Linear,
