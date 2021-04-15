@@ -35,8 +35,8 @@ out vData
 void main() {
     gl_Position.x = matrix[0][0] * log(position.x) + matrix[3][0];
     gl_Position.y = matrix[0][0] * log(position.y) + matrix[3][0];
-    gl_Position.z = 0;
-    gl_Position.w = 1;
+    gl_Position.z = position.x;//f0 Hz
+    gl_Position.w = position.y;//f1 Hz
 
     vertex.splineRe = splineRe;
     vertex.splineIm = splineIm;

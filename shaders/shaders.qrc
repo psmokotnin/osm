@@ -15,5 +15,6 @@
         <file>coherence.vert</file>
         <file>coherence.geom</file>
         <file>spectrogram.frag</file>
+        <file>groupdelay.geom</file>
     </qresource>
 </RCC>

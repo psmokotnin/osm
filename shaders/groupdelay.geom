@@ -45,7 +45,7 @@ out fData
     vec4 coherenceSpline;
 } fragmentData;
 
-vec3 spline(float t, float beta);
+vec2 spline(float t);
 void setVertexData();
 
 void main(void)
@@ -57,7 +57,7 @@ void main(void)
         kx = screen[0] / 2.,
         ky = screen[1] / 2.
         ;
-    vec3 p1, p2;
+    vec2 p1, p2;
     vec2 d, n;
     mat2 r = mat2(
         0.0, -1.0,
@@ -67,9 +67,9 @@ void main(void)
     x = xs;
     float dx = max((xe - xs) / 40, 1.); //not more that 40 steps, see max_vertices
     do {
-        p1 = spline(x, 0);
+        p1 = spline(x);
         x += dx;
-        p2 = spline(x, p1.z);
+        p2 = spline(x);
         d = p2.xy - p1.xy;
         d.x *= kx;
         d.y *= ky;
@@ -105,15 +105,18 @@ void setVertexData()
 {
     fragmentData.frequency = vertices[0].frequency;
     fragmentData.coherenceSpline = vertices[0].coherenceSpline;
-    gl_Position.z = 0.;
-    gl_Position.w = 1.;
+    gl_Position.z = 0.f;
+    gl_Position.w = 1.f;
 }
-vec3 spline(float x, float beta)
+vec2 spline(float x)
 {
-    vec3 r;
+    vec2 r;
 
     r.x = (x * 2.) / screen[0] - 1.;
     float t = (x - vertices[0].frequency[0]) / (vertices[0].frequency[1] - vertices[0].frequency[0]);
+    float f0 = gl_in[0].gl_Position.z;
+    float f1 = gl_in[0].gl_Position.w;
+    float f = f0 * pow(f1 / f0, t);
     float re =
             vertices[0].splineRe[0] +
             vertices[0].splineRe[1] * t +
@@ -126,18 +129,22 @@ vec3 spline(float x, float beta)
             vertices[0].splineIm[2] * t*t +
             vertices[0].splineIm[3] * t*t*t
     ;
+    float dre = // dr/dt
+            vertices[0].splineRe[1] +
+            vertices[0].splineRe[2] * 2*t +
+            vertices[0].splineRe[3] * 3*t*t
+    ;
+    float dim = //di/dt
+            vertices[0].splineIm[1] +
+            vertices[0].splineIm[2] * 2*t +
+            vertices[0].splineIm[3] * 3*t*t
+    ;
+    float dt = 1. / ((log(f1) - log(f0)) * f); // dt/df
+    dre *= dt; // dr/df
+    dim *= dt; // di/df
 
-    float alpha = atan(im, re);
+    float dalpha = dre * im - dim * re; // -1 * dalpha / df
 
-    if (abs(alpha - beta) > 3.141592654) {
-        if (alpha > 0) {
-            alpha -= 2 * 3.141592654;
-        } else {
-            alpha += 2 * 3.141592654;
-        }
-    }
-
-    r.y = 1. - 2. * (alpha - minmax[2]) / (minmax[3] - minmax[2]);
-    r.z = alpha;
+    r.y = 1. - 2. * (dalpha - minmax[2]) / (minmax[3] - minmax[2]);
     return r;
 }
