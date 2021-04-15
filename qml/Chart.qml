@@ -246,7 +246,7 @@ Item {
         yTop:    opener.mouseY - applicationAppearance.cursorOffset - cursor.height / 2
         yBottom: opener.mouseY + applicationAppearance.cursorOffset + cursor.height / 2
         x: xRight < parent.width  - width  - 50 ? xRight : xLeft
-        y: yTop   < 2 * height ? yBottom : yTop
+        y: yTop   < 2 * height ? yBottom : yTop + 30 + height / 2 > parent.height ? yTop - height : yTop
         visible: opener.containsMouse
         style: Text.Outline;
         styleColor: applicationAppearance.darkMode ? "#99000000" : "#99FFFFFF"
