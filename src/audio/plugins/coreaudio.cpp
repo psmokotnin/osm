@@ -75,6 +75,11 @@ CoreaudioPlugin::CoreaudioPlugin() : Plugin()
     AudioObjectAddPropertyListener(kAudioObjectSystemObject, &propertyAddress, &audioObjectListener, this);
 }
 
+CoreaudioPlugin::~CoreaudioPlugin()
+{
+    emit stopStreams({});
+}
+
 QString CoreaudioPlugin::name() const
 {
     return "CoreAudio";
@@ -261,9 +266,8 @@ Stream *CoreaudioPlugin::open(const DeviceInfo::Id &id, const Plugin::Direction 
         }
     };
 
-    auto inputCallback = [](
-                             void *inUserData, AudioQueueRef queue, AudioQueueBufferRef inBuffer, const AudioTimeStamp *, UInt32,
-    const AudioStreamPacketDescription *) -> void {
+    auto inputCallback = [](void *inUserData, AudioQueueRef queue, AudioQueueBufferRef inBuffer,
+    const AudioTimeStamp *, UInt32, const AudioStreamPacketDescription *) -> void {
 
         auto endpoint = reinterpret_cast<QIODevice *>(inUserData);
         if (endpoint && endpoint->isWritable())
@@ -334,11 +338,17 @@ Stream *CoreaudioPlugin::open(const DeviceInfo::Id &id, const Plugin::Direction 
     }
 
     auto stream = new Stream(format);
-    connect(stream, &Stream::closeMe, this, [queue, stream]() {
+    connect(stream, &Stream::closeMe, this, [queue, stream, endpoint]() {
+        if (endpoint) {
+            endpoint->close();
+        }
         AudioQueueStop(queue, true);
-        AudioQueueDispose(queue, false);
+        AudioQueueDispose(queue, true);
         delete stream;
-    });
+    }, Qt::DirectConnection);
+    connect(this, &CoreaudioPlugin::stopStreams, stream, [stream]() {
+        stream->close();
+    }, Qt::DirectConnection);
     return stream;
 }
 

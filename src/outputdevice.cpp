@@ -28,6 +28,11 @@ OutputDevice::OutputDevice(QObject *parent) : QIODevice(parent),
 {
     connect(parent, SIGNAL(gainChanged(float)), this, SLOT(setGain(float)));
 }
+
+OutputDevice::~OutputDevice()
+{
+    close();
+}
 qint64 OutputDevice::readData(char *data, qint64 maxlen)
 {
     qint64 total = 0;

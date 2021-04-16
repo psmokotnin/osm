@@ -24,14 +24,21 @@ namespace audio {
 
 class CoreaudioPlugin : public Plugin
 {
+    Q_OBJECT
+
 public:
     CoreaudioPlugin();
+    ~CoreaudioPlugin();
+
     QString name() const override;
     DeviceInfo::List getDeviceInfoList() const override;
     DeviceInfo::Id defaultDeviceId(const Direction &mode) const override;
 
     Format deviceFormat(const DeviceInfo::Id &id, const Direction &mode) const override;
     Stream *open(const DeviceInfo::Id &id, const Direction &mode, const Format &format, QIODevice *endpoint) override;
+
+signals:
+    void stopStreams(QPrivateSignal);
 
 private:
     unsigned int getDEviceDefaultSampleRate(const int &deviceID) const;

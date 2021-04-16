@@ -35,6 +35,7 @@ protected:
 
 public:
     OutputDevice(QObject *parent);
+    virtual ~OutputDevice();
 
     qint64 writeData(const char *data, qint64 len) override;
     qint64 readData(char *data, qint64 maxlen) override;

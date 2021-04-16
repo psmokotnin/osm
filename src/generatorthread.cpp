@@ -44,12 +44,12 @@ GeneratorThread::GeneratorThread(QObject *parent) :
 
 GeneratorThread::~GeneratorThread()
 {
-    for (auto &m_source : m_sources) {
-        m_source->close();
-    }
-
     if (m_audioStream) {
         m_audioStream->close();
+        m_audioStream = nullptr;
+    }
+    for (auto &m_source : m_sources) {
+        m_source->close();
     }
 }
 
