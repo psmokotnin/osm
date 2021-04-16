@@ -19,6 +19,7 @@ import QtQuick 2.7
 import QtQuick.Controls 2.2
 import QtQuick.Layouts 1.3
 import Audio 1.0
+import "elements"
 
 Item {
     ColumnLayout {
@@ -40,7 +41,7 @@ Item {
                 ToolTip.text: qsTr("signal type")
             }
 
-            SpinBox {
+            SelectableSpinBox {
                 id: gainSpinBox
                 implicitWidth: 170
                 value: generatorModel.gain
@@ -65,7 +66,7 @@ Item {
             }
 
             //Sin frequency
-            SpinBox {
+            SelectableSpinBox {
                 id: frequencySpinBox
                 implicitWidth: 180
                 visible: type.currentText == 'Sin';
@@ -100,7 +101,7 @@ Item {
                 tooltiptext: qsTr("duration")
             }
 
-            SpinBox {
+            SelectableSpinBox {
                 id: sinSweepStart
                 implicitWidth: 180
                 visible: type.currentText == 'SineSweep';
@@ -123,7 +124,7 @@ Item {
             }
 
             //Sin Sweep to
-            SpinBox {
+            SelectableSpinBox {
                 id: sinSweepEnd
                 implicitWidth: 180
                 visible: type.currentText == 'SineSweep';

@@ -22,6 +22,7 @@ import QtQuick.Dialogs 1.2
 import QtQuick.Controls.Material 2.13
 
 import SourceModel 1.0
+import "elements"
 
 Item {
     property var dataObject
@@ -32,7 +33,7 @@ Item {
 
         RowLayout {
 
-            SpinBox {
+            SelectableSpinBox {
                 value: dataObject.loudness
                 onValueChanged: dataObject.loudness = value
                 from: 20
@@ -64,14 +65,10 @@ Item {
                 ToolTip.text: qsTr("series color")
             }
 
-            TextField {
+            NameField {
                 id:titleField
-                placeholderText: qsTr("title")
-                text: dataObject.name
-                onTextEdited: dataObject.name = text
+                target: dataObject
                 implicitWidth: 100
-                ToolTip.visible: hovered
-                ToolTip.text: qsTr("title")
                 Layout.alignment: Qt.AlignVCenter
             }
         }

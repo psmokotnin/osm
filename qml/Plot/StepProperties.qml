@@ -20,7 +20,7 @@ import QtQuick.Controls 2.2
 import QtQuick.Layouts 1.3
 import QtQuick.Dialogs 1.3
 
-import "../" as Root
+import "../elements"
 import SourceModel 1.0
 import OpenSoundMeter 1.0
 
@@ -35,7 +35,7 @@ Item {
     RowLayout {
         spacing: 0
 
-        Root.FloatSpinBox {
+        FloatSpinBox {
             id: xminFloatBox
             min: dataObject.xLowLimit
             max: dataObject.xHighLimit
@@ -47,7 +47,7 @@ Item {
             units: "ms"
         }
 
-        Root.FloatSpinBox {
+        FloatSpinBox {
             id: xmaxFloatBox
             min: dataObject.xLowLimit
             max: dataObject.xHighLimit
@@ -59,7 +59,7 @@ Item {
             units: "ms"
         }
 
-        Root.FloatSpinBox {
+        FloatSpinBox {
             id: yminFloatBox
             min: dataObject.yLowLimit
             max: dataObject.yHighLimit
@@ -70,7 +70,7 @@ Item {
             Layout.fillWidth: true
         }
 
-        Root.FloatSpinBox {
+        FloatSpinBox {
             id: ymaxFloatBox
             min: dataObject.yLowLimit
             max: dataObject.yHighLimit
@@ -109,7 +109,7 @@ Item {
     RowLayout {
         spacing: 0
 
-        Root.FloatSpinBox {
+        FloatSpinBox {
             id: zeroPoinntFloatSpinBox
             min: dataObject.xLowLimit
             max: dataObject.xHighLimit
@@ -124,7 +124,7 @@ Item {
             Layout.fillWidth: true
         }
 
-        Root.TitledCombo {
+        TitledCombo {
             tooltip: qsTr("show only selected source")
             model: SourceModel {
                 addNone: true

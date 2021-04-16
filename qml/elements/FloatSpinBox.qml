@@ -17,6 +17,7 @@
  */
 import QtQuick 2.0
 import QtQuick.Controls 2.2
+
 Item {
     id: floatspinbox
     property real min : 0.0
@@ -39,7 +40,7 @@ Item {
         spinbox.updateValue();
     }
 
-    SpinBox {
+    SelectableSpinBox {
         id: spinbox
         property bool completed: false
         implicitWidth: floatspinbox.implicitWidth

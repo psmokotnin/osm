@@ -20,6 +20,7 @@ import QtQuick.Controls 2.2
 import QtQuick.Layouts 1.3
 import QtQuick.Dialogs 1.3
 import OpenSoundMeter 1.0
+import "elements"
 
 Item {
     id: chartProperties

@@ -19,6 +19,7 @@ import QtQuick 2.9
 import QtQuick.Controls 2.2
 import QtQuick.Layouts 1.3
 import QtQuick.Dialogs 1.3
+import "elements"
 
 Item {
     id: calculator
@@ -50,7 +51,7 @@ Item {
     RowLayout {
         spacing: 0
 
-        SpinBox {
+        SelectableSpinBox {
             id: frequencySB
             editable: true
             from: 20
@@ -69,7 +70,7 @@ Item {
             }
         }
 
-        SpinBox {
+        SelectableSpinBox {
             id: time
             property int decimals: 1000
             editable: true
@@ -97,7 +98,7 @@ Item {
             Layout.fillWidth: true
         }
 
-        SpinBox {
+        SelectableSpinBox {
             value: calculator.temp
             onValueChanged: {
                 if (value != calculator.temp) {
@@ -122,7 +123,7 @@ Item {
 
         }
 
-        SpinBox {
+        SelectableSpinBox {
             id: airSpeed
             Layout.alignment: Qt.AlignVCenter
             implicitWidth: 170
@@ -146,7 +147,7 @@ Item {
     RowLayout {
         spacing: 0
 
-        SpinBox {
+        SelectableSpinBox {
             id: wavelength
             property int decimals: 1000
             editable: true
@@ -169,7 +170,7 @@ Item {
 
         }
 
-        SpinBox {
+        SelectableSpinBox {
             property int decimals: 1000
             editable: true
             stepSize: 1

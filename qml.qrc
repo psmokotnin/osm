@@ -10,9 +10,7 @@
         <file alias="PropetiesBar.qml">qml/PropetiesBar.qml</file>
         <file alias="PropertiesOpener.qml">qml/PropertiesOpener.qml</file>
         <file alias="ChartProperties.qml">qml/ChartProperties.qml</file>
-        <file alias="TitledCombo.qml">qml/TitledCombo.qml</file>
         <file alias="MeasurementProperties.qml">qml/MeasurementProperties.qml</file>
-        <file alias="ColorPicker.qml">qml/ColorPicker.qml</file>
         <file alias="MulticolorCheckBox.qml">qml/MulticolorCheckBox.qml</file>
         <file alias="Stored.qml">qml/Stored.qml</file>
         <file alias="StoredProperties.qml">qml/StoredProperties.qml</file>
@@ -21,7 +19,6 @@
         <file alias="Updater.qml">qml/Updater.qml</file>
         <file alias="Plot/RTAProperties.qml">qml/Plot/RTAProperties.qml</file>
         <file alias="Plot/ImpulseProperties.qml">qml/Plot/ImplulseProperties.qml</file>
-        <file alias="FloatSpinBox.qml">qml/FloatSpinBox.qml</file>
         <file alias="Plot/PhaseProperties.qml">qml/Plot/PhaseProperties.qml</file>
         <file alias="Plot/MagnitudeProperties.qml">qml/Plot/MagnitudeProperties.qml</file>
         <file alias="Plot/CoherenceProperties.qml">qml/Plot/CoherenceProperties.qml</file>
@@ -39,5 +36,10 @@
         <file alias="menu/Top.qml">qml/menu/Top.qml</file>
         <file alias="menu/Side.qml">qml/menu/Side.qml</file>
         <file alias="Plot/StepProperties.qml">qml/Plot/StepProperties.qml</file>
+        <file alias="elements/SelectableSpinBox.qml">qml/elements/SelectableSpinBox.qml</file>
+        <file alias="elements/FloatSpinBox.qml">qml/elements/FloatSpinBox.qml</file>
+        <file alias="elements/TitledCombo.qml">qml/elements/TitledCombo.qml</file>
+        <file alias="elements/ColorPicker.qml">qml/elements/ColorPicker.qml</file>
+        <file alias="elements/NameField.qml">qml/elements/NameField.qml</file>
     </qresource>
 </RCC>

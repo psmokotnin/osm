@@ -20,7 +20,7 @@ import QtQuick.Controls 2.2
 import QtQuick.Layouts 1.3
 import QtQuick.Dialogs 1.3
 
-import "../" as Root
+import "../elements"
 import SourceModel 1.0
 import OpenSoundMeter 1.0
 
@@ -35,7 +35,7 @@ Item {
         RowLayout {
             spacing: 0
 
-            SpinBox {
+            SelectableSpinBox {
                 value: dataObject.xmin
                 onValueChanged: dataObject.xmin = value
                 from: dataObject.xLowLimit
@@ -56,7 +56,7 @@ Item {
                 }
             }
 
-            SpinBox {
+            SelectableSpinBox {
                 value: dataObject.xmax
                 onValueChanged: dataObject.xmax = value
                 from: dataObject.xLowLimit
@@ -77,7 +77,7 @@ Item {
                 }
             }
 
-            Root.FloatSpinBox {
+            FloatSpinBox {
                 id: yminFloatBox
                 step: 1.0
                 decimals: 0
@@ -92,7 +92,7 @@ Item {
                 tooltiptext: qsTr("y from")
             }
 
-            Root.FloatSpinBox {
+            FloatSpinBox {
                 id: ymaxFloatBox
                 step: 1.0
                 decimals: 0
@@ -127,7 +127,7 @@ Item {
         RowLayout {
             spacing: 0
 
-            Root.TitledCombo {
+            TitledCombo {
                 title: qsTr("ppo")
                 tooltip: qsTr("points per octave")
                 implicitWidth: 170
@@ -153,7 +153,7 @@ Item {
                 ToolTip.text: qsTr("use coherence as alpha channel")
             }
 
-            Root.FloatSpinBox {
+            FloatSpinBox {
                 min: 0.0
                 max: 1.0
                 step: 0.05
@@ -168,7 +168,7 @@ Item {
                 Layout.fillWidth: true
             }
 
-            Root.TitledCombo {
+            TitledCombo {
                 tooltip: qsTr("show only selected source")
                 model: SourceModel {
                     addNone: true

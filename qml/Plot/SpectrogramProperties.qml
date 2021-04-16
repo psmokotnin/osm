@@ -21,6 +21,7 @@ import QtQuick.Layouts 1.3
 import QtQuick.Dialogs 1.3
 
 import "../" as Root
+import "../elements"
 import SourceModel 1.0
 import OpenSoundMeter 1.0
 
@@ -35,7 +36,7 @@ Item {
     RowLayout {
         spacing: 0
 
-        SpinBox {
+        SelectableSpinBox {
             value: dataObject.xmin
             onValueChanged: dataObject.xmin = value
             from: dataObject.xLowLimit
@@ -56,7 +57,7 @@ Item {
             }
         }
 
-        SpinBox {
+        SelectableSpinBox {
             value: dataObject.xmax
             onValueChanged: dataObject.xmax = value
             from: dataObject.xLowLimit
@@ -77,7 +78,7 @@ Item {
             }
         }
 
-        SpinBox {
+        SelectableSpinBox {
             value: dataObject.ymin
             onValueChanged: dataObject.ymin = value
             from: dataObject.yLowLimit
@@ -98,7 +99,7 @@ Item {
             }
         }
 
-        SpinBox {
+        SelectableSpinBox {
             value: dataObject.ymax
             onValueChanged: dataObject.ymax = value
             from: dataObject.yLowLimit
@@ -131,7 +132,7 @@ Item {
     RowLayout {
         spacing: 0
 
-        Root.TitledCombo {
+        TitledCombo {
             title: qsTr("ppo")
             tooltip: qsTr("points per octave")
             implicitWidth: 170
@@ -148,7 +149,7 @@ Item {
             width: 10
         }
 
-        SpinBox {
+        SelectableSpinBox {
             value: dataObject.min
             onValueChanged: dataObject.min = value
             from: -140
@@ -174,7 +175,7 @@ Item {
             }
         }
 
-        SpinBox {
+        SelectableSpinBox {
             value: dataObject.mid
             onValueChanged: dataObject.mid = value
             from: dataObject.min
@@ -201,7 +202,7 @@ Item {
             }
         }
 
-        SpinBox {
+        SelectableSpinBox {
             value: dataObject.max
             onValueChanged: dataObject.max = value
             from: dataObject.mid + 1
@@ -232,7 +233,7 @@ Item {
             Layout.fillWidth: true
         }
 
-        Root.TitledCombo {
+        TitledCombo {
             tooltip: qsTr("show only this source")
             model: SourceModel {
                 list: sourceList

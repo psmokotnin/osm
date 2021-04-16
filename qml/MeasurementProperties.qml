@@ -24,6 +24,7 @@ import QtQuick.Controls.Material 2.13
 import OpenSoundMeter 1.0
 import Measurement 1.0
 import Audio 1.0
+import "elements"
 
 Item {
     id: measurementProperties
@@ -45,7 +46,7 @@ Item {
                 onCurrentIndexChanged: dataObject.averageType = currentIndex;
             }
 
-            SpinBox {
+            SelectableSpinBox {
                 implicitWidth: 120
                 value: dataObject.average
                 from: 1
@@ -160,14 +161,10 @@ Item {
                 ToolTip.text: qsTr("series color")
             }
 
-            TextField {
+            NameField {
                 id:titleField
-                placeholderText: qsTr("title")
-                text: dataObject.name
-                onTextEdited: dataObject.name = text
+                target: dataObject
                 implicitWidth: 100
-                ToolTip.visible: hovered
-                ToolTip.text: qsTr("title")
                 Layout.alignment: Qt.AlignVCenter
             }
 
@@ -189,7 +186,7 @@ Item {
                 Layout.alignment: Qt.AlignVCenter
             }
 
-            SpinBox {
+            SelectableSpinBox {
                 id: delaySpin
                 Layout.alignment: Qt.AlignVCenter
                 implicitWidth: 80
