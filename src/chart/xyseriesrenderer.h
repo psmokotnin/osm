@@ -32,7 +32,7 @@ protected:
 
 public:
     XYSeriesRenderer();
-    void synchronize(QQuickFramebufferObject *item) override;
+    virtual void synchronize(QQuickFramebufferObject *item) override;
 };
 }
 

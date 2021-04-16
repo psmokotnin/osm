@@ -38,5 +38,6 @@
         <file alias="ELCProperties.qml">qml/ELCProperties.qml</file>
         <file alias="menu/Top.qml">qml/menu/Top.qml</file>
         <file alias="menu/Side.qml">qml/menu/Side.qml</file>
+        <file alias="Plot/StepProperties.qml">qml/Plot/StepProperties.qml</file>
     </qresource>
 </RCC>

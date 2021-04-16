@@ -23,7 +23,9 @@
 using namespace Fftchart;
 
 CoherencePlot::CoherencePlot(Settings *settings, QQuickItem *parent): XYPlot(settings, parent),
-    m_pointsPerOctave(12), m_threshold(0.91f), m_thresholdColor("#FF5722"), m_thresholdLine(this), m_type(Type::Normal)
+    m_pointsPerOctave(12),
+    m_threshold(0.91f), m_showThreshold(true), m_thresholdColor("#FF5722"), m_thresholdLine(this),
+    m_type(Type::Normal)
 {
     m_x.configure(AxisType::Logarithmic, 20.f, 20000.f);
     m_x.setISOLabels();
@@ -33,6 +35,11 @@ CoherencePlot::CoherencePlot(Settings *settings, QQuickItem *parent): XYPlot(set
     m_y.setLabels(labels);
     m_x.setUnit("Hz");
     setFlag(QQuickItem::ItemHasContents);
+}
+
+unsigned int CoherencePlot::pointsPerOctave() const
+{
+    return m_pointsPerOctave;
 }
 float CoherencePlot::threshold() const
 {
@@ -62,6 +69,21 @@ void CoherencePlot::setThresholdColor(const QColor &thresholdColor)
     }
 }
 
+bool CoherencePlot::showThreshold() const
+{
+    return m_showThreshold;
+}
+
+void CoherencePlot::setShowThreshold(const bool &showThreshold)
+{
+    if (m_showThreshold != showThreshold) {
+        m_showThreshold = showThreshold;
+        emit showThresholdChanged(m_showThreshold);
+        m_thresholdLine.setVisible(m_showThreshold);
+        m_thresholdLine.update();
+    }
+}
+
 SeriesFBO *CoherencePlot::createSeriesFromSource(Source *source)
 {
     return new SeriesFBO(source, []() {
@@ -78,7 +100,12 @@ void CoherencePlot::setPointsPerOctave(unsigned int p)
     update();
 }
 
-void CoherencePlot::setType(CoherencePlot::Type type)
+CoherencePlot::Type CoherencePlot::type() const
+{
+    return m_type;
+}
+
+void CoherencePlot::setType(const CoherencePlot::Type &type)
 {
     if (m_type != type) {
         m_type = type;
@@ -86,14 +113,18 @@ void CoherencePlot::setType(CoherencePlot::Type type)
         update();
     }
 }
+
+void CoherencePlot::setType(const QVariant &type)
+{
+    setType(static_cast<Type>(type.toInt()));
+}
 void CoherencePlot::setSettings(Settings *settings) noexcept
 {
     if (settings && (settings->value("type") == "Coherence")) {
         XYPlot::setSettings(settings);
 
-//BUG: settings file broken
-//        setType(
-//            m_settings->reactValue<CoherencePlot, CoherencePlot::Type>("type", this, &CoherencePlot::typeChanged, m_type));
+        setType(
+            m_settings->reactValue<CoherencePlot, CoherencePlot::Type>("ctype", this, &CoherencePlot::typeChanged, m_type));
         setPointsPerOctave(
             m_settings->reactValue<CoherencePlot, unsigned int>("pointsPerOctave", this,
                                                                 &CoherencePlot::pointsPerOctaveChanged, m_pointsPerOctave).toUInt());
@@ -108,7 +139,7 @@ void CoherencePlot::storeSettings() noexcept
         return;
 
     XYPlot::storeSettings();
-//    m_settings->setValue("type", m_type);
+    m_settings->setValue("ctype", m_type);
     m_settings->setValue("pointsPerOctave", m_pointsPerOctave);
     m_settings->setValue("coherenceThreshold", m_threshold);
 }

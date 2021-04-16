@@ -16,6 +16,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "stepseriesrenderer.h"
+#include "stepplot.h"
 
 using namespace Fftchart;
 
@@ -43,18 +44,19 @@ void StepSeriesRenderer::renderSeries()
     }
 
     float res = 0.f;
-    float windowSize = 20.f;//ms
-    float offsetValue = m_source->impulseValue(1) *
-                        m_window.pointGain(m_source->impulseTime(1) / windowSize + 0.5, 1);
-
+    float offsetValue = 0;
     for (unsigned int i = 1, j = 0; i < m_source->impulseSize(); ++i, j += 2) {
-        res += m_source->impulseValue(i) *
-               m_window.pointGain(m_source->impulseTime(i) / windowSize + 0.5, 1);
+        res += m_source->impulseValue(i);
         m_vertices[j] = m_source->impulseTime(i);
-        m_vertices[j + 1] = res - offsetValue;
+        m_vertices[j + 1] = res;
+        if (m_source->impulseTime(i) < m_zero) {
+            offsetValue = res;
+        }
         verticiesCount += 1;
     }
 
+    updateMatrix();
+    m_matrix.translate(QVector3D(0, -offsetValue, 0));
     m_program.setUniformValue(m_matrixUniform, m_matrix);
     m_program.setUniformValue(m_screenUniform, m_width, m_height);
     m_program.setUniformValue(m_widthUniform, m_weight * m_retinaScale);
@@ -77,6 +79,14 @@ void StepSeriesRenderer::renderSeries()
     m_openGLFunctions->glDisableVertexAttribArray(0);
 
     m_refreshBuffers = false;
+}
+
+void StepSeriesRenderer::synchronize(QQuickFramebufferObject *item)
+{
+    XYSeriesRenderer::synchronize(item);
+    if (auto *plot = qobject_cast<StepPlot *>(m_item->parent())) {
+        m_zero = plot->zero();
+    }
 }
 
 void StepSeriesRenderer::updateMatrix()

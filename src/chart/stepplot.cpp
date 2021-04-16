@@ -19,7 +19,7 @@
 #include "stepseriesrenderer.h"
 using namespace Fftchart;
 
-StepPlot::StepPlot(Settings *settings, QQuickItem *parent) : XYPlot(settings, parent)
+StepPlot::StepPlot(Settings *settings, QQuickItem *parent) : XYPlot(settings, parent), m_zero(0)
 {
     m_x.configure(AxisType::Linear, -20.0, 20.0, 41);
     m_x.setMin(-5.f);
@@ -38,10 +38,25 @@ SeriesFBO *StepPlot::createSeriesFromSource(Source *source)
     }, this);
 }
 
+float StepPlot::zero() const
+{
+    return m_zero;
+}
+
+void StepPlot::setZero(float zero)
+{
+    if (!qFuzzyCompare(m_zero, zero)) {
+        m_zero = zero;
+        emit zeroChanged(m_zero);
+        update();
+    }
+}
+
 void StepPlot::setSettings(Settings *settings) noexcept
 {
     if (settings && (settings->value("type") == "Impulse")) {
         XYPlot::setSettings(settings);
+        setZero(m_settings->reactValue<StepPlot, float>("zero", this, &StepPlot::zeroChanged, zero()).toFloat());
     }
 }
 
@@ -51,4 +66,5 @@ void StepPlot::storeSettings() noexcept
         return;
 
     XYPlot::storeSettings();
+    m_settings->setValue("zero", zero());
 }

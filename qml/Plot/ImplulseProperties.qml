@@ -44,6 +44,7 @@ Item {
             onValueChanged: dataObject.xmin = value
             implicitWidth: 170
             Layout.fillWidth: true
+            units: "ms"
         }
 
         Root.FloatSpinBox {
@@ -55,6 +56,7 @@ Item {
             onValueChanged: dataObject.xmax = value
             implicitWidth: 170
             Layout.fillWidth: true
+            units: "ms"
         }
 
         Root.FloatSpinBox {

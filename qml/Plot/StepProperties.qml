@@ -1,6 +1,6 @@
 /**
  *  OSM
- *  Copyright (C) 2019  Pavel Smokotnin
+ *  Copyright (C) 2021  Pavel Smokotnin
 
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -35,46 +35,28 @@ Item {
     RowLayout {
         spacing: 0
 
-        SpinBox {
+        Root.FloatSpinBox {
+            id: xminFloatBox
+            min: dataObject.xLowLimit
+            max: dataObject.xHighLimit
             value: dataObject.xmin
+            tooltiptext: qsTr("x from")
             onValueChanged: dataObject.xmin = value
-            from: dataObject.xLowLimit
-            to: dataObject.xHighLimit
-            editable: true
             implicitWidth: 170
             Layout.fillWidth: true
-
-            ToolTip.visible: hovered
-            ToolTip.text: qsTr("x from")
-
-            textFromValue: function(value, locale) {
-                return Number(value) + "Hz"
-            }
-
-            valueFromText: function(text, locale) {
-                return parseInt(text)
-            }
+            units: "ms"
         }
 
-        SpinBox {
+        Root.FloatSpinBox {
+            id: xmaxFloatBox
+            min: dataObject.xLowLimit
+            max: dataObject.xHighLimit
             value: dataObject.xmax
+            tooltiptext: qsTr("x to")
             onValueChanged: dataObject.xmax = value
-            from: dataObject.xLowLimit
-            to: dataObject.xHighLimit
-            editable: true
             implicitWidth: 170
             Layout.fillWidth: true
-
-            ToolTip.visible: hovered
-            ToolTip.text: qsTr("x to")
-
-            textFromValue: function(value, locale) {
-                return Number(value) + "Hz"
-            }
-
-            valueFromText: function(text, locale) {
-                return parseInt(text)
-            }
+            units: "ms"
         }
 
         Root.FloatSpinBox {
@@ -98,8 +80,15 @@ Item {
             implicitWidth: 170
             Layout.fillWidth: true
         }
+
         Connections {
             target: dataObject
+            function onXminChanged() {
+                xminFloatBox.value = dataObject.xmin;
+            }
+            function onXmaxChanged() {
+                xmaxFloatBox.value = dataObject.xmax;
+            }
             function onYminChanged() {
                 yminFloatBox.value = dataObject.ymin;
             }
@@ -120,71 +109,15 @@ Item {
     RowLayout {
         spacing: 0
 
-        Root.TitledCombo {
-            title: qsTr("ppo")
-            tooltip: qsTr("points per octave")
-            implicitWidth: 170
-            model: [3, 6, 12, 24, 48]
-            currentIndex: {
-                var ppo = dataObject.pointsPerOctave;
-                model.indexOf(ppo);
-            }
-            onCurrentIndexChanged: {
-                var ppo = model[currentIndex];
-                dataObject.pointsPerOctave = ppo;
-            }
-        }
-
-        Rectangle {
-            width: 5
-        }
-
-        ComboBox {
-            id: type
-            implicitWidth: 170
-            model: ["normal", "squared"]
-            currentIndex: dataObject.type
-            ToolTip.visible: hovered
-            ToolTip.text: qsTr("value type")
-            onCurrentIndexChanged: dataObject.type = currentIndex;
-        }
-
-        CheckBox {
-            Layout.margins: 5
-            Layout.leftMargin: 25
-            Layout.bottomMargin: 10
-            Layout.preferredWidth: 25
-            Layout.preferredHeight: 25
-            checked: dataObject.showThreshold
-            onCheckStateChanged: dataObject.showThreshold = checked
-
-            ToolTip.visible: hovered
-            ToolTip.text: qsTr("show help line")
-        }
-
-        Root.ColorPicker {
-            id: colorPicker
-
-            Layout.preferredWidth: 25
-            Layout.preferredHeight: 25
-            Layout.margins: 5
-
-            onColorChanged: {
-                dataObject.thresholdColor = color
-            }
-            Component.onCompleted: {
-                colorPicker.color = dataObject.thresholdColor
-            }
-        }
-
         Root.FloatSpinBox {
-            min: 0.0
-            max: 1.0
-            step: 0.05
-            value: dataObject.threshold
-            tooltiptext: qsTr("coherence threshold")
-            onValueChanged: dataObject.threshold = value
-            implicitWidth: 170
+            id: zeroPoinntFloatSpinBox
+            min: dataObject.xLowLimit
+            max: dataObject.xHighLimit
+            value: dataObject.zero
+            units: "ms"
+            tooltiptext: qsTr("integration zero point")
+            onValueChanged: dataObject.zero = value
+            Layout.preferredWidth: xminFloatBox.width
         }
 
         RowLayout {
@@ -205,6 +138,7 @@ Item {
                 dataObject.filter = model.get(currentIndex);
             }
         }
+
 
         FileDialog {
             id: fileDialog

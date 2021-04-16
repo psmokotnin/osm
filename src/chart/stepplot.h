@@ -26,14 +26,25 @@ namespace Fftchart {
 class StepPlot : public XYPlot
 {
     Q_OBJECT
-
-protected:
-    virtual SeriesFBO *createSeriesFromSource(Source *source) override;
+    Q_PROPERTY(float zero READ zero() WRITE setZero() NOTIFY zeroChanged)
 
 public:
     StepPlot(Settings *settings, QQuickItem *parent = Q_NULLPTR);
     virtual void setSettings(Settings *settings) noexcept override;
     virtual void storeSettings() noexcept override;
+
+    float zero() const;
+    void setZero(float zero);
+
+signals:
+    void zeroChanged(float);
+
+protected:
+    virtual SeriesFBO *createSeriesFromSource(Source *source) override;
+
+private:
+    float m_zero;
+
 };
 
 } // namespace FFtchart

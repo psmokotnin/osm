@@ -64,8 +64,10 @@ Item {
                 opener.propertiesQml = "qrc:/Plot/GroupDelayProperties.qml";
                 break;
             case "Impulse":
-            case "Step":
                 opener.propertiesQml = "qrc:/Plot/ImpulseProperties.qml";
+                break;
+            case "Step":
+                opener.propertiesQml = "qrc:/Plot/StepProperties.qml";
                 break;
             case "Coherence":
                 opener.propertiesQml = "qrc:/Plot/CoherenceProperties.qml";

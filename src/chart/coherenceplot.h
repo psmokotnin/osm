@@ -38,39 +38,21 @@ class CoherencePlot : public XYPlot
                pointsPerOctaveChanged)
     Q_PROPERTY(Type type READ type WRITE setType NOTIFY typeChanged)
     Q_PROPERTY(QColor thresholdColor READ thresholdColor WRITE setThresholdColor NOTIFY thresholdColorChanged)
-    Q_PROPERTY(float threshold READ threshold WRITE setThreshold NOTIFY
-               thresholdChanged)
+    Q_PROPERTY(float threshold READ threshold WRITE setThreshold NOTIFY thresholdChanged)
+    Q_PROPERTY(bool showThreshold READ showThreshold WRITE setShowThreshold NOTIFY showThresholdChanged)
 
 public:
     enum Type {Normal, Squared};
     Q_ENUMS(Type)
 
-protected:
-    unsigned int m_pointsPerOctave;
-    float m_threshold;
-    QColor m_thresholdColor;
-    CoherenceThresholdLine m_thresholdLine;
-    Type m_type;
-    virtual SeriesFBO *createSeriesFromSource(Source *source) override;
-
-public:
     CoherencePlot(Settings *settings, QQuickItem *parent = Q_NULLPTR);
 
-    unsigned int pointsPerOctave()
-    {
-        return m_pointsPerOctave;
-    }
+    unsigned int pointsPerOctave() const;
     void setPointsPerOctave(unsigned int p);
 
-    Type type()
-    {
-        return m_type;
-    }
-    void setType(Type);
-    void setType(QVariant type)
-    {
-        setType(static_cast<Type>(type.toInt()));
-    }
+    Type type() const;
+    void setType(const Type &);
+    void setType(const QVariant &type);
 
     virtual void setSettings(Settings *settings) noexcept override;
     virtual void storeSettings() noexcept override;
@@ -81,11 +63,24 @@ public:
     QColor thresholdColor() const;
     void setThresholdColor(const QColor &thresholdColor);
 
+    bool showThreshold() const;
+    void setShowThreshold(const bool &showThreshold);
+
 signals:
     void pointsPerOctaveChanged(unsigned int);
     void typeChanged(Type);
     void thresholdChanged(float);
     void thresholdColorChanged(QColor);
+    void showThresholdChanged(bool);
+
+protected:
+    unsigned int m_pointsPerOctave;
+    float m_threshold;
+    bool m_showThreshold;
+    QColor m_thresholdColor;
+    CoherenceThresholdLine m_thresholdLine;
+    Type m_type;
+    virtual SeriesFBO *createSeriesFromSource(Source *source) override;
 };
 }
 #endif // COHERENCEPLOT_H
