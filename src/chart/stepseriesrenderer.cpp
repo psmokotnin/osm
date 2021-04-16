@@ -45,8 +45,13 @@ void StepSeriesRenderer::renderSeries()
 
     float res = 0.f;
     float offsetValue = 0;
+    float dcOffset = 0;
+    for (unsigned int i = 1; i < m_source->impulseSize() / 4; ++i) {
+        dcOffset += m_source->impulseValue(i);
+    }
+    dcOffset /= m_source->impulseSize() / 4;
     for (unsigned int i = 1, j = 0; i < m_source->impulseSize(); ++i, j += 2) {
-        res += m_source->impulseValue(i);
+        res += m_source->impulseValue(i) - dcOffset;
         m_vertices[j] = m_source->impulseTime(i);
         m_vertices[j + 1] = res;
         if (m_source->impulseTime(i) < m_zero) {

@@ -42,9 +42,10 @@ void ImpulseSeriesRenderer::renderSeries()
         m_refreshBuffers = true;
     }
 
+    float dc = m_source->impulseValue(0);
     for (unsigned int i = 0, j = 0; i < m_source->impulseSize(); ++i, j += 2) {
         m_vertices[j]     = m_source->impulseTime(i);
-        m_vertices[j + 1] = m_source->impulseValue(i);
+        m_vertices[j + 1] = m_source->impulseValue(i) - dc;
         verticiesCount += 1;
     }
 
