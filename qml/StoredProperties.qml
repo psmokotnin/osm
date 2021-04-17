@@ -139,12 +139,16 @@ Item {
                 onTextChanged: dataObject.notes = text;
                 font.italic: true
                 wrapMode: TextEdit.WrapAnywhere
+                selectByMouse: true
                 background: Rectangle{
                     height: scrollTextArea.height
                     width:  scrollTextArea.width
                     border.color: ta.activeFocus ? ta.Material.accentColor : ta.Material.hintTextColor
                     border.width: ta.activeFocus ? 2 : 1
                     color: "transparent"
+                }
+                Keys.onEscapePressed: {
+                    focus = false;
                 }
             }
         }
