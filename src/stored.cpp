@@ -286,13 +286,13 @@ float Stored::magnitude(const unsigned int &i) const noexcept
 
 complex Stored::phase(const unsigned int &i) const noexcept
 {
-    auto alpha = (m_polarity ? M_PI : 0) + 2 * M_PI * m_delay * frequency(i) / 1000.f;
+    auto alpha = (m_polarity ? M_PI : 0) - 2 * M_PI * m_delay * frequency(i) / 1000.f;
     return Source::phase(i).rotate(alpha);
 }
 
 float Stored::impulseTime(const unsigned int &i) const noexcept
 {
-    return Source::impulseTime(i) - m_delay;
+    return Source::impulseTime(i) + m_delay;
 }
 
 float Stored::impulseValue(const unsigned int &i) const noexcept
