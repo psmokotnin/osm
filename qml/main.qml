@@ -67,6 +67,27 @@ ApplicationWindow {
     Material.theme: applicationAppearance.darkMode ? Material.Dark : Material.Light
     Material.accent: Material.Indigo
 
+    property bool askBeforeClose : true
+    onClosing: function (close) {
+        if (!askBeforeClose) {
+            return;
+        }
+
+        dialog.title = qsTr("Close Open Sound Meter?")
+        dialog.accepted.connect(closeAccepted);
+        dialog.rejected.connect(closeRejected);
+        close.accepted = false;
+        dialog.open();
+    }
+    function closeAccepted() {
+        askBeforeClose = false;
+        close();
+    }
+    function closeRejected() {
+        dialog.accepted.disconnect(closeAccepted);
+        dialog.rejected.disconnect(closeRejected);
+    }
+
     Menu.Side {
         id:sideMenu
         interactive: applicationAppearance.showMenuBar ? false : true

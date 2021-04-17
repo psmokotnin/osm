@@ -111,6 +111,11 @@ MenuBar {
                 shortcut: "Ctrl+L"
                 onTriggered: sourceList.addElc();
             }
+            MenuItem {
+                text: qsTr("Quit")
+                shortcut: StandardKey.Quit
+                onTriggered: applicationWindow.close();
+            }
         }
         Menu {
             title: qsTr("&View")

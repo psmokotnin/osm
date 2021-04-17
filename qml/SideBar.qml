@@ -122,13 +122,14 @@ Item {
             clip: true
             delegate: Component {
 
+                id: delegateComponent
                 MouseArea {
                     id: dragArea
                     property bool held: false
 
                     anchors {
-                        left: parent ? parent.left : false
-                        right: parent ? parent.right : false
+                        left: parent ? parent.left : delegateComponent.left
+                        right: parent ? parent.right : delegateComponent.right
                     }
                     height: content.height
 
