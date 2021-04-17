@@ -217,7 +217,7 @@ bool SourceList::importFile(const QUrl &fileName, QString separator) noexcept
         return false;
     }
 
-    QString notes;
+    QString notes = "Imported from " + fileName.toDisplayString(QUrl::PreferLocalFile);
     char line[1024];
     bool fOk, mOk;
     float frequency, magnitude, maxMagnitude = -100, coherence = 1.f;
@@ -229,7 +229,6 @@ bool SourceList::importFile(const QUrl &fileName, QString separator) noexcept
 
     while (file.readLine(line, 1024) > 0) {
         QString qLine(line);
-        notes += line;
         auto list = qLine.split(separator);
         fOk = mOk = false;
 
