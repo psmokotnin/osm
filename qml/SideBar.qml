@@ -136,7 +136,7 @@ Item {
                     drag.target:    dragArea.held ? content : undefined
                     drag.axis:      Drag.YAxis
                     cursorShape:    Qt.PointingHandCursor
-
+                    hoverEnabled: true
                     onPressAndHold: dragArea.held = true;
                     onReleased: {
                         //onClick open properties
@@ -228,6 +228,7 @@ Item {
                         }
 
                         Button {
+                            id: cloneButton
                             font.family: "Osm"
                             text: "\uf24d"
                             anchors.right: deleteButton.left
@@ -242,6 +243,20 @@ Item {
                             background: Rectangle {
                                 color: "transparent"
                             }
+                        }
+
+                        ToolTip {
+                            text: "delete source"
+                            visible: deleteButton.hovered
+                            y: bottomPadding - deleteButton.height
+                            x: content.width - rightPadding - availableWidth - leftMargin - rightMargin
+                        }
+
+                        ToolTip {
+                            text: "clone source"
+                            visible: cloneButton.hovered
+                            y: bottomPadding - cloneButton.height
+                            x: content.width - rightPadding - availableWidth - leftMargin - rightMargin
                         }
                     }
 
