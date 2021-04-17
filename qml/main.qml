@@ -42,7 +42,7 @@ ApplicationWindow {
 
     visible: true
     flags: Qt.Window
-
+    title: "Open Sound Meter"
     Component.onCompleted: {
         if (applicationAppearance.visibility === Appearance.FullScreen) {
             return ;

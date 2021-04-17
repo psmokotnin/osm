@@ -60,6 +60,10 @@ audio::DeviceInfo::Id GeneratorThread::deviceId() const
 
 void GeneratorThread::setDeviceId(audio::DeviceInfo::Id deviceId)
 {
+    if (!audio::Client::getInstance()->isDevicePresent(deviceId)) {
+        qDebug() << "audio device not present " << deviceId;
+        return;
+    }
     if (m_deviceId != deviceId) {
         m_deviceId = deviceId;
         updateAudio();

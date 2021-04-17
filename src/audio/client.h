@@ -37,6 +37,7 @@ public:
     DeviceInfo::List getDeviceList() const;
     DeviceInfo::Id defaultDeviceId(const Plugin::Direction &mode) const;
 
+    bool isDevicePresent(const DeviceInfo::Id &id) const;
     QString deviceName(const DeviceInfo::Id &id) const;
     DeviceInfo::Id deviceIdByName(const QString &name) const;
 

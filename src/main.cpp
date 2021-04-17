@@ -52,9 +52,9 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
     QQuickStyle::setStyle("Material");
     QFontDatabase::addApplicationFont(":/fonts/osm.ttf");
-    QCoreApplication::setApplicationName("Open Sound Meter");
+    QCoreApplication::setApplicationName("OpenSoundMeter");
     QCoreApplication::setApplicationVersion(APP_GIT_VERSION);
-    QCoreApplication::setOrganizationName("psmokotnin");
+    QCoreApplication::setOrganizationName("opensoundmeter");
     QCoreApplication::setOrganizationDomain("opensoundmeter.com");
 
     Settings settings;

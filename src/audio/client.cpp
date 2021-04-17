@@ -132,6 +132,14 @@ DeviceInfo::Id Client::defaultDeviceId(const Plugin::Direction &mode) const
     return DeviceInfo::Id::Null();
 }
 
+bool Client::isDevicePresent(const DeviceInfo::Id &id) const
+{
+    auto it = std::find_if(m_deviceList.begin(), m_deviceList.end(), [&id](const auto & e) {
+        return e.id() == id;
+    });
+    return it != m_deviceList.end();
+}
+
 QString Client::deviceName(const DeviceInfo::Id &id) const
 {
     auto it = std::find_if(m_deviceList.begin(), m_deviceList.end(), [&id](const auto & e) {
