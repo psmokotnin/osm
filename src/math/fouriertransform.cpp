@@ -17,12 +17,9 @@
  */
 #include "fouriertransform.h"
 #include <QtMath>
-
 #ifndef USE_SSE2
 #define USE_SSE2
 #endif
-
-#include "ssemath.h"
 
 FourierTransform::FourierTransform(unsigned int size):
     m_size(size),
@@ -212,8 +209,11 @@ GNU_ALIGN void FourierTransform::fast(bool reverse, bool ultrafast)
 
     v4sf tmp0, tmp1, tmp2, tmp3, vw;
     v4sf tmpi = _mm_set_ps(1, -1, 1, -1);
-#ifdef _MSC_VER
+
+#if defined(_MSC_VER)
     __declspec(align(16))
+#elif defined(Q_PROCESSOR_ARM)
+    __attribute__((aligned(16)))
 #endif
     float stored[4];
     unsigned long ultraLimit = m_size / 2;
