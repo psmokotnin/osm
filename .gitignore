@@ -61,6 +61,7 @@ Thumbs.db
 
 #XCode
 *.xcodeproj
+/xcode/
 
 # MinGW generated files
 *.Debug

@@ -97,7 +97,6 @@ SOURCES += src/main.cpp \
     src/math/complex.cpp \
     src/math/fouriertransform.cpp \
     src/math/windowfunction.cpp \
-    src/math/ssemath.cpp \
     src/math/deconvolution.cpp \
 
 RESOURCES += qml.qrc \
@@ -231,8 +230,8 @@ HEADERS += \
     src/math/averaging.h \
     src/math/complex.h \
     src/math/fouriertransform.h \
+    src/math/deconvolution.h \
     src/math/windowfunction.h \
-    src/math/ssemath.h \
     src/math/deconvolution.h \
     src/container/fifo.h \
     src/container/circular.h \
@@ -247,6 +246,10 @@ ios: {
 
     HEADERS += src/filesystem/plugins/iosdialogplugin.h
     SOURCES += src/filesystem/plugins/iosdialogplugin.mm
+    HEADERS += src/armmath.h
+} else {
+    HEADERS += src/math/ssemath.h
+    SOURCES += src/math/ssemath.cpp
 }
 
 APP_GIT_VERSION = $$system(git --git-dir $$_PRO_FILE_PWD_/.git --work-tree $$_PRO_FILE_PWD_ describe --tags $$system(git --git-dir $$_PRO_FILE_PWD_/.git --work-tree $$_PRO_FILE_PWD_ rev-list --tags --max-count=1))
@@ -493,12 +496,20 @@ FORMS +=
 #QMAKE_CXXFLAGS_RELEASE -= -O2
 #QMAKE_CXXFLAGS_RELEASE += -Ofast
 
+QMAKE_INFO_PLIST = $$PWD/Info.plist
 macx {
-    QMAKE_INFO_PLIST = $$PWD/Info.plist
-
     APP_ENTITLEMENTS.files = info.entitlements
     APP_ENTITLEMENTS.path = Contents/Resources
     QMAKE_BUNDLE_DATA += APP_ENTITLEMENTS
+}
+
+macx {
+    QMAKE_POST_LINK += plutil -replace NSMicrophoneUsageDescription -string \"Audio measurement.\" $${TARGET}.app/Contents/Info.plist
+}
+ios {
+    QMAKE_POST_LINK += plutil -replace NSMicrophoneUsageDescription -string \"Audio measurement.\" Info.plist
+    ios_icon.files = $$files($$PWD/icons/ios/*.png)
+    QMAKE_BUNDLE_DATA += ios_icon
 }
 
 DISTFILES += \

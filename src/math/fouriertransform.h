@@ -21,7 +21,13 @@
 #include "complex.h"
 #include "windowfunction.h"
 #include "container/array.h"
+
+#if defined(Q_PROCESSOR_X86_64)
 #include "ssemath.h"
+#endif
+#if defined(Q_PROCESSOR_ARM)
+#include "armmath.h"
+#endif
 
 class FourierTransform
 {
