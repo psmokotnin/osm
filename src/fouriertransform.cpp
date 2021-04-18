@@ -17,18 +17,17 @@
  */
 #include "fouriertransform.h"
 #include <QtMath>
-
 #ifndef USE_SSE2
 #define USE_SSE2
 #endif
 
-#ifdef __GNUC__
+#ifdef Q_PROCESSOR_ARM
+#define GNU_ALIGN  __attribute__((aligned(16)))
+#elif defined(__GNUC__)
 #define GNU_ALIGN __attribute__((force_align_arg_pointer))
 #else
 #define GNU_ALIGN
 #endif
-
-#include "ssemath.h"
 
 FourierTransform::FourierTransform(unsigned int size):
     m_size(size),
@@ -161,11 +160,12 @@ GNU_ALIGN void FourierTransform::fast(bool reverse, bool ultrafast)
         }
     }
 
-
     complex w;//, ua, va, ub,vb;
     v4sf vw1, vw2, vu, vv, vr, v1, v2, vwl, norm;
-#ifdef _MSC_VER
+#if defined(_MSC_VER)
     __declspec(align(16))
+#elif defined(Q_PROCESSOR_ARM)
+    __attribute__((aligned(16)))
 #endif
     float stored[4];
     unsigned long ultraLimit = m_size / 2;
@@ -257,7 +257,7 @@ GNU_ALIGN void FourierTransform::log()
         if (pointer < 0) pointer += m_size;
 
         for (unsigned int j = 0; j < m_logBasis[i].N; ++j, ++pointer) {
-            if (pointer >= m_size) pointer -= m_size;
+            if (pointer >= static_cast<int>(m_size)) pointer -= m_size;
             //_fastA[i] +=  w * inA[j];
             //_fastB[i] +=  w * inB[j];
 
