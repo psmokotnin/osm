@@ -43,13 +43,14 @@ const std::map<Measurement::Mode, int>Measurement::m_FFTsizes = {
 Measurement::Measurement(Settings *settings, QObject *parent) : Fftchart::Source(parent),
     m_timer(nullptr), m_timerThread(nullptr),
     m_input(this),
-    m_deviceId(audio::Client::getInstance()->defaultDeviceId(audio::Plugin::Direction::Input)),
+    m_deviceId(audio::Client::defaultInputDeviceId()),
     m_audioStream(nullptr),
+    m_sampleRate(48000),
     m_settings(settings),
     m_mode(FFT14), m_currentMode(),
     m_dataChanel(0), m_referenceChanel(1),
     m_average(1),
-    m_delay(0), m_setDelay(0), m_gain(1.f),
+    m_workingDelay(0), m_delay(0), m_gain(1.f),
     m_estimatedDelay(0),
     m_polarity(false), m_error(false),
     m_dataMeter(12000), m_referenceMeter(12000), //250ms
@@ -71,7 +72,7 @@ Measurement::Measurement(Settings *settings, QObject *parent) : Fftchart::Source
         setDelay(       m_settings->reactValue<Measurement, unsigned int>(      "delay",        this,
                                                                                 &Measurement::delayChanged,         delay()).toUInt());
         setGain(        m_settings->reactValue<Measurement, float>(             "gain",         this,
-                                                                                &Measurement::gainChanged,          delay()).toFloat());
+                                                                                &Measurement::gainChanged,          gain()).toFloat());
         setAverageType( m_settings->reactValue<Measurement, AverageType>(       "average/type", this,
                                                                                 &Measurement::averageTypeChanged,   averageType()));
         setAverage(     m_settings->reactValue<Measurement, unsigned int>(      "average/fifo", this,
@@ -111,6 +112,14 @@ Measurement::Measurement(Settings *settings, QObject *parent) : Fftchart::Source
     connect(&m_timerThread, SIGNAL(started()), &m_timer, SLOT(start()), Qt::DirectConnection);
     connect(&m_timerThread, SIGNAL(finished()), &m_timer, SLOT(stop()), Qt::DirectConnection);
     connect(this, &Measurement::audioFormatChanged, this, &Measurement::recalculateDataLength);
+
+    auto refreshDelays = [this]() {
+        m_resetDelay = true;
+    };
+    connect(this, &Measurement::dataChanelChanged, &m_timer, refreshDelays);
+    connect(this, &Measurement::referenceChanelChanged, &m_timer, refreshDelays);
+    connect(this, &Measurement::deviceIdChanged, &m_timer, refreshDelays);
+
     m_timerThread.start();
     setActive(true);
 }
@@ -127,6 +136,7 @@ QJsonObject Measurement::toJSON() const noexcept
     data["active"]          = active();
     data["name"]            = name();
     data["delay"]           = static_cast<int>(delay());
+    data["gain"]            = static_cast<int>(gain());
     data["averageType"]     = averageType();
     data["average"]         = static_cast<int>(average());
     data["filtersFrequency"] = static_cast<int>(filtersFrequency());
@@ -408,7 +418,7 @@ void Measurement::setError()
 //this calls from gui thread
 void Measurement::setDelay(unsigned int delay)
 {
-    m_setDelay = delay;
+    m_delay = delay;
 }
 
 unsigned int Measurement::average() const
@@ -418,9 +428,15 @@ unsigned int Measurement::average() const
 //this calls from timer thread
 void Measurement::updateDelay()
 {
-    if (m_delay != m_setDelay) {
-        long delta = static_cast<long>(m_delay) - static_cast<long>(m_setDelay);
-        m_delay = m_setDelay;
+    if (m_resetDelay) {
+        m_workingDelay = 0;
+        m_reference.reset();
+        m_data.reset();
+        m_resetDelay = false;
+    }
+    if (m_workingDelay != m_delay) {
+        long delta = static_cast<long>(m_workingDelay) - static_cast<long>(m_delay);
+        m_workingDelay = m_delay;
         bool direction = std::signbit(static_cast<double>(delta));
         delta = std::abs(delta);
         for (long i = 0; i != delta; ++i) {
@@ -430,7 +446,7 @@ void Measurement::updateDelay()
                 m_data.push(0.f);
             }
         }
-        emit delayChanged(m_delay);
+        emit delayChanged(m_workingDelay);
     }
 }
 void Measurement::setAverage(unsigned int average)
@@ -474,10 +490,7 @@ void Measurement::setAverageType(QVariant type)
 }
 unsigned int Measurement::sampleRate() const
 {
-    if (m_audioStream) {
-        return m_audioStream->format().sampleRate;
-    }
-    return 0;
+    return m_sampleRate;
 }
 QVariant Measurement::getAvailableWindowTypes() const
 {
@@ -739,9 +752,9 @@ Fftchart::Source *Measurement::clone() const
 long Measurement::estimated() const noexcept
 {
     if (m_estimatedDelay > m_deconvolutionSize / 2) {
-        return m_estimatedDelay - m_deconvolutionSize + static_cast<long>(m_delay);
+        return m_estimatedDelay - m_deconvolutionSize + static_cast<long>(m_workingDelay);
     }
-    return m_estimatedDelay + static_cast<long>(m_delay);
+    return m_estimatedDelay + static_cast<long>(m_workingDelay);
 }
 bool Measurement::calibration() const noexcept
 {
@@ -855,10 +868,11 @@ void Measurement::updateAudio()
         m_audioStream->close();
     }
     m_audioStream = nullptr;
-
+    checkChannels();
     if (m_active) {
         std::async([this]() {
             audio::Format format = audio::Client::getInstance()->deviceInputFormat(m_deviceId);
+            m_sampleRate = format.sampleRate;
             m_input.setCallback([this](const QByteArray & buffer) {
                 writeData(buffer);
             });
@@ -869,6 +883,17 @@ void Measurement::updateAudio()
             }
             emit audioFormatChanged();
         });
+    }
+}
+
+void Measurement::checkChannels()
+{
+    audio::Format format = audio::Client::getInstance()->deviceInputFormat(m_deviceId);
+    if (m_referenceChanel > format.channelCount - 1) {
+        setReferenceChanel(format.channelCount - 1);
+    }
+    if (m_dataChanel > format.channelCount - 1) {
+        setDataChanel(format.channelCount - 1);
     }
 }
 void Measurement::resetAverage() noexcept

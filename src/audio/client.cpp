@@ -51,6 +51,16 @@ QSharedPointer<Client> Client::getInstance()
     return m_instance;
 }
 
+DeviceInfo::Id Client::defaultInputDeviceId()
+{
+    return getInstance()->defaultDeviceId(Plugin::Direction::Input);
+}
+
+DeviceInfo::Id Client::defaultOutputDeviceId()
+{
+    return getInstance()->defaultDeviceId(Plugin::Direction::Output);
+}
+
 Client::Client() : QObject(), m_plugins(), m_deviceList()
 {
     initPlugins();

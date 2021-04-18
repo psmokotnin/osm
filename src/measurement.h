@@ -167,13 +167,15 @@ private:
     static const std::map<Mode, int> m_FFTsizes;
     audio::DeviceInfo::Id m_deviceId;
     audio::Stream *m_audioStream;
+    unsigned int m_sampleRate;
 
     Settings *m_settings;
     Mode m_mode, m_currentMode;
 
     unsigned int m_dataChanel, m_referenceChanel;
     unsigned int m_average;
-    unsigned int m_delay, m_setDelay;
+    bool m_resetDelay;
+    unsigned int m_workingDelay, m_delay;
     float m_gain;
     long m_estimatedDelay;
     bool m_polarity, m_error;
@@ -204,6 +206,7 @@ private:
     void applyCalibration();
 
     void updateAudio();
+    void checkChannels();
 
 signals:
     void modeChanged(Measurement::Mode);

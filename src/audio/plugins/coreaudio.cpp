@@ -61,7 +61,6 @@ static OSStatus audioObjectListener(AudioObjectID, UInt32, const AudioObjectProp
 {
     auto plugin = reinterpret_cast<CoreaudioPlugin *>(inClientData);
     emit plugin->deviceListChanged();
-    qDebug() << "emit device update";
     return noErr;
 };
 

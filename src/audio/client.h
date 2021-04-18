@@ -34,6 +34,9 @@ class Client : public QObject
 
 public:
     static QSharedPointer<Client> getInstance();
+    static DeviceInfo::Id defaultInputDeviceId();
+    static DeviceInfo::Id defaultOutputDeviceId();
+
     DeviceInfo::List getDeviceList() const;
     DeviceInfo::Id defaultDeviceId(const Plugin::Direction &mode) const;
 
