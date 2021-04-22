@@ -91,7 +91,7 @@ void ELC::update()
                                          1.7, -1.3, -4.2, -6.0, -5.4, -1.5, 6.0, 12.6, 13.9, 12.3};
 
     m_dataLength = fs.size();
-    m_deconvolutionSize = 1;
+    m_deconvolutionSize = 0;
 
     delete[] m_ftdata;
     m_ftdata = new FTData[fs.size()];

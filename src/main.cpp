@@ -51,6 +51,10 @@ int main(int argc, char *argv[])
 
     QApplication app(argc, argv);
     QQuickStyle::setStyle("Material");
+    QFontDatabase::addApplicationFont(":/fonts/Roboto/Regular.ttf");
+    QFontDatabase::addApplicationFont(":/fonts/Roboto/Bold.ttf");
+    QFontDatabase::addApplicationFont(":/fonts/Roboto/BoldItalic.ttf");
+    QFontDatabase::addApplicationFont(":/fonts/Roboto/Italic.ttf");
     QFontDatabase::addApplicationFont(":/fonts/osm.ttf");
     QCoreApplication::setApplicationName("OpenSoundMeter");
     QCoreApplication::setApplicationVersion(APP_GIT_VERSION);

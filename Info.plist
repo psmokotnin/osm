@@ -9,7 +9,9 @@
 	<key>CFBundleIconFile</key>
 	<string>white.icns</string>
 	<key>CFBundleIdentifier</key>
-	<string>opensoundmeter.com</string>
+	<string>com.opensoundmeter.OpenSoundMeter</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleSignature</key>
@@ -21,7 +23,7 @@
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
 	<key>NSSupportsAutomaticGraphicsSwitching</key>
-	<true/>
+	<false/>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Audio measurement</string>
 	<key>UISupportsDocumentBrowser</key>

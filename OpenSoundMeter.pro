@@ -69,6 +69,7 @@ SOURCES += src/main.cpp \
     src/settings.cpp
 
 RESOURCES += qml.qrc \
+    fonts/fonts.qrc \
     images.qrc \
     shaders/shaders.qrc
 
@@ -266,10 +267,12 @@ FORMS +=
 QMAKE_CXXFLAGS_RELEASE -= -O2
 QMAKE_CXXFLAGS_RELEASE += -Ofast
 
-!debug {
-    !ios {
-        QMAKE_INFO_PLIST = $$PWD/Info.plist
-    }
+macx {
+    QMAKE_INFO_PLIST = $$PWD/Info.plist
+
+    APP_ENTITLEMENTS.files = info.entitlements
+    APP_ENTITLEMENTS.path = Contents/Resources
+    QMAKE_BUNDLE_DATA += APP_ENTITLEMENTS
 }
 
 DISTFILES += \
