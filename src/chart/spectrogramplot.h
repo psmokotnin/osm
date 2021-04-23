@@ -20,7 +20,7 @@
 
 #include "frequencybasedplot.h"
 
-namespace Fftchart {
+namespace chart {
 class SpectrogramPlot : public FrequencyBasedPlot
 {
     Q_OBJECT
@@ -29,7 +29,7 @@ class SpectrogramPlot : public FrequencyBasedPlot
     Q_PROPERTY(int max READ max WRITE setMax NOTIFY maxChanged)
 
 protected:
-    virtual SeriesFBO *createSeriesFromSource(Source *source) override;
+    virtual SeriesItem *createSeriesFromSource(Source *source) override;
 
     int m_min, m_mid, m_max;
 

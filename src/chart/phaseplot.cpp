@@ -16,10 +16,9 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "phaseplot.h"
-#include "phaseseriesrenderer.h"
 #include <QtMath>
 
-using namespace Fftchart;
+using namespace chart;
 
 PhasePlot::PhasePlot(Settings *settings, QQuickItem *parent): FrequencyBasedPlot(settings, parent),
     m_center(0), m_range(360)
@@ -34,13 +33,6 @@ PhasePlot::PhasePlot(Settings *settings, QQuickItem *parent): FrequencyBasedPlot
     m_y.setPeriodic(2 * static_cast<float>(M_PI));
     m_y.setUnit("°");
     setFlag(QQuickItem::ItemHasContents);
-}
-
-SeriesFBO *PhasePlot::createSeriesFromSource(Source *source)
-{
-    return new SeriesFBO(source, []() {
-        return new PhaseSeriesRenderer();
-    }, this);
 }
 
 void PhasePlot::setRotate(int r) noexcept

@@ -16,9 +16,9 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "frequencybasedseriesrenderer.h"
-#include "xyplot.h"
+#include "../xyplot.h"
 
-using namespace Fftchart;
+using namespace chart;
 
 FrequencyBasedSeriesRenderer::FrequencyBasedSeriesRenderer() : XYSeriesRenderer(),
     m_minmaxUniform(0),

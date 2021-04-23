@@ -16,10 +16,9 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "groupdelayplot.h"
-#include "groupdelayseriesrenderer.h"
 #include <QtMath>
 
-using namespace Fftchart;
+using namespace chart;
 
 GroupDelayPlot::GroupDelayPlot(Settings *settings, QQuickItem *parent) :
     FrequencyBasedPlot(settings, parent)
@@ -38,12 +37,7 @@ GroupDelayPlot::GroupDelayPlot(Settings *settings, QQuickItem *parent) :
     m_y.setUnit("ms");
     setFlag(QQuickItem::ItemHasContents);
 }
-SeriesFBO *GroupDelayPlot::createSeriesFromSource(Source *source)
-{
-    return new SeriesFBO(source, []() {
-        return new GroupDelaySeriesRenderer();
-    }, this);
-}
+
 void GroupDelayPlot::setSettings(Settings *settings) noexcept
 {
     if (settings && (settings->value("type") == "Group Delay")) {

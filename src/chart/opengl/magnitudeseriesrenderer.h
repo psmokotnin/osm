@@ -1,6 +1,6 @@
 /**
  *  OSM
- *  Copyright (C) 2019  Pavel Smokotnin
+ *  Copyright (C) 2021  Pavel Smokotnin
 
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -15,24 +15,25 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef GROUPDELAYPLOT_H
-#define GROUPDELAYPLOT_H
+#ifndef MAGNITUDESERIESRENDERER_H
+#define MAGNITUDESERIESRENDERER_H
 
-#include "frequencybasedplot.h"
 
+#include "frequencybasedseriesrenderer.h"
 namespace chart {
-class GroupDelayPlot : public FrequencyBasedPlot
+
+class MagnitudeSeriesRenderer : public FrequencyBasedSeriesRenderer
 {
-    Q_OBJECT
-
-protected:
-    virtual SeriesItem *createSeriesFromSource(Source *source) override;
-
 public:
-    GroupDelayPlot(Settings *settings, QQuickItem *parent = Q_NULLPTR);
+    MagnitudeSeriesRenderer();
+    void renderSeries() override;
+    void synchronize(QQuickFramebufferObject *item) override;
 
-    virtual void setSettings(Settings *settings) noexcept override;
-    virtual void storeSettings() noexcept override;
+private:
+    int m_coherenceThresholdU, m_coherenceAlpha;
+    unsigned int m_pointsPerOctave;
+    float m_coherenceThreshold;
+    bool m_coherence, m_invert;
 };
-};
-#endif // GROUPDELAYPLOT_H
+}
+#endif // MAGNITUDESERIESRENDERER_H

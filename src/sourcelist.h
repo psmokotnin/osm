@@ -35,13 +35,13 @@ class SourceList : public QObject
     Q_OBJECT
     Q_PROPERTY(int count READ count)
     Q_PROPERTY(QUrl currentFile READ currentFile)
-    Q_PROPERTY(Fftchart::Source *first READ firstSource)
+    Q_PROPERTY(chart::Source *first READ firstSource)
     Q_PROPERTY(int selectedIndex READ selectedIndex WRITE setSelected NOTIFY selectedChanged)
-    Q_PROPERTY(Fftchart::Source *selected READ selected NOTIFY selectedChanged)
-    using iterator = QVector<Fftchart::Source *>::iterator;
+    Q_PROPERTY(chart::Source *selected READ selected NOTIFY selectedChanged)
+    using iterator = QVector<chart::Source *>::iterator;
 
 private:
-    QVector<Fftchart::Source *> m_items;
+    QVector<chart::Source *> m_items;
     QUrl m_currentFile;
     const QList<QColor> m_colors {
         "#F44336", "#FFEB3B", "#9C27B0", "#673AB7",
@@ -62,12 +62,12 @@ public:
     explicit SourceList(QObject *parent = nullptr, bool appendMeasurement = true);
     SourceList *clone(QObject *parent, bool filtered = false) const noexcept;
 
-    Fftchart::Source *firstSource() const noexcept
+    chart::Source *firstSource() const noexcept
     {
         return m_items.at(0);
     }
 
-    const QVector<Fftchart::Source *> &items() const;
+    const QVector<chart::Source *> &items() const;
     SourceList::iterator begin() noexcept;
     SourceList::iterator end() noexcept;
 
@@ -76,7 +76,7 @@ public:
     {
         return m_currentFile;
     }
-    Q_INVOKABLE Fftchart::Source *get(int i) const noexcept;
+    Q_INVOKABLE chart::Source *get(int i) const noexcept;
     Q_INVOKABLE void clean() noexcept;
     Q_INVOKABLE void reset() noexcept;
     Q_INVOKABLE bool save(const QUrl &fileName) const noexcept;
@@ -85,15 +85,15 @@ public:
     Q_INVOKABLE bool importTxt(const QUrl &fileName) noexcept;
     Q_INVOKABLE bool importCsv(const QUrl &fileName) noexcept;
     Q_INVOKABLE bool move(int from, int to) noexcept;
-    Q_INVOKABLE int indexOf(Fftchart::Source *) const noexcept;
+    Q_INVOKABLE int indexOf(chart::Source *) const noexcept;
 
     int selectedIndex() const;
-    Fftchart::Source *selected() const noexcept;
+    chart::Source *selected() const noexcept;
     void setSelected(int selected);
 
 signals:
     void preItemAppended();
-    void postItemAppended(Fftchart::Source *);
+    void postItemAppended(chart::Source *);
 
     void preItemRemoved(int index);
     void postItemRemoved();
@@ -108,9 +108,9 @@ public slots:
     Q_INVOKABLE Measurement *addMeasurement();
     Q_INVOKABLE Union *addUnion();
     Q_INVOKABLE ELC *addElc();
-    Q_INVOKABLE void appendItem(Fftchart::Source *item, bool autocolor = false);
-    Q_INVOKABLE void removeItem(Fftchart::Source *item, bool deleteItem = true);
-    Q_INVOKABLE void cloneItem(Fftchart::Source *item);
+    Q_INVOKABLE void appendItem(chart::Source *item, bool autocolor = false);
+    Q_INVOKABLE void removeItem(chart::Source *item, bool deleteItem = true);
+    Q_INVOKABLE void cloneItem(chart::Source *item);
     void appendNone();
 };
 

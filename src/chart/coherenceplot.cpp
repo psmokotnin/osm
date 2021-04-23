@@ -16,11 +16,10 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "coherenceplot.h"
-#include "coherenceseriesrenderer.h"
 
 #include <QPainter>
 
-using namespace Fftchart;
+using namespace chart;
 
 CoherencePlot::CoherencePlot(Settings *settings, QQuickItem *parent): XYPlot(settings, parent),
     m_pointsPerOctave(12),
@@ -84,12 +83,6 @@ void CoherencePlot::setShowThreshold(const bool &showThreshold)
     }
 }
 
-SeriesFBO *CoherencePlot::createSeriesFromSource(Source *source)
-{
-    return new SeriesFBO(source, []() {
-        return new CoherenceSeriesRenderer();
-    }, this);
-}
 void CoherencePlot::setPointsPerOctave(unsigned int p)
 {
     if (m_pointsPerOctave == p)
@@ -155,7 +148,7 @@ CoherenceThresholdLine::CoherenceThresholdLine(QQuickItem *parent) : PaintedItem
     setHeight(parent->height());
 }
 
-void Fftchart::CoherenceThresholdLine::paint(QPainter *painter)
+void chart::CoherenceThresholdLine::paint(QPainter *painter)
 {
     auto plot = reinterpret_cast<CoherencePlot *>(parent());
     auto y = heightf() - padding.bottom - plot->yAxis()->convert(plot->threshold(), pheight());

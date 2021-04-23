@@ -15,39 +15,42 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef RTASERIES_H
-#define RTASERIES_H
+#ifndef SPECTROGRAMSERIESRENDERER_H
+#define SPECTROGRAMSERIESRENDERER_H
 
+#include <deque>
+#include <array>
 #include <QQuickFramebufferObject>
 #include <QOpenGLShaderProgram>
+#include <QElapsedTimer>
 
 #include "frequencybasedseriesrenderer.h"
-#include "rtaplot.h"
 
-namespace Fftchart {
-
-class RTASeriesRenderer : public FrequencyBasedSeriesRenderer
+namespace chart {
+class SpectrogramSeriesRenderer : public FrequencyBasedSeriesRenderer
 {
-    constexpr const static float LEVEL_NORMALIZATION = -41.38f;
-
 public:
-    explicit RTASeriesRenderer();
+    explicit SpectrogramSeriesRenderer();
     void renderSeries() override;
     void synchronize(QQuickFramebufferObject *item) override;
 
 protected:
-    void renderLine();
-    void renderLines();
-    void renderBars();
-
-    void drawVertices(const GLenum &mode, const GLsizei &count);
     virtual void updateMatrix() override;
+    typedef std::array<float, 5> historyPoint;
+    typedef std::vector<historyPoint> historyRowData;
+    struct historyRow {
+        int time;
+        historyRowData data;
+    };
+    std::deque<historyRow> history;
 
 private:
-    void initShaders();
+    int m_min, m_mid, m_max;
+    unsigned int m_pointsPerOctave;
+    QElapsedTimer m_timer;
 
-    unsigned int m_pointsPerOctave, m_mode;
-    QOpenGLShader m_vertexShader, m_geometryShader, m_fragmentShader;
+    unsigned int m_indexBufferId, m_sourceSize;
+    std::vector<unsigned int> m_indices;
 };
 }
-#endif // RTASERIES_H
+#endif // SPECTROGRAMSERIESRENDERER_H

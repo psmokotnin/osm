@@ -15,25 +15,24 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef XYSERIESRENDERER_H
-#define XYSERIESRENDERER_H
+#ifndef IMPULSESERIESRENDERER_H
+#define IMPULSESERIESRENDERER_H
 
-#include "seriesrenderer.h"
+#include "xyseriesrenderer.h"
 
-namespace Fftchart {
-class XYSeriesRenderer : public SeriesRenderer
+namespace chart {
+class ImpulseSeriesRenderer : public XYSeriesRenderer
 {
-protected:
-    virtual void updateMatrix() = 0;
-
-    QMatrix4x4 m_matrix;
-    int m_matrixUniform;
-    float m_xMin, m_xMax, m_yMin, m_yMax;
-
 public:
-    XYSeriesRenderer();
-    virtual void synchronize(QQuickFramebufferObject *item) override;
-};
-}
+    ImpulseSeriesRenderer();
+    void renderSeries() override;
 
-#endif // XYSERIESRENDERER_H
+protected:
+    virtual void updateMatrix() override;
+
+private:
+    int m_matrixUniform, m_widthUniform, m_screenUniform;
+};
+
+}
+#endif // IMPULSESERIESRENDERER_H

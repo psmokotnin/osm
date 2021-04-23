@@ -16,9 +16,8 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "rtaplot.h"
-#include "rtaseriesrenderer.h"
 
-using namespace Fftchart;
+using namespace chart;
 
 RTAPlot::RTAPlot(Settings *settings, QQuickItem *parent): FrequencyBasedPlot(settings, parent),
     m_mode(0), m_spline(false)
@@ -32,12 +31,7 @@ RTAPlot::RTAPlot(Settings *settings, QQuickItem *parent): FrequencyBasedPlot(set
     connect(this, SIGNAL(modeChanged(unsigned int)), this, SLOT(update()));
     connect(this, SIGNAL(pointsPerOctaveChanged(unsigned int)), this, SLOT(update()));
 }
-SeriesFBO *RTAPlot::createSeriesFromSource(Source *source)
-{
-    return new SeriesFBO(source, []() {
-        return new RTASeriesRenderer();
-    }, this);
-}
+
 void RTAPlot::setMode(unsigned int mode)
 {
     if (m_mode == mode)
@@ -45,6 +39,7 @@ void RTAPlot::setMode(unsigned int mode)
     m_mode = mode;
     emit modeChanged(m_mode);
 }
+
 void RTAPlot::setSettings(Settings *settings) noexcept
 {
     if (settings && (settings->value("type") == "RTA")) {

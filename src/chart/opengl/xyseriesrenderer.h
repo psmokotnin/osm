@@ -15,31 +15,25 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef FFTCHART_STEPSERIESRENDERER_H
-#define FFTCHART_STEPSERIESRENDERER_H
+#ifndef XYSERIESRENDERER_H
+#define XYSERIESRENDERER_H
 
-#include "xyseriesrenderer.h"
-#include "../windowfunction.h"
+#include "seriesrenderer.h"
 
-namespace Fftchart {
-
-class StepSeriesRenderer : public XYSeriesRenderer
+namespace chart {
+class XYSeriesRenderer : public SeriesRenderer
 {
-public:
-    StepSeriesRenderer();
-    void renderSeries() override;
-    void synchronize(QQuickFramebufferObject *item) override;
-
 protected:
-    virtual void updateMatrix() override;
+    virtual void updateMatrix() = 0;
 
-private:
-    int m_matrixUniform, m_widthUniform, m_screenUniform;
-    WindowFunction m_window;
-    std::vector<float> m_windowed;
-    float m_zero;
+    QMatrix4x4 m_matrix;
+    int m_matrixUniform;
+    float m_xMin, m_xMax, m_yMin, m_yMax;
+
+public:
+    XYSeriesRenderer();
+    virtual void synchronize(QQuickFramebufferObject *item) override;
 };
+}
 
-} // namespace Fftchart
-
-#endif // FFTCHART_STEPSERIESRENDERER_H
+#endif // XYSERIESRENDERER_H

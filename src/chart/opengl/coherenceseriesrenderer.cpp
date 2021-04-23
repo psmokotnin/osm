@@ -15,19 +15,15 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <cmath>
-#include "magnitudeseriesrenderer.h"
-#include "magnitudeplot.h"
-#include <cstring>
+#include "coherenceseriesrenderer.h"
 
-using namespace Fftchart;
+using namespace chart;
 
-MagnitudeSeriesRenderer::MagnitudeSeriesRenderer() : FrequencyBasedSeriesRenderer(),
-    m_pointsPerOctave(0), m_coherenceThreshold(0), m_coherence(false)
+CoherenceSeriesRenderer::CoherenceSeriesRenderer() : FrequencyBasedSeriesRenderer(), m_pointsPerOctave(24)
 {
-    m_program.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/magnitude.vert");
-    m_program.addShaderFromSourceFile(QOpenGLShader::Geometry, ":/magnitude.geom");
-    m_program.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/magnitude.frag");
+    m_program.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/coherence.vert");
+    m_program.addShaderFromSourceFile(QOpenGLShader::Geometry, ":/coherence.geom");
+    m_program.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/coherence.frag");
     m_program.link();
 
     m_widthUniform  = m_program.uniformLocation("width");
@@ -35,26 +31,22 @@ MagnitudeSeriesRenderer::MagnitudeSeriesRenderer() : FrequencyBasedSeriesRendere
     m_matrixUniform = m_program.uniformLocation("matrix");
     m_minmaxUniform = m_program.uniformLocation("minmax");
     m_screenUniform = m_program.uniformLocation("screen");
-    m_coherenceThresholdU = m_program.uniformLocation("coherenceThreshold");
-    m_coherenceAlpha      = m_program.uniformLocation("coherenceAlpha");
 }
-void MagnitudeSeriesRenderer::synchronize(QQuickFramebufferObject *item)
+void CoherenceSeriesRenderer::synchronize(QQuickFramebufferObject *item)
 {
     XYSeriesRenderer::synchronize(item);
 
-    if (auto *plot = dynamic_cast<MagnitudePlot *>(m_item->parent())) {
-        m_pointsPerOctave    = plot->pointsPerOctave();
-        m_coherence          = plot->coherence();
-        m_invert             = plot->invert();
-        m_coherenceThreshold = plot->coherenceThreshold();
+    if (auto *plot = dynamic_cast<CoherencePlot *>(m_item->parent())) {
+        m_pointsPerOctave = plot->pointsPerOctave();
+        m_type = plot->type();
     }
 }
-void MagnitudeSeriesRenderer::renderSeries()
+void CoherenceSeriesRenderer::renderSeries()
 {
     if (!m_source->active() || !m_source->size())
         return;
 
-    unsigned int maxBufferSize = m_pointsPerOctave * 11 * 12, i = 0, verticiesCount = 0;
+    unsigned int maxBufferSize = m_pointsPerOctave * 11 * 8, i = 0, verticiesCount = 0;
     if (m_vertices.size() != maxBufferSize) {
         m_vertices.resize(maxBufferSize);
         m_refreshBuffers = true;
@@ -71,17 +63,19 @@ void MagnitudeSeriesRenderer::renderSeries()
      * pass spline data to shaders
      * fragment shader draws spline function
      */
-    auto accumulate = [this, &coherence, &value] (const unsigned int &i) {
-        coherence += m_source->coherence(i);
-        value     += (m_invert ? -1 : 1) * m_source->magnitude(i);
+    auto accumulate = [this, &value] (const unsigned int &i) {
+        value += (m_type == CoherencePlot::Type::Squared ?
+                  powf(m_source->coherence(i), 2) :
+                  m_source->coherence(i)
+                 );
     };
 
-    auto collected = [ &, this] (const float & f1, const float & f2, const float * ac, const float * c) {
+    auto collected = [ &, this]
+    (const float & f1, const float & f2, const float * ac, const float *) {
         if (i > maxBufferSize) {
             qCritical("out of range");
             return;
         }
-
         float fx1 = (logf(f1) + xadd) * xmul;
         float fx2 = (logf(f2) + xadd) * xmul;
 
@@ -90,9 +84,8 @@ void MagnitudeSeriesRenderer::renderSeries()
         m_vertices[i + 2] = fx1;
         m_vertices[i + 3] = fx2;
         std::memcpy(m_vertices.data() + i + 4, ac, 4 * 4);
-        std::memcpy(m_vertices.data() + i + 8,  c, 4 * 4);
         verticiesCount ++;
-        i += 12;
+        i += 8;
         value = 0.f;
         coherence = 0.f;
     };
@@ -100,8 +93,6 @@ void MagnitudeSeriesRenderer::renderSeries()
     iterateForSpline<float, float>(m_pointsPerOctave, &value, &coherence, accumulate, collected);
 
     setUniforms();
-    m_program.setUniformValue(m_coherenceThresholdU, m_coherenceThreshold);
-    m_program.setUniformValue(m_coherenceAlpha, m_coherence);
 
     if (m_refreshBuffers) {
         m_openGLFunctions->glGenBuffers(1, &m_vertexBufferId);
@@ -113,25 +104,22 @@ void MagnitudeSeriesRenderer::renderSeries()
 
     if (m_refreshBuffers) {
         m_openGLFunctions->glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * maxBufferSize, nullptr, GL_DYNAMIC_DRAW);
-        m_openGLFunctions->glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 12 * sizeof(GLfloat),
+        m_openGLFunctions->glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat),
                                                  reinterpret_cast<const void *>(0));
-        m_openGLFunctions->glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 12 * sizeof(GLfloat),
+        m_openGLFunctions->glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat),
                                                  reinterpret_cast<const void *>(2 * sizeof(GLfloat)));
-        m_openGLFunctions->glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 12 * sizeof(GLfloat),
+        m_openGLFunctions->glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat),
                                                  reinterpret_cast<const void *>(4 * sizeof(GLfloat)));
-        m_openGLFunctions->glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 12 * sizeof(GLfloat),
-                                                 reinterpret_cast<const void *>(8 * sizeof(GLfloat)));
     }
-    m_openGLFunctions->glBufferSubData(GL_ARRAY_BUFFER, 0, 12 * sizeof(GLfloat) * verticiesCount, m_vertices.data());
+    m_openGLFunctions->glBufferSubData(GL_ARRAY_BUFFER, 0, 8 * sizeof(GLfloat) * verticiesCount, m_vertices.data());
 
     m_openGLFunctions->glEnableVertexAttribArray(0);
     m_openGLFunctions->glEnableVertexAttribArray(1);
     m_openGLFunctions->glEnableVertexAttribArray(2);
-    m_openGLFunctions->glEnableVertexAttribArray(3);
     m_openGLFunctions->glDrawArrays(GL_POINTS, 0, verticiesCount);
-    m_openGLFunctions->glDisableVertexAttribArray(3);
     m_openGLFunctions->glDisableVertexAttribArray(2);
     m_openGLFunctions->glDisableVertexAttribArray(1);
     m_openGLFunctions->glDisableVertexAttribArray(0);
+
     m_refreshBuffers = false;
 }

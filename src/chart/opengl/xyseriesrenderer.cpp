@@ -16,9 +16,9 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "xyseriesrenderer.h"
-#include "xyplot.h"
+#include "../xyplot.h"
 
-using namespace Fftchart;
+using namespace chart;
 
 XYSeriesRenderer::XYSeriesRenderer() : SeriesRenderer(),
     m_matrixUniform(-1),

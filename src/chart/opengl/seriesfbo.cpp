@@ -1,6 +1,6 @@
 /**
  *  OSM
- *  Copyright (C) 2019  Pavel Smokotnin
+ *  Copyright (C) 2018  Pavel Smokotnin
 
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -15,33 +15,33 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "impulseplot.h"
+#include "seriesfbo.h"
 
 using namespace chart;
 
-ImpulsePlot::ImpulsePlot(Settings *settings, QQuickItem *parent): XYPlot(settings, parent)
+SeriesFBO::SeriesFBO(Source *s, RendererCreator rc, QQuickItem *parent):
+    QQuickFramebufferObject(parent),
+    m_rendererCreator(std::move(rc)),
+    m_source(s), m_highlighted(false)
 {
-    m_x.configure(AxisType::Linear, -20.0, 20.0, 41);
-    m_x.setReset(-5.f, 5.f);
-    m_x.reset();
-    m_y.configure(AxisType::Linear, -2.0, 2.0, 21);
-    m_y.setReset(-1.f, 1.f);
-    m_y.reset();
-    m_x.setUnit("ms");
-    m_y.setUnit("");
     setFlag(QQuickItem::ItemHasContents);
+    connect(s, SIGNAL(colorChanged(QColor)),  SLOT(update()));
+    connect(s, SIGNAL(readyRead()),     SLOT(update()));
+    connect(s, SIGNAL(activeChanged()), SLOT(update()));
+}
+QQuickFramebufferObject::Renderer *SeriesFBO::createRenderer() const
+{
+    return m_rendererCreator();
+}
+void SeriesFBO::setZIndex(int index)
+{
+    setZ(index);
 }
 
-void ImpulsePlot::setSettings(Settings *settings) noexcept
+void SeriesFBO::setHighlighted(bool highlighted)
 {
-    if (settings && (settings->value("type") == "Impulse")) {
-        XYPlot::setSettings(settings);
+    if (m_highlighted != highlighted) {
+        m_highlighted = highlighted;
+        update();
     }
-}
-void ImpulsePlot::storeSettings() noexcept
-{
-    if (!m_settings)
-        return;
-
-    XYPlot::storeSettings();
 }

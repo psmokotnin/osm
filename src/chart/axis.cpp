@@ -23,7 +23,7 @@
 #include "axis.h"
 
 using namespace std;
-using namespace Fftchart;
+using namespace chart;
 
 vector<float> Axis::ISO_LABELS = {
     31.5, 63, 125, 250, 500, 1000, 2000, 4000, 8000, 16000

@@ -20,7 +20,7 @@
 
 #include "plot.h"
 
-namespace Fftchart {
+namespace chart {
 class XYPlot : public Plot
 {
     Q_OBJECT

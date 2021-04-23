@@ -27,7 +27,7 @@
 #include "chart/source.h"
 #include "settings.h"
 
-class Union : public Fftchart::Source
+class Union : public chart::Source
 {
     Q_OBJECT
 
@@ -49,7 +49,7 @@ public:
 private:
     Settings *m_settings;
 
-    QVector<QPointer<Fftchart::Source>> m_sources;
+    QVector<QPointer<chart::Source>> m_sources;
 
     QTimer m_timer;
     QThread m_timerThread;
@@ -58,9 +58,9 @@ private:
 
     void init() noexcept;
     void resize();
-    void calcPolar(unsigned int count, std::set<Fftchart::Source *> sources,
-                   Fftchart::Source *primary) noexcept;
-    void calcVector(unsigned int count, std::set<Source *> sources, Fftchart::Source *primary) noexcept;
+    void calcPolar(unsigned int count, std::set<chart::Source *> sources,
+                   chart::Source *primary) noexcept;
+    void calcVector(unsigned int count, std::set<Source *> sources, chart::Source *primary) noexcept;
 
 public:
     explicit Union(Settings *settings = nullptr, QObject *parent = nullptr);
@@ -72,8 +72,8 @@ public:
         return m_sources.count();
     }
 
-    Q_INVOKABLE Fftchart::Source *getSource(int index) const noexcept;
-    Q_INVOKABLE void setSource(int index, Fftchart::Source *s) noexcept;
+    Q_INVOKABLE chart::Source *getSource(int index) const noexcept;
+    Q_INVOKABLE void setSource(int index, chart::Source *s) noexcept;
 
     Q_INVOKABLE QJsonObject toJSON() const noexcept override;
     void fromJSON(QJsonObject data) noexcept override;

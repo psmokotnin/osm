@@ -21,7 +21,7 @@
 #include <map>
 #include <QString>
 
-namespace Fftchart {
+namespace chart {
 
 enum Type {RTA, Magnitude, Phase, Scope, Impulse, Step, Coherence, GroupDelay, Spectrogram};
 static std::map<Type, QString> typeMap = {

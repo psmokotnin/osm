@@ -19,7 +19,7 @@
 #define FREQUENCYBASEDSERIESRENDERER_H
 
 #include "xyseriesrenderer.h"
-namespace Fftchart {
+namespace chart {
 
 class FrequencyBasedSeriesRenderer : public XYSeriesRenderer
 {

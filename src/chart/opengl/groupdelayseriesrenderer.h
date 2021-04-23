@@ -15,12 +15,12 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef PHASESERIESRENDERER_H
-#define PHASESERIESRENDERER_H
+#ifndef GROUPDELAYSERIESRENDERER_H
+#define GROUPDELAYSERIESRENDERER_H
 
 #include "frequencybasedseriesrenderer.h"
 
-namespace Fftchart {
+namespace chart {
 class GroupDelaySeriesRenderer : public FrequencyBasedSeriesRenderer
 {
 public:
@@ -35,4 +35,4 @@ private:
     bool m_coherence;
 };
 }
-#endif // PHASESERIESRENDERER_H
+#endif // GROUPDELAYSERIESRENDERER_H

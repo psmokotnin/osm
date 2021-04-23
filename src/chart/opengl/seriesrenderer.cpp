@@ -20,9 +20,9 @@
 #include <QQuickWindow>
 
 #include "seriesfbo.h"
-#include "plot.h"
-#include "../profiler.h"
-using namespace Fftchart;
+#include "../plot.h"
+#include "profiler.h"
+using namespace chart;
 
 SeriesRenderer::SeriesRenderer() :
     m_retinaScale(1),
@@ -53,7 +53,7 @@ void SeriesRenderer::synchronize(QQuickFramebufferObject *item)
         m_retinaScale = static_cast<GLfloat>(retinaScale);
         m_weight = seriesFBO->highlighted() ? 3 : 1.5;
 
-        auto plot = static_cast<Fftchart::Plot *>(m_item->parent());
+        auto plot = static_cast<chart::Plot *>(m_item->parent());
         if (plot) {
             m_renderActive = !plot->filter() || plot->filter() == m_source;
         } else {
@@ -67,7 +67,7 @@ void SeriesRenderer::render()
     Profiler p("SeriesRender");
 #endif
     if (!m_openGLFunctions) {
-        auto plot = static_cast<Fftchart::Plot *>(m_item->parent());
+        auto plot = static_cast<chart::Plot *>(m_item->parent());
         plot->setOpenGLError(true);
         return;
     }

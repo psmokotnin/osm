@@ -21,7 +21,7 @@
 #include <QObject>
 #include "chart/source.h"
 
-class ELC : public Fftchart::Source
+class ELC : public chart::Source
 {
     Q_OBJECT
     Q_PROPERTY(float loudness READ loudness WRITE setLoudness NOTIFY loudnessChanged)

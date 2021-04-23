@@ -19,7 +19,7 @@
 #define FREQUENCYBASEDPLOT_H
 
 #include "xyplot.h"
-namespace Fftchart {
+namespace chart {
 class FrequencyBasedPlot : public XYPlot
 {
     Q_OBJECT

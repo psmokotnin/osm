@@ -22,7 +22,7 @@
 #include "palette.h"
 #include <cmath>
 
-namespace Fftchart {
+namespace chart {
 
 enum AxisType {Linear, Logarithmic};
 enum AxisDirection {Vertical, Horizontal};

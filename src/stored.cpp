@@ -22,7 +22,7 @@
 #include <QFile>
 #include <QtMath>
 
-Stored::Stored(QObject *parent) : Fftchart::Source(parent), m_notes(),
+Stored::Stored(QObject *parent) : chart::Source(parent), m_notes(),
     m_polarity(false), m_inverse(false), m_gain(0), m_delay(0)
 {
     setObjectName("Stored");
@@ -32,7 +32,7 @@ Stored::Stored(QObject *parent) : Fftchart::Source(parent), m_notes(),
     connect(this, &Stored::delayChanged, this, &Source::readyRead);
 }
 
-Fftchart::Source *Stored::clone() const
+chart::Source *Stored::clone() const
 {
     auto cloned = new Stored(parent());
     cloned->build(const_cast<Stored *>(this));
@@ -46,7 +46,7 @@ Fftchart::Source *Stored::clone() const
     return cloned;
 }
 
-void Stored::build (Fftchart::Source *source)
+void Stored::build (chart::Source *source)
 {
     source->lock();
     m_dataLength = source->size();

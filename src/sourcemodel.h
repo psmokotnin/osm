@@ -21,7 +21,7 @@
 #include <QAbstractListModel>
 
 class SourceList;
-namespace Fftchart {
+namespace chart {
 class Source;
 }
 
@@ -61,8 +61,8 @@ public:
     }
     void setFilter(bool filter) noexcept;
 
-    Q_INVOKABLE int indexOf(Fftchart::Source *item) const noexcept;
-    Q_INVOKABLE Fftchart::Source *get(const int &index) const noexcept;
+    Q_INVOKABLE int indexOf(chart::Source *item) const noexcept;
+    Q_INVOKABLE chart::Source *get(const int &index) const noexcept;
 
     bool addNone() const noexcept
     {

@@ -21,7 +21,7 @@
 #include <QObject>
 #include <QColor>
 
-namespace Fftchart {
+namespace chart {
 
 class Palette: public QObject
 {

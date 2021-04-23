@@ -26,7 +26,7 @@
 #include "spectrogramplot.h"
 #include "src/sourcelist.h"
 
-using namespace Fftchart;
+using namespace chart;
 
 VariableChart::VariableChart(QQuickItem *parent) :
     QQuickItem(parent),
@@ -160,7 +160,7 @@ void VariableChart::setSources(SourceList *sourceList)
         auto selected = m_sources->selected();
         m_plot->setHighlighted(selected);
 
-        connect(m_sources, &SourceList::postItemAppended, this, [ = ](Fftchart::Source * source) {
+        connect(m_sources, &SourceList::postItemAppended, this, [ = ](chart::Source * source) {
             appendDataSource(source);
         });
 

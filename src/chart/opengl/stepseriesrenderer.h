@@ -15,25 +15,31 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef MAGNITUDESERIESRENDERER_H
-#define MAGNITUDESERIESRENDERER_H
+#ifndef CHART_STEPSERIESRENDERER_H
+#define CHART_STEPSERIESRENDERER_H
 
+#include "xyseriesrenderer.h"
+#include "windowfunction.h"
 
-#include "frequencybasedseriesrenderer.h"
-namespace Fftchart {
+namespace chart {
 
-class MagnitudeSeriesRenderer : public FrequencyBasedSeriesRenderer
+class StepSeriesRenderer : public XYSeriesRenderer
 {
 public:
-    MagnitudeSeriesRenderer();
+    StepSeriesRenderer();
     void renderSeries() override;
     void synchronize(QQuickFramebufferObject *item) override;
 
+protected:
+    virtual void updateMatrix() override;
+
 private:
-    int m_coherenceThresholdU, m_coherenceAlpha;
-    unsigned int m_pointsPerOctave;
-    float m_coherenceThreshold;
-    bool m_coherence, m_invert;
+    int m_matrixUniform, m_widthUniform, m_screenUniform;
+    WindowFunction m_window;
+    std::vector<float> m_windowed;
+    float m_zero;
 };
-}
-#endif // MAGNITUDESERIESRENDERER_H
+
+} // namespace chart
+
+#endif // CHART_STEPSERIESRENDERER_H

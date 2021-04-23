@@ -17,7 +17,7 @@
  */
 #include "elc.h"
 
-ELC::ELC(QObject *parent) : Fftchart::Source(parent), m_loudness(80.f)
+ELC::ELC(QObject *parent) : chart::Source(parent), m_loudness(80.f)
 {
     setObjectName("ELC");
     setActive(true);
@@ -25,7 +25,7 @@ ELC::ELC(QObject *parent) : Fftchart::Source(parent), m_loudness(80.f)
     update();
 }
 
-Fftchart::Source *ELC::clone() const
+chart::Source *ELC::clone() const
 {
     auto cloned = new ELC(parent());
     cloned->setLoudness(loudness());

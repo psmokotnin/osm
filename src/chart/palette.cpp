@@ -16,7 +16,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "palette.h"
-using namespace Fftchart;
+using namespace chart;
 
 Palette::Palette(QObject *parent):
     QObject(parent),

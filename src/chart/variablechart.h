@@ -25,7 +25,7 @@
 
 class SourceList;
 
-namespace Fftchart {
+namespace chart {
 
 class VariableChart : public QQuickItem
 {

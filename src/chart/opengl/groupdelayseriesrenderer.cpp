@@ -17,10 +17,10 @@
  */
 #include <cmath>
 #include "groupdelayseriesrenderer.h"
-#include "groupdelayplot.h"
+#include "../groupdelayplot.h"
 #include <cstring>
 
-using namespace Fftchart;
+using namespace chart;
 
 GroupDelaySeriesRenderer::GroupDelaySeriesRenderer() : FrequencyBasedSeriesRenderer(),
     m_pointsPerOctave(0), m_coherenceThreshold(0), m_coherence(false)

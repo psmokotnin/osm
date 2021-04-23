@@ -21,22 +21,29 @@
 #include <QtQuick/QQuickItem>
 #include "axis.h"
 #include "source.h"
-#include "seriesfbo.h"
 #include "palette.h"
 #include "../settings.h"
 
-namespace Fftchart {
+#ifdef GRAPH_METAL
+#include "seriesitem.h"
+using SeriesItem = chart::SeriesItem;
+#else
+#include "seriesfbo.h"
+using SeriesItem = chart::SeriesFBO;
+#endif
+
+namespace chart {
 class Plot : public QQuickItem
 {
     Q_OBJECT
-    Q_PROPERTY(Fftchart::Source *filter READ filter WRITE setFilter NOTIFY filterChanged)
+    Q_PROPERTY(chart::Source *filter READ filter WRITE setFilter NOTIFY filterChanged)
     Q_PROPERTY(QString xLabel READ xLabel CONSTANT)
     Q_PROPERTY(QString yLabel READ yLabel CONSTANT)
     Q_PROPERTY(bool openGLError READ openGLError NOTIFY openGLErrorChanged)
 
 protected:
-    QList<SeriesFBO *> series;
-    virtual SeriesFBO *createSeriesFromSource(Source *source) = 0;
+    QList<SeriesItem *> m_serieses;
+    virtual SeriesItem *createSeriesFromSource(Source *source) = 0;
 
     const struct Padding {
         float   left    = 50.f,
@@ -45,11 +52,11 @@ protected:
                 bottom  = 20.f;
     } padding;
 
-    void applyWidthForSeries(SeriesFBO *s);
-    void applyHeightForSeries(SeriesFBO *s);
+    void applyWidthForSeries(SeriesItem *s);
+    void applyHeightForSeries(SeriesItem *s);
     Settings *m_settings;
     Palette m_palette;
-    QPointer<Fftchart::Source> m_filter;
+    QPointer<chart::Source> m_filter;
     bool m_openGLError;
 
 public:
@@ -83,17 +90,17 @@ public:
         return m_palette.setDarkMode(darkMode);
     }
 
-    Fftchart::Source *filter() const noexcept
+    chart::Source *filter() const noexcept
     {
         return m_filter;
     }
-    void setFilter(Fftchart::Source *filter) noexcept;
+    void setFilter(chart::Source *filter) noexcept;
 
     bool openGLError() const;
     void setOpenGLError(bool openGLError);
 
 signals:
-    void filterChanged(Fftchart::Source *);
+    void filterChanged(chart::Source *);
     void updated();
     void openGLErrorChanged();
 

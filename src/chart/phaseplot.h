@@ -20,7 +20,7 @@
 
 #include "frequencybasedplot.h"
 
-namespace Fftchart {
+namespace chart {
 class PhasePlot : public FrequencyBasedPlot
 {
     Q_OBJECT
@@ -29,7 +29,7 @@ class PhasePlot : public FrequencyBasedPlot
     Q_PROPERTY(int range READ range WRITE setRange NOTIFY rangeChanged)
 
 protected:
-    virtual SeriesFBO *createSeriesFromSource(Source *source) override;
+    virtual SeriesItem *createSeriesFromSource(Source *source) override;
     int m_center, m_range, m_width;
 
 public:

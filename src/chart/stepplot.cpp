@@ -16,8 +16,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "stepplot.h"
-#include "stepseriesrenderer.h"
-using namespace Fftchart;
+using namespace chart;
 
 StepPlot::StepPlot(Settings *settings, QQuickItem *parent) : XYPlot(settings, parent), m_zero(0)
 {
@@ -29,13 +28,6 @@ StepPlot::StepPlot(Settings *settings, QQuickItem *parent) : XYPlot(settings, pa
     m_y.setMax(1.f);
     m_x.setUnit("ms");
     setFlag(QQuickItem::ItemHasContents);
-}
-
-SeriesFBO *StepPlot::createSeriesFromSource(Source *source)
-{
-    return new SeriesFBO(source, []() {
-        return new StepSeriesRenderer();
-    }, this);
 }
 
 float StepPlot::zero() const

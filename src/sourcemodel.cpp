@@ -35,7 +35,7 @@ QVariant SourceModel::data(const QModelIndex &index, int role) const
     if (!index.isValid() || !m_list)
         return QVariant();
 
-    Fftchart::Source *source = m_list->items().at(index.row());
+    chart::Source *source = m_list->items().at(index.row());
     QVariant r;
     switch (role) {
     case NameRole:
@@ -89,7 +89,7 @@ void SourceModel::setList(SourceList *list)
             const int index = m_list->items().size();
             beginInsertRows(QModelIndex(), index, index);
         });
-        connect(m_list, &SourceList::postItemAppended, this, [ = ](Fftchart::Source *) {
+        connect(m_list, &SourceList::postItemAppended, this, [ = ](chart::Source *) {
             endInsertRows();
         });
 
@@ -114,12 +114,12 @@ void SourceModel::setFilter(bool filter) noexcept
     m_filter = filter;
 }
 
-int SourceModel::indexOf(Fftchart::Source *item) const noexcept
+int SourceModel::indexOf(chart::Source *item) const noexcept
 {
     return m_list->indexOf(item);
 }
 
-Fftchart::Source *SourceModel::get(const int &index) const noexcept
+chart::Source *SourceModel::get(const int &index) const noexcept
 {
     return m_list->get(index);
 }

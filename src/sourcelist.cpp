@@ -59,7 +59,7 @@ SourceList *SourceList::clone(QObject *parent, bool filtered) const noexcept
 
     return list;
 }
-const QVector<Fftchart::Source *> &SourceList::items() const
+const QVector<chart::Source *> &SourceList::items() const
 {
     return m_items;
 }
@@ -76,7 +76,7 @@ int SourceList::count() const noexcept
 {
     return m_items.size();
 }
-Fftchart::Source *SourceList::get(int i) const noexcept
+chart::Source *SourceList::get(int i) const noexcept
 {
     if (i < 0 || i >= m_items.size())
         return nullptr;
@@ -113,7 +113,7 @@ bool SourceList::move(int from, int to) noexcept
 
     emit preItemMoved(from, to);
     if (m_items.size() > from) {
-        Fftchart::Source *item = m_items.takeAt(from);
+        chart::Source *item = m_items.takeAt(from);
         m_items.insert((to > from ? to - 1 : to), item);
     } else {
         qWarning() << "move element from out the bounds";
@@ -123,7 +123,7 @@ bool SourceList::move(int from, int to) noexcept
     return true;
 }
 
-int SourceList::indexOf(Fftchart::Source *item) const noexcept
+int SourceList::indexOf(chart::Source *item) const noexcept
 {
     return m_items.indexOf(item);
 }
@@ -223,7 +223,7 @@ bool SourceList::importFile(const QUrl &fileName, QString separator) noexcept
     float frequency, magnitude, maxMagnitude = -100, coherence = 1.f;
     complex phase;
 
-    std::vector<Fftchart::Source::FTData> d;
+    std::vector<chart::Source::FTData> d;
     d.reserve(480); //48 ppo
     auto s = new Stored();
 
@@ -271,7 +271,7 @@ int SourceList::selectedIndex() const
     return m_selected;
 }
 
-Fftchart::Source *SourceList::selected() const noexcept
+chart::Source *SourceList::selected() const noexcept
 {
     return m_items.value(m_selected);
 }
@@ -359,7 +359,7 @@ void SourceList::appendNone()
 {
     m_items.prepend(nullptr);
 }
-void SourceList::appendItem(Fftchart::Source *item, bool autocolor)
+void SourceList::appendItem(chart::Source *item, bool autocolor)
 {
     emit preItemAppended();
 
@@ -370,7 +370,7 @@ void SourceList::appendItem(Fftchart::Source *item, bool autocolor)
 
     emit postItemAppended(item);
 }
-void SourceList::removeItem(Fftchart::Source *item, bool deleteItem)
+void SourceList::removeItem(chart::Source *item, bool deleteItem)
 {
     for (int i = 0; i < m_items.size(); ++i) {
         if (m_items.at(i) == item) {
@@ -385,7 +385,7 @@ void SourceList::removeItem(Fftchart::Source *item, bool deleteItem)
     }
 }
 
-void SourceList::cloneItem(Fftchart::Source *item)
+void SourceList::cloneItem(chart::Source *item)
 {
     auto newItem = item->clone();
     if (newItem) {

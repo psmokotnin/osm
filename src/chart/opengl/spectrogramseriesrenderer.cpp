@@ -21,9 +21,9 @@
 #include <cmath>
 
 #include "seriesfbo.h"
-#include "spectrogramplot.h"
+#include "../spectrogramplot.h"
 
-using namespace Fftchart;
+using namespace chart;
 
 SpectrogramSeriesRenderer::SpectrogramSeriesRenderer() : FrequencyBasedSeriesRenderer(),
     m_pointsPerOctave(0), m_timer()

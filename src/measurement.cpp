@@ -40,7 +40,7 @@ const std::map<Measurement::Mode, int>Measurement::m_FFTsizes = {
     {Measurement::FFT16, 16}
 };
 
-Measurement::Measurement(Settings *settings, QObject *parent) : Fftchart::Source(parent),
+Measurement::Measurement(Settings *settings, QObject *parent) : chart::Source(parent),
     m_timer(nullptr), m_timerThread(nullptr),
     m_input(this),
     m_deviceId(audio::Client::defaultInputDeviceId()),
@@ -393,7 +393,7 @@ void Measurement::setActive(bool active)
         return;
     std::lock_guard<std::mutex> guard(m_dataMutex);
 
-    Fftchart::Source::setActive(active);
+    chart::Source::setActive(active);
     m_error = false;
     emit errorChanged(m_error);
 
@@ -406,7 +406,7 @@ void Measurement::setActive(bool active)
 }
 void Measurement::setError()
 {
-    Fftchart::Source::setActive(false);
+    chart::Source::setActive(false);
     m_error = true;
     m_dataMeter.reset();
     m_referenceMeter.reset();
@@ -723,7 +723,7 @@ QObject *Measurement::store()
 
     return store;
 }
-Fftchart::Source *Measurement::clone() const
+chart::Source *Measurement::clone() const
 {
     auto cloned = new Measurement(nullptr, parent());
     cloned->setActive(false);

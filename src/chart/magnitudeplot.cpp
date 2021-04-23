@@ -16,9 +16,8 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "magnitudeplot.h"
-#include "magnitudeseriesrenderer.h"
 
-using namespace Fftchart;
+using namespace chart;
 
 MagnitudePlot::MagnitudePlot(Settings *settings, QQuickItem *parent) : FrequencyBasedPlot(settings,
                                                                                               parent), m_invert(false)
@@ -28,12 +27,6 @@ MagnitudePlot::MagnitudePlot(Settings *settings, QQuickItem *parent) : Frequency
     m_y.configure(AxisType::Linear, -18.f, 18.f,  13);
     m_y.setUnit("dB");
     setFlag(QQuickItem::ItemHasContents);
-}
-SeriesFBO *MagnitudePlot::createSeriesFromSource(Source *source)
-{
-    return new SeriesFBO(source, []() {
-        return new MagnitudeSeriesRenderer();
-    }, this);
 }
 void MagnitudePlot::setSettings(Settings *settings) noexcept
 {

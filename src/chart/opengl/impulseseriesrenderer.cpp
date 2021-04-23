@@ -16,9 +16,9 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "impulseseriesrenderer.h"
-#include "impulseplot.h"
+#include "../impulseplot.h"
 
-using namespace Fftchart;
+using namespace chart;
 
 ImpulseSeriesRenderer::ImpulseSeriesRenderer() : XYSeriesRenderer()
 {

@@ -15,25 +15,24 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef COHERENCESERIESRENDERER_H
-#define COHERENCESERIESRENDERER_H
+#ifndef PHASESERIESRENDERER_H
+#define PHASESERIESRENDERER_H
 
 #include "frequencybasedseriesrenderer.h"
-#include "coherenceplot.h"
-#include <cstring>
+namespace chart {
 
-namespace Fftchart {
-class CoherenceSeriesRenderer : public FrequencyBasedSeriesRenderer
+class PhaseSeriesRenderer : public FrequencyBasedSeriesRenderer
 {
 public:
-    CoherenceSeriesRenderer();
+    PhaseSeriesRenderer();
     void renderSeries() override;
     void synchronize(QQuickFramebufferObject *item) override;
 
 private:
+    int  m_coherenceThresholdU, m_coherenceAlpha;
     unsigned int m_pointsPerOctave;
-    CoherencePlot::Type m_type;
+    float m_rotate, m_coherenceThreshold;
+    bool m_coherence;
 };
 }
-
-#endif // COHERENCESERIESRENDERER_H
+#endif // PHASESERIESRENDERER_H

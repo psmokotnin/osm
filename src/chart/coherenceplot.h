@@ -20,7 +20,7 @@
 
 #include "xyplot.h"
 
-namespace Fftchart {
+namespace chart {
 
 class CoherenceThresholdLine : public PaintedItem
 {
@@ -80,7 +80,7 @@ protected:
     QColor m_thresholdColor;
     CoherenceThresholdLine m_thresholdLine;
     Type m_type;
-    virtual SeriesFBO *createSeriesFromSource(Source *source) override;
+    virtual SeriesItem *createSeriesFromSource(Source *source) override;
 };
 }
 #endif // COHERENCEPLOT_H

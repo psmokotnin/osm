@@ -21,7 +21,7 @@
 #include "chart/source.h"
 #include <QJsonObject>
 
-class Stored: public Fftchart::Source
+class Stored: public chart::Source
 {
     Q_OBJECT
     Q_PROPERTY(QString notes READ notes WRITE setNotes NOTIFY notesChanged)
@@ -33,7 +33,7 @@ class Stored: public Fftchart::Source
 public:
     explicit Stored(QObject *parent = nullptr);
     Source *clone() const override;
-    void build (Fftchart::Source *source);
+    void build (chart::Source *source);
 
     Q_INVOKABLE bool save(const QUrl &fileName) const noexcept;
     Q_INVOKABLE bool saveCal(const QUrl &fileName) const noexcept;

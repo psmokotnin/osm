@@ -17,11 +17,10 @@
  */
 
 #include "plot.h"
-#include "seriesfbo.h"
 #include <QSGSimpleRectNode>
 #include <QQmlEngine>
 
-using namespace Fftchart;
+using namespace chart;
 
 Plot::Plot(Settings *settings, QQuickItem *parent) :
     QQuickItem(parent), m_settings(settings), m_palette(this), m_filter(nullptr), m_openGLError(false)
@@ -34,10 +33,10 @@ Plot::Plot(Settings *settings, QQuickItem *parent) :
 }
 void Plot::clear()
 {
-    for (auto &&seriesfbo : series) {
-        seriesfbo->deleteLater();
+    for (auto &&series : m_serieses) {
+        series->deleteLater();
     }
-    series.clear();
+    m_serieses.clear();
 }
 void Plot::disconnectFromParent()
 {
@@ -47,18 +46,18 @@ void Plot::disconnectFromParent()
 void Plot::parentWidthChanged()
 {
     setWidth(parentItem()->width());
-    foreach (SeriesFBO *s, findChildren<SeriesFBO *>()) {
+    foreach (SeriesItem *s, findChildren<SeriesItem *>()) {
         applyWidthForSeries(s);
     }
 }
 void Plot::parentHeightChanged()
 {
     setHeight(parentItem()->height());
-    foreach (SeriesFBO *s, findChildren<SeriesFBO *>()) {
+    foreach (SeriesItem *s, findChildren<SeriesItem *>()) {
         applyHeightForSeries(s);
     }
 }
-void Plot::applyWidthForSeries(SeriesFBO *s)
+void Plot::applyWidthForSeries(SeriesItem *s)
 {
     if (!parentItem())
         return;
@@ -67,7 +66,7 @@ void Plot::applyWidthForSeries(SeriesFBO *s)
     s->setX(static_cast<qreal>(padding.left));
     s->setWidth(static_cast<qreal>(width));
 }
-void Plot::applyHeightForSeries(SeriesFBO *s)
+void Plot::applyHeightForSeries(SeriesItem *s)
 {
     if (!parentItem())
         return;
@@ -89,7 +88,7 @@ void Plot::setOpenGLError(bool openGLError)
         emit openGLErrorChanged();
     }
 }
-void Plot::setFilter(Fftchart::Source *filter) noexcept
+void Plot::setFilter(chart::Source *filter) noexcept
 {
     if (m_filter != filter) {
         m_filter = filter;
@@ -99,27 +98,29 @@ void Plot::setFilter(Fftchart::Source *filter) noexcept
 }
 QSGNode *Plot::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *)
 {
-    auto *n = dynamic_cast<QSGSimpleRectNode *>(oldNode);
-    if (!n) {
-        n = new QSGSimpleRectNode();
+    auto *node = dynamic_cast<QSGSimpleRectNode *>(oldNode);
+    if (!node) {
+        node = new QSGSimpleRectNode();
     }
-    n->setColor(m_palette.backgroundColor());
-    n->setRect(boundingRect());
-    return n;
+    node->setColor(m_palette.backgroundColor());
+    node->setRect(boundingRect());
+    return node;
 }
 void Plot::appendDataSource(Source *source)
 {
-    SeriesFBO *s = createSeriesFromSource(source);
-    series.append(s);
-    applyWidthForSeries(s);
-    applyHeightForSeries(s);
+    auto *sourceItem = createSeriesFromSource(source);
+    if (sourceItem) {
+        m_serieses.append(sourceItem);
+        applyWidthForSeries(sourceItem);
+        applyHeightForSeries(sourceItem);
+    }
 }
 void Plot::removeDataSource(Source *source)
 {
-    foreach (SeriesFBO *seriesfbo, series) {
-        if (seriesfbo->source() == source) {
-            seriesfbo->deleteLater();
-            series.removeOne(seriesfbo);
+    foreach (auto *series, m_serieses) {
+        if (series->source() == source) {
+            series->deleteLater();
+            m_serieses.removeOne(series);
             update();
             return;
         }
@@ -127,9 +128,9 @@ void Plot::removeDataSource(Source *source)
 }
 void Plot::setSourceZIndex(Source *source, int index)
 {
-    foreach (SeriesFBO *seriesfbo, series) {
-        if (seriesfbo->source() == source) {
-            seriesfbo->setZIndex(index);
+    foreach (SeriesItem *series, m_serieses) {
+        if (series->source() == source) {
+            series->setZIndex(index);
             return;
         }
     }
@@ -137,8 +138,8 @@ void Plot::setSourceZIndex(Source *source, int index)
 
 void Plot::setHighlighted(Source *source)
 {
-    foreach (SeriesFBO *seriesfbo, series) {
-        seriesfbo->setHighlighted((seriesfbo->source() == source));
+    foreach (SeriesItem *series, m_serieses) {
+        series->setHighlighted((series->source() == source));
     }
 }
 void Plot::update()
@@ -146,7 +147,7 @@ void Plot::update()
     QQuickItem::update();
     emit updated();
 
-    foreach (SeriesFBO *seriesfbo, series) {
-        seriesfbo->update();
+    foreach (SeriesItem *series, m_serieses) {
+        series->update();
     }
 }

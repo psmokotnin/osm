@@ -20,13 +20,13 @@
 
 #include "xyplot.h"
 
-namespace Fftchart {
+namespace chart {
 class ImpulsePlot : public XYPlot
 {
     Q_OBJECT
 
 protected:
-    virtual SeriesFBO *createSeriesFromSource(Source *source) override;
+    virtual SeriesItem *createSeriesFromSource(Source *source) override;
 
 public:
     ImpulsePlot(Settings *settings, QQuickItem *parent = Q_NULLPTR);

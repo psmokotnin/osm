@@ -18,7 +18,7 @@
 #include <algorithm>
 #include "source.h"
 
-using namespace Fftchart;
+using namespace chart;
 Source::Source(QObject *parent) : QObject(parent),
     m_ftdata(nullptr),
     m_impulseData(nullptr),

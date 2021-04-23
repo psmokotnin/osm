@@ -15,13 +15,12 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef FFTCHART_STEPPLOT_H
-#define FFTCHART_STEPPLOT_H
+#ifndef CHART_STEPPLOT_H
+#define CHART_STEPPLOT_H
 
 #include "xyplot.h"
-#include "seriesfbo.h"
 
-namespace Fftchart {
+namespace chart {
 
 class StepPlot : public XYPlot
 {
@@ -40,13 +39,13 @@ signals:
     void zeroChanged(float);
 
 protected:
-    virtual SeriesFBO *createSeriesFromSource(Source *source) override;
+    virtual SeriesItem *createSeriesFromSource(Source *source) override;
 
 private:
     float m_zero;
 
 };
 
-} // namespace FFtchart
+} // namespace chart
 
-#endif // FFTCHART_STEPPLOT_H
+#endif // CHART_STEPPLOT_H

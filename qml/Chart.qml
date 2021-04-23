@@ -17,8 +17,8 @@
  */
 import QtQuick 2.12
 import QtQuick.Controls 2.2
-import FftChart 1.0
 import QtQuick.Controls.Material 2.2
+import OpenSoundMeter 1
 
 Item {
     id: chartview

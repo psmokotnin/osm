@@ -17,9 +17,9 @@
  */
 #include <cmath>
 #include "rtaseriesrenderer.h"
-#include "rtaplot.h"
+#include "../rtaplot.h"
 
-using namespace Fftchart;
+using namespace chart;
 RTASeriesRenderer::RTASeriesRenderer() : FrequencyBasedSeriesRenderer(),
     m_pointsPerOctave(0),
     m_mode(0),

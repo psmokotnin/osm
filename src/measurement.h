@@ -37,7 +37,7 @@
 #include "coherence.h"
 #include "settings.h"
 
-class Measurement : public Fftchart::Source
+class Measurement : public chart::Source
 {
     Q_OBJECT
 

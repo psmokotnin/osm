@@ -17,6 +17,7 @@
  */
 #include <QApplication>
 #include <QQmlApplicationEngine>
+#include <QtQuick/QQuickView>
 #include <QQuickStyle>
 #include <QQmlContext>
 #include <QFontDatabase>
@@ -41,13 +42,16 @@
 
 int main(int argc, char *argv[])
 {
+#ifdef GRAPH_METAL
+    QQuickWindow::setSceneGraphBackend(QSGRendererInterface::MetalRhi);
+#elif defined(GRAPH_OPENGL)
     QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
     QSurfaceFormat surfaceFormat;
     surfaceFormat.setMajorVersion(3);
     surfaceFormat.setMinorVersion(3);
     surfaceFormat.setProfile(QSurfaceFormat::CoreProfile);
     QSurfaceFormat::setDefaultFormat(surfaceFormat);
-    //qputenv("QSG_RHI", "1");
+#endif
 
     QApplication app(argc, argv);
     QQuickStyle::setStyle("Material");
@@ -68,7 +72,7 @@ int main(int argc, char *argv[])
     SourceList sourceList;
 
     qmlRegisterType<audio::DeviceModel>("Audio", 1, 0, "DeviceModel");
-    qmlRegisterType<Fftchart::VariableChart>("FftChart", 1, 0, "VariableChart");
+    qmlRegisterType<chart::VariableChart>("OpenSoundMeter", 1, 0, "VariableChart");
     qmlRegisterUncreatableMetaObject(Filter::staticMetaObject, "Measurement", 1, 0, "FilterFrequency",
                                      "Error: only enums");
     qmlRegisterType<Measurement>("Measurement", 1, 0, "Measurement");

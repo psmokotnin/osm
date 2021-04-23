@@ -20,7 +20,7 @@
 
 #include "frequencybasedplot.h"
 
-namespace Fftchart {
+namespace chart {
 class RTAPlot : public FrequencyBasedPlot
 {
     Q_OBJECT
@@ -28,7 +28,7 @@ class RTAPlot : public FrequencyBasedPlot
     Q_PROPERTY(unsigned int mode READ mode WRITE setMode NOTIFY modeChanged)
 
 protected:
-    virtual SeriesFBO *createSeriesFromSource(Source *source) override;
+    virtual SeriesItem *createSeriesFromSource(Source *source) override;
     unsigned int m_mode;
     bool m_spline;
 

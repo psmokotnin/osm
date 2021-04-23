@@ -17,7 +17,7 @@
  */
 #include "xyplot.h"
 
-using namespace Fftchart;
+using namespace chart;
 
 XYPlot::XYPlot(Settings *settings, QQuickItem *parent) :
     Plot(settings, parent),

@@ -1,8 +1,10 @@
 TEMPLATE = app
 
-QT += qml quick quickcontrols2 core opengl
+QT += qml quick quickcontrols2 core
 CONFIG += c++1z
 CONFIG+=sdk_no_version_check
+QML_IMPORT_NAME = OpenSoundMeter
+QML_IMPORT_MAJOR_VERSION = 1
 
 SOURCES += src/main.cpp \
     src/appearance.cpp \
@@ -14,12 +16,9 @@ SOURCES += src/main.cpp \
     src/audio/stream.cpp \
     src/chart/frequencybasedplot.cpp \
     src/chart/groupdelayplot.cpp \
-    src/chart/groupdelayseriesrenderer.cpp \
     src/chart/palette.cpp \
     src/chart/spectrogramplot.cpp \
-    src/chart/spectrogramseriesrenderer.cpp \
     src/chart/stepplot.cpp \
-    src/chart/stepseriesrenderer.cpp \
     src/elc.cpp \
     src/filesystem/dialog.cpp \
     src/filesystem/dialogPlugin.cpp \
@@ -49,23 +48,14 @@ SOURCES += src/main.cpp \
     src/chart/variablechart.cpp \
     src/chart/plot.cpp \
     src/chart/rtaplot.cpp \
-    src/chart/seriesfbo.cpp \
-    src/chart/rtaseriesrenderer.cpp \
-    src/chart/seriesrenderer.cpp \
     src/chart/impulseplot.cpp \
-    src/chart/impulseseriesrenderer.cpp \
     src/chart/phaseplot.cpp \
-    src/chart/phaseseriesrenderer.cpp \
     src/chart/magnitudeplot.cpp \
-    src/chart/magnitudeseriesrenderer.cpp \
-    src/chart/frequencybasedseriesrenderer.cpp \
     src/chart/xyplot.cpp \
     src/generatorthread.cpp \
     src/averaging.cpp \
-    src/chart/xyseriesrenderer.cpp \
     src/coherence.cpp \
     src/chart/coherenceplot.cpp \
-    src/chart/coherenceseriesrenderer.cpp \
     src/settings.cpp
 
 RESOURCES += qml.qrc \
@@ -95,6 +85,7 @@ qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
+INCLUDEPATH += src
 HEADERS += \
     src/appearance.h \
     src/audio/client.h \
@@ -105,12 +96,9 @@ HEADERS += \
     src/audio/stream.h \
     src/chart/frequencybasedplot.h \
     src/chart/groupdelayplot.h \
-    src/chart/groupdelayseriesrenderer.h \
     src/chart/palette.h \
     src/chart/spectrogramplot.h \
-    src/chart/spectrogramseriesrenderer.h \
     src/chart/stepplot.h \
-    src/chart/stepseriesrenderer.h \
     src/elc.h \
     src/filesystem/dialog.h \
     src/filesystem/dialogPlugin.h \
@@ -143,28 +131,19 @@ HEADERS += \
     src/chart/variablechart.h \
     src/chart/plot.h \
     src/chart/rtaplot.h \
-    src/chart/seriesfbo.h \
-    src/chart/rtaseriesrenderer.h \
-    src/chart/seriesrenderer.h \
     src/chart/impulseplot.h \
-    src/chart/impulseseriesrenderer.h \
     src/chart/phaseplot.h \
-    src/chart/phaseseriesrenderer.h \
     src/chart/magnitudeplot.h \
-    src/chart/magnitudeseriesrenderer.h \
-    src/chart/frequencybasedseriesrenderer.h \
     src/chart/xyplot.h \
     src/generatorthread.h \
     src/averaging.h \
-    src/chart/xyseriesrenderer.h \
     src/container/fifo.h \
     src/container/array.h \
     src/coherence.h \
     src/chart/coherenceplot.h \
-    src/chart/coherenceseriesrenderer.h \
     src/settings.h
 
-
+#dialogs
 ios: {
     QMAKE_IOS_DEPLOYMENT_TARGET = 13.0
     QMAKE_APPLE_TARGETED_DEVICE_FAMILY = 2 #iPad
@@ -248,8 +227,66 @@ unix:!macx:!ios {
 }
 
 
-# Special rules for deployment on Linux for AppImage
+#graphics
+GRAPH = "OPENGL"
 
+isEqual(GRAPH, "METAL") {
+    message("use metal")
+
+    QT += widgets
+    DEFINES += GRAPH_METAL
+
+    INCLUDEPATH += src/chart/metal
+
+    HEADERS += \
+        src/chart/metal/seriesitem.h \
+
+    SOURCES += \
+        src/chart/metal/seriesitem.cpp \
+        src/chart/metal/plotseriescreator.cpp
+
+    LIBS += -framework Metal
+}
+
+isEqual(GRAPH, "OPENGL"){
+    message("use OpenGL")
+    QT += opengl
+    DEFINES += GRAPH_OPENGL
+
+    INCLUDEPATH += src/chart/opengl
+
+    HEADERS += \
+        src/chart/opengl/seriesfbo.h \
+        src/chart/opengl/rtaseriesrenderer.h \
+        src/chart/opengl/seriesrenderer.h \
+        src/chart/opengl/impulseseriesrenderer.h \
+        src/chart/opengl/phaseseriesrenderer.h \
+        src/chart/opengl/magnitudeseriesrenderer.h \
+        src/chart/opengl/frequencybasedseriesrenderer.h \
+        src/chart/opengl/xyseriesrenderer.h \
+        src/chart/opengl/coherenceseriesrenderer.h \
+        src/chart/opengl/groupdelayseriesrenderer.h \
+        src/chart/opengl/spectrogramseriesrenderer.h \
+        src/chart/opengl/stepseriesrenderer.h
+
+    SOURCES += \
+        src/chart/opengl/plotseriescreator.cpp \
+        src/chart/opengl/seriesfbo.cpp \
+        src/chart/opengl/rtaseriesrenderer.cpp \
+        src/chart/opengl/seriesrenderer.cpp \
+        src/chart/opengl/impulseseriesrenderer.cpp \
+        src/chart/opengl/phaseseriesrenderer.cpp \
+        src/chart/opengl/magnitudeseriesrenderer.cpp \
+        src/chart/opengl/frequencybasedseriesrenderer.cpp \
+        src/chart/opengl/xyseriesrenderer.cpp \
+        src/chart/opengl/coherenceseriesrenderer.cpp \
+        src/chart/opengl/groupdelayseriesrenderer.cpp \
+        src/chart/opengl/spectrogramseriesrenderer.cpp \
+        src/chart/opengl/stepseriesrenderer.cpp
+}
+
+
+# Special rules for deployment on Linux for AppImage
 unix:!macx:!ios:CONFIG(release, debug|release) {
     QMAKE_POST_LINK += $$QMAKE_COPY $$PWD/OpenSoundMeter.desktop $$OUT_PWD/OpenSoundMeter_\\"$$APP_GIT_VERSION\\".desktop
     QMAKE_POST_LINK +=&& $$QMAKE_COPY $$PWD/icons/white.png $$OUT_PWD

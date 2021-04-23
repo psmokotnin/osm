@@ -16,9 +16,8 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "spectrogramplot.h"
-#include "spectrogramseriesrenderer.h"
 
-using namespace Fftchart;
+using namespace chart;
 
 SpectrogramPlot::SpectrogramPlot(Settings *settings,
                                  QQuickItem *parent): FrequencyBasedPlot(settings, parent), m_min(-90), m_mid(-50), m_max(10)
@@ -58,12 +57,6 @@ void SpectrogramPlot::storeSettings() noexcept
     m_settings->setValue("dBMin", m_min);
     m_settings->setValue("dBMid", m_mid);
     m_settings->setValue("dBMax", m_max);
-}
-SeriesFBO *SpectrogramPlot::createSeriesFromSource(Source *source)
-{
-    return new SeriesFBO(source, []() {
-        return new SpectrogramSeriesRenderer();
-    }, this);
 }
 
 int SpectrogramPlot::max() const

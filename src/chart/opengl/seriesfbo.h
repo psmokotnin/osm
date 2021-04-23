@@ -19,9 +19,9 @@
 #define SERIESFBO_H
 
 #include <QQuickFramebufferObject>
-#include "source.h"
+#include "../source.h"
 
-namespace Fftchart {
+namespace chart {
 
 typedef std::function<QQuickFramebufferObject::Renderer* (void)> RendererCreator;
 

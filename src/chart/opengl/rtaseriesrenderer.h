@@ -15,24 +15,39 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef PHASESERIESRENDERER_H
-#define PHASESERIESRENDERER_H
+#ifndef RTASERIES_H
+#define RTASERIES_H
+
+#include <QQuickFramebufferObject>
+#include <QOpenGLShaderProgram>
 
 #include "frequencybasedseriesrenderer.h"
-namespace Fftchart {
+#include "../rtaplot.h"
 
-class PhaseSeriesRenderer : public FrequencyBasedSeriesRenderer
+namespace chart {
+
+class RTASeriesRenderer : public FrequencyBasedSeriesRenderer
 {
+    constexpr const static float LEVEL_NORMALIZATION = -41.38f;
+
 public:
-    PhaseSeriesRenderer();
+    explicit RTASeriesRenderer();
     void renderSeries() override;
     void synchronize(QQuickFramebufferObject *item) override;
 
+protected:
+    void renderLine();
+    void renderLines();
+    void renderBars();
+
+    void drawVertices(const GLenum &mode, const GLsizei &count);
+    virtual void updateMatrix() override;
+
 private:
-    int  m_coherenceThresholdU, m_coherenceAlpha;
-    unsigned int m_pointsPerOctave;
-    float m_rotate, m_coherenceThreshold;
-    bool m_coherence;
+    void initShaders();
+
+    unsigned int m_pointsPerOctave, m_mode;
+    QOpenGLShader m_vertexShader, m_geometryShader, m_fragmentShader;
 };
 }
-#endif // PHASESERIESRENDERER_H
+#endif // RTASERIES_H

@@ -24,9 +24,9 @@
 #include <QtGui/QOpenGLFunctions>
 #include <QOpenGLFunctions_3_3_Core>
 
-#include "source.h"
+#include "../source.h"
 
-namespace Fftchart {
+namespace chart {
 
 class SeriesRenderer : public QQuickFramebufferObject::Renderer
 {

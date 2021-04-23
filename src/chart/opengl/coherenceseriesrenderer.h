@@ -15,42 +15,25 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef SPECTROGRAMSERIESRENDERER_H
-#define SPECTROGRAMSERIESRENDERER_H
-
-#include <deque>
-#include <array>
-#include <QQuickFramebufferObject>
-#include <QOpenGLShaderProgram>
-#include <QElapsedTimer>
+#ifndef COHERENCESERIESRENDERER_H
+#define COHERENCESERIESRENDERER_H
 
 #include "frequencybasedseriesrenderer.h"
+#include "../coherenceplot.h"
+#include <cstring>
 
-namespace Fftchart {
-class SpectrogramSeriesRenderer : public FrequencyBasedSeriesRenderer
+namespace chart {
+class CoherenceSeriesRenderer : public FrequencyBasedSeriesRenderer
 {
 public:
-    explicit SpectrogramSeriesRenderer();
+    CoherenceSeriesRenderer();
     void renderSeries() override;
     void synchronize(QQuickFramebufferObject *item) override;
 
-protected:
-    virtual void updateMatrix() override;
-    typedef std::array<float, 5> historyPoint;
-    typedef std::vector<historyPoint> historyRowData;
-    struct historyRow {
-        int time;
-        historyRowData data;
-    };
-    std::deque<historyRow> history;
-
 private:
-    int m_min, m_mid, m_max;
     unsigned int m_pointsPerOctave;
-    QElapsedTimer m_timer;
-
-    unsigned int m_indexBufferId, m_sourceSize;
-    std::vector<unsigned int> m_indices;
+    CoherencePlot::Type m_type;
 };
 }
-#endif // SPECTROGRAMSERIESRENDERER_H
+
+#endif // COHERENCESERIESRENDERER_H

@@ -20,7 +20,7 @@
 
 #include <QtQuick/QQuickPaintedItem>
 
-namespace Fftchart {
+namespace chart {
 class PaintedItem : public QQuickPaintedItem
 {
     Q_OBJECT

@@ -24,7 +24,7 @@
 
 #include "../complex.h"
 
-namespace Fftchart {
+namespace chart {
 class Source : public QObject
 {
     Q_OBJECT

@@ -18,7 +18,7 @@
 #include "union.h"
 #include "stored.h"
 
-Union::Union(Settings *settings, QObject *parent): Fftchart::Source(parent),
+Union::Union(Settings *settings, QObject *parent): chart::Source(parent),
     m_settings(settings),
     m_sources(4),
     m_timer(nullptr), m_timerThread(nullptr),
@@ -44,7 +44,7 @@ Union::~Union()
     m_timerThread.wait();
 }
 
-Fftchart::Source *Union::clone() const
+chart::Source *Union::clone() const
 {
     auto cloned = new Union(nullptr, parent());
     cloned->m_sources = m_sources;
@@ -67,7 +67,7 @@ void Union::setActive(bool active) noexcept
 {
     if (active == m_active)
         return;
-    Fftchart::Source::setActive(active);
+    chart::Source::setActive(active);
     update();
 }
 Union::Type Union::type() const
@@ -90,33 +90,33 @@ void Union::init() noexcept
 
 void Union::resize()
 {
-    Fftchart::Source *primary = m_sources.first();
+    chart::Source *primary = m_sources.first();
     m_dataLength         = static_cast<unsigned int>(primary ? primary->size() : 1);
     m_deconvolutionSize = static_cast<unsigned int>(primary ? primary->impulseSize() : 1);
     m_ftdata             = new FTData[m_dataLength];
     m_impulseData        = new TimeData[m_deconvolutionSize];
 }
-Fftchart::Source *Union::getSource(int index) const noexcept
+chart::Source *Union::getSource(int index) const noexcept
 {
     if (index < m_sources.count()) {
         return m_sources.at(index);
     }
     return nullptr;
 }
-void Union::setSource(int index, Fftchart::Source *s) noexcept
+void Union::setSource(int index, chart::Source *s) noexcept
 {
     if (s == getSource(index))
         return;
 
     if (index < m_sources.count()) {
         if (m_sources[index]) {
-            disconnect(m_sources[index], &Fftchart::Source::readyRead, this, &Union::update);
+            disconnect(m_sources[index], &chart::Source::readyRead, this, &Union::update);
         }
         m_sources.replace(index, s);
         if (index == 0)
             init();
 
-        if (s) connect(s, &Fftchart::Source::readyRead, this, &Union::update);
+        if (s) connect(s, &chart::Source::readyRead, this, &Union::update);
         update();
     }
 }
@@ -127,13 +127,13 @@ void Union::update() noexcept
 }
 void Union::calc() noexcept
 {
-    std::set<Fftchart::Source *> sources;
+    std::set<chart::Source *> sources;
 
     if (!active())
         return;
 
     std::lock_guard<std::mutex> guard(m_dataMutex);
-    Fftchart::Source *primary = m_sources.first();
+    chart::Source *primary = m_sources.first();
     unsigned int count = 0;
 
     if (!primary) {
@@ -176,7 +176,7 @@ void Union::calc() noexcept
     emit readyRead();
 }
 void Union::calcPolar(unsigned int count, std::set<Source *> sources,
-                      Fftchart::Source *primary) noexcept
+                      chart::Source *primary) noexcept
 {
     float magnitude, phase, module, coherence;
 
@@ -218,8 +218,8 @@ void Union::calcPolar(unsigned int count, std::set<Source *> sources,
         m_ftdata[i].coherence  = coherence;
     }
 }
-void Union::calcVector(unsigned int count, std::set<Fftchart::Source *> sources,
-                       Fftchart::Source *primary) noexcept
+void Union::calcVector(unsigned int count, std::set<chart::Source *> sources,
+                       chart::Source *primary) noexcept
 {
     complex a, m;
 
