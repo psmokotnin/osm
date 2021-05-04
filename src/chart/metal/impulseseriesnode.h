@@ -15,24 +15,30 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef IMPULSESERIESRENDERER_H
-#define IMPULSESERIESRENDERER_H
+#ifndef CHART_IMPULSESERIESNODE_H
+#define CHART_IMPULSESERIESNODE_H
 
-#include "xyseriesrenderer.h"
+#include "xyseriesnode.h"
+namespace chart {
 
-namespace Fftchart {
-class ImpulseSeriesRenderer : public XYSeriesRenderer
+class ImpulseSeriesNode : public XYSeriesNode
 {
+    Q_OBJECT
 public:
-    ImpulseSeriesRenderer();
-    void renderSeries() override;
+    ImpulseSeriesNode(QQuickItem *item);
+    ~ImpulseSeriesNode();
 
 protected:
-    virtual void updateMatrix() override;
+    void initRender() override;
+    void synchronizeSeries() override;
+    void renderSeries() override;
+    void updateMatrix() override;
 
 private:
-    int m_matrixUniform, m_widthUniform, m_screenUniform;
+    //! MTLRenderPipelineState
+    void *m_pipeline;
 };
 
-}
-#endif // IMPULSESERIESRENDERER_H
+} // namespace chart
+
+#endif // CHART_IMPULSESERIESNODE_H

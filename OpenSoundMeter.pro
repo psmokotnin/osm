@@ -15,6 +15,7 @@ SOURCES += src/main.cpp \
     src/audio/plugin.cpp \
     src/audio/stream.cpp \
     src/chart/frequencybasedplot.cpp \
+    src/chart/frequencybasedserieshelper.cpp \
     src/chart/groupdelayplot.cpp \
     src/chart/palette.cpp \
     src/chart/spectrogramplot.cpp \
@@ -95,6 +96,7 @@ HEADERS += \
     src/audio/plugin.h \
     src/audio/stream.h \
     src/chart/frequencybasedplot.h \
+    src/chart/frequencybasedserieshelper.h \
     src/chart/groupdelayplot.h \
     src/chart/palette.h \
     src/chart/spectrogramplot.h \
@@ -226,9 +228,10 @@ unix:!macx:!ios {
     LIBS += -lasound
 }
 
-
-#graphics
-GRAPH = "OPENGL"
+GRAPH = $$(GRAPH_BACKEND)
+isEmpty(GRAPH) {
+    GRAPH = "OPENGL"
+}
 
 isEqual(GRAPH, "METAL") {
     message("use metal")
@@ -239,16 +242,71 @@ isEqual(GRAPH, "METAL") {
     INCLUDEPATH += src/chart/metal
 
     HEADERS += \
+        src/chart/metal/coherenceseriesnode.h \
+        src/chart/metal/groupdelayseriesnode.h \
+        src/chart/metal/impulseseriesnode.h \
+        src/chart/metal/magnitudeseriesnode.h \
+        src/chart/metal/phaseseriesnode.h \
+        src/chart/metal/seriesnode.h \
+        src/chart/metal/spectrogramseriesnode.h \
+        src/chart/metal/stepseriesnode.h \
+        src/chart/metal/xyseriesnode.h \
+        src/chart/metal/rtaseriesnode.h \
         src/chart/metal/seriesitem.h \
 
     SOURCES += \
+        src/chart/metal/rtaseriesnode.mm \
+        src/chart/metal/coherenceseriesnode.mm \
+        src/chart/metal/groupdelayseriesnode.mm \
+        src/chart/metal/impulseseriesnode.mm \
+        src/chart/metal/magnitudeseriesnode.mm \
+        src/chart/metal/phaseseriesnode.mm \
+        src/chart/metal/seriesnode.mm \
+        src/chart/metal/spectrogramseriesnode.mm \
+        src/chart/metal/stepseriesnode.mm \
+        src/chart/metal/xyseriesnode.mm \
         src/chart/metal/seriesitem.cpp \
-        src/chart/metal/plotseriescreator.cpp
+        src/chart/metal/plotseriescreator.cpp \
+
+    METAL_SOURCES += \
+        src/chart/metal/shaders.metal \
 
     LIBS += -framework Metal
+
+    macx {
+        SCRUN_SDK = "macosx"
+    }
+
+    metal_command = echo "build metal"
+    for (METAL_SOURCE, METAL_SOURCES) {
+        AIR_FILE = $$basename(METAL_SOURCE)
+        AIR_FILE = $$OUT_PWD/$$replace(AIR_FILE, .metal, .air)
+        AIR_FILES += $$AIR_FILE
+        metal_command += && xcrun -sdk $$SCRUN_SDK metal -c $$PWD/$$METAL_SOURCE -o $$AIR_FILE
+    }
+    metal_command += && xcrun -sdk macosx metallib $$AIR_FILES -o $$OUT_PWD/lib.metallib
+
+    metal_target.target = metal
+    metal_target.commands = $$metal_command
+    QMAKE_EXTRA_TARGETS += metal_target
+    PRE_TARGETDEPS += metal
+
+    metal_install.target = metal
+    metal_install.files += $$OUT_PWD/lib.metallib
+    metal_install.path = Contents/Resources
+    metal_install.CONFIG += no_check_exist
+
+    #runs before build
+    #QMAKE_BUNDLE_DATA += metal_install
+
+    #QMAKE_POST_LINK and PRE_TARGETDEPS - takes no effect on Xcode projects
+    QMAKE_POST_LINK = cp $$OUT_PWD/lib.metallib $$OUT_PWD/OpenSoundMeter.app/Contents/Resources/lib.metallib
+
+    QMAKE_CLEAN += *.air
+    QMAKE_CLEAN += *.metallib
 }
 
-isEqual(GRAPH, "OPENGL"){
+isEqual(GRAPH, "OPENGL") {
     message("use OpenGL")
     QT += opengl
     DEFINES += GRAPH_OPENGL

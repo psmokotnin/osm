@@ -15,29 +15,33 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef FREQUENCYBASEDSERIESRENDERER_H
-#define FREQUENCYBASEDSERIESRENDERER_H
+#ifndef CHART_STEPSERIESNODE_H
+#define CHART_STEPSERIESNODE_H
 
-#include "xyseriesrenderer.h"
-#include "../frequencybasedserieshelper.h"
+#include "xyseriesnode.h"
 
 namespace chart {
 
-class FrequencyBasedSeriesRenderer : public XYSeriesRenderer, public FrequencyBasedSeriesHelper
+class StepSeriesNode : public XYSeriesNode
 {
-
-protected:
-    virtual void updateMatrix() override;
-    void setUniforms();
-    Source *source() const override;
-
+    Q_OBJECT
 public:
-    explicit FrequencyBasedSeriesRenderer();
+    StepSeriesNode(QQuickItem *item);
+    ~StepSeriesNode();
 
 protected:
-    int m_minmaxUniform,
-        m_screenUniform,
-        m_widthUniform;
+    void initRender() override;
+    void synchronizeSeries() override;
+    void renderSeries() override;
+    void updateMatrix() override;
+
+private:
+    float m_zero;
+
+    //! MTLRenderPipelineState
+    void *m_pipeline;
 };
-}
-#endif // FREQUENCYBASEDSERIESRENDERER_H
+
+} // namespace chart
+
+#endif // CHART_STEPSERIESNODE_H

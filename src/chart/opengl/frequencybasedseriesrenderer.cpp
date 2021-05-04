@@ -49,37 +49,8 @@ void FrequencyBasedSeriesRenderer::setUniforms()
     m_program.setUniformValue(m_screenUniform, m_width, m_height);
     m_program.setUniformValue(m_widthUniform, m_weight * m_retinaScale);
 }
-void FrequencyBasedSeriesRenderer::iterate(const unsigned int &pointsPerOctave,
-                                           const std::function<void(const unsigned int &)> &accumulate,
-                                           const std::function<void(const float &start, const float &end, const unsigned int &count)> &collected)
+
+Source *FrequencyBasedSeriesRenderer::source() const
 {
-    unsigned int count = 0;
-
-    constexpr const float startFrequency = 24000.f / 2048.f;//pow(2, 11);
-
-    float _frequencyFactor = powf(2.f, 1.f / pointsPerOctave);
-    float bandStart = startFrequency,
-          bandEnd   = bandStart * _frequencyFactor,
-          lastBandEnd = bandStart,
-          frequency;
-
-    for (unsigned int i = 1; i < m_source->size(); ++i) {
-        frequency = m_source->frequency(i);
-        if (frequency < bandStart) continue;
-        while (frequency > bandEnd) {
-
-            if (count) {
-                collected(lastBandEnd, bandEnd, count);
-                count = 0;
-
-                //extend current band to the end of the pervious collected
-                lastBandEnd = bandEnd;
-            }
-
-            bandStart = bandEnd;
-            bandEnd   *= _frequencyFactor;
-        }
-        count ++;
-        accumulate(i);
-    }
+    return m_source;
 }

@@ -27,9 +27,13 @@
 #ifdef GRAPH_METAL
 #include "seriesitem.h"
 using SeriesItem = chart::SeriesItem;
-#else
+
+#elif defined(GRAPH_OPENGL)
 #include "seriesfbo.h"
 using SeriesItem = chart::SeriesFBO;
+
+#else
+#pragma message("GRAPH backend not setted")
 #endif
 
 namespace chart {
@@ -104,7 +108,7 @@ signals:
     void updated();
     void openGLErrorChanged();
 
-protected slots:
+public slots:
     void parentWidthChanged();
     void parentHeightChanged();
 

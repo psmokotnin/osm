@@ -24,46 +24,68 @@
 #include "../stepplot.h"
 #include "../spectrogramplot.h"
 
+#include "rtaseriesnode.h"
+#include "impulseseriesnode.h"
+#include "stepseriesnode.h"
+#include "magnitudeseriesnode.h"
+#include "phaseseriesnode.h"
+#include "groupdelayseriesnode.h"
+#include "coherenceseriesnode.h"
+#include "spectrogramseriesnode.h"
+
+
 namespace chart {
+
+template<typename T> SeriesItem *itemNode(Plot *plot, Source *source)
+{
+    auto s = new SeriesItem(source, plot, [](auto item) {
+        return new T(item);
+    });
+    return s;
+}
 
 SeriesItem *RTAPlot::createSeriesFromSource(Source *source)
 {
-    return nullptr;
+    return itemNode<RTASeriesNode>(this, source);
+    auto s = new SeriesItem(source, this, [](auto item) {
+        return new RTASeriesNode(item);
+    });
+    return s;
 }
 
 SeriesItem *MagnitudePlot::createSeriesFromSource(Source *source)
 {
-    return nullptr;
+    return itemNode<MagnitudeSeriesNode>(this, source);
 }
 
 SeriesItem *PhasePlot::createSeriesFromSource(Source *source)
 {
-    return nullptr;
+    return itemNode<PhaseSeriesNode>(this, source);
 }
 
 SeriesItem *CoherencePlot::createSeriesFromSource(Source *source)
 {
-    return nullptr;
+    return itemNode<CoherenceSeriesNode>(this, source);
 }
 
 SeriesItem *GroupDelayPlot::createSeriesFromSource(Source *source)
 {
-    return nullptr;
+    return itemNode<GroupDelaySeriesNode>(this, source);
 }
 
 SeriesItem *ImpulsePlot::createSeriesFromSource(Source *source)
 {
-    return nullptr;
+    return itemNode<ImpulseSeriesNode>(this, source);
 }
 
 SeriesItem *StepPlot::createSeriesFromSource(Source *source)
 {
-    return nullptr;
+    return itemNode<StepSeriesNode>(this, source);
 }
 
 SeriesItem *SpectrogramPlot::createSeriesFromSource(Source *source)
 {
-    return nullptr;
+    return itemNode<SpectrogramSeriesNode>(this, source);
 }
 
 }

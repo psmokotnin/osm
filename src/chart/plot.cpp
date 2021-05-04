@@ -25,8 +25,8 @@ using namespace chart;
 Plot::Plot(Settings *settings, QQuickItem *parent) :
     QQuickItem(parent), m_settings(settings), m_palette(this), m_filter(nullptr), m_openGLError(false)
 {
-    connect(parent, SIGNAL(widthChanged()), this, SLOT(parentWidthChanged()));
-    connect(parent, SIGNAL(heightChanged()), this, SLOT(parentHeightChanged()));
+    connect(parent, &QQuickItem::widthChanged, this, &Plot::parentWidthChanged);
+    connect(parent, &QQuickItem::heightChanged, this, &Plot::parentHeightChanged);
     connect(&m_palette, SIGNAL(changed()), this, SLOT(update()));
     setWidth(parent->width());
     setHeight(parent->height());
@@ -40,21 +40,27 @@ void Plot::clear()
 }
 void Plot::disconnectFromParent()
 {
-    disconnect(parentItem(), SIGNAL(widthChanged()), this, SLOT(parentWidthChanged()));
-    disconnect(parentItem(), SIGNAL(heightChanged()), this, SLOT(parentHeightChanged()));
+    disconnect(parentItem(), &QQuickItem::widthChanged, this, &Plot::parentWidthChanged);
+    disconnect(parentItem(), &QQuickItem::heightChanged, this, &Plot::parentHeightChanged);
 }
 void Plot::parentWidthChanged()
 {
+    if (!parentItem()) {
+        return;
+    }
     setWidth(parentItem()->width());
-    foreach (SeriesItem *s, findChildren<SeriesItem *>()) {
-        applyWidthForSeries(s);
+    for (auto &&series : m_serieses) {
+        applyWidthForSeries(series);
     }
 }
 void Plot::parentHeightChanged()
 {
+    if (!parentItem()) {
+        return;
+    }
     setHeight(parentItem()->height());
-    foreach (SeriesItem *s, findChildren<SeriesItem *>()) {
-        applyHeightForSeries(s);
+    for (auto &&series : m_serieses) {
+        applyHeightForSeries(series);
     }
 }
 void Plot::applyWidthForSeries(SeriesItem *s)
@@ -96,9 +102,10 @@ void Plot::setFilter(chart::Source *filter) noexcept
         emit filterChanged(m_filter);
     }
 }
+
 QSGNode *Plot::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *)
 {
-    auto *node = dynamic_cast<QSGSimpleRectNode *>(oldNode);
+    auto *node = static_cast<QSGSimpleRectNode *>(oldNode);
     if (!node) {
         node = new QSGSimpleRectNode();
     }
