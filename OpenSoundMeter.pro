@@ -290,6 +290,9 @@ isEqual(GRAPH, "METAL") {
         METAL_SDK = "iphoneos"
         METAL_STD = "ios-metal1.0"
     }
+    ios {
+        SCRUN_SDK = "iphoneos"
+    }
 
     metal_command = echo "build metal"
     for (METAL_SOURCE, METAL_SOURCES) {
@@ -305,16 +308,16 @@ isEqual(GRAPH, "METAL") {
     QMAKE_EXTRA_TARGETS += metal_target
     PRE_TARGETDEPS += metal
 
-    metal_install.target = metal
-    metal_install.files += $$OUT_PWD/lib.metallib
-    metal_install.path = Contents/Resources
-    metal_install.CONFIG += no_check_exist
-
-    #runs before build
-    #QMAKE_BUNDLE_DATA += metal_install
-
     #QMAKE_POST_LINK and PRE_TARGETDEPS - takes no effect on Xcode projects
-    QMAKE_POST_LINK = cp $$OUT_PWD/lib.metallib $$OUT_PWD/OpenSoundMeter.app/Contents/Resources/lib.metallib
+    macx {
+        QMAKE_POST_LINK = cp $$OUT_PWD/lib.metallib $$OUT_PWD/OpenSoundMeter.app/Contents/Resources/lib.metallib
+    }
+    ios {
+        metal_install.target = metal
+        metal_install.files += $$OUT_PWD/lib.metallib
+        metal_install.CONFIG += no_check_exist
+        QMAKE_BUNDLE_DATA += metal_install
+    }
 
     QMAKE_CLEAN += *.air
     QMAKE_CLEAN += *.metallib
@@ -376,16 +379,13 @@ FORMS +=
 QMAKE_CXXFLAGS_RELEASE -= -O2
 QMAKE_CXXFLAGS_RELEASE += -Ofast
 
-QMAKE_INFO_PLIST = $$PWD/Info.plist
 macx {
+    QMAKE_INFO_PLIST = $$PWD/Info.plist
     APP_ENTITLEMENTS.files = info.entitlements
     APP_ENTITLEMENTS.path = Contents/Resources
     QMAKE_BUNDLE_DATA += APP_ENTITLEMENTS
 }
 
-macx {
-    QMAKE_POST_LINK += plutil -replace NSMicrophoneUsageDescription -string \"Audio measurement.\" $${TARGET}.app/Contents/Info.plist
-}
 ios {
     QMAKE_POST_LINK += plutil -replace NSMicrophoneUsageDescription -string \"Audio measurement.\" Info.plist
     ios_icon.files = $$files($$PWD/icons/ios/*.png)
