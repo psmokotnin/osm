@@ -34,13 +34,14 @@ public:
     SeriesNode(QQuickItem *item);
     virtual ~SeriesNode();
 
-    void synchronize();
-    void render();
-
     int width() const;
     int height() const;
 
-    QSGTexture *texture() const override;
+    QSGTexture *texture() const override final;
+
+public slots:
+    void synchronize();
+    void render();
 
 protected:
     Plot *plot() const;

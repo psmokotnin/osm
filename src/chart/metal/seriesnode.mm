@@ -37,10 +37,16 @@ SeriesNode::SeriesNode(QQuickItem *item) : m_item(item),
 {
     m_source = static_cast<SeriesItem *>(m_item)->source();
     m_retinaScale = m_window->devicePixelRatio();
+
+    setTextureCoordinatesTransform(QSGSimpleTextureNode::NoTransform);
+    setFiltering(QSGTexture::Linear);
+
     connect(m_window, &QQuickWindow::screenChanged, this, [this]() {
         if (m_window->effectiveDevicePixelRatio() != m_devicePixelRatio)
             m_item->update();
     });
+    connect(m_window, &QQuickWindow::afterSynchronizing, this, &SeriesNode::synchronize, Qt::DirectConnection);
+    connect(m_window, &QQuickWindow::beforeRendering,    this, &SeriesNode::render,      Qt::DirectConnection);
 }
 
 SeriesNode::~SeriesNode()
@@ -61,6 +67,7 @@ void SeriesNode::synchronize()
     const QSize newSize = itemSize * m_devicePixelRatio;
     if (newSize != m_size || !texture()) {
         m_size = newSize;
+        setRect(0, 0, m_item->width(), m_item->height());
         init();
     }
     synchronizeSeries();
@@ -85,8 +92,8 @@ void SeriesNode::init()
     MTLTextureDescriptor *descriptor = [[MTLTextureDescriptor alloc] init];
     descriptor.textureType = MTLTextureType2D;
     descriptor.pixelFormat = MTLPixelFormatRGBA8Unorm;
-    descriptor.width = m_size.width();
-    descriptor.height = m_size.height();
+    descriptor.width = width();
+    descriptor.height = height();
     descriptor.mipmapLevelCount = 1;
     descriptor.resourceOptions = MTLResourceStorageModePrivate;
     descriptor.storageMode = MTLStorageModePrivate;
@@ -180,8 +187,8 @@ void *SeriesNode::commandEncoder()
     MTLViewport vp;
     vp.originX = 0;
     vp.originY = 0;
-    vp.width = m_size.width();
-    vp.height = m_size.height();
+    vp.width = width();
+    vp.height = height();
     vp.znear = 0;
     vp.zfar = 1;
     [encoder setViewport: vp];
@@ -231,8 +238,8 @@ void SeriesNode::render()
 
     float *size_ptr = static_cast<float *>([id_cast(MTLBuffer, m_sizeBuffer) contents]);
     if (size_ptr) {
-        size_ptr[0] = m_size.width();
-        size_ptr[1] = m_size.height();
+        size_ptr[0] = width();
+        size_ptr[1] = height();
     }
 
     m_source->lock();
@@ -269,8 +276,8 @@ void SeriesNode::clearRender()
     MTLViewport vp;
     vp.originX = 0;
     vp.originY = 0;
-    vp.width = m_size.width();
-    vp.height = m_size.height();
+    vp.width = width();
+    vp.height = height();
     vp.znear = 0;
     vp.zfar = 1;
     [encoder setViewport: vp];

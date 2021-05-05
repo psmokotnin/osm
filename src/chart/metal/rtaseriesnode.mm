@@ -127,6 +127,7 @@ Source *RTASeriesNode::source() const
 void RTASeriesNode::renderSeries()
 {
     if (!m_source->size()) {
+        clearRender();
         return;
     }
 

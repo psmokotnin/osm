@@ -61,17 +61,8 @@ QSGNode *SeriesItem::updatePaintNode(QSGNode *oldNode, QQuickItem::UpdatePaintNo
         if (width() <= 0 || height() <= 0) {
             return nullptr;
         }
-
         node = m_nodeConstructor(this);
     }
-
-    node->setTextureCoordinatesTransform(QSGSimpleTextureNode::NoTransform);
-    node->setFiltering(QSGTexture::Linear);
-    node->setRect(0, 0, width(), height());
-    node->synchronize();
-    node->render();
-
-    window()->update();
     return node;
 }
 
