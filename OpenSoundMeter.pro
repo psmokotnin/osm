@@ -387,6 +387,7 @@ macx {
 }
 
 ios {
+    QMAKE_INFO_PLIST = $$PWD/ios.plist
     QMAKE_POST_LINK += plutil -replace NSMicrophoneUsageDescription -string \"Audio measurement.\" Info.plist
     ios_icon.files = $$files($$PWD/icons/ios/*.png)
     QMAKE_BUNDLE_DATA += ios_icon
