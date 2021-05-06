@@ -40,6 +40,9 @@ protected:
     void updateMatrix() override;
     Source *source() const override;
 
+private slots:
+    void updateHistory();
+
 private:
     typedef std::array<float, 5> historyPoint;
     typedef std::vector<historyPoint> historyRowData;

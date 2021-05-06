@@ -29,7 +29,7 @@ SpectrogramSeriesNode::SpectrogramSeriesNode(QQuickItem *item) : XYSeriesNode(it
     m_timer(),
     m_pipeline(nullptr), m_indiciesBuffer(nullptr)
 {
-
+    connect(source(), &Source::readyRead, this, &SpectrogramSeriesNode::updateHistory);
 }
 
 SpectrogramSeriesNode::~SpectrogramSeriesNode()
@@ -96,12 +96,10 @@ void SpectrogramSeriesNode::synchronizeSeries()
     }
 }
 
-void SpectrogramSeriesNode::renderSeries()
+void SpectrogramSeriesNode::updateHistory()
 {
-    if (!m_source->size()) {
-        clearRender();
-        return;
-    }
+    //QSGRenderThread
+    Q_ASSERT(thread() == QThread::currentThread());
 
     float floor = -140.f;
     float alpha;
@@ -165,6 +163,14 @@ void SpectrogramSeriesNode::renderSeries()
     m_history.push_back(std::move(row));
     if (m_history.size() > MAX_HISTORY) {
         m_history.pop_front();
+    }
+}
+
+void SpectrogramSeriesNode::renderSeries()
+{
+    if (!m_source->size() || m_history.empty()) {
+        clearRender();
+        return;
     }
 
     unsigned int maxBufferSize = MAX_HISTORY * (m_pointsPerOctave * 11 + 4) * 6,
