@@ -32,6 +32,7 @@ Item {
     property bool editable: true
     property bool indicators: true
     property int implicitWidth: 120
+    property int fontSize: spinbox.font.pixelSize
     property string units: ""
     width: spinbox.width
     height: spinbox.height
@@ -45,6 +46,7 @@ Item {
         property bool completed: false
         implicitWidth: floatspinbox.implicitWidth
         anchors.fill: parent
+        font.pixelSize: fontSize
 
         /*
         value changes before a component is completed while applying limits (from and to)
@@ -75,7 +77,7 @@ Item {
         to:         Math.round(floatspinbox.max * floatspinbox.scale * Math.pow(10, floatspinbox.decimals))
         stepSize:   Math.round(floatspinbox.step * Math.pow(10, floatspinbox.decimals))
         editable:   floatspinbox.editable
-        ToolTip.visible: hovered
+        ToolTip.visible: (tooltiptext ? hovered : false)
         ToolTip.text: floatspinbox.tooltiptext
 
         validator: DoubleValidator {

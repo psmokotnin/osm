@@ -38,4 +38,7 @@ SpinBox {
     Keys.onEscapePressed: {
         focus = false;
     }
+    Keys.onReturnPressed: {
+        focus = false;
+    }
 }

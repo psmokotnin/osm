@@ -18,6 +18,7 @@
 import QtQuick 2.7
 import QtQuick.Window 2.2
 import QtQuick.Controls 2.2
+import "elements"
 
 Item {
     height: 40
@@ -34,6 +35,7 @@ Item {
         }
 
         Label {
+            id: label
             anchors.verticalCenter: parent.verticalCenter
             text:  qsTr("Generator")
 
@@ -43,6 +45,28 @@ Item {
                    open();
                }
             }
+        }
+
+        Rectangle {
+            width: 15
+            height: 40
+            color: "transparent"
+        }
+
+        FloatSpinBox {
+            id: gainSpinBox
+            value: generatorModel.gain
+            from: -90
+            to: 0
+            editable: true
+            onValueChanged: generatorModel.gain = value
+            units: "dB"
+            indicators: false
+            decimals: 0
+            step: 1
+            width: 45
+            height: 40
+            fontSize: label.font.pixelSize
         }
 
         Shortcut {
