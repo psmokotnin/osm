@@ -64,6 +64,11 @@ QJsonObject Stored::toJSON() const noexcept
     object["name"]      = name();
     object["notes"]     = notes();
 
+    object["polarity"]  = polarity();
+    object["inverse"]   = inverse();
+    object["delay"]     = delay();
+    object["gain"]      = gain();
+
     QJsonObject color;
     color["red"]    = m_color.red();
     color["green"]  = m_color.green();
@@ -91,8 +96,8 @@ QJsonObject Stored::toJSON() const noexcept
 
         //time, value
         QJsonArray impulsecell;
-        impulsecell.append(static_cast<double>(impulseTime(i)));
-        impulsecell.append(static_cast<double>(impulseValue(i)));
+        impulsecell.append(static_cast<double>(m_impulseData[i].time));
+        impulsecell.append(static_cast<double>(m_impulseData[i].value.real));
         impulse.append(impulsecell);
     }
     object["impulse"] = impulse;
@@ -131,6 +136,12 @@ void Stored::fromJSON(QJsonObject data) noexcept
         jsonColor["blue" ].toInt(0),
         jsonColor["alpha"].toInt(1));
     setColor(c);
+
+    setPolarity(data["polarity"].toBool(false));
+    setInverse( data["inverse" ].toBool(false));
+    setDelay(data["delay"].toDouble(0));
+    setGain( data["gain" ].toDouble(0));
+
     setName(data["name"].toString());
     setNotes(data["notes"].toString());
     setActive(data["active"].toBool(active()));
@@ -281,7 +292,7 @@ float Stored::magnitudeRaw(const unsigned int &i) const noexcept
 
 float Stored::magnitude(const unsigned int &i) const noexcept
 {
-    return (inverse() ? -1 : 1) * Source::magnitude(i) + m_gain;
+    return (inverse() ? -1 : 1) * (Source::magnitude(i) + m_gain);
 }
 
 complex Stored::phase(const unsigned int &i) const noexcept
