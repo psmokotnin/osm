@@ -33,13 +33,13 @@ Item {
 
         RowLayout {
 
-            ComboBox {
+            DropDown {
                 model: ["Sum", "Diff", "Avg"]
                 currentIndex: dataObject.operation
                 onCurrentIndexChanged: dataObject.operation = currentIndex;
             }
 
-            ComboBox {
+            DropDown {
                 model: ["Vector", "Polar"]
                 currentIndex: dataObject.type
                 onCurrentIndexChanged: dataObject.type = currentIndex;
@@ -90,7 +90,7 @@ Item {
 
         RowLayout {
 
-            ComboBox {
+            DropDown {
                 model: SourceModel {
                     id: sourceModel
                     filter: true
@@ -105,7 +105,7 @@ Item {
                 }
             }
 
-            ComboBox {
+            DropDown {
                 model: SourceModel {
                     filter: true
                     list: sourceList
@@ -119,7 +119,7 @@ Item {
                 }
             }
 
-            ComboBox {
+            DropDown {
                 model: SourceModel {
                     filter: true
                     addNone: true
@@ -134,7 +134,7 @@ Item {
                 }
             }
 
-            ComboBox {
+            DropDown {
                 model: SourceModel {
                     filter: true
                     addNone: true

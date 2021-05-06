@@ -196,7 +196,7 @@ Item {
             Layout.fillWidth: true
         }
 
-        ComboBox {
+        DropDown {
             implicitWidth: 170
             model: ["meter", "foot"]
             currentIndex: mode

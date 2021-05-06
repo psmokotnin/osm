@@ -42,7 +42,7 @@ Item {
             text: title
         }
 
-        ComboBox {
+        DropDown {
             id: cb
             Layout.fillWidth: true
             Layout.leftMargin: 5

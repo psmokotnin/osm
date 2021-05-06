@@ -24,6 +24,8 @@ import QtQuick.Controls.Material 2.12
 
 import SourceModel 1.0
 import OpenSoundMeter 1.0
+import "elements"
+
 /**
  * SideBar
  *
@@ -42,7 +44,7 @@ Item {
 
         RowLayout {
             Layout.alignment: Qt.AlignHCenter
-            ComboBox {
+            DropDown {
                 id: chartsCount
                 Layout.alignment: Qt.AlignHCenter
                 model: ["Single", "Double", "Three"]

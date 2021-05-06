@@ -19,6 +19,7 @@ import QtQuick 2.12
 import QtQuick.Controls 2.2
 import QtQuick.Controls.Material 2.2
 import OpenSoundMeter 1
+import "elements"
 
 Item {
     id: chartview
@@ -254,7 +255,7 @@ Item {
         styleColor: applicationAppearance.darkMode ? "#99000000" : "#99FFFFFF"
     }
 
-    ComboBox {
+    DropDown {
         anchors.top: parent.top
         anchors.right: parent.right
         implicitWidth: 145

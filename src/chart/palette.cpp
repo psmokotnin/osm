@@ -29,7 +29,7 @@ void Palette::initColors() noexcept
 {
     if (m_darkMode) {
         m_lineColor         = QColor(255, 255, 255, 40);
-        m_centerLineColor   = QColor(255, 255, 255, 255);
+        m_centerLineColor   = QColor(255, 255, 255, 128);
         m_textColor         = QColor(255, 255, 255, 255);
         m_backgroundColor   = QColor(Qt::black);
     } else {

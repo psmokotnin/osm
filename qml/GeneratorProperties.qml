@@ -30,7 +30,7 @@ Item {
             Layout.alignment: Qt.AlignTop
 
             //generator type
-            ComboBox {
+            DropDown {
                 id: type
                 implicitWidth: 120
                 currentIndex: generatorModel.type
@@ -166,7 +166,7 @@ Item {
         }
 
         RowLayout {
-            ComboBox {
+            DropDown {
                 id: deviceSelect
                 model: DeviceModel {
                     id: deviceModel
@@ -204,7 +204,7 @@ Item {
                 }
             }
 
-            ComboBox {
+            DropDown {
                 id: outChannel
                 implicitWidth: 120
                 currentIndex: generatorModel.channel
@@ -213,7 +213,7 @@ Item {
                 ToolTip.text: qsTr("channel number")
             }
 
-            ComboBox {
+            DropDown {
                 id: auxChannel
                 implicitWidth: 120
                 currentIndex: generatorModel.aux

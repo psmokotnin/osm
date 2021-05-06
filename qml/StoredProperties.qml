@@ -107,7 +107,7 @@ Item {
                     ToolTip.text: qsTr("inverse polarity")
                 }
 
-                ComboBox {
+                DropDown {
                     displayText: qsTr("Save data as");
 
                     implicitWidth: 170

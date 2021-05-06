@@ -36,7 +36,7 @@ Item {
 
         RowLayout {
 
-            ComboBox {
+            DropDown {
                 id: averageType
                 implicitWidth: 120
                 model: ["off", "LPF", "FIFO"]
@@ -60,7 +60,7 @@ Item {
                 visible: dataObject.averageType === Measurement.FIFO;
             }
 
-            ComboBox {
+            DropDown {
                 implicitWidth: 120
                 model: [ "0.25Hz", "0.5Hz", "1Hz" ]
                 currentIndex: dataObject.filtersFrequency
@@ -226,7 +226,7 @@ Item {
         RowLayout {
             Layout.fillWidth: true
 
-            ComboBox {
+            DropDown {
                 id: modeSelect
                 model: dataObject.modes
                 currentIndex: dataObject.mode
@@ -236,7 +236,7 @@ Item {
                 onCurrentIndexChanged: dataObject.mode = currentIndex;
             }
 
-            ComboBox {
+            DropDown {
                 id: windowSelect
                 model: dataObject.windows
                 currentIndex: dataObject.window
@@ -245,7 +245,7 @@ Item {
                 ToolTip.text: qsTr("window function")
             }
 
-            ComboBox {
+            DropDown {
                 id: measurementChannel
                 currentIndex: dataObject.dataChanel
                 onCurrentIndexChanged: dataObject.dataChanel = currentIndex
@@ -254,7 +254,7 @@ Item {
                 ToolTip.text: qsTr("measurement chanel number")
             }
 
-            ComboBox {
+            DropDown {
                 id: referenceChannel
                 currentIndex: dataObject.referenceChanel
                 onCurrentIndexChanged: dataObject.referenceChanel = currentIndex
@@ -263,7 +263,7 @@ Item {
                 ToolTip.text: qsTr("reference chanel number")
             }
 
-            ComboBox {
+            DropDown {
                 id: deviceSelect
                 Layout.fillWidth: true
                 model: DeviceModel {
@@ -286,6 +286,7 @@ Item {
                     measurementChannel.currentIndex = measurementIndex < channelNames.length ? measurementIndex : -1;
                     referenceChannel.currentIndex = referenceIndex < channelNames.length ? referenceIndex : -1;
                 }
+
                 Connections {
                     target: deviceModel
                     function onModelReset() {

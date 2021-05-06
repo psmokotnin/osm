@@ -139,7 +139,7 @@ Item {
             width: 5
         }
 
-        ComboBox {
+        DropDown {
             id: type
             implicitWidth: 170
             model: ["normal", "squared"]
