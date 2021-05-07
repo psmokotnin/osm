@@ -18,17 +18,20 @@
 import QtQuick 2.7
 import QtQuick.Window 2.2
 import QtQuick.Controls 2.2
+import QtQuick.Layouts 1.12
 import "elements"
 
 Item {
     height: 40
     width: parent.width
 
-    Row {
-        height: 40
+    RowLayout {
+        anchors.fill: parent
+        anchors.rightMargin: 10
+        spacing: 0
 
         Switch {
-            anchors.verticalCenter: parent.verticalCenter
+            Layout.alignment: Qt.AlignCenter
 
             checked: generatorModel.enabled
             onCheckedChanged: generatorModel.enabled = checked
@@ -36,7 +39,7 @@ Item {
 
         Label {
             id: label
-            anchors.verticalCenter: parent.verticalCenter
+            Layout.alignment: Qt.AlignCenter
             text:  qsTr("Generator")
 
             PropertiesOpener {
@@ -49,23 +52,30 @@ Item {
 
         Rectangle {
             width: 15
-            height: 40
+            height: label.implicitHeight
             color: "transparent"
+            Layout.fillWidth: true
+            Layout.alignment: Qt.AlignCenter
         }
 
         FloatSpinBox {
             id: gainSpinBox
             value: generatorModel.gain
-            from: -90
-            to: 0
-            editable: true
             onValueChanged: generatorModel.gain = value
-            units: "dB"
-            indicators: false
+            Layout.alignment: Qt.AlignCenter
+
             decimals: 0
+            from: -90
             step: 1
+            to: 0
+            units: "dB"
+
+            editable: true
+            indicators: false
+            background: false
+
             width: 45
-            height: 40
+            bottomPadding: 8
             fontSize: label.font.pixelSize
         }
 

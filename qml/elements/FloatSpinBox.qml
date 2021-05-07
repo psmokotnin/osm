@@ -31,8 +31,11 @@ Item {
     property string tooltiptext
     property bool editable: true
     property bool indicators: true
+    property bool background: true
     property int implicitWidth: 120
     property int fontSize: spinbox.font.pixelSize
+    property int bottomPadding: spinbox.bottomPadding
+
     property string units: ""
     width: spinbox.width
     height: spinbox.height
@@ -47,6 +50,7 @@ Item {
         implicitWidth: floatspinbox.implicitWidth
         anchors.fill: parent
         font.pixelSize: fontSize
+        bottomPadding: floatspinbox.bottomPadding
 
         /*
         value changes before a component is completed while applying limits (from and to)
@@ -61,6 +65,9 @@ Item {
                 down.indicator.width = 0;
                 up.indicator.height = 0;
                 spacing = 0;
+            }
+            if (!floatspinbox.background) {
+                spinbox.background = null
             }
         }
 
