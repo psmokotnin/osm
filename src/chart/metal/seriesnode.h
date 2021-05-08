@@ -91,6 +91,8 @@ private:
     QQuickWindow *m_window;
     QSize m_size;
     float m_retinaScale;
+
+    std::mutex m_active;
 };
 
 } // namespace chart

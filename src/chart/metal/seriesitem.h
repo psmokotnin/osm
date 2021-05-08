@@ -39,6 +39,9 @@ public:
     bool highlighted() const;
     void setHighlighted(const bool &highlighted);
 
+signals:
+    void preSourceDeleted();
+
 protected:
     QSGNode *updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *) override;
     void geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry) override;

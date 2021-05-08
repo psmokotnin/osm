@@ -47,6 +47,11 @@ SeriesNode::SeriesNode(QQuickItem *item) : m_item(item),
     });
     connect(m_window, &QQuickWindow::afterSynchronizing, this, &SeriesNode::synchronize, Qt::DirectConnection);
     connect(m_window, &QQuickWindow::beforeRendering,    this, &SeriesNode::render,      Qt::DirectConnection);
+    connect(static_cast<SeriesItem *>(m_item), &SeriesItem::preSourceDeleted, this, [this]() {
+        m_active.lock();
+        m_source = nullptr;
+        m_active.unlock();
+    }, Qt::DirectConnection);
 }
 
 SeriesNode::~SeriesNode()
@@ -62,7 +67,6 @@ SeriesNode::~SeriesNode()
 void SeriesNode::synchronize()
 {
     m_devicePixelRatio = m_window->effectiveDevicePixelRatio();
-
     QSize itemSize = QSize(m_item->width(), m_item->height());
     const QSize newSize = itemSize * m_devicePixelRatio;
     if (newSize != m_size || !texture()) {
@@ -211,8 +215,14 @@ void *SeriesNode::allocPipelineStateDescriptor()
 
 void SeriesNode::render()
 {
+    std::lock_guard guard(m_active);
     if (!m_initialized)
         return;
+
+    if (!m_source) {
+        clearRender();
+        return;
+    }
 
     if (!m_source->active()) {
         clearRender();

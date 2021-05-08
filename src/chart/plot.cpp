@@ -126,6 +126,7 @@ void Plot::removeDataSource(Source *source)
 {
     foreach (auto *series, m_serieses) {
         if (series->source() == source) {
+            emit series->preSourceDeleted();
             series->deleteLater();
             m_serieses.removeOne(series);
             update();
