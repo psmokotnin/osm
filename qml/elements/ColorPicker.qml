@@ -16,7 +16,9 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 import QtQuick 2.7
-import QtQuick.Dialogs 1.2
+import QtQuick.Controls 2.15
+import QtQuick.Layouts 1.12
+import QtQuick.Controls.Material 2.1
 
 Item {
     id: picker
@@ -50,13 +52,108 @@ Item {
         }
     }
 
-    ColorDialog {
-        id: colorDialog
-        title: qsTr("Please choose a color")
-        color: picker.color
+//    ColorDialog {
+//        id: colorDialog
+//        title: qsTr("Please choose a color")
+//        color: picker.color
 
-        onAccepted: {
-            picker.color = color
+//        onAccepted: {
+//            picker.color = color
+//        }
+//    }
+
+    Dialog {
+        id: colorDialog
+        modal: true
+        focus: true
+        parent: applicationWindow.contentItem
+
+        contentWidth:  Math.min(applicationWindow.width, applicationWindow.height)
+        contentHeight: Math.min(applicationWindow.width, applicationWindow.height) * 10 / 19
+
+        x: (applicationWindow.width  - width) / 2
+        y: (applicationWindow.height - height) / 2
+
+        onAccepted: {}
+        onRejected: {}
+
+        contentItem: Item {
+            id: palette
+            focus: true
+
+            visible: colorDialog.visible
+            Keys.onReturnPressed: {
+                colorDialog.rejected();
+            }
+
+            ColumnLayout {
+                anchors.fill: parent
+                spacing: 5
+                Repeater {
+                    id: shadeRepeater
+                    model: [
+                        Material.Shade50,
+                        Material.Shade100,
+                        Material.Shade200,
+                        Material.Shade300,
+                        Material.Shade400,
+                        Material.Shade500,
+                        Material.Shade600,
+                        Material.Shade700,
+                        Material.Shade800,
+                        Material.Shade900,
+                    ]
+
+                    RowLayout {
+                        Layout.fillHeight: true
+                        property var baseShade : modelData
+                        spacing: 5
+
+                        Repeater {
+                            id: colorRepeater
+                            model: [
+                                Material.Red,
+                                Material.Pink,
+                                Material.Purple,
+                                Material.DeepPurple,
+                                Material.Indigo,
+                                Material.Blue,
+                                Material.LightBlue,
+                                Material.Cyan,
+                                Material.Teal,
+                                Material.Green,
+                                Material.LightGreen,
+                                Material.Lime,
+                                Material.Yellow,
+                                Material.Amber,
+                                Material.Orange,
+                                Material.DeepOrange,
+                                Material.Brown,
+                                Material.Grey,
+                                Material.BlueGrey
+                            ]
+
+                            Rectangle {
+                                Layout.fillWidth: true
+                                Layout.fillHeight: true
+                                Layout.preferredWidth: 15
+                                Layout.preferredHeight: 15
+                                color: Material.color(modelData, baseShade);
+
+                                MouseArea {
+                                    anchors.fill: parent
+                                    cursorShape: "PointingHandCursor"
+                                    onClicked: {
+                                        picker.color = color
+                                        colorDialog.close();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
         }
     }
 }
