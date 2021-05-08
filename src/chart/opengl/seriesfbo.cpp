@@ -29,6 +29,11 @@ SeriesFBO::SeriesFBO(Source *s, RendererCreator rc, QQuickItem *parent):
     connect(s, SIGNAL(readyRead()),     SLOT(update()));
     connect(s, SIGNAL(activeChanged()), SLOT(update()));
 }
+
+Source *SeriesFBO::source() const noexcept
+{
+    return m_source;
+}
 QQuickFramebufferObject::Renderer *SeriesFBO::createRenderer() const
 {
     return m_rendererCreator();
@@ -37,7 +42,10 @@ void SeriesFBO::setZIndex(int index)
 {
     setZ(index);
 }
-
+const bool &SeriesFBO::highlighted() const noexcept
+{
+    return m_highlighted;
+}
 void SeriesFBO::setHighlighted(bool highlighted)
 {
     if (m_highlighted != highlighted) {

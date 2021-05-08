@@ -118,6 +118,10 @@ void VariableChart::setTypeByString(const QString &type)
         }
     }
 }
+Settings *VariableChart::settings() const noexcept
+{
+    return m_settings;
+}
 void VariableChart::setSettings(Settings *settings) noexcept
 {
     m_settings = settings;
@@ -141,6 +145,21 @@ void VariableChart::setSourceZIndex(Source *source, int index)
     if (m_plot) {
         m_plot->setSourceZIndex(source, index);
     }
+}
+
+Plot *VariableChart::plot() const noexcept
+{
+    return m_plot;
+}
+
+QString VariableChart::urlForGrab(QUrl url) const
+{
+    return url.toLocalFile();
+}
+
+SourceList *VariableChart::sources() const noexcept
+{
+    return m_sources;
 }
 
 void VariableChart::setSources(SourceList *sourceList)
@@ -193,7 +212,12 @@ void VariableChart::setSources(SourceList *sourceList)
     emit sourcesChanged();
 }
 
-void VariableChart::setDarkMode(bool darkMode) noexcept
+const bool &VariableChart::darkMode() const noexcept
+{
+    return m_darkMode;
+}
+
+void VariableChart::setDarkMode(const bool &darkMode) noexcept
 {
     m_darkMode = darkMode;
     if (m_plot) {

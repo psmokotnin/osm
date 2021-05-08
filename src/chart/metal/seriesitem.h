@@ -48,9 +48,7 @@ protected:
 
     Source *m_source;
     bool m_highlighted;
-
     NodeConstructor m_nodeConstructor;
-
 };
 
 } // namespace chart

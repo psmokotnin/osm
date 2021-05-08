@@ -45,24 +45,6 @@ class Plot : public QQuickItem
     Q_PROPERTY(QString yLabel READ yLabel CONSTANT)
     Q_PROPERTY(bool openGLError READ openGLError NOTIFY openGLErrorChanged)
 
-protected:
-    QList<SeriesItem *> m_serieses;
-    virtual SeriesItem *createSeriesFromSource(Source *source) = 0;
-
-    const struct Padding {
-        float   left    = 50.f,
-                right   = 10.f,
-                top     = 10.f,
-                bottom  = 20.f;
-    } padding;
-
-    void applyWidthForSeries(SeriesItem *s);
-    void applyHeightForSeries(SeriesItem *s);
-    Settings *m_settings;
-    Palette m_palette;
-    QPointer<chart::Source> m_filter;
-    bool m_openGLError;
-
 public:
     explicit Plot(Settings *settings, QQuickItem *parent);
     void clear();
@@ -79,25 +61,14 @@ public:
     virtual QString xLabel() const = 0;
     virtual QString yLabel() const = 0;
 
-    virtual void setSettings(Settings *settings) noexcept
-    {
-        m_settings = settings;
-    }
+    virtual void setSettings(Settings *settings) noexcept;
     virtual void storeSettings() noexcept = 0;
 
-    bool darkMode() const noexcept
-    {
-        return m_palette.darkMode();
-    }
-    void setDarkMode(bool darkMode) noexcept
-    {
-        return m_palette.setDarkMode(darkMode);
-    }
+    const Palette &palette() const noexcept;
+    bool darkMode() const noexcept;
+    void setDarkMode(bool darkMode) noexcept;
 
-    chart::Source *filter() const noexcept
-    {
-        return m_filter;
-    }
+    chart::Source *filter() const noexcept;
     void setFilter(chart::Source *filter) noexcept;
 
     bool openGLError() const;
@@ -111,9 +82,25 @@ signals:
 public slots:
     void parentWidthChanged();
     void parentHeightChanged();
-
-public slots:
     void update();
+
+protected:
+    virtual SeriesItem *createSeriesFromSource(Source *source) = 0;
+    void applyWidthForSeries(SeriesItem *s);
+    void applyHeightForSeries(SeriesItem *s);
+
+    const struct Padding {
+        float   left    = 50.f,
+                right   = 10.f,
+                top     = 10.f,
+                bottom  = 20.f;
+    } m_padding;
+
+    QList<SeriesItem *> m_serieses;
+    Settings *m_settings;
+    Palette m_palette;
+    QPointer<chart::Source> m_filter;
+    bool m_openGLError;
 };
 }
 #endif // PLOT_H

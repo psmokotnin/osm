@@ -31,25 +31,20 @@ class SeriesFBO : public QQuickFramebufferObject
 
 public:
     explicit SeriesFBO(Source *s, RendererCreator rc, QQuickItem *parent = nullptr);
-    Source *source() const
-    {
-        return m_source;
-    }
+    Source *source() const noexcept;
     QQuickFramebufferObject::Renderer *createRenderer() const override;
     void setZIndex(int index);
 
-    bool highlighted() const
-    {
-        return m_highlighted;
-    }
+    const bool &highlighted() const noexcept;
     void setHighlighted(bool highlighted);
+
+signals:
+    void preSourceDeleted();
 
 protected:
     RendererCreator m_rendererCreator;
     Source *m_source;
     bool m_highlighted;
-
-protected slots:
 };
 }
 #endif // SERIESFBO_H

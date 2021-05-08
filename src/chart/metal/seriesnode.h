@@ -25,6 +25,7 @@
 namespace chart {
 class Source;
 class Plot;
+class SeriesItem;
 
 class SeriesNode : public QSGTextureProvider, public QSGSimpleTextureNode
 {
@@ -59,7 +60,7 @@ protected:
     virtual void synchronizeSeries() = 0;
     virtual void renderSeries() = 0;
 
-    QQuickItem *m_item;
+    SeriesItem *m_item;
     Source *m_source;
 
     //! MTLLibrary
@@ -93,6 +94,8 @@ private:
     float m_retinaScale;
 
     std::mutex m_active;
+    bool m_renderActive;
+    float m_weight;
 };
 
 } // namespace chart

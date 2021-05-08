@@ -27,15 +27,15 @@ namespace chart {
 
 #define id_cast(T, t) static_cast<id<T>>(t)
 
-SeriesNode::SeriesNode(QQuickItem *item) : m_item(item),
+SeriesNode::SeriesNode(QQuickItem *item) : m_item(static_cast<SeriesItem *>(item)),
     m_library(nullptr), m_devicePixelRatio(1),
     m_clearPipeline(nullptr),
     m_colorBuffer(nullptr), m_widthBuffer(nullptr), m_sizeBuffer(nullptr),
     m_device(nullptr), m_initialized(false), m_texture(nullptr), m_window(item->window()),
-    m_size()
+    m_size(), m_active(), m_renderActive(false)
 
 {
-    m_source = static_cast<SeriesItem *>(m_item)->source();
+    m_source = m_item->source();
     m_retinaScale = m_window->devicePixelRatio();
 
     setTextureCoordinatesTransform(QSGSimpleTextureNode::NoTransform);
@@ -47,7 +47,7 @@ SeriesNode::SeriesNode(QQuickItem *item) : m_item(item),
     });
     connect(m_window, &QQuickWindow::afterSynchronizing, this, &SeriesNode::synchronize, Qt::DirectConnection);
     connect(m_window, &QQuickWindow::beforeRendering,    this, &SeriesNode::render,      Qt::DirectConnection);
-    connect(static_cast<SeriesItem *>(m_item), &SeriesItem::preSourceDeleted, this, [this]() {
+    connect(m_item, &SeriesItem::preSourceDeleted, this, [this]() {
         m_active.lock();
         m_source = nullptr;
         m_active.unlock();
@@ -74,6 +74,8 @@ void SeriesNode::synchronize()
         setRect(0, 0, m_item->width(), m_item->height());
         init();
     }
+    m_renderActive = !plot()->filter() || plot()->filter() == m_source;
+    m_weight = m_retinaScale * plot()->palette().lineWidth(m_item->highlighted());
     synchronizeSeries();
 }
 
@@ -219,7 +221,7 @@ void SeriesNode::render()
     if (!m_initialized)
         return;
 
-    if (!m_source) {
+    if (!m_source || !m_renderActive) {
         clearRender();
         return;
     }
@@ -240,7 +242,6 @@ void SeriesNode::render()
         memcpy(color_ptr, colorF, sizeof(colorF));
     }
 
-    float m_weight = m_retinaScale * (static_cast<SeriesItem *>(m_item)->highlighted() ? 3 : 1.5);
     void *width_ptr = [id_cast(MTLBuffer, m_widthBuffer) contents];
     if (width_ptr) {
         memcpy(width_ptr, &m_weight, sizeof(float));

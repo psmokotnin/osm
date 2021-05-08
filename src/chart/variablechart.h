@@ -36,52 +36,26 @@ class VariableChart : public QQuickItem
     Q_PROPERTY(SourceList *sources READ sources WRITE setSources NOTIFY sourcesChanged)
     Q_PROPERTY(bool darkMode READ darkMode WRITE setDarkMode)
 
-private:
-    Plot *m_plot;
-    SourceList *m_sources;
-    Settings *m_settings;
-    Type m_selected;
-    bool m_darkMode;
-
-protected:
-    void initType();
-
 public:
     VariableChart(QQuickItem *parent = Q_NULLPTR);
     QString typeString() const;
     void setType(const Type &type);
     void setTypeByString(const QString &type);
 
-    Settings *settings() const noexcept
-    {
-        return m_settings;
-    }
+    Settings *settings() const noexcept;
     void setSettings(Settings *settings) noexcept;
 
     Q_INVOKABLE void appendDataSource(Source *source);
     Q_INVOKABLE void removeDataSource(Source *source);
     Q_INVOKABLE void setSourceZIndex(Source *source, int index);
-    Plot *plot()
-    {
-        return m_plot;
-    }
+    Q_INVOKABLE QString urlForGrab(QUrl url) const;
 
-    Q_INVOKABLE QString urlForGrab(QUrl url) const
-    {
-        return url.toLocalFile();
-    }
-
-    SourceList *sources() const
-    {
-        return m_sources;
-    }
+    Plot *plot() const noexcept;
+    SourceList *sources() const noexcept;
     void setSources(SourceList *sourceList);
 
-    bool darkMode() const noexcept
-    {
-        return m_darkMode;
-    }
-    void setDarkMode(bool) noexcept;
+    const bool &darkMode() const noexcept;
+    void setDarkMode(const bool &) noexcept;
 
 public slots:
     void updateZOrders() noexcept;
@@ -90,6 +64,17 @@ signals:
     void typeChanged();
     void settingsChanged();
     void sourcesChanged();
+
+protected:
+    void initType();
+
+private:
+    Plot *m_plot;
+    SourceList *m_sources;
+    Settings *m_settings;
+    Type m_selected;
+    bool m_darkMode;
+
 };
 
 }

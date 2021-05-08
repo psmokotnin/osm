@@ -27,37 +27,27 @@ class Palette: public QObject
 {
     Q_OBJECT
 
-    QColor m_lineColor, m_centerLineColor, m_textColor, m_backgroundColor;
-    bool m_darkMode;
-    void initColors() noexcept;
-
 public:
     Palette(QObject *parent);
-    bool darkMode()const noexcept
-    {
-        return m_darkMode;
-    }
+    const bool &darkMode()const noexcept;
     void setDarkMode(bool darkMode) noexcept;
 
-    QColor lineColor() const noexcept
-    {
-        return m_lineColor;
-    }
-    QColor centerLineColor() const noexcept
-    {
-        return m_centerLineColor;
-    }
-    QColor textColor() const noexcept
-    {
-        return m_textColor;
-    }
-    QColor backgroundColor() const noexcept
-    {
-        return m_backgroundColor;
-    }
+    const QColor &lineColor() const noexcept;
+    const QColor &centerLineColor() const noexcept;
+    const QColor &textColor() const noexcept;
+    const QColor &backgroundColor() const noexcept;
+
+    const float &lineWidth(const bool &highlighted) const noexcept;
 
 signals:
     void changed();
+
+private:
+    void initColors() noexcept;
+
+    QColor m_lineColor, m_centerLineColor, m_textColor, m_backgroundColor;
+    bool m_darkMode;
+    float m_lineWidth, m_highlightedLineWidth;
 };
 
 }

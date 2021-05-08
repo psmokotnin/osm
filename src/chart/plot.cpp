@@ -68,8 +68,8 @@ void Plot::applyWidthForSeries(SeriesItem *s)
     if (!parentItem())
         return;
 
-    float width = static_cast<float>(parentItem()->width()) - padding.left - padding.right;
-    s->setX(static_cast<qreal>(padding.left));
+    float width = static_cast<float>(parentItem()->width()) - m_padding.left - m_padding.right;
+    s->setX(static_cast<qreal>(m_padding.left));
     s->setWidth(static_cast<qreal>(width));
 }
 void Plot::applyHeightForSeries(SeriesItem *s)
@@ -77,8 +77,8 @@ void Plot::applyHeightForSeries(SeriesItem *s)
     if (!parentItem())
         return;
 
-    float height = static_cast<float>(parentItem()->height()) - padding.top - padding.bottom;
-    s->setY(static_cast<qreal>(padding.top));
+    float height = static_cast<float>(parentItem()->height()) - m_padding.top - m_padding.bottom;
+    s->setY(static_cast<qreal>(m_padding.top));
     s->setHeight(static_cast<qreal>(height));
 }
 
@@ -149,6 +149,28 @@ void Plot::setHighlighted(Source *source)
     foreach (SeriesItem *series, m_serieses) {
         series->setHighlighted((series->source() == source));
     }
+}
+
+void Plot::setSettings(Settings *settings) noexcept
+{
+    m_settings = settings;
+}
+
+const Palette &Plot::palette() const noexcept
+{
+    return m_palette;
+}
+bool Plot::darkMode() const noexcept
+{
+    return m_palette.darkMode();
+}
+void Plot::setDarkMode(bool darkMode) noexcept
+{
+    return m_palette.setDarkMode(darkMode);
+}
+Source *Plot::filter() const noexcept
+{
+    return m_filter;
 }
 void Plot::update()
 {

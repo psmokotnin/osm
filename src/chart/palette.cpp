@@ -21,7 +21,7 @@ using namespace chart;
 Palette::Palette(QObject *parent):
     QObject(parent),
     m_lineColor(), m_textColor(), m_backgroundColor(),
-    m_darkMode(false)
+    m_darkMode(false), m_lineWidth(1), m_highlightedLineWidth(2)
 {
     initColors();
 }
@@ -39,6 +39,10 @@ void Palette::initColors() noexcept
         m_backgroundColor   = QColor(Qt::white);
     }
 }
+const bool &Palette::darkMode() const noexcept
+{
+    return m_darkMode;
+}
 void Palette::setDarkMode(bool darkMode) noexcept
 {
     if (darkMode != m_darkMode) {
@@ -46,4 +50,29 @@ void Palette::setDarkMode(bool darkMode) noexcept
         initColors();
         emit changed();
     }
+}
+
+const QColor &Palette::lineColor() const noexcept
+{
+    return m_lineColor;
+}
+
+const QColor &Palette::centerLineColor() const noexcept
+{
+    return m_centerLineColor;
+}
+
+const QColor &Palette::textColor() const noexcept
+{
+    return m_textColor;
+}
+
+const QColor &Palette::backgroundColor() const noexcept
+{
+    return m_backgroundColor;
+}
+
+const float &Palette::lineWidth(const bool &highlighted) const noexcept
+{
+    return highlighted ? m_highlightedLineWidth : m_lineWidth;
 }
