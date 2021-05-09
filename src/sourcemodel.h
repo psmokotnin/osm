@@ -31,6 +31,7 @@ class SourceModel : public QAbstractListModel
     Q_PROPERTY(SourceList *list READ list WRITE setList)
     Q_PROPERTY(bool filter READ filter WRITE setFilter)
     Q_PROPERTY(bool addNone READ addNone WRITE setAddNone)
+    Q_PROPERTY(QString noneTitle READ noneTitle WRITE setNoneTitle)
 
 public:
     explicit SourceModel(QObject *parent = nullptr);
@@ -70,10 +71,14 @@ public:
     }
     void setAddNone(bool addNone) noexcept;
 
+    QString noneTitle() const;
+    void setNoneTitle(const QString &noneTitle);
+
 private:
     SourceList *m_list;
     bool m_filter;
     bool m_addNone;
+    QString m_noneTitle;
 
 signals:
     void changed();

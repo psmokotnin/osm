@@ -19,7 +19,8 @@
 #include "sourcelist.h"
 
 SourceModel::SourceModel(QObject *parent)
-    : QAbstractListModel(parent), m_list(nullptr), m_filter(false), m_addNone(false)
+    : QAbstractListModel(parent), m_list(nullptr), m_filter(false),
+      m_addNone(false), m_noneTitle("All")
 {
 }
 
@@ -39,7 +40,7 @@ QVariant SourceModel::data(const QModelIndex &index, int role) const
     QVariant r;
     switch (role) {
     case NameRole:
-        r.setValue(source ? source->objectName() : QString("All"));
+        r.setValue(source ? source->objectName() : m_noneTitle);
         break;
 
     case SourceRole:
@@ -47,7 +48,7 @@ QVariant SourceModel::data(const QModelIndex &index, int role) const
         break;
 
     case TitleRole:
-        r.setValue(source ? source->name() : QString("All"));
+        r.setValue(source ? source->name() : m_noneTitle);
         break;
     }
 
@@ -126,4 +127,14 @@ chart::Source *SourceModel::get(const int &index) const noexcept
 void SourceModel::setAddNone(bool addNone) noexcept
 {
     m_addNone = addNone;
+}
+
+QString SourceModel::noneTitle() const
+{
+    return m_noneTitle;
+}
+
+void SourceModel::setNoneTitle(const QString &noneTitle)
+{
+    m_noneTitle = noneTitle;
 }

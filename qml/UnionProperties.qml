@@ -124,6 +124,7 @@ Item {
                     filter: true
                     addNone: true
                     list: sourceList
+                    noneTitle: "None"
                 }
                 currentIndex: { model.indexOf(dataObject.getSource(2)) }
                 textRole: "title"
@@ -139,6 +140,7 @@ Item {
                     filter: true
                     addNone: true
                     list: sourceList
+                    noneTitle: "None"
                 }
                 currentIndex: { model.indexOf(dataObject.getSource(3)) }
                 textRole: "title"
