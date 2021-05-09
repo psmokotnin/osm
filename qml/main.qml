@@ -127,7 +127,7 @@ ApplicationWindow {
         }
     }
 
-    About {
+    AboutIOS {
         id: aboutpopup
         x: 50
         y: 50
