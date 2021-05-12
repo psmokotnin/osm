@@ -138,6 +138,10 @@ AudioSessionPlugin::AudioSessionPlugin() : m_permission(false), m_inInterrupt(fa
         NULL,
         CFNotificationSuspensionBehaviorDeliverImmediately
     );
+    
+    connect(this, &Plugin::deviceListChanged, this, [this](){
+        emit restoreStreams({});
+    });
 
 }
 

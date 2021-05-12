@@ -178,7 +178,7 @@ Item {
                 Layout.fillWidth: true
                 currentIndex: model.indexOf(generatorModel.deviceId)
                 onCurrentIndexChanged: function () {
-                    updateChannelNames();
+                    deviceSelect.updateChannelNames();
                 }
 
                 ToolTip.visible: hovered
@@ -186,7 +186,7 @@ Item {
                 Connections {
                     target: deviceModel
                     function onModelReset() {
-                        updateChannelNames();
+                        deviceSelect.updateChannelNames();
                     }
                 }
 
