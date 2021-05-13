@@ -167,6 +167,7 @@ ios: {
 
 APP_GIT_VERSION = $$system(git --git-dir $$_PRO_FILE_PWD_/.git --work-tree $$_PRO_FILE_PWD_ describe --tags $$system(git --git-dir $$_PRO_FILE_PWD_/.git --work-tree $$_PRO_FILE_PWD_ rev-list --tags --max-count=1))
 DEFINES += APP_GIT_VERSION=\\\"$$APP_GIT_VERSION\\\"
+message(APP_GIT_VERSION $$APP_GIT_VERSION)
 
 #audio plugins:
 macx {
@@ -387,6 +388,11 @@ macx {
 }
 
 ios {
+    #Bundle id:
+    TARGET = app
+    QMAKE_TARGET_BUNDLE_PREFIX = com.opensoundmeter
+    QMAKE_APPLICATION_BUNDLE_NAME = "Open Sound Meter"
+
     QMAKE_INFO_PLIST = $$PWD/ios.plist
     #QMAKE_POST_LINK += plutil -replace NSMicrophoneUsageDescription -string \"Audio measurement.\" Info.plist
 
