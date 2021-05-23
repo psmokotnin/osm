@@ -198,6 +198,35 @@ Item {
                         }
 
                         Button {
+                            id: cloneButton
+                            font.family: "Osm"
+                            text: "\uf24d"
+                            anchors.right: spacer.left
+                            anchors.top: parent.top
+                            flat: true
+                            font.pixelSize: 14
+                            rightPadding: 4
+                            leftPadding: 4
+                            onClicked: {
+                                sourceList.cloneItem(model.source);
+                            }
+                            background: Rectangle {
+                                color: "transparent"
+                            }
+                        }
+
+                        Rectangle {
+                            id: spacer
+                            anchors {
+                                top: parent.top
+                                bottom: parent.bottom
+                                right: deleteButton.left
+                            }
+                            width: 6
+                            color: "transparent"
+                        }
+
+                        Button {
                             id: deleteButton
                             font.family: "Osm"
                             text: "\ue801"
@@ -223,24 +252,6 @@ Item {
                             function freeDialog() {
                                 applicationWindow.dialog.accepted.disconnect(deleteModel);
                                 applicationWindow.dialog.rejected.disconnect(freeDialog);
-                            }
-                            background: Rectangle {
-                                color: "transparent"
-                            }
-                        }
-
-                        Button {
-                            id: cloneButton
-                            font.family: "Osm"
-                            text: "\uf24d"
-                            anchors.right: deleteButton.left
-                            anchors.top: parent.top
-                            flat: true
-                            font.pixelSize: 14
-                            rightPadding: 4
-                            leftPadding: 4
-                            onClicked: {
-                                sourceList.cloneItem(model.source);
                             }
                             background: Rectangle {
                                 color: "transparent"
