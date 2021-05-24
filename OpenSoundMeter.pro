@@ -34,6 +34,7 @@ SOURCES += src/main.cpp \
     src/sourcelist.cpp \
     src/sourcemodel.cpp \
     src/union.cpp \
+    src/wavfile.cpp \
     src/whitenoise.cpp \
     src/sinnoise.cpp \
     src/complex.cpp \
@@ -116,6 +117,7 @@ HEADERS += \
     src/sourcelist.h \
     src/sourcemodel.h \
     src/union.h \
+    src/wavfile.h \
     src/whitenoise.h \
     src/sinnoise.h \
     src/sample.h \

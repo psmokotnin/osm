@@ -23,6 +23,7 @@
 #include "pinknoise.h"
 #include "sinnoise.h"
 #include "sinsweep.h"
+#include "wavfile.h"
 
 GeneratorThread::GeneratorThread(QObject *parent) :
     QThread(parent),
@@ -91,6 +92,7 @@ void GeneratorThread::init()
     m_sources << new WhiteNoise(this);
     m_sources << new SinNoise(this);
     m_sources << new SinSweep(this);
+    m_sources << new WavFile(this);
     connect(this, SIGNAL(finished()), this, SLOT(finish()));
 }
 /*
