@@ -38,9 +38,9 @@ Item {
         Connections {
             target: chart.plot
 
-            function onOpenGLErrorChanged() {
-                if (chart.plot.openGLError) {
-                    message.showError("OpenGL 3.3 required");
+            function onRendererErrorChanged() {
+                if (chart.plot.rendererError) {
+                    message.showError(chart.plot.rendererError);
                 }
             }
         }

@@ -38,7 +38,7 @@ QOpenGLFramebufferObject *SeriesRenderer::createFramebufferObject(const QSize &s
     format.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
     m_openGLFunctions = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctions_3_3_Core>();
     if (!m_openGLFunctions) {
-        qCritical() << "QOpenGLFunctions_3_3_Core is not available";
+        qDebug() << "QOpenGLFunctions_3_3_Core is not available";
     }
     return new QOpenGLFramebufferObject(size, format);
 }
@@ -67,7 +67,7 @@ void SeriesRenderer::render()
 #endif
     if (!m_openGLFunctions) {
         auto plot = static_cast<chart::Plot *>(m_item->parent());
-        plot->setOpenGLError(true);
+        plot->setRendererError("OpenGL 3.3 required");
         return;
     }
     if (!m_program.isLinked()) {

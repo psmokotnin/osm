@@ -43,7 +43,7 @@ class Plot : public QQuickItem
     Q_PROPERTY(chart::Source *filter READ filter WRITE setFilter NOTIFY filterChanged)
     Q_PROPERTY(QString xLabel READ xLabel CONSTANT)
     Q_PROPERTY(QString yLabel READ yLabel CONSTANT)
-    Q_PROPERTY(bool openGLError READ openGLError NOTIFY openGLErrorChanged)
+    Q_PROPERTY(QString rendererError READ rendererError NOTIFY rendererErrorChanged)
 
 public:
     explicit Plot(Settings *settings, QQuickItem *parent);
@@ -71,13 +71,13 @@ public:
     chart::Source *filter() const noexcept;
     void setFilter(chart::Source *filter) noexcept;
 
-    bool openGLError() const;
-    void setOpenGLError(bool openGLError);
+    QString rendererError() const;
+    void setRendererError(QString error);
 
 signals:
     void filterChanged(chart::Source *);
     void updated();
-    void openGLErrorChanged();
+    void rendererErrorChanged();
 
 public slots:
     void parentWidthChanged();
@@ -100,7 +100,7 @@ protected:
     Settings *m_settings;
     Palette m_palette;
     QPointer<chart::Source> m_filter;
-    bool m_openGLError;
+    QString m_rendererError;
 };
 }
 #endif // PLOT_H

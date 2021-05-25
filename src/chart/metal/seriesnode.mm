@@ -124,22 +124,32 @@ void SeriesNode::init()
     NSString *libraryFile = [[NSBundle mainBundle] pathForResource:@"lib" ofType:@"metallib"];
     if (!libraryFile) {
         qDebug() << "library file not found";
+        plot()->setRendererError("Metal library file not found");
         return;
     }
     m_library = [id_cast(MTLDevice, m_device) newLibraryWithFile:libraryFile error:&libraryError];
     if (!m_library) {
-        qDebug() << @"Library error: %@" << [libraryError localizedDescription];
+        qDebug() << @"Library error: %@" << [libraryError localizedDescription] << [libraryError localizedFailureReason];
+        plot()->setRendererError(
+            "Library error: " +
+            QString::fromNSString([libraryError localizedDescription]) + " " +
+            QString::fromNSString([libraryError localizedFailureReason]));
+        return;
     }
 
     auto pipelineStateDescriptor = static_cast<MTLRenderPipelineDescriptor *>(allocPipelineStateDescriptor());
     pipelineStateDescriptor.vertexFunction = [id_cast(MTLLibrary, m_library) newFunctionWithName:@"clearVertex" ];
 
     NSError *error = nil;
-    m_clearPipeline = [id_cast(MTLDevice,
-                               m_device) newRenderPipelineStateWithDescriptor: pipelineStateDescriptor error: &error];
+    m_clearPipeline = [
+                          id_cast(MTLDevice, m_device)
+                          newRenderPipelineStateWithDescriptor: pipelineStateDescriptor
+                          error: &error];
     if (!m_clearPipeline) {
         const QString msg = QString::fromNSString(error.localizedDescription);
-        qFatal("Failed to create render pipeline state: %s", qPrintable(msg));
+        plot()->setRendererError("Failed to create render pipeline state: " + msg);
+        qDebug() << "Failed to create render pipeline state: %s", qPrintable(msg);
+        return;
     }
     [pipelineStateDescriptor release];
 

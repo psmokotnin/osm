@@ -23,7 +23,7 @@
 using namespace chart;
 
 Plot::Plot(Settings *settings, QQuickItem *parent) :
-    QQuickItem(parent), m_settings(settings), m_palette(this), m_filter(nullptr), m_openGLError(false)
+    QQuickItem(parent), m_settings(settings), m_palette(this), m_filter(nullptr), m_rendererError()
 {
     connect(parent, &QQuickItem::widthChanged, this, &Plot::parentWidthChanged);
     connect(parent, &QQuickItem::heightChanged, this, &Plot::parentHeightChanged);
@@ -82,16 +82,16 @@ void Plot::applyHeightForSeries(SeriesItem *s)
     s->setHeight(static_cast<qreal>(height));
 }
 
-bool Plot::openGLError() const
+QString Plot::rendererError() const
 {
-    return m_openGLError;
+    return m_rendererError;
 }
 
-void Plot::setOpenGLError(bool openGLError)
+void Plot::setRendererError(QString error)
 {
-    if (m_openGLError != openGLError) {
-        m_openGLError = openGLError;
-        emit openGLErrorChanged();
+    if (m_rendererError != error) {
+        m_rendererError = error;
+        emit rendererErrorChanged();
     }
 }
 void Plot::setFilter(chart::Source *filter) noexcept
