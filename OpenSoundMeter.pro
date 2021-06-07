@@ -147,7 +147,7 @@ HEADERS += \
 
 #dialogs
 ios: {
-    QMAKE_IOS_DEPLOYMENT_TARGET = 13.0
+    QMAKE_IOS_DEPLOYMENT_TARGET = 12.0
     QMAKE_APPLE_TARGETED_DEVICE_FAMILY = 2 #iPad
     QMAKE_IOS_DEVICE_ARCHS = "arm64"
     DEFINES += SUPPORT_64_BIT_IOS
@@ -274,7 +274,12 @@ isEqual(GRAPH, "METAL") {
     LIBS += -framework Metal
 
     macx {
-        SCRUN_SDK = "macosx"
+        METAL_SDK = "macosx"
+        METAL_STD = "macos-metal1.0"
+    }
+    ios {
+        METAL_SDK = "iphoneos"
+        METAL_STD = "ios-metal1.0"
     }
 
     metal_command = echo "build metal"
@@ -282,9 +287,9 @@ isEqual(GRAPH, "METAL") {
         AIR_FILE = $$basename(METAL_SOURCE)
         AIR_FILE = $$OUT_PWD/$$replace(AIR_FILE, .metal, .air)
         AIR_FILES += $$AIR_FILE
-        metal_command += && xcrun -sdk $$SCRUN_SDK metal -c $$PWD/$$METAL_SOURCE -o $$AIR_FILE
+        metal_command += && xcrun -sdk $$METAL_SDK metal -std=$$METAL_STD -c $$PWD/$$METAL_SOURCE -o $$AIR_FILE
     }
-    metal_command += && xcrun -sdk macosx metallib $$AIR_FILES -o $$OUT_PWD/lib.metallib
+    metal_command += && xcrun -sdk $$METAL_SDK metallib $$AIR_FILES -o $$OUT_PWD/lib.metallib
 
     metal_target.target = metal
     metal_target.commands = $$metal_command

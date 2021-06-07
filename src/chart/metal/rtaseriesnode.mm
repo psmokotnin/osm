@@ -71,7 +71,8 @@ void RTASeriesNode::initRender()
                          error: &error];
     if (!m_pipelineLine) {
         const QString msg = QString::fromNSString(error.localizedDescription);
-        qFatal("Failed to create render pipeline state: %s", qPrintable(msg));
+        qDebug() << "Failed to create render pipeline state: %s", qPrintable(msg);
+        plot()->setRendererError("Failed to create render pipeline state " + msg);
     }
 
     MTLVertexDescriptor *barsInputLayout = [MTLVertexDescriptor vertexDescriptor];
@@ -86,7 +87,9 @@ void RTASeriesNode::initRender()
                               m_device) newRenderPipelineStateWithDescriptor: pipelineStateDescriptor error: &error];
     if (!m_pipelineBars) {
         const QString msg = QString::fromNSString(error.localizedDescription);
-        qFatal("Failed to create render pipeline state: %s", qPrintable(msg));
+        qDebug() << "Failed to create render pipeline state: %s" << qPrintable(msg);
+        plot()->setRendererError("Failed to create render pipeline state " + msg);
+        m_pipelineBars = nullptr;
     }
 
     [pipelineStateDescriptor release];
@@ -156,6 +159,10 @@ void RTASeriesNode::renderSeries()
 
 void RTASeriesNode::renderLine()
 {
+    if (!m_pipelineLine) {
+        return;
+    }
+
     unsigned int vertexCount = (m_source->size() - 1) * 6;
     if (m_vertices.size() != vertexCount * 5) {
         m_vertices.resize(vertexCount * 5, 0);
@@ -200,10 +207,14 @@ void RTASeriesNode::renderLine()
                          ];
     }
     void *vertex_ptr = [id_cast(MTLBuffer, m_vertexBuffer) contents];
-    memcpy(vertex_ptr, m_vertices.data(), m_vertices.size() * sizeof(float));
+    if (vertex_ptr) {
+        memcpy(vertex_ptr, m_vertices.data(), m_vertices.size() * sizeof(float));
+    }
 
     void *matrix_ptr = [id_cast(MTLBuffer, m_matrixBuffer) contents];
-    m_matrix.copyDataTo(static_cast<float *>(matrix_ptr));
+    if (matrix_ptr) {
+        m_matrix.copyDataTo(static_cast<float *>(matrix_ptr));
+    }
 
     auto encoder = id_cast(MTLRenderCommandEncoder, commandEncoder());
 
@@ -221,6 +232,9 @@ void RTASeriesNode::renderLine()
 
 void RTASeriesNode::renderBars()
 {
+    if (!m_pipelineBars) {
+        return;
+    }
     unsigned int maxBufferSize = m_pointsPerOctave * 11 * 8;
     if (m_vertices.size() != maxBufferSize) {
         m_vertices.resize(maxBufferSize);
@@ -272,7 +286,9 @@ void RTASeriesNode::renderBars()
     memcpy(vertex_ptr, m_vertices.data(), m_vertices.size() * sizeof(float));
 
     void *matrix_ptr = [id_cast(MTLBuffer, m_matrixBuffer) contents];
-    m_matrix.copyDataTo(static_cast<float *>(matrix_ptr));
+    if (matrix_ptr) {
+        m_matrix.copyDataTo(static_cast<float *>(matrix_ptr));
+    }
 
     auto encoder = id_cast(MTLRenderCommandEncoder, commandEncoder());
 
@@ -289,6 +305,10 @@ void RTASeriesNode::renderBars()
 
 void RTASeriesNode::renderLines()
 {
+    if (!m_pipelineLine) {
+        return;
+    }
+
     unsigned int vertexCount = m_source->size() * 6;
     if (m_vertices.size() != vertexCount * 5) {
         m_vertices.resize(vertexCount * 5, 0);
@@ -336,7 +356,9 @@ void RTASeriesNode::renderLines()
     memcpy(vertex_ptr, m_vertices.data(), m_vertices.size() * sizeof(float));
 
     void *matrix_ptr = [id_cast(MTLBuffer, m_matrixBuffer) contents];
-    m_matrix.copyDataTo(static_cast<float *>(matrix_ptr));
+    if (matrix_ptr) {
+        m_matrix.copyDataTo(static_cast<float *>(matrix_ptr));
+    }
 
     auto encoder = id_cast(MTLRenderCommandEncoder, commandEncoder());
 

@@ -86,10 +86,14 @@ void *XYSeriesNode::initLine(QString vertexProgramName)
                         id_cast(MTLDevice, m_device)
                         newRenderPipelineStateWithDescriptor: pipelineStateDescriptor
                         error: &error];
+
     if (!pipeline) {
         const QString msg = QString::fromNSString(error.localizedDescription);
-        qFatal("Failed to create render pipeline state: %s", qPrintable(msg));
+        qDebug() << "Failed to create render pipeline state: %s", qPrintable(msg);
+        plot()->setRendererError("Failed to create render pipeline state " + msg);
+        return nullptr;
     }
+
 
     [pipelineStateDescriptor release];
 
@@ -117,8 +121,13 @@ float *XYSeriesNode::vertexBuffer(unsigned int maxBufferSize)
 
 void XYSeriesNode::encodeLine(void *pipeline, unsigned int verticiesCount)
 {
+    if (!pipeline) {
+        return;
+    }
     void *matrix_ptr = [id_cast(MTLBuffer, m_matrixBuffer) contents];
-    m_matrix.copyDataTo(static_cast<float *>(matrix_ptr));
+    if (matrix_ptr) {
+        m_matrix.copyDataTo(static_cast<float *>(matrix_ptr));
+    }
 
     auto encoder = id_cast(MTLRenderCommandEncoder, commandEncoder());
     [encoder setVertexBuffer: id_cast(MTLBuffer, m_vertexBuffer) offset: 0 atIndex: 0];

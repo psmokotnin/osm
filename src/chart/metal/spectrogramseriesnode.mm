@@ -63,9 +63,13 @@ void SpectrogramSeriesNode::initRender()
                      id_cast(MTLDevice, m_device)
                      newRenderPipelineStateWithDescriptor: pipelineStateDescriptor
                      error: &error];
+
     if (!m_pipeline) {
         const QString msg = QString::fromNSString(error.localizedDescription);
-        qFatal("Failed to create render pipeline state: %s", qPrintable(msg));
+        qDebug() << "Failed to create render pipeline state: %s", qPrintable(msg);
+        plot()->setRendererError("Failed to create render pipeline state " + msg);
+        m_pipeline = nullptr;
+        return;
     }
 
     [pipelineStateDescriptor release];
@@ -168,6 +172,9 @@ void SpectrogramSeriesNode::updateHistory()
 
 void SpectrogramSeriesNode::renderSeries()
 {
+    if (!m_pipeline) {
+        return;
+    }
     if (!m_source->size() || m_history.empty()) {
         clearRender();
         return;
@@ -234,7 +241,9 @@ void SpectrogramSeriesNode::renderSeries()
     indicesCount--;
 
     void *matrix_ptr = [id_cast(MTLBuffer, m_matrixBuffer) contents];
-    m_matrix.copyDataTo(static_cast<float *>(matrix_ptr));
+    if (matrix_ptr) {
+        m_matrix.copyDataTo(static_cast<float *>(matrix_ptr));
+    }
 
     auto encoder = id_cast(MTLRenderCommandEncoder, commandEncoder());
     [encoder setVertexBuffer: id_cast(MTLBuffer, m_vertexBuffer) offset: 0 atIndex: 0];
