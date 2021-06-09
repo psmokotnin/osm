@@ -29,7 +29,7 @@
 	<key>MinimumOSVersion</key>
 	<string>${IPHONEOS_DEPLOYMENT_TARGET}</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>Audio measurement.</string>
+	<string>The app determines audio and acoustic characteristics for tuning audio system.</string>
 	<key>UILaunchImages</key>
 	<array>
 		<dict>
