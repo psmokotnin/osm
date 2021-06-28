@@ -25,35 +25,22 @@ class PaintedItem : public QQuickPaintedItem
 {
     Q_OBJECT
 
+public:
+    PaintedItem (QQuickItem *parent = Q_NULLPTR);
+    float pwidth() const noexcept;
+    float pheight() const noexcept;
+    float widthf() const noexcept;
+    float heightf() const noexcept;
+
 protected:
+    QString format(float v);
+
     const struct Padding {
         float   left    = 50.f,
                 right   = 10.f,
                 top     = 10.f,
                 bottom  = 20.f;
     } padding;
-
-    QString format(float v);
-    float pwidth() const noexcept
-    {
-        return widthf()  - (padding.left + padding.right);
-    }
-    float pheight() const noexcept
-    {
-        return heightf() - (padding.top  + padding.bottom);
-    }
-    float widthf() const noexcept
-    {
-        return static_cast<float>(width());
-    }
-    float heightf() const noexcept
-    {
-        return static_cast<float>(height());
-    }
-
-public:
-    PaintedItem (QQuickItem *parent = Q_NULLPTR);
-
 };
 }
 #endif // PAINTEDITEM_H

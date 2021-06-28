@@ -303,3 +303,8 @@ void Axis::setPeriodic(float p)
 {
     m_period = p;
 }
+
+float Axis::period() const noexcept
+{
+    return m_period.value_or(0);
+}

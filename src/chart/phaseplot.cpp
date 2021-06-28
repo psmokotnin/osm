@@ -56,6 +56,57 @@ void PhasePlot::setRange(int range) noexcept
     emit rangeChanged(m_range);
     update();
 }
+
+void PhasePlot::resetAxis()
+{
+    setRotate(0);
+    setRange(360);
+    XYPlot::resetAxis();
+}
+
+void PhasePlot::beginGesture()
+{
+    XYPlot::beginGesture();
+    m_storeY.min = m_y.min();
+    m_storeY.max = m_y.max();
+    m_storeY.offset = m_y.offset();
+    m_storeY.period = m_y.period();
+    m_storeY.center = m_center;
+    m_storeY.range = m_range;
+}
+
+void PhasePlot::applyGesture(QPointF base, QPointF move, QPointF scale)
+{
+    bool tx = m_x.applyGesture(base.x(), move.x(), scale.x());
+    bool ty = applyYGesture(base.y(), move.y(), scale.y());
+    if (tx || ty) {
+        update();
+    }
+}
+bool PhasePlot::applyYGesture(qreal base, qreal move, qreal scale)
+{
+    auto reverse = [this](float value) {
+        float l = value * (m_storeY.max - m_storeY.min) / m_y.pheight() +
+                  m_storeY.min + m_storeY.offset / m_y.scale();
+
+        while (std::abs(l) > m_storeY.period / 2.f) {
+            l -= std::copysign(m_storeY.period, l);
+        }
+        return l;
+    };
+
+    float start  = reverse(base - m_padding.top);
+    float target = reverse(base + move - m_padding.top);
+    auto newCenter = m_storeY.center - (target - start) * 180 / M_PI;
+    if (newCenter >  180) newCenter -= 360;
+    if (newCenter < -180) newCenter += 360;
+    setRotate(newCenter);
+
+    auto newRange = scale * (m_storeY.range - target) + target;
+    setRange(newRange);
+
+    return true;
+}
 void PhasePlot::setSettings(Settings *settings) noexcept
 {
     if (settings && (settings->value("type") == "Phase")) {

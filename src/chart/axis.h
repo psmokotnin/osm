@@ -130,6 +130,7 @@ public:
     void setCentralLabel(float central);
 
     void setPeriodic(float p);
+    float period() const noexcept;
 
     QString unit() const;
     void setUnit(const QString &unit);

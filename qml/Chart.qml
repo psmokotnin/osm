@@ -81,6 +81,7 @@ Item {
     }
 
     MultiPointTouchArea {
+        id: touchArea
         anchors.fill: parent
         mouseEnabled: false
 
@@ -242,17 +243,32 @@ Item {
         property int xLeft;
         property int yTop;
         property int yBottom;
-        text: "%1".arg(chart.plot.y2v(opener.mouseY).toFixed(2)) + chart.plot.yLabel + "\n" +
-              "%1".arg(chart.plot.x2v(opener.mouseX).toFixed(2)) + chart.plot.xLabel;
-        xRight:  opener.mouseX + applicationAppearance.cursorOffset + cursor.fontInfo.pixelSize / 2
-        xLeft:   opener.mouseX - applicationAppearance.cursorOffset - cursor.width - cursor.fontInfo.pixelSize / 2
-        yTop:    opener.mouseY - applicationAppearance.cursorOffset - cursor.height / 2
-        yBottom: opener.mouseY + applicationAppearance.cursorOffset + cursor.height / 2
+        property int cursorX : 0
+        property int cursorY : 0
+
+        text: "%1".arg(chart.plot.y2v(cursorY).toFixed(2)) + chart.plot.yLabel + "\n" +
+              "%1".arg(chart.plot.x2v(cursorX).toFixed(2)) + chart.plot.xLabel;
+        xRight:  cursorX + applicationAppearance.cursorOffset + cursor.fontInfo.pixelSize / 2
+        xLeft:   cursorX - applicationAppearance.cursorOffset - cursor.width - cursor.fontInfo.pixelSize / 2
+        yTop:    cursorY - applicationAppearance.cursorOffset - cursor.height / 2
+        yBottom: cursorY + applicationAppearance.cursorOffset + cursor.height / 2
         x: xRight < parent.width  - width  - 50 ? xRight : xLeft
         y: yTop   < 2 * height ? yBottom : yTop + 30 + height / 2 > parent.height ? yTop - height : yTop
         visible: opener.containsMouse
         style: Text.Outline;
         styleColor: applicationAppearance.darkMode ? "#99000000" : "#99FFFFFF"
+
+        Connections {
+            target: opener
+            function onMouseXChanged() {
+                var x = touchPoint1.pressed ? touchPoint1.startX : opener.mouseX;
+                cursor.cursorX = x;
+            }
+            function onMouseYChanged() {
+                var y = touchPoint1.pressed ? touchPoint1.startY : opener.mouseY;
+                cursor.cursorY = y;
+            }
+        }
     }
 
     DropDown {

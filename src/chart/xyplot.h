@@ -103,8 +103,8 @@ public:
 
     Q_INVOKABLE qreal x2v(qreal mouseX) const noexcept override;
     Q_INVOKABLE qreal y2v(qreal mouseY) const noexcept override;
-    Q_INVOKABLE void beginGesture();
-    Q_INVOKABLE void applyGesture(QPointF base, QPointF move, QPointF scale);
+    Q_INVOKABLE virtual void beginGesture();
+    Q_INVOKABLE virtual void applyGesture(QPointF base, QPointF move, QPointF scale);
     Q_INVOKABLE virtual void resetAxis();
 
     QString xLabel() const override;

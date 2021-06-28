@@ -26,6 +26,26 @@ PaintedItem::PaintedItem(QQuickItem *parent)
 
 }
 
+float PaintedItem::pwidth() const noexcept
+{
+    return widthf()  - (padding.left + padding.right);
+}
+
+float PaintedItem::pheight() const noexcept
+{
+    return heightf() - (padding.top  + padding.bottom);
+}
+
+float PaintedItem::widthf() const noexcept
+{
+    return static_cast<float>(width());
+}
+
+float PaintedItem::heightf() const noexcept
+{
+    return static_cast<float>(height());
+}
+
 QString PaintedItem::format(float v)
 {
     bool addK = false;

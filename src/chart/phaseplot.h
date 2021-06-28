@@ -28,10 +28,6 @@ class PhasePlot : public FrequencyBasedPlot
     Q_PROPERTY(int rotate READ rotate WRITE setRotate NOTIFY rotateChanged)
     Q_PROPERTY(int range READ range WRITE setRange NOTIFY rangeChanged)
 
-protected:
-    virtual SeriesItem *createSeriesFromSource(Source *source) override;
-    int m_center, m_range, m_width;
-
 public:
     PhasePlot(Settings *settings, QQuickItem *parent = Q_NULLPTR);
 
@@ -50,9 +46,27 @@ public:
     }
     void setRange(int range) noexcept;
 
+    Q_INVOKABLE void resetAxis() override;
+    Q_INVOKABLE void beginGesture() override;
+    Q_INVOKABLE void applyGesture(QPointF base, QPointF move, QPointF scale) override;
+
 signals:
     void rotateChanged(int);
     void rangeChanged(int);
+
+protected:
+    virtual SeriesItem *createSeriesFromSource(Source *source) override;
+    bool applyYGesture(qreal base, qreal move, qreal scale);
+
+    int m_center, m_range, m_width;
+    struct {
+        float min;
+        float max;
+        float period;
+        float offset;
+        int center;
+        int range;
+    } m_storeY;
 };
 };
 #endif // PHASEPLOT_H
