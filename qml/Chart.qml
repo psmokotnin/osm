@@ -268,12 +268,12 @@ Item {
         Connections {
             target: opener
             function onMouseXChanged() {
-                var x = touchPoint1.pressed ? touchPoint1.startX : opener.mouseX;
+                var x = touchPoint2.pressed ? touchPoint1.startX : opener.mouseX;
                 cursor.cursorX = x;
                 chart.plot.setHelper(cursor.cursorX, cursor.cursorY);
             }
             function onMouseYChanged() {
-                var y = touchPoint1.pressed ? touchPoint1.startY : opener.mouseY;
+                var y = touchPoint2.pressed ? touchPoint1.startY : opener.mouseY;
                 cursor.cursorY = y;
                 chart.plot.setHelper(cursor.cursorX, cursor.cursorY);
             }

@@ -53,6 +53,7 @@ class Measurement : public chart::Source
 
     Q_PROPERTY(unsigned int delay READ delay WRITE setDelay NOTIFY delayChanged)
     Q_PROPERTY(long estimated READ estimated NOTIFY estimatedChanged)
+    Q_PROPERTY(long estimatedDelta READ estimatedDelta NOTIFY estimatedChanged)
     Q_PROPERTY(float gain READ gain WRITE setGain NOTIFY gainChanged)
 
     Q_PROPERTY(AverageType averageType READ averageType WRITE setAverageType NOTIFY averageTypeChanged)
@@ -133,6 +134,7 @@ public:
     void setWindowType(QVariant type);
 
     long estimated() const noexcept;
+    long estimatedDelta() const noexcept;
 
     bool calibration() const noexcept;
     bool calibrationLoaded() const noexcept;

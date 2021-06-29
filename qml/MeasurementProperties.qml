@@ -209,15 +209,17 @@ Item {
                 }
 
                 ToolTip.visible: hovered
-                ToolTip.text: qsTr("estimated delay time: <b>%L1ms</b>")
-                    .arg(Number(1000 * dataObject.estimated / dataObject.sampleRate).toLocaleString(locale, 'f', 2));
+                ToolTip.text: qsTr("estimated delay delta: <b>%L1ms</b>")
+                    .arg(Number(1000 * dataObject.estimatedDelta / dataObject.sampleRate).toLocaleString(locale, 'f', 2));
             }
 
             Button {
-                text: qsTr("E");
+                text: qsTr("%L1 ms")
+                    .arg(Number(1000 * dataObject.estimated / dataObject.sampleRate).toLocaleString(locale, 'f', 2));
                 onClicked: {
                     delaySpin.value = dataObject.estimated;
                 }
+                font.capitalization: Font.AllLowercase
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("apply estimated delay")
             }

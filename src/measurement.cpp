@@ -756,6 +756,14 @@ long Measurement::estimated() const noexcept
     }
     return m_estimatedDelay + static_cast<long>(m_workingDelay);
 }
+
+long Measurement::estimatedDelta() const noexcept
+{
+    if (m_estimatedDelay > m_deconvolutionSize / 2) {
+        return m_estimatedDelay - m_deconvolutionSize;
+    }
+    return m_estimatedDelay;
+}
 bool Measurement::calibration() const noexcept
 {
     return m_enableCalibration;
