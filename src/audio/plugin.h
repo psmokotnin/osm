@@ -46,6 +46,9 @@ public:
 
 signals:
     void deviceListChanged();
+
+protected:
+    QString m_error = {};
 };
 
 } // namespace audio

@@ -17,6 +17,7 @@
  */
 #include "generatorthread.h"
 #include "audio/client.h"
+#include <QVariant>
 
 #include "whitenoise.h"
 #include "pinknoise.h"

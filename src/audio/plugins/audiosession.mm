@@ -98,8 +98,19 @@ AudioSessionPlugin::AudioSessionPlugin() : m_permission(false), m_inInterrupt(fa
     [[AVAudioSession sharedInstance] requestRecordPermission: [this] (bool permission) {
                                         m_permission = permission;
                                     }];
-    [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayAndRecord withOptions:
-                                     AVAudioSessionCategoryOptionMixWithOthers error:nil];
+
+    @try {
+        qDebug() << "AudioSession setCategory" <<
+            [[AVAudioSession sharedInstance]
+                     setCategory: AVAudioSessionCategoryPlayAndRecord
+                     withOptions: AVAudioSessionCategoryOptionMixWithOthers
+                     error: nil];
+    }
+    @catch (NSException *exception) {
+        qDebug() << [exception reason];
+        m_error = QString::fromNSString([exception reason]);
+        qDebug() << "ERROR: " << m_error;
+    }
 
     [[AVAudioSession sharedInstance] setActive:true error:nil];
 
@@ -138,8 +149,8 @@ AudioSessionPlugin::AudioSessionPlugin() : m_permission(false), m_inInterrupt(fa
         NULL,
         CFNotificationSuspensionBehaviorDeliverImmediately
     );
-    
-    connect(this, &Plugin::deviceListChanged, this, [this](){
+
+    connect(this, &Plugin::deviceListChanged, this, [this]() {
         emit restoreStreams({});
     });
 
@@ -311,7 +322,7 @@ Stream *AudioSessionPlugin::open(const DeviceInfo::Id &, const Plugin::Direction
         AudioQueueDispose(queue, false);
         delete stream;
     }, Qt::DirectConnection);
-    
+
     connect(this, &AudioSessionPlugin::stopStreams, stream, [stream]() {
         stream->close();
     }, Qt::DirectConnection);
