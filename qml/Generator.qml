@@ -77,6 +77,13 @@ Item {
             width: 45
             bottomPadding: 8
             fontSize: label.font.pixelSize
+
+            Connections {
+                target: generatorModel
+                function onGainChanged() {
+                    gainSpinBox.value = generatorModel.gain;
+                }
+            }
         }
 
         Shortcut {
