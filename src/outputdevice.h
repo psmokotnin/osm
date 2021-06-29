@@ -27,12 +27,6 @@ class OutputDevice : public QIODevice
 {
     Q_OBJECT
 
-protected:
-    QString m_name;
-    int m_sampleRate;
-    int m_chanel, m_aux, m_chanelCount;
-    float m_gain;
-
 public:
     OutputDevice(QObject *parent);
     virtual ~OutputDevice();
@@ -40,28 +34,23 @@ public:
     qint64 writeData(const char *data, qint64 len) override;
     qint64 readData(char *data, qint64 maxlen) override;
     virtual Sample sample();
-
-    QString name() const
-    {
-        return m_name;
-    }
+    QString name() const;
 
 public slots:
     void setSamplerate(int sampleRate);
     void setGain(float gaindB);
-    void setChanel(int chanel)
-    {
-        m_chanel = chanel;
-    }
-    void setAux(int chanel)
-    {
-        m_aux = chanel;
-    }
-    void setChanelCount(int count)
-    {
-        m_chanelCount = count;
-    }
+    void setChanel(int chanel);
+    void setAux(int chanel);
+    void setChanelCount(int count);
 
+signals:
+    void sampleError();
+
+protected:
+    QString m_name;
+    int m_sampleRate;
+    int m_chanel, m_aux, m_chanelCount;
+    float m_gain;
 };
 
 #endif // OUTPUTDEVICE_H

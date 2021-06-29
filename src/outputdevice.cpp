@@ -44,6 +44,10 @@ qint64 OutputDevice::readData(char *data, qint64 maxlen)
         if (chanel >= m_chanelCount) {
             chanel = 0;
             src = this->sample();
+            if (std::isnan(src.f)) {
+                emit sampleError();
+                return 0;
+            }
         }
 
         if (chanel == m_chanel || chanel == m_aux) {
@@ -60,6 +64,11 @@ Sample OutputDevice::sample()
     Sample output = {0.f};
     return output;
 }
+
+QString OutputDevice::name() const
+{
+    return m_name;
+}
 void OutputDevice::setSamplerate(int sampleRate)
 {
     m_sampleRate = sampleRate;
@@ -74,4 +83,19 @@ qint64 OutputDevice::writeData(const char *data, qint64 len)
 void OutputDevice::setGain(float gaindB)
 {
     m_gain = powf(10.f, gaindB / 20.f);
+}
+
+void OutputDevice::setChanel(int chanel)
+{
+    m_chanel = chanel;
+}
+
+void OutputDevice::setAux(int chanel)
+{
+    m_aux = chanel;
+}
+
+void OutputDevice::setChanelCount(int count)
+{
+    m_chanelCount = count;
 }

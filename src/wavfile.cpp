@@ -20,15 +20,13 @@
 
 WavFile::WavFile(QObject *parent) : OutputDevice(parent), m_dataPosition(0)
 {
-    load();
     m_name = "Wav";
 }
 
 bool WavFile::load()
 {
-    m_file.setFileName("/Users/pavelsmokotnin/WSMGroup/audio files/Carol_of_the_Bells-Piano - Full Score96.wav");//"/Users/pavelsmokotnin/MeyerSound/M-Noise/MNoise_MSPN_90_916_049_15.wav");
-
     if (!m_file.open(QFile::ReadOnly)) {
+        qDebug() << m_file.error() << "str:" << m_file.errorString();
         return false;
     }
 
@@ -59,6 +57,15 @@ unsigned int WavFile::bitsPerSample() const noexcept
 
 Sample WavFile::sample()
 {
+    Sample s;
+    s.f = NAN;
+
+    if (!m_file.isReadable()) {
+        return s;
+    }
+    if (m_sampleRate != m_header.format.sampleRate) {
+        return s;
+    }
     std::vector<char> buffer;
     buffer.resize(blockAlign());
     if (m_file.read(buffer.data(), blockAlign()) == 0) {
@@ -66,13 +73,11 @@ Sample WavFile::sample()
         m_file.read(buffer.data(), blockAlign());
     }
 
-
-    Sample s;
     switch (bitsPerSample()) {
     case 16:
         qint16_le value;
         memcpy(&value, buffer.data(), 2);
-        s.f = static_cast<float>(value) / std::numeric_limits<qint16>::max();
+        s.f = m_gain * qFromLittleEndian<float>(value) / std::numeric_limits<qint16>::max();
         break;
 
     default:

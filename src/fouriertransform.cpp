@@ -276,7 +276,7 @@ GNU_ALIGN void FourierTransform::log()
 GNU_ALIGN void FourierTransform::prepareLog()
 {
     complex w;
-    const int ppo = 24, octaves = 10;
+    const int ppo = 24, octaves = 11;
     unsigned int startWindow = pow(2, 16), startOffset = 28;
     float wFactor = powf(10.f, 1.f / (-octaves * ppo / 2.5));
     float fFactor = powf(1000.f, 1.f / (ppo * octaves));

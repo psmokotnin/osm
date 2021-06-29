@@ -35,8 +35,10 @@ public:
 
     Sample sample() override;
 
-private:
+protected:
     QFile m_file;
+
+private:
     struct WaveHeader {
         struct Chunk {
             char id[4];

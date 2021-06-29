@@ -18,6 +18,7 @@
 import QtQuick 2.7
 import QtQuick.Controls 2.2
 import QtQuick.Layouts 1.3
+import QtQuick.Controls.Material 2.1
 import Audio 1.0
 import "elements"
 
@@ -162,6 +163,18 @@ Item {
                 visible: type.currentText == 'Sin';
                 enabled: frequencySpinBox.value*2 <= frequencySpinBox.to
                 onClicked: frequencySpinBox.value *= 2
+            }
+
+            Text {
+                Layout.fillWidth: true
+                visible: type.currentText == 'M-Noise™';
+                text: qsTr(
+                    "<a style='color:%1' href=\"https://m-noise.org/\">M‑Noise</a> is a trademark of Meyer Sound Laboratories <br/>" +
+                    "Can be activated if only your audio interface works in 96kHz sample rate."
+                ).arg(Material.accentColor)
+                onLinkActivated: Qt.openUrlExternally(link)
+                textFormat: Text.RichText
+                horizontalAlignment: Text.AlignHCenter
             }
         }
 
