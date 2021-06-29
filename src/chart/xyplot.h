@@ -101,6 +101,8 @@ public:
         return &m_y;
     }
 
+    Q_INVOKABLE virtual void setHelper(qreal x, qreal y) noexcept override;
+    Q_INVOKABLE virtual void unsetHelper() noexcept override;
     Q_INVOKABLE qreal x2v(qreal mouseX) const noexcept override;
     Q_INVOKABLE qreal y2v(qreal mouseY) const noexcept override;
     Q_INVOKABLE virtual void beginGesture();

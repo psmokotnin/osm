@@ -14,6 +14,7 @@ SOURCES += src/main.cpp \
     src/audio/format.cpp \
     src/audio/plugin.cpp \
     src/audio/stream.cpp \
+    src/chart/cursorhelper.cpp \
     src/chart/frequencybasedplot.cpp \
     src/chart/frequencybasedserieshelper.cpp \
     src/chart/groupdelayplot.cpp \
@@ -95,6 +96,7 @@ HEADERS += \
     src/audio/format.h \
     src/audio/plugin.h \
     src/audio/stream.h \
+    src/chart/cursorhelper.h \
     src/chart/frequencybasedplot.h \
     src/chart/frequencybasedserieshelper.h \
     src/chart/groupdelayplot.h \

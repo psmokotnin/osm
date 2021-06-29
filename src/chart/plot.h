@@ -22,6 +22,7 @@
 #include "axis.h"
 #include "source.h"
 #include "palette.h"
+#include "cursorhelper.h"
 #include "../settings.h"
 
 #ifdef GRAPH_METAL
@@ -37,6 +38,7 @@ using SeriesItem = chart::SeriesFBO;
 #endif
 
 namespace chart {
+
 class Plot : public QQuickItem
 {
     Q_OBJECT
@@ -56,6 +58,8 @@ public:
     virtual void setSourceZIndex(Source *source, int index);
     virtual void setHighlighted(Source *source);
 
+    Q_INVOKABLE virtual void setHelper(qreal x, qreal y) noexcept = 0;
+    Q_INVOKABLE virtual void unsetHelper() noexcept = 0;
     Q_INVOKABLE virtual qreal x2v(qreal x) const noexcept = 0;
     Q_INVOKABLE virtual qreal y2v(qreal y) const noexcept = 0;
     virtual QString xLabel() const = 0;
@@ -89,6 +93,8 @@ protected:
     void applyWidthForSeries(SeriesItem *s);
     void applyHeightForSeries(SeriesItem *s);
 
+    CursorHelper *cursorHelper() const noexcept;
+
     const struct Padding {
         float   left    = 50.f,
                 right   = 10.f,
@@ -101,6 +107,8 @@ protected:
     Palette m_palette;
     QPointer<chart::Source> m_filter;
     QString m_rendererError;
+
+    static CursorHelper *s_cursorHelper;
 };
 }
 #endif // PLOT_H

@@ -22,6 +22,8 @@
 
 using namespace chart;
 
+CursorHelper *Plot::s_cursorHelper = new CursorHelper();
+
 Plot::Plot(Settings *settings, QQuickItem *parent) :
     QQuickItem(parent), m_settings(settings), m_palette(this), m_filter(nullptr), m_rendererError()
 {
@@ -80,6 +82,11 @@ void Plot::applyHeightForSeries(SeriesItem *s)
     float height = static_cast<float>(parentItem()->height()) - m_padding.top - m_padding.bottom;
     s->setY(static_cast<qreal>(m_padding.top));
     s->setHeight(static_cast<qreal>(height));
+}
+
+CursorHelper *Plot::cursorHelper() const noexcept
+{
+    return s_cursorHelper;
 }
 
 QString Plot::rendererError() const

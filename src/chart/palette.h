@@ -36,6 +36,7 @@ public:
     const QColor &centerLineColor() const noexcept;
     const QColor &textColor() const noexcept;
     const QColor &backgroundColor() const noexcept;
+    const QColor &cursorLineColor() const noexcept;
 
     const float &lineWidth(const bool &highlighted) const noexcept;
 
@@ -45,7 +46,7 @@ signals:
 private:
     void initColors() noexcept;
 
-    QColor m_lineColor, m_centerLineColor, m_textColor, m_backgroundColor;
+    QColor m_lineColor, m_centerLineColor, m_textColor, m_backgroundColor, m_cursorLineColor;
     bool m_darkMode;
     float m_lineWidth, m_highlightedLineWidth;
 };

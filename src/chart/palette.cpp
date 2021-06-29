@@ -29,15 +29,18 @@ void Palette::initColors() noexcept
 {
     if (m_darkMode) {
         m_lineColor         = QColor(255, 255, 255, 40);
+        m_cursorLineColor   = QColor("#607D8B");
         m_centerLineColor   = QColor(255, 255, 255, 128);
         m_textColor         = QColor(255, 255, 255, 255);
         m_backgroundColor   = QColor(Qt::black);
     } else {
         m_lineColor         = QColor(0, 0, 0, 25);
+        m_cursorLineColor   = QColor("#B0BEC5");
         m_centerLineColor   = QColor(0, 0, 0, 128);
         m_textColor         = QColor(0, 0, 0, 255);
         m_backgroundColor   = QColor(Qt::white);
     }
+    m_cursorLineColor.setAlpha(128);
 }
 const bool &Palette::darkMode() const noexcept
 {
@@ -70,6 +73,11 @@ const QColor &Palette::textColor() const noexcept
 const QColor &Palette::backgroundColor() const noexcept
 {
     return m_backgroundColor;
+}
+
+const QColor &Palette::cursorLineColor() const noexcept
+{
+    return m_cursorLineColor;
 }
 
 const float &Palette::lineWidth(const bool &highlighted) const noexcept

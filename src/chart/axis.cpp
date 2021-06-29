@@ -28,25 +28,17 @@ using namespace chart;
 vector<float> Axis::ISO_LABELS = {
     31.5, 63, 125, 250, 500, 1000, 2000, 4000, 8000, 16000
 };
-
-QString Axis::unit() const
-{
-    return m_unit;
-}
-
-void Axis::setUnit(const QString &unit)
-{
-    m_unit = unit;
-}
-
 Axis::Axis(AxisDirection d, const Palette &palette, QQuickItem *parent)
     : PaintedItem(parent),
+      m_direction(d),
       m_palette(palette),
+      m_labels(),
       m_min(0.f), m_max(1.f), m_scale(1.f),
-      m_lowLimit(0.f), m_highLimit(1.f), m_offset(0.f), m_centralLabel(0.f), m_period()
+      m_lowLimit(0.f), m_highLimit(1.f),
+      m_offset(0.f), m_centralLabel(0.f),
+      m_helperValue(NAN), m_period(),
+      m_unit()
 {
-    m_direction = d;
-
     connect(parent, SIGNAL(widthChanged()), this, SLOT(parentWidthChanged()));
     connect(parent, SIGNAL(heightChanged()), this, SLOT(parentHeightChanged()));
     connect(&m_palette, SIGNAL(changed()), this, SLOT(update()));
@@ -61,6 +53,7 @@ void Axis::parentHeightChanged()
 {
     setHeight(parentItem()->height());
 }
+
 void Axis::configure(AxisType type, float min, float max, unsigned int ticks, float scale)
 {
     setType(type);
@@ -76,6 +69,26 @@ void Axis::configure(AxisType type, float min, float max, unsigned int ticks, fl
         m_min,
         m_max
     };
+}
+QString Axis::unit() const
+{
+    return m_unit;
+}
+
+void Axis::setUnit(const QString &unit)
+{
+    m_unit = unit;
+}
+
+float Axis::helperValue() const
+{
+    return m_helperValue;
+}
+
+void Axis::setHelperValue(float helperValue)
+{
+    m_helperValue = helperValue;
+    needUpdate();
 }
 
 void Axis::reset()
@@ -127,6 +140,16 @@ bool Axis::applyGesture(qreal base, qreal move, qreal scale)
     return false;
 }
 
+float Axis::lowLimit() const noexcept
+{
+    return m_lowLimit;
+}
+
+float Axis::highLimit() const noexcept
+{
+    return m_highLimit;
+}
+
 void Axis::paint(QPainter *painter) noexcept
 {
     QPen linePen(m_palette.lineColor(), 1);
@@ -150,10 +173,9 @@ void Axis::paint(QPainter *painter) noexcept
         static_cast<int>(widthf()  - padding.left - padding.right ) + 1,
         static_cast<int>(heightf() - padding.top  - padding.bottom) + 1
     );
-    for_each(m_labels.begin(), m_labels.end(), [&](float & l) {
-
+    auto setPoints = [&](float value) {
         try {
-            float lv = l - m_offset / scale();
+            float lv = value - m_offset / scale();
 
             if (m_period && !qFuzzyCompare(m_period.value_or(0.f), 0.f)) {
                 while (std::abs(lv) > m_period.value_or(0.f) / 2.f) {
@@ -163,7 +185,7 @@ void Axis::paint(QPainter *painter) noexcept
 
             t = convert(lv, size);
         } catch (const invalid_argument &e) {
-            qDebug() << l << e.what();
+            qDebug() << value << e.what();
             return; //continue
         }
 
@@ -173,7 +195,10 @@ void Axis::paint(QPainter *painter) noexcept
         p1.setY(static_cast<int>(m_direction == Horizontal ? heightf() - padding.bottom : heightf() -
                                  padding.bottom - t));
         p2.setY(static_cast<int>(m_direction == Horizontal ? padding.top : heightf() - padding.bottom - t));
+    };
+    for_each(m_labels.begin(), m_labels.end(), [&](float & l) {
 
+        setPoints(l);
         //do not draw lines out of padding
         if (!limit.contains(p1) || !limit.contains(p2) )
             return;
@@ -197,6 +222,13 @@ void Axis::paint(QPainter *painter) noexcept
             lastTextRect = textRect;
         }
     });
+
+    if (!std::isnan(m_helperValue)) {
+        QPen cursorPen(m_palette.cursorLineColor(), 1);
+        painter->setPen(cursorPen);
+        setPoints(m_helperValue / m_scale);
+        painter->drawLine(p1, p2);
+    }
 }
 float Axis::convert(float value, float size) const
 {
@@ -263,6 +295,28 @@ void Axis::autoLabels(unsigned int ticks)
         }
     }
 }
+
+void Axis::setLabels(std::vector<float> labels) noexcept
+{
+    m_labels = labels;
+    needUpdate();
+}
+
+void Axis::setType(AxisType t) noexcept
+{
+    m_type = t;
+    needUpdate();
+}
+
+AxisType Axis::type() const noexcept
+{
+    return m_type;
+}
+
+float Axis::offset() const noexcept
+{
+    return m_offset;
+}
 void Axis::needUpdate()
 {
     update();
@@ -278,7 +332,23 @@ void Axis::setMin(float v)
         emit minChanged(m_min);
     }
 }
-void Axis::setMax(float v)
+
+float Axis::min() const noexcept
+{
+    return m_min;
+}
+
+void Axis::setScale(float v) noexcept
+{
+    m_scale = v;
+    needUpdate();
+}
+
+float Axis::scale() const noexcept
+{
+    return m_scale;
+}
+void Axis::setMax(float v) noexcept
 {
     auto newValue = std::min(m_highLimit,
                              std::max(v, m_min)
@@ -289,12 +359,27 @@ void Axis::setMax(float v)
         emit maxChanged(m_max);
     }
 }
-void Axis::setOffset(float offset)
+
+float Axis::max() const noexcept
+{
+    return m_max;
+}
+
+void Axis::setISOLabels() noexcept
+{
+    m_labels = ISO_LABELS;
+}
+void Axis::setOffset(float offset) noexcept
 {
     m_offset = offset;
     needUpdate();
 }
-void Axis::setCentralLabel(float central)
+
+float Axis::centralLabel() const noexcept
+{
+    return m_centralLabel;
+}
+void Axis::setCentralLabel(float central) noexcept
 {
     m_centralLabel = central;
     needUpdate();

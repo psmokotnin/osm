@@ -15,11 +15,12 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef AXIS_H
-#define AXIS_H
-#include <optional>
+#ifndef CHART_AXIS_H
+#define CHART_AXIS_H
 #include "painteditem.h"
 #include "palette.h"
+
+#include <optional>
 #include <cmath>
 
 namespace chart {
@@ -32,25 +33,10 @@ class Axis : public PaintedItem
     Q_OBJECT
     static std::vector<float> ISO_LABELS;
 
-private:
-    AxisType m_type = Linear;
-    AxisDirection m_direction;
-    const Palette &m_palette;
-    std::vector<float> m_labels;
-    float m_min, m_max, m_scale;
-    float m_lowLimit, m_highLimit; //stop values
-    float m_offset, m_centralLabel;
-    std::optional<float> m_period;
-    QString m_unit;
-
-    struct {
-        float min;
-        float max;
-    } m_store, m_reset;
-
 public:
     Axis(AxisDirection d, const Palette &palette, QQuickItem *parent = Q_NULLPTR);
-    void paint(QPainter *painter) noexcept;
+    void paint(QPainter *painter) noexcept override;
+
     float convert(float value, float size) const;
     float reverse(float value, float size, float max = NAN, float min = NAN) const noexcept;
     float coordToValue(float coord) const noexcept;
@@ -63,77 +49,39 @@ public:
     void beginGesture();
     bool applyGesture(qreal base, qreal move, qreal scale);
 
-    float lowLimit() const
-    {
-        return m_lowLimit;
-    }
-    float highLimit() const
-    {
-        return m_highLimit;
-    }
+    float lowLimit() const noexcept;
+    float highLimit() const noexcept;
 
     void setMin(float v);
-    float min() const
-    {
-        return m_min;
-    }
+    float min() const noexcept;
 
-    void setScale(float v)
-    {
-        m_scale = v;
-        needUpdate();
-    }
-    float scale() const
-    {
-        return m_scale;
-    }
+    void setScale(float v) noexcept;
+    float scale() const noexcept;
 
-    void setMax(float v);
-    float max() const
-    {
-        return m_max;
-    }
+    void setMax(float v) noexcept;
+    float max() const noexcept;
 
-    void setISOLabels()
-    {
-        m_labels = ISO_LABELS;
-    }
+    void setISOLabels() noexcept;
     void autoLabels(unsigned int ticks);
-    void setLabels(std::vector<float> labels) noexcept
-    {
-        m_labels = labels;
-        needUpdate();
-    }
+    void setLabels(std::vector<float> labels) noexcept;
 
-    void setType(AxisType t)
-    {
-        m_type = t;
-        needUpdate();
-    }
+    void setType(AxisType t) noexcept;
+    AxisType type() const noexcept;
 
-    AxisType type() const
-    {
-        return m_type;
-    }
+    float offset() const noexcept;
+    void setOffset(float offset) noexcept;
 
-    float offset() const
-    {
-        return m_offset;
-    }
-    void setOffset(float offset);
-
-    float centralLabel() const
-    {
-        return m_centralLabel;
-    }
-
-    void setCentralLabel(float central);
+    float centralLabel() const noexcept;
+    void setCentralLabel(float central) noexcept;
 
     void setPeriodic(float p);
     float period() const noexcept;
 
     QString unit() const;
     void setUnit(const QString &unit);
+
+    float helperValue() const;
+    void setHelperValue(float helperValue);
 
 public slots:
     void needUpdate();
@@ -143,6 +91,23 @@ public slots:
 signals:
     void minChanged(float);
     void maxChanged(float);
+
+private:
+    AxisType m_type = Linear;
+    AxisDirection m_direction;
+    const Palette &m_palette;
+    std::vector<float> m_labels;
+    float m_min, m_max, m_scale;
+    float m_lowLimit, m_highLimit;
+    float m_offset, m_centralLabel;
+    float m_helperValue;
+    std::optional<float> m_period;
+    QString m_unit;
+
+    struct {
+        float min = 0;
+        float max = 0;
+    } m_store, m_reset;
 };
 }
-#endif // AXIS_H
+#endif // CHART_AXIS_H

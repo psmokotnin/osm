@@ -36,6 +36,23 @@ XYPlot::XYPlot(Settings *settings, QQuickItem *parent) :
     connect(&m_y, &Axis::maxChanged, this, [this](auto value) {
         emit ymaxChanged(value);
     });
+
+    connect(s_cursorHelper, &CursorHelper::valueUpdated, this, [this]() {
+        m_x.setHelperValue(s_cursorHelper->value(xLabel()));
+        m_y.setHelperValue(s_cursorHelper->value(yLabel()));
+    });
+}
+
+void XYPlot::setHelper(qreal x, qreal y) noexcept
+{
+    s_cursorHelper->setValue(xLabel(), x2v(x));
+    s_cursorHelper->setValue(yLabel(), y2v(y));
+}
+
+void XYPlot::unsetHelper() noexcept
+{
+    s_cursorHelper->unsetValue(xLabel());
+    s_cursorHelper->unsetValue(yLabel());
 }
 
 qreal XYPlot::x2v(qreal mouseX) const noexcept

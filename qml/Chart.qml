@@ -258,15 +258,27 @@ Item {
         style: Text.Outline;
         styleColor: applicationAppearance.darkMode ? "#99000000" : "#99FFFFFF"
 
+        onCursorXChanged: {
+            chart.plot.setHelper(cursorX, cursorY);
+        }
+        onCursorYChanged: {
+            chart.plot.setHelper(cursorX, cursorY);
+        }
+
         Connections {
             target: opener
             function onMouseXChanged() {
                 var x = touchPoint1.pressed ? touchPoint1.startX : opener.mouseX;
                 cursor.cursorX = x;
+                chart.plot.setHelper(cursor.cursorX, cursor.cursorY);
             }
             function onMouseYChanged() {
                 var y = touchPoint1.pressed ? touchPoint1.startY : opener.mouseY;
                 cursor.cursorY = y;
+                chart.plot.setHelper(cursor.cursorX, cursor.cursorY);
+            }
+            function onExited() {
+                chart.plot.unsetHelper();
             }
         }
     }
