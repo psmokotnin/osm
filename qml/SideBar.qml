@@ -123,11 +123,12 @@ Item {
             }
             clip: true
             delegate: Component {
-
                 id: delegateComponent
+
                 MouseArea {
                     id: dragArea
                     property bool held: false
+                    property var swipeStart: 0
 
                     anchors {
                         left: parent ? parent.left : delegateComponent.left
@@ -154,6 +155,16 @@ Item {
                             dragArea.held = false;
                             sourceModel.layoutChanged();
                         }
+
+                        //swipe delete:
+                        if (content.opacity <= 0) {
+                            if (applicationWindow && applicationWindow.properiesbar.currentObject === model.source) {
+                                applicationWindow.properiesbar.reset();
+                            }
+                            sourceList.removeItem(model.source);
+                        } else {
+                            content.opacity = 1;
+                        }
                     }
                     onClicked: {
                         if (sideList.currentIndex != index) {
@@ -161,6 +172,18 @@ Item {
                             sideList.forceActiveFocus();
                         } else {
                             sideList.currentIndex = -1
+                        }
+                    }
+
+                    onPressed: {
+                        swipeStart = mouseX;
+                    }
+
+                    onPositionChanged: {
+                        if (pressed) {
+                            let opacity = 1 - Math.abs(mouseX - swipeStart) / content.width;
+                            if (opacity > 0.6) opacity = 1.0;
+                            content.opacity = opacity;
                         }
                     }
 
