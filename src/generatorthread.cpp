@@ -112,6 +112,10 @@ void GeneratorThread::setEnabled(bool enabled)
 }
 void GeneratorThread::setType(int type)
 {
+    if (m_sources.size() <= type) {
+        qDebug() << "type out of range";
+        return;
+    }
     if (m_type != type) {
         m_type = type;
         updateAudio();
