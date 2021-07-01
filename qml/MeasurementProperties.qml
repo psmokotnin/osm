@@ -174,7 +174,7 @@ Item {
 
             FloatSpinBox {
                 id: gainSpinBox
-                implicitWidth: 80
+                implicitWidth: 75
                 value: dataObject.gain
                 from: -90
                 to: 20
@@ -189,7 +189,7 @@ Item {
             SelectableSpinBox {
                 id: delaySpin
                 Layout.alignment: Qt.AlignVCenter
-                implicitWidth: 80
+                implicitWidth: 75
                 value: dataObject.delay
                 implicitHeight: titleField.implicitHeight
                 from: 0
@@ -219,6 +219,8 @@ Item {
                 onClicked: {
                     delaySpin.value = dataObject.estimated;
                 }
+                implicitWidth: 75
+
                 font.capitalization: Font.AllLowercase
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("apply estimated delay")
@@ -311,6 +313,7 @@ Item {
                 onClicked: measurementProperties.store()
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("store current measurement")
+                implicitWidth: 85
             }
 
             Shortcut {

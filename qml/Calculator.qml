@@ -54,8 +54,8 @@ Item {
         SelectableSpinBox {
             id: frequencySB
             editable: true
-            from: 20
-            to: 20000
+            from: 1
+            to: 200000
             value: frequency
             onValueModified: frequency = value;
             ToolTip.visible: hovered
@@ -153,7 +153,7 @@ Item {
             editable: true
             stepSize: 10
             from:  1
-            to:    10000 * decimals
+            to:    100000 * decimals
             value: wave * decimals
             onValueModified: wave = value / decimals
 
@@ -175,7 +175,7 @@ Item {
             editable: true
             stepSize: 1
             from:  1
-            to:    10000 * decimals
+            to:    100000 * decimals
             value: wave * decimals / 2
             onValueModified: wave = value * 2 / decimals
 
