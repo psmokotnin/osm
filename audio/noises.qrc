@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/audio">
+        <file alias="mnoise.wav">MNoise_MSPN_90_916_049_15.wav</file>
+    </qresource>
+</RCC>

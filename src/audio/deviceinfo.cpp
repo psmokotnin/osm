@@ -93,7 +93,7 @@ DeviceInfo::Id DeviceInfo::id() const
 QDebug operator << (QDebug dbg, const audio::DeviceInfo &info)
 {
     dbg.nospace() << "Audio device: {:"
-                  << info.pluginName() << info.id() << " name:" << info.name() << "}";
+                  << info.pluginName() << info.id() << " name:" << info.name() << info.defaultSampleRate() << "}";
 
     return dbg.maybeSpace();
 }

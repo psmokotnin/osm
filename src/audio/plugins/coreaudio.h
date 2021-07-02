@@ -41,7 +41,7 @@ signals:
     void stopStreams(QPrivateSignal);
 
 private:
-    unsigned int getDEviceDefaultSampleRate(const int &deviceID) const;
+    unsigned int getDeviceDefaultSampleRate(const int &deviceID) const;
     unsigned int getDeviceChannelCount(const int &deviceID, const Direction &direction) const;
     QStringList getDeviceChannelNames(const int &deviceID, const Direction &direction) const;
 };

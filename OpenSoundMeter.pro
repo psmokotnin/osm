@@ -27,6 +27,7 @@ SOURCES += src/main.cpp \
     src/filesystem/plugins/widgetdialogplugin.cpp \
     src/generator.cpp \
     src/inputdevice.cpp \
+    src/mnoise.cpp \
     src/pinknoise.cpp \
     src/outputdevice.cpp \
     src/profiler.cpp \
@@ -34,6 +35,7 @@ SOURCES += src/main.cpp \
     src/sourcelist.cpp \
     src/sourcemodel.cpp \
     src/union.cpp \
+    src/wavfile.cpp \
     src/whitenoise.cpp \
     src/sinnoise.cpp \
     src/complex.cpp \
@@ -61,6 +63,7 @@ SOURCES += src/main.cpp \
     src/settings.cpp
 
 RESOURCES += qml.qrc \
+    audio/noises.qrc \
     fonts/fonts.qrc \
     images.qrc \
     shaders/shaders.qrc
@@ -109,6 +112,7 @@ HEADERS += \
     src/filesystem/plugins/widgetdialogplugin.h \
     src/generator.h \
     src/inputdevice.h \
+    src/mnoise.h \
     src/pinknoise.h \
     src/outputdevice.h \
     src/profiler.h \
@@ -116,6 +120,7 @@ HEADERS += \
     src/sourcelist.h \
     src/sourcemodel.h \
     src/union.h \
+    src/wavfile.h \
     src/whitenoise.h \
     src/sinnoise.h \
     src/sample.h \

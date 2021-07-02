@@ -122,13 +122,12 @@ DeviceInfo::List CoreaudioPlugin::getDeviceInfoList() const
 
         DeviceInfo device(QString::number(deviceID), name());
         device.setName(QString::fromCFString(deviceNameRef));
-        device.setDefaultSampleRate(getDEviceDefaultSampleRate(deviceID));
+        device.setDefaultSampleRate(getDeviceDefaultSampleRate(deviceID));
         device.setInputChannels(getDeviceChannelNames(deviceID, Input));
         device.setOutputChannels(getDeviceChannelNames(deviceID, Output));
         list.push_back(device);
         CFRelease(deviceNameRef);
     }
-
     return list;
 }
 
@@ -154,12 +153,12 @@ DeviceInfo::Id CoreaudioPlugin::defaultDeviceId(const Plugin::Direction &mode) c
 Format CoreaudioPlugin::deviceFormat(const DeviceInfo::Id &id, const Plugin::Direction &mode) const
 {
     return {
-        48000,
+        getDeviceDefaultSampleRate(id.toInt()),
         getDeviceChannelCount(id.toInt(), mode)
     };
 }
 
-unsigned int CoreaudioPlugin::getDEviceDefaultSampleRate(const int &deviceID) const
+unsigned int CoreaudioPlugin::getDeviceDefaultSampleRate(const int &deviceID) const
 {
     AudioObjectPropertyAddress propertyAddress = {
         kAudioDevicePropertyNominalSampleRate,
