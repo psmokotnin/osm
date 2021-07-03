@@ -313,7 +313,7 @@ Item {
                 onClicked: measurementProperties.store()
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("store current measurement")
-                implicitWidth: 85
+                implicitWidth: 75
             }
 
             Shortcut {
