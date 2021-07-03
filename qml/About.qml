@@ -62,10 +62,31 @@ Popup {
                     text: qsTr(
                             "<a style='color:%1' href=\"https://opensoundmeter.com\">https://opensoundmeter.com</a><br/><br/>" +
                             "Copyright (C) %2  Pavel Smokotnin<br/>" +
-                            "License: GPL v3.0"
+                            "License: " +
+                            '<a style="color:%1" href="https://raw.githubusercontent.com/psmokotnin/osm/master/LICENSE">GPL v3.0</a>'
                         ).arg(Material.accentColor).arg(new Date().getFullYear())
                     onLinkActivated: Qt.openUrlExternally(link)
                 }
+            }
+        }
+
+        MouseArea {
+            cursorShape: Qt.PointingHandCursor
+            onClicked:  {
+                Qt.openUrlExternally("https://apps.apple.com/app/id1552933259");
+            }
+
+            Layout.fillWidth: true
+            Layout.preferredHeight: 40
+            Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+
+            Image {
+                id: appstore
+                source: "qrc:/images/icons/appstore.png"
+                fillMode: Image.PreserveAspectFit
+                width: 120
+                height: 40
+                anchors.centerIn: parent
             }
         }
 
@@ -73,7 +94,7 @@ Popup {
             Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
             Layout.fillWidth: true
             Label {
-                text: qsTr("Like the project? Please <b>pay what you want</b> — to help me make further improvements and updates.<br/><br/>" +
+                text: qsTr("Like desktop version? Please <b>pay what you want</b> — to help me make further improvements and updates.<br/><br/>" +
                            "Write your ideas and questions in comments on " +
                            "<a style='color:%1' href=\"https://www.facebook.com/opensoundmeter/\">facebook</a>!"
                            ).arg(Material.accentColor)
@@ -171,22 +192,9 @@ Popup {
         Label {
             horizontalAlignment: Text.AlignLeft
             verticalAlignment: Text.AlignBottom
-            textFormat: Text.RichText
             Layout.fillWidth: true
             Layout.fillHeight: false
-            Layout.leftMargin: 100
-            Layout.rightMargin: 100
-            wrapMode: Text.Wrap
             Layout.preferredHeight: 25
-            font.styleName: "Regular"
-            font.pointSize: 10
-            text: qsTr(
-                      "This program comes with ABSOLUTELY NO WARRANTY. " +
-                      "This is free software, and you are welcome to redistribute it " +
-                      "under certain conditions.<br/>" +
-                      '<a style="color:%1" href="https://raw.githubusercontent.com/psmokotnin/osm/master/LICENSE">Full text of license</a>'
-                      ).arg(Material.accentColor)
-            onLinkActivated: Qt.openUrlExternally(link)
         }
     }
 }
