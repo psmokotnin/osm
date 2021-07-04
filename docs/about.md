@@ -27,6 +27,9 @@ title: About Open Sound Meter
             I came up with a several innovative ideas (data low pass filters, log time windows transform, etc)
         </p>
         <p class="">
+            Desktop version is open-source, you can contribute to the project on <a href="https://github.com/psmokotnin/osm">GitHub</a>!
+        </p>
+        <p class="">
             Features planned for future implementation:
             <ul>
                 <li>SPL meters</li>
@@ -34,10 +37,9 @@ title: About Open Sound Meter
             </ul>
         </p>
         <p class="">
-            Also in development: iPad application.</p>
-        <p class="">
-            Open Sound Meter is an open-source, you can contribute to the project on <a href="https://github.com/psmokotnin/osm">GitHub</a>!
+            I am very proud that Open Sound Meter is the first sound measurement app for iPad. Available in App Store from July 5, 2021.
         </p>
+        
       </div>
       <div class="col-md-5 order-md-1">
         <img src="/images/screens/v0.2.average.png" class="bd-placeholder-img bd-placeholder-img-lg featurette-image img-fluid mx-auto"/>
@@ -53,7 +55,7 @@ title: About Open Sound Meter
             My name is Pavel Smokotnin, I am an engineer by education, my passion is sound and higher math.<br/><br/>
             I have extensive experience as a sound engineer. That's why I know exactly how the product should work and what functions it should have.<br/><br/>
             I am developing other audio applications and devices as a job.<br/><br/>
-            If you are interested in working with me, you can find me here:<br/><br/>
+            Feel free to contact me:<br/><br/>
             <a href="https://www.facebook.com/psmokotnin">Facebook</a> &bull; <a href="https://www.linkedin.com/in/psmokotnin/">LinkedIn</a>
         </p>
       </div>

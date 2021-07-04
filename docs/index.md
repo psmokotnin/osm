@@ -19,6 +19,18 @@ title: Open Sound Meter
             Sound measurement application for tuning audio systems in real-time <br/>
             by Pavel Smokotnin
         </p>
+        
+        <div class="">
+            <div class="row">
+                <div class="col-md-auto">
+                    <b>The first and only sound measurement app for iPad!</b><br/>
+                    Available in App Store from July 5, 2021
+                </div>
+                <div class="col" style="padding-top: 3px;">
+                    <a class="download ios" target="_blank" href="https://apps.apple.com/app/id1552933259"><img src="/images/icons/appstore.svg" class="bd-placeholder-img"/></a>
+                </div>
+            </div>
+        </div>
       </div>
       <div class="col-md-5 order-md-1">
         <img src="/images/screens/main.png" class="bd-placeholder-img bd-placeholder-img-lg featurette-image img-fluid mx-auto"/>
@@ -39,7 +51,7 @@ title: Open Sound Meter
         <div class="col-lg-4">
             <div style="height: 105px;margin-top: 35px;"><img src="/images/icons/heart.svg" class="bd-placeholder-img" width="70" height="70"/></div>
             <h2>Available</h2>
-            <p align="left">You can pay what you want. Every donation is a great help for further development.</p>
+            <p align="left">Pay what you want for desktop version. Every donation is a great help!</p>
             <p><a class="btn btn-success" href="/about#donate" role="button">Donate</a></p>
         </div><!-- /.col-lg-4 -->
         
@@ -52,7 +64,8 @@ title: Open Sound Meter
                 </div>
             </div>
             <h2>Crossplatform</h2>
-            <p align="left">Binary builds are available for most major operating systems: macOS, Windows, and Linux.</p>
+            <p align="left">Desktop version are available for macOS, Windows, and Linux.</p>
+            <p><a class="btn btn-info" href="/download" role="button">Download</a></p>
         </div><!-- /.col-lg-4 -->
     </div><!-- /.row -->
 
@@ -106,3 +119,12 @@ title: Open Sound Meter
     <!-- /END THE FEATURETTES -->
 
   </div><!-- /.container -->
+  
+ <script>
+$('.download.ios').click(function() {
+    gtag('event', 'downloadios', {
+        'os' : 'ipad'
+    });
+    return true;
+});
+</script>
