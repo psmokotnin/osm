@@ -120,9 +120,9 @@ title: Open Sound Meter
 
   </div><!-- /.container -->
   
- <script>
+<script>
 $('.download.ios').click(function() {
-    gtag('event', 'downloadios', {
+    gtag('event', 'appstore', {
         'os' : 'ipad'
     });
     return true;

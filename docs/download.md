@@ -75,7 +75,7 @@ $('.download.linux').click(function() {
     return true;
 });
 $('.download.ios').click(function() {
-    gtag('event', 'downloadios', {
+    gtag('event', 'appstore', {
         'os' : 'ipad'
     });
     return true;
