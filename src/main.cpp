@@ -46,6 +46,8 @@ int main(int argc, char *argv[])
     QQuickWindow::setSceneGraphBackend(QSGRendererInterface::MetalRhi);
 #elif defined(GRAPH_OPENGL)
     QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
+    QCoreApplication::setAttribute(Qt::AA_DisableHighDpiScaling);
+    QQuickWindow::setTextRenderType(QQuickWindow::NativeTextRendering);
     QSurfaceFormat surfaceFormat;
     surfaceFormat.setMajorVersion(3);
     surfaceFormat.setMinorVersion(3);
