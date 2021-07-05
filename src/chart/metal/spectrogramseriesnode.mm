@@ -180,7 +180,7 @@ void SpectrogramSeriesNode::renderSeries()
         return;
     }
 
-    unsigned int maxBufferSize = MAX_HISTORY * (m_pointsPerOctave * 11 + 4) * 6,
+    unsigned int maxBufferSize = MAX_HISTORY * (m_pointsPerOctave * 12 + 4) * 6,
                  verticiesCount = 0, maxIndicesCount = 0, indicesCount = 0;
 
     if (m_refreshBuffers) {

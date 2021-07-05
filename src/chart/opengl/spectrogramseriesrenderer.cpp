@@ -130,7 +130,7 @@ void SpectrogramSeriesRenderer::renderSeries()
         history.pop_front();
     }
 
-    unsigned int maxBufferSize = 51 * (m_pointsPerOctave * 11 + 4) * 6,
+    unsigned int maxBufferSize = 51 * (m_pointsPerOctave * 12 + 4) * 6,
                  verticiesCount = 0, maxIndicesCount = 0, indicesCount = 0;
     if (m_vertices.size() != maxBufferSize) {
         m_vertices.resize(maxBufferSize);
