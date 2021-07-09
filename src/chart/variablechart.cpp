@@ -125,7 +125,9 @@ Settings *VariableChart::settings() const noexcept
 void VariableChart::setSettings(Settings *settings) noexcept
 {
     m_settings = settings;
-    m_plot->setSettings(m_settings);
+    if (m_plot) {
+        m_plot->setSettings(m_settings);
+    }
 }
 void VariableChart::appendDataSource(Source *source)
 {
@@ -171,8 +173,7 @@ void VariableChart::setSources(SourceList *sourceList)
         m_sources->disconnect(this);
 
     m_sources = sourceList;
-
-    if (m_sources) {
+    if (m_sources && m_plot) {
         for (int i = 0; i < m_sources->count(); ++i) {
             appendDataSource(m_sources->items()[i]);
         }

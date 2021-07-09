@@ -21,6 +21,7 @@
 #include <QQuickItem>
 #include <QSGTextureProvider>
 #include <QSGSimpleTextureNode>
+#include <QSGRendererInterface>
 
 namespace chart {
 class Source;
@@ -39,6 +40,9 @@ public:
     int height() const;
 
     QSGTexture *texture() const override final;
+
+    enum Backend {Metal, OpenGL};
+    static QSGRendererInterface::GraphicsApi chooseRhi();
 
 public slots:
     void synchronize();
@@ -82,12 +86,34 @@ protected:
     //! MTLDevice
     void *m_device;
 
+    //! MTLCommandQueue
+    void *m_commandQueue;
+
+    //! MTLCommandBuffer
+    void *m_commandBuffer;
+
+
 private:
     void init();
+
+    static QSGRendererInterface::GraphicsApi m_backend;
+
     bool m_initialized;
 
     //! MTLTexture
     void *m_texture;
+
+    //! QSGTexture for OpenGLRhi
+    QSGTexture *m_glTexture;
+
+    //! MTLBuffer for translation from m_texture to m_byteArray
+    void *m_buffer;
+
+    //! store rendered frame
+    QImage m_image;
+
+    //! for translation to m_image
+    QByteArray m_byteArray;
 
     QQuickWindow *m_window;
     QSize m_size;

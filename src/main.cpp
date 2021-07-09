@@ -35,6 +35,9 @@
 #include "src/audio/devicemodel.h"
 #include "src/appearance.h"
 #include "src/filesystem/dialog.h"
+#ifdef GRAPH_METAL
+#include "src/chart/metal/seriesnode.h"
+#endif
 
 #ifndef APP_GIT_VERSION
 #define APP_GIT_VERSION "unknow"
@@ -43,7 +46,7 @@
 int main(int argc, char *argv[])
 {
 #ifdef GRAPH_METAL
-    QQuickWindow::setSceneGraphBackend(QSGRendererInterface::MetalRhi);
+    QQuickWindow::setSceneGraphBackend(chart::SeriesNode::chooseRhi());
 #elif defined(GRAPH_OPENGL)
     QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
     QCoreApplication::setAttribute(Qt::AA_DisableHighDpiScaling);

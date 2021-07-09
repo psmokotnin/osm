@@ -31,7 +31,10 @@ SeriesNode::SeriesNode(QQuickItem *item) : m_item(static_cast<SeriesItem *>(item
     m_library(nullptr), m_devicePixelRatio(1),
     m_clearPipeline(nullptr),
     m_colorBuffer(nullptr), m_widthBuffer(nullptr), m_sizeBuffer(nullptr),
-    m_device(nullptr), m_initialized(false), m_texture(nullptr), m_window(item->window()),
+    m_device(nullptr), m_commandQueue(nullptr), m_commandBuffer(nullptr),
+    m_initialized(false), m_texture(nullptr),
+    m_buffer(nullptr), m_glTexture(nullptr),
+    m_window(item->window()),
     m_size(), m_active(), m_renderActive(false)
 
 {
@@ -56,12 +59,54 @@ SeriesNode::SeriesNode(QQuickItem *item) : m_item(static_cast<SeriesItem *>(item
 
 SeriesNode::~SeriesNode()
 {
+    if (m_glTexture) {
+        m_glTexture->deleteLater();
+    }
+
     [id_cast(MTLBuffer, m_sizeBuffer) release];
     [id_cast(MTLBuffer, m_widthBuffer) release];
     [id_cast(MTLBuffer, m_colorBuffer) release];
 
     delete texture();
     [id_cast(MTLTexture, m_texture) release];
+
+    [id_cast(MTLTexture, m_commandQueue) release];
+    [id_cast(MTLDevice, m_device) release];
+}
+
+QSGRendererInterface::GraphicsApi SeriesNode::m_backend = QSGRendererInterface::MetalRhi;
+
+QSGRendererInterface::GraphicsApi SeriesNode::chooseRhi()
+{
+#ifdef FORCE_OPENGL_RHI
+    m_backend = QSGRendererInterface::OpenGLRhi;
+    qDebug() << "force OpenGL chosen";
+
+    return m_backend;
+#endif
+
+    auto device = MTLCreateSystemDefaultDevice();
+    if (@available(macOS 10.15, ios 13.0, *)) {
+        if ([device supportsFamily:MTLGPUFamilyApple3]) {
+            m_backend = QSGRendererInterface::MetalRhi;
+            qDebug() << "Metal chosen";
+            [device release];
+            return m_backend;
+        }
+
+        if ([device supportsFamily:MTLGPUFamilyMac2]) {
+            m_backend = QSGRendererInterface::MetalRhi;
+            qDebug() << "Metal chosen";
+            [device release];
+            return m_backend;
+        }
+    }
+
+
+    m_backend = QSGRendererInterface::OpenGLRhi;
+    qDebug() << "OpenGL chosen";
+    [device release];
+    return m_backend;
 }
 
 void SeriesNode::synchronize()
@@ -87,11 +132,16 @@ void SeriesNode::init()
         m_texture = nullptr;
     }
 
-    QSGRendererInterface *renderer = m_window->rendererInterface();
-    m_device = renderer->getResource(m_window, QSGRendererInterface::DeviceResource);
+    m_device = MTLCreateSystemDefaultDevice();
     auto device = id_cast(MTLDevice, m_device);
     if (!device) {
         qCritical() << "no metal device";
+        return ;
+    }
+
+    m_commandQueue = [id_cast(MTLDevice, m_device) newCommandQueue];
+    if (!m_commandQueue) {
+        qCritical() << "no commandQueue";
         return ;
     }
 
@@ -107,14 +157,27 @@ void SeriesNode::init()
     m_texture = [id_cast(MTLDevice, m_device) newTextureWithDescriptor: descriptor];
     [descriptor release];
 
-    QSGTexture *wrapper = m_window->createTextureFromNativeObject(
-                              QQuickWindow::NativeObjectTexture,
-                              &m_texture,
-                              0,
-                              m_size, {QQuickWindow::TextureHasAlphaChannel}
-                          );
+    if (m_backend == QSGRendererInterface::OpenGLRhi) {
+        m_buffer = [
+                       id_cast(MTLDevice, m_device)
+                       newBufferWithLength: width() * height() * 4
+                       options: MTLResourceStorageModeShared
+                   ];
 
-    setTexture(wrapper);
+        m_image = QImage(width(), height(), QImage::Format_RGBA8888);
+        m_glTexture = m_window->createTextureFromImage(m_image, QQuickWindow::TextureHasAlphaChannel);
+        setTexture(m_glTexture);
+    }
+
+    if (m_backend == QSGRendererInterface::MetalRhi) {
+        QSGTexture *wrapper = m_window->createTextureFromNativeObject(
+                                  QQuickWindow::NativeObjectTexture,
+                                  &m_texture,
+                                  0,
+                                  m_size, {QQuickWindow::TextureHasAlphaChannel}
+                              );
+        setTexture(wrapper);
+    }
 
     if (m_initialized) {
         return ;
@@ -188,17 +251,17 @@ Plot *SeriesNode::plot() const
 void *SeriesNode::commandEncoder()
 {
     MTLRenderPassDescriptor *renderPassDescriptor = [MTLRenderPassDescriptor renderPassDescriptor];
-    MTLClearColor c = MTLClearColorMake(0, 0, 0, 0);
     renderPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionClear;
     renderPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionStore;
-    renderPassDescriptor.colorAttachments[0].clearColor = c;
+    renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0, 0, 0, 0);
     renderPassDescriptor.colorAttachments[0].texture = id_cast(MTLTexture, m_texture);
 
-    QSGRendererInterface *rendererInterface = m_window->rendererInterface();
-    auto commandBuffer = rendererInterface->getResource(m_window, QSGRendererInterface::CommandListResource);
-    Q_ASSERT(commandBuffer);
+    auto commandBuffer = [id_cast(MTLCommandQueue, m_commandQueue) commandBuffer];
+    commandBuffer.label = @"SeriesCommandBuffer";
 
+    Q_ASSERT(commandBuffer);
     auto encoder = [id_cast(MTLCommandBuffer, commandBuffer) renderCommandEncoderWithDescriptor: renderPassDescriptor];
+    m_commandBuffer = commandBuffer;
 
     MTLViewport vp;
     vp.originX = 0;
@@ -208,7 +271,6 @@ void *SeriesNode::commandEncoder()
     vp.znear = 0;
     vp.zfar = 1;
     [encoder setViewport: vp];
-
     return encoder;
 }
 
@@ -266,6 +328,56 @@ void SeriesNode::render()
     m_source->lock();
     renderSeries();
     m_source->unlock();
+
+    if (!m_commandBuffer) {
+        return;
+    }
+
+    switch (m_backend) {
+    case QSGRendererInterface::MetalRhi:
+        [id_cast(MTLCommandBuffer, m_commandBuffer) commit];
+        break;
+    case QSGRendererInterface::OpenGLRhi: {
+        auto blitEncoder = [id_cast(MTLCommandBuffer, m_commandBuffer) blitCommandEncoder];
+
+        [blitEncoder copyFromTexture: id_cast(MTLTexture, m_texture)
+                     sourceSlice: 0
+                     sourceLevel:0
+                     sourceOrigin:MTLOriginMake(0, 0, 0)
+                     sourceSize:MTLSizeMake(width(), height(), 1)
+                     toBuffer:id_cast(MTLBuffer, m_buffer)
+                     destinationOffset:0
+                     destinationBytesPerRow:width() * 4
+                     destinationBytesPerImage:width() * height() * 4
+                     //options:(MTLBlitOption)options;
+                    ];
+        [blitEncoder endEncoding];
+
+        [id_cast(MTLCommandBuffer, m_commandBuffer) commit];
+        [id_cast(MTLCommandBuffer, m_commandBuffer) waitUntilCompleted];
+
+        void *buffer_ptr = [id_cast(MTLBuffer, m_buffer) contents];
+        if (buffer_ptr) {
+            m_byteArray.resize(width() * height() * 4);
+            std::memcpy(m_byteArray.data(), buffer_ptr, m_byteArray.size());
+
+            char *data_ptr = m_byteArray.data();
+            for (int y = 0; y < m_image.height(); y++) {
+                memcpy(m_image.scanLine(y), data_ptr + y * m_image.bytesPerLine(), m_image.bytesPerLine());
+            }
+
+
+            if (m_glTexture) delete (m_glTexture);
+            m_glTexture = m_window->createTextureFromImage(m_image);
+            setTexture(m_glTexture);
+        }
+    }
+    break;
+    default:
+        Q_UNREACHABLE();
+    }
+
+    m_commandBuffer = nullptr;
 }
 
 int SeriesNode::width() const
@@ -287,12 +399,13 @@ void SeriesNode::clearRender()
     renderPassDescriptor.colorAttachments[0].clearColor = c;
     renderPassDescriptor.colorAttachments[0].texture = id_cast(MTLTexture, m_texture);
 
-    QSGRendererInterface *rendererInterface = m_window->rendererInterface();
-    auto commandBuffer = rendererInterface->getResource(m_window, QSGRendererInterface::CommandListResource);
+    auto commandBuffer = [id_cast(MTLCommandQueue, m_commandQueue) commandBuffer];
+    commandBuffer.label = @"ClearSeriesCommandBuffer";
     Q_ASSERT(commandBuffer);
     id<MTLRenderCommandEncoder> encoder = [
                                               id_cast(MTLCommandBuffer, commandBuffer)
                                               renderCommandEncoderWithDescriptor: renderPassDescriptor];
+    m_commandBuffer = commandBuffer;
 
     MTLViewport vp;
     vp.originX = 0;
