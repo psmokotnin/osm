@@ -283,10 +283,12 @@ isEqual(GRAPH, "METAL") {
     macx {
         METAL_SDK = "macosx"
         METAL_STD = "macos-metal1.0"
+        METAL_TARGET = "-mmacosx-version-min=10.13"
     }
     ios {
         METAL_SDK = "iphoneos"
         METAL_STD = "ios-metal1.0"
+        METAL_TARGET = "-mios-version-min=12.0"
     }
 
     metal_command = echo "build metal"
@@ -294,7 +296,7 @@ isEqual(GRAPH, "METAL") {
         AIR_FILE = $$basename(METAL_SOURCE)
         AIR_FILE = $$OUT_PWD/$$replace(AIR_FILE, .metal, .air)
         AIR_FILES += $$AIR_FILE
-        metal_command += && xcrun -sdk $$METAL_SDK metal -std=$$METAL_STD -c $$PWD/$$METAL_SOURCE -o $$AIR_FILE
+        metal_command += && xcrun -sdk $$METAL_SDK metal $$METAL_TARGET -std=$$METAL_STD -c $$PWD/$$METAL_SOURCE -o $$AIR_FILE
     }
     metal_command += && xcrun -sdk $$METAL_SDK metallib $$AIR_FILES -o $$OUT_PWD/lib.metallib
 
@@ -359,9 +361,9 @@ isEqual(GRAPH, "OPENGL") {
 # Special rules for deployment on Linux for AppImage
 unix:!macx:!ios:CONFIG(release, debug|release) {
     QMAKE_POST_LINK += $$QMAKE_COPY $$PWD/OpenSoundMeter.desktop $$OUT_PWD/OpenSoundMeter_\\"$$APP_GIT_VERSION\\".desktop
-    QMAKE_POST_LINK +=&& $$QMAKE_COPY $$PWD/icons/white.png $$OUT_PWD
-    QMAKE_POST_LINK +=&& $$QMAKE_COPY $$PWD/linuxdeployosm.sh $$OUT_PWD
-    QMAKE_POST_LINK +=  && chmod u+x $$OUT_PWD/linuxdeployosm.sh && $$OUT_PWD/linuxdeployosm.sh $$APP_GIT_VERSION $$PWD $$[QT_INSTALL_BINS]
+    QMAKE_POST_LINK += && $$QMAKE_COPY $$PWD/icons/white.png $$OUT_PWD
+    QMAKE_POST_LINK += && $$QMAKE_COPY $$PWD/linuxdeployosm.sh $$OUT_PWD
+    QMAKE_POST_LINK += && chmod u+x $$OUT_PWD/linuxdeployosm.sh && $$OUT_PWD/linuxdeployosm.sh $$APP_GIT_VERSION $$PWD $$[QT_INSTALL_BINS]
 }
 
 !isEqual(QT_MAJOR_VERSION, 5):lessThan(QT_MINOR_VERSION, 15) {
