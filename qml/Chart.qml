@@ -83,7 +83,7 @@ Item {
     MultiPointTouchArea {
         id: touchArea
         anchors.fill: parent
-        mouseEnabled: false
+        mouseEnabled: true
 
         readonly property int gestureNone  : 0;
         readonly property int gestureZoomX  : 1;
@@ -216,6 +216,22 @@ Item {
 
             onDoubleClicked: {
                 chart.plot.resetAxis();
+            }
+
+            onWheel: function (e) {
+                let d = Math.max(Math.abs(e.angleDelta.x), Math.abs(e.angleDelta.y));
+
+                if (d >= 120) {
+                    let base = Qt.point(e.x, e.y);
+                    let move = Qt.point(0.0, 0.0);
+                    let scale = Qt.point(1.0, 1.0);
+                    move = Qt.point(e.angleDelta.x / 8, e.angleDelta.y / 8);
+
+                    chart.plot.beginGesture();
+                    chart.plot.applyGesture(base, move, scale);
+
+                    e.accepted = true;
+                }
             }
 
             function openCalculator() {
