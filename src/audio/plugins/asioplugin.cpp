@@ -54,6 +54,7 @@ ASIOPlugin::ASIOPlugin() : Plugin(), m_bufferSize(0),
 
     m_workingThread.setObjectName("ASIO thread");
     m_workingThread.start();
+    m_workingThread.setPriority(QThread::TimeCriticalPriority);
 }
 
 ASIOPlugin::~ASIOPlugin()
@@ -198,12 +199,15 @@ Stream *ASIOPlugin::open(const DeviceInfo::Id &id, const Plugin::Direction &mode
 
     Format streamFormat = deviceFormat(id, mode);
     auto *stream  = new Stream(streamFormat);
+    stream->moveToThread(&m_workingThread);
 
     connect(stream, &Stream::closeMe, this, [endpoint]() {
         if (endpoint->isOpen()) {
             endpoint->close();
         }
-    });
+        //don't delete Stream here
+        //ASIO driver will safely remove inactive stream from callbacks and then schedule it for deletion
+    }, Qt::DirectConnection);
 
     switch (mode) {
     case Input:
@@ -325,6 +329,7 @@ void ASIOPlugin::processInputStreams(QVector<float> buffer)
 {
     for (auto it = m_inputCallbacks.begin(); it != m_inputCallbacks.end();) {
         if (Q_UNLIKELY(!it.key()->active())) {
+            it.key()->deleteLater();
             it = m_inputCallbacks.erase(it);
         } else {
             it.value()(buffer);
@@ -341,6 +346,7 @@ void ASIOPlugin::processOutputStreams()
     }
     for (auto it = m_outputCallbacks.begin(); it != m_outputCallbacks.end();) {
         if (Q_UNLIKELY(!it.key()->active())) {
+            it.key()->deleteLater();
             it = m_outputCallbacks.erase(it);
         } else {
             it.value()();
@@ -496,9 +502,6 @@ ASIOTime *ASIOPlugin::processBuffers(ASIOTime *params, long doubleBufferIndex, A
     }
     ASIOOutputReady();
     emit runInputProcessing(m_inputBuffer, {});
-    if (!m_inputCallbacks.size() && !m_outputCallbacks.size()) {
-        stopCurrentDevice();
-    }
     return params;
 }
 
