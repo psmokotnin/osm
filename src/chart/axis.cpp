@@ -36,7 +36,7 @@ Axis::Axis(AxisDirection d, const Palette &palette, QQuickItem *parent)
       m_min(0.f), m_max(1.f), m_scale(1.f),
       m_lowLimit(0.f), m_highLimit(1.f),
       m_offset(0.f), m_centralLabel(0.f),
-      m_helperValue(NAN), m_period(),
+      m_helperValue(NAN), m_period(), m_periodStart(0),
       m_unit()
 {
     connect(parent, SIGNAL(widthChanged()), this, SLOT(parentWidthChanged()));
@@ -52,6 +52,22 @@ void Axis::parentWidthChanged()
 void Axis::parentHeightChanged()
 {
     setHeight(parentItem()->height());
+}
+
+float Axis::fromPeriodicValue(const float &value) const noexcept
+{
+    auto v = value;
+    auto period = m_period.value_or(0.f);
+    if (m_period && !qFuzzyCompare(period, 0.f)) {
+        while (v < m_periodStart) {
+            v += period;
+        }
+        while (v > m_periodStart + period) {
+            v -= period;
+        }
+    }
+
+    return v;
 }
 
 void Axis::configure(AxisType type, float min, float max, unsigned int ticks, float scale)
@@ -178,8 +194,11 @@ void Axis::paint(QPainter *painter) noexcept
             float lv = value - m_offset / scale();
 
             if (m_period && !qFuzzyCompare(m_period.value_or(0.f), 0.f)) {
-                while (std::abs(lv) > m_period.value_or(0.f) / 2.f) {
-                    lv -= std::copysign(m_period.value_or(0.f), lv);
+                while (lv < m_min) {
+                    lv += m_period.value_or(0.f);
+                }
+                while (lv > m_max) {
+                    lv -= m_period.value_or(0.f);
                 }
             }
 
@@ -251,12 +270,7 @@ float Axis::reverse(float value, float size, float max, float min) const noexcep
     }
     float l = value * (max - min) / size + min + m_offset / scale();
 
-    if (m_period && !qFuzzyCompare(m_period.value_or(0.f), 0.f)) {
-        while (std::abs(l) > m_period.value_or(0.f) / 2.f) {
-            l -= std::copysign(m_period.value_or(0.f), l);
-        }
-    }
-
+    l = fromPeriodicValue(l);
     return l;
 }
 float Axis::coordToValue(float coord) const noexcept
@@ -283,8 +297,8 @@ void Axis::autoLabels(unsigned int ticks)
         step = 2 * std::max(std::abs(m_min), std::abs(m_max)) / ticks;
         for (unsigned int i = 0; i < ticks / 2; i++) {
             l += step;
-            m_labels.push_back(l);
-            m_labels.push_back(-1 * l);
+            m_labels.push_back(fromPeriodicValue(l));
+            m_labels.push_back(fromPeriodicValue(-1 * l));
         }
     } else {
         l = m_min;
@@ -387,9 +401,20 @@ void Axis::setCentralLabel(float central) noexcept
 void Axis::setPeriodic(float p)
 {
     m_period = p;
+    m_periodStart = m_min;
 }
 
 float Axis::period() const noexcept
 {
     return m_period.value_or(0);
+}
+
+void Axis::setPeriodStart(float start)
+{
+    m_periodStart = start;
+}
+
+float Axis::periodStart() const noexcept
+{
+    return m_periodStart;
 }
