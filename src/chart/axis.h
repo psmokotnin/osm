@@ -77,6 +77,9 @@ public:
     void setPeriodic(float p);
     float period() const noexcept;
 
+    void setPeriodStart(float start);
+    float periodStart() const noexcept;
+
     QString unit() const;
     void setUnit(const QString &unit);
 
@@ -93,6 +96,8 @@ signals:
     void maxChanged(float);
 
 private:
+    float fromPeriodicValue(const float &value) const noexcept;
+
     AxisType m_type = Linear;
     AxisDirection m_direction;
     const Palette &m_palette;
@@ -102,6 +107,7 @@ private:
     float m_offset, m_centralLabel;
     float m_helperValue;
     std::optional<float> m_period;
+    float m_periodStart;
     QString m_unit;
 
     struct {

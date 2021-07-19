@@ -18,6 +18,7 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.2
 import QtQuick.Controls.Material 2.2
+import QtGraphicalEffects 1.15
 import OpenSoundMeter 1
 import "elements"
 
@@ -83,7 +84,7 @@ Item {
     MultiPointTouchArea {
         id: touchArea
         anchors.fill: parent
-        mouseEnabled: false
+        mouseEnabled: true
 
         readonly property int gestureNone  : 0;
         readonly property int gestureZoomX  : 1;
@@ -218,6 +219,22 @@ Item {
                 chart.plot.resetAxis();
             }
 
+            onWheel: function (e) {
+                let d = Math.max(Math.abs(e.angleDelta.x), Math.abs(e.angleDelta.y));
+
+                if (d >= 120) {
+                    let base = Qt.point(e.x, e.y);
+                    let move = Qt.point(0.0, 0.0);
+                    let scale = Qt.point(1.0, 1.0);
+                    move = Qt.point(e.angleDelta.x / 8, e.angleDelta.y / 8);
+
+                    chart.plot.beginGesture();
+                    chart.plot.applyGesture(base, move, scale);
+
+                    e.accepted = true;
+                }
+            }
+
             function openCalculator() {
                 var obj = {};
                 switch(type) {
@@ -246,8 +263,8 @@ Item {
         property int cursorX : 0
         property int cursorY : 0
 
-        text: "%1".arg(chart.plot.y2v(cursorY).toFixed(2)) + chart.plot.yLabel + "\n" +
-              "%1".arg(chart.plot.x2v(cursorX).toFixed(2)) + chart.plot.xLabel;
+        text: "%1".arg(chart.plot.y2v(cursor.cursorY).toFixed(2)) + chart.plot.yLabel + "\n" +
+              "%1".arg(chart.plot.x2v(cursor.cursorX).toFixed(2)) + chart.plot.xLabel;
         xRight:  cursorX + applicationAppearance.cursorOffset + cursor.fontInfo.pixelSize / 2
         xLeft:   cursorX - applicationAppearance.cursorOffset - cursor.width - cursor.fontInfo.pixelSize / 2
         yTop:    cursorY - applicationAppearance.cursorOffset - cursor.height / 2
@@ -255,8 +272,22 @@ Item {
         x: xRight < parent.width  - width  - 50 ? xRight : xLeft
         y: yTop   < 2 * height ? yBottom : yTop + 30 + height / 2 > parent.height ? yTop - height : yTop
         visible: opener.containsMouse
-        style: Text.Outline;
-        styleColor: applicationAppearance.darkMode ? "#99000000" : "#99FFFFFF"
+
+        Label {
+            id: cursorText
+            text: cursor.text
+        }
+
+        DropShadow {
+            anchors.fill: cursorText
+            horizontalOffset: 0
+            verticalOffset: 0
+            radius: 1.0
+            samples: 9
+            spread: 1
+            color: applicationAppearance.darkMode ? "#99000000" : "#99FFFFFF"
+            source: cursorText
+        }
 
         onCursorXChanged: {
             chart.plot.setHelper(cursorX, cursorY);
