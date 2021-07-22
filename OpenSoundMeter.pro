@@ -374,6 +374,8 @@ unix:!macx:!ios:CONFIG(release, debug|release) {
     QMAKE_POST_LINK += && $$QMAKE_COPY $$PWD/icons/white.png $$OUT_PWD
     QMAKE_POST_LINK += && $$QMAKE_COPY $$PWD/linuxdeployosm.sh $$OUT_PWD
     QMAKE_POST_LINK += && chmod u+x $$OUT_PWD/linuxdeployosm.sh && $$OUT_PWD/linuxdeployosm.sh $$APP_GIT_VERSION $$PWD $$[QT_INSTALL_BINS]
+
+    QMAKE_CXXFLAGS_RELEASE += -fno-fast-math
 }
 
 !isEqual(QT_MAJOR_VERSION, 5):lessThan(QT_MINOR_VERSION, 15) {
