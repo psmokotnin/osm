@@ -78,6 +78,7 @@ Item {
             }
 
             SelectableSpinBox {
+                id: rotate
                 value: dataObject.rotate
                 onValueChanged: {
                     if (Math.abs(value) > 180) {
@@ -85,8 +86,10 @@ Item {
                     }
                     dataObject.rotate = value;
                 }
+
                 from: -360
                 to: 360
+                wrap: true
                 editable: true
                 implicitWidth: 170
                 Layout.fillWidth: true
@@ -95,11 +98,23 @@ Item {
                 ToolTip.text: qsTr("rotate")
 
                 textFromValue: function(value, locale) {
+                    if (positivePeriod.currentIndex && value < 0) {
+                        value += 360;
+                    }
                     return Number(value) + "º"
                 }
 
                 valueFromText: function(text, locale) {
                     return parseInt(text)
+                }
+
+                Connections {
+                    target: dataObject
+                    function onPositivePeriodChanged() {
+                        let v =  dataObject.rotate;
+                        rotate.value = v + 0.1;
+                        rotate.value = v;
+                    }
                 }
             }
 
@@ -134,12 +149,10 @@ Item {
             }
         }
         RowLayout {
-            spacing: 0
 
             TitledCombo {
                 title: qsTr("ppo")
                 tooltip: qsTr("points per octave")
-                implicitWidth: 170
                 model: [3, 6, 12, 24, 48]
                 currentIndex: {
                     var ppo = dataObject.pointsPerOctave;
@@ -151,10 +164,18 @@ Item {
                 }
             }
 
+            ComboBox {
+                id: positivePeriod
+                model: ["±180º", "0..360º"]
+                onCurrentTextChanged: {
+                    dataObject.positivePeriod = currentIndex == 1;
+                }
+                currentIndex: dataObject.positivePeriod
+            }
+
             CheckBox {
                 id: coherence
                 text: qsTr("use coherence")
-                implicitWidth: 170
                 checked: dataObject.coherence
                 onCheckStateChanged: dataObject.coherence = checked
 

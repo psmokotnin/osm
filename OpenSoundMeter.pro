@@ -283,10 +283,12 @@ isEqual(GRAPH, "METAL") {
     macx {
         METAL_SDK = "macosx"
         METAL_STD = "macos-metal1.0"
+        METAL_TARGET = "-mmacosx-version-min=10.13"
     }
     ios {
         METAL_SDK = "iphoneos"
         METAL_STD = "ios-metal1.0"
+        METAL_TARGET = "-mios-version-min=12.0"
     }
 
     metal_command = echo "build metal"
@@ -294,7 +296,7 @@ isEqual(GRAPH, "METAL") {
         AIR_FILE = $$basename(METAL_SOURCE)
         AIR_FILE = $$OUT_PWD/$$replace(AIR_FILE, .metal, .air)
         AIR_FILES += $$AIR_FILE
-        metal_command += && xcrun -sdk $$METAL_SDK metal -std=$$METAL_STD -c $$PWD/$$METAL_SOURCE -o $$AIR_FILE
+        metal_command += && xcrun -sdk $$METAL_SDK metal $$METAL_TARGET -std=$$METAL_STD -c $$PWD/$$METAL_SOURCE -o $$AIR_FILE
     }
     metal_command += && xcrun -sdk $$METAL_SDK metallib $$AIR_FILES -o $$OUT_PWD/lib.metallib
 

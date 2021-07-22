@@ -119,7 +119,7 @@ void RTASeriesRenderer::renderLine()
 }
 void RTASeriesRenderer::renderBars()
 {
-    unsigned int maxBufferSize = m_pointsPerOctave * 11 * 8;
+    unsigned int maxBufferSize = m_pointsPerOctave * 12 * 8;
     if (m_vertices.size() != maxBufferSize) {
         m_vertices.resize(maxBufferSize);
         m_refreshBuffers = true;

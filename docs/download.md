@@ -12,7 +12,17 @@ title: Download Open Sound Meter
 
 <div class="container marketing">
     <div class="row">
-        <div class="card-deck" style="width: 100%;">
+        <div class="col">
+            <div class="card-deck">
+        
+                <a class="card border-info download ios" style="padding: 2em 4em;" href="https://apps.apple.com/app/id1552933259" target="_blank">
+                    <img class="card-img-top" src="/images/icons/appstore.svg" alt="Card image cap" style="max-height: 200px;margin: auto;padding: 50px 0;">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">iPad</h5>
+                        <p class="card-text"></p>
+                    </div>
+                </a>
+                
                 <a class="card download mac" href="https://github.com/psmokotnin/osm/releases/download/{{site.current_version}}/OpenSoundMeter.dmg" target="_blank">
                     <img class="card-img-top" src="/images/icons/apple-brands.svg" alt="Card image cap" style="max-height: 200px;margin: auto;padding: 50px 0;">
                     <div class="card-body text-center">
@@ -29,7 +39,7 @@ title: Download Open Sound Meter
                     </div>
                 </a>
                 
-                <a class="card download linux" href="https://github.com/psmokotnin/osm/releases/download/{{site.current_version}}/Open_Sound_Meter-v0.3.1-x86_64.AppImage" target="_blank">
+                <a class="card download linux" href="https://github.com/psmokotnin/osm/releases/download/{{site.current_version}}/Open_Sound_Meter-v1.0-x86_64.AppImage" target="_blank">
                     <img class="card-img-top" src="/images/icons/linux-brands.svg" alt="Card image cap" style="max-height: 200px;margin: auto;padding: 50px 0;">
                     <div class="card-body text-center">
                         <h5 class="card-title">Linux</h5>
@@ -37,6 +47,7 @@ title: Download Open Sound Meter
                     </div>
                 </a>
             </div>
+        </div>
     </div>
     
     <hr class="featurette-divider">
@@ -60,6 +71,12 @@ $('.download.windows').click(function() {
 $('.download.linux').click(function() {
     gtag('event', 'downloadlinux', {
         'os' : 'linux'
+    });
+    return true;
+});
+$('.download.ios').click(function() {
+    gtag('event', 'appstore', {
+        'os' : 'ipad'
     });
     return true;
 });

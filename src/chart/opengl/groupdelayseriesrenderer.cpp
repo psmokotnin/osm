@@ -54,7 +54,7 @@ void GroupDelaySeriesRenderer::renderSeries()
         return;
 
     //max octave count: 11
-    unsigned int maxBufferSize = m_pointsPerOctave * 11 * 12, i = 0, verticiesCount = 0;
+    unsigned int maxBufferSize = m_pointsPerOctave * 12 * 12, i = 0, verticiesCount = 0;
     if (m_vertices.size() != maxBufferSize) {
         m_vertices.resize(maxBufferSize);
         m_refreshBuffers = true;
