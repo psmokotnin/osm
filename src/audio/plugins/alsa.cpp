@@ -333,6 +333,7 @@ bool AlsaPCMDevice::start()
                     m_threadActive = false;
                     break;
                 }
+                m_mutex.unlock();
             }
             m_threadActive = true;
             m_keepAlive = false;

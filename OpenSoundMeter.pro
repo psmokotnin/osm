@@ -355,13 +355,23 @@ isEqual(GRAPH, "OPENGL") {
         src/chart/opengl/stepseriesrenderer.cpp
 }
 
+#TODO: finish this
+#unix:!macx:!ios {
+#    #Add Glibc wrapper for older platforms
+#    #./LibcWrapGenerator --target 2.14 --libdir /lib --output libcwrap.h
+
+##    CONFIG += cmdline precompile_header
+##    PRECOMPILED_HEADER = ../libcwrap.h
+#    QMAKE_CXXFLAGS += -U_FORTIFY_SOURCE -include ../libcwrap.h
+#    HEADERS += ../libcwrap.h
+#}
 
 # Special rules for deployment on Linux for AppImage
 unix:!macx:!ios:CONFIG(release, debug|release) {
     QMAKE_POST_LINK += $$QMAKE_COPY $$PWD/OpenSoundMeter.desktop $$OUT_PWD/OpenSoundMeter_\\"$$APP_GIT_VERSION\\".desktop
-    QMAKE_POST_LINK +=&& $$QMAKE_COPY $$PWD/icons/white.png $$OUT_PWD
-    QMAKE_POST_LINK +=&& $$QMAKE_COPY $$PWD/linuxdeployosm.sh $$OUT_PWD
-    QMAKE_POST_LINK +=  && chmod u+x $$OUT_PWD/linuxdeployosm.sh && $$OUT_PWD/linuxdeployosm.sh $$APP_GIT_VERSION $$PWD $$[QT_INSTALL_BINS]
+    QMAKE_POST_LINK += && $$QMAKE_COPY $$PWD/icons/white.png $$OUT_PWD
+    QMAKE_POST_LINK += && $$QMAKE_COPY $$PWD/linuxdeployosm.sh $$OUT_PWD
+    QMAKE_POST_LINK += && chmod u+x $$OUT_PWD/linuxdeployosm.sh && $$OUT_PWD/linuxdeployosm.sh $$APP_GIT_VERSION $$PWD $$[QT_INSTALL_BINS]
 }
 
 !isEqual(QT_MAJOR_VERSION, 5):lessThan(QT_MINOR_VERSION, 15) {

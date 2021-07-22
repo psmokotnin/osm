@@ -17,6 +17,7 @@
  */
 
 #include "cursorhelper.h"
+#include <QtMath>
 
 namespace chart {
 
