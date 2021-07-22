@@ -103,8 +103,10 @@ DeviceInfo::List WasapiPlugin::getDeviceInfoList() const
 
         checkCall(properties->GetValue(PKEY_AudioEngine_DeviceFormat, &propertyValue), list, "PKEY_AudioEngine_DeviceFormat");
         deviceFormat = reinterpret_cast<WAVEFORMATEX *>(propertyValue.blob.pBlobData);
-        info.setDefaultSampleRate(deviceFormat->nSamplesPerSec);
-        channelCount = deviceFormat->nChannels;
+        if (deviceFormat) {
+            info.setDefaultSampleRate(deviceFormat->nSamplesPerSec);
+            channelCount = deviceFormat->nChannels;
+        }
 
         QStringList channelNames = {};
         channelNames.reserve(channelCount);
@@ -249,7 +251,8 @@ Stream *WasapiPlugin::open(const DeviceInfo::Id &id, const Plugin::Direction &mo
         });
         audioEndpointThread->start();
 
-        connect(stream, &Stream::closeMe, this, [endpoint, client, audioEndpointThread, renderClient, streamReadyEvent]() {
+        connect(stream, &Stream::closeMe, this, [stream, endpoint, client, audioEndpointThread, renderClient,
+                streamReadyEvent]() {
             endpoint->close();
             CloseHandle(streamReadyEvent);
 
@@ -257,7 +260,8 @@ Stream *WasapiPlugin::open(const DeviceInfo::Id &id, const Plugin::Direction &mo
             audioEndpointThread->wait();
             renderClient->Release();
             client->Release();
-        });
+            stream->deleteLater();
+        }, Qt::DirectConnection);
         break;
     }
 
@@ -278,10 +282,6 @@ Stream *WasapiPlugin::open(const DeviceInfo::Id &id, const Plugin::Direction &mo
             UINT32 availableFramesCount;
             DWORD flags;
 
-            connect(stream, &Stream::closeMe, QThread::currentThread(), [endpoint]() {
-                endpoint->close();
-            });
-
             while (endpoint->isOpen() && (WaitForSingleObject(streamReadyEvent, 1000) == WAIT_OBJECT_0)) {
                 checkStatus(captureClient->GetNextPacketSize(&availableFramesCount), "GetNextPacketSize");
                 if (availableFramesCount == 0) {
@@ -300,7 +300,13 @@ Stream *WasapiPlugin::open(const DeviceInfo::Id &id, const Plugin::Direction &mo
             CloseHandle(streamReadyEvent);
             captureClient->Release();
             client->Release();
+            stream->deleteLater();
         });
+
+        connect(stream, &Stream::closeMe, this, [endpoint, audioEndpointThread]() {
+            endpoint->close();
+            audioEndpointThread->wait(QDeadlineTimer(1));
+        }, Qt::DirectConnection);
         audioEndpointThread->start();
         break;
     }
