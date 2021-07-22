@@ -31,7 +31,7 @@ payme_page: "https://www.paypal.me/psmokotnin/9.99"
 issues_page: "https://github.com/psmokotnin/osm/issues"
 source_page: "https://github.com/psmokotnin/osm"
 license_page: "https://github.com/psmokotnin/osm/blob/master/LICENSE"
-current_version: "v1.0"
+current_version: "v1.0.1"
 
 
 # Build settings
