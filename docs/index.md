@@ -23,7 +23,7 @@ title: Open Sound Meter
         <div class="">
             <div class="row">
                 <div class="col-md-auto">
-                    <b>The first and only sound measurement app for iPad!</b><br/>
+                    <b>The modern all-around sound analysis app for iPad!</b><br/>
                     Available in App Store from July 5, 2021
                 </div>
                 <div class="col" style="padding-top: 3px;">
