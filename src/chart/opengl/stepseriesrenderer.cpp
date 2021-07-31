@@ -17,7 +17,7 @@
  */
 #include "stepseriesrenderer.h"
 #include "../stepplot.h"
-
+#include "notifier.h"
 using namespace chart;
 
 StepSeriesRenderer::StepSeriesRenderer() : XYSeriesRenderer(), m_window(WindowFunction::Hann)
@@ -25,7 +25,9 @@ StepSeriesRenderer::StepSeriesRenderer() : XYSeriesRenderer(), m_window(WindowFu
     m_program.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/pos.vert");
     m_program.addShaderFromSourceFile(QOpenGLShader::Geometry, ":/line.geom");
     m_program.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/color.frag");
-    m_program.link();
+    if (!m_program.link()) {
+        emit Notifier::getInstance()->newMessage("StepSeriesRenderer", m_program.log());
+    }
     m_colorUniform = m_program.uniformLocation("m_color");
     m_matrixUniform = m_program.uniformLocation("matrix");
     m_widthUniform  = m_program.uniformLocation("width");

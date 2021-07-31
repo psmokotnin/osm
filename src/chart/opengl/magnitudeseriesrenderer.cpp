@@ -19,7 +19,7 @@
 #include "magnitudeseriesrenderer.h"
 #include "../magnitudeplot.h"
 #include <cstring>
-
+#include "notifier.h"
 using namespace chart;
 
 MagnitudeSeriesRenderer::MagnitudeSeriesRenderer() : FrequencyBasedSeriesRenderer(),
@@ -28,7 +28,9 @@ MagnitudeSeriesRenderer::MagnitudeSeriesRenderer() : FrequencyBasedSeriesRendere
     m_program.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/magnitude.vert");
     m_program.addShaderFromSourceFile(QOpenGLShader::Geometry, ":/magnitude.geom");
     m_program.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/magnitude.frag");
-    m_program.link();
+    if (!m_program.link()) {
+        emit Notifier::getInstance()->newMessage("MagnitudeSeriesRenderer", m_program.log());
+    }
 
     m_widthUniform  = m_program.uniformLocation("width");
     m_colorUniform  = m_program.uniformLocation("m_color");

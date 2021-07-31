@@ -27,7 +27,9 @@ SOURCES += src/main.cpp \
     src/filesystem/plugins/widgetdialogplugin.cpp \
     src/generator.cpp \
     src/inputdevice.cpp \
+    src/logger.cpp \
     src/mnoise.cpp \
+    src/notifier.cpp \
     src/pinknoise.cpp \
     src/outputdevice.cpp \
     src/profiler.cpp \
@@ -112,7 +114,9 @@ HEADERS += \
     src/filesystem/plugins/widgetdialogplugin.h \
     src/generator.h \
     src/inputdevice.h \
+    src/logger.h \
     src/mnoise.h \
+    src/notifier.h \
     src/pinknoise.h \
     src/outputdevice.h \
     src/profiler.h \
@@ -165,6 +169,9 @@ ios: {
 
 APP_GIT_VERSION = $$system(git --git-dir $$_PRO_FILE_PWD_/.git --work-tree $$_PRO_FILE_PWD_ describe --tags $$system(git --git-dir $$_PRO_FILE_PWD_/.git --work-tree $$_PRO_FILE_PWD_ rev-list --tags --max-count=1))
 DEFINES += APP_GIT_VERSION=\\\"$$APP_GIT_VERSION\\\"
+
+#logger
+DEFINES += QT_MESSAGELOGCONTEXT
 
 #audio plugins:
 macx {

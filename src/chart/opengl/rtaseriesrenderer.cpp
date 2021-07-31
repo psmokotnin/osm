@@ -18,7 +18,7 @@
 #include <cmath>
 #include "rtaseriesrenderer.h"
 #include "../rtaplot.h"
-
+#include "notifier.h"
 using namespace chart;
 RTASeriesRenderer::RTASeriesRenderer() : FrequencyBasedSeriesRenderer(),
     m_pointsPerOctave(0),
@@ -41,7 +41,9 @@ void RTASeriesRenderer::initShaders()
     if (m_mode != 1) {
         m_program.addShader(&m_geometryShader);
     }
-    m_program.link();
+    if (!m_program.link()) {
+        emit Notifier::getInstance()->newMessage("RTASeriesRenderer", m_program.log());
+    }
 
     m_colorUniform  = m_program.uniformLocation("m_color");
     m_matrixUniform = m_program.uniformLocation("matrix");

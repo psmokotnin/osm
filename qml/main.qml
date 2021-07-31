@@ -148,6 +148,13 @@ ApplicationWindow {
 
     Message {
         id: message
+
+        Connections {
+            target: notifier
+            function onNewMessage(title, text) {
+                message.showError(title + "<br/>" + text);
+            }
+        }
     }
 
     ModalDialog {

@@ -16,7 +16,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "coherenceseriesrenderer.h"
-
+#include "notifier.h"
 using namespace chart;
 
 CoherenceSeriesRenderer::CoherenceSeriesRenderer() : FrequencyBasedSeriesRenderer(), m_pointsPerOctave(24)
@@ -24,7 +24,9 @@ CoherenceSeriesRenderer::CoherenceSeriesRenderer() : FrequencyBasedSeriesRendere
     m_program.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/coherence.vert");
     m_program.addShaderFromSourceFile(QOpenGLShader::Geometry, ":/coherence.geom");
     m_program.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/coherence.frag");
-    m_program.link();
+    if (!m_program.link()) {
+        emit Notifier::getInstance()->newMessage("CoherenceSeriesRenderer", m_program.log());
+    }
 
     m_widthUniform  = m_program.uniformLocation("width");
     m_colorUniform  = m_program.uniformLocation("m_color");

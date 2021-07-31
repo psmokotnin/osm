@@ -22,7 +22,8 @@
 #include <QQmlContext>
 #include <QFontDatabase>
 #include "settings.h"
-
+#include "logger.h"
+#include "notifier.h"
 #include "src/generator.h"
 #include "src/measurement.h"
 #include "src/union.h"
@@ -45,6 +46,8 @@
 
 int main(int argc, char *argv[])
 {
+    qInstallMessageHandler(logger::messageHandler);
+
 #ifdef GRAPH_METAL
     QQuickWindow::setSceneGraphBackend(chart::SeriesNode::chooseRhi());
 #elif defined(GRAPH_OPENGL)
@@ -75,6 +78,7 @@ int main(int argc, char *argv[])
     audio::Client::getInstance();
     Generator g(settings.getGroup("generator"));
     SourceList sourceList;
+    auto notifier = Notifier::getInstance();
 
     qmlRegisterType<audio::DeviceModel>("Audio", 1, 0, "DeviceModel");
     qmlRegisterType<chart::VariableChart>("OpenSoundMeter", 1, 0, "VariableChart");
@@ -89,6 +93,7 @@ int main(int argc, char *argv[])
                                            QStringLiteral("SourceList should not be created in QML"));
     qmlRegisterType<Settings>("Settings", 1, 0, "Settings");
     qmlRegisterType<Appearance>("OpenSoundMeter", 1, 0, "Appearance");
+    qmlRegisterType<Notifier>("OpenSoundMeter", 1, 0, "Notifier");
 #ifdef Q_OS_IOS
     //replace for QQuickControls2 FileDialog:
     qmlRegisterUncreatableMetaObject(filesystem::staticMetaObject, "OpenSoundMeter", 1, 0, "Filesystem",
@@ -102,6 +107,7 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("applicationAppearance", &appearence);
     engine.rootContext()->setContextProperty("sourceList", &sourceList);
     engine.rootContext()->setContextProperty("generatorModel", &g);
+    engine.rootContext()->setContextProperty("notifier", notifier);
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
 
     if (engine.rootObjects().isEmpty())
