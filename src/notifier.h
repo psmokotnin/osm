@@ -26,13 +26,12 @@ class Notifier : public QObject
 
 public:
     static Notifier *getInstance();
+    explicit Notifier();
 
 signals:
     void newMessage(QString title, QString text);
 
 private:
-    explicit Notifier();
-
     static Notifier *m_instance;
 };
 
