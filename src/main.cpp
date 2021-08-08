@@ -25,6 +25,7 @@
 #include "logger.h"
 #include "notifier.h"
 #include "src/generator.h"
+#include "src/targettrace.h"
 #include "src/measurement.h"
 #include "src/union.h"
 #include "src/elc.h"
@@ -107,6 +108,7 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("applicationAppearance", &appearence);
     engine.rootContext()->setContextProperty("sourceList", &sourceList);
     engine.rootContext()->setContextProperty("generatorModel", &g);
+    engine.rootContext()->setContextProperty("targetTraceModel", TargetTrace::getInstance());
     engine.rootContext()->setContextProperty("notifier", notifier);
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
 

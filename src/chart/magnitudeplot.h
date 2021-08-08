@@ -26,11 +26,6 @@ class MagnitudePlot : public FrequencyBasedPlot
     Q_OBJECT
     Q_PROPERTY(bool invert READ invert WRITE setInvert NOTIFY invertChanged)
 
-protected:
-    virtual SeriesItem *createSeriesFromSource(Source *source) override;
-
-    bool m_invert;
-
 public:
     MagnitudePlot(Settings *settings, QQuickItem *parent = Q_NULLPTR);
 
@@ -42,6 +37,24 @@ public:
 
 signals:
     void invertChanged(bool);
+
+protected:
+    virtual SeriesItem *createSeriesFromSource(Source *source) override;
+
+private:
+    bool m_invert;
+
+    class TargetTraceItem : public PaintedItem
+    {
+    public:
+        TargetTraceItem(const Palette &palette, QQuickItem *parent = Q_NULLPTR);
+        void paint(QPainter *painter) noexcept override;
+
+    private:
+        const Palette &m_palette;
+
+    } *m_targetTrace = nullptr;
+
 };
 }
 

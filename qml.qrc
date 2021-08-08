@@ -41,5 +41,7 @@
         <file alias="elements/ColorPicker.qml">qml/elements/ColorPicker.qml</file>
         <file alias="elements/NameField.qml">qml/elements/NameField.qml</file>
         <file alias="elements/DropDown.qml">qml/elements/DropDown.qml</file>
+        <file alias="TargetTrace.qml">qml/TargetTrace.qml</file>
+        <file alias="TargetTraceProperties.qml">qml/TargetTraceProperties.qml</file>
     </qresource>
 </RCC>

@@ -44,6 +44,7 @@ Axis::Axis(AxisDirection d, const Palette &palette, QQuickItem *parent)
     connect(&m_palette, SIGNAL(changed()), this, SLOT(update()));
     setWidth(parent->width());
     setHeight(parent->height());
+    setZ(2);
 }
 void Axis::parentWidthChanged()
 {

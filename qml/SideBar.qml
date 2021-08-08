@@ -78,6 +78,10 @@ Item {
 
         Generator {}
 
+        TargetTrace {
+            visible: targetTraceModel.show
+        }
+
         Component {
             id: measurementDelegate
             Measurement {
@@ -116,7 +120,8 @@ Item {
             Layout.fillHeight: true
             Layout.fillWidth: true
             Layout.alignment: Qt.AlignHCenter
-            Layout.margins: 5
+            Layout.margins: 0
+            spacing: 0
             model: SourceModel {
                 id: sourceModel
                 list: sourceList
