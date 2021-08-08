@@ -17,9 +17,13 @@
  */
 #include "targettrace.h"
 
-TargetTrace::TargetTrace(QObject *parent) : QObject(parent),
-    m_segments({{{9, 9}, {9, 0.0}, {0.0, 0.0}}}), m_points({{100, 1000}})
+TargetTrace::TargetTrace(Settings *settings, QObject *parent) : QObject(parent),
+    m_segments({{{9, 9}, {9, 0.0}, {0.0, 0.0}}}), m_points({{100, 1000}}), m_settings(settings)
 {
+    Q_ASSERT(!m_instance);
+
+    loadSettings();
+    m_instance = this;
 }
 
 TargetTrace *TargetTrace::m_instance = nullptr;
@@ -124,5 +128,44 @@ void TargetTrace::setShow(bool show)
         m_show = show;
         emit showChanged(m_show);
         emit changed();
+    }
+}
+
+void TargetTrace::loadSettings()
+{
+    if (m_settings) {
+        setWidth(m_settings->reactValue<TargetTrace, qreal>(
+                     "width", this, &TargetTrace::widthChanged, width()
+                 ).toFloat());
+
+        setShow(m_settings->reactValue<TargetTrace, bool>(
+                    "show", this, &TargetTrace::showChanged, show()
+                ).toBool());
+
+        setActive(m_settings->reactValue<TargetTrace, bool>(
+                      "active", this, &TargetTrace::activeChanged, active()
+                  ).toBool());
+
+        setColor(m_settings->reactValue<TargetTrace, QColor>(
+                     "color", this, &TargetTrace::colorChanged, color()
+                 ).value<QColor>());
+
+        setPoint(0, m_settings->value("point0", point(0)).toFloat());
+        setPoint(1, m_settings->value("point1", point(1)).toFloat());
+
+        for (size_t i = 0; i < SEGMENT_COUNT; ++i) {
+            setStart(i, m_settings->value(QString("start") + QString::number(i), start(i)).toFloat());
+            setEnd(i, m_settings->value(QString("end") + QString::number(i), end(i)).toFloat());
+        }
+
+        connect(this, &TargetTrace::changed, this, [this]() {
+            for (size_t i = 0; i < SEGMENT_COUNT; ++i) {
+                m_settings->setValue(QString("start") + QString::number(i), start(i));
+                m_settings->setValue(QString("end") + QString::number(i),   end(i));
+            }
+
+            m_settings->setValue(QString("point0"), point(0));
+            m_settings->setValue(QString("point1"), point(1));
+        });
     }
 }

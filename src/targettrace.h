@@ -21,6 +21,7 @@
 #include <QObject>
 #include <QColor>
 #include <array>
+#include "settings.h"
 
 class TargetTrace : public QObject
 {
@@ -36,7 +37,7 @@ class TargetTrace : public QObject
     };
 
 public:
-    explicit TargetTrace(QObject *parent = nullptr);
+    explicit TargetTrace(Settings *settings = nullptr, QObject *parent = nullptr);
     static TargetTrace *getInstance();
     static const size_t SEGMENT_COUNT = 3;
 
@@ -68,12 +69,15 @@ signals:
     void changed();
 
 private:
+    void loadSettings();
+
     bool m_active = true, m_show = false;
     qreal m_width = 3.0;
     QColor m_color = "#8BC34A";
     std::array<Segment, SEGMENT_COUNT> m_segments;
     std::array < qreal, SEGMENT_COUNT - 1 > m_points;
 
+    Settings *m_settings = nullptr;
     static TargetTrace *m_instance;
 };
 
