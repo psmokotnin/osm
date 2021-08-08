@@ -134,6 +134,7 @@ Item {
                     id: dragArea
                     property bool held: false
                     property var swipeStart: 0
+                    property var source: model.source
 
                     anchors {
                         left: parent ? parent.left : delegateComponent.left
@@ -163,10 +164,10 @@ Item {
 
                         //swipe delete:
                         if (content.opacity <= 0) {
-                            if (applicationWindow && applicationWindow.properiesbar.currentObject === model.source) {
+                            if (applicationWindow && applicationWindow.properiesbar.currentObject === dragArea.source) {
                                 applicationWindow.properiesbar.reset();
                             }
-                            sourceList.removeItem(model.source);
+                            sourceList.removeItem(dragArea.source);
                         } else {
                             content.opacity = 1;
                         }
@@ -203,16 +204,17 @@ Item {
 
                         Loader {
                             id: loaded
-                            property var modelData: model.source
+                            property var modelData: dragArea.source
                             property bool modelHighlight: index == sideList.currentIndex
-                            sourceComponent:
-                                switch(model.name) {
-                                    case "Measurement": return measurementDelegate;
-                                    case "Stored": return storedDelegate;
-                                    case "Union": return unionDelegate;
-                                    case "ELC": return elcDelegate;
-                                    default: console.log("unknow model " + model.name);return ;
-                            }
+                            sourceComponent: {
+                                    switch(model.name) {
+                                        case "Measurement": return measurementDelegate;
+                                        case "Stored": return storedDelegate;
+                                        case "Union": return unionDelegate;
+                                        case "ELC": return elcDelegate;
+                                        default: console.log("unknow model " + model.name);return ;
+                                    }
+                                }
                         }
 
                         states: State {
@@ -236,7 +238,7 @@ Item {
                             rightPadding: 4
                             leftPadding: 4
                             onClicked: {
-                                sourceList.cloneItem(model.source);
+                                sourceList.cloneItem(dragArea.source);
                             }
                             background: Rectangle {
                                 color: "transparent"
@@ -267,14 +269,14 @@ Item {
                             onClicked: {
                                 applicationWindow.dialog.accepted.connect(deleteModel);
                                 applicationWindow.dialog.rejected.connect(freeDialog);
-                                applicationWindow.dialog.title = "Delete " + model.source.name + "?";
+                                applicationWindow.dialog.title = "Delete " + dragArea.source.name + "?";
                                 applicationWindow.dialog.open();
                             }
                             function deleteModel() {
-                                if (applicationWindow.properiesbar.currentObject === model.source) {
+                                if (applicationWindow.properiesbar.currentObject === dragArea.source) {
                                     applicationWindow.properiesbar.reset();
                                 }
-                                sourceList.removeItem(model.source);
+                                sourceList.removeItem(dragArea.source);
                                 freeDialog();
                             }
                             function freeDialog() {
@@ -333,7 +335,7 @@ Item {
                 context: Qt.ApplicationShortcut
                 onActivated: {
                     for (var i = 0; i < sourceList.count; i++) {
-                        if (sourceList.get(i).objectName === "Measurement"){
+                        if (sourceList.get(i) && sourceList.get(i).objectName === "Measurement"){
                             var stored = sourceList.get(i).store();
                             stored.name = 'Stored #' + (sourceList.count - 0);
                             stored.active = true;
