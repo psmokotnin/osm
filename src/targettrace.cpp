@@ -127,7 +127,6 @@ void TargetTrace::setShow(bool show)
     if (m_show != show) {
         m_show = show;
         emit showChanged(m_show);
-        emit changed();
     }
 }
 

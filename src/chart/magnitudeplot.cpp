@@ -70,12 +70,13 @@ MagnitudePlot::TargetTraceItem::TargetTraceItem(const Palette &palette, QQuickIt
     connect(parent, &QQuickItem::heightChanged, this, [this, parent]() {
         setHeight(parent->height());
     });
-    connect(reinterpret_cast<Plot *>(parent), &Plot::updated, this, [this] () {
+    auto updateSlot = [this] () {
         update();
-    });
-    connect(TargetTrace::getInstance(), &TargetTrace::changed, this, [this] () {
-        update();
-    });
+    };
+    connect(reinterpret_cast<Plot *>(parent), &Plot::updated, this, updateSlot);
+    connect(TargetTrace::getInstance(), &TargetTrace::changed, this, updateSlot);
+    connect(TargetTrace::getInstance(), &TargetTrace::showChanged, this, updateSlot);
+    connect(TargetTrace::getInstance(), &TargetTrace::activeChanged, this, updateSlot);
     setWidth(parent->width());
     setHeight(parent->height());
     setZ(1);
