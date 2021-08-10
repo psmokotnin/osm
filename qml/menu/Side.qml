@@ -64,6 +64,10 @@ Drawer {
         ListElement {
             name: qsTr("Add elc")
             onclick: function() {sourceList.addElc();}
+        }
+        ListElement {
+            name: qsTr("Toggle target trace");
+            onclick: function() {targetTraceModel.show = ! targetTraceModel.show;}
             separator: true
         }
 

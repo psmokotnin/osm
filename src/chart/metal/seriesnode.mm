@@ -293,41 +293,35 @@ void SeriesNode::render()
     if (!m_initialized)
         return;
 
-    if (!m_source || !m_renderActive) {
+    if (!m_source || !m_renderActive || !m_source->active()) {
         clearRender();
-        return;
-    }
+    } else {
+        auto color = m_source->color();
+        float colorF[4];
+        colorF[0] = color.redF();
+        colorF[1] = color.greenF();
+        colorF[2] = color.blueF();
+        colorF[3] = color.alphaF();
+        void *color_ptr = [id_cast(MTLBuffer, m_colorBuffer) contents];
+        if (color_ptr) {
+            memcpy(color_ptr, colorF, sizeof(colorF));
+        }
 
-    if (!m_source->active()) {
-        clearRender();
-        return;
-    }
+        void *width_ptr = [id_cast(MTLBuffer, m_widthBuffer) contents];
+        if (width_ptr) {
+            memcpy(width_ptr, &m_weight, sizeof(float));
+        }
 
-    auto color = m_source->color();
-    float colorF[4];
-    colorF[0] = color.redF();
-    colorF[1] = color.greenF();
-    colorF[2] = color.blueF();
-    colorF[3] = color.alphaF();
-    void *color_ptr = [id_cast(MTLBuffer, m_colorBuffer) contents];
-    if (color_ptr) {
-        memcpy(color_ptr, colorF, sizeof(colorF));
-    }
+        float *size_ptr = static_cast<float *>([id_cast(MTLBuffer, m_sizeBuffer) contents]);
+        if (size_ptr) {
+            size_ptr[0] = width();
+            size_ptr[1] = height();
+        }
 
-    void *width_ptr = [id_cast(MTLBuffer, m_widthBuffer) contents];
-    if (width_ptr) {
-        memcpy(width_ptr, &m_weight, sizeof(float));
+        m_source->lock();
+        renderSeries();
+        m_source->unlock();
     }
-
-    float *size_ptr = static_cast<float *>([id_cast(MTLBuffer, m_sizeBuffer) contents]);
-    if (size_ptr) {
-        size_ptr[0] = width();
-        size_ptr[1] = height();
-    }
-
-    m_source->lock();
-    renderSeries();
-    m_source->unlock();
 
     if (!m_commandBuffer) {
         return;

@@ -39,6 +39,8 @@ QOpenGLFramebufferObject *SeriesRenderer::createFramebufferObject(const QSize &s
     m_openGLFunctions = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctions_3_3_Core>();
     if (!m_openGLFunctions) {
         qDebug() << "QOpenGLFunctions_3_3_Core is not available";
+    } else {
+        m_openGLFunctions->initializeOpenGLFunctions();
     }
     return new QOpenGLFramebufferObject(size, format);
 }
@@ -97,14 +99,17 @@ void SeriesRenderer::render()
         static_cast<GLfloat>(m_source->color().alphaF())
     );
     if (m_renderActive) {
-        //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        //m_openGLFunctions->glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         m_source->lock();
         renderSeries();
         m_source->unlock();
-        //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        //m_openGLFunctions->glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     }
 
     m_program.release();
+
+    auto plot = static_cast<chart::Plot *>(m_item->parent());
+    plot->window()->resetOpenGLState();
 }
 void SeriesRenderer::setWeight(unsigned int weight)
 {

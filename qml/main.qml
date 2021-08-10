@@ -67,6 +67,13 @@ ApplicationWindow {
     Material.theme: applicationAppearance.darkMode ? Material.Dark : Material.Light
     Material.accent: Material.Indigo
 
+    Rectangle {
+        color: applicationAppearance.darkMode ? Material.backgroundColor : "#ECECEC"
+        height: applicationWindow.height
+        anchors.fill: parent
+        z: -1
+    }
+
     property bool askBeforeClose : true
     onClosing: function (close) {
         if (!askBeforeClose) {
@@ -141,6 +148,13 @@ ApplicationWindow {
 
     Message {
         id: message
+
+        Connections {
+            target: notifier
+            function onNewMessage(title, text) {
+                message.showError(title + "<br/>" + text);
+            }
+        }
     }
 
     ModalDialog {

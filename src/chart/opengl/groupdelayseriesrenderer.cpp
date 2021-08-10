@@ -19,7 +19,7 @@
 #include "groupdelayseriesrenderer.h"
 #include "../groupdelayplot.h"
 #include <cstring>
-
+#include "notifier.h"
 using namespace chart;
 
 GroupDelaySeriesRenderer::GroupDelaySeriesRenderer() : FrequencyBasedSeriesRenderer(),
@@ -28,7 +28,9 @@ GroupDelaySeriesRenderer::GroupDelaySeriesRenderer() : FrequencyBasedSeriesRende
     m_program.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/groupdelay.vert");
     m_program.addShaderFromSourceFile(QOpenGLShader::Geometry, ":/groupdelay.geom");
     m_program.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/groupdelay.frag");
-    m_program.link();
+    if (!m_program.link()) {
+        emit Notifier::getInstance()->newMessage("GroupDelaySeriesRenderer", m_program.log());
+    }
 
     m_widthUniform  = m_program.uniformLocation("width");
     m_colorUniform  = m_program.uniformLocation("m_color");

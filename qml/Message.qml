@@ -44,6 +44,7 @@ Popup {
         border.width: 4
         radius: 4
         border.color: popup.color;
+        anchors.margins: 8
 
         Text {
             id: update;

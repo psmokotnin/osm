@@ -17,6 +17,7 @@
  */
 #include "wavfile.h"
 #include <QtEndian>
+#include <QtMath>
 
 WavFile::WavFile(QObject *parent) : OutputDevice(parent), m_dataPosition(0)
 {

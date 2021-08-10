@@ -19,7 +19,7 @@
 
 #include <QQuickWindow>
 #include <cmath>
-
+#include "notifier.h"
 #include "seriesfbo.h"
 #include "../spectrogramplot.h"
 
@@ -31,7 +31,9 @@ SpectrogramSeriesRenderer::SpectrogramSeriesRenderer() : FrequencyBasedSeriesRen
     m_program.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/spectrogram.vert");
     m_program.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/spectrogram.frag");
 
-    m_program.link();
+    if (!m_program.link()) {
+        emit Notifier::getInstance()->newMessage("SpectrogramSeriesRenderer", m_program.log());
+    }
     m_matrixUniform = m_program.uniformLocation("matrix");
 }
 void SpectrogramSeriesRenderer::synchronize(QQuickFramebufferObject *item)

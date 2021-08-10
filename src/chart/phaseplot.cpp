@@ -19,20 +19,28 @@
 #include <QtMath>
 
 using namespace chart;
+static unsigned int PHASE_TICKS = 9;
 
 PhasePlot::PhasePlot(Settings *settings, QQuickItem *parent): FrequencyBasedPlot(settings, parent),
-    m_center(0), m_range(360)
+    m_center(0), m_range(360), m_positivePeriod(false)
 {
     m_x.configure(AxisType::Logarithmic, 20.f, 20000.f);
     m_x.setISOLabels();
     m_y.configure(AxisType::Linear,
                   static_cast<float>(-M_PI),
                   static_cast<float>(M_PI),
-                  9, 180.f / static_cast<float>(M_PI)
+                  PHASE_TICKS, 180.f / static_cast<float>(M_PI)
                  );
+    m_y.setPeriodStart(-M_PI);
     m_y.setPeriodic(2 * static_cast<float>(M_PI));
     m_y.setUnit("°");
+
     setFlag(QQuickItem::ItemHasContents);
+}
+
+int PhasePlot::rotate() const noexcept
+{
+    return m_center;
 }
 
 void PhasePlot::setRotate(int r) noexcept
@@ -51,8 +59,6 @@ void PhasePlot::setRange(int range) noexcept
         return;
 
     m_range = range;
-    setYMin(static_cast<float>(-M_PI) * m_range / 360);
-    setYMax(static_cast<float>( M_PI) * m_range / 360);
     emit rangeChanged(m_range);
     update();
 }
@@ -102,10 +108,34 @@ bool PhasePlot::applyYGesture(qreal base, qreal move, qreal scale)
     if (newCenter < -180) newCenter += 360;
     setRotate(newCenter);
 
-    auto newRange = scale * (m_storeY.range - target) + target;
-    setRange(newRange);
+    if (!qFuzzyCompare(scale, 1)) {
+        auto newRange = scale * (m_storeY.range - target) + target;
+        setRange(newRange);
+    }
 
     return true;
+}
+
+bool PhasePlot::positivePeriod() const
+{
+    return m_positivePeriod;
+}
+
+void PhasePlot::setPositivePeriod(bool positivePeriod)
+{
+    if (m_positivePeriod != positivePeriod) {
+        m_positivePeriod = positivePeriod;
+        emit positivePeriodChanged(m_positivePeriod);
+
+        if (m_positivePeriod) {
+            m_y.setPeriodStart(0);
+            m_y.autoLabels(PHASE_TICKS);
+        } else {
+            m_y.setPeriodStart(-M_PI);
+            m_y.autoLabels(PHASE_TICKS);
+        }
+        m_y.update();
+    }
 }
 void PhasePlot::setSettings(Settings *settings) noexcept
 {
@@ -116,6 +146,12 @@ void PhasePlot::setSettings(Settings *settings) noexcept
                                                    m_center).toInt());
         setRange(
             m_settings->reactValue<PhasePlot, int>("range", this, &PhasePlot::rangeChanged, m_range).toInt());
+
+        setPositivePeriod(m_settings->reactValue<PhasePlot, bool>(
+                              "positivePeriod",
+                              this,
+                              &PhasePlot::positivePeriodChanged,
+                              m_positivePeriod).toBool());
     }
 }
 void PhasePlot::storeSettings() noexcept
@@ -126,4 +162,10 @@ void PhasePlot::storeSettings() noexcept
     FrequencyBasedPlot::storeSettings();
     m_settings->setValue("rotate", m_center);
     m_settings->setValue("range", m_range);
+    m_settings->setValue("positivePeriod", m_positivePeriod);
+}
+
+int PhasePlot::range() const noexcept
+{
+    return m_range;
 }

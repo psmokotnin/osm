@@ -27,24 +27,22 @@ class PhasePlot : public FrequencyBasedPlot
 
     Q_PROPERTY(int rotate READ rotate WRITE setRotate NOTIFY rotateChanged)
     Q_PROPERTY(int range READ range WRITE setRange NOTIFY rangeChanged)
+    Q_PROPERTY(bool positivePeriod READ positivePeriod WRITE setPositivePeriod NOTIFY positivePeriodChanged)
 
 public:
     PhasePlot(Settings *settings, QQuickItem *parent = Q_NULLPTR);
 
-    int rotate() const noexcept
-    {
-        return m_center;
-    }
+    int rotate() const noexcept;
     void setRotate(int r) noexcept;
 
     virtual void setSettings(Settings *settings) noexcept override;
     virtual void storeSettings() noexcept override;
 
-    int range() const noexcept
-    {
-        return m_range;
-    }
+    int range() const noexcept;
     void setRange(int range) noexcept;
+
+    bool positivePeriod() const;
+    void setPositivePeriod(bool positivePeriod);
 
     Q_INVOKABLE void resetAxis() override;
     Q_INVOKABLE void beginGesture() override;
@@ -53,12 +51,15 @@ public:
 signals:
     void rotateChanged(int);
     void rangeChanged(int);
+    void positivePeriodChanged(bool);
 
 protected:
     virtual SeriesItem *createSeriesFromSource(Source *source) override;
     bool applyYGesture(qreal base, qreal move, qreal scale);
 
-    int m_center, m_range, m_width;
+    int m_center, m_range;
+    bool m_positivePeriod;
+
     struct {
         float min;
         float max;

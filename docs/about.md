@@ -37,7 +37,7 @@ title: About Open Sound Meter
             </ul>
         </p>
         <p class="">
-            I am very proud that Open Sound Meter is the first sound measurement app for iPad. Available in App Store from July 5, 2021.
+            Available in App Store since July 5, 2021.
         </p>
         <p>
             <a class="download ios" target="_blank" href="https://apps.apple.com/app/id1552933259"><img style="width: 100px;" src="/images/icons/appstore.svg" class="bd-placeholder-img"/></a>

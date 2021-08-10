@@ -145,7 +145,7 @@ void Plot::setSourceZIndex(Source *source, int index)
 {
     foreach (SeriesItem *series, m_serieses) {
         if (series->source() == source) {
-            series->setZIndex(index);
+            series->setZIndex(index + 10);
             return;
         }
     }

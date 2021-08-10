@@ -367,7 +367,6 @@ void SourceList::appendItem(chart::Source *item, bool autocolor)
         item->setColor(nextColor());
     }
     m_items.append(item);
-
     emit postItemAppended(item);
 }
 void SourceList::removeItem(chart::Source *item, bool deleteItem)

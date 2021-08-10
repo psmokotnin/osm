@@ -22,7 +22,7 @@ import QtQuick.Layouts 1.3
 Item {
     id: store
 
-    property var dataModel;
+    property var dataModel : [];
     property bool chartable : true;
     property bool highlight : false;
     property string propertiesQml: "qrc:/StoredProperties.qml"
@@ -42,7 +42,7 @@ Item {
                 dataModel.active = checked
             }
             Component.onCompleted: {
-                checked = dataModel.active
+                checked = dataModel ? dataModel.active : false
             }
         }
 

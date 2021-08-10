@@ -17,7 +17,7 @@
  */
 #include "impulseseriesrenderer.h"
 #include "../impulseplot.h"
-
+#include "notifier.h"
 using namespace chart;
 
 ImpulseSeriesRenderer::ImpulseSeriesRenderer() : XYSeriesRenderer()
@@ -25,7 +25,9 @@ ImpulseSeriesRenderer::ImpulseSeriesRenderer() : XYSeriesRenderer()
     m_program.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/pos.vert");
     m_program.addShaderFromSourceFile(QOpenGLShader::Geometry, ":/line.geom");
     m_program.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/color.frag");
-    m_program.link();
+    if (!m_program.link()) {
+        emit Notifier::getInstance()->newMessage("ImpulseSeriesRenderer", m_program.log());
+    }
     m_colorUniform  = m_program.uniformLocation("m_color");
     m_matrixUniform = m_program.uniformLocation("matrix");
     m_widthUniform  = m_program.uniformLocation("width");
