@@ -122,6 +122,7 @@ private:
     std::mutex m_active;
     bool m_renderActive;
     float m_weight;
+    std::atomic<bool> m_readyRender;
 };
 
 } // namespace chart
