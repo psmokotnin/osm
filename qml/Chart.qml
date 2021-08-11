@@ -84,7 +84,7 @@ Item {
     MultiPointTouchArea {
         id: touchArea
         anchors.fill: parent
-        mouseEnabled: true
+        mouseEnabled: false
 
         readonly property int gestureNone  : 0;
         readonly property int gestureZoomX  : 1;
