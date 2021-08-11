@@ -33,9 +33,9 @@ SeriesNode::SeriesNode(QQuickItem *item) : m_item(static_cast<SeriesItem *>(item
     m_colorBuffer(nullptr), m_widthBuffer(nullptr), m_sizeBuffer(nullptr),
     m_device(nullptr), m_commandQueue(nullptr), m_commandBuffer(nullptr),
     m_initialized(false), m_texture(nullptr),
-    m_buffer(nullptr), m_glTexture(nullptr),
+    m_glTexture(nullptr), m_buffer(nullptr),
     m_window(item->window()),
-    m_size(), m_active(), m_renderActive(false)
+    m_size(), m_active(), m_renderActive(false), m_readyRender(true)
 
 {
     m_source = m_item->source();
@@ -43,13 +43,21 @@ SeriesNode::SeriesNode(QQuickItem *item) : m_item(static_cast<SeriesItem *>(item
 
     setTextureCoordinatesTransform(QSGSimpleTextureNode::NoTransform);
     setFiltering(QSGTexture::Linear);
-
     connect(m_window, &QQuickWindow::screenChanged, this, [this]() {
         if (m_window->effectiveDevicePixelRatio() != m_devicePixelRatio)
             m_item->update();
     });
+    connect(m_item, &SeriesItem::updated, this, [this]() {
+        m_readyRender.store(true);
+    });
     connect(m_window, &QQuickWindow::afterSynchronizing, this, &SeriesNode::synchronize, Qt::DirectConnection);
-    connect(m_window, &QQuickWindow::beforeRendering,    this, &SeriesNode::render,      Qt::DirectConnection);
+    connect(m_window, &QQuickWindow::beforeRendering,    this, [this]() {
+        if (m_readyRender.load()) {
+            m_readyRender.store(false);
+            render();
+        }
+    },      Qt::DirectConnection);
+
     connect(m_item, &SeriesItem::preSourceDeleted, this, [this]() {
         m_active.lock();
         m_source = nullptr;
