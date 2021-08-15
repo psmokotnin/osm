@@ -115,6 +115,7 @@ MenuBar {
                 text: qsTr("&Show target")
                 shortcut: "Ctrl+T"
                 checkable: true
+                checked: targetTraceModel.show
                 onCheckedChanged: targetTraceModel.show = checked
             }
             MenuItem {
