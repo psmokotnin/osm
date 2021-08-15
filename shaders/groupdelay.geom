@@ -19,7 +19,7 @@
 
 layout(points) in;
 //GL_MAX_GEOMETRY_TOTAL_OUTPUT_COMPONENTS / sizeof(fData) = 1024 / (2 + 4)
-layout(triangle_strip, max_vertices = 160) out;
+layout(triangle_strip, max_vertices = 64) out;
 
 uniform vec4 m_color;
 uniform highp mat4 matrix;
@@ -64,7 +64,7 @@ void main(void)
     );
 
     x = xs;
-    float dx = max((xe - xs) / 40, 1.); //not more that 40 steps, see max_vertices
+    float dx = max((xe - xs) / 16, 1.); //not more that 40 steps, see max_vertices
     do {
         p1 = spline(x);
         x += dx;
