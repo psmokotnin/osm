@@ -23,7 +23,7 @@
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
 	<key>NSSupportsAutomaticGraphicsSwitching</key>
-        <true/>
+        <false/>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Audio measurement</string>
 	<key>UISupportsDocumentBrowser</key>
