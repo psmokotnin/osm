@@ -16,11 +16,14 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "magnitudeplot.h"
+#include "targettrace.h"
+#include <QPainter>
+#include <QPainterPath>
 
 using namespace chart;
 
-MagnitudePlot::MagnitudePlot(Settings *settings, QQuickItem *parent) : FrequencyBasedPlot(settings,
-                                                                                              parent), m_invert(false)
+MagnitudePlot::MagnitudePlot(Settings *settings, QQuickItem *parent) :
+    FrequencyBasedPlot(settings, parent), m_invert(false)
 {
     m_x.configure(AxisType::Logarithmic, 20.f, 20000.f);
     m_x.setISOLabels();
@@ -29,6 +32,7 @@ MagnitudePlot::MagnitudePlot(Settings *settings, QQuickItem *parent) : Frequency
     m_y.reset();
     m_y.setUnit("dB");
     setFlag(QQuickItem::ItemHasContents);
+    m_targetTrace = new TargetTraceItem(m_palette, this);
 }
 void MagnitudePlot::setSettings(Settings *settings) noexcept
 {
@@ -55,4 +59,66 @@ void MagnitudePlot::setInvert(bool invert)
     m_invert = invert;
     emit invertChanged(m_invert);
     update();
+}
+
+MagnitudePlot::TargetTraceItem::TargetTraceItem(const Palette &palette, QQuickItem *parent) : PaintedItem(parent),
+    m_palette(palette)
+{
+    connect(parent, &QQuickItem::widthChanged, this, [this, parent]() {
+        setWidth(parent->width());
+    });
+    connect(parent, &QQuickItem::heightChanged, this, [this, parent]() {
+        setHeight(parent->height());
+    });
+    auto updateSlot = [this] () {
+        update();
+    };
+    connect(reinterpret_cast<Plot *>(parent), &Plot::updated, this, updateSlot);
+    connect(TargetTrace::getInstance(), &TargetTrace::changed, this, updateSlot);
+    connect(TargetTrace::getInstance(), &TargetTrace::showChanged, this, updateSlot);
+    connect(TargetTrace::getInstance(), &TargetTrace::activeChanged, this, updateSlot);
+    setWidth(parent->width());
+    setHeight(parent->height());
+    setZ(1);
+}
+
+void MagnitudePlot::TargetTraceItem::paint(QPainter *painter) noexcept
+{
+    auto target = TargetTrace::getInstance();
+    if (!target->show() || !target->active()) {
+        return;
+    }
+    auto plot = static_cast<MagnitudePlot *>(parent());
+    auto yOffset = heightf() - padding.bottom;
+    auto offset = QPointF(0, target->width() / 2);
+    QPen linePen(m_palette.lineColor(), 1);
+    QColor color = target->color();
+    color.setAlphaF(0.215);
+    painter->setPen(linePen);
+    painter->setBrush(color);
+
+    std::array<QPair<QPointF, QPointF>, TargetTrace::SEGMENT_COUNT> segments = {
+        {
+            {QPointF(20,               target->start(0)), QPointF(target->point(0), target->end(0))},
+            {QPointF(target->point(0), target->start(1)), QPointF(target->point(1), target->end(1))},
+            {QPointF(target->point(1), target->start(2)), QPointF(20'000,           target->end(2))}
+        }
+    };
+
+    auto convert = [this, plot, &yOffset] (const QPointF & values) {
+        return QPointF(
+                   plot->xAxis()->convert(values.x(), pwidth()) + padding.left,
+                   yOffset - plot->yAxis()->convert(values.y(), pheight())
+               );
+    };
+
+    for (auto &segment : segments) {
+        QPainterPath path;
+        path.moveTo(convert(segment.first  + offset));
+        path.lineTo(convert(segment.second + offset));
+        path.lineTo(convert(segment.second - offset));
+        path.lineTo(convert(segment.first  - offset));
+        path.lineTo(convert(segment.first  + offset));
+        painter->drawPath(path);
+    }
 }

@@ -36,6 +36,7 @@ SOURCES += src/main.cpp \
     src/sinsweep.cpp \
     src/sourcelist.cpp \
     src/sourcemodel.cpp \
+    src/targettrace.cpp \
     src/union.cpp \
     src/wavfile.cpp \
     src/whitenoise.cpp \
@@ -123,6 +124,7 @@ HEADERS += \
     src/sinsweep.h \
     src/sourcelist.h \
     src/sourcemodel.h \
+    src/targettrace.h \
     src/union.h \
     src/wavfile.h \
     src/whitenoise.h \

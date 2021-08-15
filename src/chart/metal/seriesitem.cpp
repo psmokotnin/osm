@@ -63,6 +63,7 @@ QSGNode *SeriesItem::updatePaintNode(QSGNode *oldNode, QQuickItem::UpdatePaintNo
         }
         node = m_nodeConstructor(this);
     }
+    emit updated();
     return node;
 }
 

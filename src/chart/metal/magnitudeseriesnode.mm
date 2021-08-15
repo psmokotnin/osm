@@ -56,7 +56,6 @@ void MagnitudeSeriesNode::renderSeries()
         clearRender();
         return;
     }
-
     unsigned int maxBufferSize = m_pointsPerOctave * PPO_BUFFER_MUL, j = 0, verticiesCount = 0;
     float *vertex_ptr = vertexBuffer(maxBufferSize);
     float value = 0.f, coherence = 0.f;

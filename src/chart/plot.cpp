@@ -118,6 +118,7 @@ QSGNode *Plot::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *)
     }
     node->setColor(m_palette.backgroundColor());
     node->setRect(boundingRect());
+    emit updated();
     return node;
 }
 void Plot::appendDataSource(Source *source)
@@ -145,7 +146,7 @@ void Plot::setSourceZIndex(Source *source, int index)
 {
     foreach (SeriesItem *series, m_serieses) {
         if (series->source() == source) {
-            series->setZIndex(index);
+            series->setZIndex(index + 10);
             return;
         }
     }
@@ -182,7 +183,6 @@ Source *Plot::filter() const noexcept
 void Plot::update()
 {
     QQuickItem::update();
-    emit updated();
 
     foreach (SeriesItem *series, m_serieses) {
         series->update();

@@ -53,7 +53,7 @@ void logger::messageHandler(QtMsgType type, const QMessageLogContext &context, c
         preLog += "Info: ";
         break;
     }
-    if (formatedMessage != lastMessage) {
+    if (formatedMessage != lastMessage && outFile.isOpen()) {
         textStream << preLog << formatedMessage << Qt::endl;
     }
     lastMessage = formatedMessage;

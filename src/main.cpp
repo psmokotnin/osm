@@ -25,6 +25,7 @@
 #include "logger.h"
 #include "notifier.h"
 #include "src/generator.h"
+#include "src/targettrace.h"
 #include "src/measurement.h"
 #include "src/union.h"
 #include "src/elc.h"
@@ -78,6 +79,7 @@ int main(int argc, char *argv[])
     audio::Client::getInstance();
     Generator g(settings.getGroup("generator"));
     SourceList sourceList;
+    auto t = new TargetTrace(settings.getGroup("targettrace"));
     auto notifier = Notifier::getInstance();
 
     qmlRegisterType<audio::DeviceModel>("Audio", 1, 0, "DeviceModel");
@@ -107,6 +109,7 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("applicationAppearance", &appearence);
     engine.rootContext()->setContextProperty("sourceList", &sourceList);
     engine.rootContext()->setContextProperty("generatorModel", &g);
+    engine.rootContext()->setContextProperty("targetTraceModel", t);
     engine.rootContext()->setContextProperty("notifier", notifier);
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
 

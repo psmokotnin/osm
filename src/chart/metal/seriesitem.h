@@ -41,6 +41,7 @@ public:
 
 signals:
     void preSourceDeleted();
+    void updated();
 
 protected:
     QSGNode *updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *) override;

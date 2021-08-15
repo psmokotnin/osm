@@ -1,6 +1,6 @@
 /**
  *  OSM
- *  Copyright (C) 2018  Pavel Smokotnin
+ *  Copyright (C) 2021  Pavel Smokotnin
 
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -16,16 +16,12 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 import QtQuick 2.7
-import QtQuick.Controls 2.1
-import QtQuick.Layouts 1.3
+import QtQuick.Window 2.2
+import QtQuick.Controls 2.2
+import QtQuick.Layouts 1.12
+import "elements"
 
 Item {
-    id: store
-
-    property var dataModel : [];
-    property bool chartable : true;
-    property bool highlight : false;
-    property string propertiesQml: "qrc:/StoredProperties.qml"
     height: 50
     width: parent.width
 
@@ -36,13 +32,13 @@ Item {
             id: checkbox
             Layout.alignment: Qt.AlignVCenter
 
-            checkedColor: (dataModel ? dataModel.color : "")
+            checkedColor: (targetTraceModel ? targetTraceModel.color : "")
 
             onCheckStateChanged: {
-                dataModel.active = checked
+                targetTraceModel.active = checked
             }
             Component.onCompleted: {
-                checked = dataModel ? dataModel.active : false
+                checked = targetTraceModel.active
             }
         }
 
@@ -51,14 +47,19 @@ Item {
 
             Label {
                 Layout.fillWidth: true
-                font.bold: highlight
-                text:  (dataModel ? dataModel.name : "")
-            }
+                text: qsTr("Target Trace")
 
+                PropertiesOpener {
+                   propertiesQml: "qrc:/TargetTraceProperties.qml"
+                   onClicked: {
+                       open();
+                   }
+                }
+            }
         }
 
         Connections {
-            target: dataModel
+            target: targetTraceModel
             function onColorChanged() {
                 checkbox.checkedColor = dataModel.color;
             }

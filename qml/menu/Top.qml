@@ -112,6 +112,12 @@ MenuBar {
                 onTriggered: sourceList.addElc();
             }
             MenuItem {
+                text: qsTr("&Show target")
+                shortcut: "Ctrl+T"
+                checkable: true
+                onCheckedChanged: targetTraceModel.show = checked
+            }
+            MenuItem {
                 text: qsTr("Quit")
                 shortcut: StandardKey.Quit
                 onTriggered: applicationWindow.close();
