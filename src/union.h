@@ -25,7 +25,7 @@
 
 #include <set>
 #include "chart/source.h"
-#include "settings.h"
+#include "common/settings.h"
 
 class Union : public chart::Source
 {

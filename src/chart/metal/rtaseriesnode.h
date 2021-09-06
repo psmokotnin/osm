@@ -27,7 +27,6 @@ namespace chart {
 class RTASeriesNode : public XYSeriesNode, public FrequencyBasedSeriesHelper
 {
     Q_OBJECT
-    constexpr const static float LEVEL_NORMALIZATION = -41.38f;
 
 public:
     RTASeriesNode(QQuickItem *item);

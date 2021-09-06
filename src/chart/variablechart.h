@@ -21,7 +21,7 @@
 #include "type.h"
 #include "source.h"
 #include "plot.h"
-#include "../settings.h"
+#include "common/settings.h"
 
 class SourceList;
 

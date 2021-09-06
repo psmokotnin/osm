@@ -17,45 +17,12 @@
  */
 import QtQuick 2.7
 import QtQuick.Controls 2.12
-import QtQuick.Layouts 1.3
 
-Item {
-    id: i
-    implicitWidth: label.implicitWidth + cb.implicitWidth + 20
-    implicitHeight: cb.implicitHeight
-
+DropDown {
     property string title : ""
-    property var model : []
-    property int currentIndex : 0
-    property string textRole: ""
-    property string valueRole: ""
     property string tooltip : ""
 
-    RowLayout {
-
-        spacing: 1
-        anchors.fill: parent
-
-        Label {
-            id: label
-            Layout.margins: 5
-            text: title
-        }
-
-        DropDown {
-            id: cb
-            Layout.fillWidth: true
-            Layout.leftMargin: 5
-            Layout.bottomMargin: 5
-            model: i.model
-            currentIndex: i.currentIndex
-            textRole: i.textRole
-            valueRole: i.valueRole
-            onCurrentIndexChanged: {
-                i.currentIndex = currentIndex
-            }
-            ToolTip.visible: (tooltip ? hovered : none)
-            ToolTip.text: tooltip
-        }
-    }
+    displayText: (title ? title + ": " : "") + currentText
+    ToolTip.visible: (tooltip ? hovered : none)
+    ToolTip.text: tooltip
 }

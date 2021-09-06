@@ -19,7 +19,7 @@
 #include "groupdelayseriesrenderer.h"
 #include "../groupdelayplot.h"
 #include <cstring>
-#include "notifier.h"
+#include "common/notifier.h"
 using namespace chart;
 
 GroupDelaySeriesRenderer::GroupDelaySeriesRenderer() : FrequencyBasedSeriesRenderer(),

@@ -33,7 +33,7 @@ Item {
             //generator type
             DropDown {
                 id: type
-                implicitWidth: 120
+                implicitWidth: 140
                 currentIndex: generatorModel.type
                 model: generatorModel.types
                 onCurrentIndexChanged: generatorModel.type = currentIndex
@@ -44,7 +44,7 @@ Item {
 
             SelectableSpinBox {
                 id: gainSpinBox
-                implicitWidth: 170
+                implicitWidth: 165
                 value: generatorModel.gain
                 from: -90
                 to: 0
@@ -62,14 +62,10 @@ Item {
                 ToolTip.text: qsTr("gain")
             }
 
-            Rectangle {
-                Layout.fillWidth: true
-            }
-
             //Sin frequency
             SelectableSpinBox {
                 id: frequencySpinBox
-                implicitWidth: 180
+                implicitWidth: 165
                 visible: type.currentText == 'Sin';
                 value: generatorModel.frequency
                 from: 20
@@ -93,7 +89,7 @@ Item {
             FloatSpinBox {
                 //id: sinSweepDuration
                 visible: type.currentText == 'SineSweep';
-                implicitWidth: 180
+                implicitWidth: 165
                 value: generatorModel.duration
                 from: 0.5
                 to: 10
@@ -104,7 +100,7 @@ Item {
 
             SelectableSpinBox {
                 id: sinSweepStart
-                implicitWidth: 180
+                implicitWidth: 165
                 visible: type.currentText == 'SineSweep';
                 value: generatorModel.startFrequency
                 from: 20
@@ -127,7 +123,7 @@ Item {
             //Sin Sweep to
             SelectableSpinBox {
                 id: sinSweepEnd
-                implicitWidth: 180
+                implicitWidth: 165
                 visible: type.currentText == 'SineSweep';
                 value: generatorModel.endFrequency
                 from: sinSweepStart.value+1

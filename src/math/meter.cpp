@@ -41,7 +41,7 @@ float Meter::value() const noexcept
     if (m_data.size() == 0)
         return -INFINITY;
 
-    return 20.f * std::log10(m_integrator / m_data.size());//dBV
+    return 20.f * std::log10(m_integrator / m_data.size());//dB
 }
 void Meter::reset() noexcept
 {

@@ -19,7 +19,7 @@
 #define CHART_STEPSERIESRENDERER_H
 
 #include "xyseriesrenderer.h"
-#include "windowfunction.h"
+#include "math/windowfunction.h"
 
 namespace chart {
 

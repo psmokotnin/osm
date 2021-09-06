@@ -23,7 +23,7 @@
 #include "source.h"
 #include "palette.h"
 #include "cursorhelper.h"
-#include "../settings.h"
+#include "common/settings.h"
 
 #ifdef GRAPH_METAL
 #include "seriesitem.h"

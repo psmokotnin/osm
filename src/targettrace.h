@@ -21,7 +21,7 @@
 #include <QObject>
 #include <QColor>
 #include <array>
-#include "settings.h"
+#include "common/settings.h"
 
 class TargetTrace : public QObject
 {

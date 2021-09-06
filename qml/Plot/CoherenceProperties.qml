@@ -123,7 +123,7 @@ Item {
         TitledCombo {
             title: qsTr("ppo")
             tooltip: qsTr("points per octave")
-            implicitWidth: 170
+            Layout.fillWidth: true
             model: [3, 6, 12, 24, 48]
             currentIndex: {
                 var ppo = dataObject.pointsPerOctave;
@@ -141,7 +141,7 @@ Item {
 
         DropDown {
             id: type
-            implicitWidth: 170
+            Layout.fillWidth: true
             model: ["normal", "squared"]
             currentIndex: dataObject.type
             ToolTip.visible: hovered
@@ -184,7 +184,7 @@ Item {
             value: dataObject.threshold
             tooltiptext: qsTr("coherence threshold")
             onValueChanged: dataObject.threshold = value
-            implicitWidth: 170
+            Layout.fillWidth: true
         }
 
         RowLayout {
@@ -197,7 +197,7 @@ Item {
                 addNone: true
                 list: sourceList
             }
-            Layout.preferredWidth: 280
+            Layout.fillWidth: true
             currentIndex: { model.indexOf(dataObject.filter) }
             textRole: "title"
             valueRole: "source"

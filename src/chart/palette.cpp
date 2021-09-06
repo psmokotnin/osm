@@ -21,7 +21,7 @@ using namespace chart;
 Palette::Palette(QObject *parent):
     QObject(parent),
     m_lineColor(), m_textColor(), m_backgroundColor(),
-    m_darkMode(false), m_lineWidth(1), m_highlightedLineWidth(2)
+    m_darkMode(false), m_lineWidth(1.5), m_highlightedLineWidth(3)
 {
     initColors();
 }

@@ -22,20 +22,19 @@
 #include <QTimer>
 #include <QThread>
 
-#include "sample.h"
-#include "meter.h"
 #include "audio/deviceinfo.h"
 #include "audio/stream.h"
 #include "inputdevice.h"
 #include "chart/type.h"
 #include "chart/source.h"
 #include "stored.h"
-#include "averaging.h"
-#include "fouriertransform.h"
-#include "deconvolution.h"
-#include "filter.h"
-#include "coherence.h"
-#include "settings.h"
+#include "math/meter.h"
+#include "math/averaging.h"
+#include "math/fouriertransform.h"
+#include "math/deconvolution.h"
+#include "math/filter.h"
+#include "math/coherence.h"
+#include "common/settings.h"
 
 class Measurement : public chart::Source
 {

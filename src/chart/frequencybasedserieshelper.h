@@ -29,6 +29,8 @@ public:
     explicit FrequencyBasedSeriesHelper();
 
 protected:
+    constexpr const static float LEVEL_NORMALIZATION = -46.81f;
+
     virtual Source *source() const = 0;
     void iterate(const unsigned int &pointsPerOctave,
                  const std::function<void(const unsigned int &)> &accumulate,

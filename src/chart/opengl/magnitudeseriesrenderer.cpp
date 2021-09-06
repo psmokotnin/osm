@@ -19,7 +19,7 @@
 #include "magnitudeseriesrenderer.h"
 #include "../magnitudeplot.h"
 #include <cstring>
-#include "notifier.h"
+#include "common/notifier.h"
 using namespace chart;
 
 MagnitudeSeriesRenderer::MagnitudeSeriesRenderer() : FrequencyBasedSeriesRenderer(),
