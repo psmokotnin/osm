@@ -18,7 +18,7 @@
 #include <cmath>
 #include "rtaseriesrenderer.h"
 #include "../rtaplot.h"
-#include "notifier.h"
+#include "common/notifier.h"
 using namespace chart;
 RTASeriesRenderer::RTASeriesRenderer() : FrequencyBasedSeriesRenderer(),
     m_pointsPerOctave(0),

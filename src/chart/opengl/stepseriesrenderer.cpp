@@ -17,7 +17,7 @@
  */
 #include "stepseriesrenderer.h"
 #include "../stepplot.h"
-#include "notifier.h"
+#include "common/notifier.h"
 using namespace chart;
 
 StepSeriesRenderer::StepSeriesRenderer() : XYSeriesRenderer(), m_window(WindowFunction::Hann)

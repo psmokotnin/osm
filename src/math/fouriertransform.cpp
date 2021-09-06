@@ -257,7 +257,7 @@ GNU_ALIGN void FourierTransform::log()
         if (pointer < 0) pointer += m_size;
 
         for (unsigned int j = 0; j < m_logBasis[i].N; ++j, ++pointer) {
-            if (pointer >= m_size) pointer -= m_size;
+            if (pointer >= static_cast<int>(m_size)) pointer -= m_size;
             //_fastA[i] +=  w * inA[j];
             //_fastB[i] +=  w * inB[j];
 

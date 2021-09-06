@@ -16,7 +16,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "coherenceseriesrenderer.h"
-#include "notifier.h"
+#include "common/notifier.h"
 using namespace chart;
 
 CoherenceSeriesRenderer::CoherenceSeriesRenderer() : FrequencyBasedSeriesRenderer(), m_pointsPerOctave(24)

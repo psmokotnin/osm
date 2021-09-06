@@ -21,7 +21,7 @@
 
 #include "seriesfbo.h"
 #include "../plot.h"
-#include "profiler.h"
+#include "common/profiler.h"
 using namespace chart;
 
 SeriesRenderer::SeriesRenderer() :

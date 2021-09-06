@@ -22,9 +22,8 @@
 #include <QDebug>
 
 #include "generatorthread.h"
-#include "settings.h"
 #include "sinsweep.h"
-
+#include "common/settings.h"
 #include "audio/deviceinfo.h"
 
 class Generator : public QObject

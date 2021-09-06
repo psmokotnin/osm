@@ -20,7 +20,7 @@
 #include "../phaseplot.h"
 #include <QtMath>
 #include <cstring>
-#include "notifier.h"
+#include "common/notifier.h"
 using namespace chart;
 
 PhaseSeriesRenderer::PhaseSeriesRenderer() : FrequencyBasedSeriesRenderer(),

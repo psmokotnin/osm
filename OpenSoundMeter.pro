@@ -7,7 +7,6 @@ QML_IMPORT_NAME = OpenSoundMeter
 QML_IMPORT_MAJOR_VERSION = 1
 
 SOURCES += src/main.cpp \
-    src/appearance.cpp \
     src/audio/client.cpp \
     src/audio/deviceinfo.cpp \
     src/audio/devicemodel.cpp \
@@ -21,37 +20,35 @@ SOURCES += src/main.cpp \
     src/chart/palette.cpp \
     src/chart/spectrogramplot.cpp \
     src/chart/stepplot.cpp \
+    src/chart/coherenceplot.cpp \
     src/elc.cpp \
     src/filesystem/dialog.cpp \
     src/filesystem/dialogPlugin.cpp \
     src/filesystem/plugins/widgetdialogplugin.cpp \
-    src/generator.cpp \
     src/inputdevice.cpp \
-    src/logger.cpp \
-    src/mnoise.cpp \
-    src/notifier.cpp \
-    src/pinknoise.cpp \
-    src/outputdevice.cpp \
-    src/profiler.cpp \
-    src/sinsweep.cpp \
+    src/common/appearance.cpp \
+    src/common/logger.cpp \
+    src/generator/mnoise.cpp \
+    src/common/notifier.cpp \
+    src/common/profiler.cpp \
     src/sourcelist.cpp \
     src/sourcemodel.cpp \
     src/targettrace.cpp \
     src/union.cpp \
-    src/wavfile.cpp \
-    src/whitenoise.cpp \
-    src/sinnoise.cpp \
-    src/complex.cpp \
+    src/generator/generator.cpp \
+    src/generator/generatorthread.cpp \
+    src/generator/pinknoise.cpp \
+    src/generator/outputdevice.cpp \
+    src/generator/wavfile.cpp \
+    src/generator/whitenoise.cpp \
+    src/generator/sinnoise.cpp \
+    src/generator/sinsweep.cpp \
     src/stored.cpp \
-    src/fouriertransform.cpp \
-    src/deconvolution.cpp \
-    src/windowfunction.cpp \
     src/chart/axis.cpp \
     src/chart/painteditem.cpp \
-    src/ssemath.cpp \
     src/chart/source.cpp \
-    src/meter.cpp \
     src/measurement.cpp \
+    src/common/settings.cpp \
     src/chart/variablechart.cpp \
     src/chart/plot.cpp \
     src/chart/rtaplot.cpp \
@@ -59,11 +56,14 @@ SOURCES += src/main.cpp \
     src/chart/phaseplot.cpp \
     src/chart/magnitudeplot.cpp \
     src/chart/xyplot.cpp \
-    src/generatorthread.cpp \
-    src/averaging.cpp \
-    src/coherence.cpp \
-    src/chart/coherenceplot.cpp \
-    src/settings.cpp
+    src/math/meter.cpp \
+    src/math/coherence.cpp \
+    src/math/averaging.cpp \
+    src/math/complex.cpp \
+    src/math/fouriertransform.cpp \
+    src/math/windowfunction.cpp \
+    src/math/ssemath.cpp \
+    src/math/deconvolution.cpp \
 
 RESOURCES += qml.qrc \
     audio/noises.qrc \
@@ -95,7 +95,6 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 INCLUDEPATH += src
 HEADERS += \
-    src/appearance.h \
     src/audio/client.h \
     src/audio/deviceinfo.h \
     src/audio/devicemodel.h \
@@ -109,40 +108,37 @@ HEADERS += \
     src/chart/palette.h \
     src/chart/spectrogramplot.h \
     src/chart/stepplot.h \
+    src/chart/coherenceplot.h \
     src/elc.h \
     src/filesystem/dialog.h \
     src/filesystem/dialogPlugin.h \
     src/filesystem/plugins/widgetdialogplugin.h \
-    src/generator.h \
     src/inputdevice.h \
-    src/logger.h \
-    src/mnoise.h \
-    src/notifier.h \
-    src/pinknoise.h \
-    src/outputdevice.h \
-    src/profiler.h \
-    src/sinsweep.h \
+    src/common/appearance.h \
+    src/common/logger.h \
+    src/generator/mnoise.h \
+    src/common/notifier.h \
+    src/common/profiler.h \
     src/sourcelist.h \
     src/sourcemodel.h \
     src/targettrace.h \
     src/union.h \
-    src/wavfile.h \
-    src/whitenoise.h \
-    src/sinnoise.h \
-    src/sample.h \
-    src/complex.h \
+    src/generator/generator.h \
+    src/generator/generatorthread.h \
+    src/generator/pinknoise.h \
+    src/generator/outputdevice.h \
+    src/generator/wavfile.h \
+    src/generator/whitenoise.h \
+    src/generator/sinnoise.h \
+    src/generator/sinsweep.h \
+    src/generator/sample.h \
     src/stored.h \
-    src/fouriertransform.h \
-    src/ssemath.h \
-    src/deconvolution.h \
-    src/windowfunction.h \
     src/chart/axis.h \
     src/chart/painteditem.h \
     src/chart/type.h \
     src/chart/source.h \
-    src/filter.h \
-    src/meter.h \
     src/measurement.h \
+    src/common/settings.h \
     src/chart/variablechart.h \
     src/chart/plot.h \
     src/chart/rtaplot.h \
@@ -150,13 +146,17 @@ HEADERS += \
     src/chart/phaseplot.h \
     src/chart/magnitudeplot.h \
     src/chart/xyplot.h \
-    src/generatorthread.h \
-    src/averaging.h \
+    src/math/meter.h \
+    src/math/filter.h \
+    src/math/coherence.h \
+    src/math/averaging.h \
+    src/math/complex.h \
+    src/math/fouriertransform.h \
+    src/math/windowfunction.h \
+    src/math/ssemath.h \
+    src/math/deconvolution.h \
     src/container/fifo.h \
-    src/container/array.h \
-    src/coherence.h \
-    src/chart/coherenceplot.h \
-    src/settings.h
+    src/container/array.h
 
 #dialogs
 ios: {

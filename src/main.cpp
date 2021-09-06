@@ -21,10 +21,10 @@
 #include <QQuickStyle>
 #include <QQmlContext>
 #include <QFontDatabase>
-#include "settings.h"
-#include "logger.h"
-#include "notifier.h"
-#include "src/generator.h"
+#include "common/settings.h"
+#include "common/logger.h"
+#include "common/notifier.h"
+#include "src/generator/generator.h"
 #include "src/targettrace.h"
 #include "src/measurement.h"
 #include "src/union.h"
@@ -33,10 +33,10 @@
 #include "src/sourcelist.h"
 #include "src/chart/variablechart.h"
 
-#include "src/audio/client.h"
-#include "src/audio/devicemodel.h"
-#include "src/appearance.h"
-#include "src/filesystem/dialog.h"
+#include "audio/client.h"
+#include "audio/devicemodel.h"
+#include "common/appearance.h"
+#include "filesystem/dialog.h"
 #ifdef GRAPH_METAL
 #include "src/chart/metal/seriesnode.h"
 #endif

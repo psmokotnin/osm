@@ -22,7 +22,7 @@
 #include <QJsonObject>
 #include <mutex>
 
-#include "../complex.h"
+#include "../math/complex.h"
 
 namespace chart {
 class Source : public QObject

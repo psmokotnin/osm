@@ -19,7 +19,7 @@
 
 #include <QQuickWindow>
 #include <cmath>
-#include "notifier.h"
+#include "common/notifier.h"
 #include "seriesfbo.h"
 #include "../spectrogramplot.h"
 
