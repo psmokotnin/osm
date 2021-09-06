@@ -41,7 +41,6 @@ Item {
                 from: dataObject.xLowLimit
                 to: dataObject.xHighLimit
                 editable: true
-                implicitWidth: 170
                 Layout.fillWidth: true
 
                 ToolTip.visible: hovered
@@ -62,7 +61,6 @@ Item {
                 from: dataObject.xLowLimit
                 to: dataObject.xHighLimit
                 editable: true
-                implicitWidth: 170
                 Layout.fillWidth: true
 
                 ToolTip.visible: hovered
@@ -91,7 +89,6 @@ Item {
                 to: 360
                 wrap: true
                 editable: true
-                implicitWidth: 170
                 Layout.fillWidth: true
 
                 ToolTip.visible: hovered
@@ -124,7 +121,6 @@ Item {
                 from: 0
                 to: 360
                 editable: true
-                implicitWidth: 170
                 Layout.fillWidth: true
 
                 ToolTip.visible: hovered
@@ -149,11 +145,11 @@ Item {
             }
         }
         RowLayout {
-
             TitledCombo {
                 title: qsTr("ppo")
                 tooltip: qsTr("points per octave")
                 model: [3, 6, 12, 24, 48]
+                Layout.fillWidth: true
                 currentIndex: {
                     var ppo = dataObject.pointsPerOctave;
                     model.indexOf(ppo);
@@ -167,6 +163,7 @@ Item {
             ComboBox {
                 id: positivePeriod
                 model: ["±180º", "0..360º"]
+                Layout.fillWidth: true
                 onCurrentTextChanged: {
                     dataObject.positivePeriod = currentIndex == 1;
                 }
@@ -178,7 +175,7 @@ Item {
                 text: qsTr("use coherence")
                 checked: dataObject.coherence
                 onCheckStateChanged: dataObject.coherence = checked
-
+                Layout.fillWidth: true
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("use coherence as alpha channel")
             }
@@ -190,8 +187,9 @@ Item {
                 value: dataObject.coherenceThreshold
                 tooltiptext: qsTr("coherence threshold")
                 onValueChanged: dataObject.coherenceThreshold = value
-                implicitWidth: 170
-                visible: coherence.checked
+                Layout.fillWidth: true
+                opacity: coherence.checked
+                enabled: coherence.checked
             }
 
             RowLayout {
@@ -204,7 +202,7 @@ Item {
                     addNone: true
                     list: sourceList
                 }
-                Layout.preferredWidth: 280
+                Layout.fillWidth: true
                 currentIndex: { model.indexOf(dataObject.filter) }
                 textRole: "title"
                 valueRole: "source"

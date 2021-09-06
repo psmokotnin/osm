@@ -130,7 +130,6 @@ Item {
         }
     }
     RowLayout {
-        spacing: 0
 
         TitledCombo {
             id: mode

@@ -29,6 +29,8 @@ import "elements"
 Item {
     id: measurementProperties
     property var dataObject
+    readonly property int elementWidth: width / 7.7
+    readonly property int spinboxWidth: width / 11
 
     ColumnLayout {
         spacing: 0
@@ -38,7 +40,7 @@ Item {
 
             DropDown {
                 id: averageType
-                implicitWidth: 120
+                Layout.preferredWidth: elementWidth
                 model: ["off", "LPF", "FIFO"]
                 currentIndex: dataObject.averageType
                 ToolTip.visible: hovered
@@ -47,7 +49,7 @@ Item {
             }
 
             SelectableSpinBox {
-                implicitWidth: 120
+                Layout.preferredWidth: elementWidth
                 value: dataObject.average
                 from: 1
                 to: 100
@@ -61,7 +63,7 @@ Item {
             }
 
             DropDown {
-                implicitWidth: 120
+                Layout.preferredWidth: elementWidth
                 model: [ "0.25Hz", "0.5Hz", "1Hz" ]
                 currentIndex: dataObject.filtersFrequency
                 onCurrentIndexChanged: dataObject.filtersFrequency = currentIndex;
@@ -73,70 +75,81 @@ Item {
             }
 
             Rectangle {
-                implicitWidth: 120
+                Layout.preferredWidth: elementWidth
                 visible: dataObject.averageType === Measurement.OFF;
             }
 
-            CheckBox {
-                id: calibrateOn
-                text: qsTr("calibrate")
-                implicitWidth: 85
-                checked: dataObject.calibration
-                onCheckStateChanged: {
-                    if (checked) {
-                        if (dataObject.calibrationLoaded) {
-                            dataObject.calibration = checked;
+            Item {
+                id: calibartionGroup
+                Layout.preferredWidth: elementWidth
+                Layout.fillHeight: true
+
+                CheckBox {
+                    id: calibrateOn
+                    text: qsTr("calibrate")
+                    Layout.maximumWidth: elementWidth - 30
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.left: parent.left
+                    checked: dataObject.calibration
+                    onCheckStateChanged: {
+                        if (checked) {
+                            if (dataObject.calibrationLoaded) {
+                                dataObject.calibration = checked;
+                            } else {
+                                openCalibrationFileDialog.open();
+                            }
                         } else {
-                            openCalibrationFileDialog.open();
+                            dataObject.calibration = false;
                         }
-                    } else {
-                        dataObject.calibration = false;
+                    }
+
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("apply calibration")
+
+                    contentItem: Text {
+                        leftPadding: calibrateOn.indicator && !calibrateOn.mirrored ? calibrateOn.indicator.width + calibrateOn.spacing : 0
+                        rightPadding: calibrateOn.indicator && calibrateOn.mirrored ? calibrateOn.indicator.width + calibrateOn.spacing : 0
+                        text: calibrateOn.text
+                        font: calibrateOn.font
+                        color: calibrateOn.enabled ? calibrateOn.Material.foreground : calibrateOn.Material.hintTextColor
+                        elide: Text.ElideNone
+                        verticalAlignment: Text.AlignVCenter
                     }
                 }
-
-                ToolTip.visible: hovered
-                ToolTip.text: qsTr("apply calibration")
-
-                contentItem: Text {
-                    leftPadding: calibrateOn.indicator && !calibrateOn.mirrored ? calibrateOn.indicator.width + calibrateOn.spacing : 0
-                    rightPadding: calibrateOn.indicator && calibrateOn.mirrored ? calibrateOn.indicator.width + calibrateOn.spacing : 0
-                    text: calibrateOn.text
-                    font: calibrateOn.font
-                    color: calibrateOn.enabled ? calibrateOn.Material.foreground : calibrateOn.Material.hintTextColor
-                    elide: Text.ElideNone
-                    verticalAlignment: Text.AlignVCenter
+                Button {
+                    implicitWidth: 30
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.left: calibrateOn.right
+                    anchors.leftMargin: -10
+                    flat: true
+                    spacing: 0
+                    text: "..."
+                    onClicked: {openCalibrationFileDialog.open();}
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("open calibration file")
                 }
-            }
-            Button {
-                implicitWidth: 30
-                flat: true
-                spacing: 0
-                text: "..."
-                onClicked: {openCalibrationFileDialog.open();}
-                ToolTip.visible: hovered
-                ToolTip.text: qsTr("open calibration file")
-            }
-            FileDialog {
-                id: openCalibrationFileDialog
-                selectExisting: true
-                title: qsTr("Please choose a file's name")
-                folder: (typeof shortcuts !== 'undefined' ? shortcuts.home : Filesystem.StandardFolder.Home)
-                onAccepted: function() {
-                    if (dataObject.loadCalibrationFile(openCalibrationFileDialog.fileUrl)) {
-                        dataObject.calibration = true;
-                    } else {
-                        dataObject.calibration = false;
+                FileDialog {
+                    id: openCalibrationFileDialog
+                    selectExisting: true
+                    title: qsTr("Please choose a file's name")
+                    folder: (typeof shortcuts !== 'undefined' ? shortcuts.home : Filesystem.StandardFolder.Home)
+                    onAccepted: function() {
+                        if (dataObject.loadCalibrationFile(openCalibrationFileDialog.fileUrl)) {
+                            dataObject.calibration = true;
+                        } else {
+                            dataObject.calibration = false;
+                        }
                     }
-                }
-                onRejected: {
-                    dataObject.calibration = false;
-                    calibrateOn.checked = dataObject.calibration;
+                    onRejected: {
+                        dataObject.calibration = false;
+                        calibrateOn.checked = dataObject.calibration;
+                    }
                 }
             }
 
             CheckBox {
                 text: qsTr("polarity")
-                implicitWidth: 120
+                Layout.preferredWidth: elementWidth
                 checked: dataObject.polarity
                 onCheckStateChanged: dataObject.polarity = checked
 
@@ -164,7 +177,8 @@ Item {
             NameField {
                 id:titleField
                 target: dataObject
-                implicitWidth: 100
+                Layout.preferredWidth: elementWidth - 25
+                Layout.minimumWidth: 100
                 Layout.alignment: Qt.AlignVCenter
             }
 
@@ -174,7 +188,7 @@ Item {
 
             FloatSpinBox {
                 id: gainSpinBox
-                implicitWidth: 75
+                Layout.preferredWidth: spinboxWidth
                 value: dataObject.gain
                 from: -90
                 to: 20
@@ -189,7 +203,7 @@ Item {
             SelectableSpinBox {
                 id: delaySpin
                 Layout.alignment: Qt.AlignVCenter
-                implicitWidth: 75
+                Layout.preferredWidth: spinboxWidth
                 value: dataObject.delay
                 implicitHeight: titleField.implicitHeight
                 from: 0
@@ -234,10 +248,11 @@ Item {
                 id: modeSelect
                 model: dataObject.modes
                 currentIndex: dataObject.mode
-                displayText: (dataObject.mode === Measurement.LFT ? "LTW" : "Power:" + currentText)
+                displayText: (dataObject.mode === Measurement.LFT ? "LTW" : (modeSelect.width > 120 ? "Power:" : "") + currentText)
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Transfrom mode")
                 onCurrentIndexChanged: dataObject.mode = currentIndex;
+                Layout.preferredWidth: elementWidth
             }
 
             DropDown {
@@ -247,6 +262,7 @@ Item {
                 onCurrentIndexChanged: dataObject.window = currentIndex
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("window function")
+                Layout.preferredWidth: elementWidth
             }
 
             DropDown {
@@ -256,6 +272,7 @@ Item {
                 displayText: "M: " + currentText
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("measurement chanel number")
+                Layout.preferredWidth: elementWidth
             }
 
             DropDown {
@@ -265,6 +282,7 @@ Item {
                 displayText: "R: " + currentText
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("reference chanel number")
+                Layout.preferredWidth: elementWidth
             }
 
             DropDown {

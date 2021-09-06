@@ -130,12 +130,10 @@ Item {
         }
     }
     RowLayout {
-        spacing: 0
-
         TitledCombo {
             title: qsTr("ppo")
             tooltip: qsTr("points per octave")
-            implicitWidth: 170
+            Layout.preferredWidth: 110
             model: [3, 6, 12, 24, 48]
             Component.onCompleted: {
                 currentIndex = model.indexOf(dataObject.pointsPerOctave);
@@ -145,17 +143,12 @@ Item {
             }
         }
 
-        Item {
-            width: 10
-        }
-
         SelectableSpinBox {
             value: dataObject.min
             onValueChanged: dataObject.min = value
             from: -140
             to: dataObject.mid - 1
             editable: true
-            implicitWidth: 170
             Layout.fillWidth: true
 
             ToolTip.visible: hovered
@@ -181,7 +174,6 @@ Item {
             from: dataObject.min
             to: dataObject.max
             editable: true
-            implicitWidth: 170
             Layout.fillWidth: true
 
             ToolTip.visible: hovered
@@ -208,7 +200,6 @@ Item {
             from: dataObject.mid + 1
             to: 20
             editable: true
-            implicitWidth: 170
             Layout.fillWidth: true
 
             ToolTip.visible: hovered
@@ -238,7 +229,7 @@ Item {
             model: SourceModel {
                 list: sourceList
             }
-            Layout.preferredWidth: 280
+            Layout.preferredWidth: 160
             currentIndex: { model.indexOf(dataObject.filter) }
             textRole: "title"
             valueRole: "source"
