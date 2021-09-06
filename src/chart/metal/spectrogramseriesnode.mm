@@ -124,11 +124,14 @@ void SpectrogramSeriesNode::updateHistory()
         return mixedColor;
     };
     auto accumalte = [m_source = m_source, &value] (const unsigned int &i) {
-        value += powf(m_source->module(i), 2);
+        if (i == 0) {
+            return ;
+        }
+        value += 2 * m_source->module(i) * m_source->module(i) * (m_source->frequency(i) - m_source->frequency(i - 1));
     };
     auto collected = [&] (const float & start, const float & end, const unsigned int &) {
 
-        value = 10 * log10f(value);
+        value = 10 * log10f(value) + LEVEL_NORMALIZATION;
 
         alpha = 1.0f;
         if (!std::isnormal(value) || value < floor) {
