@@ -24,7 +24,7 @@ title: Open Sound Meter
             <div class="row">
                 <div class="col-md-auto">
                     <b>The modern all-around sound analysis app for iPad!</b><br/>
-                    Available in App Store from July 5, 2021
+                    Available on App Store from July 5, 2021
                 </div>
                 <div class="col" style="padding-top: 3px;">
                     <a class="download ios" target="_blank" href="https://apps.apple.com/app/id1552933259"><img src="/images/icons/appstore.svg" class="bd-placeholder-img"/></a>
