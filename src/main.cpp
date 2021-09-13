@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
     QQuickWindow::setSceneGraphBackend(chart::SeriesNode::chooseRhi());
 #elif defined(GRAPH_OPENGL)
     QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
-    QCoreApplication::setAttribute(Qt::AA_DisableHighDpiScaling);
+    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QQuickWindow::setTextRenderType(QQuickWindow::NativeTextRendering);
     QSurfaceFormat surfaceFormat;
     surfaceFormat.setMajorVersion(3);
