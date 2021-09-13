@@ -39,6 +39,7 @@ ApplicationWindow {
     property string backgroundColor: Material.backgroundColor
     property string accentColor: Material.accent
     property string foregroundColor: Material.foreground
+    readonly property bool narrowWindow: width < 1024
 
     visible: true
     flags: Qt.Window
@@ -60,7 +61,7 @@ ApplicationWindow {
         applicationWindow.onXChanged.connect(function() {applicationSettings.setValue("mainwindow/x", x)});
         applicationWindow.onYChanged.connect(function() {applicationSettings.setValue("mainwindow/y", y)});
     }
-    minimumWidth: 1024
+    minimumWidth: 768
     minimumHeight: 600
     visibility: applicationAppearance.visibility
     color: applicationAppearance.darkMode ? Material.backgroundColor : "#FFFFFF"
@@ -105,33 +106,35 @@ ApplicationWindow {
 
     menuBar: (applicationAppearance.showMenuBar ? topMenu : null)
 
-    RowLayout {
+    GridLayout {
         anchors.fill: parent
-        spacing: 0
+        flow: Qt.LeftToRight
+        columns: 2
+        columnSpacing: 0
+        rowSpacing: 0
 
-        ColumnLayout {
-            spacing: 0
-
-            //Charts area
-            Charts {
-                id: charts
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-            }
-
-            //Properties area
-            PropetiesBar {
-                id: bottomtab
-                height: 120
-                Layout.fillWidth: true
-            }
+        //Charts area
+        Charts {
+            id: charts
+            Layout.fillWidth: true
+            Layout.fillHeight: true
         }
 
         SideBar {
             id: righttab
             Layout.fillHeight: true
+            Layout.rowSpan: applicationWindow.narrowWindow ? 1 : 2
             width: 200
         }
+
+        //Properties area
+        PropetiesBar {
+            id: bottomtab
+            height: 120
+            Layout.fillWidth: true
+            Layout.columnSpan: applicationWindow.narrowWindow ? 2 : 1
+        }
+
     }
 
     AboutIOS {

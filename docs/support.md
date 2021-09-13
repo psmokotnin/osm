@@ -11,7 +11,7 @@ title: User support. Open Sound Meter
         <p>
             My goal is to make the application as simple as possible. Please watch this short video and you'll know the features of Open Sound Meter.
         </p>
-        <iframe width="560" height="315" src="https://www.youtube.com/embed/J7UzQM9XbTs" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        <iframe width="560" height="315" src="https://www.youtube.com/embed/dY2n7jxCURk" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
         <p>
             Or download <a class="download pdf" href="https://github.com/psmokotnin/osm/releases/download/{{site.current_version}}/overview.pdf" target="_blank">PDF overview</a> with the same information. 
     </p>
