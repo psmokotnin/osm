@@ -80,7 +80,7 @@ Item {
             }
 
             Button {
-                text: "±"
+                text: "+/–"
                 checkable: true
                 checked: dataObject.polarity
                 onCheckedChanged: dataObject.polarity = checked
