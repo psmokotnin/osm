@@ -79,6 +79,29 @@ Item {
                 visible: dataObject.averageType === Measurement.OFF;
             }
 
+            Button {
+                text: "±"
+                checkable: true
+                checked: dataObject.polarity
+                onCheckedChanged: dataObject.polarity = checked
+                Layout.preferredWidth: (elementWidth - 5) / 2
+                Material.background: parent.Material.background
+
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("inverse polarity at measurement chanel")
+            }
+
+            Button {
+                font.family: "Osm"
+                text: "\ue808"
+                onClicked: dataObject.resetAverage()
+                Layout.preferredWidth: (elementWidth - 5) / 2
+                Material.background: parent.Material.background
+
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("reset buffers")
+            }
+
             Item {
                 id: calibartionGroup
                 Layout.preferredWidth: elementWidth
@@ -145,16 +168,6 @@ Item {
                         calibrateOn.checked = dataObject.calibration;
                     }
                 }
-            }
-
-            CheckBox {
-                text: qsTr("polarity")
-                Layout.preferredWidth: elementWidth
-                checked: dataObject.polarity
-                onCheckStateChanged: dataObject.polarity = checked
-
-                ToolTip.visible: hovered
-                ToolTip.text: qsTr("inverse polarity at measurement chanel")
             }
 
             ColorPicker {
