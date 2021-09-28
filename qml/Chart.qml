@@ -80,6 +80,9 @@ Item {
             case "Crest Factor":
                 opener.propertiesQml = "qrc:/Plot/CrestFactorProperties.qml";
                 break;
+            case "Nyquist":
+                opener.propertiesQml = "qrc:/Plot/NyquistProperties.qml";
+                break;
             }
         }
     }
@@ -254,6 +257,8 @@ Item {
                     case "Step":
                         obj.time = Math.abs(chart.plot.x2v(opener.mouseX));
                         break
+                    case "Nyquist":
+                        return;
                 }
                 applicationWindow.properiesbar.open(obj, "qrc:/Calculator.qml");
             }
@@ -325,7 +330,7 @@ Item {
         implicitWidth: 145
         implicitHeight: Material.buttonHeight
         background: null
-        model: ["RTA", "Magnitude", "Phase", "Impulse", "Step", "Coherence", "Group Delay", "Spectrogram", "Crest Factor"]
+        model: ["RTA", "Magnitude", "Phase", "Impulse", "Step", "Coherence", "Group Delay", "Spectrogram", "Crest Factor", "Nyquist"]
         currentIndex: model.indexOf(type)
         onCurrentIndexChanged: {
             var pb = applicationWindow.properiesbar;

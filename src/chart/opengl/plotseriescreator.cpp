@@ -22,6 +22,7 @@
 #include "../stepplot.h"
 #include "../spectrogramplot.h"
 #include "../crestfactorplot.h"
+#include "../nyquistplot.h"
 
 #include "rtaseriesrenderer.h"
 #include "magnitudeseriesrenderer.h"
@@ -33,6 +34,7 @@
 #include "stepseriesrenderer.h"
 #include "spectrogramseriesrenderer.h"
 #include "crestfactorseriesrenderer.h"
+#include "nyquistseriesrenderer.h"
 
 namespace chart {
 
@@ -96,6 +98,13 @@ SeriesItem *CrestFactorPlot::createSeriesFromSource(Source *source)
 {
     return new SeriesFBO(source, []() {
         return new CrestFactorSeriesRenderer();
+    }, this);
+}
+
+SeriesFBO *NyquistPlot::createSeriesFromSource(Source *source)
+{
+    return new SeriesFBO(source, []() {
+        return new NyquistSeriesRenderer();
     }, this);
 }
 

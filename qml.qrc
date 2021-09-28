@@ -44,5 +44,6 @@
         <file alias="TargetTrace.qml">qml/TargetTrace.qml</file>
         <file alias="TargetTraceProperties.qml">qml/TargetTraceProperties.qml</file>
         <file alias="Plot/CrestFactorProperties.qml">qml/Plot/CrestFactorProperties.qml</file>
+        <file alias="Plot/NyquistProperties.qml">qml/Plot/NyquistProperties.qml</file>
     </qresource>
 </RCC>

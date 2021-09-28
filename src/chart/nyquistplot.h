@@ -1,6 +1,6 @@
 /**
  *  OSM
- *  Copyright (C) 2018  Pavel Smokotnin
+ *  Copyright (C) 2021  Pavel Smokotnin
 
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -15,27 +15,26 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef TYPE_H
-#define TYPE_H
+#ifndef CHART_NYQUISTPLOT_H
+#define CHART_NYQUISTPLOT_H
 
-#include <map>
-#include <QString>
-
+#include "frequencybasedplot.h"
 namespace chart {
 
-enum Type {RTA, Magnitude, Phase, Scope, Impulse, Step, Coherence, GroupDelay, Spectrogram, CrestFactor, Nyquist};
-static std::map<Type, QString> typeMap = {
-    {RTA,       "RTA"},
-    {Magnitude, "Magnitude"},
-    {Phase,     "Phase"},
-    {Scope,     "Scope"},
-    {Impulse,   "Impulse"},
-    {Step,      "Step"},
-    {Coherence, "Coherence"},
-    {GroupDelay, "Group Delay"},
-    {Spectrogram, "Spectrogram"},
-    {CrestFactor, "Crest Factor"},
-    {Nyquist, "Nyquist"}
+class NyquistPlot : public FrequencyBasedPlot
+{
+    Q_OBJECT
+
+public:
+    NyquistPlot(Settings *settings, QQuickItem *parent = Q_NULLPTR);
+
+    void setSettings(Settings *settings) noexcept override;
+    void storeSettings() noexcept override;
+
+protected:
+    SeriesItem *createSeriesFromSource(Source *source) override;
 };
-}
-#endif // TYPE_H
+
+} // namespace chart
+
+#endif // CHART_NYQUISTPLOT_H

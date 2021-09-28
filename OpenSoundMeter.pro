@@ -19,6 +19,7 @@ SOURCES += src/main.cpp \
     src/chart/frequencybasedplot.cpp \
     src/chart/frequencybasedserieshelper.cpp \
     src/chart/groupdelayplot.cpp \
+    src/chart/nyquistplot.cpp \
     src/chart/palette.cpp \
     src/chart/spectrogramplot.cpp \
     src/chart/stepplot.cpp \
@@ -113,6 +114,7 @@ HEADERS += \
     src/chart/frequencybasedplot.h \
     src/chart/frequencybasedserieshelper.h \
     src/chart/groupdelayplot.h \
+    src/chart/nyquistplot.h \
     src/chart/palette.h \
     src/chart/spectrogramplot.h \
     src/chart/stepplot.h \
@@ -361,6 +363,7 @@ isEqual(GRAPH, "OPENGL") {
         src/chart/opengl/groupdelayseriesrenderer.h \
         src/chart/opengl/spectrogramseriesrenderer.h \
         src/chart/opengl/crestfactorseriesrenderer.h \
+        src/chart/opengl/nyquistseriesrenderer.h \
         src/chart/opengl/stepseriesrenderer.h
 
     SOURCES += \
@@ -377,6 +380,7 @@ isEqual(GRAPH, "OPENGL") {
         src/chart/opengl/groupdelayseriesrenderer.cpp \
         src/chart/opengl/spectrogramseriesrenderer.cpp \
         src/chart/opengl/crestfactorseriesrenderer.cpp \
+        src/chart/opengl/nyquistseriesrenderer.cpp \
         src/chart/opengl/stepseriesrenderer.cpp
 }
 

@@ -25,6 +25,7 @@
 #include "groupdelayplot.h"
 #include "spectrogramplot.h"
 #include "crestfactorplot.h"
+#include "nyquistplot.h"
 #include "src/sourcelist.h"
 
 using namespace chart;
@@ -78,6 +79,11 @@ void VariableChart::initType()
     case CrestFactor:
         newPlot = new CrestFactorPlot(m_settings, this);
         break;
+
+    case Nyquist:
+        newPlot = new NyquistPlot(m_settings, this);
+        break;
+
     default:
         return;
     }
