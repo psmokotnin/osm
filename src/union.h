@@ -35,42 +35,30 @@ class Union : public chart::Source
     Q_PROPERTY(Operation operation READ operation WRITE setOperation NOTIFY operationChanged)
     Q_PROPERTY(Type type READ type WRITE setType NOTIFY typeChanged)
 
+    using SourceVector = QVector<QPointer<chart::Source>>;
+
 public:
     enum Operation {Sum, Diff, Avg};
-    enum Type {Vector, Polar};
+    enum Type {Vector, Polar, dB, Power};
     const std::map<Operation, QString> operationMap = {
         {Sum,       "Summation"},
         {Diff,      "Difference"},
         {Avg,       "Average"}
     };
+    const std::map<Type, QString> typeMap = {
+        {Vector,    "Vector"},
+        {Polar,     "Polar"},
+        {dB,        "dB"},
+        {Power,     "Power"}
+    };
     Q_ENUMS(Operation)
     Q_ENUMS(Type)
 
-private:
-    Settings *m_settings;
-
-    QVector<QPointer<chart::Source>> m_sources;
-
-    QTimer m_timer;
-    QThread m_timerThread;
-    Operation m_operation;
-    Type m_type;
-
-    void init() noexcept;
-    void resize();
-    void calcPolar(unsigned int count, std::set<chart::Source *> sources,
-                   chart::Source *primary) noexcept;
-    void calcVector(unsigned int count, std::set<Source *> sources, chart::Source *primary) noexcept;
-
-public:
     explicit Union(Settings *settings = nullptr, QObject *parent = nullptr);
     ~Union() override;
     Source *clone() const override;
 
-    int count() const noexcept
-    {
-        return m_sources.count();
-    }
+    int count() const noexcept;
 
     Q_INVOKABLE chart::Source *getSource(int index) const noexcept;
     Q_INVOKABLE void setSource(int index, chart::Source *s) noexcept;
@@ -78,10 +66,7 @@ public:
     Q_INVOKABLE QJsonObject toJSON() const noexcept override;
     void fromJSON(QJsonObject data) noexcept override;
 
-    Operation operation() const noexcept
-    {
-        return m_operation;
-    }
+    Operation operation() const noexcept;
     void setOperation(const Operation &operation) noexcept;
 
     void setActive(bool active) noexcept override;
@@ -99,5 +84,20 @@ signals:
     void operationChanged(Operation);
     void needUpdate();
     void typeChanged();
+
+private:
+    void init() noexcept;
+    void resize();
+    void calcPolar(unsigned int count, chart::Source *primary) noexcept;
+    void calcVector(unsigned int count, chart::Source *primary) noexcept;
+    void calcdB(unsigned int count, chart::Source *primary) noexcept;
+    void calcPower(unsigned int count, chart::Source *primary) noexcept;
+
+    Settings *m_settings;
+    SourceVector m_sources;
+    QTimer m_timer;
+    QThread m_timerThread;
+    Operation m_operation;
+    Type m_type;
 };
 #endif // UNION_H

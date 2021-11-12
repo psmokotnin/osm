@@ -54,6 +54,11 @@ chart::Source *Union::clone() const
     cloned->setActive(active());
     return cloned;
 }
+
+int Union::count() const noexcept
+{
+    return m_sources.count();
+}
 void Union::setOperation(const Operation &operation) noexcept
 {
     if (m_operation != operation) {
@@ -163,10 +168,16 @@ void Union::calc() noexcept
 
     switch (m_type) {
     case Vector:
-        calcVector(count, sources, primary);
+        calcVector(count, primary);
         break;
     case Polar:
-        calcPolar(count, sources, primary);
+        calcPolar(count, primary);
+        break;
+    case dB:
+        calcdB(count, primary);
+        break;
+    case Power:
+        calcPower(count, primary);
         break;
     }
 
@@ -175,33 +186,36 @@ void Union::calc() noexcept
     }
     emit readyRead();
 }
-void Union::calcPolar(unsigned int count, std::set<Source *> sources,
-                      chart::Source *primary) noexcept
+void Union::calcPolar(unsigned int count, chart::Source *primary) noexcept
 {
-    float magnitude, phase, module, coherence;
+    float magnitude, module, coherence, coherenceWeight;
+    complex phase;
 
     for (unsigned int i = 0; i < primary->size(); i++) {
         magnitude = primary->magnitudeRaw(i);
-        phase = primary->phase(i).arg();
+        phase = primary->phase(i);
         module = primary->module(i);
-        coherence = primary->coherence(i);
-        for (auto it = sources.begin(); it != sources.end(); ++it) {
-            if (*it && *it != primary) {
+        coherence = std::abs(primary->module(i) * primary->coherence(i));
+        coherenceWeight = std::abs(primary->module(i));
+
+        for (auto it = m_sources.begin(); it != m_sources.end(); ++it) {
+            if (*it && it != m_sources.begin()) {
                 switch (m_operation) {
                 case Sum:
                 case Avg:
                     magnitude += (*it)->magnitudeRaw(i);
-                    phase += (*it)->phase(i).arg();
+                    phase += (*it)->phase(i);
                     module += (*it)->module(i);
                     break;
                 case Diff:
                     magnitude -= (*it)->magnitudeRaw(i);
-                    phase -= (*it)->phase(i).arg();
+                    phase -= (*it)->phase(i);
                     module -= (*it)->module(i);
                     break;
                 }
 
-                coherence = std::max(coherence, (*it)->coherence(i));
+                coherence += std::abs((*it)->module(i) * (*it)->coherence(i));
+                coherenceWeight += std::abs((*it)->module(i));
             }
         }
         if (m_operation == Avg) {
@@ -209,52 +223,160 @@ void Union::calcPolar(unsigned int count, std::set<Source *> sources,
             phase /= count;
             module /= count;
         }
-        complex p;
-        p.polar(phase);
+        coherence /= coherenceWeight;
+
         m_ftdata[i].frequency  = primary->frequency(i);
         m_ftdata[i].module     = module;
-        m_ftdata[i].phase      = p;
+        m_ftdata[i].phase      = phase.normalize();
         m_ftdata[i].magnitude  = magnitude;
         m_ftdata[i].coherence  = coherence;
     }
 }
-void Union::calcVector(unsigned int count, std::set<chart::Source *> sources,
-                       chart::Source *primary) noexcept
+void Union::calcVector(unsigned int count, chart::Source *primary) noexcept
 {
+    float coherence, coherenceWeight;
     complex a, m;
 
     for (unsigned int i = 0; i < primary->size(); i++) {
 
         a = primary->phase(i) * primary->module(i);
         m = primary->phase(i) * primary->magnitudeRaw(i);
-        float coherence = primary->coherence(i);
-        for (auto it = sources.begin(); it != sources.end(); ++it) {
-            if (*it && *it != primary) {
+
+        coherence = std::abs(primary->module(i) * primary->coherence(i));
+        coherenceWeight = std::abs(primary->module(i));
+
+        for (auto it = m_sources.begin(); it != m_sources.end(); ++it) {
+            if (*it && it != m_sources.begin()) {
                 switch (m_operation) {
                 case Sum:
                 case Avg:
-                    m_ftdata[i].module += (*it)->module(i);
                     a += (*it)->phase(i) * (*it)->module(i);
                     m += (*it)->phase(i) * (*it)->magnitudeRaw(i);
                     break;
                 case Diff:
-                    m_ftdata[i].module -= (*it)->module(i);
                     a -= (*it)->phase(i) * (*it)->module(i);
                     m -= (*it)->phase(i) * (*it)->magnitudeRaw(i);
                     break;
                 }
 
-                coherence = std::max(coherence, (*it)->coherence(i));
+                coherence += std::abs((*it)->module(i) * (*it)->coherence(i));
+                coherenceWeight += std::abs((*it)->module(i));
             }
         }
         if (m_operation == Avg) {
             a /= count;
             m /= count;
         }
+        coherence /= coherenceWeight;
+
         m_ftdata[i].frequency  = primary->frequency(i);
         m_ftdata[i].module     = a.abs();
-        m_ftdata[i].phase      = m;
+        m_ftdata[i].phase      = m.normalize();
         m_ftdata[i].magnitude  = m.abs();
+        m_ftdata[i].coherence  = coherence;
+    }
+}
+
+void Union::calcdB(unsigned int count, chart::Source *primary) noexcept
+{
+    float magnitude, module, coherence, coherenceWeight;
+    complex phase;
+
+    for (unsigned int i = 0; i < primary->size(); i++) {
+        magnitude = primary->magnitude(i);
+        phase = primary->phase(i);
+        module = 20.f * std::log10f((primary)->module(i));
+        coherence = std::abs(primary->module(i) * primary->coherence(i));
+        coherenceWeight = std::abs(primary->module(i));
+
+        for (auto it = m_sources.begin(); it != m_sources.end(); ++it) {
+            if (*it && it != m_sources.begin()) {
+                switch (m_operation) {
+                case Sum:
+                case Avg:
+                    magnitude += (*it)->magnitude(i);
+                    phase += (*it)->phase(i);
+                    module += 20.f * std::log10f((*it)->module(i));
+                    break;
+                case Diff:
+                    magnitude -= (*it)->magnitude(i);
+                    phase -= (*it)->phase(i);
+                    module -= 20.f * std::log10f((*it)->module(i));
+                    break;
+                }
+
+                coherence += std::abs((*it)->module(i) * (*it)->coherence(i));
+                coherenceWeight += std::abs((*it)->module(i));
+            }
+        }
+
+        if (m_operation == Avg) {
+            magnitude /= count;
+            phase /= count;
+            module /= count;
+        }
+        coherence /= coherenceWeight;
+
+        magnitude = std::pow(10, magnitude / 20.f);
+        module    = std::pow(10, module / 20.f);
+
+        m_ftdata[i].frequency  = primary->frequency(i);
+        m_ftdata[i].module     = module;
+        m_ftdata[i].phase      = phase.normalize();
+        m_ftdata[i].magnitude  = magnitude;
+        m_ftdata[i].coherence  = coherence;
+    }
+}
+
+void Union::calcPower(unsigned int count, chart::Source *primary) noexcept
+{
+    float magnitude, module, coherence, coherenceWeight;
+    complex phase;
+
+    for (unsigned int i = 0; i < primary->size(); i++) {
+        magnitude = std::pow(primary->magnitudeRaw(i), 2);
+        phase = primary->phase(i);
+        module = std::pow((primary)->module(i), 2);
+        coherence = std::abs(primary->module(i) * primary->coherence(i));
+        coherenceWeight = std::abs(primary->module(i));
+
+        for (auto it = m_sources.begin(); it != m_sources.end(); ++it) {
+            if (*it && it != m_sources.begin()) {
+                switch (m_operation) {
+                case Sum:
+                case Avg:
+                    magnitude += std::pow((*it)->magnitudeRaw(i), 2);
+                    phase += (*it)->phase(i);
+                    module += std::pow((*it)->module(i), 2);
+                    break;
+                case Diff:
+                    magnitude -= std::pow((*it)->magnitudeRaw(i), 2);
+                    phase -= (*it)->phase(i);
+                    module -= std::pow((*it)->module(i), 2);
+                    break;
+                }
+
+                coherence += std::abs((*it)->module(i) * (*it)->coherence(i));
+                coherenceWeight += std::abs((*it)->module(i));
+            }
+        }
+        if (m_operation == Avg) {
+            magnitude /= count;
+            phase /= count;
+            module /= count;
+        } else if (m_operation == Diff) {
+            magnitude = std::abs(magnitude);
+            module    = std::abs(module);
+        }
+        coherence /= coherenceWeight;
+
+        magnitude = std::sqrt(magnitude);
+        module    = std::sqrt(module);
+
+        m_ftdata[i].frequency  = primary->frequency(i);
+        m_ftdata[i].module     = module;
+        m_ftdata[i].phase      = phase.normalize();
+        m_ftdata[i].magnitude  = magnitude;
         m_ftdata[i].coherence  = coherence;
     }
 }
@@ -269,12 +391,17 @@ void Union::fromJSON(QJsonObject data) noexcept
     //TODO: do
     Q_UNUSED(data)
 }
+
+Union::Operation Union::operation() const noexcept
+{
+    return m_operation;
+}
 QObject *Union::store()
 {
     auto *store = new Stored();
     store->build(this);
 
-    QString notes = operationMap.at(m_operation) + ":\n";
+    QString notes = operationMap.at(m_operation) + " " + typeMap.at(m_type) + ":\n";
     for (auto &s : m_sources) {
         if (s) {
             notes += s->name() + "\t";

@@ -40,7 +40,7 @@ Item {
             }
 
             DropDown {
-                model: ["Vector", "Polar"]
+                model: ["Vector", "Polar", "dB", "Power"]
                 currentIndex: dataObject.type
                 onCurrentIndexChanged: dataObject.type = currentIndex;
             }
