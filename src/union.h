@@ -31,7 +31,7 @@ class Union : public chart::Source
 {
     Q_OBJECT
 
-    Q_PROPERTY(int count READ count NOTIFY countChanged)
+    Q_PROPERTY(int count READ count WRITE setCount NOTIFY countChanged)
     Q_PROPERTY(Operation operation READ operation WRITE setOperation NOTIFY operationChanged)
     Q_PROPERTY(Type type READ type WRITE setType NOTIFY typeChanged)
 
@@ -59,6 +59,7 @@ public:
     Source *clone() const override;
 
     int count() const noexcept;
+    void setCount(int count) noexcept;
 
     Q_INVOKABLE chart::Source *getSource(int index) const noexcept;
     Q_INVOKABLE void setSource(int index, chart::Source *s) noexcept;

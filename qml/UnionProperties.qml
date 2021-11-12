@@ -34,21 +34,40 @@ Item {
         RowLayout {
 
             DropDown {
-                model: ["Sum", "Diff", "Avg"]
+                model: ["Summation", "Subtraction", "Average"]
                 currentIndex: dataObject.operation
                 onCurrentIndexChanged: dataObject.operation = currentIndex;
+                Layout.preferredWidth: 150
+
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Math operation")
             }
 
             DropDown {
                 model: ["Vector", "Polar", "dB", "Power"]
                 currentIndex: dataObject.type
                 onCurrentIndexChanged: dataObject.type = currentIndex;
+
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Complex numbers behaviour")
+            }
+
+            DropDown {
+                id: count
+                model: [2, 3, 4, 5, 6, 7, 8]
+                currentIndex: dataObject.count - 2
+                onCurrentIndexChanged: dataObject.count = currentIndex + 2;
+                displayText: currentIndex + 2
+
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("count")
             }
 
             Label {
-                text: qsTr("Sources must have the same size")
+                text: qsTr("Sources must have the transform mode")
                 Layout.fillWidth: true
                 horizontalAlignment: Text.AlignHCenter
+                wrapMode: Text.WordWrap
             }
 
             ColorPicker {
@@ -90,67 +109,27 @@ Item {
 
         RowLayout {
 
-            DropDown {
-                model: SourceModel {
-                    id: sourceModel
-                    filter: true
-                    list: sourceList
-                }
-                currentIndex: { model.indexOf(dataObject.getSource(0)) }
-                textRole: "title"
-                valueRole: "source"
-                Layout.fillWidth: true
-                onCurrentIndexChanged: {
-                    dataObject.setSource(0, model.get(currentIndex));
+            Repeater {
+                id: repeater
+                model: count.currentValue
+
+                DropDown {
+                    model: SourceModel {
+                        id: sourceModel
+                        filter: true
+                        addNone: (modelData > 1 ? true : false)
+                        noneTitle: "None"
+                        list: sourceList
+                    }
+                    currentIndex: { model.indexOf(dataObject.getSource(index)) }
+                    textRole: "title"
+                    valueRole: "source"
+                    Layout.fillWidth: true
+                    onCurrentIndexChanged: {
+                        dataObject.setSource(index, model.get(currentIndex));
+                    }
                 }
             }
-
-            DropDown {
-                model: SourceModel {
-                    filter: true
-                    list: sourceList
-                }
-                currentIndex: { model.indexOf(dataObject.getSource(1)) }
-                textRole: "title"
-                valueRole: "source"
-                Layout.fillWidth: true
-                onCurrentIndexChanged: {
-                    dataObject.setSource(1, model.get(currentIndex));
-                }
-            }
-
-            DropDown {
-                model: SourceModel {
-                    filter: true
-                    addNone: true
-                    list: sourceList
-                    noneTitle: "None"
-                }
-                currentIndex: { model.indexOf(dataObject.getSource(2)) }
-                textRole: "title"
-                valueRole: "source"
-                Layout.fillWidth: true
-                onCurrentIndexChanged: {
-                    dataObject.setSource(2, model.get(currentIndex));
-                }
-            }
-
-            DropDown {
-                model: SourceModel {
-                    filter: true
-                    addNone: true
-                    list: sourceList
-                    noneTitle: "None"
-                }
-                currentIndex: { model.indexOf(dataObject.getSource(3)) }
-                textRole: "title"
-                valueRole: "source"
-                Layout.fillWidth: true
-                onCurrentIndexChanged: {
-                    dataObject.setSource(3, model.get(currentIndex));
-                }
-            }
-
         }
     }
 }

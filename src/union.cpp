@@ -59,6 +59,14 @@ int Union::count() const noexcept
 {
     return m_sources.count();
 }
+
+void Union::setCount(int count) noexcept
+{
+    std::lock_guard<std::mutex> guard(m_dataMutex);
+    m_sources.resize(count);
+    update();
+
+}
 void Union::setOperation(const Operation &operation) noexcept
 {
     if (m_operation != operation) {
