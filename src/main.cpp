@@ -36,6 +36,7 @@
 #include "audio/client.h"
 #include "audio/devicemodel.h"
 #include "common/appearance.h"
+#include "common/autosaver.h"
 #include "filesystem/dialog.h"
 #ifdef GRAPH_METAL
 #include "src/chart/metal/seriesnode.h"
@@ -79,6 +80,7 @@ int main(int argc, char *argv[])
     audio::Client::getInstance();
     Generator g(settings.getGroup("generator"));
     SourceList sourceList;
+    AutoSaver autoSaver(settings.getGroup("autosaver"), &sourceList);
     auto t = new TargetTrace(settings.getGroup("targettrace"));
     auto notifier = Notifier::getInstance();
 

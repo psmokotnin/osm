@@ -21,6 +21,7 @@ SOURCES += src/main.cpp \
     src/chart/spectrogramplot.cpp \
     src/chart/stepplot.cpp \
     src/chart/coherenceplot.cpp \
+    src/common/autosaver.cpp \
     src/elc.cpp \
     src/filesystem/dialog.cpp \
     src/filesystem/dialogPlugin.cpp \
@@ -109,6 +110,7 @@ HEADERS += \
     src/chart/spectrogramplot.h \
     src/chart/stepplot.h \
     src/chart/coherenceplot.h \
+    src/common/autosaver.h \
     src/elc.h \
     src/filesystem/dialog.h \
     src/filesystem/dialogPlugin.h \
