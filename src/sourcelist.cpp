@@ -157,6 +157,7 @@ bool SourceList::save(const QUrl &fileName) const noexcept
         data.append(itemJson);
     }
     object["list"] = data;
+    object["selected"] = m_selected;
 
     QJsonDocument document(object);
     if (saveFile.write(document.toJson(QJsonDocument::JsonFormat::Compact)) != -1) {
@@ -331,6 +332,8 @@ bool SourceList::loadList(const QJsonDocument &document) noexcept
             break;
         }
     }
+    setSelected(document["selected"].toInt(-1));
+
     emit loaded();
     return true;
 }
