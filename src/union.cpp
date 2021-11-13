@@ -17,6 +17,8 @@
  */
 #include "union.h"
 #include "stored.h"
+#include "sourcelist.h"
+#include <QJsonArray>
 
 Union::Union(Settings *settings, QObject *parent): chart::Source(parent),
     m_settings(settings),
@@ -73,7 +75,7 @@ void Union::setCount(int count) noexcept
         update();
     }
 }
-void Union::setOperation(const Operation &operation) noexcept
+void Union::setOperation(Operation operation) noexcept
 {
     if (m_operation != operation) {
         m_operation = operation;
@@ -93,7 +95,7 @@ Union::Type Union::type() const
 {
     return m_type;
 }
-void Union::setType(const Type &type)
+void Union::setType(Type type)
 {
     if (m_type != type) {
         m_type = type;
@@ -419,16 +421,74 @@ void Union::applyAutoName() noexcept
     setName(typeMap.at(m_type) + " " + operationMap.at(m_operation));
 }
 
-QJsonObject Union::toJSON() const noexcept
+QJsonObject Union::toJSON(const SourceList *list) const noexcept
 {
-    QJsonObject data;
-    //TODO: do
-    return data;
+    QJsonObject object;
+    object["active"]    = active();
+    object["name"]      = name();
+
+    object["count"]     = count();
+    object["type"]      = type();
+    object["operation"] = operation();
+    object["autoName"]  = autoName();
+
+    QJsonObject color;
+    color["red"]    = m_color.red();
+    color["green"]  = m_color.green();
+    color["blue"]   = m_color.blue();
+    color["alpha"]  = m_color.alpha();
+    object["color"] = color;
+
+    QJsonArray sources;
+    if (list) {
+        for (int i = 0; i < count(); ++i) {
+            auto source = getSource(i);
+            auto index = list->indexOf(source);
+            sources.append(index);
+        }
+    }
+    object["sources"] = sources;
+
+    return object;
 }
-void Union::fromJSON(QJsonObject data) noexcept
+void Union::fromJSON(QJsonObject data, const SourceList *list) noexcept
 {
-    //TODO: do
-    Q_UNUSED(data)
+    setType(static_cast<Type>(data["type"].toInt()));
+    setOperation(static_cast<Operation>(data["operation"].toInt()));
+
+    auto jsonColor = data["color"].toObject();
+    QColor c(
+        jsonColor["red"  ].toInt(0),
+        jsonColor["green"].toInt(0),
+        jsonColor["blue" ].toInt(0),
+        jsonColor["alpha"].toInt(1));
+    setColor(c);
+
+    setName(data["name"].toString(name()));
+    setAutoName(data["autoName"].toBool(true));
+
+    auto connection = std::make_shared<QMetaObject::Connection>();
+    auto connection_ptr = connection.get();
+    auto fillSources = [ = ]() {
+        setCount(data["count"].toInt(count()));
+
+        auto sources = data["sources"].toArray();
+        for (int i = 0; i < sources.count(); i++) {
+            auto index = sources[i].toInt();
+
+            auto source = list->get(index);
+            if (source) {
+                setSource(i, source);
+            }
+        }
+
+        setActive(data["active"].toBool(active()));
+
+        if (connection) {
+            disconnect(*connection.get());
+        }
+    };
+    *connection_ptr = connect(list, &SourceList::loaded, fillSources);
 }
 
 Union::Operation Union::operation() const noexcept

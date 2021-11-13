@@ -65,16 +65,16 @@ public:
     Q_INVOKABLE chart::Source *getSource(int index) const noexcept;
     Q_INVOKABLE void setSource(int index, chart::Source *s) noexcept;
 
-    Q_INVOKABLE QJsonObject toJSON() const noexcept override;
-    void fromJSON(QJsonObject data) noexcept override;
+    Q_INVOKABLE QJsonObject toJSON(const SourceList *list = nullptr) const noexcept override;
+    void fromJSON(QJsonObject data, const SourceList *list = nullptr) noexcept override;
 
     Operation operation() const noexcept;
-    void setOperation(const Operation &operation) noexcept;
+    void setOperation(Operation operation) noexcept;
 
     void setActive(bool active) noexcept override;
 
     Type type() const;
-    void setType(const Type &type);
+    void setType(Type type);
 
     bool autoName() const;
     void setAutoName(bool autoName);

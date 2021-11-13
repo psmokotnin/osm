@@ -130,7 +130,7 @@ Measurement::~Measurement()
     m_timerThread.quit();
     m_timerThread.wait();
 }
-QJsonObject Measurement::toJSON() const noexcept
+QJsonObject Measurement::toJSON(const SourceList *) const noexcept
 {
     QJsonObject data;
     data["active"]          = active();
@@ -171,7 +171,7 @@ QJsonObject Measurement::toJSON() const noexcept
     data["calibration"] = calibration;
     return data;
 }
-void Measurement::fromJSON(QJsonObject data) noexcept
+void Measurement::fromJSON(QJsonObject data, const SourceList *) noexcept
 {
     auto castUInt = [](const QJsonValue & value, unsigned int defaultValue = 0) {
         return static_cast<unsigned int>(value.toInt(static_cast<int>(defaultValue)));

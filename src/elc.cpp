@@ -34,7 +34,7 @@ chart::Source *ELC::clone() const
     return cloned;
 }
 
-QJsonObject ELC::toJSON() const noexcept
+QJsonObject ELC::toJSON(const SourceList *) const noexcept
 {
     QJsonObject object;
     object["loudness"] = loudness();
@@ -51,7 +51,7 @@ QJsonObject ELC::toJSON() const noexcept
     return object;
 }
 
-void ELC::fromJSON(QJsonObject data) noexcept
+void ELC::fromJSON(QJsonObject data, const SourceList *) noexcept
 {
     auto jsonColor = data["color"].toObject();
     QColor c(

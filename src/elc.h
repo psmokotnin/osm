@@ -30,8 +30,8 @@ public:
     explicit ELC(QObject *parent = nullptr);
     Source *clone() const override;
 
-    Q_INVOKABLE QJsonObject toJSON() const noexcept override;
-    void fromJSON(QJsonObject data) noexcept override;
+    Q_INVOKABLE QJsonObject toJSON(const SourceList * = nullptr) const noexcept override;
+    void fromJSON(QJsonObject data, const SourceList * = nullptr) noexcept override;
 
     float loudness() const noexcept
     {
