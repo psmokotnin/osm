@@ -34,7 +34,7 @@ Item {
         RowLayout {
 
             DropDown {
-                model: ["Summation", "Subtraction", "Average"]
+                model: ["Summation", "Subtract", "Average"]
                 currentIndex: dataObject.operation
                 onCurrentIndexChanged: dataObject.operation = currentIndex;
                 Layout.preferredWidth: 150
@@ -54,7 +54,7 @@ Item {
 
             DropDown {
                 id: count
-                model: [2, 3, 4, 5, 6, 7, 8]
+                model: [2, 3, 4, 5, 6, 7, 8, 9, 10]
                 currentIndex: dataObject.count - 2
                 onCurrentIndexChanged: dataObject.count = currentIndex + 2;
                 displayText: currentIndex + 2
@@ -90,7 +90,7 @@ Item {
             NameField {
                 id:titleField
                 target: dataObject
-                implicitWidth: 100
+                implicitWidth: 120
                 Layout.alignment: Qt.AlignVCenter
                 onTextEdited: dataObject.autoName = false;
             }

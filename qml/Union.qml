@@ -53,6 +53,29 @@ Item {
                 text:  (dataModel ? dataModel.name : "")
             }
 
+            RowLayout {
+                Layout.maximumHeight: 7
+
+                Repeater {
+                    model: dataModel ? dataModel.count : 0
+
+                    Rectangle {
+                        property var source: dataModel ? dataModel.getSource(index) : null
+                        color: (source ? source.color : "transparent")
+                        width: 7
+                        height: 7
+                        visible: (source ? true : false)
+
+                        Connections {
+                            target: dataModel
+                            function onModelChanged() {
+                                source = dataModel.getSource(index);
+                            }
+                        }
+                    }
+                }
+            }
+
         }
 
         Connections {

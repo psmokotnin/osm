@@ -22,7 +22,7 @@ Union::Union(Settings *settings, QObject *parent): chart::Source(parent),
     m_settings(settings),
     m_sources(2),
     m_timer(nullptr), m_timerThread(nullptr),
-    m_operation(Sum),
+    m_operation(Summation),
     m_type(Vector),
     m_autoName(true)
 {
@@ -67,9 +67,11 @@ int Union::count() const noexcept
 void Union::setCount(int count) noexcept
 {
     std::lock_guard<std::mutex> guard(m_dataMutex);
-    m_sources.resize(count);
-    update();
-
+    if (m_sources.count() != count) {
+        m_sources.resize(count);
+        emit countChanged(count);
+        update();
+    }
 }
 void Union::setOperation(const Operation &operation) noexcept
 {
@@ -135,6 +137,7 @@ void Union::setSource(int index, chart::Source *s) noexcept
 
         if (s) connect(s, &chart::Source::readyRead, this, &Union::update);
         update();
+        emit modelChanged();
     }
 }
 void Union::update() noexcept
@@ -217,13 +220,13 @@ void Union::calcPolar(unsigned int count, chart::Source *primary) noexcept
         for (auto it = m_sources.begin(); it != m_sources.end(); ++it) {
             if (*it && it != m_sources.begin()) {
                 switch (m_operation) {
-                case Sum:
+                case Summation:
                 case Avg:
                     magnitude += (*it)->magnitudeRaw(i);
                     phase += (*it)->phase(i);
                     module += (*it)->module(i);
                     break;
-                case Diff:
+                case Subtract:
                     magnitude -= (*it)->magnitudeRaw(i);
                     phase -= (*it)->phase(i);
                     module -= (*it)->module(i);
@@ -264,12 +267,12 @@ void Union::calcVector(unsigned int count, chart::Source *primary) noexcept
         for (auto it = m_sources.begin(); it != m_sources.end(); ++it) {
             if (*it && it != m_sources.begin()) {
                 switch (m_operation) {
-                case Sum:
+                case Summation:
                 case Avg:
                     a += (*it)->phase(i) * (*it)->module(i);
                     m += (*it)->phase(i) * (*it)->magnitudeRaw(i);
                     break;
-                case Diff:
+                case Subtract:
                     a -= (*it)->phase(i) * (*it)->module(i);
                     m -= (*it)->phase(i) * (*it)->magnitudeRaw(i);
                     break;
@@ -308,13 +311,13 @@ void Union::calcdB(unsigned int count, chart::Source *primary) noexcept
         for (auto it = m_sources.begin(); it != m_sources.end(); ++it) {
             if (*it && it != m_sources.begin()) {
                 switch (m_operation) {
-                case Sum:
+                case Summation:
                 case Avg:
                     magnitude += (*it)->magnitude(i);
                     phase += (*it)->phase(i);
                     module += 20.f * std::log10f((*it)->module(i));
                     break;
-                case Diff:
+                case Subtract:
                     magnitude -= (*it)->magnitude(i);
                     phase -= (*it)->phase(i);
                     module -= 20.f * std::log10f((*it)->module(i));
@@ -359,13 +362,13 @@ void Union::calcPower(unsigned int count, chart::Source *primary) noexcept
         for (auto it = m_sources.begin(); it != m_sources.end(); ++it) {
             if (*it && it != m_sources.begin()) {
                 switch (m_operation) {
-                case Sum:
+                case Summation:
                 case Avg:
                     magnitude += std::pow((*it)->magnitudeRaw(i), 2);
                     phase += (*it)->phase(i);
                     module += std::pow((*it)->module(i), 2);
                     break;
-                case Diff:
+                case Subtract:
                     magnitude -= std::pow((*it)->magnitudeRaw(i), 2);
                     phase -= (*it)->phase(i);
                     module -= std::pow((*it)->module(i), 2);
@@ -380,7 +383,7 @@ void Union::calcPower(unsigned int count, chart::Source *primary) noexcept
             magnitude /= count;
             phase /= count;
             module /= count;
-        } else if (m_operation == Diff) {
+        } else if (m_operation == Subtract) {
             magnitude = std::abs(magnitude);
             module    = std::abs(module);
         }
