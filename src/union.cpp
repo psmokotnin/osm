@@ -53,11 +53,14 @@ Union::~Union()
 chart::Source *Union::clone() const
 {
     auto cloned = new Union(nullptr, parent());
-    cloned->m_sources = m_sources;
+
     cloned->setOperation(operation());
     cloned->setType(type());
     cloned->setName(name());
     cloned->setActive(active());
+    for (int i = 0; i < count(); ++i) {
+        cloned->setSource(i, getSource(i));
+    }
     return cloned;
 }
 
@@ -144,8 +147,9 @@ void Union::setSource(int index, chart::Source *s) noexcept
 }
 void Union::update() noexcept
 {
-    if (!m_timer.isActive())
+    if (!m_timer.isActive()) {
         emit needUpdate();
+    }
 }
 void Union::calc() noexcept
 {
