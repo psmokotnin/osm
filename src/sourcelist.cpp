@@ -28,6 +28,7 @@
 
 SourceList::SourceList(QObject *parent, bool appendMeasurement) :
     QObject(parent),
+    m_items(0),
     m_currentFile(),
     m_colorIndex(3),
     m_selected(-1)

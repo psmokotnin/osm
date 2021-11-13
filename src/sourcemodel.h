@@ -37,9 +37,9 @@ public:
     explicit SourceModel(QObject *parent = nullptr);
 
     enum {
-        SourceRole = Qt::UserRole,
-        NameRole    = 1,
-        TitleRole   = 2
+        SourceRole  = Qt::UserRole,
+        NameRole    = Qt::UserRole + 1,
+        TitleRole   = Qt::UserRole + 2
     };
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;

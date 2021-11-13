@@ -20,10 +20,11 @@
 
 Union::Union(Settings *settings, QObject *parent): chart::Source(parent),
     m_settings(settings),
-    m_sources(4),
+    m_sources(2),
     m_timer(nullptr), m_timerThread(nullptr),
     m_operation(Sum),
-    m_type(Vector)
+    m_type(Vector),
+    m_autoName(true)
 {
     m_name = "Union";
     m_sources.fill(nullptr);
@@ -32,11 +33,14 @@ Union::Union(Settings *settings, QObject *parent): chart::Source(parent),
     m_timer.setInterval(80);//12.5 per sec
     m_timer.setSingleShot(true);
     m_timer.moveToThread(&m_timerThread);
+    connect(this, &Union::operationChanged, &Union::applyAutoName);
+    connect(this, &Union::typeChanged, &Union::applyAutoName);
     connect(&m_timer, SIGNAL(timeout()), SLOT(calc()), Qt::DirectConnection);
     connect(this, SIGNAL(needUpdate()), &m_timer, SLOT(start()));
     connect(&m_timerThread, SIGNAL(finished()), &m_timer, SLOT(stop()), Qt::DirectConnection);
     m_timerThread.start();
     init();
+    applyAutoName();
 }
 Union::~Union()
 {
@@ -167,6 +171,10 @@ void Union::calc() noexcept
             }
             count ++;
         }
+    }
+    if (count < 2) {
+        setActive(false);
+        return;
     }
 
     //lock each unique source, prevent deadlock
@@ -388,6 +396,26 @@ void Union::calcPower(unsigned int count, chart::Source *primary) noexcept
         m_ftdata[i].coherence  = coherence;
     }
 }
+
+bool Union::autoName() const
+{
+    return m_autoName;
+}
+
+void Union::setAutoName(bool autoName)
+{
+    m_autoName = autoName;
+    emit autoNameChanged();
+}
+
+void Union::applyAutoName() noexcept
+{
+    if (!m_autoName) {
+        return;
+    }
+    setName(typeMap.at(m_type) + " " + operationMap.at(m_operation));
+}
+
 QJsonObject Union::toJSON() const noexcept
 {
     QJsonObject data;

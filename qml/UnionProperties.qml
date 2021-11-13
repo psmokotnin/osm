@@ -92,6 +92,7 @@ Item {
                 target: dataObject
                 implicitWidth: 100
                 Layout.alignment: Qt.AlignVCenter
+                onTextEdited: dataObject.autoName = false;
             }
 
             Button {

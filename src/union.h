@@ -32,6 +32,7 @@ class Union : public chart::Source
     Q_OBJECT
 
     Q_PROPERTY(int count READ count WRITE setCount NOTIFY countChanged)
+    Q_PROPERTY(bool autoName READ autoName WRITE setAutoName NOTIFY autoNameChanged)
     Q_PROPERTY(Operation operation READ operation WRITE setOperation NOTIFY operationChanged)
     Q_PROPERTY(Type type READ type WRITE setType NOTIFY typeChanged)
 
@@ -75,16 +76,21 @@ public:
     Type type() const;
     void setType(const Type &type);
 
+    bool autoName() const;
+    void setAutoName(bool autoName);
+
 public slots:
     void update() noexcept;
     void calc() noexcept;
     QObject *store();
+    void applyAutoName() noexcept;
 
 signals:
     void countChanged(int);
-    void operationChanged(Operation);
+    void operationChanged(Union::Operation);
     void needUpdate();
     void typeChanged();
+    void autoNameChanged();
 
 private:
     void init() noexcept;
@@ -100,5 +106,6 @@ private:
     QThread m_timerThread;
     Operation m_operation;
     Type m_type;
+    bool m_autoName;
 };
 #endif // UNION_H
