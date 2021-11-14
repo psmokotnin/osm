@@ -83,6 +83,14 @@ Item {
         from:       Math.round(floatspinbox.min * floatspinbox.scale * Math.pow(10, floatspinbox.decimals))
         to:         Math.round(floatspinbox.max * floatspinbox.scale * Math.pow(10, floatspinbox.decimals))
         stepSize:   Math.round(floatspinbox.step * Math.pow(10, floatspinbox.decimals))
+        Keys.onPressed: {
+            if (event.modifiers & Qt.ShiftModifier) {
+                stepSize = Math.round(floatspinbox.step * Math.pow(10, floatspinbox.decimals)) / 10;
+            }
+        }
+        Keys.onReleased: {
+            stepSize = Math.round(floatspinbox.step * Math.pow(10, floatspinbox.decimals));
+        }
         editable:   floatspinbox.editable
         ToolTip.visible: (tooltiptext ? hovered : false)
         ToolTip.text: floatspinbox.tooltiptext
