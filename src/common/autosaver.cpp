@@ -52,6 +52,7 @@ AutoSaver::~AutoSaver()
 {
     m_timerThread.quit();
     m_timerThread.wait();
+    save();
 }
 
 SourceList *AutoSaver::list() const
