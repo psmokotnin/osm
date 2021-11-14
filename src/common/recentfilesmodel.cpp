@@ -18,7 +18,8 @@
 #include "recentfilesmodel.h"
 #include "settings.h"
 
-RecentFilesModel::RecentFilesModel(QObject *parent) : QAbstractListModel(parent), m_settings(nullptr), m_fileurls()
+RecentFilesModel::RecentFilesModel(QObject *parent) : QAbstractListModel(parent), m_settings(nullptr), m_fileurls(),
+    m_projectFolder()
 {
     connect(this, &QAbstractListModel::modelReset, this, &RecentFilesModel::countChanged);
 }
@@ -67,6 +68,20 @@ void RecentFilesModel::clear()
     endResetModel();
 }
 
+QString RecentFilesModel::projectFolder() const
+{
+    return m_projectFolder;
+}
+
+void RecentFilesModel::storeProjectFolder(QUrl url)
+{
+    QFileInfo file(url.toString());
+    m_projectFolder = file.dir().path();
+    emit projectFolderChanged();
+
+    m_settings->setValue("projectFolder", m_projectFolder);
+}
+
 Settings *RecentFilesModel::settings() const
 {
     return m_settings;
@@ -77,9 +92,11 @@ void RecentFilesModel::setSettings(Settings *settings)
     m_settings = settings;
     beginResetModel();
     m_fileurls = m_settings->value("filenames").toList();
+    m_projectFolder = m_settings->value("projectFolder").toString();
     endResetModel();
 
     emit settingsChanged();
+    emit projectFolderChanged();
 }
 
 int RecentFilesModel::count() const

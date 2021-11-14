@@ -101,12 +101,33 @@ MenuBar {
             RecentFilesModel {
                 id: recentFilesModel
                 settings: applicationSettings.getGroup("recentFiles");
+                onProjectFolderChanged: {
+                    let folder = recentFilesModel.projectFolder();
+                    if (folder) {
+                        openDialog.folder = folder;
+                        saveDialog.folder = folder;
+                    }
+                }
             }
 
             Connections {
                 target: sourceList
                 function onLoaded(url) {
                     recentFilesModel.addUrl(url);
+                }
+            }
+
+            Connections {
+                target: saveDialog
+                function onAccepted() {
+                    recentFilesModel.storeProjectFolder(saveDialog.fileUrl);
+                }
+            }
+
+            Connections {
+                target: openDialog
+                function onAccepted() {
+                    recentFilesModel.storeProjectFolder(openDialog.fileUrl);
                 }
             }
 

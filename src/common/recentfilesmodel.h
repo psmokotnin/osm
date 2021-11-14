@@ -42,6 +42,9 @@ public:
     Q_INVOKABLE QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
     Q_INVOKABLE void clear();
 
+    Q_INVOKABLE QString projectFolder() const;
+    Q_INVOKABLE void storeProjectFolder(QUrl url);
+
     Settings *settings() const;
     void setSettings(Settings *settings);
 
@@ -53,12 +56,14 @@ public slots:
 signals:
     void settingsChanged();
     void countChanged();
+    void projectFolderChanged();
 
 private:
     void store();
 
     Settings *m_settings;
     QList<QVariant> m_fileurls;
+    QString m_projectFolder;
 };
 
 #endif // RECENTFILESMODEL_H
