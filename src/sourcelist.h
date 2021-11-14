@@ -88,10 +88,10 @@ signals:
     void postItemMoved();
 
     void selectedChanged();
-    void loaded();
+    void loaded(QUrl fileName);
 
 private:
-    bool loadList(const QJsonDocument &document) noexcept;
+    bool loadList(const QJsonDocument &document, const QUrl &fileName) noexcept;
     template<typename T> bool loadObject(const QJsonObject &data) noexcept;
     template<typename T> T *add() noexcept;
     bool importFile(const QUrl &fileName, QString separator) noexcept;

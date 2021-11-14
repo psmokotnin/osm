@@ -2,8 +2,9 @@ TEMPLATE = app
 
 QT += qml quick quickcontrols2 core
 CONFIG += c++1z
-CONFIG+=sdk_no_version_check
-QML_IMPORT_NAME = OpenSoundMeter
+CONFIG += sdk_no_version_check
+CONFIG += qmltypes
+QML_IMPORT_NAME = OpenSoundMeterModule
 QML_IMPORT_MAJOR_VERSION = 1
 
 SOURCES += src/main.cpp \
@@ -22,6 +23,7 @@ SOURCES += src/main.cpp \
     src/chart/stepplot.cpp \
     src/chart/coherenceplot.cpp \
     src/common/autosaver.cpp \
+    src/common/recentfilesmodel.cpp \
     src/elc.cpp \
     src/filesystem/dialog.cpp \
     src/filesystem/dialogPlugin.cpp \
@@ -94,7 +96,10 @@ qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
-INCLUDEPATH += src
+INCLUDEPATH += \
+    src \
+    src/common
+
 HEADERS += \
     src/audio/client.h \
     src/audio/deviceinfo.h \
@@ -111,6 +116,7 @@ HEADERS += \
     src/chart/stepplot.h \
     src/chart/coherenceplot.h \
     src/common/autosaver.h \
+    src/common/recentfilesmodel.h \
     src/elc.h \
     src/filesystem/dialog.h \
     src/filesystem/dialogPlugin.h \

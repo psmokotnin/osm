@@ -189,7 +189,7 @@ bool SourceList::load(const QUrl &fileName) noexcept
         switch (typeMap.at(loadedDocument["type"].toString())) {
         case ListType:
             m_currentFile = fileName;
-            return loadList(loadedDocument);
+            return loadList(loadedDocument, fileName);
 
         case StoredType:
             return loadObject<Stored>(loadedDocument["data"].toObject());
@@ -295,7 +295,7 @@ void SourceList::setSelected(int selected)
     }
 }
 
-bool SourceList::loadList(const QJsonDocument &document) noexcept
+bool SourceList::loadList(const QJsonDocument &document, const QUrl &fileName) noexcept
 {
     enum LoadType {MeasurementType, StoredType, UnionType, ElcType};
     static std::map<QString, LoadType> typeMap = {
@@ -334,7 +334,7 @@ bool SourceList::loadList(const QJsonDocument &document) noexcept
     }
     setSelected(document["selected"].toInt(-1));
 
-    emit loaded();
+    emit loaded(fileName);
     return true;
 }
 template<typename T> bool SourceList::loadObject(const QJsonObject &data) noexcept
