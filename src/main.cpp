@@ -113,6 +113,7 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("generatorModel", &g);
     engine.rootContext()->setContextProperty("targetTraceModel", t);
     engine.rootContext()->setContextProperty("notifier", notifier);
+    engine.rootContext()->setContextProperty("autoSaver", &autoSaver);
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
 
     if (engine.rootObjects().isEmpty())

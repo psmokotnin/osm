@@ -20,6 +20,7 @@
 
 #include <QTimer>
 #include <QThread>
+#include <QtQml>
 
 class SourceList;
 class Settings;
@@ -28,6 +29,7 @@ class QSettings;
 class AutoSaver : public QObject
 {
     Q_OBJECT
+    QML_ELEMENT
     const QString FILE_KEY = "filename";
 
 public:
@@ -37,11 +39,12 @@ public:
     SourceList *list() const;
     QUrl fileName() const;
 
+    Q_INVOKABLE void save();
+
 signals:
 
 private:
     void load();
-    void save();
 
     Settings *m_settings;
     QTimer m_timer;

@@ -52,7 +52,6 @@ AutoSaver::~AutoSaver()
 {
     m_timerThread.quit();
     m_timerThread.wait();
-    save();
 }
 
 SourceList *AutoSaver::list() const
@@ -64,7 +63,9 @@ QUrl AutoSaver::fileName() const
 {
     QDir dir(m_qsettings->fileName());
     dir.cdUp();
-
+    if (!dir.exists()) {
+        dir.mkpath(".");
+    }
     return "file:/" + dir.absolutePath() + "/autosave.osm";
 }
 
@@ -86,6 +87,7 @@ void AutoSaver::load()
 
 void AutoSaver::save()
 {
+
     auto url = fileName();
     if (list()->save(url)) {
         m_settings->setValue(FILE_KEY, url);

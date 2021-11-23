@@ -402,8 +402,8 @@ unix:!macx:!ios:CONFIG(release, debug|release) {
 FORMS +=
 
 #win32:QMAKE_CXXFLAGS += -m64 -msse2
-QMAKE_CXXFLAGS_RELEASE -= -O2
-QMAKE_CXXFLAGS_RELEASE += -Ofast
+#QMAKE_CXXFLAGS_RELEASE -= -O2
+#QMAKE_CXXFLAGS_RELEASE += -Ofast
 
 macx {
     QMAKE_INFO_PLIST = $$PWD/Info.plist

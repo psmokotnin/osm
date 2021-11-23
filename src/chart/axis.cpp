@@ -191,6 +191,10 @@ void Axis::paint(QPainter *painter) noexcept
         static_cast<int>(heightf() - padding.top  - padding.bottom) + 1
     );
     auto setPoints = [&](float value) {
+        if (value != value) {//isnan
+            return;
+        }
+
         try {
             float lv = value - m_offset / scale();
 
@@ -216,8 +220,8 @@ void Axis::paint(QPainter *painter) noexcept
                                  padding.bottom - t));
         p2.setY(static_cast<int>(m_direction == Horizontal ? padding.top : heightf() - padding.bottom - t));
     };
-    for_each(m_labels.begin(), m_labels.end(), [&](float & l) {
 
+    for_each(m_labels.begin(), m_labels.end(), [&](float & l) {
         setPoints(l);
         //do not draw lines out of padding
         if (!limit.contains(p1) || !limit.contains(p2) )
