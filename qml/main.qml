@@ -89,6 +89,7 @@ ApplicationWindow {
     }
     function closeAccepted() {
         askBeforeClose = false;
+        autoSaver.stop();
         autoSaver.save();
         close();
     }

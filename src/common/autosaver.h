@@ -40,6 +40,7 @@ public:
     QUrl fileName() const;
 
     Q_INVOKABLE void save();
+    Q_INVOKABLE void stop();
 
 signals:
 

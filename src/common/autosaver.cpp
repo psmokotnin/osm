@@ -50,8 +50,10 @@ AutoSaver::AutoSaver(Settings *settings, SourceList *parent) : QObject(parent),
 
 AutoSaver::~AutoSaver()
 {
-    m_timerThread.quit();
-    m_timerThread.wait();
+    if (m_timerThread.isRunning()) {
+        m_timerThread.quit();
+        m_timerThread.wait();
+    }
 }
 
 SourceList *AutoSaver::list() const
@@ -92,4 +94,10 @@ void AutoSaver::save()
     if (list()->save(url)) {
         m_settings->setValue(FILE_KEY, url);
     }
+}
+
+void AutoSaver::stop()
+{
+    m_timerThread.quit();
+    m_timerThread.wait();
 }
