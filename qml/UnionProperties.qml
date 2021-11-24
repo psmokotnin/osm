@@ -64,7 +64,7 @@ Item {
             }
 
             Label {
-                text: qsTr("Sources must have the transform mode")
+                text: qsTr("Sources must have the same transform mode")
                 Layout.fillWidth: true
                 horizontalAlignment: Text.AlignHCenter
                 wrapMode: Text.WordWrap
