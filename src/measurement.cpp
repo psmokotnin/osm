@@ -50,7 +50,7 @@ Measurement::Measurement(Settings *settings, QObject *parent) : chart::Source(pa
     m_mode(FFT14), m_currentMode(),
     m_dataChanel(0), m_referenceChanel(1),
     m_average(1),
-    m_workingDelay(0), m_delay(0), m_gain(1.f),
+    m_workingDelay(0), m_delay(0), m_delayFinderCounter(0), m_gain(1.f),
     m_estimatedDelay(0),
     m_polarity(false), m_error(false),
     m_dataMeter(12000), m_referenceMeter(12000), //250ms
@@ -100,6 +100,8 @@ Measurement::Measurement(Settings *settings, QObject *parent) : chart::Source(pa
 
     m_deconvolution.setSize(m_deconvolutionSize);
     m_deconvolution.setWindowFunctionType(m_windowFunctionType);
+    m_delayFinder.setSize(pow(2, 16));
+    m_delayFinder.setWindowFunctionType(m_windowFunctionType);
     m_impulseData = new TimeData[m_deconvolutionSize];
     m_deconvLPFs.resize(m_deconvolutionSize);
     m_deconvAvg.setSize(m_deconvolutionSize);
@@ -506,6 +508,7 @@ void Measurement::setWindowType(WindowFunction::Type type)
         m_windowFunctionType = type;
         m_dataFT.setWindowFunctionType(m_windowFunctionType);
         m_deconvolution.setWindowFunctionType(m_windowFunctionType);
+        m_delayFinder.setWindowFunctionType(m_windowFunctionType);
         {
             std::lock_guard<std::mutex> guard(m_dataMutex);
             m_dataFT.prepare();
@@ -572,9 +575,14 @@ void Measurement::transform()
 
         m_dataFT.add(d, r);
         m_deconvolution.add(r, d);
+        m_delayFinder.add(r, d);
     }
     m_dataFT.transform(true);
     m_deconvolution.transform();
+    if ((++m_delayFinderCounter % 25) == 0) {
+        m_delayFinder.transform();
+        m_delayFinderCounter = 0;
+    }
     averaging();
     unlock();
     emit readyRead();
@@ -658,13 +666,9 @@ void Measurement::averaging()
             m_impulseData[j].value.real = m_deconvAvg.value(i);
             break;
         }
-
-        if (max < abs(m_impulseData[j].value.real)) {
-            max = abs(m_impulseData[j].value.real);
-            m_estimatedDelay = i;
-        }
         m_impulseData[j].time  = t * kt;//ms
     }
+    m_estimatedDelay = m_delayFinder.maxIndex();
     emit estimatedChanged();
 }
 QObject *Measurement::store()
@@ -751,16 +755,16 @@ chart::Source *Measurement::clone() const
 }
 long Measurement::estimated() const noexcept
 {
-    if (m_estimatedDelay > m_deconvolutionSize / 2) {
-        return m_estimatedDelay - m_deconvolutionSize + static_cast<long>(m_workingDelay);
+    if (m_estimatedDelay > m_delayFinder.size() / 2) {
+        return m_estimatedDelay - m_delayFinder.size() + static_cast<long>(m_workingDelay);
     }
     return m_estimatedDelay + static_cast<long>(m_workingDelay);
 }
 
 long Measurement::estimatedDelta() const noexcept
 {
-    if (m_estimatedDelay > m_deconvolutionSize / 2) {
-        return m_estimatedDelay - m_deconvolutionSize;
+    if (m_estimatedDelay > m_delayFinder.size() / 2) {
+        return m_estimatedDelay - m_delayFinder.size();
     }
     return m_estimatedDelay;
 }

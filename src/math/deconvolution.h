@@ -24,11 +24,6 @@
 
 class Deconvolution
 {
-private:
-    unsigned int m_size;
-    container::array<float> m_data;
-    FourierTransform m_fft, m_ifft;
-
 public:
     explicit Deconvolution(unsigned int size = 8);
     ~Deconvolution() = default;
@@ -37,6 +32,15 @@ public:
     float get(const unsigned int i) const;
     void setSize(unsigned int size);
     void setWindowFunctionType(WindowFunction::Type type);
+
+    unsigned int maxIndex() const;
+    unsigned int size() const;
+
+private:
+    unsigned int m_size, m_maxIndex;
+    float m_norm;
+    container::array<float> m_data;
+    FourierTransform m_fft, m_ifft;
 };
 
 #endif // DECONVOLUTION_H

@@ -176,7 +176,7 @@ private:
     unsigned int m_dataChanel, m_referenceChanel;
     unsigned int m_average;
     bool m_resetDelay;
-    unsigned int m_workingDelay, m_delay;
+    unsigned int m_workingDelay, m_delay, m_delayFinderCounter;
     float m_gain;
     long m_estimatedDelay;
     bool m_polarity, m_error;
@@ -186,7 +186,7 @@ private:
 
     WindowFunction::Type m_windowFunctionType;
     FourierTransform m_dataFT;
-    Deconvolution m_deconvolution;
+    Deconvolution m_deconvolution, m_delayFinder;
 
     Averaging<float> m_deconvAvg;
     AverageType m_averageType;

@@ -28,37 +28,11 @@ class FourierTransform
 public:
     enum Type {Fast, Log};
 
-private:
-    unsigned int m_size;
-    unsigned int m_pointer;
-    Type m_type;
-    WindowFunction m_window;
-
-    //! income data channel
-    container::array<float> m_inA, m_inB;
-
-    //! fft swap map
-    container::array<unsigned int> m_swapMap;
-
-    struct LogBasisVector {
-        unsigned int N;
-        float frequency;
-        std::vector<v4sf> w;
-    };
-    container::array<LogBasisVector> m_logBasis;
-
-    //! containers for fast transform
-    container::array<complex> m_fastA, m_fastB, m_wlen;
-
-public:
     FourierTransform(unsigned int size = 2);
 
     //! set input buffer size
     void setSize(unsigned int size);
-    unsigned int size() const
-    {
-        return m_size;
-    }
+    unsigned int size() const;
 
     //! set transform type
     void setType(Type type);
@@ -79,10 +53,7 @@ public:
     void fast(bool reverse = false, bool ultrafast = false);
 
     //! run FFT with setted ultrafast
-    void ufast()
-    {
-        fast(false, true);
-    }
+    void ufast();
 
     //! run transform
     void transform(bool ultra = false);
@@ -105,15 +76,39 @@ public:
     //! return i in fast transform for given frequency and sampleRate
     long f2i(double frequency, int sampleRate) const;
 
-    unsigned long pointer() const
-    {
-        return m_pointer;
-    }
+    //! return current position in circular buffer
+    unsigned long pointer() const;
+
+    //! return value in input buffer at current position
+    float aIn() const;
+    float bIn() const;
 
     //! return fast transform result for channel A
     complex af(unsigned int i) const;
     //! return fast transform result for channel B
     complex bf(unsigned int i) const;
+
+private:
+    unsigned int m_size;
+    unsigned int m_pointer;
+    Type m_type;
+    WindowFunction m_window;
+
+    //! income data channel
+    container::array<float> m_inA, m_inB;
+
+    //! fft swap map
+    container::array<unsigned int> m_swapMap;
+
+    struct LogBasisVector {
+        unsigned int N;
+        float frequency;
+        std::vector<v4sf> w;
+    };
+    container::array<LogBasisVector> m_logBasis;
+
+    //! containers for fast transform
+    container::array<complex> m_fastA, m_fastB, m_wlen;
 };
 
 #endif // FOURIERTRANSFORM_H
