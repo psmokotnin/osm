@@ -40,42 +40,18 @@ class SourceList : public QObject
     Q_PROPERTY(chart::Source *selected READ selected NOTIFY selectedChanged)
     using iterator = QVector<chart::Source *>::iterator;
 
-private:
-    QVector<chart::Source *> m_items;
-    QUrl m_currentFile;
-    const QList<QColor> m_colors {
-        "#F44336", "#FFEB3B", "#9C27B0", "#673AB7",
-        "#3F51B5", "#2196F3", "#03A9F4", "#00BCD4",
-        "#009688", "#4CAF50", "#8BC34A", "#CDDC39",
-        "#E91E63", "#FFC107", "#FF9800", "#FF5722",
-        "#795548", "#9E9E9E", "#607D8B"
-    };
-    int m_colorIndex;
-    int m_selected;
-
-    bool loadList(const QJsonDocument &document) noexcept;
-    bool loadMeasurement(const QJsonObject &data) noexcept;
-    bool loadStored(const QJsonObject &data) noexcept;
-    bool importFile(const QUrl &fileName, QString separator) noexcept;
-
 public:
     explicit SourceList(QObject *parent = nullptr, bool appendMeasurement = true);
     SourceList *clone(QObject *parent, bool filtered = false) const noexcept;
 
-    chart::Source *firstSource() const noexcept
-    {
-        return m_items.at(0);
-    }
-
+    int count() const noexcept;
+    chart::Source *firstSource() const noexcept;
     const QVector<chart::Source *> &items() const;
     SourceList::iterator begin() noexcept;
     SourceList::iterator end() noexcept;
 
-    int count() const noexcept;
-    QUrl currentFile() const noexcept
-    {
-        return m_currentFile;
-    }
+    QUrl currentFile() const noexcept;
+
     Q_INVOKABLE chart::Source *get(int i) const noexcept;
     Q_INVOKABLE void clean() noexcept;
     Q_INVOKABLE void reset() noexcept;
@@ -91,6 +67,16 @@ public:
     chart::Source *selected() const noexcept;
     void setSelected(int selected);
 
+public slots:
+    Q_INVOKABLE QColor nextColor();
+    Q_INVOKABLE Measurement *addMeasurement();
+    Q_INVOKABLE Union *addUnion();
+    Q_INVOKABLE ELC *addElc();
+    Q_INVOKABLE void appendItem(chart::Source *item, bool autocolor = false);
+    Q_INVOKABLE void removeItem(chart::Source *item, bool deleteItem = true);
+    Q_INVOKABLE void cloneItem(chart::Source *item);
+    void appendNone();
+
 signals:
     void preItemAppended();
     void postItemAppended(chart::Source *);
@@ -102,16 +88,25 @@ signals:
     void postItemMoved();
 
     void selectedChanged();
+    void loaded(QUrl fileName);
 
-public slots:
-    Q_INVOKABLE QColor nextColor();
-    Q_INVOKABLE Measurement *addMeasurement();
-    Q_INVOKABLE Union *addUnion();
-    Q_INVOKABLE ELC *addElc();
-    Q_INVOKABLE void appendItem(chart::Source *item, bool autocolor = false);
-    Q_INVOKABLE void removeItem(chart::Source *item, bool deleteItem = true);
-    Q_INVOKABLE void cloneItem(chart::Source *item);
-    void appendNone();
+private:
+    bool loadList(const QJsonDocument &document, const QUrl &fileName) noexcept;
+    template<typename T> bool loadObject(const QJsonObject &data) noexcept;
+    template<typename T> T *add() noexcept;
+    bool importFile(const QUrl &fileName, QString separator) noexcept;
+
+    QVector<chart::Source *> m_items;
+    QUrl m_currentFile;
+    const QList<QColor> m_colors {
+        "#F44336", "#FFEB3B", "#9C27B0", "#673AB7",
+        "#3F51B5", "#2196F3", "#03A9F4", "#00BCD4",
+        "#009688", "#4CAF50", "#8BC34A", "#CDDC39",
+        "#E91E63", "#FFC107", "#FF9800", "#FF5722",
+        "#795548", "#9E9E9E", "#607D8B"
+    };
+    int m_colorIndex;
+    int m_selected;
 };
 
 #endif // SOURCELIST_H

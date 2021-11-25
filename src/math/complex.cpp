@@ -32,6 +32,13 @@ const complex complex::conjugate() const
     rc.imag = -1 * imag;
     return rc;
 }
+
+const complex complex::normalize() const
+{
+    complex rc {real, imag};
+    rc /= abs();
+    return rc;
+}
 //TODO: use vector
 const complex complex::rotate(const float &a) const
 {

@@ -28,12 +28,13 @@
 
 SourceList::SourceList(QObject *parent, bool appendMeasurement) :
     QObject(parent),
+    m_items(0),
     m_currentFile(),
     m_colorIndex(3),
     m_selected(-1)
 {
     if (appendMeasurement) {
-        addMeasurement();
+        add<Measurement>();
     }
 }
 SourceList *SourceList::clone(QObject *parent, bool filtered) const noexcept
@@ -59,6 +60,12 @@ SourceList *SourceList::clone(QObject *parent, bool filtered) const noexcept
 
     return list;
 }
+
+chart::Source *SourceList::firstSource() const noexcept
+{
+    return m_items.at(0);
+}
+
 const QVector<chart::Source *> &SourceList::items() const
 {
     return m_items;
@@ -76,6 +83,10 @@ int SourceList::count() const noexcept
 {
     return m_items.size();
 }
+QUrl SourceList::currentFile() const noexcept
+{
+    return m_currentFile;
+}
 chart::Source *SourceList::get(int i) const noexcept
 {
     if (i < 0 || i >= m_items.size())
@@ -83,7 +94,6 @@ chart::Source *SourceList::get(int i) const noexcept
 
     return m_items.at(i);
 }
-
 void SourceList::clean() noexcept
 {
     m_selected = -1;
@@ -100,7 +110,7 @@ void SourceList::clean() noexcept
 void SourceList::reset() noexcept
 {
     clean();
-    addMeasurement();
+    add<Measurement>();
 }
 bool SourceList::move(int from, int to) noexcept
 {
@@ -143,10 +153,11 @@ bool SourceList::save(const QUrl &fileName) const noexcept
         auto item = m_items.at(i);
         QJsonObject itemJson;
         itemJson["type"] = item->objectName();
-        itemJson["data"] = item->toJSON();
+        itemJson["data"] = item->toJSON(this);
         data.append(itemJson);
     }
     object["list"] = data;
+    object["selected"] = m_selected;
 
     QJsonDocument document(object);
     if (saveFile.write(document.toJson(QJsonDocument::JsonFormat::Compact)) != -1) {
@@ -168,20 +179,20 @@ bool SourceList::load(const QUrl &fileName) noexcept
     if (loadedDocument.isNull() || loadedDocument.isEmpty())
         return false;
 
-    enum LoadType {List, Stored};
+    enum LoadType {ListType, StoredType};
     static std::map<QString, LoadType> typeMap = {
-        {"sourcelsist", List},
-        {"stored",      Stored},
+        {"sourcelsist", ListType},
+        {"stored",      StoredType},
     };
 
     if (typeMap.find(loadedDocument["type"].toString()) != typeMap.end()) {
         switch (typeMap.at(loadedDocument["type"].toString())) {
-        case List:
+        case ListType:
             m_currentFile = fileName;
-            return loadList(loadedDocument);
+            return loadList(loadedDocument, fileName);
 
-        case Stored:
-            return loadStored(loadedDocument["data"].toObject());
+        case StoredType:
+            return loadObject<Stored>(loadedDocument["data"].toObject());
         }
     }
 
@@ -284,12 +295,14 @@ void SourceList::setSelected(int selected)
     }
 }
 
-bool SourceList::loadList(const QJsonDocument &document) noexcept
+bool SourceList::loadList(const QJsonDocument &document, const QUrl &fileName) noexcept
 {
-    enum LoadType {Measurement, Stored};
+    enum LoadType {MeasurementType, StoredType, UnionType, ElcType};
     static std::map<QString, LoadType> typeMap = {
-        {"Measurement", Measurement},
-        {"Stored",      Stored},
+        {"Measurement", MeasurementType},
+        {"Stored",      StoredType},
+        {"Union",       UnionType},
+        {"ELC",         ElcType},
     };
 
     clean();
@@ -302,58 +315,57 @@ bool SourceList::loadList(const QJsonDocument &document) noexcept
             continue;
 
         switch (typeMap.at(object["type"].toString())) {
-        case Measurement:
-            loadMeasurement(object["data"].toObject());
+        case MeasurementType:
+            loadObject<Measurement>(object["data"].toObject());
             break;
 
-        case Stored:
-            loadStored(object["data"].toObject());
+        case StoredType:
+            loadObject<Stored>(object["data"].toObject());
+            break;
+
+        case UnionType:
+            loadObject<Union>(object["data"].toObject());
+            break;
+
+        case ElcType:
+            loadObject<ELC>(object["data"].toObject());
             break;
         }
     }
+    setSelected(document["selected"].toInt(-1));
+
+    emit loaded(fileName);
     return true;
 }
-bool SourceList::loadMeasurement(const QJsonObject &data) noexcept
+template<typename T> bool SourceList::loadObject(const QJsonObject &data) noexcept
 {
     if (data.isEmpty())
         return false;
 
-    auto *m = new Measurement();
-    m->fromJSON(data);
-    appendItem(m, false);
-    nextColor();
-
-    return true;
-}
-bool SourceList::loadStored(const QJsonObject &data) noexcept
-{
-    if (data.isEmpty())
-        return false;
-
-    auto s = new Stored();
-    s->fromJSON(data);
+    auto s = new T();
+    s->fromJSON(data, this);
     appendItem(s, false);
     nextColor();
     return true;
 }
+template<typename T> T *SourceList::add() noexcept
+{
+    auto *t = new T();
+    appendItem(t, true);
+    return t;
+}
 Union *SourceList::addUnion()
 {
-    auto *s = new Union();
-    appendItem(s, true);
-    return s;
+    return add<Union>();
 }
 
 ELC *SourceList::addElc()
 {
-    auto *s = new ELC();
-    appendItem(s, true);
-    return s;
+    return add<ELC>();
 }
 Measurement *SourceList::addMeasurement()
 {
-    auto *m = new Measurement();
-    appendItem(m, true);
-    return m;
+    return add<Measurement>();
 }
 void SourceList::appendNone()
 {

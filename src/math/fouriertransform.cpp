@@ -47,6 +47,11 @@ void FourierTransform::setSize(unsigned int size)
         m_inB.resize(m_size, 0.f);
     }
 }
+
+unsigned int FourierTransform::size() const
+{
+    return m_size;
+}
 void FourierTransform::setType(FourierTransform::Type type)
 {
     m_type = type;
@@ -118,6 +123,21 @@ complex FourierTransform::bf(unsigned int i) const
 long FourierTransform::f2i(double frequency, int sampleRate) const
 {
     return static_cast<long>(frequency * m_size / sampleRate);
+}
+
+unsigned long FourierTransform::pointer() const
+{
+    return m_pointer;
+}
+
+float FourierTransform::aIn() const
+{
+    return m_inA[m_pointer];
+}
+
+float FourierTransform::bIn() const
+{
+    return m_inB[m_pointer];
 }
 void FourierTransform::add(float sampleA, float sampleB)
 {
@@ -245,6 +265,12 @@ GNU_ALIGN void FourierTransform::fast(bool reverse, bool ultrafast)
         }
     }
 }
+
+void FourierTransform::ufast()
+{
+    fast(false, true);
+}
+
 GNU_ALIGN void FourierTransform::log()
 {
     v4sf data, t, m;

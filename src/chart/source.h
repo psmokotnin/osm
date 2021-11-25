@@ -23,6 +23,7 @@
 #include <mutex>
 
 #include "../math/complex.h"
+class SourceList;
 
 namespace chart {
 class Source : public QObject
@@ -114,8 +115,8 @@ public:
         m_dataMutex.unlock();
     }
 
-    virtual Q_INVOKABLE QJsonObject toJSON() const noexcept = 0;
-    virtual void fromJSON(QJsonObject data) noexcept = 0;
+    virtual Q_INVOKABLE QJsonObject toJSON(const SourceList * = nullptr) const noexcept = 0;
+    virtual void fromJSON(QJsonObject data, const SourceList * = nullptr) noexcept = 0;
 
 signals:
     void activeChanged();

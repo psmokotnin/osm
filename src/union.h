@@ -31,73 +31,82 @@ class Union : public chart::Source
 {
     Q_OBJECT
 
-    Q_PROPERTY(int count READ count NOTIFY countChanged)
+    Q_PROPERTY(int count READ count WRITE setCount NOTIFY countChanged)
+    Q_PROPERTY(bool autoName READ autoName WRITE setAutoName NOTIFY autoNameChanged)
     Q_PROPERTY(Operation operation READ operation WRITE setOperation NOTIFY operationChanged)
     Q_PROPERTY(Type type READ type WRITE setType NOTIFY typeChanged)
 
+    using SourceVector = QVector<QPointer<chart::Source>>;
+
 public:
-    enum Operation {Sum, Diff, Avg};
-    enum Type {Vector, Polar};
+    enum Operation {Summation, Subtract, Avg};
+    enum Type {Vector, Polar, dB, Power};
     const std::map<Operation, QString> operationMap = {
-        {Sum,       "Summation"},
-        {Diff,      "Difference"},
+        {Summation, "Sum"},
+        {Subtract,  "Subtract"},
         {Avg,       "Average"}
+    };
+    const std::map<Type, QString> typeMap = {
+        {Vector,    "Vector"},
+        {Polar,     "Polar"},
+        {dB,        "dB"},
+        {Power,     "Power"}
     };
     Q_ENUMS(Operation)
     Q_ENUMS(Type)
 
-private:
-    Settings *m_settings;
-
-    QVector<QPointer<chart::Source>> m_sources;
-
-    QTimer m_timer;
-    QThread m_timerThread;
-    Operation m_operation;
-    Type m_type;
-
-    void init() noexcept;
-    void resize();
-    void calcPolar(unsigned int count, std::set<chart::Source *> sources,
-                   chart::Source *primary) noexcept;
-    void calcVector(unsigned int count, std::set<Source *> sources, chart::Source *primary) noexcept;
-
-public:
     explicit Union(Settings *settings = nullptr, QObject *parent = nullptr);
     ~Union() override;
     Source *clone() const override;
 
-    int count() const noexcept
-    {
-        return m_sources.count();
-    }
+    int count() const noexcept;
+    void setCount(int count) noexcept;
 
     Q_INVOKABLE chart::Source *getSource(int index) const noexcept;
     Q_INVOKABLE void setSource(int index, chart::Source *s) noexcept;
 
-    Q_INVOKABLE QJsonObject toJSON() const noexcept override;
-    void fromJSON(QJsonObject data) noexcept override;
+    Q_INVOKABLE QJsonObject toJSON(const SourceList *list = nullptr) const noexcept override;
+    void fromJSON(QJsonObject data, const SourceList *list = nullptr) noexcept override;
 
-    Operation operation() const noexcept
-    {
-        return m_operation;
-    }
-    void setOperation(const Operation &operation) noexcept;
+    Operation operation() const noexcept;
+    void setOperation(Operation operation) noexcept;
 
     void setActive(bool active) noexcept override;
 
     Type type() const;
-    void setType(const Type &type);
+    void setType(Type type);
+
+    bool autoName() const;
+    void setAutoName(bool autoName);
 
 public slots:
     void update() noexcept;
     void calc() noexcept;
     QObject *store();
+    void applyAutoName() noexcept;
 
 signals:
     void countChanged(int);
-    void operationChanged(Operation);
+    void operationChanged(Union::Operation);
     void needUpdate();
     void typeChanged();
+    void autoNameChanged();
+    void modelChanged();
+
+private:
+    void init() noexcept;
+    void resize();
+    void calcPolar(unsigned int count, chart::Source *primary) noexcept;
+    void calcVector(unsigned int count, chart::Source *primary) noexcept;
+    void calcdB(unsigned int count, chart::Source *primary) noexcept;
+    void calcPower(unsigned int count, chart::Source *primary) noexcept;
+
+    Settings *m_settings;
+    SourceVector m_sources;
+    QTimer m_timer;
+    QThread m_timerThread;
+    Operation m_operation;
+    Type m_type;
+    bool m_autoName;
 };
 #endif // UNION_H

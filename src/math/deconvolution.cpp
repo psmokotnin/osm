@@ -19,6 +19,7 @@
 #include <complex>
 Deconvolution::Deconvolution(unsigned int size) :
     m_size(size),
+    m_norm(1),
     m_fft(size),
     m_ifft(size)
 {
@@ -42,8 +43,13 @@ void Deconvolution::transform()
     //reverse
     m_ifft.reverse();
 
+    float max = 0;
     for (unsigned int i = 0; i < m_size; i++) {
-        m_data[i] = m_ifft.af(i).real / sqrtf(m_size);
+        m_data[i] = m_ifft.af(i).real * m_norm;
+        if (std::abs(m_data[i]) > max) {
+            max = std::abs(m_data[i]);
+            m_maxIndex = i;
+        }
     }
 }
 float Deconvolution::get(const unsigned int i) const
@@ -60,6 +66,7 @@ float Deconvolution::get(const unsigned int i) const
 void Deconvolution::setSize(unsigned int size)
 {
     m_size = size;
+    m_norm = 1.f / sqrtf(m_size);
     m_data.resize(m_size, 0.f);
     m_fft.setSize(m_size);
     m_ifft.setSize(m_size);
@@ -69,4 +76,14 @@ void Deconvolution::setSize(unsigned int size)
 void Deconvolution::setWindowFunctionType(WindowFunction::Type type)
 {
     m_fft.setWindowFunctionType(type);
+}
+
+unsigned int Deconvolution::maxIndex() const
+{
+    return m_maxIndex;
+}
+
+unsigned int Deconvolution::size() const
+{
+    return m_size;
 }

@@ -1,6 +1,6 @@
 /**
  *  OSM
- *  Copyright (C) 2018  Pavel Smokotnin
+ *  Copyright (C) 2021  Pavel Smokotnin
 
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -15,37 +15,41 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef ELC_H
-#define ELC_H
+#ifndef AUTOSAVER_H
+#define AUTOSAVER_H
 
-#include <QObject>
-#include "chart/source.h"
+#include <QTimer>
+#include <QThread>
+#include <QtQml>
 
-class ELC : public chart::Source
+class SourceList;
+class Settings;
+class QSettings;
+
+class AutoSaver : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(float loudness READ loudness WRITE setLoudness NOTIFY loudnessChanged)
+    QML_ELEMENT
+    const QString FILE_KEY = "filename";
 
 public:
-    explicit ELC(QObject *parent = nullptr);
-    Source *clone() const override;
+    explicit AutoSaver(Settings *settings, SourceList *parent);
+    ~AutoSaver();
 
-    Q_INVOKABLE QJsonObject toJSON(const SourceList * = nullptr) const noexcept override;
-    void fromJSON(QJsonObject data, const SourceList * = nullptr) noexcept override;
+    SourceList *list() const;
+    QUrl fileName() const;
 
-    float loudness() const noexcept
-    {
-        return m_loudness;
-    }
-    void setLoudness(float loudness);
-
-private:
-    float m_loudness;
-
-    void update();
+    Q_INVOKABLE void save();
+    Q_INVOKABLE void stop();
 
 signals:
-    void loudnessChanged(float);
+
+private:
+    void load();
+
+    Settings *m_settings;
+    QTimer m_timer;
+    QThread m_timerThread;
 };
 
-#endif // ELC_H
+#endif // AUTOSAVER_H

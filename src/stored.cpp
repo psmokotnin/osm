@@ -57,7 +57,7 @@ void Stored::build (chart::Source *source)
     source->unlock();
     emit readyRead();
 }
-QJsonObject Stored::toJSON() const noexcept
+QJsonObject Stored::toJSON(const SourceList *) const noexcept
 {
     QJsonObject object;
     object["active"]    = active();
@@ -104,7 +104,7 @@ QJsonObject Stored::toJSON() const noexcept
 
     return object;
 }
-void Stored::fromJSON(QJsonObject data) noexcept
+void Stored::fromJSON(QJsonObject data, const SourceList *) noexcept
 {
     auto ftdata         = data["ftdata"].toArray();
     auto impulse        = data["impulse"].toArray();
