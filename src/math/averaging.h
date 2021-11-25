@@ -79,6 +79,9 @@ public:
     void reset()
     {
         m_value.fill(T(0));
+        m_data.each([](auto * p) {
+            p->reset();
+        });
         m_collected.fill(0);
     }
 
