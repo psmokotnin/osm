@@ -18,6 +18,7 @@
 #include "outputdevice.h"
 #include <cmath>
 #include <cstring>
+#include "generatorthread.h"
 
 OutputDevice::OutputDevice(QObject *parent) : QIODevice(parent),
     m_name("Silent"),
@@ -44,6 +45,7 @@ qint64 OutputDevice::readData(char *data, qint64 maxlen)
         if (chanel >= m_chanelCount) {
             chanel = 0;
             src = this->sample();
+            emit sampleOut(src.f);
             if (std::isnan(src.f)) {
                 emit sampleError();
                 return 0;
@@ -53,8 +55,8 @@ qint64 OutputDevice::readData(char *data, qint64 maxlen)
         if (chanel == m_chanel || chanel == m_aux) {
             memcpy(data + total, &src.f, sizeof(float));
         }
-        total += sizeof(float);
 
+        total += sizeof(float);
         ++chanel;
     }
     return total;

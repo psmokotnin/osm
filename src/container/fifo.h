@@ -19,6 +19,7 @@
 #define FIFO_H
 
 #include <cmath>
+#include <atomic>
 
 namespace container {
 template<typename T> class fifo
@@ -31,7 +32,7 @@ private:
     };
 
     Cell *m_front, *m_end;
-    size_t m_size;
+    std::atomic<size_t> m_size;
 
 public:
     fifo(): m_front(nullptr), m_end(nullptr), m_size(0)
