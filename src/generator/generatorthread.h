@@ -33,17 +33,7 @@ public:
     explicit GeneratorThread(QObject *parent);
     ~GeneratorThread();
 
-private:
-    audio::DeviceInfo::Id m_deviceId;
-    audio::Stream *m_audioStream;
-    QList<OutputDevice *> m_sources;
-
-    float m_gain, m_duration;
-    int m_type;
-    int m_frequency, m_startFrequency, m_endFrequency;
-    int m_channelCount, m_channel, m_aux;
-    bool m_enabled;
-    void updateAudio();
+    static GeneratorThread *getInstance();
 
 public slots:
     void init();
@@ -121,6 +111,21 @@ signals:
     void durationChanged(float);
     void deviceIdChanged(audio::DeviceInfo::Id);
     void deviceError();
+    void sampleOut(float);
+
+private:
+    void updateAudio();
+
+    static GeneratorThread *s_instance;
+    audio::DeviceInfo::Id m_deviceId;
+    audio::Stream *m_audioStream;
+    QList<OutputDevice *> m_sources;
+
+    float m_gain, m_duration;
+    int m_type;
+    int m_frequency, m_startFrequency, m_endFrequency;
+    int m_channelCount, m_channel, m_aux;
+    bool m_enabled;
 };
 
 #endif // GENERATORTHREAD_H
