@@ -432,6 +432,8 @@ ios {
 
     app_launch_images.files = $$PWD/icons/ios/launch/Launch.xib $$files($$PWD/icons/ios/launch/LaunchImage*.png)
     QMAKE_BUNDLE_DATA += app_launch_images
+
+    QMAKE_ASSET_CATALOGS += icons/Assets.xcassets
 }
 
 DISTFILES += \
