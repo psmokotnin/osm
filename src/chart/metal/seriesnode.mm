@@ -74,6 +74,8 @@ SeriesNode::~SeriesNode()
     [id_cast(MTLBuffer, m_sizeBuffer) release];
     [id_cast(MTLBuffer, m_widthBuffer) release];
     [id_cast(MTLBuffer, m_colorBuffer) release];
+    [id_cast(MTLRenderPipelineState, m_clearPipeline) release];
+    [id_cast(MTLLibrary, m_library) release];
 
     delete texture();
     [id_cast(MTLTexture, m_texture) release];
@@ -140,6 +142,10 @@ void SeriesNode::init()
         m_texture = nullptr;
     }
 
+    if (m_device) {
+        [id_cast(MTLDevice, m_device) release];
+        m_device = nullptr;
+    }
     m_device = MTLCreateSystemDefaultDevice();
     auto device = id_cast(MTLDevice, m_device);
     if (!device) {
@@ -147,6 +153,10 @@ void SeriesNode::init()
         return ;
     }
 
+    if (m_commandQueue) {
+        [id_cast(MTLTexture, m_commandQueue) release];
+        m_commandQueue = nullptr;
+    }
     m_commandQueue = [id_cast(MTLDevice, m_device) newCommandQueue];
     if (!m_commandQueue) {
         qCritical() << "no commandQueue";
