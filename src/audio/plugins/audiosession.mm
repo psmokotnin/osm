@@ -101,10 +101,10 @@ AudioSessionPlugin::AudioSessionPlugin() : m_permission(false), m_inInterrupt(fa
 
     @try {
         qDebug() << "AudioSession setCategory" <<
-            [[AVAudioSession sharedInstance]
-                     setCategory: AVAudioSessionCategoryPlayAndRecord
-                     withOptions: AVAudioSessionCategoryOptionMixWithOthers
-                     error: nil];
+                 [[AVAudioSession sharedInstance]
+                  setCategory: AVAudioSessionCategoryPlayAndRecord
+                  withOptions: AVAudioSessionCategoryOptionMixWithOthers
+                  error: nil];
     }
     @catch (NSException *exception) {
         qDebug() << [exception reason];
@@ -171,13 +171,14 @@ DeviceInfo::List AudioSessionPlugin::getDeviceInfoList() const
 {
     AVAudioSession *audioSession = AVAudioSession.sharedInstance;
     auto route = audioSession.currentRoute;
+    [audioSession setPreferredSampleRate:96000 error:nil];
 
     DeviceInfo::List list = {};
     NSEnumerator *inputs = [[route inputs] objectEnumerator];
     while (id object = [inputs nextObject]) {
         DeviceInfo info(INPUT_DEVICE_ID, name());
         info.setName(QString::fromNSString([object portName]));
-        info.setDefaultSampleRate([audioSession preferredSampleRate]);
+        info.setDefaultSampleRate([audioSession sampleRate]);
 
         QStringList channelList;
         NSEnumerator *channels = [[object channels] objectEnumerator];
@@ -193,7 +194,7 @@ DeviceInfo::List AudioSessionPlugin::getDeviceInfoList() const
     while (id object = [outputs nextObject]) {
         DeviceInfo info(OUTPUT_DEVICE_ID, name());
         info.setName(QString::fromNSString([object portName]));
-        info.setDefaultSampleRate([audioSession preferredSampleRate]);
+        info.setDefaultSampleRate([audioSession sampleRate]);
 
         QStringList channelList;
         NSEnumerator *channels = [[object channels] objectEnumerator];
@@ -223,7 +224,7 @@ Format AudioSessionPlugin::deviceFormat(const DeviceInfo::Id &id, const Plugin::
     Q_UNUSED(id);
 
     AVAudioSession *audioSession = AVAudioSession.sharedInstance;
-    unsigned int sampleRate = [audioSession preferredSampleRate];
+    unsigned int sampleRate = [audioSession sampleRate];
 
     unsigned int channels = static_cast<unsigned int>(mode == Input ?
                                                       [audioSession maximumInputNumberOfChannels] :
@@ -314,6 +315,7 @@ Stream *AudioSessionPlugin::open(const DeviceInfo::Id &, const Plugin::Direction
     }
 
     auto stream = new Stream(format);
+    stream->setDepth(std::size(buffers));
     connect(stream, &Stream::closeMe, this, [queue, endpoint, stream]() {
         if (endpoint) {
             endpoint->close();

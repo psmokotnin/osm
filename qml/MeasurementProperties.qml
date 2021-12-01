@@ -314,12 +314,13 @@ Item {
                     var measurementIndex = measurementChannel.currentIndex;
                     var referenceIndex = referenceChannel.currentIndex;
                     var channelNames = deviceModel.channelNames(deviceSelect.currentIndex);
+                    channelNames.push("Loop");
                     dataObject.deviceId = model.deviceId(currentIndex);
                     measurementChannel.model = channelNames;
                     referenceChannel.model   = channelNames;
 
-                    measurementChannel.currentIndex = measurementIndex < channelNames.length ? measurementIndex : -1;
-                    referenceChannel.currentIndex = referenceIndex < channelNames.length ? referenceIndex : -1;
+                    measurementChannel.currentIndex = measurementIndex < channelNames.length + 1 ? measurementIndex : -1;
+                    referenceChannel.currentIndex = referenceIndex < channelNames.length + 1 ? referenceIndex : -1;
                 }
 
                 Connections {
@@ -329,12 +330,13 @@ Item {
                         var measurementIndex = measurementChannel.currentIndex;
                         var referenceIndex = referenceChannel.currentIndex;
                         var channelNames = deviceModel.channelNames(deviceSelect.currentIndex);
+                        channelNames.push("Loop");
 
                         measurementChannel.model = channelNames;
                         referenceChannel.model   = channelNames;
 
-                        measurementChannel.currentIndex = measurementIndex < channelNames.length ? measurementIndex : -1;
-                        referenceChannel.currentIndex = referenceIndex < channelNames.length ? referenceIndex : -1;
+                        measurementChannel.currentIndex = measurementIndex < channelNames.length + 1 ? measurementIndex : -1;
+                        referenceChannel.currentIndex = referenceIndex < channelNames.length + 1 ? referenceIndex : -1;
                     }
                 }
             }

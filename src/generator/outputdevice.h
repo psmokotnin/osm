@@ -45,6 +45,7 @@ public slots:
 
 signals:
     void sampleError();
+    void sampleOut(float);
 
 protected:
     QString m_name;

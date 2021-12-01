@@ -155,6 +155,8 @@ public slots:
     QObject *store();
     void writeData(const QByteArray &buffer);
     void setError();
+    void newSampleFromGenerator(float sample);
+    void resetLoopBuffer();
 
 protected:
     void updateFftPower();
@@ -197,6 +199,9 @@ private:
     Filter::Frequency m_filtersFrequency;
     container::array<Filter::BesselLPF<float>> m_moduleLPFs, m_magnitudeLPFs, m_deconvLPFs;
     container::array<Filter::BesselLPF<complex>> m_phaseLPFs;
+
+    container::fifo<float> m_loopBuffer;
+
     void calculateDataLength();
     void averaging();
 

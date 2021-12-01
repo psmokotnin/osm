@@ -23,6 +23,7 @@
 #include <algorithm>
 #include "measurement.h"
 #include "audio/client.h"
+#include "generator/generatorthread.h"
 
 const std::map<Measurement::Mode, QString>Measurement::m_modeMap = {
     {Measurement::FFT10, "10"},
@@ -114,6 +115,10 @@ Measurement::Measurement(Settings *settings, QObject *parent) : chart::Source(pa
     connect(&m_timerThread, SIGNAL(started()), &m_timer, SLOT(start()), Qt::DirectConnection);
     connect(&m_timerThread, SIGNAL(finished()), &m_timer, SLOT(stop()), Qt::DirectConnection);
     connect(this, &Measurement::audioFormatChanged, this, &Measurement::recalculateDataLength);
+    connect(GeneratorThread::getInstance(), &GeneratorThread::sampleOut, this, &Measurement::newSampleFromGenerator,
+            Qt::DirectConnection);
+    connect(GeneratorThread::getInstance(), &GeneratorThread::enabledChanged, this, &Measurement::resetLoopBuffer,
+            Qt::DirectConnection);
 
     auto refreshDelays = [this]() {
         m_resetDelay = true;
@@ -403,6 +408,7 @@ void Measurement::setActive(bool active)
 
     m_dataMeter.reset();
     m_referenceMeter.reset();
+    m_loopBuffer.reset();
     emit levelChanged();
     emit referenceLevelChanged();
 }
@@ -416,6 +422,19 @@ void Measurement::setError()
     emit errorChanged(m_error);
     emit levelChanged();
     emit referenceLevelChanged();
+}
+
+void Measurement::newSampleFromGenerator(float sample)
+{
+    if (m_loopBuffer.size() < 48000) {
+        m_loopBuffer.push(sample);
+    }
+}
+
+void Measurement::resetLoopBuffer()
+{
+    std::lock_guard<std::mutex> guard(m_dataMutex);
+    m_loopBuffer.reset();
 }
 //this calls from gui thread
 void Measurement::setDelay(unsigned int delay)
@@ -530,8 +549,14 @@ void Measurement::writeData(const QByteArray &buffer)
     unsigned int currentChanel = 0;
     bool forceRef = referenceChanel() >= totalChanels;
     bool forceData = dataChanel() >= totalChanels;
+    float loopSample = 0;
+
     std::lock_guard<std::mutex> guard(m_dataMutex);
+    bool loopAvailable = m_loopBuffer.size() >= m_audioStream->depth() * buffer.size() / (totalChanels * sizeof(float));
     for (auto it = buffer.begin(); it != buffer.end(); ++it) {
+        if (currentChanel == 0) {
+            loopSample = loopAvailable ? m_loopBuffer.pop() : 0;
+        }
 
         if (currentChanel == dataChanel()) {
             memcpy(&sample, it, sizeof(float));
@@ -547,17 +572,18 @@ void Measurement::writeData(const QByteArray &buffer)
         ++currentChanel;
         if (currentChanel >= totalChanels) {
             if (forceRef) {
-                m_reference.pushnpop(0, 48000);
-                m_referenceMeter.add(0);
+                m_reference.pushnpop(loopSample, 48000);
+                m_referenceMeter.add(loopSample);
             }
             if (forceData) {
-                m_data.pushnpop(0, 48000);
-                m_dataMeter.add(0);
+                m_data.pushnpop(loopSample, 48000);
+                m_dataMeter.add(loopSample);
             }
             currentChanel = 0;
         }
         it += 3;
     }
+
 }
 void Measurement::transform()
 {
@@ -646,7 +672,6 @@ void Measurement::averaging()
 
     int t = 0;
     float kt = 1000.f / sampleRate();
-    float max(0.f);
     for (unsigned int i = 0, j = m_deconvolutionSize / 2 - 1; i < m_deconvolutionSize; i++, j++, t++) {
 
         if (t > static_cast<int>(m_deconvolutionSize / 2)) {
@@ -889,6 +914,7 @@ void Measurement::updateAudio()
                 writeData(buffer);
             });
             m_audioStream = audio::Client::getInstance()->openInput(m_deviceId, &m_input, format);
+            connect(m_audioStream, &audio::Stream::sampleRateChanged, this, &Measurement::recalculateDataLength);
             if (!m_audioStream) {
                 setError();
                 return;
@@ -901,10 +927,10 @@ void Measurement::updateAudio()
 void Measurement::checkChannels()
 {
     audio::Format format = audio::Client::getInstance()->deviceInputFormat(m_deviceId);
-    if (m_referenceChanel > format.channelCount - 1) {
+    if (m_referenceChanel > format.channelCount) {
         setReferenceChanel(format.channelCount - 1);
     }
-    if (m_dataChanel > format.channelCount - 1) {
+    if (m_dataChanel > format.channelCount) {
         setDataChanel(format.channelCount - 1);
     }
 }
@@ -923,4 +949,5 @@ void Measurement::resetAverage() noexcept
     m_magnitudeLPFs.each(reset);
     m_deconvLPFs.each(reset);
     m_phaseLPFs.each(reset);
+    m_loopBuffer.reset();
 }
