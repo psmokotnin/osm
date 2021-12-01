@@ -36,6 +36,9 @@ public:
     bool active() const;
     void setSampleRate(unsigned int sampleRate);
 
+    size_t depth() const;
+    void setDepth(const size_t &depth);
+
 signals:
     void closeMe();
     void sampleRateChanged();
@@ -43,6 +46,7 @@ signals:
 private:
     Format m_format;
     std::atomic<bool> m_active;
+    size_t m_depth;
 };
 
 } // namespace audio

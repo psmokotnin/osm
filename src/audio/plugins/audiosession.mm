@@ -172,7 +172,7 @@ DeviceInfo::List AudioSessionPlugin::getDeviceInfoList() const
     AVAudioSession *audioSession = AVAudioSession.sharedInstance;
     auto route = audioSession.currentRoute;
     [audioSession setPreferredSampleRate:96000 error:nil];
-    
+
     DeviceInfo::List list = {};
     NSEnumerator *inputs = [[route inputs] objectEnumerator];
     while (id object = [inputs nextObject]) {
@@ -315,6 +315,7 @@ Stream *AudioSessionPlugin::open(const DeviceInfo::Id &, const Plugin::Direction
     }
 
     auto stream = new Stream(format);
+    stream->setDepth(std::size(buffers));
     connect(stream, &Stream::closeMe, this, [queue, endpoint, stream]() {
         if (endpoint) {
             endpoint->close();

@@ -552,7 +552,7 @@ void Measurement::writeData(const QByteArray &buffer)
     float loopSample = 0;
 
     std::lock_guard<std::mutex> guard(m_dataMutex);
-    bool loopAvailable = m_loopBuffer.size() >= 2 * buffer.size() / (totalChanels * sizeof(float));
+    bool loopAvailable = m_loopBuffer.size() >= m_audioStream->depth() * buffer.size() / (totalChanels * sizeof(float));
     for (auto it = buffer.begin(); it != buffer.end(); ++it) {
         if (currentChanel == 0) {
             loopSample = loopAvailable ? m_loopBuffer.pop() : 0;

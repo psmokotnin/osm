@@ -336,6 +336,7 @@ Stream *CoreaudioPlugin::open(const DeviceInfo::Id &id, const Plugin::Direction 
     }
 
     auto stream = new Stream(format);
+    stream->setDepth(std::size(buffers));
     connect(stream, &Stream::closeMe, this, [queue, stream, endpoint]() {
         if (endpoint) {
             endpoint->close();
