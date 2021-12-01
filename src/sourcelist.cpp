@@ -231,7 +231,7 @@ bool SourceList::importFile(const QUrl &fileName, QString separator) noexcept
     QString notes = "Imported from " + fileName.toDisplayString(QUrl::PreferLocalFile);
     char line[1024];
     bool fOk, mOk;
-    float frequency, magnitude, coherence = 1.f;
+    float frequency, magnitude = 0.f, coherence = 1.f, maxMagnitude = -100;
     complex phase;
 
     std::vector<chart::Source::FTData> d;
@@ -245,11 +245,15 @@ bool SourceList::importFile(const QUrl &fileName, QString separator) noexcept
 
         if (list.size() > 1) {
             frequency = list[0].replace(",", ".").toFloat(&fOk);
-            magnitude = list[1].replace(",", ".").toFloat(&mOk);
-            phase.polar(M_PI * (list.size() > 2 ? list[2].replace(",", ".").toFloat() : 0) / 180.f);
-            coherence = (list.size() > 3 ? list[3].replace(",", ".").toFloat() : 1);
+            magnitude = list[1].replace("*", "0").replace(",", ".").toFloat(&mOk);
+            phase.polar(M_PI * (list.size() > 2 ? list[2].replace("*", "0").replace(",", ".").toFloat() : 0) / 180.f);
+            coherence = (list.size() > 3 ? list[3].replace("*", "0").replace(",", ".").toFloat() : 1);
 
             if (fOk && mOk && list.size() > 1) {
+                if (magnitude > maxMagnitude) {
+                    maxMagnitude = magnitude;
+                }
+
                 d.push_back({
                     frequency,
                     magnitude,
@@ -262,7 +266,7 @@ bool SourceList::importFile(const QUrl &fileName, QString separator) noexcept
     }
 
     for (auto &row : d) {
-        row.module = 0;
+        row.module = std::pow(10.f, (row.module - maxMagnitude) / 20.f);
         row.magnitude = std::pow(10.f, (row.magnitude) / 20.f);
     }
     s->copyFrom(d.size(), 0, d.data(), nullptr);
