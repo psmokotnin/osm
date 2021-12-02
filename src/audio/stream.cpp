@@ -19,7 +19,7 @@
 
 namespace audio {
 
-Stream::Stream(const Format &format) : QObject(), m_active(true)
+Stream::Stream(const Format &format) : QObject(), m_active(true), m_depth(2)
 {
     m_format = format;
 }
@@ -44,6 +44,16 @@ void Stream::setSampleRate(unsigned int sampleRate)
 {
     m_format.sampleRate = sampleRate;
     emit sampleRateChanged();
+}
+
+size_t Stream::depth() const
+{
+    return m_depth;
+}
+
+void Stream::setDepth(const size_t &depth)
+{
+    m_depth = depth;
 }
 
 } // namespace audio
