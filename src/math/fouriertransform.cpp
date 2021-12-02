@@ -32,6 +32,7 @@
 FourierTransform::FourierTransform(unsigned int size):
     m_size(size),
     m_pointer(0),
+    m_sampleRate(1),
     m_type(Fast),
     m_window(WindowFunction::Rectangular),
     m_inA(m_size, 0.f),
@@ -60,14 +61,14 @@ void FourierTransform::setWindowFunctionType(WindowFunction::Type type)
 {
     m_window.setType(type);
 }
-std::vector<float> FourierTransform::getFrequencies(unsigned int sampleRate)
+std::vector<float> FourierTransform::getFrequencies()
 {
     std::vector<float> list;
 
     switch (m_type) {
     case Fast: {
         list.resize(m_size / 2);
-        float kf = static_cast<float>(sampleRate) / m_size;
+        float kf = static_cast<float>(sampleRate()) / m_size;
         for (unsigned int i = 0; i < m_size / 2; ++i) {
             list[i] = static_cast<float>(i * kf);
         }
@@ -76,7 +77,7 @@ std::vector<float> FourierTransform::getFrequencies(unsigned int sampleRate)
     case Log: {
         list.resize(m_logBasis.size());
         for (unsigned int i = 0; i < list.size(); ++i) {
-            list[i] = sampleRate * m_logBasis[i].frequency;
+            list[i] = sampleRate() * m_logBasis[i].frequency;
         }
     }
     break;
@@ -119,6 +120,16 @@ complex FourierTransform::af(unsigned int i) const
 complex FourierTransform::bf(unsigned int i) const
 {
     return m_fastB[i];
+}
+
+unsigned int FourierTransform::sampleRate() const
+{
+    return m_sampleRate;
+}
+
+void FourierTransform::setSampleRate(unsigned int sampleRate)
+{
+    m_sampleRate = sampleRate;
 }
 long FourierTransform::f2i(double frequency, int sampleRate) const
 {
@@ -303,7 +314,7 @@ GNU_ALIGN void FourierTransform::prepareLog()
 {
     complex w;
     const int ppo = 24, octaves = 11;
-    unsigned int startWindow = pow(2, 16), startOffset = 28;
+    unsigned int startWindow = pow(2, 16), startOffset = 1'344'000 / sampleRate(); // 28 for 48k
     float wFactor = powf(10.f, 1.f / (-octaves * ppo / 2.5));
     float fFactor = powf(1000.f, 1.f / (ppo * octaves));
     unsigned int N, offset;
