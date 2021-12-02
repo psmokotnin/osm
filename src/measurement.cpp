@@ -114,7 +114,7 @@ Measurement::Measurement(Settings *settings, QObject *parent) : chart::Source(pa
     connect(&m_timer, SIGNAL(timeout()), SLOT(transform()), Qt::DirectConnection);
     connect(&m_timerThread, SIGNAL(started()), &m_timer, SLOT(start()), Qt::DirectConnection);
     connect(&m_timerThread, SIGNAL(finished()), &m_timer, SLOT(stop()), Qt::DirectConnection);
-    connect(this, &Measurement::audioFormatChanged, this, &Measurement::recalculateDataLength);
+    connect(this, &Measurement::audioFormatChanged, this, &Measurement::onSampleRateChanged);
     connect(GeneratorThread::getInstance(), &GeneratorThread::sampleOut, this, &Measurement::newSampleFromGenerator,
             Qt::DirectConnection);
     connect(GeneratorThread::getInstance(), &GeneratorThread::enabledChanged, this, &Measurement::resetLoopBuffer,
@@ -302,6 +302,7 @@ void Measurement::updateFftPower()
         m_dataFT.setSize(pow(2, m_FFTsizes.at(m_currentMode)));
         m_dataFT.setType(FourierTransform::Fast);
     }
+    m_dataFT.setSampleRate(sampleRate());
     m_dataFT.prepare();
     calculateDataLength();
 
@@ -341,9 +342,12 @@ Measurement::AverageType Measurement::averageType() const
 {
     return m_averageType;
 }
-void Measurement::recalculateDataLength()
+void Measurement::onSampleRateChanged()
 {
     std::lock_guard<std::mutex> guard(m_dataMutex);
+    m_sampleRate = m_audioStream->format().sampleRate;
+    m_dataFT.setSampleRate(sampleRate());
+    m_dataFT.prepare();
     calculateDataLength();
 }
 float Measurement::gain() const
@@ -382,7 +386,7 @@ void Measurement::selectDevice(const QString &name)
 }
 void Measurement::calculateDataLength()
 {
-    auto frequencyList = m_dataFT.getFrequencies(sampleRate());
+    auto frequencyList = m_dataFT.getFrequencies();
     m_dataLength = frequencyList.size();
 
     if (m_ftdata)
@@ -914,7 +918,7 @@ void Measurement::updateAudio()
                 writeData(buffer);
             });
             m_audioStream = audio::Client::getInstance()->openInput(m_deviceId, &m_input, format);
-            connect(m_audioStream, &audio::Stream::sampleRateChanged, this, &Measurement::recalculateDataLength);
+            connect(m_audioStream, &audio::Stream::sampleRateChanged, this, &Measurement::onSampleRateChanged);
             if (!m_audioStream) {
                 setError();
                 return;

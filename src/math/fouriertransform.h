@@ -41,7 +41,7 @@ public:
     void setWindowFunctionType(WindowFunction::Type type);
 
     //! return vector with frequency list for current type
-    std::vector<float> getFrequencies(unsigned int sampleRate);
+    std::vector<float> getFrequencies();
 
     //! add sample to the end of transformed buffer
     void add(float sampleA, float sampleB);
@@ -88,9 +88,13 @@ public:
     //! return fast transform result for channel B
     complex bf(unsigned int i) const;
 
+    unsigned int sampleRate() const;
+    void setSampleRate(unsigned int sampleRate);
+
 private:
     unsigned int m_size;
     unsigned int m_pointer;
+    unsigned int m_sampleRate;
     Type m_type;
     WindowFunction m_window;
 

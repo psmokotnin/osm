@@ -151,7 +151,7 @@ public:
 
 public slots:
     void transform();
-    void recalculateDataLength();
+    void onSampleRateChanged();
     QObject *store();
     void writeData(const QByteArray &buffer);
     void setError();
