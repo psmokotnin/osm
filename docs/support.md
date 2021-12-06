@@ -23,7 +23,7 @@ title: User support. Open Sound Meter
             Feel free to write comments or direct messages to the page.<br/>
             <br/>
             If you want to suggest a new feature, write a message on Facebook or email me: <a href="mailto:p.smokotnin@gmail.com">p.smokotnin@gmail.com</a><br/><br/>
-            <a href="/about#donate">Your donations</a> make me work faster 😀
+            <a href="/about#donate">Your donations</a> make me work faster :)
         </p>
     </p>
     <div style="width: 100%">
