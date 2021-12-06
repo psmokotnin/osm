@@ -345,10 +345,12 @@ Measurement::AverageType Measurement::averageType() const
 void Measurement::onSampleRateChanged()
 {
     std::lock_guard<std::mutex> guard(m_dataMutex);
-    m_sampleRate = m_audioStream->format().sampleRate;
-    m_dataFT.setSampleRate(sampleRate());
-    m_dataFT.prepare();
-    calculateDataLength();
+    if (m_audioStream) {
+        m_sampleRate = m_audioStream->format().sampleRate;
+        m_dataFT.setSampleRate(sampleRate());
+        m_dataFT.prepare();
+        calculateDataLength();
+    }
 }
 float Measurement::gain() const
 {
