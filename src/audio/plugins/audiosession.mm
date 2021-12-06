@@ -171,7 +171,9 @@ DeviceInfo::List AudioSessionPlugin::getDeviceInfoList() const
 {
     AVAudioSession *audioSession = AVAudioSession.sharedInstance;
     auto route = audioSession.currentRoute;
-    [audioSession setPreferredSampleRate:96000 error:nil];
+    //TODO: need to know if device supports it
+    //auto success = [audioSession setPreferredSampleRate:96000 error:&error];
+
 
     DeviceInfo::List list = {};
     NSEnumerator *inputs = [[route inputs] objectEnumerator];
