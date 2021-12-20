@@ -19,6 +19,7 @@
 #define IMPULSESERIESRENDERER_H
 
 #include "xyseriesrenderer.h"
+#include "../impulseplot.h"
 
 namespace chart {
 class ImpulseSeriesRenderer : public XYSeriesRenderer
@@ -26,12 +27,14 @@ class ImpulseSeriesRenderer : public XYSeriesRenderer
 public:
     ImpulseSeriesRenderer();
     void renderSeries() override;
+    virtual void synchronize(QQuickFramebufferObject *item) override;
 
 protected:
     virtual void updateMatrix() override;
 
 private:
     int m_matrixUniform, m_widthUniform, m_screenUniform;
+    ImpulsePlot::Mode m_mode;
 };
 
 }

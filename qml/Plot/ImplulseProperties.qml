@@ -90,9 +90,17 @@ Item {
                 xmaxFloatBox.value = dataObject.xmax;
             }
             function onYminChanged() {
+                yminFloatBox.min = dataObject.yLowLimit;
+                yminFloatBox.max = dataObject.yHighLimit;
+                ymaxFloatBox.min = dataObject.yLowLimit;
+                ymaxFloatBox.max = dataObject.yHighLimit;
                 yminFloatBox.value = dataObject.ymin;
             }
             function onYmaxChanged() {
+                yminFloatBox.min = dataObject.yLowLimit;
+                yminFloatBox.max = dataObject.yHighLimit;
+                ymaxFloatBox.min = dataObject.yLowLimit;
+                ymaxFloatBox.max = dataObject.yHighLimit;
                 ymaxFloatBox.value = dataObject.ymax;
             }
         }
@@ -108,6 +116,16 @@ Item {
     }
     RowLayout {
         spacing: 0
+
+        TitledCombo {
+            tooltip: qsTr("Y axis mode")
+            model: ["Linear", "Log"]
+
+            currentIndex: dataObject.mode
+            onCurrentIndexChanged: {
+                dataObject.mode = currentIndex;
+            }
+        }
 
         RowLayout {
             Layout.fillWidth: true

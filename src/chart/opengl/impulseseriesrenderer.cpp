@@ -16,11 +16,10 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "impulseseriesrenderer.h"
-#include "../impulseplot.h"
 #include "common/notifier.h"
 using namespace chart;
 
-ImpulseSeriesRenderer::ImpulseSeriesRenderer() : XYSeriesRenderer()
+ImpulseSeriesRenderer::ImpulseSeriesRenderer() : XYSeriesRenderer(), m_mode(ImpulsePlot::Mode::Linear)
 {
     m_program.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/pos.vert");
     m_program.addShaderFromSourceFile(QOpenGLShader::Geometry, ":/line.geom");
@@ -47,7 +46,15 @@ void ImpulseSeriesRenderer::renderSeries()
     float dc = m_source->impulseValue(0);
     for (unsigned int i = 0, j = 0; i < m_source->impulseSize(); ++i, j += 2) {
         m_vertices[j]     = m_source->impulseTime(i);
-        m_vertices[j + 1] = m_source->impulseValue(i) - dc;
+        switch (m_mode) {
+        case ImpulsePlot::Linear:
+            m_vertices[j + 1] = m_source->impulseValue(i) - dc;
+            break;
+        case ImpulsePlot::Log:
+            m_vertices[j + 1] = 10 * std::log10f(std::powf(m_source->impulseValue(i) - dc, 2));
+            break;
+        }
+
         verticiesCount += 1;
     }
 
@@ -73,6 +80,16 @@ void ImpulseSeriesRenderer::renderSeries()
     m_openGLFunctions->glDisableVertexAttribArray(0);
 
     m_refreshBuffers = false;
+}
+
+void ImpulseSeriesRenderer::synchronize(QQuickFramebufferObject *item)
+{
+    XYSeriesRenderer::synchronize(item);
+
+    if (auto *plot = dynamic_cast<ImpulsePlot *>(m_item->parent())) {
+        m_mode = plot->mode();
+    }
+
 }
 
 void ImpulseSeriesRenderer::updateMatrix()

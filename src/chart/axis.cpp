@@ -86,6 +86,7 @@ void Axis::configure(AxisType type, float min, float max, unsigned int ticks, fl
         m_min,
         m_max
     };
+    needUpdate();
 }
 QString Axis::unit() const
 {
