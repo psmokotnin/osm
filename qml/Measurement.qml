@@ -80,7 +80,7 @@ Item {
             }
             dataModel.errorChanged.connect(function(error) {
                 if (error) {
-                    applicationWindow.message.showError(qsTr("Can't start the %1.<br/>Device is not supported.").arg(dataModel.name));
+                    applicationWindow.message.showError(qsTr("Can't start the %1.<br/>Device is not supported or busy.").arg(dataModel.name));
                 }
             });
         }
