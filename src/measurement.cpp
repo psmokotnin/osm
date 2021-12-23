@@ -383,7 +383,7 @@ QString Measurement::deviceName() const
 
 void Measurement::selectDevice(const QString &name)
 {
-    auto id = audio::Client::getInstance()->deviceIdByName(name);
+    auto id = audio::Client::getInstance()->deviceIdByName(name, audio::Plugin::Direction::Input);
     setDeviceId(id);
 }
 void Measurement::calculateDataLength()
@@ -547,6 +547,7 @@ void Measurement::setWindowType(QVariant type)
 }
 void Measurement::writeData(const QByteArray &buffer)
 {
+    std::lock_guard<std::mutex> guard(m_dataMutex);
     if (!m_audioStream) {
         return;
     }
@@ -557,7 +558,6 @@ void Measurement::writeData(const QByteArray &buffer)
     bool forceData = dataChanel() >= totalChanels;
     float loopSample = 0;
 
-    std::lock_guard<std::mutex> guard(m_dataMutex);
     bool loopAvailable = m_loopBuffer.size() >= m_audioStream->depth() * buffer.size() / (totalChanels * sizeof(float));
     for (auto it = buffer.begin(); it != buffer.end(); ++it) {
         if (currentChanel == 0) {
@@ -920,11 +920,11 @@ void Measurement::updateAudio()
                 writeData(buffer);
             });
             m_audioStream = audio::Client::getInstance()->openInput(m_deviceId, &m_input, format);
-            connect(m_audioStream, &audio::Stream::sampleRateChanged, this, &Measurement::onSampleRateChanged);
             if (!m_audioStream) {
                 setError();
                 return;
             }
+            connect(m_audioStream, &audio::Stream::sampleRateChanged, this, &Measurement::onSampleRateChanged);
             emit audioFormatChanged();
         });
     }

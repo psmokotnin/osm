@@ -42,7 +42,7 @@ public:
 
     bool isDevicePresent(const DeviceInfo::Id &id) const;
     QString deviceName(const DeviceInfo::Id &id) const;
-    DeviceInfo::Id deviceIdByName(const QString &name) const;
+    DeviceInfo::Id deviceIdByName(const QString &name, const Plugin::Direction direction) const;
 
     Format deviceOutputFormat(const DeviceInfo::Id &id) const;
     Stream *openOutput(const DeviceInfo::Id &id, QIODevice *source, const Format &format);
