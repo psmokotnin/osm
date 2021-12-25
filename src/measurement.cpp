@@ -547,10 +547,10 @@ void Measurement::setWindowType(QVariant type)
 }
 void Measurement::writeData(const QByteArray &buffer)
 {
-    std::lock_guard<std::mutex> guard(m_dataMutex);
     if (!m_audioStream) {
         return;
     }
+    std::lock_guard<std::mutex> guard(m_dataMutex);
     float sample;
     auto totalChanels = m_audioStream->format().channelCount;
     unsigned int currentChanel = 0;
