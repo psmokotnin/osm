@@ -98,6 +98,22 @@ const float &Source::coherence(const unsigned int &i) const noexcept
     return m_ftdata[i].coherence;
 }
 
+const float &Source::peakSquared(const unsigned int &i) const noexcept
+{
+    if (i >= m_dataLength)
+        return m_zero;
+
+    return m_ftdata[i].peakSquared;
+}
+
+const float &Source::crestFactor(const unsigned int &i) const noexcept
+{
+    if (i >= m_dataLength)
+        return m_zero;
+
+    return m_ftdata[i].crestFactor;
+}
+
 unsigned int Source::impulseSize() const noexcept
 {
     return m_deconvolutionSize;

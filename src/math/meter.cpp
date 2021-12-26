@@ -18,17 +18,26 @@
  */
 #include <cmath>
 #include "meter.h"
+#include <QtGlobal>
 
 Meter::Meter(unsigned long size) :
     m_size(size),
-    m_integrator(0.f)
+    m_integrator(0.f),
+    m_peak(0.f)
 {
 }
 void Meter::add(const float &data) noexcept
 {
-    float d = std::abs(data);
+    float d = std::pow(data, 2);
+    auto p = m_data.pushnpop(d, m_size);
     m_integrator -= m_data.pushnpop(d, m_size);
     m_integrator += d;
+
+    if (qFuzzyCompare(m_peak, p)) {
+        m_peak = d;
+    }
+    m_peak = std::max(m_peak, d);
+
     while ( m_data.size() > m_size) {
         m_integrator -= m_data.front();
         m_data.pop();
@@ -39,9 +48,29 @@ void Meter::add(const float &data) noexcept
 float Meter::value() const noexcept
 {
     if (m_data.size() == 0)
-        return -INFINITY;
+        return std::numeric_limits<float>::min();
 
-    return 20.f * std::log10(m_integrator / m_data.size());//dB
+    return m_integrator / m_data.size();
+}
+float Meter::dB() const noexcept
+{
+    // 20log(sqrt(v)) = 10log(v)
+    return 10.f * std::log10(value());
+}
+
+float Meter::peakSquared() const noexcept
+{
+    return m_peak;
+}
+
+float Meter::peakdB() const noexcept
+{
+    return 10.f * std::log10(m_peak);;
+}
+
+float Meter::crestFactor() const noexcept
+{
+    return 10.f * std::log10(m_peak / value());
 }
 void Meter::reset() noexcept
 {
@@ -49,4 +78,5 @@ void Meter::reset() noexcept
         m_data.pop();
     }
     m_integrator = 0.f;
+    m_peak = 0.f;
 }

@@ -1,6 +1,6 @@
 /**
  *  OSM
- *  Copyright (C) 2018  Pavel Smokotnin
+ *  Copyright (C) 2021  Pavel Smokotnin
 
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -15,38 +15,37 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef RTAPLOT_H
-#define RTAPLOT_H
+#ifndef CHART_CRESTFACTORPLOT_H
+#define CHART_CRESTFACTORPLOT_H
 
-#include "frequencybasedplot.h"
+#include "xyplot.h"
 
 namespace chart {
-class RTAPlot : public FrequencyBasedPlot
+
+class CrestFactorPlot : public chart::XYPlot
 {
     Q_OBJECT
-    Q_PROPERTY(unsigned int mode READ mode WRITE setMode NOTIFY modeChanged)
-    Q_PROPERTY(bool showPeaks READ showPeaks WRITE setShowPeaks NOTIFY showPeaksChanged)
+    Q_PROPERTY(unsigned int pointsPerOctave READ pointsPerOctave WRITE setPointsPerOctave NOTIFY
+               pointsPerOctaveChanged)
 
 public:
-    RTAPlot(Settings *settings, QQuickItem *parent = Q_NULLPTR);
+    CrestFactorPlot(Settings *settings, QQuickItem *parent = Q_NULLPTR);
 
-    void setMode(unsigned int mode);
-    unsigned int mode();
+    unsigned int pointsPerOctave() const;
+    void setPointsPerOctave(unsigned int p);
 
     virtual void setSettings(Settings *settings) noexcept override;
     virtual void storeSettings() noexcept override;
 
-    bool showPeaks() const;
-    void setShowPeaks(bool showPeaks);
-
 signals:
-    void modeChanged(unsigned int);
-    void showPeaksChanged(bool);
+    void pointsPerOctaveChanged(unsigned int);
 
-private:
+protected:
     virtual SeriesItem *createSeriesFromSource(Source *source) override;
-    unsigned int m_mode;
-    bool m_spline, m_showPeaks;
+
+    unsigned int m_pointsPerOctave;
 };
-}
-#endif // RTAPLOT_H
+
+} // namespace chart
+
+#endif // CHART_CRESTFACTORPLOT_H

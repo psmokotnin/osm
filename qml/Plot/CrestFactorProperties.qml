@@ -1,6 +1,6 @@
 /**
  *  OSM
- *  Copyright (C) 2018  Pavel Smokotnin
+ *  Copyright (C) 2019  Pavel Smokotnin
 
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,7 +20,6 @@ import QtQuick.Controls 2.2
 import QtQuick.Layouts 1.3
 import QtQuick.Dialogs 1.3
 
-import "../" as Root
 import "../elements"
 import SourceModel 1.0
 import OpenSoundMeter 1.0
@@ -30,8 +29,8 @@ Item {
     property var dataObject
 
     ColumnLayout {
-        anchors.fill: parent
         spacing: 0
+        anchors.fill: parent
 
     RowLayout {
         spacing: 0
@@ -78,45 +77,35 @@ Item {
             }
         }
 
-        SelectableSpinBox {
+        FloatSpinBox {
+            id: yminFloatBox
+            min: dataObject.yLowLimit
+            max: dataObject.yHighLimit
             value: dataObject.ymin
+            tooltiptext: qsTr("y from")
             onValueChanged: dataObject.ymin = value
-            from: dataObject.yLowLimit
-            to: dataObject.yHighLimit
-            editable: true
             implicitWidth: 170
             Layout.fillWidth: true
-
-            ToolTip.visible: hovered
-            ToolTip.text: qsTr("y from")
-
-            textFromValue: function(value, locale) {
-                return Number(value) + "dB"
-            }
-
-            valueFromText: function(text, locale) {
-                return parseInt(text)
-            }
         }
 
-        SelectableSpinBox {
+        FloatSpinBox {
+            id: ymaxFloatBox
+            min: dataObject.yLowLimit
+            max: dataObject.yHighLimit
             value: dataObject.ymax
+            tooltiptext: qsTr("y to")
             onValueChanged: dataObject.ymax = value
-            from: dataObject.yLowLimit
-            to: dataObject.yHighLimit
-            editable: true
             implicitWidth: 170
             Layout.fillWidth: true
+        }
 
-            ToolTip.visible: hovered
-            ToolTip.text: qsTr("y to")
-
-            textFromValue: function(value, locale) {
-                return Number(value) + "dB"
+        Connections {
+            target: dataObject
+            function onYminChanged() {
+                yminFloatBox.value = dataObject.ymin;
             }
-
-            valueFromText: function(text, locale) {
-                return parseInt(text)
+            function onYmaxChanged() {
+                ymaxFloatBox.value = dataObject.ymax;
             }
         }
 
@@ -130,42 +119,21 @@ Item {
         }
     }
     RowLayout {
-
-        TitledCombo {
-            id: mode
-            implicitWidth: 170
-            title: qsTr("mode")
-            tooltip: qsTr("render data as")
-            model: ["line", "bars", "lines"]
-            currentIndex: dataObject.mode;
-            onCurrentIndexChanged: {dataObject.mode = currentIndex;}
-        }
+        spacing: 0
 
         TitledCombo {
             title: qsTr("ppo")
             tooltip: qsTr("points per octave")
-            implicitWidth: 170
-            visible: mode.model[mode.currentIndex] === "bars"
+            Layout.preferredWidth: 170
             model: [3, 6, 12, 24, 48]
-            currentIndex: model.indexOf(dataObject.pointsPerOctave)
-            Component.onCompleted: {
-                currentIndex = model.indexOf(dataObject.pointsPerOctave);
+            currentIndex: {
+                var ppo = dataObject.pointsPerOctave;
+                model.indexOf(ppo);
             }
             onCurrentIndexChanged: {
-                dataObject.pointsPerOctave = model[currentIndex];
+                var ppo = model[currentIndex];
+                dataObject.pointsPerOctave = ppo;
             }
-        }
-
-        CheckBox {
-            id: peaks
-            text: qsTr("hold peaks")
-            implicitWidth: 170
-            checked: dataObject.showPeaks
-            onCheckStateChanged: dataObject.showPeaks = checked
-            visible: mode.model[mode.currentIndex] !== "line"
-
-            ToolTip.visible: hovered
-            ToolTip.text: qsTr("show peaks")
         }
 
         RowLayout {
@@ -173,7 +141,7 @@ Item {
         }
 
         TitledCombo {
-            tooltip: qsTr("show only this source")
+            tooltip: qsTr("show only selected source")
             model: SourceModel {
                 addNone: true
                 list: sourceList

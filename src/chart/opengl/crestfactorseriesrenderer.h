@@ -1,6 +1,6 @@
 /**
  *  OSM
- *  Copyright (C) 2018  Pavel Smokotnin
+ *  Copyright (C) 2021  Pavel Smokotnin
 
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -15,29 +15,25 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef METER_H
-#define METER_H
+#ifndef CHART_CRESTFACTORSERIESRENDERER_H
+#define CHART_CRESTFACTORSERIESRENDERER_H
 
-#include <queue>
-#include "container/fifo.h"
-class Meter
+#include "frequencybasedseriesrenderer.h"
+#include "../crestfactorplot.h"
+
+namespace chart {
+
+class CrestFactorSeriesRenderer : public chart::FrequencyBasedSeriesRenderer
 {
 public:
-    Meter(unsigned long size = DEFAULT_SIZE);
-    static const unsigned long DEFAULT_SIZE = 100;
-
-    void add(const float &data) noexcept;
-    float value() const noexcept;
-    float dB() const noexcept;
-    float peakSquared() const noexcept;
-    float peakdB() const noexcept;
-    float crestFactor() const noexcept;
-    void reset() noexcept;
+    CrestFactorSeriesRenderer();
+    void renderSeries() override;
+    void synchronize(QQuickFramebufferObject *item) override;
 
 private:
-    container::fifo<float> m_data;
-    unsigned long m_size;
-    float m_integrator, m_peak;
+    unsigned int m_pointsPerOctave;
 };
 
-#endif // METER_H
+} // namespace chart
+
+#endif // CHART_CRESTFACTORSERIESRENDERER_H

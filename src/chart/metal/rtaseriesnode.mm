@@ -110,6 +110,7 @@ void RTASeriesNode::synchronizeSeries()
         if (m_mode != rtaPlot->mode()) {
             m_mode = rtaPlot->mode();
         }
+        m_showPeaks = rtaPlot->showPeaks();
     }
     synchronizeMatrix();
 }
@@ -235,7 +236,7 @@ void RTASeriesNode::renderBars()
     if (!m_pipelineBars) {
         return;
     }
-    unsigned int maxBufferSize = m_pointsPerOctave * 12 * 8;
+    unsigned int maxBufferSize = m_pointsPerOctave * 12 * 24;
     if (m_vertices.size() != maxBufferSize) {
         m_vertices.resize(maxBufferSize);
         m_refreshBuffers = true;
@@ -243,12 +244,14 @@ void RTASeriesNode::renderBars()
 
     unsigned int verticesCollected = 0;
 
-    float value = 0;
+    float value = 0, peak = 0;
+    float y = 1 / (m_matrix(0, 0) * width());
     auto accumalte = [ &, this] (const unsigned int &i) {
         if (i == 0) {
             return ;
         }
         value += 2 * m_source->module(i) * m_source->module(i) * (m_source->frequency(i) - m_source->frequency(i - 1));
+        peak = std::max(peak, m_source->peakSquared(i));
     };
 
     unsigned int i = 0;
@@ -259,17 +262,47 @@ void RTASeriesNode::renderBars()
         }
 
         value = 10 * log10f(value);
-        m_vertices[i + 0] = start;
+        peak  = 10 * log10f(peak);
+        auto shiftedStart = std::pow(M_E, std::log(start) + y);
+        auto shiftedEnd   = std::pow(M_E, std::log(end  ) - y);
+
+        m_vertices[i + 0] = shiftedStart;
         m_vertices[i + 1] = value;
-        m_vertices[i + 2] = start;
+        m_vertices[i + 2] = shiftedStart;
         m_vertices[i + 3] = m_yMin;
-        m_vertices[i + 4] = end;
+        m_vertices[i + 4] = shiftedEnd;
         m_vertices[i + 5] = value;
-        m_vertices[i + 6] = end;
-        m_vertices[i + 7] = m_yMin;
-        i += 8;
-        verticesCollected += 4;
+
+        m_vertices[i + 6] = shiftedEnd;
+        m_vertices[i + 7] = value;
+        m_vertices[i + 8] = shiftedEnd;
+        m_vertices[i + 9] = m_yMin;
+        m_vertices[i + 10] = shiftedStart;
+        m_vertices[i + 11] = m_yMin;
+
+        if (m_showPeaks) {
+            m_vertices[i + 12] = shiftedStart;
+            m_vertices[i + 13] = peak + 1;
+            m_vertices[i + 14] = shiftedStart;
+            m_vertices[i + 15] = peak;
+            m_vertices[i + 16] = shiftedEnd;
+            m_vertices[i + 17] = peak + 1;
+
+            m_vertices[i + 18] = shiftedEnd;
+            m_vertices[i + 19] = peak + 1;
+            m_vertices[i + 20] = shiftedEnd;
+            m_vertices[i + 21] = peak;
+            m_vertices[i + 22] = shiftedStart;
+            m_vertices[i + 23] = peak;
+
+            i += 24;
+            verticesCollected += 12;
+        } else {
+            i += 12;
+            verticesCollected += 6;
+        }
         value = 0;
+        peak = 0;
     };
 
     iterate(m_pointsPerOctave, accumalte, collected);
@@ -296,7 +329,7 @@ void RTASeriesNode::renderBars()
     [encoder setVertexBuffer: id_cast(MTLBuffer, m_matrixBuffer) offset: 0 atIndex: 1];
     [encoder setFragmentBuffer: id_cast(MTLBuffer, m_colorBuffer) offset: 0 atIndex: 1];
     [encoder setRenderPipelineState: id_cast(MTLRenderPipelineState, m_pipelineBars)];
-    [encoder drawPrimitives: MTLPrimitiveTypeTriangleStrip
+    [encoder drawPrimitives: MTLPrimitiveTypeTriangle
              vertexStart: 0
              vertexCount: verticesCollected];
 
@@ -309,7 +342,7 @@ void RTASeriesNode::renderLines()
         return;
     }
 
-    unsigned int vertexCount = m_source->size() * 6;
+    unsigned int vertexCount = m_source->size() * 6 * 2;
     if (m_vertices.size() != vertexCount * 5) {
         m_vertices.resize(vertexCount * 5, 0);
         m_refreshBuffers = true;
@@ -337,11 +370,20 @@ void RTASeriesNode::renderLines()
     };
 
     unsigned int j = 0, i;
+    float peak;
     for (i = 0; i < m_source->size(); ++i) {
         addSegment(j,
                    m_source->frequency(i), m_yMin,
                    m_source->frequency(i), 20 * log10f(m_source->module(i))
                   );
+
+        if (m_showPeaks) {
+            peak = 10 * log10f(m_source->peakSquared(i));
+            addSegment(j,
+                       m_source->frequency(i), peak,
+                       m_source->frequency(i), peak + 1
+                      );
+        }
     }
 
     if (m_refreshBuffers) {

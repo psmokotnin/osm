@@ -58,11 +58,13 @@ Item {
 
             Meter {
                 dBV: (dataModel ? dataModel.level : 0)
+                peak:(dataModel ? dataModel.measurementPeak : 0)
                 width: parent.width
             }
 
             Meter {
                 dBV: (dataModel ? dataModel.referenceLevel : 0)
+                peak:(dataModel ? dataModel.referencePeak : 0)
                 width: parent.width
             }
         }

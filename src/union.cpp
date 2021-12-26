@@ -260,11 +260,11 @@ void Union::calcPolar(unsigned int count, chart::Source *primary) noexcept
 void Union::calcVector(unsigned int count, chart::Source *primary) noexcept
 {
     float coherence, coherenceWeight;
-    complex a, m;
+    complex a, m, p;
 
     for (unsigned int i = 0; i < primary->size(); i++) {
-
         a = primary->phase(i) * primary->module(i);
+        p = primary->phase(i) * primary->peakSquared(i);
         m = primary->phase(i) * primary->magnitudeRaw(i);
 
         coherence = std::abs(primary->module(i) * primary->coherence(i));
@@ -276,20 +276,23 @@ void Union::calcVector(unsigned int count, chart::Source *primary) noexcept
                 case Summation:
                 case Avg:
                     a += (*it)->phase(i) * (*it)->module(i);
+                    p += (*it)->phase(i) * (*it)->peakSquared(i);
                     m += (*it)->phase(i) * (*it)->magnitudeRaw(i);
                     break;
                 case Subtract:
                     a -= (*it)->phase(i) * (*it)->module(i);
+                    p -= (*it)->phase(i) * (*it)->peakSquared(i);
                     m -= (*it)->phase(i) * (*it)->magnitudeRaw(i);
                     break;
                 }
 
-                coherence += std::abs((*it)->module(i) * (*it)->coherence(i));
+                coherence       += std::abs((*it)->module(i) * (*it)->coherence(i));
                 coherenceWeight += std::abs((*it)->module(i));
             }
         }
         if (m_operation == Avg) {
             a /= count;
+            p /= count;
             m /= count;
         }
         coherence /= coherenceWeight;
@@ -299,6 +302,7 @@ void Union::calcVector(unsigned int count, chart::Source *primary) noexcept
         m_ftdata[i].phase      = m.normalize();
         m_ftdata[i].magnitude  = m.abs();
         m_ftdata[i].coherence  = coherence;
+        m_ftdata[i].peakSquared = p.abs();
     }
 }
 
@@ -330,7 +334,7 @@ void Union::calcdB(unsigned int count, chart::Source *primary) noexcept
                     break;
                 }
 
-                coherence += std::abs((*it)->module(i) * (*it)->coherence(i));
+                coherence       += std::abs((*it)->module(i) * (*it)->coherence(i));
                 coherenceWeight += std::abs((*it)->module(i));
             }
         }
@@ -381,7 +385,7 @@ void Union::calcPower(unsigned int count, chart::Source *primary) noexcept
                     break;
                 }
 
-                coherence += std::abs((*it)->module(i) * (*it)->coherence(i));
+                coherence       += std::abs((*it)->module(i) * (*it)->coherence(i));
                 coherenceWeight += std::abs((*it)->module(i));
             }
         }

@@ -23,6 +23,7 @@
 #include "../impulseplot.h"
 #include "../stepplot.h"
 #include "../spectrogramplot.h"
+#include "../crestfactorplot.h"
 
 #include "rtaseriesnode.h"
 #include "impulseseriesnode.h"
@@ -32,7 +33,7 @@
 #include "groupdelayseriesnode.h"
 #include "coherenceseriesnode.h"
 #include "spectrogramseriesnode.h"
-
+#include "crestfactorseriesnode.h"
 
 namespace chart {
 
@@ -86,6 +87,11 @@ SeriesItem *StepPlot::createSeriesFromSource(Source *source)
 SeriesItem *SpectrogramPlot::createSeriesFromSource(Source *source)
 {
     return itemNode<SpectrogramSeriesNode>(this, source);
+}
+
+SeriesItem *CrestFactorPlot::createSeriesFromSource(Source *source)
+{
+    return itemNode<CrestFactorSeriesNode>(this, source);
 }
 
 }

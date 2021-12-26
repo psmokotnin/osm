@@ -14,6 +14,7 @@ SOURCES += src/main.cpp \
     src/audio/format.cpp \
     src/audio/plugin.cpp \
     src/audio/stream.cpp \
+    src/chart/crestfactorplot.cpp \
     src/chart/cursorhelper.cpp \
     src/chart/frequencybasedplot.cpp \
     src/chart/frequencybasedserieshelper.cpp \
@@ -107,6 +108,7 @@ HEADERS += \
     src/audio/format.h \
     src/audio/plugin.h \
     src/audio/stream.h \
+    src/chart/crestfactorplot.h \
     src/chart/cursorhelper.h \
     src/chart/frequencybasedplot.h \
     src/chart/frequencybasedserieshelper.h \
@@ -273,6 +275,7 @@ isEqual(GRAPH, "METAL") {
         src/chart/metal/phaseseriesnode.h \
         src/chart/metal/seriesnode.h \
         src/chart/metal/spectrogramseriesnode.h \
+        src/chart/metal/crestfactorseriesnode.h \
         src/chart/metal/stepseriesnode.h \
         src/chart/metal/xyseriesnode.h \
         src/chart/metal/rtaseriesnode.h \
@@ -287,6 +290,7 @@ isEqual(GRAPH, "METAL") {
         src/chart/metal/phaseseriesnode.mm \
         src/chart/metal/seriesnode.mm \
         src/chart/metal/spectrogramseriesnode.mm \
+        src/chart/metal/crestfactorseriesnode.mm \
         src/chart/metal/stepseriesnode.mm \
         src/chart/metal/xyseriesnode.mm \
         src/chart/metal/seriesitem.cpp \
@@ -356,6 +360,7 @@ isEqual(GRAPH, "OPENGL") {
         src/chart/opengl/coherenceseriesrenderer.h \
         src/chart/opengl/groupdelayseriesrenderer.h \
         src/chart/opengl/spectrogramseriesrenderer.h \
+        src/chart/opengl/crestfactorseriesrenderer.h \
         src/chart/opengl/stepseriesrenderer.h
 
     SOURCES += \
@@ -371,6 +376,7 @@ isEqual(GRAPH, "OPENGL") {
         src/chart/opengl/coherenceseriesrenderer.cpp \
         src/chart/opengl/groupdelayseriesrenderer.cpp \
         src/chart/opengl/spectrogramseriesrenderer.cpp \
+        src/chart/opengl/crestfactorseriesrenderer.cpp \
         src/chart/opengl/stepseriesrenderer.cpp
 }
 

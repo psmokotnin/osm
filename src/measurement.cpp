@@ -98,6 +98,7 @@ Measurement::Measurement(Settings *settings, QObject *parent) : chart::Source(pa
     m_moduleLPFs.resize(m_dataLength);
     m_magnitudeLPFs.resize(m_dataLength);
     m_phaseLPFs.resize(m_dataLength);
+    m_meters.resize(m_dataLength);
 
     m_deconvolution.setSize(m_deconvolutionSize);
     m_deconvolution.setWindowFunctionType(m_windowFunctionType);
@@ -256,11 +257,19 @@ void Measurement::setReferenceChanel(unsigned int channel)
 }
 float Measurement::level() const
 {
-    return m_dataMeter.value();
+    return m_dataMeter.dB();
 }
 float Measurement::referenceLevel() const
 {
-    return m_referenceMeter.value();
+    return m_referenceMeter.dB();
+}
+float Measurement::measurementPeak() const
+{
+    return m_dataMeter.peakdB();
+}
+float Measurement::referencePeak() const
+{
+    return m_referenceMeter.peakdB();
 }
 unsigned int Measurement::delay() const
 {
@@ -314,6 +323,7 @@ void Measurement::updateFftPower()
     m_moduleLPFs.resize(size());
     m_magnitudeLPFs.resize(size());
     m_phaseLPFs.resize(size());
+    m_meters.resize(size());
 }
 void Measurement::setFiltersFrequency(Filter::Frequency frequency)
 {
@@ -674,6 +684,10 @@ void Measurement::averaging()
 
         m_coherence.append(i, m_dataFT.bf(i), m_dataFT.af(i));
         m_ftdata[i].coherence = m_coherence.value(i);
+
+        m_meters[i].add(calibratedA);
+        m_ftdata[i].peakSquared = m_meters[i].peakSquared();
+        m_ftdata[i].crestFactor = m_meters[i].crestFactor();
     }
 
     int t = 0;
@@ -955,5 +969,9 @@ void Measurement::resetAverage() noexcept
     m_magnitudeLPFs.each(reset);
     m_deconvLPFs.each(reset);
     m_phaseLPFs.each(reset);
+    m_meters.each(reset);
     m_loopBuffer.reset();
+
+    m_dataMeter.reset();
+    m_referenceMeter.reset();
 }

@@ -24,6 +24,7 @@
 #include "coherenceplot.h"
 #include "groupdelayplot.h"
 #include "spectrogramplot.h"
+#include "crestfactorplot.h"
 #include "src/sourcelist.h"
 
 using namespace chart;
@@ -69,8 +70,13 @@ void VariableChart::initType()
     case GroupDelay:
         newPlot = new GroupDelayPlot(m_settings, this);
         break;
+
     case Spectrogram:
         newPlot = new SpectrogramPlot(m_settings, this);
+        break;
+
+    case CrestFactor:
+        newPlot = new CrestFactorPlot(m_settings, this);
         break;
     default:
         return;

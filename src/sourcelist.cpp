@@ -259,7 +259,9 @@ bool SourceList::importFile(const QUrl &fileName, QString separator) noexcept
                     magnitude,
                     magnitude,
                     phase,
-                    coherence
+                    coherence,
+                    magnitude,
+                    NAN
                 });
             }
         }

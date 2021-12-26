@@ -77,6 +77,9 @@ Item {
             case "Spectrogram":
                 opener.propertiesQml = "qrc:/Plot/SpectrogramProperties.qml";
                 break;
+            case "Crest Factor":
+                opener.propertiesQml = "qrc:/Plot/CrestFactorProperties.qml";
+                break;
             }
         }
     }
@@ -244,9 +247,11 @@ Item {
                     case "Group Delay":
                     case "Coherence":
                     case "Spectrogram":
+                    case "Crest Factor":
                         obj.frequency = chart.plot.x2v(opener.mouseX);
                         break;
                     case "Impulse":
+                    case "Step":
                         obj.time = Math.abs(chart.plot.x2v(opener.mouseX));
                         break
                 }
@@ -320,7 +325,7 @@ Item {
         implicitWidth: 145
         implicitHeight: Material.buttonHeight
         background: null
-        model: ["RTA", "Magnitude", "Phase", "Impulse", "Step", "Coherence", "Group Delay", "Spectrogram"]
+        model: ["RTA", "Magnitude", "Phase", "Impulse", "Step", "Coherence", "Group Delay", "Spectrogram", "Crest Factor"]
         currentIndex: model.indexOf(type)
         onCurrentIndexChanged: {
             var pb = applicationWindow.properiesbar;

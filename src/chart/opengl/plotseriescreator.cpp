@@ -21,6 +21,7 @@
 #include "../impulseplot.h"
 #include "../stepplot.h"
 #include "../spectrogramplot.h"
+#include "../crestfactorplot.h"
 
 #include "rtaseriesrenderer.h"
 #include "magnitudeseriesrenderer.h"
@@ -31,6 +32,7 @@
 #include "impulseseriesrenderer.h"
 #include "stepseriesrenderer.h"
 #include "spectrogramseriesrenderer.h"
+#include "crestfactorseriesrenderer.h"
 
 namespace chart {
 
@@ -87,6 +89,13 @@ SeriesFBO *SpectrogramPlot::createSeriesFromSource(Source *source)
 {
     return new SeriesFBO(source, []() {
         return new SpectrogramSeriesRenderer();
+    }, this);
+}
+
+SeriesItem *CrestFactorPlot::createSeriesFromSource(Source *source)
+{
+    return new SeriesFBO(source, []() {
+        return new CrestFactorSeriesRenderer();
     }, this);
 }
 

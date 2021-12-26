@@ -43,5 +43,6 @@
         <file alias="elements/DropDown.qml">qml/elements/DropDown.qml</file>
         <file alias="TargetTrace.qml">qml/TargetTrace.qml</file>
         <file alias="TargetTraceProperties.qml">qml/TargetTraceProperties.qml</file>
+        <file alias="Plot/CrestFactorProperties.qml">qml/Plot/CrestFactorProperties.qml</file>
     </qresource>
 </RCC>
