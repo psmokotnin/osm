@@ -53,49 +53,7 @@ void NyquistSeriesRenderer::renderSeries()
         m_refreshBuffers = true;
     }
 
-    struct NyquistSplineValue {
-        complex m_phase = 0;
-        float m_magnitude = 0;
-
-        NyquistSplineValue(complex phase, float magnitude) : m_phase(phase), m_magnitude(magnitude) {}
-        NyquistSplineValue(const NyquistSplineValue &right)
-        {
-            m_phase = right.m_phase;
-            m_magnitude = right.m_magnitude;
-        };
-        NyquistSplineValue(NyquistSplineValue &&right) noexcept
-        {
-            m_phase = std::move(right.m_phase);
-            m_magnitude = std::move(right.m_magnitude);
-        };
-
-        NyquistSplineValue &operator=(const NyquistSplineValue &rh)
-        {
-            m_phase = rh.m_phase;
-            m_magnitude = rh.m_magnitude;
-            return *this;
-        }
-
-        NyquistSplineValue &operator+=(const complex &rh)
-        {
-            m_phase += rh;
-            return *this;
-        }
-
-        NyquistSplineValue &operator+=(const float &rh)
-        {
-            m_magnitude += rh;
-            return *this;
-        }
-
-        void reset()
-        {
-            m_phase = 0;
-            m_magnitude = 0;
-        }
-
-    };
-    NyquistSplineValue value(0, 0);
+    NyquistPlot::SplineValue value(0, 0);
     float coherence = 0.f;
 
     auto accumulate = [&value, &coherence, this] (const unsigned int &i) {
@@ -134,8 +92,8 @@ void NyquistSeriesRenderer::renderSeries()
         coherence = 0.f;
     };
 
-    iterateForSpline<NyquistSplineValue, complex>(m_pointsPerOctave, &value, &coherence, accumulate, collected,
-                                                  beforeSpline);
+    iterateForSpline<NyquistPlot::SplineValue, complex>(m_pointsPerOctave, &value, &coherence, accumulate, collected,
+                                                        beforeSpline);
 
     {
         m_program.setUniformValue(m_matrixUniform, m_matrix);

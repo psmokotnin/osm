@@ -31,6 +31,49 @@ public:
     void setSettings(Settings *settings) noexcept override;
     void storeSettings() noexcept override;
 
+    struct SplineValue {
+        complex m_phase = 0;
+        float m_magnitude = 0;
+
+        SplineValue(complex phase, float magnitude) : m_phase(phase), m_magnitude(magnitude) {}
+        SplineValue(const SplineValue &right)
+        {
+            m_phase = right.m_phase;
+            m_magnitude = right.m_magnitude;
+        };
+
+        SplineValue(SplineValue &&right) noexcept
+        {
+            m_phase = std::move(right.m_phase);
+            m_magnitude = std::move(right.m_magnitude);
+        };
+
+        SplineValue &operator=(const SplineValue &rh)
+        {
+            m_phase = rh.m_phase;
+            m_magnitude = rh.m_magnitude;
+            return *this;
+        }
+
+        SplineValue &operator+=(const complex &rh)
+        {
+            m_phase += rh;
+            return *this;
+        }
+
+        SplineValue &operator+=(const float &rh)
+        {
+            m_magnitude += rh;
+            return *this;
+        }
+
+        void reset()
+        {
+            m_phase = 0;
+            m_magnitude = 0;
+        }
+    };
+
 protected:
     SeriesItem *createSeriesFromSource(Source *source) override;
 };

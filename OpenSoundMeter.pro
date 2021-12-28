@@ -278,6 +278,7 @@ isEqual(GRAPH, "METAL") {
         src/chart/metal/seriesnode.h \
         src/chart/metal/spectrogramseriesnode.h \
         src/chart/metal/crestfactorseriesnode.h \
+        src/chart/metal/nyquistseriesnode.h \
         src/chart/metal/stepseriesnode.h \
         src/chart/metal/xyseriesnode.h \
         src/chart/metal/rtaseriesnode.h \
@@ -293,6 +294,7 @@ isEqual(GRAPH, "METAL") {
         src/chart/metal/seriesnode.mm \
         src/chart/metal/spectrogramseriesnode.mm \
         src/chart/metal/crestfactorseriesnode.mm \
+        src/chart/metal/nyquistseriesnode.mm \
         src/chart/metal/stepseriesnode.mm \
         src/chart/metal/xyseriesnode.mm \
         src/chart/metal/seriesitem.cpp \
