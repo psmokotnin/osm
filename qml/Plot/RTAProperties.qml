@@ -33,172 +33,172 @@ Item {
         anchors.fill: parent
         spacing: 0
 
-    RowLayout {
-        spacing: 0
-
-        SelectableSpinBox {
-            value: dataObject.xmin
-            onValueChanged: dataObject.xmin = value
-            from: dataObject.xLowLimit
-            to: dataObject.xHighLimit
-            editable: true
-            implicitWidth: 170
-            Layout.fillWidth: true
-
-            ToolTip.visible: hovered
-            ToolTip.text: qsTr("x from")
-
-            textFromValue: function(value, locale) {
-                return Number(value) + "Hz"
-            }
-
-            valueFromText: function(text, locale) {
-                return parseInt(text)
-            }
-        }
-
-        SelectableSpinBox {
-            value: dataObject.xmax
-            onValueChanged: dataObject.xmax = value
-            from: dataObject.xLowLimit
-            to: dataObject.xHighLimit
-            editable: true
-            implicitWidth: 170
-            Layout.fillWidth: true
-
-            ToolTip.visible: hovered
-            ToolTip.text: qsTr("x to")
-
-            textFromValue: function(value, locale) {
-                return Number(value) + "Hz"
-            }
-
-            valueFromText: function(text, locale) {
-                return parseInt(text)
-            }
-        }
-
-        SelectableSpinBox {
-            value: dataObject.ymin
-            onValueChanged: dataObject.ymin = value
-            from: dataObject.yLowLimit
-            to: dataObject.yHighLimit
-            editable: true
-            implicitWidth: 170
-            Layout.fillWidth: true
-
-            ToolTip.visible: hovered
-            ToolTip.text: qsTr("y from")
-
-            textFromValue: function(value, locale) {
-                return Number(value) + "dB"
-            }
-
-            valueFromText: function(text, locale) {
-                return parseInt(text)
-            }
-        }
-
-        SelectableSpinBox {
-            value: dataObject.ymax
-            onValueChanged: dataObject.ymax = value
-            from: dataObject.yLowLimit
-            to: dataObject.yHighLimit
-            editable: true
-            implicitWidth: 170
-            Layout.fillWidth: true
-
-            ToolTip.visible: hovered
-            ToolTip.text: qsTr("y to")
-
-            textFromValue: function(value, locale) {
-                return Number(value) + "dB"
-            }
-
-            valueFromText: function(text, locale) {
-                return parseInt(text)
-            }
-        }
-
-        Button {
-            font.family: "Osm"
-            text: "\ue804"
-            implicitWidth: 60
-            onClicked: fileDialog.open();
-            ToolTip.visible: hovered
-            ToolTip.text: qsTr("save chart as an image")
-        }
-    }
-    RowLayout {
-
-        TitledCombo {
-            id: mode
-            implicitWidth: 170
-            title: qsTr("mode")
-            tooltip: qsTr("render data as")
-            model: ["line", "bars", "lines"]
-            currentIndex: dataObject.mode;
-            onCurrentIndexChanged: {dataObject.mode = currentIndex;}
-        }
-
-        TitledCombo {
-            title: qsTr("ppo")
-            tooltip: qsTr("points per octave")
-            implicitWidth: 170
-            visible: mode.model[mode.currentIndex] === "bars"
-            model: [3, 6, 12, 24, 48]
-            currentIndex: model.indexOf(dataObject.pointsPerOctave)
-            Component.onCompleted: {
-                currentIndex = model.indexOf(dataObject.pointsPerOctave);
-            }
-            onCurrentIndexChanged: {
-                dataObject.pointsPerOctave = model[currentIndex];
-            }
-        }
-
-        CheckBox {
-            id: peaks
-            text: qsTr("hold peaks")
-            implicitWidth: 170
-            checked: dataObject.showPeaks
-            onCheckStateChanged: dataObject.showPeaks = checked
-            visible: mode.model[mode.currentIndex] !== "line"
-
-            ToolTip.visible: hovered
-            ToolTip.text: qsTr("show peaks")
-        }
-
         RowLayout {
-            Layout.fillWidth: true
-        }
+            spacing: 0
 
-        TitledCombo {
-            tooltip: qsTr("show only this source")
-            model: SourceModel {
-                addNone: true
-                list: sourceList
+            SelectableSpinBox {
+                value: dataObject.xmin
+                onValueChanged: dataObject.xmin = value
+                from: dataObject.xLowLimit
+                to: dataObject.xHighLimit
+                editable: true
+                implicitWidth: 170
+                Layout.fillWidth: true
+
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("x from")
+
+                textFromValue: function(value, locale) {
+                    return Number(value) + "Hz"
+                }
+
+                valueFromText: function(text, locale) {
+                    return parseInt(text)
+                }
             }
-            Layout.preferredWidth: 280
-            currentIndex: { model.indexOf(dataObject.filter) }
-            textRole: "title"
-            valueRole: "source"
-            onCurrentIndexChanged: {
-                dataObject.filter = model.get(currentIndex);
+
+            SelectableSpinBox {
+                value: dataObject.xmax
+                onValueChanged: dataObject.xmax = value
+                from: dataObject.xLowLimit
+                to: dataObject.xHighLimit
+                editable: true
+                implicitWidth: 170
+                Layout.fillWidth: true
+
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("x to")
+
+                textFromValue: function(value, locale) {
+                    return Number(value) + "Hz"
+                }
+
+                valueFromText: function(text, locale) {
+                    return parseInt(text)
+                }
+            }
+
+            SelectableSpinBox {
+                value: dataObject.ymin
+                onValueChanged: dataObject.ymin = value
+                from: dataObject.yLowLimit
+                to: dataObject.yHighLimit
+                editable: true
+                implicitWidth: 170
+                Layout.fillWidth: true
+
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("y from")
+
+                textFromValue: function(value, locale) {
+                    return Number(value) + "dB"
+                }
+
+                valueFromText: function(text, locale) {
+                    return parseInt(text)
+                }
+            }
+
+            SelectableSpinBox {
+                value: dataObject.ymax
+                onValueChanged: dataObject.ymax = value
+                from: dataObject.yLowLimit
+                to: dataObject.yHighLimit
+                editable: true
+                implicitWidth: 170
+                Layout.fillWidth: true
+
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("y to")
+
+                textFromValue: function(value, locale) {
+                    return Number(value) + "dB"
+                }
+
+                valueFromText: function(text, locale) {
+                    return parseInt(text)
+                }
+            }
+
+            Button {
+                font.family: "Osm"
+                text: "\ue804"
+                implicitWidth: 60
+                onClicked: fileDialog.open();
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("save chart as an image")
             }
         }
+        RowLayout {
 
-        FileDialog {
-            id: fileDialog
-            selectExisting: false
-            title: "Please choose a file's name"
-            folder: (typeof shortcuts !== 'undefined' ? shortcuts.home : Filesystem.StandardFolder.Home)
-            defaultSuffix: "png"
-            onAccepted: {
-                dataObject.parent.grabToImage(function(result) {
-                    result.saveToFile(dataObject.parent.urlForGrab(fileDialog.fileUrl));
-                });
+            TitledCombo {
+                id: mode
+                implicitWidth: 170
+                title: qsTr("mode")
+                tooltip: qsTr("render data as")
+                model: ["line", "bars", "lines"]
+                currentIndex: dataObject.mode;
+                onCurrentIndexChanged: {dataObject.mode = currentIndex;}
+            }
+
+            TitledCombo {
+                title: qsTr("ppo")
+                tooltip: qsTr("points per octave")
+                visible: mode.model[mode.currentIndex] === "bars"
+                model: [3, 6, 12, 24, 48]
+                currentIndex: model.indexOf(dataObject.pointsPerOctave)
+                Component.onCompleted: {
+                    currentIndex = model.indexOf(dataObject.pointsPerOctave);
+                }
+                onCurrentIndexChanged: {
+                    dataObject.pointsPerOctave = model[currentIndex];
+                }
+            }
+
+            CheckBox {
+                id: peaks
+                text: qsTr("hold peaks")
+                Layout.fillWidth: true
+                checked: dataObject.showPeaks
+                onCheckStateChanged: dataObject.showPeaks = checked
+                visible: mode.model[mode.currentIndex] !== "line"
+
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("show peaks")
+            }
+
+            RowLayout {
+                Layout.fillWidth: true
+            }
+
+            TitledCombo {
+                tooltip: qsTr("show only this source")
+                model: SourceModel {
+                    addNone: true
+                    list: sourceList
+                }
+
+                Layout.preferredWidth: 280
+                currentIndex: { model.indexOf(dataObject.filter) }
+                textRole: "title"
+                valueRole: "source"
+                onCurrentIndexChanged: {
+                    dataObject.filter = model.get(currentIndex);
+                }
+            }
+
+            FileDialog {
+                id: fileDialog
+                selectExisting: false
+                title: "Please choose a file's name"
+                folder: (typeof shortcuts !== 'undefined' ? shortcuts.home : Filesystem.StandardFolder.Home)
+                defaultSuffix: "png"
+                onAccepted: {
+                    dataObject.parent.grabToImage(function(result) {
+                        result.saveToFile(dataObject.parent.urlForGrab(fileDialog.fileUrl));
+                    });
+                }
             }
         }
     }
-  }
 }

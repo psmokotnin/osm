@@ -112,7 +112,7 @@ Item {
         TitledCombo {
             title: qsTr("ppo")
             tooltip: qsTr("points per octave")
-            implicitWidth: 170
+            Layout.fillWidth: true
             model: [3, 6, 12, 24, 48]
             currentIndex: {
                 var ppo = dataObject.pointsPerOctave;
@@ -127,7 +127,7 @@ Item {
         CheckBox {
             id: coherence
             text: qsTr("use coherence")
-            implicitWidth: 170
+            Layout.fillWidth: true
             checked: dataObject.coherence
             onCheckStateChanged: dataObject.coherence = checked
 
@@ -142,7 +142,7 @@ Item {
             value: dataObject.coherenceThreshold
             tooltiptext: qsTr("coherence threshold")
             onValueChanged: dataObject.coherenceThreshold = value
-            implicitWidth: 170
+            Layout.fillWidth: true
             visible: coherence.checked
         }
 
@@ -156,7 +156,7 @@ Item {
                 addNone: true
                 list: sourceList
             }
-            Layout.preferredWidth: 280
+            Layout.fillWidth: true
             currentIndex: { model.indexOf(dataObject.filter) }
             textRole: "title"
             valueRole: "source"
@@ -179,5 +179,6 @@ Item {
             }
         }
     }
-  }
+
+    }
 }

@@ -138,80 +138,79 @@ Item {
                 ToolTip.text: qsTr("save chart as an image")
             }
         }
-    RowLayout {
-        spacing: 0
-
-        TitledCombo {
-            title: qsTr("ppo")
-            tooltip: qsTr("points per octave")
-            implicitWidth: 170
-            model: [3, 6, 12, 24, 48]
-            currentIndex: {
-                var ppo = dataObject.pointsPerOctave;
-                model.indexOf(ppo);
-            }
-            onCurrentIndexChanged: {
-                var ppo = model[currentIndex];
-                dataObject.pointsPerOctave = ppo;
-            }
-        }
-
-        CheckBox {
-            id: coherence
-            text: qsTr("use coherence")
-            implicitWidth: 170
-            checked: dataObject.coherence
-            onCheckStateChanged: dataObject.coherence = checked
-
-            ToolTip.visible: hovered
-            ToolTip.text: qsTr("use coherence as alpha channel")
-        }
-
-        FloatSpinBox {
-            min: 0.0
-            max: 1.0
-            step: 0.05
-            value: dataObject.coherenceThreshold
-            tooltiptext: qsTr("coherence threshold")
-            onValueChanged: dataObject.coherenceThreshold = value
-            implicitWidth: 170
-            visible: coherence.checked
-        }
-
         RowLayout {
-            Layout.fillWidth: true
-        }
+            spacing: 0
 
-        TitledCombo {
-            id: filter
-            tooltip: qsTr("show only selected source")
-            model: SourceModel {
-                id: filterModel
-                addNone: true
-                list: sourceList
+            TitledCombo {
+                title: qsTr("ppo")
+                tooltip: qsTr("points per octave")
+                Layout.fillWidth: true
+                model: [3, 6, 12, 24, 48]
+                currentIndex: {
+                    var ppo = dataObject.pointsPerOctave;
+                    model.indexOf(ppo);
+                }
+                onCurrentIndexChanged: {
+                    var ppo = model[currentIndex];
+                    dataObject.pointsPerOctave = ppo;
+                }
             }
-            Layout.preferredWidth: 280
-            currentIndex: { model.indexOf(dataObject.filter) }
-            textRole: "title"
-            valueRole: "source"
-            onCurrentIndexChanged: {
-                dataObject.filter = model.get(currentIndex);
-            }
-        }
 
-        FileDialog {
-            id: fileDialog
-            selectExisting: false
-            title: "Please choose a file's name"
-            folder: (typeof shortcuts !== 'undefined' ? shortcuts.home : Filesystem.StandardFolder.Home)
-            defaultSuffix: "png"
-            onAccepted: {
-                dataObject.parent.grabToImage(function(result) {
-                    result.saveToFile(dataObject.parent.urlForGrab(fileDialog.fileUrl));
-                });
+            CheckBox {
+                id: coherence
+                text: qsTr("use coherence")
+                Layout.fillWidth: true
+                checked: dataObject.coherence
+                onCheckStateChanged: dataObject.coherence = checked
+
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("use coherence as alpha channel")
+            }
+
+            FloatSpinBox {
+                min: 0.0
+                max: 1.0
+                step: 0.05
+                value: dataObject.coherenceThreshold
+                tooltiptext: qsTr("coherence threshold")
+                onValueChanged: dataObject.coherenceThreshold = value
+                Layout.fillWidth: true
+                visible: coherence.checked
+            }
+
+            RowLayout {
+                Layout.fillWidth: true
+            }
+
+            TitledCombo {
+                id: filter
+                tooltip: qsTr("show only selected source")
+                model: SourceModel {
+                    id: filterModel
+                    addNone: true
+                    list: sourceList
+                }
+                Layout.fillWidth: true
+                currentIndex: { model.indexOf(dataObject.filter) }
+                textRole: "title"
+                valueRole: "source"
+                onCurrentIndexChanged: {
+                    dataObject.filter = model.get(currentIndex);
+                }
+            }
+
+            FileDialog {
+                id: fileDialog
+                selectExisting: false
+                title: "Please choose a file's name"
+                folder: (typeof shortcuts !== 'undefined' ? shortcuts.home : Filesystem.StandardFolder.Home)
+                defaultSuffix: "png"
+                onAccepted: {
+                    dataObject.parent.grabToImage(function(result) {
+                        result.saveToFile(dataObject.parent.urlForGrab(fileDialog.fileUrl));
+                    });
+                }
             }
         }
     }
-
-  }
 }
