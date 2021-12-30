@@ -76,7 +76,7 @@ Popup {
                         popup.open();
                     }
                 } else {
-                    update.text = qsTr("You have the latest version :)");
+                    update.text = qsTr("You have the latest version :)<br/>%1").arg(appVersion);
                 }
             } catch (e) {
                 update.text = qsTr(
