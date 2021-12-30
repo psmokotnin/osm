@@ -205,6 +205,15 @@ MenuBar {
                 applicationWindow.properiesbar.open(null, "qrc:/Calculator.qml");
             }
         }
+        MenuItem {
+            id: experimentFunctions
+            text: qsTr("&Experiment functions")
+            checkable: true
+            checked: applicationAppearance.experimentFunctions
+            onCheckedChanged: {
+                applicationAppearance.experimentFunctions = experimentFunctions.checked;
+            }
+        }
     }
 
     Menu {

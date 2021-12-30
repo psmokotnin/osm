@@ -53,6 +53,27 @@ void Appearance::setDarkMode(const bool &setDark)
     emit darkModeChanged(setDark);
 }
 
+bool Appearance::experimentFunctions() const
+{
+    auto store = settings();
+    Q_ASSERT(store);
+
+    auto value = store->value("experimentFunctions");
+    return value.toBool();
+}
+
+void Appearance::setExperimentFunctions(bool value)
+{
+    if (value == experimentFunctions()) {
+        return;
+    }
+    auto store = settings();
+    Q_ASSERT(store);
+
+    store->setValue("experimentFunctions", value);
+    emit experimentFunctionsChanged(value);
+}
+
 bool Appearance::showMenuBar() const
 {
 #ifdef Q_OS_IOS
