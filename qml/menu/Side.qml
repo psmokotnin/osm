@@ -93,12 +93,20 @@ Drawer {
             onclick: function() {
                 applicationWindow.properiesbar.open(null, "qrc:/Calculator.qml");
             }
+            separator: true
+        }
+
+        ListElement {
+            name: qsTr("Check for update")
+            onclick: function() {
+                update.show();
+            }
         }
     }
 
     ColumnLayout {
-        anchors.left: parent.left
-        anchors.right: parent.right
+        id: content
+        anchors.fill: parent
 
         Image {
             source: "qrc:/images/icons/white80.png"
@@ -108,9 +116,18 @@ Drawer {
             Layout.topMargin: 20;
         }
 
-        Repeater {
+        ListView {
+            Layout.fillHeight: true
+            Layout.fillWidth: true
+            Layout.alignment: Qt.AlignHCenter
+            Layout.margins: 0
+            spacing: 0
+            clip: true
+            ScrollIndicator.vertical: ScrollIndicator {}
+
             delegate: ColumnLayout {
-                Layout.fillWidth: true
+                anchors.left: parent.left
+                anchors.right: parent.right
                 Button {
                     text: name
                     onClicked: {
