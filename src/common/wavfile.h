@@ -1,6 +1,6 @@
 /**
  *  OSM
- *  Copyright (C) 2021  Pavel Smokotnin
+ *  Copyright (C) 2022  Pavel Smokotnin
 
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -19,21 +19,20 @@
 #define WAVFILE_H
 
 #include <QFile>
-#include "outputdevice.h"
 
-class WavFile: public OutputDevice
+class WavFile
 {
-    Q_OBJECT
-
 public:
-    WavFile(QObject *parent);
+    WavFile();
+    ~WavFile();
 
-    bool load();
-    unsigned int sampleRate() const noexcept;
+    bool load(const QString &fileName);
+    int sampleRate() const noexcept;
     unsigned int blockAlign() const noexcept;
     unsigned int bitsPerSample() const noexcept;
+    unsigned int sampleType() const noexcept;
 
-    Sample sample() override;
+    float nextSample(bool loop, bool *finished = nullptr) noexcept;
 
 protected:
     QFile m_file;
@@ -51,7 +50,8 @@ private:
         };
 
         struct AudioFormat {
-            const static qint16 PCM = 1;
+            const static qint16 PCM     = 1;
+            const static qint16 FLOAT   = 3;
 
             Chunk chunk;
             qint16 audioFormat;     //! PCM = 1
@@ -75,4 +75,5 @@ private:
 };
 
 QDebug operator << (QDebug dbg, const WavFile::WaveHeader &header);
+
 #endif // WAVFILE_H

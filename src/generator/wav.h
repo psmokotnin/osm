@@ -15,16 +15,18 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef MNOISE_H
-#define MNOISE_H
+#ifndef WAV_H
+#define WAV_H
 
-#include "wav.h"
+#include "outputdevice.h"
+#include "common/wavfile.h"
 
-class MNoise : public Wav
+class Wav: public OutputDevice, public WavFile
 {
     Q_OBJECT
-public:
-    MNoise(QObject *parent);
-};
 
-#endif // MNOISE_H
+public:
+    Wav(QObject *parent);
+    Sample sample() override;
+};
+#endif // WAV_H

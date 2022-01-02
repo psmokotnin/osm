@@ -19,6 +19,7 @@
 #include "measurement.h"
 #include "union.h"
 #include "elc.h"
+#include "common/wavfile.h"
 #include <qmath.h>
 #include <QUrl>
 #include <QJsonDocument>
@@ -199,27 +200,27 @@ bool SourceList::load(const QUrl &fileName) noexcept
     return false;
 }
 
-bool SourceList::importAuto(const QUrl &fileName) noexcept
+bool SourceList::import(const QUrl &fileName, const int &type) noexcept
 {
-    QFileInfo info(fileName.toLocalFile());
-    auto suffix = info.suffix();
-    if (suffix == "txt") {
-        return importTxt(fileName);
-    }
-    if (suffix == "csv") {
-        return importCsv(fileName);
+    switch (type) {
+    case TRANSFER_TXT:
+        return importFile(fileName, "\t");
+
+    case TRANSFER_CSV:
+        return importFile(fileName, ",");
+
+    case IMPULSE_TXT:
+        return importImpulse(fileName, "\t");
+
+    case IMPULSE_CSV:
+        return importImpulse(fileName, ",");
+
+    case IMPULSE_WAV:
+        return importWav(fileName);
     }
     return false;
 }
 
-bool SourceList::importTxt(const QUrl &fileName) noexcept
-{
-    return importFile(fileName, "\t");
-}
-bool SourceList::importCsv(const QUrl &fileName) noexcept
-{
-    return importFile(fileName, ",");
-}
 bool SourceList::importFile(const QUrl &fileName, QString separator) noexcept
 {
     QFile file(fileName.toLocalFile());
@@ -272,6 +273,89 @@ bool SourceList::importFile(const QUrl &fileName, QString separator) noexcept
         row.magnitude = std::pow(10.f, (row.magnitude) / 20.f);
     }
     s->copyFrom(d.size(), 0, d.data(), nullptr);
+    s->setName(fileName.fileName());
+    s->setNotes(notes);
+    s->setActive(true);
+    appendItem(s, true);
+    return true;
+}
+bool SourceList::importImpulse(const QUrl &fileName, QString separator) noexcept
+{
+    QFile file(fileName.toLocalFile());
+    if (!file.open(QIODevice::ReadOnly)) {
+        qWarning("Couldn't open file");
+        return false;
+    }
+
+    QString notes = "Imported from " + fileName.toDisplayString(QUrl::PreferLocalFile);
+    char line[1024];
+    float time, value;
+
+    std::vector<chart::Source::TimeData> d;
+    d.reserve(6720); //140ms @ 48kHz
+    auto s = new Stored();
+
+    while (file.readLine(line, 1024) > 0) {
+        QString qLine(line);
+        auto list = qLine.split(separator);
+
+        if (list.size() > 1) {
+            time = list[0].replace(",", ".").toFloat();
+            value = list[1].replace("*", "0").replace(",", ".").toFloat();
+
+            d.push_back({
+                time,
+                value
+            });
+
+        }
+    }
+
+    s->copyFrom(0, d.size(), nullptr, d.data());
+    s->setName(fileName.fileName());
+    s->setNotes(notes);
+    s->setActive(true);
+    appendItem(s, true);
+    return true;
+}
+bool SourceList::importWav(const QUrl &fileName) noexcept
+{
+    WavFile wav;
+    if (!wav.load(fileName.toLocalFile())) {
+        qWarning("Couldn't open file");
+        return false;
+    }
+
+    //TODO: load meta from file
+    QString notes = "Imported from " + fileName.toDisplayString(QUrl::PreferLocalFile);
+    float time = 0, value = 0, dt = 1.f / wav.sampleRate(), maxValue = 0, offset = 0;
+    bool finished = false;
+
+    std::vector<chart::Source::TimeData> d;
+    d.reserve(6720); //140ms @ 48kHz
+    auto s = new Stored();
+
+    value = wav.nextSample(false, &finished);
+    while (!finished) {
+        d.push_back({
+            time,
+            value
+        });
+
+        if (maxValue < std::abs(value)) {
+            maxValue = std::abs(value);
+            offset = time;
+        }
+        value = wav.nextSample(false, &finished);
+        time += dt;
+    }
+
+    for (auto &row : d) {
+        row.time -= offset;
+    }
+
+    s->copyFrom(0, d.size(), nullptr, d.data());
+    //s->restoreFromImpulse();
     s->setName(fileName.fileName());
     s->setNotes(notes);
     s->setActive(true);
@@ -359,7 +443,6 @@ Union *SourceList::addUnion()
 {
     return add<Union>();
 }
-
 ELC *SourceList::addElc()
 {
     return add<ELC>();
@@ -396,7 +479,6 @@ void SourceList::removeItem(chart::Source *item, bool deleteItem)
         }
     }
 }
-
 void SourceList::cloneItem(chart::Source *item)
 {
     auto newItem = item->clone();

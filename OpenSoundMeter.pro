@@ -26,10 +26,12 @@ SOURCES += src/main.cpp \
     src/chart/coherenceplot.cpp \
     src/common/autosaver.cpp \
     src/common/recentfilesmodel.cpp \
+    src/common/wavfile.cpp \
     src/elc.cpp \
     src/filesystem/dialog.cpp \
     src/filesystem/dialogPlugin.cpp \
     src/filesystem/plugins/widgetdialogplugin.cpp \
+    src/generator/wav.cpp \
     src/inputdevice.cpp \
     src/common/appearance.cpp \
     src/common/logger.cpp \
@@ -44,7 +46,6 @@ SOURCES += src/main.cpp \
     src/generator/generatorthread.cpp \
     src/generator/pinknoise.cpp \
     src/generator/outputdevice.cpp \
-    src/generator/wavfile.cpp \
     src/generator/whitenoise.cpp \
     src/generator/sinnoise.cpp \
     src/generator/sinsweep.cpp \
@@ -121,10 +122,12 @@ HEADERS += \
     src/chart/coherenceplot.h \
     src/common/autosaver.h \
     src/common/recentfilesmodel.h \
+    src/common/wavfile.h \
     src/elc.h \
     src/filesystem/dialog.h \
     src/filesystem/dialogPlugin.h \
     src/filesystem/plugins/widgetdialogplugin.h \
+    src/generator/wav.h \
     src/inputdevice.h \
     src/common/appearance.h \
     src/common/logger.h \
@@ -139,7 +142,6 @@ HEADERS += \
     src/generator/generatorthread.h \
     src/generator/pinknoise.h \
     src/generator/outputdevice.h \
-    src/generator/wavfile.h \
     src/generator/whitenoise.h \
     src/generator/sinnoise.h \
     src/generator/sinsweep.h \

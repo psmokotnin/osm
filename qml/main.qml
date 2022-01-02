@@ -202,10 +202,16 @@ ApplicationWindow {
         title: qsTr("Please choose a file's name")
         folder: (typeof shortcuts !== 'undefined' ? shortcuts.home : Filesystem.StandardFolder.Home)
         defaultSuffix: "txt"
-        nameFilters: ["txt transfer data file (*.txt)", "csv transfer data file (*.csv)"]
+        nameFilters: [
+            "txt transfer data file (*.txt)",
+            "csv transfer data file (*.csv)",
+            "txt impulse data file (*.txt)",
+            "csv impulse data file (*.csv)",
+            "wav impulse data file (*.wav)"
+        ]
         onAccepted: function() {
             applicationWindow.properiesbar.clear();
-            if (!sourceList.importAuto(importDialog.fileUrl)) {
+            if (!sourceList.import(importDialog.fileUrl, nameFilters.indexOf(selectedNameFilter))) {
                 message.showError(qsTr("could not open the file"));
             }
         }

@@ -57,15 +57,23 @@ public:
     Q_INVOKABLE void reset() noexcept;
     Q_INVOKABLE bool save(const QUrl &fileName) const noexcept;
     Q_INVOKABLE bool load(const QUrl &fileName) noexcept;
-    Q_INVOKABLE bool importAuto(const QUrl &fileName) noexcept;
-    Q_INVOKABLE bool importTxt(const QUrl &fileName) noexcept;
-    Q_INVOKABLE bool importCsv(const QUrl &fileName) noexcept;
+    Q_INVOKABLE bool import(const QUrl &fileName, const int &type) noexcept;
+    Q_INVOKABLE bool importImpulse(const QUrl &fileName, QString separator) noexcept;
+    Q_INVOKABLE bool importWav(const QUrl &fileName) noexcept;
     Q_INVOKABLE bool move(int from, int to) noexcept;
     Q_INVOKABLE int indexOf(chart::Source *) const noexcept;
 
     int selectedIndex() const;
     chart::Source *selected() const noexcept;
     void setSelected(int selected);
+
+    enum {
+        TRANSFER_TXT    = 0,
+        TRANSFER_CSV    = 1,
+        IMPULSE_TXT     = 2,
+        IMPULSE_CSV     = 3,
+        IMPULSE_WAV     = 4
+    };
 
 public slots:
     Q_INVOKABLE QColor nextColor();

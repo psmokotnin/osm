@@ -15,16 +15,16 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef MNOISE_H
-#define MNOISE_H
-
 #include "wav.h"
 
-class MNoise : public Wav
+Wav::Wav(QObject *parent) : OutputDevice(parent)
 {
-    Q_OBJECT
-public:
-    MNoise(QObject *parent);
-};
+    m_name = "Wav";
+}
 
-#endif // MNOISE_H
+Sample Wav::sample()
+{
+    Sample s;
+    s.f = nextSample(true);
+    return s;
+}

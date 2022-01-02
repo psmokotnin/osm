@@ -51,9 +51,10 @@
 */
 #include "mnoise.h"
 
-MNoise::MNoise(QObject *parent) : WavFile(parent)
+MNoise::MNoise(QObject *parent) : Wav(parent)
 {
     m_name = "M-Noise™";
-    m_file.setFileName(":/audio/mnoise.wav");
-    load();
+    if (!load(":/audio/mnoise.wav")) {
+        qCritical() << "can't load M-Noise";
+    }
 }
