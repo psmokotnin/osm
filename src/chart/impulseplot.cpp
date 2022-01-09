@@ -19,16 +19,9 @@
 
 using namespace chart;
 
-ImpulsePlot::ImpulsePlot(Settings *settings, QQuickItem *parent): XYPlot(settings, parent), m_mode(Linear)
+ImpulsePlot::ImpulsePlot(Settings *settings, QQuickItem *parent): XYPlot(settings, parent), m_mode(Log)
 {
-    m_x.configure(AxisType::Linear, -20.0, 20.0, 41);
-    m_x.setReset(-5.f, 5.f);
-    m_x.reset();
-    m_y.configure(AxisType::Linear, -2.0, 2.0, 21);
-    m_y.setReset(-1.f, 1.f);
-    m_y.reset();
-    m_x.setUnit("ms");
-    m_y.setUnit("");
+    setMode(Linear);
     setFlag(QQuickItem::ItemHasContents);
 }
 
@@ -62,12 +55,23 @@ void ImpulsePlot::setMode(const Mode &mode)
 
         switch (m_mode) {
         case Linear:
+            m_x.configure(AxisType::Linear, -20.0, 20.0, 41);
+            m_x.setReset(-5.f, 5.f);
+            m_x.setUnit("ms");
+            m_x.reset();
+
             m_y.configure(AxisType::Linear, -2.0, 2.0, 21);
             m_y.setReset(-1.f, 1.f);
             m_y.setUnit("");
             m_y.reset();
             break;
+
         case Log:
+            m_x.configure(AxisType::Linear, -2000.0, 20000.0, 401);
+            m_x.setReset(-100.f, 900.f);
+            m_x.setUnit("ms");
+            m_x.reset();
+
             m_y.configure(AxisType::Linear, -140.f, 40.f,  15);
             m_y.setReset(-100.f, 0.f);
             m_y.setUnit("dB");
