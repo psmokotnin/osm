@@ -328,7 +328,7 @@ bool SourceList::importWav(const QUrl &fileName) noexcept
 
     //TODO: load meta from file
     QString notes = "Imported from " + fileName.toDisplayString(QUrl::PreferLocalFile);
-    float time = 0, value = 0, dt = 1.f / wav.sampleRate(), maxValue = 0, offset = 0;
+    float time = 0, value = 0, dt = 1000.f / wav.sampleRate(), maxValue = 0, offset = 0;
     bool finished = false;
 
     std::vector<chart::Source::TimeData> d;

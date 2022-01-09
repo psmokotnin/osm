@@ -40,6 +40,7 @@ public:
     Q_INVOKABLE bool saveFRD(const QUrl &fileName) const noexcept;
     Q_INVOKABLE bool saveTXT(const QUrl &fileName) const noexcept;
     Q_INVOKABLE bool saveCSV(const QUrl &fileName) const noexcept;
+    Q_INVOKABLE bool saveWAV(const QUrl &fileName) const noexcept;
     Q_INVOKABLE QJsonObject toJSON(const SourceList * = nullptr) const noexcept override;
     void fromJSON(QJsonObject data, const SourceList * = nullptr) noexcept override;
 

@@ -68,24 +68,58 @@ bool WavFile::load(const QString &fileName)
     return m_header.valid();
 }
 
+bool WavFile::save(const QString &fileName, int sampleRate, const QByteArray &data)
+{
+    m_file.setFileName(fileName);
+    if (!m_file.open(QFile::WriteOnly)) {
+        return false;
+    }
+    prepareHeader(sampleRate);
+    m_header.wave.chunk.size = qToLittleEndian(36 + data.count());;
+    m_header.data.size = qToLittleEndian(data.count());
+    m_file.write(reinterpret_cast<char *>(&m_header), sizeof (m_header));
+    m_file.write(data.data(), data.count());
+    m_file.close();
+
+    return true;
+}
+
+void WavFile::prepareHeader(int sampleRate)
+{
+    std::memcpy(m_header.wave.chunk.id, "RIFF", 4);
+
+    m_header.format.chunk.size      = qToLittleEndian(16);
+    m_header.format.audioFormat     = qToLittleEndian(WaveHeader::AudioFormat::FLOAT);
+    m_header.format.channels        = qToLittleEndian(1);
+    m_header.format.bitsPerSample   = qToLittleEndian(32);
+    m_header.format.sampleRate      = qToLittleEndian(sampleRate);
+    m_header.format.blockAlign      = qToLittleEndian(m_header.format.channels * m_header.format.bitsPerSample / 8);
+    m_header.format.byteRate        = qToLittleEndian(m_header.format.sampleRate * m_header.format.blockAlign);
+}
+
 int WavFile::sampleRate() const noexcept
 {
     return qFromLittleEndian(m_header.format.sampleRate);
 }
 
-unsigned int WavFile::blockAlign() const noexcept
+constexpr unsigned int WavFile::blockAlign() const noexcept
 {
     return qFromLittleEndian(m_header.format.blockAlign);
 }
 
-unsigned int WavFile::bitsPerSample() const noexcept
+constexpr unsigned int WavFile::bitsPerSample() const noexcept
 {
     return qFromLittleEndian(m_header.format.bitsPerSample);
 }
 
-unsigned int WavFile::sampleType() const noexcept
+constexpr unsigned int WavFile::sampleType() const noexcept
 {
-    return m_header.format.audioFormat;
+    return qFromLittleEndian(m_header.format.audioFormat);
+}
+
+constexpr unsigned int WavFile::dataSize() const noexcept
+{
+    return qFromLittleEndian(m_header.data.size);
 }
 
 float WavFile::nextSample(bool loop, bool *finished) noexcept
@@ -98,7 +132,7 @@ float WavFile::nextSample(bool loop, bool *finished) noexcept
 
     std::vector<char> buffer;
     buffer.resize(blockAlign());
-    if (m_file.read(buffer.data(), blockAlign()) == 0) {
+    if (m_file.pos() >= m_dataPosition + dataSize()) {
         if (loop) {
             m_file.seek(m_dataPosition);
             m_file.read(buffer.data(), blockAlign());
@@ -108,6 +142,10 @@ float WavFile::nextSample(bool loop, bool *finished) noexcept
             }
             return NAN;
         }
+    }
+
+    if (m_file.read(buffer.data(), blockAlign()) == 0) {
+        return NAN;
     }
 
     switch (sampleType()) {

@@ -111,7 +111,7 @@ Item {
                     displayText: qsTr("Save data as");
 
                     implicitWidth: 170
-                    model: ["osm", "cal", "txt", "csv", "frd"]
+                    model: ["osm", "cal", "txt", "csv", "frd", "wav"]
 
                     onActivated: function() {
                         saveas = currentText;
@@ -176,6 +176,9 @@ Item {
                     break;
                 case "frd":
                     dataObject.saveFRD(fileDialog.fileUrl);
+                    break;
+                case "wav":
+                    dataObject.saveWAV(fileDialog.fileUrl);
                     break;
             }
         }

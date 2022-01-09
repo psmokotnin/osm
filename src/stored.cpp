@@ -21,6 +21,8 @@
 #include <QJsonArray>
 #include <QFile>
 #include <QtMath>
+#include <QtEndian>
+#include "common/wavfile.h"
 
 Stored::Stored(QObject *parent) : chart::Source(parent), m_notes(),
     m_polarity(false), m_inverse(false), m_gain(0), m_delay(0)
@@ -245,6 +247,21 @@ bool Stored::saveCSV(const QUrl &fileName) const noexcept
     saveFile.close();
     return true;
 }
+
+bool Stored::saveWAV(const QUrl &fileName) const noexcept
+{
+    WavFile file;
+    QByteArray data;
+    data.resize(m_deconvolutionSize * 4);
+    auto dst = data.data();
+    for (unsigned int i = 0; i < m_deconvolutionSize; ++i, dst += 4) {
+        qToLittleEndian(m_impulseData[i].value.real, dst);
+    }
+
+    int sampleRate = std::round(10 / std::abs(m_impulseData[1].time - m_impulseData[2].time)) * 100;
+    return file.save(fileName.toLocalFile(), sampleRate, data);
+}
+
 void Stored::setNotes(const QString &notes) noexcept
 {
     if (m_notes != notes) {
