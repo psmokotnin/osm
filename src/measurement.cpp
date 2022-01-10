@@ -561,6 +561,9 @@ void Measurement::writeData(const QByteArray &buffer)
         return;
     }
     std::lock_guard<std::mutex> guard(m_dataMutex);
+    if (!m_audioStream) {
+        return;
+    }
     float sample;
     auto totalChanels = m_audioStream->format().channelCount;
     unsigned int currentChanel = 0;

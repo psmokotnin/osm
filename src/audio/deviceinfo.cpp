@@ -33,7 +33,7 @@ DeviceInfo::DeviceInfo(const Id &id, const QString &pluginName) :
 {
 }
 
-bool DeviceInfo::operator==(const DeviceInfo &right)
+bool DeviceInfo::operator==(const DeviceInfo &right) const
 {
     return id() == right.id();
 }

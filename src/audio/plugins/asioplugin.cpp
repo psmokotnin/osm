@@ -176,7 +176,7 @@ DeviceInfo ASIOPlugin::deviceInfo(const DeviceInfo::Id &id) const
 
 DeviceInfo::Id ASIOPlugin::defaultDeviceId(const Plugin::Direction &) const
 {
-    return DeviceInfo::Id::Null();
+    return DeviceInfo::Id();
 }
 
 Format ASIOPlugin::deviceFormat(const DeviceInfo::Id &id, const Plugin::Direction &mode) const
@@ -243,7 +243,7 @@ bool ASIOPlugin::startDevice(const DeviceInfo::Id &id)
 
     QByteArray ch = m_currentDevice.toLocal8Bit();
     if (!m_drivers.loadDriver(ch.data())) {
-        m_currentDevice = DeviceInfo::Id::Null();
+        m_currentDevice = DeviceInfo::Id();
         qCritical() << "can't load driver " << id;
         return false;
     }
@@ -296,7 +296,7 @@ bool ASIOPlugin::startDevice(const DeviceInfo::Id &id)
     callbacks.asioMessage           = &asioCallbacks::asioMessage;
     callbacks.bufferSwitchTimeInfo  = &asioCallbacks::bufferSwitchTimeInfo;
 
-    checkASIOCall(ASIOCreateBuffers(m_bufferInfo.data(), channelCount, m_bufferSize, &callbacks), nullptr,
+    checkASIOCall(ASIOCreateBuffers(m_bufferInfo.data(), channelCount, m_bufferSize, &callbacks), false,
                   "ASIOCreateBuffers");
 
     ASIOOutputReady();

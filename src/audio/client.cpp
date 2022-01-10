@@ -139,7 +139,7 @@ DeviceInfo::Id Client::defaultDeviceId(const Plugin::Direction &mode) const
         }
     }
     qCritical() << "Can't get default device";
-    return DeviceInfo::Id::Null();
+    return DeviceInfo::Id();
 }
 
 bool Client::isDevicePresent(const DeviceInfo::Id &id) const
@@ -165,8 +165,8 @@ DeviceInfo::Id Client::deviceIdByName(const QString &name, const Plugin::Directi
 {
     auto it = std::find_if(m_deviceList.begin(), m_deviceList.end(), [&name, &direction](const auto & e) {
         if (
-                (direction == Plugin::Input && e.inputChannels().count() > 0) ||
-                (direction == Plugin::Output && e.outputChannels().count() > 0)){
+            (direction == Plugin::Input && e.inputChannels().count() > 0) ||
+            (direction == Plugin::Output && e.outputChannels().count() > 0)) {
             return e.name() == name;
         }
         return false;
