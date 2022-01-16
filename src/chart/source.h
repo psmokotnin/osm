@@ -54,6 +54,7 @@ protected:
     QColor m_color;
 
     std::mutex m_dataMutex;   //NOTE: shared_mutex (C++17)
+    std::atomic<bool> m_onReset;
     FTData *m_ftdata;
     TimeData *m_impulseData;
 

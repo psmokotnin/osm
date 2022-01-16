@@ -557,7 +557,7 @@ void Measurement::setWindowType(QVariant type)
 }
 void Measurement::writeData(const QByteArray &buffer)
 {
-    if (!m_audioStream) {
+    if (!m_audioStream || m_onReset.load()) {
         return;
     }
     std::lock_guard<std::mutex> guard(m_dataMutex);
@@ -959,22 +959,29 @@ void Measurement::checkChannels()
 }
 void Measurement::resetAverage() noexcept
 {
+    auto reset = [](auto * f) {
+        f->reset();
+    };
+
+    //next operations need time and shouldn't affect audio thread
+    m_onReset.store(true);
     std::lock_guard<std::mutex> guard(m_dataMutex);
+
     m_deconvAvg.reset();
     m_moduleAvg.reset();
     m_magnitudeAvg.reset();
     m_pahseAvg.reset();
 
-    auto reset = [](auto * f) {
-        f->reset();
-    };
     m_moduleLPFs.each(reset);
     m_magnitudeLPFs.each(reset);
     m_deconvLPFs.each(reset);
     m_phaseLPFs.each(reset);
+
     m_meters.each(reset);
     m_loopBuffer.reset();
 
     m_dataMeter.reset();
     m_referenceMeter.reset();
+
+    m_onReset.store(false);
 }

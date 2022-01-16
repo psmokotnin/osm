@@ -20,6 +20,7 @@
 
 using namespace chart;
 Source::Source(QObject *parent) : QObject(parent),
+    m_dataMutex(), m_onReset(false),
     m_ftdata(nullptr),
     m_impulseData(nullptr),
     m_dataLength(0),
