@@ -233,8 +233,11 @@ void Union::calcPolar(unsigned int count, chart::Source *primary) noexcept
                     module += (*it)->module(i);
                     break;
                 case Subtract:
-                    magnitude -= (*it)->magnitudeRaw(i);
-                    phase -= (*it)->phase(i);
+                    magnitude = std::abs(magnitude - (*it)->magnitudeRaw(i));
+                    auto p = phase.real * (*it)->phase(i).real + phase.imag * (*it)->phase(i).imag;
+                    auto sign = (phase.imag - (*it)->phase(i).imag > 0 ? 1 : -1);
+                    phase.real = p / (phase.abs() * (*it)->phase(i).abs());
+                    phase.imag = sign * std::sqrt(1 - phase.real * phase.real);
                     module -= (*it)->module(i);
                     break;
                 }
@@ -249,6 +252,9 @@ void Union::calcPolar(unsigned int count, chart::Source *primary) noexcept
             module /= count;
         }
         coherence /= coherenceWeight;
+        if (std::isnan(phase.real) || std::isnan(phase.imag)) {
+            phase = {1, 0};
+        }
 
         m_ftdata[i].frequency  = primary->frequency(i);
         m_ftdata[i].module     = module;
@@ -329,7 +335,10 @@ void Union::calcdB(unsigned int count, chart::Source *primary) noexcept
                     break;
                 case Subtract:
                     magnitude -= (*it)->magnitude(i);
-                    phase -= (*it)->phase(i);
+                    auto p = phase.real * (*it)->phase(i).real + phase.imag * (*it)->phase(i).imag;
+                    auto sign = (phase.imag - (*it)->phase(i).imag > 0 ? 1 : -1);
+                    phase.real = p / (phase.abs() * (*it)->phase(i).abs());
+                    phase.imag = sign * std::sqrt(1 - phase.real * phase.real);
                     module -= 20.f * std::log10f((*it)->module(i));
                     break;
                 }
@@ -345,6 +354,9 @@ void Union::calcdB(unsigned int count, chart::Source *primary) noexcept
             module /= count;
         }
         coherence /= coherenceWeight;
+        if (std::isnan(phase.real) || std::isnan(phase.imag)) {
+            phase = {1, 0};
+        }
 
         magnitude = std::pow(10, magnitude / 20.f);
         module    = std::pow(10, module / 20.f);
@@ -380,7 +392,10 @@ void Union::calcPower(unsigned int count, chart::Source *primary) noexcept
                     break;
                 case Subtract:
                     magnitude -= std::pow((*it)->magnitudeRaw(i), 2);
-                    phase -= (*it)->phase(i);
+                    auto p = phase.real * (*it)->phase(i).real + phase.imag * (*it)->phase(i).imag;
+                    auto sign = (phase.imag - (*it)->phase(i).imag > 0 ? 1 : -1);
+                    phase.real = p / (phase.abs() * (*it)->phase(i).abs());
+                    phase.imag = sign * std::sqrt(1 - phase.real * phase.real);
                     module -= std::pow((*it)->module(i), 2);
                     break;
                 }
@@ -398,6 +413,9 @@ void Union::calcPower(unsigned int count, chart::Source *primary) noexcept
             module    = std::abs(module);
         }
         coherence /= coherenceWeight;
+        if (std::isnan(phase.real) || std::isnan(phase.imag)) {
+            phase = {1, 0};
+        }
 
         magnitude = std::sqrt(magnitude);
         module    = std::sqrt(module);
