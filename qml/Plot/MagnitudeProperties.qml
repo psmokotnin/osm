@@ -48,7 +48,7 @@ Item {
                 ToolTip.text: qsTr("x from")
 
                 textFromValue: function(value, locale) {
-                    return Number(value) + "Hz"
+                    return Number(value) + " Hz"
                 }
 
                 valueFromText: function(text, locale) {
@@ -69,7 +69,7 @@ Item {
                 ToolTip.text: qsTr("x to")
 
                 textFromValue: function(value, locale) {
-                    return Number(value) + "Hz"
+                    return Number(value) + " Hz"
                 }
 
                 valueFromText: function(text, locale) {
@@ -90,7 +90,7 @@ Item {
                 ToolTip.text: qsTr("y from")
 
                 textFromValue: function(value, locale) {
-                    return Number(value) + "dB"
+                    return Number(value) + " " + dataObject.yLabel
                 }
 
                 valueFromText: function(text, locale) {
@@ -111,7 +111,7 @@ Item {
                 ToolTip.text: qsTr("y to")
 
                 textFromValue: function(value, locale) {
-                    return Number(value) + "dB"
+                    return Number(value) + " " + dataObject.yLabel
                 }
 
                 valueFromText: function(text, locale) {
@@ -140,6 +140,20 @@ Item {
         }
         RowLayout {
             spacing: 0
+
+            TitledCombo {
+                tooltip: qsTr("Y axis mode")
+                model: ["dB", "Linear"]
+
+                currentIndex: dataObject.mode
+                onCurrentIndexChanged: {
+                    dataObject.mode = currentIndex;
+                }
+            }
+
+            Item {
+                Layout.preferredWidth: 5
+            }
 
             TitledCombo {
                 title: qsTr("ppo")
