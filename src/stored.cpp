@@ -59,6 +59,15 @@ void Stored::build (chart::Source *source)
     source->unlock();
     emit readyRead();
 }
+
+void Stored::autoName(const QString &prefix) noexcept
+{
+    auto time = QTime::currentTime();
+    auto name = prefix + time.toString(" @ HH:mm");
+
+    setName(name);
+}
+
 QJsonObject Stored::toJSON(const SourceList *) const noexcept
 {
     QJsonObject object;
@@ -152,6 +161,12 @@ void Stored::fromJSON(QJsonObject data, const SourceList *) noexcept
     setNotes(data["notes"].toString());
     setActive(data["active"].toBool(active()));
 }
+
+QString Stored::notes() const noexcept
+{
+    return m_notes;
+}
+
 bool Stored::save(const QUrl &fileName) const noexcept
 {
     QFile saveFile(fileName.toLocalFile());

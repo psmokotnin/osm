@@ -723,6 +723,7 @@ QObject *Measurement::store()
 {
     auto *store = new Stored();
     store->build(this);
+    store->autoName(name());
 
     QString avg;
     switch (m_averageType) {
@@ -758,7 +759,6 @@ QObject *Measurement::store()
     default:
         modeNote = "FFT power " + m_modeMap.at(mode());
     }
-
     store->setNotes(
         modeNote + "\t" +
         "delay: " + QString("%1").arg(1000.0 * delay() / sampleRate(), 0, 'f', 2) + "ms " +

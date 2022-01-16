@@ -99,7 +99,6 @@ Item {
                 text: qsTr("Store");
                 onClicked: {
                     var stored = dataObject.store();
-                    stored.name = 'Stored #' + (sourceList.count - 0);
                     stored.active = true;
                     sourceList.appendItem(stored, true);
                 }

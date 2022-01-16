@@ -507,6 +507,7 @@ QObject *Union::store()
 {
     auto *store = new Stored();
     store->build(this);
+    store->autoName(name());
 
     QString notes = operationMap.at(m_operation) + " " + typeMap.at(m_type) + ":\n";
     for (auto &s : m_sources) {

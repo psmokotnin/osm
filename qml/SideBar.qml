@@ -335,9 +335,13 @@ Item {
                 context: Qt.ApplicationShortcut
                 onActivated: {
                     for (var i = 0; i < sourceList.count; i++) {
-                        if (sourceList.get(i) && sourceList.get(i).objectName === "Measurement"){
+                        if (sourceList.get(i) && sourceList.get(i).active &&
+                                (sourceList.get(i).objectName === "Measurement" ||
+                                 sourceList.get(i).objectName === "Union")
+                        ) {
                             var stored = sourceList.get(i).store();
-                            stored.name = 'Stored #' + (sourceList.count - 0);
+
+                            stored.autoName(sourceList.get(i).name);
                             stored.active = true;
                             sourceList.appendItem(stored, true);
                         }
