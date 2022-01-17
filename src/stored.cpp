@@ -63,7 +63,7 @@ void Stored::build (chart::Source *source)
 void Stored::autoName(const QString &prefix) noexcept
 {
     auto time = QTime::currentTime();
-    auto name = prefix + time.toString(" @ HH:mm");
+    auto name = prefix.mid(0, 7) + time.toString(" @ HH:mm");
 
     setName(name);
 }
