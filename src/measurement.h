@@ -84,7 +84,7 @@ public:
     enum AverageType {Off, LPF, FIFO};
     Q_ENUM(AverageType)
 
-    enum Mode {FFT10, FFT12, FFT14, FFT15, FFT16, LFT};
+    enum Mode {FFT10, FFT11, FFT12, FFT13, FFT14, FFT15, FFT16, LFT};
     Q_ENUM(Mode)
     Q_ENUM(Filter::Frequency)
 

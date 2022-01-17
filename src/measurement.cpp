@@ -27,7 +27,9 @@
 
 const std::map<Measurement::Mode, QString>Measurement::m_modeMap = {
     {Measurement::FFT10, "10"},
+    {Measurement::FFT11, "11"},
     {Measurement::FFT12, "12"},
+    {Measurement::FFT13, "13"},
     {Measurement::FFT14, "14"},
     {Measurement::FFT15, "15"},
     {Measurement::FFT16, "16"},
@@ -35,7 +37,9 @@ const std::map<Measurement::Mode, QString>Measurement::m_modeMap = {
 };
 const std::map<Measurement::Mode, int>Measurement::m_FFTsizes = {
     {Measurement::FFT10, 10},
+    {Measurement::FFT11, 11},
     {Measurement::FFT12, 12},
+    {Measurement::FFT13, 13},
     {Measurement::FFT14, 14},
     {Measurement::FFT15, 15},
     {Measurement::FFT16, 16}
