@@ -20,6 +20,7 @@
 
 #include "xyseriesnode.h"
 #include "../frequencybasedserieshelper.h"
+#include "../magnitudeplot.h"
 
 namespace chart {
 
@@ -45,6 +46,8 @@ private:
 
     //! MTLRenderPipelineState
     void *m_pipeline;
+
+    MagnitudePlot::Mode m_mode;
 };
 }
 #endif // CHART_MAGNITUDESERIESNODE_H

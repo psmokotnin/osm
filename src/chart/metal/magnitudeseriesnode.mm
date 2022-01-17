@@ -16,7 +16,6 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "magnitudeseriesnode.h"
-#include "../magnitudeplot.h"
 #include <Metal/Metal.h>
 
 namespace chart {
@@ -25,7 +24,7 @@ namespace chart {
 
 MagnitudeSeriesNode::MagnitudeSeriesNode(QQuickItem *item) : XYSeriesNode(item),
     m_pointsPerOctave(0), m_coherenceThreshold(0), m_coherence(false),
-    m_pipeline(nullptr)
+    m_pipeline(nullptr), m_mode(MagnitudePlot::Mode::dB)
 {
 }
 
@@ -46,6 +45,7 @@ void MagnitudeSeriesNode::synchronizeSeries()
         m_pointsPerOctave    = magnitudePlot->pointsPerOctave();
         m_coherence          = magnitudePlot->coherence();
         m_invert             = magnitudePlot->invert();
+        m_mode               = magnitudePlot->mode();
         m_coherenceThreshold = magnitudePlot->coherenceThreshold();
     }
 }
@@ -65,7 +65,15 @@ void MagnitudeSeriesNode::renderSeries()
 
     auto accumulate = [this, &coherence, &value] (const unsigned int &i) {
         coherence += m_source->coherence(i);
-        value     += (m_invert ? -1 : 1) * m_source->magnitude(i);
+        switch (m_mode) {
+        case MagnitudePlot::Mode::Linear:
+            value     += std::abs(m_source->magnitudeRaw(i));
+            break;
+
+        case MagnitudePlot::Mode::dB:
+            value     += (m_invert ? -1 : 1) * m_source->magnitude(i);
+            break;
+        }
     };
     auto collected = [ &] (const float & f1, const float & f2, const float * ac, const float * c) {
 

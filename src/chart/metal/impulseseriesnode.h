@@ -19,6 +19,8 @@
 #define CHART_IMPULSESERIESNODE_H
 
 #include "xyseriesnode.h"
+#include "../impulseplot.h"
+
 namespace chart {
 
 class ImpulseSeriesNode : public XYSeriesNode
@@ -37,6 +39,8 @@ protected:
 private:
     //! MTLRenderPipelineState
     void *m_pipeline;
+
+    ImpulsePlot::Mode m_mode;
 };
 
 } // namespace chart
