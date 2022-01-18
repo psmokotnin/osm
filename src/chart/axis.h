@@ -94,6 +94,7 @@ public slots:
 signals:
     void minChanged(float);
     void maxChanged(float);
+    void unitChanged(QString);
 
 private:
     float fromPeriodicValue(const float &value) const noexcept;

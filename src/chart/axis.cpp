@@ -95,7 +95,10 @@ QString Axis::unit() const
 
 void Axis::setUnit(const QString &unit)
 {
-    m_unit = unit;
+    if (m_unit != unit) {
+        m_unit = unit;
+        emit unitChanged(m_unit);
+    }
 }
 
 float Axis::helperValue() const

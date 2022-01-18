@@ -37,6 +37,9 @@ XYPlot::XYPlot(Settings *settings, QQuickItem *parent) :
         emit ymaxChanged(value);
     });
 
+    connect(&m_x, &Axis::unitChanged, this, &Plot::xLabelChanged);
+    connect(&m_y, &Axis::unitChanged, this, &Plot::yLabelChanged);
+
     connect(s_cursorHelper, &CursorHelper::valueUpdated, this, [this]() {
         m_x.setHelperValue(s_cursorHelper->value(xLabel()));
         m_y.setHelperValue(s_cursorHelper->value(yLabel()));

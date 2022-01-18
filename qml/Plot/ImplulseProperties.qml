@@ -68,6 +68,7 @@ Item {
             onValueChanged: dataObject.ymin = value
             implicitWidth: 170
             Layout.fillWidth: true
+            units: dataObject.yLabel
         }
 
         FloatSpinBox {
@@ -79,6 +80,7 @@ Item {
             onValueChanged: dataObject.ymax = value
             implicitWidth: 170
             Layout.fillWidth: true
+            units: dataObject.yLabel
         }
 
         Connections {

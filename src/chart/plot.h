@@ -43,8 +43,8 @@ class Plot : public QQuickItem
 {
     Q_OBJECT
     Q_PROPERTY(chart::Source *filter READ filter WRITE setFilter NOTIFY filterChanged)
-    Q_PROPERTY(QString xLabel READ xLabel CONSTANT)
-    Q_PROPERTY(QString yLabel READ yLabel CONSTANT)
+    Q_PROPERTY(QString xLabel READ xLabel NOTIFY xLabelChanged)
+    Q_PROPERTY(QString yLabel READ yLabel NOTIFY yLabelChanged)
     Q_PROPERTY(QString rendererError READ rendererError NOTIFY rendererErrorChanged)
 
 public:
@@ -82,6 +82,8 @@ signals:
     void filterChanged(chart::Source *);
     void updated();
     void rendererErrorChanged();
+    void xLabelChanged();
+    void yLabelChanged();
 
 public slots:
     void parentWidthChanged();
