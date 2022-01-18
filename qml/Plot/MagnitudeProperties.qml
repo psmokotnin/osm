@@ -77,45 +77,59 @@ Item {
                 }
             }
 
-            SelectableSpinBox {
+            FloatSpinBox {
+                id: yminFloatBox
+                min: dataObject.yLowLimit
+                max: dataObject.yHighLimit
                 value: dataObject.ymin
+                tooltiptext: qsTr("y from")
                 onValueChanged: dataObject.ymin = value
-                from: dataObject.yLowLimit
-                to: dataObject.yHighLimit
-                editable: true
                 implicitWidth: 170
                 Layout.fillWidth: true
-
-                ToolTip.visible: hovered
-                ToolTip.text: qsTr("y from")
-
-                textFromValue: function(value, locale) {
-                    return Number(value) + " " + dataObject.yLabel
-                }
-
-                valueFromText: function(text, locale) {
-                    return parseInt(text)
-                }
+                units: dataObject.yLabel
+                step: 1
             }
 
-            SelectableSpinBox {
+            FloatSpinBox {
+                id: ymaxFloatBox
+                min: dataObject.yLowLimit
+                max: dataObject.yHighLimit
                 value: dataObject.ymax
+                tooltiptext: qsTr("y to")
                 onValueChanged: dataObject.ymax = value
-                from: dataObject.yLowLimit
-                to: dataObject.yHighLimit
-                editable: true
                 implicitWidth: 170
                 Layout.fillWidth: true
+                units: dataObject.yLabel
+                step: 1
+            }
 
-                ToolTip.visible: hovered
-                ToolTip.text: qsTr("y to")
-
-                textFromValue: function(value, locale) {
-                    return Number(value) + " " + dataObject.yLabel
+            Connections {
+                target: dataObject
+                function onXminChanged() {
+                    xminFloatBox.value = dataObject.xmin;
                 }
-
-                valueFromText: function(text, locale) {
-                    return parseInt(text)
+                function onXmaxChanged() {
+                    xmaxFloatBox.value = dataObject.xmax;
+                }
+                function onYminChanged() {
+                    yminFloatBox.min = dataObject.yLowLimit;
+                    yminFloatBox.max = dataObject.yHighLimit;
+                    ymaxFloatBox.min = dataObject.yLowLimit;
+                    ymaxFloatBox.max = dataObject.yHighLimit;
+                    yminFloatBox.value = dataObject.ymin;
+                }
+                function onYmaxChanged() {
+                    yminFloatBox.min = dataObject.yLowLimit;
+                    yminFloatBox.max = dataObject.yHighLimit;
+                    ymaxFloatBox.min = dataObject.yLowLimit;
+                    ymaxFloatBox.max = dataObject.yHighLimit;
+                    ymaxFloatBox.value = dataObject.ymax;
+                }
+                function onModeChanged() {
+                    yminFloatBox.value += 0.1;
+                    yminFloatBox.value -= 0.1;
+                    ymaxFloatBox.value += 0.1;
+                    ymaxFloatBox.value -= 0.1;
                 }
             }
 
