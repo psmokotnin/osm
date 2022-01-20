@@ -79,11 +79,11 @@ void MagnitudeSeriesRenderer::renderSeries()
 
         switch (m_mode) {
         case MagnitudePlot::Mode::Linear:
-            value     += std::abs(m_source->magnitudeRaw(i));
+            value += std::abs(std::pow(m_source->magnitudeRaw(i), m_invert ? -1 : 1));
             break;
 
         case MagnitudePlot::Mode::dB:
-            value     += (m_invert ? -1 : 1) * m_source->magnitude(i);
+            value += (m_invert ? -1 : 1) * m_source->magnitude(i);
             break;
         }
     };

@@ -343,7 +343,7 @@ float Stored::module(const unsigned int &i) const noexcept {
 
 float Stored::magnitudeRaw(const unsigned int &i) const noexcept
 {
-    return Source::magnitudeRaw(i) * std::pow(10, m_gain / 20.f);
+    return std::pow(Source::magnitudeRaw(i), (inverse() ? -1 : 1)) * std::pow(10, m_gain / 20.f);
 }
 
 float Stored::magnitude(const unsigned int &i) const noexcept
