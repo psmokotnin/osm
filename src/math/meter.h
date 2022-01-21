@@ -26,13 +26,12 @@ public:
     Meter(unsigned long size = DEFAULT_SIZE);
     static const unsigned long DEFAULT_SIZE = 100;
 
-    void add(const float &data) noexcept;
-    float value() const noexcept;
+    void  add(const float &data) noexcept;
+    float value() const noexcept;   //! mean squared value
     float dB() const noexcept;
     float peakSquared() const noexcept;
     float peakdB() const noexcept;
-    float crestFactor() const noexcept;
-    void reset() noexcept;
+    void  reset() noexcept;
 
 private:
     container::fifo<float> m_data;

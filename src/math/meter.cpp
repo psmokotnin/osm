@@ -68,10 +68,6 @@ float Meter::peakdB() const noexcept
     return 10.f * std::log10(m_peak);;
 }
 
-float Meter::crestFactor() const noexcept
-{
-    return 10.f * std::log10(m_peak / value());
-}
 void Meter::reset() noexcept
 {
     while (m_data.size()) {

@@ -98,7 +98,7 @@ QJsonObject Stored::toJSON(const SourceList *) const noexcept
         ftcell.append(static_cast<double>(m_ftdata[i].phase.arg()));
         ftcell.append(static_cast<double>(m_ftdata[i].coherence  ));
         ftcell.append(static_cast<double>(m_ftdata[i].peakSquared));
-        ftcell.append(static_cast<double>(m_ftdata[i].crestFactor));
+        ftcell.append(static_cast<double>(m_ftdata[i].meanSquared));
 
         ftdata.append(ftcell);
     }
@@ -135,7 +135,7 @@ void Stored::fromJSON(QJsonObject data, const SourceList *) noexcept
         m_ftdata[i].phase.polar(   static_cast<float>(row[3].toDouble()));
         m_ftdata[i].coherence    = static_cast<float>(row[4].toDouble());
         m_ftdata[i].peakSquared  = static_cast<float>(row[5].toDouble());
-        m_ftdata[i].crestFactor  = static_cast<float>(row[6].toDouble());
+        m_ftdata[i].meanSquared  = static_cast<float>(row[6].toDouble());
     }
 
     for (int i = 0; i < impulse.count(); i++) {

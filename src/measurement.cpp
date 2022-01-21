@@ -694,7 +694,7 @@ void Measurement::averaging()
 
         m_meters[i].add(calibratedA);
         m_ftdata[i].peakSquared = m_meters[i].peakSquared();
-        m_ftdata[i].crestFactor = m_meters[i].crestFactor();
+        m_ftdata[i].meanSquared = m_meters[i].value();
     }
 
     int t = 0;

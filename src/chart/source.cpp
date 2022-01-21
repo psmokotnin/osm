@@ -107,12 +107,12 @@ const float &Source::peakSquared(const unsigned int &i) const noexcept
     return m_ftdata[i].peakSquared;
 }
 
-const float &Source::crestFactor(const unsigned int &i) const noexcept
+float Source::crestFactor(const unsigned int &i) const noexcept
 {
     if (i >= m_dataLength)
-        return m_zero;
+        return -INFINITY;
 
-    return m_ftdata[i].crestFactor;
+    return 10.f * std::log10(m_ftdata[i].peakSquared / m_ftdata[i].meanSquared);
 }
 
 unsigned int Source::impulseSize() const noexcept
