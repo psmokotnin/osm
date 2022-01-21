@@ -27,6 +27,6 @@ class Wav: public OutputDevice, public WavFile
 
 public:
     Wav(QObject *parent);
-    Sample sample() override;
+    virtual Sample sample() override;
 };
 #endif // WAV_H

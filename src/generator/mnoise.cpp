@@ -58,3 +58,12 @@ MNoise::MNoise(QObject *parent) : Wav(parent)
         qCritical() << "can't load M-Noise";
     }
 }
+
+Sample MNoise::sample()
+{
+    if (m_sampleRate != sampleRate()) {
+        return {NAN};
+    }
+
+    return Wav::sample();
+}
