@@ -35,46 +35,28 @@ Item {
         RowLayout {
             spacing: 0
 
-            SelectableSpinBox {
+            FloatSpinBox {
+                id: xminFloatBox
+                min: dataObject.xLowLimit
+                max: dataObject.xHighLimit
                 value: dataObject.xmin
+                tooltiptext: qsTr("x from")
                 onValueChanged: dataObject.xmin = value
-                from: dataObject.xLowLimit
-                to: dataObject.xHighLimit
-                editable: true
                 implicitWidth: 170
                 Layout.fillWidth: true
-
-                ToolTip.visible: hovered
-                ToolTip.text: qsTr("x from")
-
-                textFromValue: function(value, locale) {
-                    return Number(value) + " Hz"
-                }
-
-                valueFromText: function(text, locale) {
-                    return parseInt(text)
-                }
+                units: dataObject.xLabel
             }
 
-            SelectableSpinBox {
+            FloatSpinBox {
+                id: xmaxFloatBox
+                min: dataObject.xLowLimit
+                max: dataObject.xHighLimit
                 value: dataObject.xmax
+                tooltiptext: qsTr("x to")
                 onValueChanged: dataObject.xmax = value
-                from: dataObject.xLowLimit
-                to: dataObject.xHighLimit
-                editable: true
                 implicitWidth: 170
                 Layout.fillWidth: true
-
-                ToolTip.visible: hovered
-                ToolTip.text: qsTr("x to")
-
-                textFromValue: function(value, locale) {
-                    return Number(value) + " Hz"
-                }
-
-                valueFromText: function(text, locale) {
-                    return parseInt(text)
-                }
+                units: dataObject.xLabel
             }
 
             FloatSpinBox {
