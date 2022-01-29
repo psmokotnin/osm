@@ -161,7 +161,7 @@ Item {
                 onClicked: frequencySpinBox.value *= 2
             }
 
-            Text {
+            Label {
                 Layout.fillWidth: true
                 visible: type.currentText == 'M-Noise™';
                 text: qsTr(
