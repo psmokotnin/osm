@@ -44,6 +44,13 @@ Item {
         spinbox.updateValue();
     }
 
+    onUnitsChanged: {
+        //force update
+        var v = value;
+        value ++;
+        value = v;
+    }
+
     SelectableSpinBox {
         id: spinbox
         property bool completed: false

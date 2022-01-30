@@ -86,6 +86,7 @@ Item {
             onValueChanged: dataObject.ymin = value
             implicitWidth: 170
             Layout.fillWidth: true
+            units: dataObject.yLabel
         }
 
         FloatSpinBox {
@@ -97,6 +98,7 @@ Item {
             onValueChanged: dataObject.ymax = value
             implicitWidth: 170
             Layout.fillWidth: true
+            units: dataObject.yLabel
         }
         Connections {
             target: dataObject
@@ -105,6 +107,9 @@ Item {
             }
             function onYmaxChanged() {
                 ymaxFloatBox.value = dataObject.ymax;
+            }
+            function onThresholdChanged() {
+                threshold.value = dataObject.threshold;
             }
         }
 
@@ -142,7 +147,7 @@ Item {
         DropDown {
             id: type
             Layout.fillWidth: true
-            model: ["normal", "squared"]
+            model: ["normal", "squared", "SNR"]
             currentIndex: dataObject.type
             ToolTip.visible: hovered
             ToolTip.text: qsTr("value type")
@@ -178,8 +183,9 @@ Item {
         }
 
         FloatSpinBox {
+            id:threshold
             min: 0.0
-            max: 1.0
+            max: dataObject.ymax
             step: 0.05
             value: dataObject.threshold
             tooltiptext: qsTr("coherence threshold")

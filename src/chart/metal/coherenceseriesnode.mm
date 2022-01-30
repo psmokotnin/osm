@@ -60,10 +60,18 @@ void CoherenceSeriesNode::renderSeries()
     xmul = width() / logf(m_xMax / m_xMin);
 
     auto accumulate = [this, &value] (const unsigned int &i) {
-        value += (m_type == CoherencePlot::Type::Squared ?
-                  powf(m_source->coherence(i), 2) :
-                  m_source->coherence(i)
-                 );
+        switch (m_type) {
+        case CoherencePlot::Type::Squared:
+            value += powf(m_source->coherence(i), 2);
+            break;
+        case CoherencePlot::Type::Normal:
+            value += m_source->coherence(i);
+            break;
+        case CoherencePlot::Type::SNR:
+            value += 10.f * log10f(m_source->coherence(i) / (1 - m_source->coherence(i)));
+            break;
+
+        }
     };
     auto collected = [ &] (const float & f1, const float & f2, const float * ac, const float *) {
 
