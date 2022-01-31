@@ -19,8 +19,10 @@
 #include "sourcelist.h"
 
 SourceModel::SourceModel(QObject *parent)
-    : QAbstractListModel(parent), m_list(nullptr), m_filter(false),
-      m_addNone(false), m_noneTitle("All")
+    : QAbstractListModel(parent), m_list(nullptr),
+      m_addNone(false), m_addAll(false),
+      m_noneIndex(-1), m_allIndex(-1),
+      m_noneTitle("None"), m_allTitle("All")
 {
 }
 
@@ -36,7 +38,8 @@ QVariant SourceModel::data(const QModelIndex &index, int role) const
     if (!index.isValid() || !m_list)
         return QVariant();
 
-    chart::Source *source = m_list->items().at(index.row());
+    auto j = index.row();
+    chart::Source *source = m_list->items().at(j);
     QVariant r = {};
     switch (role) {
     case NameRole:
@@ -48,7 +51,21 @@ QVariant SourceModel::data(const QModelIndex &index, int role) const
         break;
 
     case TitleRole:
-        r.setValue(source ? source->name() : m_noneTitle);
+        if (j == m_noneIndex) {
+            r.setValue(m_noneTitle);
+        } else if (j == m_allIndex) {
+            r.setValue(m_allTitle);
+        } else {
+            r.setValue(source ? source->name() : "");
+        }
+        break;
+
+    case CheckedRole:
+        r.setValue(m_list->isChecked(source));
+        break;
+
+    case ColorRole:
+        r.setValue(source ? source->color() : QColor());
         break;
     }
 
@@ -67,17 +84,32 @@ QHash<int, QByteArray> SourceModel::roleNames() const
     names[SourceRole]   = "source";
     names[NameRole]     = "name";
     names[TitleRole]    = "title";
+    names[CheckedRole]  = "checked";
+    names[ColorRole]    = "color";
     return names;
 }
+
+SourceList *SourceModel::list() const
+{
+    return m_list;
+}
+
 void SourceModel::setList(SourceList *list)
 {
     beginResetModel();
 
-    if (m_filter || m_addNone) {
-        list = list->clone(this, m_filter);
+    if (m_addAll || m_addNone) {
+        list = list->clone(this);
     }
+
     if (m_addNone) {
-        list->appendNone();
+        m_noneIndex = list->appendNone();
+    }
+    if (m_addAll) {
+        m_allIndex = list->appendAll();
+        if (m_addNone) {
+            m_noneIndex ++;
+        }
     }
 
     if (m_list)
@@ -110,10 +142,6 @@ void SourceModel::setList(SourceList *list)
 
     endResetModel();
 }
-void SourceModel::setFilter(bool filter) noexcept
-{
-    m_filter = filter;
-}
 
 int SourceModel::indexOf(chart::Source *item) const noexcept
 {
@@ -124,6 +152,36 @@ chart::Source *SourceModel::get(const int &index) const noexcept
 {
     return m_list->get(index);
 }
+
+void SourceModel::check(const int &index, const bool &checked) noexcept
+{
+    if (index == m_allIndex) {
+        m_list->checkAll();
+    } else if (index == m_noneIndex) {
+        m_list->uncheckAll();
+    } else if (checked) {
+        m_list->check(get(index));
+    } else {
+        m_list->uncheck(get(index));
+    }
+    emit checkedChanged();
+}
+
+int SourceModel::checkedCount() const
+{
+    return m_list->checkedCount();
+}
+
+chart::Source *SourceModel::firstChecked() const noexcept
+{
+    return m_list->firstChecked();
+}
+
+bool SourceModel::addNone() const noexcept
+{
+    return m_addNone;
+}
+
 void SourceModel::setAddNone(bool addNone) noexcept
 {
     m_addNone = addNone;
@@ -137,4 +195,34 @@ QString SourceModel::noneTitle() const
 void SourceModel::setNoneTitle(const QString &noneTitle)
 {
     m_noneTitle = noneTitle;
+}
+
+bool SourceModel::addAll() const
+{
+    return m_addAll;
+}
+
+void SourceModel::setAddAll(bool addAll)
+{
+    m_addAll = addAll;
+}
+
+QString SourceModel::allTitle() const
+{
+    return m_allTitle;
+}
+
+void SourceModel::setAllTitle(const QString &allTitle)
+{
+    m_allTitle = allTitle;
+}
+
+QList<chart::Source *> SourceModel::checked() const
+{
+    return m_list->checked();
+}
+
+void SourceModel::setChecked(QList<chart::Source *> selected)
+{
+    m_list->setChecked(selected);
 }

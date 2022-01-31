@@ -67,6 +67,14 @@ public:
     chart::Source *selected() const noexcept;
     void setSelected(int selected);
 
+    void check(chart::Source *item);
+    void uncheck(chart::Source *item);
+    void checkAll();
+    void uncheckAll();
+    bool isChecked(chart::Source *item) const noexcept;
+    int checkedCount() const;
+    chart::Source *firstChecked() const noexcept;
+
     enum {
         TRANSFER_TXT    = 0,
         TRANSFER_CSV    = 1,
@@ -74,6 +82,9 @@ public:
         IMPULSE_CSV     = 3,
         IMPULSE_WAV     = 4
     };
+
+    QList<chart::Source *> checked() const;
+    void setChecked(const QList<chart::Source *> &checked);
 
 public slots:
     Q_INVOKABLE QColor nextColor();
@@ -83,7 +94,8 @@ public slots:
     Q_INVOKABLE void appendItem(chart::Source *item, bool autocolor = false);
     Q_INVOKABLE void removeItem(chart::Source *item, bool deleteItem = true);
     Q_INVOKABLE void cloneItem(chart::Source *item);
-    void appendNone();
+    int appendNone();
+    int appendAll();
 
 signals:
     void preItemAppended();
@@ -105,6 +117,7 @@ private:
     bool importFile(const QUrl &fileName, QString separator) noexcept;
 
     QVector<chart::Source *> m_items;
+    QList<chart::Source *> m_checked;
     QUrl m_currentFile;
     const QList<QColor> m_colors {
         "#F44336", "#FFEB3B", "#9C27B0", "#673AB7",

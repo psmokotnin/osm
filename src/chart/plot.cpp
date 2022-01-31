@@ -25,7 +25,7 @@ using namespace chart;
 CursorHelper *Plot::s_cursorHelper = new CursorHelper();
 
 Plot::Plot(Settings *settings, QQuickItem *parent) :
-    QQuickItem(parent), m_settings(settings), m_palette(this), m_filter(nullptr), m_rendererError()
+    QQuickItem(parent), m_settings(settings), m_palette(this), m_rendererError(), m_selectAppended(true)
 {
     connect(parent, &QQuickItem::widthChanged, this, &Plot::parentWidthChanged);
     connect(parent, &QQuickItem::heightChanged, this, &Plot::parentHeightChanged);
@@ -89,6 +89,42 @@ CursorHelper *Plot::cursorHelper() const noexcept
     return s_cursorHelper;
 }
 
+void Plot::setSelectAppended(bool selectAppended)
+{
+    m_selectAppended = selectAppended;
+}
+
+QList<Source *> Plot::selected() const
+{
+    QList<Source *> list;
+    for (auto item : m_selected) {
+        list.push_back(item);
+    }
+    return list;
+}
+
+void Plot::select(Source *source)
+{
+    m_selected.push_back(source);
+    emit selectedChanged();
+}
+
+void Plot::setSelected(const QList<Source *> selected)
+{
+    QList<QPointer<chart::Source>> list;
+    for (auto item : selected) {
+        list.push_back(item);
+    }
+    m_selected = list;
+    emit selectedChanged();
+    update();
+}
+
+bool Plot::isSelected(Source *source) const
+{
+    return m_selected.contains(source);
+}
+
 QString Plot::rendererError() const
 {
     return m_rendererError;
@@ -99,14 +135,6 @@ void Plot::setRendererError(QString error)
     if (m_rendererError != error) {
         m_rendererError = error;
         emit rendererErrorChanged();
-    }
-}
-void Plot::setFilter(chart::Source *filter) noexcept
-{
-    if (m_filter != filter) {
-        m_filter = filter;
-        update();
-        emit filterChanged(m_filter);
     }
 }
 
@@ -128,6 +156,10 @@ void Plot::appendDataSource(Source *source)
         m_serieses.append(sourceItem);
         applyWidthForSeries(sourceItem);
         applyHeightForSeries(sourceItem);
+
+        if (m_selectAppended) {
+            select(source);
+        }
     }
 }
 void Plot::removeDataSource(Source *source)
@@ -137,6 +169,8 @@ void Plot::removeDataSource(Source *source)
             emit series->preSourceDeleted();
             series->deleteLater();
             m_serieses.removeOne(series);
+            m_selected.removeAll(source);
+            emit selectedChanged();
             update();
             return;
         }
@@ -175,10 +209,6 @@ bool Plot::darkMode() const noexcept
 void Plot::setDarkMode(bool darkMode) noexcept
 {
     return m_palette.setDarkMode(darkMode);
-}
-Source *Plot::filter() const noexcept
-{
-    return m_filter;
 }
 void Plot::update()
 {

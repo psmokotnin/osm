@@ -230,11 +230,11 @@ Item {
                 list: sourceList
             }
             Layout.preferredWidth: 160
-            currentIndex: { model.indexOf(dataObject.filter) }
+            currentIndex: { model.indexOf(dataObject.selected[0]) }
             textRole: "title"
             valueRole: "source"
             onCurrentIndexChanged: {
-                dataObject.filter = model.get(currentIndex);
+                dataObject.selected = [model.get(currentIndex)];
             }
         }
 

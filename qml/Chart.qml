@@ -343,7 +343,7 @@ Item {
             }
             chart.type = model[currentIndex];
             if (model[currentIndex] === "Spectrogram") {
-                chart.plot.filter = sourceList.first;
+                chart.plot.selected = [sourceList.first];
             }
             if (reopen) {
                 pb.open(chart.plot, opener.propertiesQml);

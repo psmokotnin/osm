@@ -116,7 +116,6 @@ Item {
                 DropDown {
                     model: SourceModel {
                         id: sourceModel
-                        filter: true
                         addNone: (modelData > 1 ? true : false)
                         noneTitle: "None"
                         list: sourceList

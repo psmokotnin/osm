@@ -29,7 +29,7 @@
 
 SourceList::SourceList(QObject *parent, bool appendMeasurement) :
     QObject(parent),
-    m_items(0),
+    m_items(0), m_checked(),
     m_currentFile(),
     m_colorIndex(3),
     m_selected(-1)
@@ -98,6 +98,7 @@ chart::Source *SourceList::get(int i) const noexcept
 void SourceList::clean() noexcept
 {
     m_selected = -1;
+    m_checked.clear();
     emit selectedChanged();
     while (m_items.size() > 0) {
         emit preItemRemoved(0);
@@ -279,6 +280,16 @@ bool SourceList::importFile(const QUrl &fileName, QString separator) noexcept
     appendItem(s, true);
     return true;
 }
+
+QList<chart::Source *> SourceList::checked() const
+{
+    return m_checked;
+}
+
+void SourceList::setChecked(const QList<chart::Source *> &checked)
+{
+    m_checked = checked;
+}
 bool SourceList::importImpulse(const QUrl &fileName, QString separator) noexcept
 {
     QFile file(fileName.toLocalFile());
@@ -380,6 +391,50 @@ void SourceList::setSelected(int selected)
     }
 }
 
+void SourceList::check(chart::Source *item)
+{
+    if (!isChecked(item)) {
+        m_checked.push_back(item);
+    }
+}
+
+void SourceList::uncheck(chart::Source *item)
+{
+    m_checked.removeAll(item);
+}
+
+void SourceList::checkAll()
+{
+    for (auto &item : m_items) {
+        if (item) {
+            check(item);
+        }
+    }
+}
+
+void SourceList::uncheckAll()
+{
+    m_checked.clear();
+}
+
+bool SourceList::isChecked(chart::Source *item) const noexcept
+{
+    return m_checked.contains(item);
+}
+
+int SourceList::checkedCount() const
+{
+    return m_checked.count();
+}
+
+chart::Source *SourceList::firstChecked() const noexcept
+{
+    if (m_checked.length() == 0) {
+        return nullptr;
+    }
+    return m_checked.at(0);
+}
+
 bool SourceList::loadList(const QJsonDocument &document, const QUrl &fileName) noexcept
 {
     enum LoadType {MeasurementType, StoredType, UnionType, ElcType};
@@ -451,9 +506,15 @@ Measurement *SourceList::addMeasurement()
 {
     return add<Measurement>();
 }
-void SourceList::appendNone()
+int SourceList::appendNone()
 {
     m_items.prepend(nullptr);
+    return 0;
+}
+int SourceList::appendAll()
+{
+    m_items.prepend(nullptr);
+    return 0;
 }
 void SourceList::appendItem(chart::Source *item, bool autocolor)
 {
@@ -467,6 +528,8 @@ void SourceList::appendItem(chart::Source *item, bool autocolor)
 }
 void SourceList::removeItem(chart::Source *item, bool deleteItem)
 {
+    m_checked.removeAll(item);
+
     for (int i = 0; i < m_items.size(); ++i) {
         if (m_items.at(i) == item) {
             auto item = get(i);

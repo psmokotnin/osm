@@ -133,21 +133,13 @@ Item {
             Layout.fillWidth: true
         }
 
-        TitledCombo {
-            tooltip: qsTr("show only selected source")
-            model: SourceModel {
-                addNone: true
-                list: sourceList
-            }
-            Layout.preferredWidth: 280
-            currentIndex: { model.indexOf(dataObject.filter) }
-            textRole: "title"
-            valueRole: "source"
-            onCurrentIndexChanged: {
-                dataObject.filter = model.get(currentIndex);
-            }
+        Select {
+            id: selectFilter
+            tooltip: qsTr("show only selected sources")
+            sources: sourceList
+            dataObject: chartProperties.dataObject
+            Layout.fillWidth: true
         }
-
 
         FileDialog {
             id: fileDialog

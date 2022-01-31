@@ -50,7 +50,7 @@ void NyquistSeriesNode::synchronizeSeries()
 void NyquistSeriesNode::updateMatrix()
 {
     m_matrix = {};
-    m_matrix.ortho(m_xMin, m_xMax, m_yMax, m_yMin, -1, 1);
+    m_matrix.ortho(m_xMin, m_xMax, m_yMin, m_yMax, -1, 1);
 }
 
 Source *NyquistSeriesNode::source() const
