@@ -25,23 +25,23 @@ CursorHelper::CursorHelper(QObject *parent) : QObject(parent)
 {
 }
 
-qreal CursorHelper::value(QString key) const noexcept
+qreal CursorHelper::value(QString key, QString axis) const noexcept
 {
-    if (m_values.contains(key)) {
-        return m_values[key];
+    if (m_values.contains(key.isEmpty() ? axis : key)) {
+        return m_values[key.isEmpty() ? axis : key];
     }
     return NAN;
 }
 
-void CursorHelper::setValue(QString key, qreal value) noexcept
+void CursorHelper::setValue(QString key, QString axis, qreal value) noexcept
 {
-    m_values[key] = value;
+    m_values[key.isEmpty() ? axis : key] = value;
     emit valueUpdated();
 }
 
-void CursorHelper::unsetValue(QString key) noexcept
+void CursorHelper::unsetValue(QString key, QString axis) noexcept
 {
-    m_values[key] = NAN;
+    m_values[key.isEmpty() ? axis : key] = NAN;
 }
 
 } // namespace chart

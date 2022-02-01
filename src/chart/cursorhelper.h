@@ -31,9 +31,9 @@ class CursorHelper : public QObject
 public:
     explicit CursorHelper(QObject *parent = nullptr);
 
-    Q_INVOKABLE qreal value(QString key) const noexcept;
-    Q_INVOKABLE void setValue(QString key, qreal value) noexcept;
-    Q_INVOKABLE void unsetValue(QString key) noexcept;
+    Q_INVOKABLE qreal value(QString key, QString axis) const noexcept;
+    Q_INVOKABLE void setValue(QString key, QString axis, qreal value) noexcept;
+    Q_INVOKABLE void unsetValue(QString key, QString axis) noexcept;
 
 signals:
     void valueUpdated();
