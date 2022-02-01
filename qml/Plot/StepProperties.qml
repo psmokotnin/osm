@@ -129,7 +129,7 @@ Item {
             tooltip: qsTr("show only selected sources")
             sources: sourceList
             dataObject: chartProperties.dataObject
-            Layout.fillWidth: true
+            Layout.preferredWidth: 200
         }
 
 
