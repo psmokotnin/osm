@@ -19,16 +19,9 @@
 
 using namespace chart;
 
-ImpulsePlot::ImpulsePlot(Settings *settings, QQuickItem *parent): XYPlot(settings, parent)
+ImpulsePlot::ImpulsePlot(Settings *settings, QQuickItem *parent): XYPlot(settings, parent), m_mode(Log)
 {
-    m_x.configure(AxisType::Linear, -20.0, 20.0, 41);
-    m_x.setReset(-5.f, 5.f);
-    m_x.reset();
-    m_y.configure(AxisType::Linear, -2.0, 2.0, 21);
-    m_y.setReset(-1.f, 1.f);
-    m_y.reset();
-    m_x.setUnit("ms");
-    m_y.setUnit("");
+    setMode(Linear);
     setFlag(QQuickItem::ItemHasContents);
 }
 
@@ -36,6 +29,9 @@ void ImpulsePlot::setSettings(Settings *settings) noexcept
 {
     if (settings && (settings->value("type") == "Impulse")) {
         XYPlot::setSettings(settings);
+
+        setMode(m_settings->reactValue<ImpulsePlot, ImpulsePlot::Mode>("mode", this, &ImpulsePlot::modeChanged,
+                                                                       m_mode).toInt());
     }
 }
 void ImpulsePlot::storeSettings() noexcept
@@ -44,4 +40,50 @@ void ImpulsePlot::storeSettings() noexcept
         return;
 
     XYPlot::storeSettings();
+    m_settings->setValue("mode", m_mode);
+}
+
+ImpulsePlot::Mode ImpulsePlot::mode() const
+{
+    return m_mode;
+}
+
+void ImpulsePlot::setMode(const Mode &mode)
+{
+    if (m_mode != mode) {
+        m_mode = mode;
+
+        switch (m_mode) {
+        case Linear:
+            m_x.configure(AxisType::Linear, -20.0, 20.0, 41);
+            m_x.setReset(-5.f, 5.f);
+            m_x.setUnit("ms");
+            m_x.reset();
+
+            m_y.configure(AxisType::Linear, -2.0, 2.0, 21);
+            m_y.setReset(-1.f, 1.f);
+            m_y.setUnit("");
+            m_y.reset();
+            break;
+
+        case Log:
+            m_x.configure(AxisType::Linear, -2000.0, 20000.0, 401);
+            m_x.setReset(-100.f, 900.f);
+            m_x.setUnit("ms");
+            m_x.reset();
+
+            m_y.configure(AxisType::Linear, -140.f, 40.f,  15);
+            m_y.setReset(-100.f, 0.f);
+            m_y.setUnit("dB");
+            m_y.reset();
+            break;
+        }
+        update();
+        emit modeChanged(m_mode);
+    }
+}
+
+void ImpulsePlot::setMode(const int &mode)
+{
+    setMode(static_cast<Mode>(mode));
 }

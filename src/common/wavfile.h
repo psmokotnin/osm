@@ -1,6 +1,6 @@
 /**
  *  OSM
- *  Copyright (C) 2021  Pavel Smokotnin
+ *  Copyright (C) 2022  Pavel Smokotnin
 
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -19,21 +19,24 @@
 #define WAVFILE_H
 
 #include <QFile>
-#include "outputdevice.h"
 
-class WavFile: public OutputDevice
+class WavFile
 {
-    Q_OBJECT
-
 public:
-    WavFile(QObject *parent);
+    WavFile();
+    ~WavFile();
 
-    bool load();
-    unsigned int sampleRate() const noexcept;
-    unsigned int blockAlign() const noexcept;
-    unsigned int bitsPerSample() const noexcept;
+    bool load(const QString &fileName);
+    int sampleRate() const noexcept;
+    constexpr unsigned int blockAlign() const noexcept;
+    constexpr unsigned int bitsPerSample() const noexcept;
+    constexpr unsigned int sampleType() const noexcept;
+    constexpr unsigned int dataSize() const noexcept;
 
-    Sample sample() override;
+    float nextSample(bool loop, bool *finished = nullptr) noexcept;
+
+    bool save(const QString &fileName, int sampleRate, const QByteArray &data);
+    void prepareHeader(int sampleRate);
 
 protected:
     QFile m_file;
@@ -46,14 +49,15 @@ private:
         };
 
         struct Wave {
-            Chunk chunk;
-            char format[4];
+            Chunk chunk     = {{'R', 'I', 'F', 'F'}, 4};
+            char format[4]  =  {'W', 'A', 'V', 'E'};
         };
 
         struct AudioFormat {
-            const static qint16 PCM = 1;
+            const static qint16 PCM     = 1;
+            const static qint16 FLOAT   = 3;
 
-            Chunk chunk;
+            Chunk chunk             = {{'f', 'm', 't', ' '}, 16};
             qint16 audioFormat;     //! PCM = 1
             qint16 channels;        //! Number of channels
             qint32 sampleRate;
@@ -64,7 +68,7 @@ private:
 
         Wave wave;
         AudioFormat format;
-        Chunk data;
+        Chunk data = {{'d', 'a', 't', 'a'}, 0};
 
         bool valid() const noexcept;
     } m_header;
@@ -75,4 +79,5 @@ private:
 };
 
 QDebug operator << (QDebug dbg, const WavFile::WaveHeader &header);
+
 #endif // WAVFILE_H

@@ -23,9 +23,11 @@ ProgressBar {
     id:meter
     implicitWidth: parent.width
     property real dBV
+    property real peak
     property real yellowLevel : 0.75    //-22dB
     property real redLevel : 0.86       //-12dB
     value: (dBV + 90) / 90              //-90dB ... 0dB
+    property real peakValue: (peak + 90) / 90
 
     contentItem: Item {
 
@@ -51,6 +53,16 @@ ProgressBar {
                   height: parent.height
                   radius: 2
                   color: Material.color(Material.Red)
+              }
+
+              Rectangle {
+                  id: peakInd
+                  anchors.left: green.left
+                  anchors.leftMargin: meter.peakValue * parent.width
+                  width: 2
+                  height: parent.height
+                  radius: 2
+                  color: (peakValue > redLevel ? Material.color(Material.Red) : (peakValue > yellowLevel ? Material.color(Material.Orange) : Material.color(Material.Green)))
               }
           }
 }

@@ -24,15 +24,12 @@ using namespace chart;
 CoherencePlot::CoherencePlot(Settings *settings, QQuickItem *parent): XYPlot(settings, parent),
     m_pointsPerOctave(12),
     m_threshold(0.91f), m_showThreshold(true), m_thresholdColor("#FF5722"), m_thresholdLine(this),
-    m_type(Type::Normal)
+    m_type(Type::SNR)
 {
     m_x.configure(AxisType::Logarithmic, 20.f, 20000.f);
     m_x.setISOLabels();
-    std::vector<float> labels {0.f, 0.2f, 0.4f, 0.6f, 0.8f, 1.f};
-    m_y.configure(AxisType::Linear, 0.f, 1.f);
-    m_y.setCentralLabel(m_y.min() - 1.f);
-    m_y.setLabels(labels);
     m_x.setUnit("Hz");
+    setType(Type::Normal);
     setFlag(QQuickItem::ItemHasContents);
 }
 
@@ -102,7 +99,28 @@ void CoherencePlot::setType(const CoherencePlot::Type &type)
 {
     if (m_type != type) {
         m_type = type;
-        emit typeChanged(m_type);
+        switch (m_type) {
+        case Normal:
+        case Squared: {
+            std::vector<float> labels {0.f, 0.2f, 0.4f, 0.6f, 0.8f, 1.f};
+            m_y.configure(AxisType::Linear, 0.f, 1.f);
+            m_y.setCentralLabel(m_y.min() - 1.f);
+            m_y.setLabels(labels);
+            m_y.setUnit("");
+            emit typeChanged(m_type);
+            setThreshold(m_type == Normal ? THRESHOLD_NORMAL : THRESHOLD_SQUARED);
+            break;
+        }
+
+        case SNR:
+            m_y.configure(AxisType::Linear, -50.f, 50.f, 11);
+            m_y.setReset(0.f, 50.f);
+            m_y.reset();
+            m_y.setUnit("dB");
+            emit typeChanged(m_type);
+            setThreshold(THRESHOLD_SNR);
+            break;
+        }
         update();
     }
 }

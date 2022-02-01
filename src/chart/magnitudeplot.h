@@ -23,7 +23,15 @@
 namespace chart {
 class MagnitudePlot : public FrequencyBasedPlot
 {
+public:
+    enum Mode {
+        dB      = 0x00,
+        Linear  = 0x01
+    };
+
     Q_OBJECT
+    Q_ENUM(Mode);
+    Q_PROPERTY(Mode mode READ mode WRITE setMode NOTIFY modeChanged)
     Q_PROPERTY(bool invert READ invert WRITE setInvert NOTIFY invertChanged)
 
 public:
@@ -35,14 +43,20 @@ public:
     bool invert() const;
     void setInvert(bool invert);
 
+    Mode mode() const;
+    void setMode(const Mode &mode);
+    void setMode(const int &mode);
+
 signals:
     void invertChanged(bool);
+    void modeChanged(Mode);
 
 protected:
     virtual SeriesItem *createSeriesFromSource(Source *source) override;
 
 private:
     bool m_invert;
+    Mode m_mode;
 
     class TargetTraceItem : public PaintedItem
     {

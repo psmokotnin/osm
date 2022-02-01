@@ -24,6 +24,8 @@
 #include "coherenceplot.h"
 #include "groupdelayplot.h"
 #include "spectrogramplot.h"
+#include "crestfactorplot.h"
+#include "nyquistplot.h"
 #include "src/sourcelist.h"
 
 using namespace chart;
@@ -69,9 +71,19 @@ void VariableChart::initType()
     case GroupDelay:
         newPlot = new GroupDelayPlot(m_settings, this);
         break;
+
     case Spectrogram:
         newPlot = new SpectrogramPlot(m_settings, this);
         break;
+
+    case CrestFactor:
+        newPlot = new CrestFactorPlot(m_settings, this);
+        break;
+
+    case Nyquist:
+        newPlot = new NyquistPlot(m_settings, this);
+        break;
+
     default:
         return;
     }
@@ -80,7 +92,8 @@ void VariableChart::initType()
 
     if (m_plot) {
         if (!qobject_cast<SpectrogramPlot *>(m_plot)) {
-            newPlot->setFilter(m_plot->filter());
+            newPlot->setSelected(m_plot->selected());
+            newPlot->setSelectAppended(false);
         }
         m_plot->clear();
         m_plot->disconnectFromParent();
@@ -105,6 +118,9 @@ void VariableChart::setType(const Type &type)
             for (int i = 0; i < m_sources->count(); ++i) {
                 appendDataSource(m_sources->items()[i]);
             }
+        }
+        if (m_plot) {
+            m_plot->setSelectAppended(true);
         }
         updateZOrders();
         emit typeChanged();
@@ -182,6 +198,7 @@ void VariableChart::setSources(SourceList *sourceList)
 
         connect(m_sources, &SourceList::postItemAppended, this, [ = ](chart::Source * source) {
             appendDataSource(source);
+            m_plot->select(source);
         });
 
         connect(m_sources, &SourceList::preItemRemoved, this, [ = ](int index) {

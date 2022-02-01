@@ -27,7 +27,9 @@
 
 const std::map<Measurement::Mode, QString>Measurement::m_modeMap = {
     {Measurement::FFT10, "10"},
+    {Measurement::FFT11, "11"},
     {Measurement::FFT12, "12"},
+    {Measurement::FFT13, "13"},
     {Measurement::FFT14, "14"},
     {Measurement::FFT15, "15"},
     {Measurement::FFT16, "16"},
@@ -35,7 +37,9 @@ const std::map<Measurement::Mode, QString>Measurement::m_modeMap = {
 };
 const std::map<Measurement::Mode, int>Measurement::m_FFTsizes = {
     {Measurement::FFT10, 10},
+    {Measurement::FFT11, 11},
     {Measurement::FFT12, 12},
+    {Measurement::FFT13, 13},
     {Measurement::FFT14, 14},
     {Measurement::FFT15, 15},
     {Measurement::FFT16, 16}
@@ -98,6 +102,7 @@ Measurement::Measurement(Settings *settings, QObject *parent) : chart::Source(pa
     m_moduleLPFs.resize(m_dataLength);
     m_magnitudeLPFs.resize(m_dataLength);
     m_phaseLPFs.resize(m_dataLength);
+    m_meters.resize(m_dataLength);
 
     m_deconvolution.setSize(m_deconvolutionSize);
     m_deconvolution.setWindowFunctionType(m_windowFunctionType);
@@ -256,11 +261,19 @@ void Measurement::setReferenceChanel(unsigned int channel)
 }
 float Measurement::level() const
 {
-    return m_dataMeter.value();
+    return m_dataMeter.dB();
 }
 float Measurement::referenceLevel() const
 {
-    return m_referenceMeter.value();
+    return m_referenceMeter.dB();
+}
+float Measurement::measurementPeak() const
+{
+    return m_dataMeter.peakdB();
+}
+float Measurement::referencePeak() const
+{
+    return m_referenceMeter.peakdB();
 }
 unsigned int Measurement::delay() const
 {
@@ -314,6 +327,7 @@ void Measurement::updateFftPower()
     m_moduleLPFs.resize(size());
     m_magnitudeLPFs.resize(size());
     m_phaseLPFs.resize(size());
+    m_meters.resize(size());
 }
 void Measurement::setFiltersFrequency(Filter::Frequency frequency)
 {
@@ -383,7 +397,7 @@ QString Measurement::deviceName() const
 
 void Measurement::selectDevice(const QString &name)
 {
-    auto id = audio::Client::getInstance()->deviceIdByName(name);
+    auto id = audio::Client::getInstance()->deviceIdByName(name, audio::Plugin::Direction::Input);
     setDeviceId(id);
 }
 void Measurement::calculateDataLength()
@@ -547,6 +561,10 @@ void Measurement::setWindowType(QVariant type)
 }
 void Measurement::writeData(const QByteArray &buffer)
 {
+    if (!m_audioStream || m_onReset.load()) {
+        return;
+    }
+    std::lock_guard<std::mutex> guard(m_dataMutex);
     if (!m_audioStream) {
         return;
     }
@@ -557,7 +575,6 @@ void Measurement::writeData(const QByteArray &buffer)
     bool forceData = dataChanel() >= totalChanels;
     float loopSample = 0;
 
-    std::lock_guard<std::mutex> guard(m_dataMutex);
     bool loopAvailable = m_loopBuffer.size() >= m_audioStream->depth() * buffer.size() / (totalChanels * sizeof(float));
     for (auto it = buffer.begin(); it != buffer.end(); ++it) {
         if (currentChanel == 0) {
@@ -674,6 +691,10 @@ void Measurement::averaging()
 
         m_coherence.append(i, m_dataFT.bf(i), m_dataFT.af(i));
         m_ftdata[i].coherence = m_coherence.value(i);
+
+        m_meters[i].add(calibratedA);
+        m_ftdata[i].peakSquared = m_meters[i].peakSquared();
+        m_ftdata[i].meanSquared = m_meters[i].value();
     }
 
     int t = 0;
@@ -706,6 +727,7 @@ QObject *Measurement::store()
 {
     auto *store = new Stored();
     store->build(this);
+    store->autoName(name());
 
     QString avg;
     switch (m_averageType) {
@@ -741,7 +763,6 @@ QObject *Measurement::store()
     default:
         modeNote = "FFT power " + m_modeMap.at(mode());
     }
-
     store->setNotes(
         modeNote + "\t" +
         "delay: " + QString("%1").arg(1000.0 * delay() / sampleRate(), 0, 'f', 2) + "ms " +
@@ -920,11 +941,11 @@ void Measurement::updateAudio()
                 writeData(buffer);
             });
             m_audioStream = audio::Client::getInstance()->openInput(m_deviceId, &m_input, format);
-            connect(m_audioStream, &audio::Stream::sampleRateChanged, this, &Measurement::onSampleRateChanged);
             if (!m_audioStream) {
                 setError();
                 return;
             }
+            connect(m_audioStream, &audio::Stream::sampleRateChanged, this, &Measurement::onSampleRateChanged);
             emit audioFormatChanged();
         });
     }
@@ -942,18 +963,29 @@ void Measurement::checkChannels()
 }
 void Measurement::resetAverage() noexcept
 {
+    auto reset = [](auto * f) {
+        f->reset();
+    };
+
+    //next operations need time and shouldn't affect audio thread
+    m_onReset.store(true);
     std::lock_guard<std::mutex> guard(m_dataMutex);
+
     m_deconvAvg.reset();
     m_moduleAvg.reset();
     m_magnitudeAvg.reset();
     m_pahseAvg.reset();
 
-    auto reset = [](auto * f) {
-        f->reset();
-    };
     m_moduleLPFs.each(reset);
     m_magnitudeLPFs.each(reset);
     m_deconvLPFs.each(reset);
     m_phaseLPFs.each(reset);
+
+    m_meters.each(reset);
     m_loopBuffer.reset();
+
+    m_dataMeter.reset();
+    m_referenceMeter.reset();
+
+    m_onReset.store(false);
 }

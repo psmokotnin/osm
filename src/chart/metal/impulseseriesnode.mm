@@ -16,7 +16,6 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "impulseseriesnode.h"
-#include "../stepplot.h"
 #include <Metal/Metal.h>
 
 namespace chart {
@@ -24,7 +23,7 @@ namespace chart {
 #define id_cast(T, t) static_cast<id<T>>(t)
 
 ImpulseSeriesNode::ImpulseSeriesNode(QQuickItem *item) : XYSeriesNode(item),
-    m_pipeline(nullptr)
+    m_pipeline(nullptr), m_mode(ImpulsePlot::Mode::Linear)
 {
 
 }
@@ -42,6 +41,9 @@ void ImpulseSeriesNode::initRender()
 void ImpulseSeriesNode::synchronizeSeries()
 {
     synchronizeMatrix();
+    if (auto *impulsePlot = dynamic_cast<ImpulsePlot *>(plot())) {
+        m_mode = impulsePlot->mode();
+    }
 }
 
 void ImpulseSeriesNode::renderSeries()
@@ -55,11 +57,22 @@ void ImpulseSeriesNode::renderSeries()
     float *vertex_ptr = vertexBuffer(maxBufferSize);
 
     float dcOffset =  m_source->impulseValue(0);
+    float value = 0, lastValue = 0;
     for (unsigned int i = 0, j = 0; i < m_source->impulseSize() - 1; ++i) {
+        switch (m_mode) {
+        case ImpulsePlot::Linear:
+            value = m_source->impulseValue(i) - dcOffset;
+            break;
+        case ImpulsePlot::Log:
+            value = 10 * std::log10f(std::powf(m_source->impulseValue(i) - dcOffset, 2));
+            break;
+        }
+
         addLineSegment(vertex_ptr, j, verticiesCount,
-                       m_source->impulseTime(i), m_source->impulseValue(i) - dcOffset,
-                       m_source->impulseTime(i + 1),  m_source->impulseValue(i + 1) - dcOffset,
+                       m_source->impulseTime(i),      lastValue,
+                       m_source->impulseTime(i + 1),  value,
                        1, 1);
+        lastValue = value;
     }
 
     encodeLine(m_pipeline, verticiesCount);

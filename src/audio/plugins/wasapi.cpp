@@ -98,7 +98,14 @@ DeviceInfo::List WasapiPlugin::getDeviceInfoList() const
             continue;
         }
         checkCall(device->OpenPropertyStore(STGM_READ, &properties), list, "OpenPropertyStore");
-        checkCall(properties->GetValue(PKEY_Device_FriendlyName, &propertyValue), list, "PKEY_Device_FriendlyName");
+
+        // PKEY_Device_FriendlyName
+        static PROPERTYKEY key_Device_FriendlyName;
+        GUID IDevice_FriendlyName = { 0xa45c254e, 0xdf1c, 0x4efd, { 0x80, 0x20, 0x67, 0xd1, 0x46, 0xa8, 0x50, 0xe0 } };
+        key_Device_FriendlyName.pid = 14;
+        key_Device_FriendlyName.fmtid = IDevice_FriendlyName;
+
+        checkCall(properties->GetValue(key_Device_FriendlyName, &propertyValue), list, "PKEY_Device_FriendlyName");
         info.setName(QString::fromWCharArray(propertyValue.pwszVal));
 
         checkCall(properties->GetValue(PKEY_AudioEngine_DeviceFormat, &propertyValue), list, "PKEY_AudioEngine_DeviceFormat");
@@ -213,6 +220,7 @@ Stream *WasapiPlugin::open(const DeviceInfo::Id &id, const Plugin::Direction &mo
     REFERENCE_TIME defaultPeriod, minimumPeriod;
     checkCall(client->GetDevicePeriod(&defaultPeriod, &minimumPeriod), nullptr, "GetDevicePeriod");
 
+    CoInitialize(nullptr);
     checkCall(client->Initialize(AUDCLNT_SHAREMODE_SHARED, AUDCLNT_STREAMFLAGS_EVENTCALLBACK,
                                  defaultPeriod, 0, &waveFormat, NULL),
               nullptr,
@@ -325,7 +333,22 @@ bool checkStatus(HRESULT result, QString message, std::list<HRESULT> goodStatuse
 
     _com_error error(result);
     LPCTSTR errorMessage = error.ErrorMessage();
-    qCritical() << message << Qt::hex << result << QString::fromWCharArray(errorMessage);
+    static const QMap<HRESULT, QString> errorDesc = {
+        {AUDCLNT_E_ALREADY_INITIALIZED, "AUDCLNT_E_ALREADY_INITIALIZED"},
+        {AUDCLNT_E_BUFFER_SIZE_NOT_ALIGNED, "AUDCLNT_E_BUFFER_SIZE_NOT_ALIGNED"},
+        {AUDCLNT_E_BUFFER_SIZE_ERROR, "AUDCLNT_E_BUFFER_SIZE_ERROR"},
+        {AUDCLNT_E_CPUUSAGE_EXCEEDED, "AUDCLNT_E_CPUUSAGE_EXCEEDED"},
+        {AUDCLNT_E_DEVICE_INVALIDATED, "AUDCLNT_E_DEVICE_INVALIDATED"},
+        {AUDCLNT_E_DEVICE_IN_USE, "AUDCLNT_E_DEVICE_IN_USE"},
+        {AUDCLNT_E_ENDPOINT_CREATE_FAILED, "AUDCLNT_E_ENDPOINT_CREATE_FAILED"},
+        {AUDCLNT_E_INVALID_DEVICE_PERIOD, "AUDCLNT_E_INVALID_DEVICE_PERIOD"},
+        {AUDCLNT_E_UNSUPPORTED_FORMAT, "AUDCLNT_E_UNSUPPORTED_FORMAT"},
+        {AUDCLNT_E_EXCLUSIVE_MODE_NOT_ALLOWED, "AUDCLNT_E_EXCLUSIVE_MODE_NOT_ALLOWED"},
+        {AUDCLNT_E_BUFDURATION_PERIOD_NOT_EQUAL, "AUDCLNT_E_BUFDURATION_PERIOD_NOT_EQUAL"},
+        {AUDCLNT_E_SERVICE_NOT_RUNNING, "AUDCLNT_E_SERVICE_NOT_RUNNING"},
+        {E_INVALIDARG, "E_INVALIDARG"}
+    };
+    qCritical() << message << Qt::hex << result << QString::fromWCharArray(errorMessage) << errorDesc.value(result, "unknown");
 
     return false;
 }

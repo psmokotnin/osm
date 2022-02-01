@@ -68,6 +68,7 @@ Item {
             onValueChanged: dataObject.ymin = value
             implicitWidth: 170
             Layout.fillWidth: true
+            units: dataObject.yLabel
         }
 
         FloatSpinBox {
@@ -79,6 +80,7 @@ Item {
             onValueChanged: dataObject.ymax = value
             implicitWidth: 170
             Layout.fillWidth: true
+            units: dataObject.yLabel
         }
 
         Connections {
@@ -90,9 +92,17 @@ Item {
                 xmaxFloatBox.value = dataObject.xmax;
             }
             function onYminChanged() {
+                yminFloatBox.min = dataObject.yLowLimit;
+                yminFloatBox.max = dataObject.yHighLimit;
+                ymaxFloatBox.min = dataObject.yLowLimit;
+                ymaxFloatBox.max = dataObject.yHighLimit;
                 yminFloatBox.value = dataObject.ymin;
             }
             function onYmaxChanged() {
+                yminFloatBox.min = dataObject.yLowLimit;
+                yminFloatBox.max = dataObject.yHighLimit;
+                ymaxFloatBox.min = dataObject.yLowLimit;
+                ymaxFloatBox.max = dataObject.yHighLimit;
                 ymaxFloatBox.value = dataObject.ymax;
             }
         }
@@ -109,25 +119,27 @@ Item {
     RowLayout {
         spacing: 0
 
+        TitledCombo {
+            tooltip: qsTr("Y axis mode")
+            model: ["Linear", "Log"]
+
+            currentIndex: dataObject.mode
+            onCurrentIndexChanged: {
+                dataObject.mode = currentIndex;
+            }
+        }
+
         RowLayout {
             Layout.fillWidth: true
         }
 
-        TitledCombo {
-            tooltip: qsTr("show only selected source")
-            model: SourceModel {
-                addNone: true
-                list: sourceList
-            }
-            Layout.preferredWidth: 280
-            currentIndex: { model.indexOf(dataObject.filter) }
-            textRole: "title"
-            valueRole: "source"
-            onCurrentIndexChanged: {
-                dataObject.filter = model.get(currentIndex);
-            }
+        Select {
+            id: selectFilter
+            tooltip: qsTr("show only selected sources")
+            sources: sourceList
+            dataObject: chartProperties.dataObject
+            Layout.preferredWidth: 200
         }
-
 
         FileDialog {
             id: fileDialog

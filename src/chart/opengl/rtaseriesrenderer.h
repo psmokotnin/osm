@@ -44,6 +44,7 @@ protected:
 private:
     void initShaders();
 
+    bool m_showPeaks;
     unsigned int m_pointsPerOctave, m_mode;
     QOpenGLShader m_vertexShader, m_geometryShader, m_fragmentShader;
 };

@@ -14,20 +14,24 @@ SOURCES += src/main.cpp \
     src/audio/format.cpp \
     src/audio/plugin.cpp \
     src/audio/stream.cpp \
+    src/chart/crestfactorplot.cpp \
     src/chart/cursorhelper.cpp \
     src/chart/frequencybasedplot.cpp \
     src/chart/frequencybasedserieshelper.cpp \
     src/chart/groupdelayplot.cpp \
+    src/chart/nyquistplot.cpp \
     src/chart/palette.cpp \
     src/chart/spectrogramplot.cpp \
     src/chart/stepplot.cpp \
     src/chart/coherenceplot.cpp \
     src/common/autosaver.cpp \
     src/common/recentfilesmodel.cpp \
+    src/common/wavfile.cpp \
     src/elc.cpp \
     src/filesystem/dialog.cpp \
     src/filesystem/dialogPlugin.cpp \
     src/filesystem/plugins/widgetdialogplugin.cpp \
+    src/generator/wav.cpp \
     src/inputdevice.cpp \
     src/common/appearance.cpp \
     src/common/logger.cpp \
@@ -42,7 +46,6 @@ SOURCES += src/main.cpp \
     src/generator/generatorthread.cpp \
     src/generator/pinknoise.cpp \
     src/generator/outputdevice.cpp \
-    src/generator/wavfile.cpp \
     src/generator/whitenoise.cpp \
     src/generator/sinnoise.cpp \
     src/generator/sinsweep.cpp \
@@ -106,20 +109,24 @@ HEADERS += \
     src/audio/format.h \
     src/audio/plugin.h \
     src/audio/stream.h \
+    src/chart/crestfactorplot.h \
     src/chart/cursorhelper.h \
     src/chart/frequencybasedplot.h \
     src/chart/frequencybasedserieshelper.h \
     src/chart/groupdelayplot.h \
+    src/chart/nyquistplot.h \
     src/chart/palette.h \
     src/chart/spectrogramplot.h \
     src/chart/stepplot.h \
     src/chart/coherenceplot.h \
     src/common/autosaver.h \
     src/common/recentfilesmodel.h \
+    src/common/wavfile.h \
     src/elc.h \
     src/filesystem/dialog.h \
     src/filesystem/dialogPlugin.h \
     src/filesystem/plugins/widgetdialogplugin.h \
+    src/generator/wav.h \
     src/inputdevice.h \
     src/common/appearance.h \
     src/common/logger.h \
@@ -134,7 +141,6 @@ HEADERS += \
     src/generator/generatorthread.h \
     src/generator/pinknoise.h \
     src/generator/outputdevice.h \
-    src/generator/wavfile.h \
     src/generator/whitenoise.h \
     src/generator/sinnoise.h \
     src/generator/sinsweep.h \
@@ -276,6 +282,8 @@ isEqual(GRAPH, "METAL") {
         src/chart/metal/phaseseriesnode.h \
         src/chart/metal/seriesnode.h \
         src/chart/metal/spectrogramseriesnode.h \
+        src/chart/metal/crestfactorseriesnode.h \
+        src/chart/metal/nyquistseriesnode.h \
         src/chart/metal/stepseriesnode.h \
         src/chart/metal/xyseriesnode.h \
         src/chart/metal/rtaseriesnode.h \
@@ -290,6 +298,8 @@ isEqual(GRAPH, "METAL") {
         src/chart/metal/phaseseriesnode.mm \
         src/chart/metal/seriesnode.mm \
         src/chart/metal/spectrogramseriesnode.mm \
+        src/chart/metal/crestfactorseriesnode.mm \
+        src/chart/metal/nyquistseriesnode.mm \
         src/chart/metal/stepseriesnode.mm \
         src/chart/metal/xyseriesnode.mm \
         src/chart/metal/seriesitem.cpp \
@@ -362,6 +372,8 @@ isEqual(GRAPH, "OPENGL") {
         src/chart/opengl/coherenceseriesrenderer.h \
         src/chart/opengl/groupdelayseriesrenderer.h \
         src/chart/opengl/spectrogramseriesrenderer.h \
+        src/chart/opengl/crestfactorseriesrenderer.h \
+        src/chart/opengl/nyquistseriesrenderer.h \
         src/chart/opengl/stepseriesrenderer.h
 
     SOURCES += \
@@ -377,6 +389,8 @@ isEqual(GRAPH, "OPENGL") {
         src/chart/opengl/coherenceseriesrenderer.cpp \
         src/chart/opengl/groupdelayseriesrenderer.cpp \
         src/chart/opengl/spectrogramseriesrenderer.cpp \
+        src/chart/opengl/crestfactorseriesrenderer.cpp \
+        src/chart/opengl/nyquistseriesrenderer.cpp \
         src/chart/opengl/stepseriesrenderer.cpp
 }
 

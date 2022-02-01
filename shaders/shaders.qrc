@@ -18,5 +18,8 @@
         <file>groupdelay.geom</file>
         <file>groupdelay.frag</file>
         <file>groupdelay.vert</file>
+        <file>nyquist.frag</file>
+        <file>nyquist.geom</file>
+        <file>nyquist.vert</file>
     </qresource>
 </RCC>

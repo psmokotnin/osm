@@ -1,5 +1,5 @@
-#ifndef SELECT_H
-#define SELECT_H
+#ifndef CHART_VARIABLECHART_H
+#define CHART_VARIABLECHART_H
 /**
  *  OSM
  *  Copyright (C) 2018  Pavel Smokotnin
@@ -78,4 +78,4 @@ private:
 };
 
 }
-#endif // SELECT_H
+#endif // CHART_VARIABLECHART_H

@@ -20,6 +20,7 @@
 
 using namespace chart;
 Source::Source(QObject *parent) : QObject(parent),
+    m_dataMutex(), m_onReset(false),
     m_ftdata(nullptr),
     m_impulseData(nullptr),
     m_dataLength(0),
@@ -96,6 +97,22 @@ const float &Source::coherence(const unsigned int &i) const noexcept
         return m_zero;
 
     return m_ftdata[i].coherence;
+}
+
+const float &Source::peakSquared(const unsigned int &i) const noexcept
+{
+    if (i >= m_dataLength)
+        return m_zero;
+
+    return m_ftdata[i].peakSquared;
+}
+
+float Source::crestFactor(const unsigned int &i) const noexcept
+{
+    if (i >= m_dataLength)
+        return -INFINITY;
+
+    return 10.f * std::log10(m_ftdata[i].peakSquared / m_ftdata[i].meanSquared);
 }
 
 unsigned int Source::impulseSize() const noexcept

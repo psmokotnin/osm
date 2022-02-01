@@ -35,87 +35,83 @@ Item {
         RowLayout {
             spacing: 0
 
-            SelectableSpinBox {
+            FloatSpinBox {
+                id: xminFloatBox
+                min: dataObject.xLowLimit
+                max: dataObject.xHighLimit
                 value: dataObject.xmin
+                tooltiptext: qsTr("x from")
                 onValueChanged: dataObject.xmin = value
-                from: dataObject.xLowLimit
-                to: dataObject.xHighLimit
-                editable: true
                 implicitWidth: 170
                 Layout.fillWidth: true
-
-                ToolTip.visible: hovered
-                ToolTip.text: qsTr("x from")
-
-                textFromValue: function(value, locale) {
-                    return Number(value) + "Hz"
-                }
-
-                valueFromText: function(text, locale) {
-                    return parseInt(text)
-                }
+                units: dataObject.xLabel
             }
 
-            SelectableSpinBox {
+            FloatSpinBox {
+                id: xmaxFloatBox
+                min: dataObject.xLowLimit
+                max: dataObject.xHighLimit
                 value: dataObject.xmax
+                tooltiptext: qsTr("x to")
                 onValueChanged: dataObject.xmax = value
-                from: dataObject.xLowLimit
-                to: dataObject.xHighLimit
-                editable: true
                 implicitWidth: 170
                 Layout.fillWidth: true
-
-                ToolTip.visible: hovered
-                ToolTip.text: qsTr("x to")
-
-                textFromValue: function(value, locale) {
-                    return Number(value) + "Hz"
-                }
-
-                valueFromText: function(text, locale) {
-                    return parseInt(text)
-                }
+                units: dataObject.xLabel
             }
 
-            SelectableSpinBox {
+            FloatSpinBox {
+                id: yminFloatBox
+                min: dataObject.yLowLimit
+                max: dataObject.yHighLimit
                 value: dataObject.ymin
+                tooltiptext: qsTr("y from")
                 onValueChanged: dataObject.ymin = value
-                from: dataObject.yLowLimit
-                to: dataObject.yHighLimit
-                editable: true
                 implicitWidth: 170
                 Layout.fillWidth: true
-
-                ToolTip.visible: hovered
-                ToolTip.text: qsTr("y from")
-
-                textFromValue: function(value, locale) {
-                    return Number(value) + "dB"
-                }
-
-                valueFromText: function(text, locale) {
-                    return parseInt(text)
-                }
+                units: dataObject.yLabel
+                step: 1
             }
 
-            SelectableSpinBox {
+            FloatSpinBox {
+                id: ymaxFloatBox
+                min: dataObject.yLowLimit
+                max: dataObject.yHighLimit
                 value: dataObject.ymax
+                tooltiptext: qsTr("y to")
                 onValueChanged: dataObject.ymax = value
-                from: dataObject.yLowLimit
-                to: dataObject.yHighLimit
-                editable: true
                 implicitWidth: 170
                 Layout.fillWidth: true
+                units: dataObject.yLabel
+                step: 1
+            }
 
-                ToolTip.visible: hovered
-                ToolTip.text: qsTr("y to")
-
-                textFromValue: function(value, locale) {
-                    return Number(value) + "dB"
+            Connections {
+                target: dataObject
+                function onXminChanged() {
+                    xminFloatBox.value = dataObject.xmin;
                 }
-
-                valueFromText: function(text, locale) {
-                    return parseInt(text)
+                function onXmaxChanged() {
+                    xmaxFloatBox.value = dataObject.xmax;
+                }
+                function onYminChanged() {
+                    yminFloatBox.min = dataObject.yLowLimit;
+                    yminFloatBox.max = dataObject.yHighLimit;
+                    ymaxFloatBox.min = dataObject.yLowLimit;
+                    ymaxFloatBox.max = dataObject.yHighLimit;
+                    yminFloatBox.value = dataObject.ymin;
+                }
+                function onYmaxChanged() {
+                    yminFloatBox.min = dataObject.yLowLimit;
+                    yminFloatBox.max = dataObject.yHighLimit;
+                    ymaxFloatBox.min = dataObject.yLowLimit;
+                    ymaxFloatBox.max = dataObject.yHighLimit;
+                    ymaxFloatBox.value = dataObject.ymax;
+                }
+                function onModeChanged() {
+                    yminFloatBox.value += 0.1;
+                    yminFloatBox.value -= 0.1;
+                    ymaxFloatBox.value += 0.1;
+                    ymaxFloatBox.value -= 0.1;
                 }
             }
 
@@ -138,80 +134,84 @@ Item {
                 ToolTip.text: qsTr("save chart as an image")
             }
         }
-    RowLayout {
-        spacing: 0
-
-        TitledCombo {
-            title: qsTr("ppo")
-            tooltip: qsTr("points per octave")
-            implicitWidth: 170
-            model: [3, 6, 12, 24, 48]
-            currentIndex: {
-                var ppo = dataObject.pointsPerOctave;
-                model.indexOf(ppo);
-            }
-            onCurrentIndexChanged: {
-                var ppo = model[currentIndex];
-                dataObject.pointsPerOctave = ppo;
-            }
-        }
-
-        CheckBox {
-            id: coherence
-            text: qsTr("use coherence")
-            implicitWidth: 170
-            checked: dataObject.coherence
-            onCheckStateChanged: dataObject.coherence = checked
-
-            ToolTip.visible: hovered
-            ToolTip.text: qsTr("use coherence as alpha channel")
-        }
-
-        FloatSpinBox {
-            min: 0.0
-            max: 1.0
-            step: 0.05
-            value: dataObject.coherenceThreshold
-            tooltiptext: qsTr("coherence threshold")
-            onValueChanged: dataObject.coherenceThreshold = value
-            implicitWidth: 170
-            visible: coherence.checked
-        }
-
         RowLayout {
-            Layout.fillWidth: true
-        }
+            spacing: 0
 
-        TitledCombo {
-            id: filter
-            tooltip: qsTr("show only selected source")
-            model: SourceModel {
-                id: filterModel
-                addNone: true
-                list: sourceList
-            }
-            Layout.preferredWidth: 280
-            currentIndex: { model.indexOf(dataObject.filter) }
-            textRole: "title"
-            valueRole: "source"
-            onCurrentIndexChanged: {
-                dataObject.filter = model.get(currentIndex);
-            }
-        }
+            TitledCombo {
+                tooltip: qsTr("Y axis mode")
+                model: ["dB", "Linear"]
 
-        FileDialog {
-            id: fileDialog
-            selectExisting: false
-            title: "Please choose a file's name"
-            folder: (typeof shortcuts !== 'undefined' ? shortcuts.home : Filesystem.StandardFolder.Home)
-            defaultSuffix: "png"
-            onAccepted: {
-                dataObject.parent.grabToImage(function(result) {
-                    result.saveToFile(dataObject.parent.urlForGrab(fileDialog.fileUrl));
-                });
+                currentIndex: dataObject.mode
+                onCurrentIndexChanged: {
+                    dataObject.mode = currentIndex;
+                }
+            }
+
+            Item {
+                Layout.preferredWidth: 5
+            }
+
+            TitledCombo {
+                title: qsTr("ppo")
+                tooltip: qsTr("points per octave")
+                Layout.fillWidth: true
+                model: [3, 6, 12, 24, 48]
+                currentIndex: {
+                    var ppo = dataObject.pointsPerOctave;
+                    model.indexOf(ppo);
+                }
+                onCurrentIndexChanged: {
+                    var ppo = model[currentIndex];
+                    dataObject.pointsPerOctave = ppo;
+                }
+            }
+
+            CheckBox {
+                id: coherence
+                text: qsTr("use coherence")
+                Layout.fillWidth: true
+                checked: dataObject.coherence
+                onCheckStateChanged: dataObject.coherence = checked
+
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("use coherence as alpha channel")
+            }
+
+            FloatSpinBox {
+                min: 0.0
+                max: 1.0
+                step: 0.05
+                value: dataObject.coherenceThreshold
+                tooltiptext: qsTr("coherence threshold")
+                onValueChanged: dataObject.coherenceThreshold = value
+                Layout.fillWidth: true
+                visible: coherence.checked
+            }
+
+            RowLayout {
+                Layout.fillWidth: true
+            }
+
+            Select {
+                id: selectFilter
+                tooltip: qsTr("show only selected sources")
+                sources: sourceList
+                dataObject: chartProperties.dataObject
+                Layout.preferredWidth: 200
+            }
+
+            FileDialog {
+                id: fileDialog
+                selectExisting: false
+                title: "Please choose a file's name"
+                folder: (typeof shortcuts !== 'undefined' ? shortcuts.home : Filesystem.StandardFolder.Home)
+                defaultSuffix: "png"
+                onAccepted: {
+                    dataObject.parent.grabToImage(function(result) {
+                        result.saveToFile(dataObject.parent.urlForGrab(fileDialog.fileUrl));
+                    });
+                }
             }
         }
     }
-
-  }
 }

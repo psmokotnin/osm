@@ -55,7 +55,7 @@ void SeriesRenderer::synchronize(QQuickFramebufferObject *item)
         m_retinaScale = static_cast<GLfloat>(retinaScale);
         auto plot = static_cast<chart::Plot *>(m_item->parent());
         if (plot) {
-            m_renderActive = !plot->filter() || plot->filter() == m_source;
+            m_renderActive = plot->isSelected(m_source);
             m_weight = plot->palette().lineWidth(seriesFBO->highlighted());
         } else {
             m_renderActive = false;
@@ -67,8 +67,9 @@ void SeriesRenderer::render()
 #ifdef QT_DEBUG
     Profiler p("SeriesRender");
 #endif
+
+    auto plot = static_cast<chart::Plot *>(m_item->parent());
     if (!m_openGLFunctions) {
-        auto plot = static_cast<chart::Plot *>(m_item->parent());
         plot->setRendererError("OpenGL 3.3 required");
         return;
     }
@@ -107,8 +108,6 @@ void SeriesRenderer::render()
     }
 
     m_program.release();
-
-    auto plot = static_cast<chart::Plot *>(m_item->parent());
     plot->window()->resetOpenGLState();
 }
 void SeriesRenderer::setWeight(unsigned int weight)

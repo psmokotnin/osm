@@ -42,9 +42,9 @@ namespace chart {
 class Plot : public QQuickItem
 {
     Q_OBJECT
-    Q_PROPERTY(chart::Source *filter READ filter WRITE setFilter NOTIFY filterChanged)
-    Q_PROPERTY(QString xLabel READ xLabel CONSTANT)
-    Q_PROPERTY(QString yLabel READ yLabel CONSTANT)
+    Q_PROPERTY(QList<chart::Source *> selected READ selected WRITE setSelected NOTIFY selectedChanged)
+    Q_PROPERTY(QString xLabel READ xLabel NOTIFY xLabelChanged)
+    Q_PROPERTY(QString yLabel READ yLabel NOTIFY yLabelChanged)
     Q_PROPERTY(QString rendererError READ rendererError NOTIFY rendererErrorChanged)
 
 public:
@@ -72,16 +72,22 @@ public:
     bool darkMode() const noexcept;
     void setDarkMode(bool darkMode) noexcept;
 
-    chart::Source *filter() const noexcept;
-    void setFilter(chart::Source *filter) noexcept;
-
     QString rendererError() const;
     void setRendererError(QString error);
 
+    QList<chart::Source *> selected() const;
+    void select(Source *source);
+    void setSelected(const QList<chart::Source *> selected);
+    bool isSelected(chart::Source *source) const;
+
+    void setSelectAppended(bool selectAppended);
+
 signals:
-    void filterChanged(chart::Source *);
     void updated();
     void rendererErrorChanged();
+    void xLabelChanged();
+    void yLabelChanged();
+    void selectedChanged();
 
 public slots:
     void parentWidthChanged();
@@ -105,10 +111,13 @@ protected:
     QList<SeriesItem *> m_serieses;
     Settings *m_settings;
     Palette m_palette;
-    QPointer<chart::Source> m_filter;
+    QList<QPointer<chart::Source>> m_selected;
     QString m_rendererError;
 
     static CursorHelper *s_cursorHelper;
+
+private:
+    bool m_selectAppended;
 };
 }
 #endif // PLOT_H

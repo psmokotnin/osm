@@ -86,6 +86,7 @@ void Axis::configure(AxisType type, float min, float max, unsigned int ticks, fl
         m_min,
         m_max
     };
+    needUpdate();
 }
 QString Axis::unit() const
 {
@@ -94,7 +95,10 @@ QString Axis::unit() const
 
 void Axis::setUnit(const QString &unit)
 {
-    m_unit = unit;
+    if (m_unit != unit) {
+        m_unit = unit;
+        emit unitChanged(m_unit);
+    }
 }
 
 float Axis::helperValue() const
@@ -295,19 +299,19 @@ void Axis::autoLabels(unsigned int ticks)
     m_labels.clear();
     float l, step;
     //make symetrical labels if _min and _max have different signs
-    if (std::abs(m_min + m_max) < std::max(abs(m_min), std::abs(m_max))) {
+    if (std::abs(m_lowLimit + m_highLimit) < std::max(abs(m_lowLimit), std::abs(m_highLimit))) {
         l = 0;
         m_labels.push_back(l);
         ticks --;
-        step = 2 * std::max(std::abs(m_min), std::abs(m_max)) / ticks;
+        step = 2 * std::max(std::abs(m_lowLimit), std::abs(m_highLimit)) / ticks;
         for (unsigned int i = 0; i < ticks / 2; i++) {
             l += step;
             m_labels.push_back(fromPeriodicValue(l));
             m_labels.push_back(fromPeriodicValue(-1 * l));
         }
     } else {
-        l = m_min;
-        step = std::abs(m_max - m_min) / ticks;
+        l = m_lowLimit;
+        step = std::abs(m_highLimit - m_lowLimit) / ticks;
         for (unsigned int i = 0; i <= ticks; i++) {
             m_labels.push_back(l);
             l += step;

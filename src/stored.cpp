@@ -21,6 +21,8 @@
 #include <QJsonArray>
 #include <QFile>
 #include <QtMath>
+#include <QtEndian>
+#include "common/wavfile.h"
 
 Stored::Stored(QObject *parent) : chart::Source(parent), m_notes(),
     m_polarity(false), m_inverse(false), m_gain(0), m_delay(0)
@@ -57,6 +59,15 @@ void Stored::build (chart::Source *source)
     source->unlock();
     emit readyRead();
 }
+
+void Stored::autoName(const QString &prefix) noexcept
+{
+    auto time = QTime::currentTime();
+    auto name = prefix.mid(0, 7) + time.toString(" @ HH:mm");
+
+    setName(name);
+}
+
 QJsonObject Stored::toJSON(const SourceList *) const noexcept
 {
     QJsonObject object;
@@ -86,6 +97,8 @@ QJsonObject Stored::toJSON(const SourceList *) const noexcept
         ftcell.append(static_cast<double>(m_ftdata[i].magnitude  ));
         ftcell.append(static_cast<double>(m_ftdata[i].phase.arg()));
         ftcell.append(static_cast<double>(m_ftdata[i].coherence  ));
+        ftcell.append(static_cast<double>(m_ftdata[i].peakSquared));
+        ftcell.append(static_cast<double>(m_ftdata[i].meanSquared));
 
         ftdata.append(ftcell);
     }
@@ -121,6 +134,8 @@ void Stored::fromJSON(QJsonObject data, const SourceList *) noexcept
         m_ftdata[i].magnitude    = static_cast<float>(row[2].toDouble());
         m_ftdata[i].phase.polar(   static_cast<float>(row[3].toDouble()));
         m_ftdata[i].coherence    = static_cast<float>(row[4].toDouble());
+        m_ftdata[i].peakSquared  = static_cast<float>(row[5].toDouble());
+        m_ftdata[i].meanSquared  = static_cast<float>(row[6].toDouble());
     }
 
     for (int i = 0; i < impulse.count(); i++) {
@@ -146,6 +161,12 @@ void Stored::fromJSON(QJsonObject data, const SourceList *) noexcept
     setNotes(data["notes"].toString());
     setActive(data["active"].toBool(active()));
 }
+
+QString Stored::notes() const noexcept
+{
+    return m_notes;
+}
+
 bool Stored::save(const QUrl &fileName) const noexcept
 {
     QFile saveFile(fileName.toLocalFile());
@@ -241,6 +262,21 @@ bool Stored::saveCSV(const QUrl &fileName) const noexcept
     saveFile.close();
     return true;
 }
+
+bool Stored::saveWAV(const QUrl &fileName) const noexcept
+{
+    WavFile file;
+    QByteArray data;
+    data.resize(m_deconvolutionSize * 4);
+    auto dst = data.data();
+    for (unsigned int i = 0; i < m_deconvolutionSize; ++i, dst += 4) {
+        qToLittleEndian(m_impulseData[i].value.real, dst);
+    }
+
+    int sampleRate = std::round(10 / std::abs(m_impulseData[1].time - m_impulseData[2].time)) * 100;
+    return file.save(fileName.toLocalFile(), sampleRate, data);
+}
+
 void Stored::setNotes(const QString &notes) noexcept
 {
     if (m_notes != notes) {
@@ -307,7 +343,7 @@ float Stored::module(const unsigned int &i) const noexcept {
 
 float Stored::magnitudeRaw(const unsigned int &i) const noexcept
 {
-    return Source::magnitudeRaw(i) * std::pow(10, m_gain / 20.f);
+    return std::pow(Source::magnitudeRaw(i), (inverse() ? -1 : 1)) * std::pow(10, m_gain / 20.f);
 }
 
 float Stored::magnitude(const unsigned int &i) const noexcept

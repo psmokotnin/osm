@@ -23,7 +23,7 @@
 using namespace chart;
 
 MagnitudeSeriesRenderer::MagnitudeSeriesRenderer() : FrequencyBasedSeriesRenderer(),
-    m_pointsPerOctave(0), m_coherenceThreshold(0), m_coherence(false)
+    m_pointsPerOctave(0), m_coherenceThreshold(0), m_coherence(false), m_mode(MagnitudePlot::Mode::dB)
 {
     m_program.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/magnitude.vert");
     m_program.addShaderFromSourceFile(QOpenGLShader::Geometry, ":/magnitude.geom");
@@ -48,6 +48,7 @@ void MagnitudeSeriesRenderer::synchronize(QQuickFramebufferObject *item)
         m_pointsPerOctave    = plot->pointsPerOctave();
         m_coherence          = plot->coherence();
         m_invert             = plot->invert();
+        m_mode               = plot->mode();
         m_coherenceThreshold = plot->coherenceThreshold();
     }
 }
@@ -75,7 +76,16 @@ void MagnitudeSeriesRenderer::renderSeries()
      */
     auto accumulate = [this, &coherence, &value] (const unsigned int &i) {
         coherence += m_source->coherence(i);
-        value     += (m_invert ? -1 : 1) * m_source->magnitude(i);
+
+        switch (m_mode) {
+        case MagnitudePlot::Mode::Linear:
+            value += std::abs(std::pow(m_source->magnitudeRaw(i), m_invert ? -1 : 1));
+            break;
+
+        case MagnitudePlot::Mode::dB:
+            value += (m_invert ? -1 : 1) * m_source->magnitude(i);
+            break;
+        }
     };
 
     auto collected = [ &, this] (const float & f1, const float & f2, const float * ac, const float * c) {

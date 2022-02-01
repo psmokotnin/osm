@@ -18,13 +18,15 @@
 #ifndef MNOISE_H
 #define MNOISE_H
 
-#include "wavfile.h"
+#include "wav.h"
 
-class MNoise : public WavFile
+class MNoise : public Wav
 {
     Q_OBJECT
+
 public:
     MNoise(QObject *parent);
+    Sample sample() final;
 };
 
 #endif // MNOISE_H

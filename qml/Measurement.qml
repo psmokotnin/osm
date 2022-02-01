@@ -58,11 +58,13 @@ Item {
 
             Meter {
                 dBV: (dataModel ? dataModel.level : 0)
+                peak:(dataModel ? dataModel.measurementPeak : 0)
                 width: parent.width
             }
 
             Meter {
                 dBV: (dataModel ? dataModel.referenceLevel : 0)
+                peak:(dataModel ? dataModel.referencePeak : 0)
                 width: parent.width
             }
         }
@@ -80,7 +82,7 @@ Item {
             }
             dataModel.errorChanged.connect(function(error) {
                 if (error) {
-                    applicationWindow.message.showError(qsTr("Can't start the %1.<br/>Device is not supported.").arg(dataModel.name));
+                    applicationWindow.message.showError(qsTr("Can't start the %1.<br/>Device is not supported or busy.").arg(dataModel.name));
                 }
             });
         }

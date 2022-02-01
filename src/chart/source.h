@@ -41,6 +41,8 @@ public:
         float magnitude;
         complex phase;
         float coherence;
+        float peakSquared;
+        float meanSquared = NAN;
     };
 
     struct TimeData {
@@ -52,6 +54,7 @@ protected:
     QColor m_color;
 
     std::mutex m_dataMutex;   //NOTE: shared_mutex (C++17)
+    std::atomic<bool> m_onReset;
     FTData *m_ftdata;
     TimeData *m_impulseData;
 
@@ -98,6 +101,8 @@ public:
     virtual float magnitudeRaw(const unsigned int &i) const noexcept;
     virtual complex phase(const unsigned int &i) const noexcept;
     const float &coherence(const unsigned int &i) const noexcept;
+    const float &peakSquared(const unsigned int &i) const noexcept;
+    float crestFactor(const unsigned int &i) const noexcept;
 
     virtual unsigned int impulseSize() const noexcept;
     virtual float impulseTime(const unsigned int &i) const noexcept;

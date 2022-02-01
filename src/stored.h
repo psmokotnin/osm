@@ -35,18 +35,18 @@ public:
     Source *clone() const override;
     void build (chart::Source *source);
 
+    Q_INVOKABLE void autoName(const QString &prefix) noexcept;
+
     Q_INVOKABLE bool save(const QUrl &fileName) const noexcept;
     Q_INVOKABLE bool saveCal(const QUrl &fileName) const noexcept;
     Q_INVOKABLE bool saveFRD(const QUrl &fileName) const noexcept;
     Q_INVOKABLE bool saveTXT(const QUrl &fileName) const noexcept;
     Q_INVOKABLE bool saveCSV(const QUrl &fileName) const noexcept;
+    Q_INVOKABLE bool saveWAV(const QUrl &fileName) const noexcept;
     Q_INVOKABLE QJsonObject toJSON(const SourceList * = nullptr) const noexcept override;
     void fromJSON(QJsonObject data, const SourceList * = nullptr) noexcept override;
 
-    QString notes() const noexcept
-    {
-        return m_notes;
-    }
+    QString notes() const noexcept;
     void setNotes(const QString &notes) noexcept;
 
     bool polarity() const;

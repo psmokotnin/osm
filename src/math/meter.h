@@ -22,17 +22,21 @@
 #include "container/fifo.h"
 class Meter
 {
+public:
+    Meter(unsigned long size = DEFAULT_SIZE);
+    static const unsigned long DEFAULT_SIZE = 100;
+
+    void  add(const float &data) noexcept;
+    float value() const noexcept;   //! mean squared value
+    float dB() const noexcept;
+    float peakSquared() const noexcept;
+    float peakdB() const noexcept;
+    void  reset() noexcept;
+
 private:
     container::fifo<float> m_data;
     unsigned long m_size;
-    float m_integrator;
-
-public:
-    Meter(unsigned long size);
-
-    void add(const float &data) noexcept;
-    float value() const noexcept;
-    void reset() noexcept;
+    float m_integrator, m_peak;
 };
 
 #endif // METER_H

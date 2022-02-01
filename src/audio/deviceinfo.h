@@ -31,7 +31,7 @@ public:
 
     DeviceInfo();
     DeviceInfo(const Id &id, const QString &pluginName);
-    bool operator==(const DeviceInfo &right);
+    bool operator==(const DeviceInfo &right) const;
 
     Id id() const;
 

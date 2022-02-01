@@ -50,6 +50,9 @@ class Measurement : public chart::Source
     Q_PROPERTY(float level READ level NOTIFY levelChanged)
     Q_PROPERTY(float referenceLevel READ referenceLevel NOTIFY referenceLevelChanged)
 
+    Q_PROPERTY(float measurementPeak READ measurementPeak NOTIFY levelChanged)
+    Q_PROPERTY(float referencePeak READ referencePeak NOTIFY referenceLevelChanged)
+
     Q_PROPERTY(unsigned int delay READ delay WRITE setDelay NOTIFY delayChanged)
     Q_PROPERTY(long estimated READ estimated NOTIFY estimatedChanged)
     Q_PROPERTY(long estimatedDelta READ estimatedDelta NOTIFY estimatedChanged)
@@ -81,7 +84,7 @@ public:
     enum AverageType {Off, LPF, FIFO};
     Q_ENUM(AverageType)
 
-    enum Mode {FFT10, FFT12, FFT14, FFT15, FFT16, LFT};
+    enum Mode {FFT10, FFT11, FFT12, FFT13, FFT14, FFT15, FFT16, LFT};
     Q_ENUM(Mode)
     Q_ENUM(Filter::Frequency)
 
@@ -106,6 +109,9 @@ public:
 
     float level() const;
     float referenceLevel() const;
+
+    float measurementPeak() const;
+    float referencePeak() const;
 
     unsigned int delay() const;
     void setDelay(unsigned int delay);
@@ -201,6 +207,7 @@ private:
     container::array<Filter::BesselLPF<complex>> m_phaseLPFs;
 
     container::fifo<float> m_loopBuffer;
+    container::array<Meter> m_meters;
 
     void calculateDataLength();
     void averaging();

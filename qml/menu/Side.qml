@@ -64,10 +64,27 @@ Drawer {
         ListElement {
             name: qsTr("Add elc")
             onclick: function() {sourceList.addElc();}
+            separator: true
         }
         ListElement {
-            name: qsTr("Toggle target trace");
-            onclick: function() {targetTraceModel.show = ! targetTraceModel.show;}
+            name: qsTr("Show target");
+            onclick: function(button) {
+               targetTraceModel.show = ! targetTraceModel.show;
+               button.text = (targetTraceModel.show ? "✓" : "") + qsTr("Show target");
+           }
+            oncompleted: function(button) {
+                button.text = (targetTraceModel.show ? "✓" : "") + qsTr("Show target");
+            }
+        }
+        ListElement {
+            name: qsTr("Show Experimental");
+            onclick: function(button) {
+                applicationAppearance.experimentFunctions = ! applicationAppearance.experimentFunctions;
+                button.text = (applicationAppearance.experimentFunctions ? "✓" : "") + qsTr("Experimental");
+            }
+            oncompleted: function(button) {
+                button.text = (applicationAppearance.experimentFunctions ? "✓ " : "") + qsTr("Experimental");
+            }
             separator: true
         }
 
@@ -76,12 +93,20 @@ Drawer {
             onclick: function() {
                 applicationWindow.properiesbar.open(null, "qrc:/Calculator.qml");
             }
+            separator: true
+        }
+
+        ListElement {
+            name: qsTr("Check for update")
+            onclick: function() {
+                update.show();
+            }
         }
     }
 
     ColumnLayout {
-        anchors.left: parent.left
-        anchors.right: parent.right
+        id: content
+        anchors.fill: parent
 
         Image {
             source: "qrc:/images/icons/white80.png"
@@ -91,17 +116,27 @@ Drawer {
             Layout.topMargin: 20;
         }
 
-        Repeater {
+        ListView {
+            Layout.fillHeight: true
+            Layout.fillWidth: true
+            Layout.alignment: Qt.AlignHCenter
+            Layout.margins: 0
+            spacing: 0
+            clip: true
+            ScrollIndicator.vertical: ScrollIndicator {}
+
             delegate: ColumnLayout {
-                Layout.fillWidth: true
+                anchors.left: parent.left
+                anchors.right: parent.right
                 Button {
                     text: name
                     onClicked: {
-                        onclick();
+                        onclick(this);
                         drawer.close();
                     }
                     flat: true
                     Layout.fillWidth: true
+                    Component.onCompleted: oncompleted ? oncompleted(this) : {};
                 }
                 ToolSeparator {
                     visible: separator

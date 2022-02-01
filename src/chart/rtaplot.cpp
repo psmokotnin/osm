@@ -29,6 +29,7 @@ RTAPlot::RTAPlot(Settings *settings, QQuickItem *parent): FrequencyBasedPlot(set
     m_y.setUnit("dB");
     setFlag(QQuickItem::ItemHasContents);
     connect(this, SIGNAL(modeChanged(unsigned int)), this, SLOT(update()));
+    connect(this, SIGNAL(showPeaksChanged(bool)), this, SLOT(update()));
     connect(this, SIGNAL(pointsPerOctaveChanged(unsigned int)), this, SLOT(update()));
 }
 
@@ -40,14 +41,18 @@ void RTAPlot::setMode(unsigned int mode)
     emit modeChanged(m_mode);
 }
 
+unsigned int RTAPlot::mode()
+{
+    return m_mode;
+}
+
 void RTAPlot::setSettings(Settings *settings) noexcept
 {
     if (settings && (settings->value("type") == "RTA")) {
         FrequencyBasedPlot::setSettings(settings);
 
-        setMode(
-            m_settings->reactValue<RTAPlot, unsigned int>("mode", this, &RTAPlot::modeChanged,
-                                                          m_mode).toUInt());
+        setMode(m_settings->reactValue<RTAPlot, unsigned int>("mode", this, &RTAPlot::modeChanged, m_mode).toUInt());
+        setShowPeaks(m_settings->reactValue<RTAPlot, bool>("showPeaks", this, &RTAPlot::showPeaksChanged, m_mode).toBool());
     }
 }
 void RTAPlot::storeSettings() noexcept
@@ -57,4 +62,18 @@ void RTAPlot::storeSettings() noexcept
 
     FrequencyBasedPlot::storeSettings();
     m_settings->setValue("mode", m_mode);
+    m_settings->setValue("showPeaks", m_showPeaks);
+}
+
+bool RTAPlot::showPeaks() const
+{
+    return m_showPeaks;
+}
+
+void RTAPlot::setShowPeaks(bool showPeaks)
+{
+    if (m_showPeaks != showPeaks) {
+        m_showPeaks = showPeaks;
+        emit showPeaksChanged(m_showPeaks);
+    }
 }

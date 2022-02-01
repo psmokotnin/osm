@@ -23,15 +23,34 @@
 namespace chart {
 class ImpulsePlot : public XYPlot
 {
-    Q_OBJECT
+public:
+    enum Mode {
+        Linear  = 0x00,
+        Log     = 0x01
+    };
 
-protected:
-    virtual SeriesItem *createSeriesFromSource(Source *source) override;
+    Q_OBJECT
+    Q_ENUM(Mode);
+    Q_PROPERTY(Mode mode READ mode WRITE setMode NOTIFY modeChanged)
 
 public:
     ImpulsePlot(Settings *settings, QQuickItem *parent = Q_NULLPTR);
     virtual void setSettings(Settings *settings) noexcept override;
     virtual void storeSettings() noexcept override;
+
+    Mode mode() const;
+    void setMode(const Mode &mode);
+    void setMode(const int &mode);
+
+signals:
+    void modeChanged(Mode);
+
+protected:
+    virtual SeriesItem *createSeriesFromSource(Source *source) override;
+
+private:
+    Mode m_mode;
+
 };
 }
 #endif // IMPULSEPLOT_H

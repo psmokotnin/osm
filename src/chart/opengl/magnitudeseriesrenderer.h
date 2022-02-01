@@ -20,6 +20,8 @@
 
 
 #include "frequencybasedseriesrenderer.h"
+#include "../magnitudeplot.h"
+
 namespace chart {
 
 class MagnitudeSeriesRenderer : public FrequencyBasedSeriesRenderer
@@ -34,6 +36,7 @@ private:
     unsigned int m_pointsPerOctave;
     float m_coherenceThreshold;
     bool m_coherence, m_invert;
+    MagnitudePlot::Mode m_mode;
 };
 }
 #endif // MAGNITUDESERIESRENDERER_H

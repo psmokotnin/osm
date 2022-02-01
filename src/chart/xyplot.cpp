@@ -37,22 +37,25 @@ XYPlot::XYPlot(Settings *settings, QQuickItem *parent) :
         emit ymaxChanged(value);
     });
 
+    connect(&m_x, &Axis::unitChanged, this, &Plot::xLabelChanged);
+    connect(&m_y, &Axis::unitChanged, this, &Plot::yLabelChanged);
+
     connect(s_cursorHelper, &CursorHelper::valueUpdated, this, [this]() {
-        m_x.setHelperValue(s_cursorHelper->value(xLabel()));
-        m_y.setHelperValue(s_cursorHelper->value(yLabel()));
+        m_x.setHelperValue(s_cursorHelper->value(xLabel(), "x"));
+        m_y.setHelperValue(s_cursorHelper->value(yLabel(), "y"));
     });
 }
 
 void XYPlot::setHelper(qreal x, qreal y) noexcept
 {
-    s_cursorHelper->setValue(xLabel(), x2v(x));
-    s_cursorHelper->setValue(yLabel(), y2v(y));
+    s_cursorHelper->setValue(xLabel(), "x", x2v(x));
+    s_cursorHelper->setValue(yLabel(), "y", y2v(y));
 }
 
 void XYPlot::unsetHelper() noexcept
 {
-    s_cursorHelper->unsetValue(xLabel());
-    s_cursorHelper->unsetValue(yLabel());
+    s_cursorHelper->unsetValue(xLabel(), "x");
+    s_cursorHelper->unsetValue(yLabel(), "y");
 }
 
 qreal XYPlot::x2v(qreal mouseX) const noexcept

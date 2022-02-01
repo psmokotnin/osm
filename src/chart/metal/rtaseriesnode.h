@@ -45,7 +45,7 @@ private:
     void renderLines();
 
     unsigned int m_pointsPerOctave, m_mode;
-    bool m_refreshBuffers;
+    bool m_refreshBuffers, m_showPeaks;
     std::vector<float> m_vertices;
     std::vector<unsigned int> m_indicies;
 

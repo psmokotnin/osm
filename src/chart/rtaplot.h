@@ -24,28 +24,29 @@ namespace chart {
 class RTAPlot : public FrequencyBasedPlot
 {
     Q_OBJECT
-
     Q_PROPERTY(unsigned int mode READ mode WRITE setMode NOTIFY modeChanged)
-
-protected:
-    virtual SeriesItem *createSeriesFromSource(Source *source) override;
-    unsigned int m_mode;
-    bool m_spline;
+    Q_PROPERTY(bool showPeaks READ showPeaks WRITE setShowPeaks NOTIFY showPeaksChanged)
 
 public:
     RTAPlot(Settings *settings, QQuickItem *parent = Q_NULLPTR);
 
     void setMode(unsigned int mode);
-    unsigned int mode()
-    {
-        return m_mode;
-    }
+    unsigned int mode();
 
     virtual void setSettings(Settings *settings) noexcept override;
     virtual void storeSettings() noexcept override;
 
+    bool showPeaks() const;
+    void setShowPeaks(bool showPeaks);
+
 signals:
     void modeChanged(unsigned int);
+    void showPeaksChanged(bool);
+
+private:
+    virtual SeriesItem *createSeriesFromSource(Source *source) override;
+    unsigned int m_mode;
+    bool m_spline, m_showPeaks;
 };
 }
 #endif // RTAPLOT_H

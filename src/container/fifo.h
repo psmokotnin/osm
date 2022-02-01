@@ -90,7 +90,7 @@ public:
     T pushnpop(const T value, const size_t &limit)
     {
         if (m_size >= limit && m_front && m_end) {
-            T popValue = m_front->value;
+            T popValue = std::move(m_front->value);
             Cell *reserved = m_front;
             m_front = m_front->next;
             reserved->next = nullptr;
@@ -98,7 +98,7 @@ public:
             m_end->next = reserved;
             m_end = reserved;
 
-            return popValue;
+            return std::move(popValue);
         }
         push(value);
         return T(0);

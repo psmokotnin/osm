@@ -130,7 +130,7 @@ Item {
             TitledCombo {
                 title: qsTr("ppo")
                 tooltip: qsTr("points per octave")
-                implicitWidth: 170
+                Layout.fillWidth: true
                 model: [3, 6, 12, 24, 48]
                 currentIndex: {
                     var ppo = dataObject.pointsPerOctave;
@@ -145,7 +145,7 @@ Item {
             CheckBox {
                 id: coherence
                 text: qsTr("use coherence")
-                implicitWidth: 170
+                Layout.fillWidth: true
                 checked: dataObject.coherence
                 onCheckStateChanged: dataObject.coherence = checked
 
@@ -160,7 +160,7 @@ Item {
                 value: dataObject.coherenceThreshold
                 tooltiptext: qsTr("coherence threshold")
                 onValueChanged: dataObject.coherenceThreshold = value
-                implicitWidth: 170
+                Layout.fillWidth: true
                 visible: coherence.checked
             }
 
@@ -168,19 +168,12 @@ Item {
                 Layout.fillWidth: true
             }
 
-            TitledCombo {
-                tooltip: qsTr("show only selected source")
-                model: SourceModel {
-                    addNone: true
-                    list: sourceList
-                }
-                Layout.preferredWidth: 280
-                currentIndex: { model.indexOf(dataObject.filter) }
-                textRole: "title"
-                valueRole: "source"
-                onCurrentIndexChanged: {
-                    dataObject.filter = model.get(currentIndex);
-                }
+            Select {
+                id: selectFilter
+                tooltip: qsTr("show only selected sources")
+                sources: sourceList
+                dataObject: chartProperties.dataObject
+                Layout.preferredWidth: 200
             }
 
             FileDialog {
@@ -196,6 +189,5 @@ Item {
                 }
             }
         }
-
     }
 }

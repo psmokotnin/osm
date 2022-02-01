@@ -42,8 +42,11 @@ class CoherencePlot : public XYPlot
     Q_PROPERTY(bool showThreshold READ showThreshold WRITE setShowThreshold NOTIFY showThresholdChanged)
 
 public:
-    enum Type {Normal, Squared};
+    enum Type {Normal, Squared, SNR};
     Q_ENUMS(Type)
+    static constexpr float THRESHOLD_NORMAL     = 0.95;
+    static constexpr float THRESHOLD_SQUARED    = 0.91;
+    static constexpr float THRESHOLD_SNR        = 10;
 
     CoherencePlot(Settings *settings, QQuickItem *parent = Q_NULLPTR);
 

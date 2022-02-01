@@ -65,6 +65,7 @@ void RTASeriesRenderer::synchronize(QQuickFramebufferObject *item)
             m_mode = plot->mode();
             initShaders();
         }
+        m_showPeaks = plot->showPeaks();
     }
 }
 void RTASeriesRenderer::updateMatrix()
@@ -121,7 +122,7 @@ void RTASeriesRenderer::renderLine()
 }
 void RTASeriesRenderer::renderBars()
 {
-    unsigned int maxBufferSize = m_pointsPerOctave * 12 * 8;
+    unsigned int maxBufferSize = m_pointsPerOctave * 12 * 12 * 2;
     if (m_vertices.size() != maxBufferSize) {
         m_vertices.resize(maxBufferSize);
         m_refreshBuffers = true;
@@ -129,12 +130,15 @@ void RTASeriesRenderer::renderBars()
 
     unsigned int verticesCollected = 0;
 
-    float value = 0;
+    float value = 0, peak = 0;
+    float y = 1 / (m_matrix(0, 0) * m_width);
+
     auto accumalte = [ &, this] (const unsigned int &i) {
         if (i == 0) {
             return ;
         }
         value += 2 * m_source->module(i) * m_source->module(i) * (m_source->frequency(i) - m_source->frequency(i - 1));
+        peak = std::max(peak, m_source->peakSquared(i));
     };
 
     unsigned int i = 0;
@@ -145,21 +149,50 @@ void RTASeriesRenderer::renderBars()
         }
 
         value = 10 * log10f(value);
-        m_vertices[i + 0] = start;
+        peak  = 10 * log10f(peak);
+        auto shiftedStart = std::pow(M_E, std::log(start) + y);
+        auto shiftedEnd   = std::pow(M_E, std::log(end  ) - y);
+        m_vertices[i + 0] = shiftedStart;
         m_vertices[i + 1] = value;
-        m_vertices[i + 2] = start;
+        m_vertices[i + 2] = shiftedStart;
         m_vertices[i + 3] = m_yMin;
-        m_vertices[i + 4] = end;
+        m_vertices[i + 4] = shiftedEnd;
         m_vertices[i + 5] = value;
-        m_vertices[i + 6] = end;
-        m_vertices[i + 7] = m_yMin;
-        i += 8;
-        verticesCollected += 4;
+
+        m_vertices[i + 6] = shiftedEnd;
+        m_vertices[i + 7] = value;
+        m_vertices[i + 8] = shiftedEnd;
+        m_vertices[i + 9] = m_yMin;
+        m_vertices[i + 10] = shiftedStart;
+        m_vertices[i + 11] = m_yMin;
+
+        if (m_showPeaks) {
+            m_vertices[i + 12] = shiftedStart;
+            m_vertices[i + 13] = peak + 1;
+            m_vertices[i + 14] = shiftedStart;
+            m_vertices[i + 15] = peak;
+            m_vertices[i + 16] = shiftedEnd;
+            m_vertices[i + 17] = peak + 1;
+
+            m_vertices[i + 18] = shiftedEnd;
+            m_vertices[i + 19] = peak + 1;
+            m_vertices[i + 20] = shiftedEnd;
+            m_vertices[i + 21] = peak;
+            m_vertices[i + 22] = shiftedStart;
+            m_vertices[i + 23] = peak;
+
+            i += 24;
+            verticesCollected += 12;
+        } else {
+            i += 12;
+            verticesCollected += 6;
+        }
         value = 0;
+        peak = 0;
     };
 
     iterate(m_pointsPerOctave, accumalte, collected);
-    drawVertices(GL_TRIANGLE_STRIP, verticesCollected);
+    drawVertices(GL_TRIANGLES, verticesCollected);
 }
 void RTASeriesRenderer::drawVertices(const GLenum &mode, const GLsizei &count)
 {
@@ -197,6 +230,13 @@ void RTASeriesRenderer::renderLines()
         m_vertices[j + 2] = m_source->frequency(i);
         m_vertices[j + 3] = 20 * log10f(m_source->module(i));
     }
-
     drawVertices(GL_LINES, count * 2);
+
+    if (m_showPeaks) {
+        for (unsigned int i = 0, j = 0; i < count; ++i, j += 4) {
+            m_vertices[j + 1] = 10 * log10f(m_source->peakSquared(i));
+            m_vertices[j + 3] = 10 * log10f(m_source->peakSquared(i)) + 1;
+        }
+        drawVertices(GL_LINES, count * 2);
+    }
 }

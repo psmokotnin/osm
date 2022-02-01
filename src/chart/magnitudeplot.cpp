@@ -23,14 +23,12 @@
 using namespace chart;
 
 MagnitudePlot::MagnitudePlot(Settings *settings, QQuickItem *parent) :
-    FrequencyBasedPlot(settings, parent), m_invert(false)
+    FrequencyBasedPlot(settings, parent), m_invert(false), m_mode(Linear)
 {
     m_x.configure(AxisType::Logarithmic, 20.f, 20000.f);
     m_x.setISOLabels();
-    m_y.configure(AxisType::Linear, -36.f, 36.f,  25);
-    m_y.setReset(-18.f, 18.f);
-    m_y.reset();
-    m_y.setUnit("dB");
+
+    setMode(dB);
     setFlag(QQuickItem::ItemHasContents);
     m_targetTrace = new TargetTraceItem(m_palette, this);
 }
@@ -38,6 +36,9 @@ void MagnitudePlot::setSettings(Settings *settings) noexcept
 {
     if (settings && (settings->value("type") == "Magnitude")) {
         FrequencyBasedPlot::setSettings(settings);
+
+        setMode(m_settings->reactValue<MagnitudePlot, MagnitudePlot::Mode>(
+                    "mode", this, &MagnitudePlot::modeChanged, m_mode).toInt());
     }
 }
 void MagnitudePlot::storeSettings() noexcept
@@ -46,6 +47,7 @@ void MagnitudePlot::storeSettings() noexcept
         return;
 
     FrequencyBasedPlot::storeSettings();
+    m_settings->setValue("mode", m_mode);
 }
 bool MagnitudePlot::invert() const
 {
@@ -59,6 +61,41 @@ void MagnitudePlot::setInvert(bool invert)
     m_invert = invert;
     emit invertChanged(m_invert);
     update();
+}
+
+MagnitudePlot::Mode MagnitudePlot::mode() const
+{
+    return m_mode;
+}
+
+void MagnitudePlot::setMode(const MagnitudePlot::Mode &mode)
+{
+    if (m_mode != mode) {
+        m_mode = mode;
+
+        switch (m_mode) {
+        case dB:
+            m_y.configure(AxisType::Linear, -36.f, 36.f,  25);
+            m_y.setReset(-18.f, 18.f);
+            m_y.reset();
+            m_y.setUnit("dB");
+            break;
+
+        case Linear:
+            m_y.configure(AxisType::Linear, 0.f, 200.f,  20);
+            m_y.setReset(0.f, 100.f);
+            m_y.reset();
+            m_y.setUnit("");
+            break;
+        }
+        update();
+        emit modeChanged(m_mode);
+    }
+}
+
+void MagnitudePlot::setMode(const int &mode)
+{
+    setMode(static_cast<Mode>(mode));
 }
 
 MagnitudePlot::TargetTraceItem::TargetTraceItem(const Palette &palette, QQuickItem *parent) : PaintedItem(parent),
