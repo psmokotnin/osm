@@ -42,6 +42,7 @@ void CursorHelper::setValue(QString key, QString axis, qreal value) noexcept
 void CursorHelper::unsetValue(QString key, QString axis) noexcept
 {
     m_values[key.isEmpty() ? axis : key] = NAN;
+    emit valueUpdated();
 }
 
 } // namespace chart
