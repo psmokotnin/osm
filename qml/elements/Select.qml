@@ -59,11 +59,11 @@ DropDown {
 
             onClicked: {
                 if (model["source"]) {
-                    parent.checked = !parent.checked;
+                    sourceModel.check(index, !parent.checked);
                 } else {
-                    control.model.check(index, true);
-                    updateDisplayText();
+                    sourceModel.check(index, true);
                 }
+                updateDisplayText();
             }
         }
 
@@ -72,11 +72,6 @@ DropDown {
             function onCheckedChanged() {
                 checked = model[control.checkedRole];
             }
-        }
-
-        onCheckedChanged: {
-            control.model.check(index, checked);
-            updateDisplayText();
         }
     }
 

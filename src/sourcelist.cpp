@@ -112,6 +112,7 @@ void SourceList::clean() noexcept
 void SourceList::reset() noexcept
 {
     clean();
+    m_checked.clear();
     add<Measurement>();
 }
 bool SourceList::move(int from, int to) noexcept

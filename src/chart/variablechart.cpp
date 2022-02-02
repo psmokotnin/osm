@@ -198,7 +198,6 @@ void VariableChart::setSources(SourceList *sourceList)
 
         connect(m_sources, &SourceList::postItemAppended, this, [ = ](chart::Source * source) {
             appendDataSource(source);
-            m_plot->select(source);
         });
 
         connect(m_sources, &SourceList::preItemRemoved, this, [ = ](int index) {

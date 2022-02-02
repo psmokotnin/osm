@@ -129,13 +129,13 @@ void Stored::fromJSON(QJsonObject data, const SourceList *) noexcept
 
     for (int i = 0; i < ftdata.count(); i++) {
         auto row = ftdata[i].toArray();
-        m_ftdata[i].frequency    = static_cast<float>(row[0].toDouble());
-        m_ftdata[i].module       = static_cast<float>(row[1].toDouble());
-        m_ftdata[i].magnitude    = static_cast<float>(row[2].toDouble());
-        m_ftdata[i].phase.polar(   static_cast<float>(row[3].toDouble()));
-        m_ftdata[i].coherence    = static_cast<float>(row[4].toDouble());
-        m_ftdata[i].peakSquared  = static_cast<float>(row[5].toDouble());
-        m_ftdata[i].meanSquared  = static_cast<float>(row[6].toDouble());
+        if (row.count() > 0) m_ftdata[i].frequency    = static_cast<float>(row[0].toDouble());
+        if (row.count() > 1) m_ftdata[i].module       = static_cast<float>(row[1].toDouble());
+        if (row.count() > 2) m_ftdata[i].magnitude    = static_cast<float>(row[2].toDouble());
+        if (row.count() > 3) m_ftdata[i].phase.polar(   static_cast<float>(row[3].toDouble()));
+        if (row.count() > 4) m_ftdata[i].coherence    = static_cast<float>(row[4].toDouble());
+        if (row.count() > 5) m_ftdata[i].peakSquared  = static_cast<float>(row[5].toDouble());
+        if (row.count() > 6) m_ftdata[i].meanSquared  = static_cast<float>(row[6].toDouble());
     }
 
     for (int i = 0; i < impulse.count(); i++) {
