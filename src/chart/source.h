@@ -100,7 +100,7 @@ public:
     virtual float magnitude(const unsigned int &i) const noexcept;
     virtual float magnitudeRaw(const unsigned int &i) const noexcept;
     virtual complex phase(const unsigned int &i) const noexcept;
-    const float &coherence(const unsigned int &i) const noexcept;
+    virtual const float &coherence(const unsigned int &i) const noexcept;
     const float &peakSquared(const unsigned int &i) const noexcept;
     float crestFactor(const unsigned int &i) const noexcept;
 

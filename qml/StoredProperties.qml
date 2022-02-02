@@ -83,28 +83,44 @@ Item {
             }
             RowLayout {
 
-                CheckBox {
-                    text: qsTr("inverse")
-                    Layout.leftMargin: 40
-                    Layout.rightMargin: 40
-                    implicitWidth: 90
+                Button {
+                    text: "flip"
+                    checkable: true
                     checked: dataObject.inverse
-                    onCheckStateChanged: dataObject.inverse = checked
+                    onCheckedChanged: dataObject.inverse = checked
+
+                    Material.background: parent.Material.background
 
                     ToolTip.visible: hovered
                     ToolTip.text: qsTr("inverse magnitude data")
                 }
 
-                CheckBox {
-                    text: qsTr("polarity")
-                    Layout.leftMargin: 40
-                    Layout.rightMargin: 40
-                    implicitWidth: 90
+                Button {
+                    text: "+/–"
+                    checkable: true
                     checked: dataObject.polarity
-                    onCheckStateChanged: dataObject.polarity = checked
+                    onCheckedChanged: dataObject.polarity = checked
+
+                    Material.background: parent.Material.background
 
                     ToolTip.visible: hovered
                     ToolTip.text: qsTr("inverse polarity")
+                }
+
+                Button {
+                    text: "100%"
+                    checkable: true
+                    checked: dataObject.ignoreCoherence
+                    onCheckedChanged: dataObject.ignoreCoherence = checked
+
+                    Material.background: parent.Material.background
+
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("ignore coherence")
+                }
+
+                Item {
+                    Layout.fillWidth: true
                 }
 
                 DropDown {
