@@ -27,6 +27,7 @@ class Stored: public chart::Source
     Q_PROPERTY(QString notes READ notes WRITE setNotes NOTIFY notesChanged)
     Q_PROPERTY(bool polarity READ polarity WRITE setPolarity NOTIFY polarityChanged)
     Q_PROPERTY(bool inverse READ inverse WRITE setInverse NOTIFY inverseChanged)
+    Q_PROPERTY(bool ignoreCoherence READ ignoreCoherence WRITE setIgnoreCoherence NOTIFY ignoreCoherenceChanged)
     Q_PROPERTY(float gain READ gain WRITE setGain NOTIFY gainChanged)
     Q_PROPERTY(float delay READ delay WRITE setDelay NOTIFY delayChanged)
 
@@ -65,14 +66,19 @@ public:
     float magnitudeRaw(const unsigned int &i) const noexcept override;
     float magnitude(const unsigned int &i) const noexcept override;
     complex phase(const unsigned int &i) const noexcept override;
+    const float &coherence(const unsigned int &i) const noexcept override;
 
     float impulseTime(const unsigned int &i) const noexcept override;
     float impulseValue(const unsigned int &i) const noexcept override;
+
+    bool ignoreCoherence() const;
+    void setIgnoreCoherence(bool ignoreCoherence);
 
 signals:
     void notesChanged();
     void polarityChanged();
     void inverseChanged();
+    void ignoreCoherenceChanged();
     void gainChanged();
     void delayChanged();
 
@@ -80,6 +86,7 @@ private:
     QString m_notes;
     bool m_polarity;
     bool m_inverse;
+    bool m_ignoreCoherence;
     float m_gain;
     float m_delay;
 };
