@@ -18,6 +18,7 @@
 #include "../magnitudeplot.h"
 #include "../phaseplot.h"
 #include "../groupdelayplot.h"
+#include "../phasedelayplot.h"
 #include "../impulseplot.h"
 #include "../stepplot.h"
 #include "../spectrogramplot.h"
@@ -27,8 +28,8 @@
 #include "rtaseriesrenderer.h"
 #include "magnitudeseriesrenderer.h"
 #include "phaseseriesrenderer.h"
-
 #include "groupdelayseriesrenderer.h"
+#include "phasedelayseriesrenderer.h"
 #include "coherenceseriesrenderer.h"
 #include "impulseseriesrenderer.h"
 #include "stepseriesrenderer.h"
@@ -70,6 +71,13 @@ SeriesFBO *GroupDelayPlot::createSeriesFromSource(Source *source)
 {
     return new SeriesFBO(source, []() {
         return new GroupDelaySeriesRenderer();
+    }, this);
+}
+
+SeriesFBO *PhaseDelayPlot::createSeriesFromSource(Source *source)
+{
+    return new SeriesFBO(source, []() {
+        return new PhaseDelaySeriesRenderer();
     }, this);
 }
 

@@ -21,6 +21,7 @@ SOURCES += src/main.cpp \
     src/chart/groupdelayplot.cpp \
     src/chart/nyquistplot.cpp \
     src/chart/palette.cpp \
+    src/chart/phasedelayplot.cpp \
     src/chart/spectrogramplot.cpp \
     src/chart/stepplot.cpp \
     src/chart/coherenceplot.cpp \
@@ -117,6 +118,7 @@ HEADERS += \
     src/chart/groupdelayplot.h \
     src/chart/nyquistplot.h \
     src/chart/palette.h \
+    src/chart/phasedelayplot.h \
     src/chart/spectrogramplot.h \
     src/chart/stepplot.h \
     src/chart/coherenceplot.h \
@@ -274,6 +276,7 @@ isEqual(GRAPH, "METAL") {
     HEADERS += \
         src/chart/metal/coherenceseriesnode.h \
         src/chart/metal/groupdelayseriesnode.h \
+        src/chart/metal/phasedelayseriesnode.h \
         src/chart/metal/impulseseriesnode.h \
         src/chart/metal/magnitudeseriesnode.h \
         src/chart/metal/phaseseriesnode.h \
@@ -290,6 +293,7 @@ isEqual(GRAPH, "METAL") {
         src/chart/metal/rtaseriesnode.mm \
         src/chart/metal/coherenceseriesnode.mm \
         src/chart/metal/groupdelayseriesnode.mm \
+        src/chart/metal/phasedelayseriesnode.mm \
         src/chart/metal/impulseseriesnode.mm \
         src/chart/metal/magnitudeseriesnode.mm \
         src/chart/metal/phaseseriesnode.mm \
@@ -365,6 +369,7 @@ isEqual(GRAPH, "OPENGL") {
         src/chart/opengl/xyseriesrenderer.h \
         src/chart/opengl/coherenceseriesrenderer.h \
         src/chart/opengl/groupdelayseriesrenderer.h \
+        src/chart/opengl/phasedelayseriesrenderer.h \
         src/chart/opengl/spectrogramseriesrenderer.h \
         src/chart/opengl/crestfactorseriesrenderer.h \
         src/chart/opengl/nyquistseriesrenderer.h \
@@ -382,6 +387,7 @@ isEqual(GRAPH, "OPENGL") {
         src/chart/opengl/xyseriesrenderer.cpp \
         src/chart/opengl/coherenceseriesrenderer.cpp \
         src/chart/opengl/groupdelayseriesrenderer.cpp \
+        src/chart/opengl/phasedelayseriesrenderer.cpp \
         src/chart/opengl/spectrogramseriesrenderer.cpp \
         src/chart/opengl/crestfactorseriesrenderer.cpp \
         src/chart/opengl/nyquistseriesrenderer.cpp \

@@ -21,5 +21,8 @@
         <file>nyquist.frag</file>
         <file>nyquist.geom</file>
         <file>nyquist.vert</file>
+        <file>phasedelay.geom</file>
+        <file>phasedelay.vert</file>
+        <file>phasedelay.frag</file>
     </qresource>
 </RCC>
