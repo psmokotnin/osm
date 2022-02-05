@@ -23,6 +23,7 @@
 #include "stepplot.h"
 #include "coherenceplot.h"
 #include "groupdelayplot.h"
+#include "phasedelayplot.h"
 #include "spectrogramplot.h"
 #include "crestfactorplot.h"
 #include "nyquistplot.h"
@@ -70,6 +71,10 @@ void VariableChart::initType()
 
     case GroupDelay:
         newPlot = new GroupDelayPlot(m_settings, this);
+        break;
+
+    case PhaseDelay:
+        newPlot = new PhaseDelayPlot(m_settings, this);
         break;
 
     case Spectrogram:

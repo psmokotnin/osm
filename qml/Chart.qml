@@ -65,6 +65,9 @@ Item {
             case "Group Delay":
                 opener.propertiesQml = "qrc:/Plot/GroupDelayProperties.qml";
                 break;
+            case "Phase Delay":
+                opener.propertiesQml = "qrc:/Plot/PhaseDelayProperties.qml";
+                break;
             case "Impulse":
                 opener.propertiesQml = "qrc:/Plot/ImpulseProperties.qml";
                 break;
@@ -248,6 +251,7 @@ Item {
                     case "Magnitude":
                     case "Phase":
                     case "Group Delay":
+                    case "Phase Delay":
                     case "Coherence":
                     case "Spectrogram":
                     case "Crest Factor":
@@ -331,7 +335,7 @@ Item {
         implicitHeight: Material.buttonHeight
         background: null
         model: applicationAppearance.experimentFunctions ?
-                   ["RTA", "Magnitude", "Phase", "Impulse", "Step", "Coherence", "Group Delay", "Spectrogram", "Crest Factor", "Nyquist"] :
+                   ["RTA", "Magnitude", "Phase", "Impulse", "Step", "Coherence", "Group Delay", "Phase Delay", "Spectrogram", "Crest Factor", "Nyquist"] :
                    ["RTA", "Magnitude", "Phase", "Impulse", "Step", "Coherence", "Group Delay", "Spectrogram"]
         currentIndex: model.indexOf(type)
         onCurrentIndexChanged: {

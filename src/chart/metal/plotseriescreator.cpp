@@ -19,6 +19,7 @@
 #include "../magnitudeplot.h"
 #include "../phaseplot.h"
 #include "../groupdelayplot.h"
+#include "../phasedelayplot.h"
 #include "../coherenceplot.h"
 #include "../impulseplot.h"
 #include "../stepplot.h"
@@ -32,6 +33,7 @@
 #include "magnitudeseriesnode.h"
 #include "phaseseriesnode.h"
 #include "groupdelayseriesnode.h"
+#include "phasedelayseriesnode.h"
 #include "coherenceseriesnode.h"
 #include "spectrogramseriesnode.h"
 #include "crestfactorseriesnode.h"
@@ -74,6 +76,11 @@ SeriesItem *CoherencePlot::createSeriesFromSource(Source *source)
 SeriesItem *GroupDelayPlot::createSeriesFromSource(Source *source)
 {
     return itemNode<GroupDelaySeriesNode>(this, source);
+}
+
+SeriesItem *PhaseDelayPlot::createSeriesFromSource(Source *source)
+{
+    return itemNode<PhaseDelaySeriesNode>(this, source);
 }
 
 SeriesItem *ImpulsePlot::createSeriesFromSource(Source *source)

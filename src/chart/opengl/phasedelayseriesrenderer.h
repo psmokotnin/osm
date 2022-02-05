@@ -1,6 +1,6 @@
 /**
  *  OSM
- *  Copyright (C) 2018  Pavel Smokotnin
+ *  Copyright (C) 2022  Pavel Smokotnin
 
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -15,28 +15,24 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef TYPE_H
-#define TYPE_H
+#ifndef PHASEDELAYSERIESRENDERER_H
+#define PHASEDELAYSERIESRENDERER_H
 
-#include <map>
-#include <QString>
+#include "frequencybasedseriesrenderer.h"
 
 namespace chart {
+class PhaseDelaySeriesRenderer : public FrequencyBasedSeriesRenderer
+{
+public:
+    PhaseDelaySeriesRenderer();
+    void renderSeries() override;
+    void synchronize(QQuickFramebufferObject *item) override;
 
-enum Type {RTA, Magnitude, Phase, Scope, Impulse, Step, Coherence, GroupDelay, PhaseDelay, Spectrogram, CrestFactor, Nyquist};
-static std::map<Type, QString> typeMap = {
-    {RTA,       "RTA"},
-    {Magnitude, "Magnitude"},
-    {Phase,     "Phase"},
-    {Scope,     "Scope"},
-    {Impulse,   "Impulse"},
-    {Step,      "Step"},
-    {Coherence, "Coherence"},
-    {GroupDelay, "Group Delay"},
-    {PhaseDelay, "Phase Delay"},
-    {Spectrogram, "Spectrogram"},
-    {CrestFactor, "Crest Factor"},
-    {Nyquist, "Nyquist"}
+private:
+    int m_coherenceThresholdU, m_coherenceAlpha;
+    unsigned int m_pointsPerOctave;
+    float m_coherenceThreshold;
+    bool m_coherence;
 };
 }
-#endif // TYPE_H
+#endif // PHASEDELAYSERIESRENDERER_H

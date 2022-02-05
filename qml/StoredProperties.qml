@@ -34,6 +34,7 @@ Item {
 
         ColumnLayout {
             Layout.fillHeight: true
+            Layout.fillWidth: true
 
             RowLayout {
                 FloatSpinBox {
@@ -76,7 +77,7 @@ Item {
                 }
 
                 NameField {
-                    width: 135
+                    Layout.preferredWidth: 130
                     target: dataObject
                     Layout.alignment: Qt.AlignVCenter
                 }
@@ -117,10 +118,6 @@ Item {
 
                     ToolTip.visible: hovered
                     ToolTip.text: qsTr("ignore coherence")
-                }
-
-                Item {
-                    Layout.fillWidth: true
                 }
 
                 DropDown {

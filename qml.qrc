@@ -48,5 +48,6 @@
         <file alias="Plot/NyquistProperties.qml">qml/Plot/NyquistProperties.qml</file>
         <file alias="elements/Select.qml">qml/elements/Select.qml</file>
         <file alias="elements/ColoredMenuItem.qml">qml/elements/ColoredMenuItem.qml</file>
+        <file alias="Plot/PhaseDelayProperties.qml">qml/Plot/PhaseDelayProperties.qml</file>
     </qresource>
 </RCC>
