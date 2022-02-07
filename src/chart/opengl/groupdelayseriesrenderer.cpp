@@ -62,7 +62,8 @@ void GroupDelaySeriesRenderer::renderSeries()
         m_refreshBuffers = true;
     }
 
-    float value(0), lastValue(0);
+    float value(0), lastValue(0), lastSegmentValue(0);
+    float f1 = 0, f2 = 0;
     float coherence = 0.f;
 
     float xadd, xmul;
@@ -80,10 +81,17 @@ void GroupDelaySeriesRenderer::renderSeries()
         value +=  v;
         lastValue = v;
         coherence += m_source->coherence(i);
+        f2 = m_source->frequency(i);
     };
+
     auto beforeSpline = [&] (const auto * value, auto, const auto & count) {
-        return (*value) / count;
+        float v = (*value) / count - lastSegmentValue;
+        lastSegmentValue = (*value) / count;
+        v /= (f2 - f1);
+        f1 = f2;
+        return v;
     };
+
     auto collected = [ &, this] (const float & f1, const float & f2, const float ac[4], const float c[4]) {
         if (i > maxBufferSize) {
             qCritical("out of range");

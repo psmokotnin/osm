@@ -58,7 +58,8 @@ void GroupDelaySeriesNode::renderSeries()
 
     unsigned int maxBufferSize = m_pointsPerOctave * PPO_BUFFER_MUL, j = 0, verticiesCount = 0;
     float *vertex_ptr = vertexBuffer(maxBufferSize);
-    float value(0), lastValue(0);
+    float value(0), lastValue(0), lastSegmentValue(0);
+    float f1 = 0, f2 = 0;
     float coherence = 0.f;
 
     float xadd, xmul;
@@ -75,10 +76,17 @@ void GroupDelaySeriesNode::renderSeries()
         value +=  v;
         lastValue = v;
         coherence += m_source->coherence(i);
+        f2 = m_source->frequency(i);
     };
+
     auto beforeSpline = [&] (const auto * value, auto, const auto & count) {
-        return (*value) / count;
+        float v = (*value) / count - lastSegmentValue;
+        lastSegmentValue = (*value) / count;
+        v /= (f2 - f1);
+        f1 = f2;
+        return v;
     };
+
     auto collected = [&] (const float & f1, const float & f2, const float ac[4], const float c[4]) {
         float fx1 = (logf(f1) + xadd) * xmul;
         float fx2 = (logf(f2) + xadd) * xmul;
@@ -91,14 +99,12 @@ void GroupDelaySeriesNode::renderSeries()
                 return;
             }
             auto x1 = f1 * std::pow(f2 / f1, t);
-            auto v1 = ac[1] + ac[2] * 2 * t + ac[3] * 3 * t * t;    // dPhase/dt
-            v1 *= 1. / ((log(f2) - log(f1)) * x1);                  // dt/df
+            auto v1 = ac[0] + ac[1] * t + ac[2] * t * t + ac[3] * t * t * t;
             auto c1 = coherenceSpline(m_coherence, m_coherenceThreshold, c, t);
 
             t += dt;
             auto x2 = f1 * std::pow(f2 / f1, t);
-            auto v2 = ac[1] + ac[2] * 2 * t + ac[3] * 3 * t * t;    // dPhase/dt
-            v2 *= 1. / ((log(f2) - log(f1)) * x2);                  // dt/df
+            auto v2 = ac[0] + ac[1] * t + ac[2] * t * t + ac[3] * t * t * t;
             auto c2 = coherenceSpline(m_coherence, m_coherenceThreshold, c, t);
 
             addLineSegment(vertex_ptr, j, verticiesCount,

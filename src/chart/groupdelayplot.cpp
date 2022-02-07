@@ -23,7 +23,7 @@ using namespace chart;
 GroupDelayPlot::GroupDelayPlot(Settings *settings, QQuickItem *parent) :
     FrequencyBasedPlot(settings, parent)
 {
-    m_pointsPerOctave = 6;
+    m_pointsPerOctave = 12;
     m_x.configure(AxisType::Logarithmic, 20.f, 20000.f);
     m_x.setISOLabels();
     m_y.configure(AxisType::Linear,
@@ -34,8 +34,8 @@ GroupDelayPlot::GroupDelayPlot(Settings *settings, QQuickItem *parent) :
                  );
 
     m_y.setReset(
-        -40.f * static_cast<float>(M_PI) / 500,
-        10.f * static_cast<float>(M_PI) / 500);
+        -1.f * static_cast<float>(M_PI) / 500,
+        40.f * static_cast<float>(M_PI) / 500);
     m_y.reset();
     m_y.setUnit("ms");
     setFlag(QQuickItem::ItemHasContents);

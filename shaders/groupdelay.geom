@@ -117,14 +117,13 @@ vec2 spline(float x)
     float f1 = gl_in[0].gl_Position.w;
     float f = f0 * pow(f1 / f0, t);
 
-    float dPhase = // dPhase/dt
-            vertices[0].splineData[1] +
-            vertices[0].splineData[2] * 2*t +
-            vertices[0].splineData[3] * 3*t*t
+    float v =
+            vertices[0].splineData[0] +
+            vertices[0].splineData[1] * t +
+            vertices[0].splineData[2] * t*t +
+            vertices[0].splineData[3] * t*t*t
     ;
-    float dt = 1. / ((log(f1) - log(f0)) * f); // dt/df
-    dPhase *= dt; // dPhase/df
 
-    r.y = 1. - 2. * (-dPhase - minmax[2]) / (minmax[3] - minmax[2]);
+    r.y = 1. - 2. * (-v - minmax[2]) / (minmax[3] - minmax[2]);
     return r;
 }
