@@ -98,7 +98,7 @@ void GroupDelaySeriesNode::renderSeries()
             t += dt;
             auto x2 = f1 * std::pow(f2 / f1, t);
             auto v2 = ac[1] + ac[2] * 2 * t + ac[3] * 3 * t * t;    // dPhase/dt
-            v2 *= 1. / ((log(f2) - log(f1)) * x1);                  // dt/df
+            v2 *= 1. / ((log(f2) - log(f1)) * x2);                  // dt/df
             auto c2 = coherenceSpline(m_coherence, m_coherenceThreshold, c, t);
 
             addLineSegment(vertex_ptr, j, verticiesCount,

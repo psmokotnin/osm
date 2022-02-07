@@ -20,14 +20,12 @@ uniform highp mat4 matrix;
 
 layout (location = 0) in vec2 position;
 layout (location = 1) in vec2 frequencyRange;
-layout (location = 2) in vec4 splineRe;
-layout (location = 3) in vec4 splineIm;
-layout (location = 4) in vec4 cSpline;
+layout (location = 2) in vec4 splineData;
+layout (location = 3) in vec4 cSpline;
 
 out vData
 {
-    vec4 splineRe;
-    vec4 splineIm;
+    vec4 splineData;
     vec2 frequency;
     vec4 coherenceSpline;
 } vertex;
@@ -38,8 +36,7 @@ void main() {
     gl_Position.z = position.x;//f0 Hz
     gl_Position.w = position.y;//f1 Hz
 
-    vertex.splineRe = splineRe;
-    vertex.splineIm = splineIm;
+    vertex.splineData = splineData;
     vertex.frequency = frequencyRange;
     vertex.coherenceSpline = cSpline;
 }
