@@ -97,7 +97,7 @@ void Plot::setSelectAppended(bool selectAppended)
 QList<Source *> Plot::selected() const
 {
     QList<Source *> list;
-    for (auto item : m_selected) {
+    for (auto &item : m_selected) {
         list.push_back(item);
     }
     return list;
@@ -111,7 +111,7 @@ void Plot::select(Source *source)
 
 void Plot::setSelected(const QList<Source *> selected)
 {
-    QList<QPointer<chart::Source>> list;
+    QList<QPointer<chart::Source>> list = {};
     for (auto item : selected) {
         list.push_back(item);
     }

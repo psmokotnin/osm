@@ -25,20 +25,33 @@ NyquistSeriesRenderer::NyquistSeriesRenderer() : XYSeriesRenderer(),
     m_pointsPerOctave(0),
     m_coherenceThreshold(0), m_coherence(false)
 {
-    m_program.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/nyquist.vert");
-    m_program.addShaderFromSourceFile(QOpenGLShader::Geometry, ":/nyquist.geom");
-    m_program.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/nyquist.frag");
+}
+
+void NyquistSeriesRenderer::init()
+{
+    if (m_openGL33CoreFunctions) {
+        m_program.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/nyquist.vert");
+        m_program.addShaderFromSourceFile(QOpenGLShader::Geometry, ":/nyquist.geom");
+        m_program.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/nyquist.frag");
+    } else {
+        m_program.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/opengl2/point.vert");
+        m_program.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/opengl2/color.frag");
+    }
     if (!m_program.link()) {
         emit Notifier::getInstance()->newMessage("NyquistSeriesRenderer", m_program.log());
     }
-
-    m_widthUniform  = m_program.uniformLocation("width");
-    m_colorUniform  = m_program.uniformLocation("m_color");
-    m_matrixUniform = m_program.uniformLocation("matrix");
-    m_screenUniform = m_program.uniformLocation("screen");
-    m_coherenceThresholdU = m_program.uniformLocation("coherenceThreshold");
-    m_coherenceAlpha      = m_program.uniformLocation("coherenceAlpha");
-
+    if (m_openGL33CoreFunctions) {
+        m_widthUniform  = m_program.uniformLocation("width");
+        m_colorUniform  = m_program.uniformLocation("m_color");
+        m_matrixUniform = m_program.uniformLocation("matrix");
+        m_screenUniform = m_program.uniformLocation("screen");
+        m_coherenceThresholdU = m_program.uniformLocation("coherenceThreshold");
+        m_coherenceAlpha      = m_program.uniformLocation("coherenceAlpha");
+    } else {
+        m_positionAttribute = m_program.attributeLocation("position");
+        m_colorUniform  = m_program.attributeLocation("color");
+        m_matrixUniform = m_program.uniformLocation("matrix");
+    }
 }
 
 void NyquistSeriesRenderer::renderSeries()
@@ -47,7 +60,8 @@ void NyquistSeriesRenderer::renderSeries()
         return;
 
     //max octave count: 11
-    unsigned int maxBufferSize = m_pointsPerOctave * 12 * 12, i = 0, verticiesCount = 0;
+    unsigned int maxBufferSize = m_pointsPerOctave * 12 * (m_openGL33CoreFunctions ? 12 : PPO_BUFFER_MUL), i = 0,
+                 verticiesCount = 0;
     if (m_vertices.size() != maxBufferSize) {
         m_vertices.resize(maxBufferSize);
         m_refreshBuffers = true;
@@ -69,24 +83,48 @@ void NyquistSeriesRenderer::renderSeries()
         return c;
     };
 
-    auto collected = [ &, this] (const float &, const float &, const complex ac[4], const float c[4]) {
+    auto collected = [ &, this] (const float & f1, const float & f2, const complex ac[4], const float c[4]) {
         if (i > maxBufferSize) {
             qCritical("out of range");
             return;
         }
+        if (m_openGL33CoreFunctions) {
+            m_vertices[i + 0] = ac[0].real;
+            m_vertices[i + 1] = ac[1].real;
+            m_vertices[i + 2] = ac[2].real;
+            m_vertices[i + 3] = ac[3].real;
 
-        m_vertices[i + 0] = ac[0].real;
-        m_vertices[i + 1] = ac[1].real;
-        m_vertices[i + 2] = ac[2].real;
-        m_vertices[i + 3] = ac[3].real;
+            m_vertices[i + 4] = ac[0].imag;
+            m_vertices[i + 5] = ac[1].imag;
+            m_vertices[i + 6] = ac[2].imag;
+            m_vertices[i + 7] = ac[3].imag;
+            std::memcpy(m_vertices.data() + i + 8,  c, 4 * 4);
+            verticiesCount ++;
+            i += 12;
+        } else {
+            auto points = std::min(MAX_LINE_SPLITF, std::abs(std::round(f2 - f1)));
+            float dt = 1.f / points;
 
-        m_vertices[i + 4] = ac[0].imag;
-        m_vertices[i + 5] = ac[1].imag;
-        m_vertices[i + 6] = ac[2].imag;
-        m_vertices[i + 7] = ac[3].imag;
-        std::memcpy(m_vertices.data() + i + 8,  c, 4 * 4);
-        verticiesCount ++;
-        i += 12;
+            for (float t = 0; t < 1.0;) {
+                if (i > maxBufferSize) {
+                    qCritical("out of range");
+                    return;
+                }
+                auto x1 = ac[0].real + ac[1].real * t + ac[2].real * t * t + ac[3].real * t * t * t;
+                auto y1 = ac[0].imag + ac[1].imag * t + ac[2].imag * t * t + ac[3].imag * t * t * t;
+                auto c1 = coherenceSpline(m_coherence, m_coherenceThreshold, c, t);
+
+                t += dt;
+                auto x2 = ac[0].real + ac[1].real * t + ac[2].real * t * t + ac[3].real * t * t * t;
+                auto y2 = ac[0].imag + ac[1].imag * t + ac[2].imag * t * t + ac[3].imag * t * t * t;
+                auto c2 = coherenceSpline(m_coherence, m_coherenceThreshold, c, t);
+
+                addLineSegment(i, verticiesCount,
+                               x1, y1,
+                               x2, y2,
+                               c1, c2);
+            }
+        }
 
         value.reset();
         coherence = 0.f;
@@ -95,42 +133,44 @@ void NyquistSeriesRenderer::renderSeries()
     iterateForSpline<NyquistPlot::SplineValue, complex>(m_pointsPerOctave, &value, &coherence, accumulate, collected,
                                                         beforeSpline);
 
-    {
-        m_program.setUniformValue(m_matrixUniform, m_matrix);
-        m_program.setUniformValue(m_screenUniform, m_width, m_height);
-        m_program.setUniformValue(m_widthUniform, m_weight * m_retinaScale);
+    m_program.setUniformValue(m_matrixUniform, m_matrix);
+    m_program.setUniformValue(m_screenUniform, m_width, m_height);
+    m_program.setUniformValue(m_widthUniform, m_weight * m_retinaScale);
+    if (m_openGL33CoreFunctions) {
+        m_program.setUniformValue(m_coherenceThresholdU, m_coherenceThreshold);
+        m_program.setUniformValue(m_coherenceAlpha, m_coherence);
+
+        if (m_refreshBuffers) {
+            m_openGL33CoreFunctions->glGenBuffers(1, &m_vertexBufferId);
+            m_openGL33CoreFunctions->glGenVertexArrays(1, &m_vertexArrayId);
+        }
+
+        m_openGL33CoreFunctions->glBindVertexArray(m_vertexArrayId);
+        m_openGL33CoreFunctions->glBindBuffer(GL_ARRAY_BUFFER, m_vertexBufferId);
+
+        if (m_refreshBuffers) {
+            m_openGL33CoreFunctions->glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * maxBufferSize, nullptr, GL_DYNAMIC_DRAW);
+            m_openGL33CoreFunctions->glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 12 * sizeof(GLfloat),
+                                                           reinterpret_cast<const void *>(0));
+            m_openGL33CoreFunctions->glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 12 * sizeof(GLfloat),
+                                                           reinterpret_cast<const void *>(4 * sizeof(GLfloat)));
+            m_openGL33CoreFunctions->glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 12 * sizeof(GLfloat),
+                                                           reinterpret_cast<const void *>(8 * sizeof(GLfloat)));
+        }
+        m_openGL33CoreFunctions->glBufferSubData(GL_ARRAY_BUFFER, 0, 12 * sizeof(GLfloat) * verticiesCount, m_vertices.data());
+
+        m_openGL33CoreFunctions->glEnableVertexAttribArray(0);
+        m_openGL33CoreFunctions->glEnableVertexAttribArray(1);
+        m_openGL33CoreFunctions->glEnableVertexAttribArray(2);
+        m_openGL33CoreFunctions->glDrawArrays(GL_POINTS, 0, verticiesCount);
+        m_openGL33CoreFunctions->glDisableVertexAttribArray(2);
+        m_openGL33CoreFunctions->glDisableVertexAttribArray(1);
+        m_openGL33CoreFunctions->glDisableVertexAttribArray(0);
+
+        m_refreshBuffers = false;
+    } else {
+        drawOpenGL2(verticiesCount);
     }
-    m_program.setUniformValue(m_coherenceThresholdU, m_coherenceThreshold);
-    m_program.setUniformValue(m_coherenceAlpha, m_coherence);
-
-    if (m_refreshBuffers) {
-        m_openGLFunctions->glGenBuffers(1, &m_vertexBufferId);
-        m_openGLFunctions->glGenVertexArrays(1, &m_vertexArrayId);
-    }
-
-    m_openGLFunctions->glBindVertexArray(m_vertexArrayId);
-    m_openGLFunctions->glBindBuffer(GL_ARRAY_BUFFER, m_vertexBufferId);
-
-    if (m_refreshBuffers) {
-        m_openGLFunctions->glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * maxBufferSize, nullptr, GL_DYNAMIC_DRAW);
-        m_openGLFunctions->glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 12 * sizeof(GLfloat),
-                                                 reinterpret_cast<const void *>(0));
-        m_openGLFunctions->glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 12 * sizeof(GLfloat),
-                                                 reinterpret_cast<const void *>(4 * sizeof(GLfloat)));
-        m_openGLFunctions->glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 12 * sizeof(GLfloat),
-                                                 reinterpret_cast<const void *>(8 * sizeof(GLfloat)));
-    }
-    m_openGLFunctions->glBufferSubData(GL_ARRAY_BUFFER, 0, 12 * sizeof(GLfloat) * verticiesCount, m_vertices.data());
-
-    m_openGLFunctions->glEnableVertexAttribArray(0);
-    m_openGLFunctions->glEnableVertexAttribArray(1);
-    m_openGLFunctions->glEnableVertexAttribArray(2);
-    m_openGLFunctions->glDrawArrays(GL_POINTS, 0, verticiesCount);
-    m_openGLFunctions->glDisableVertexAttribArray(2);
-    m_openGLFunctions->glDisableVertexAttribArray(1);
-    m_openGLFunctions->glDisableVertexAttribArray(0);
-
-    m_refreshBuffers = false;
 }
 
 void NyquistSeriesRenderer::synchronize(QQuickFramebufferObject *item)

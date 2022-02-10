@@ -30,6 +30,8 @@ class RTASeriesRenderer : public FrequencyBasedSeriesRenderer
 {
 public:
     explicit RTASeriesRenderer();
+    ~RTASeriesRenderer();
+    void init() override;
     void renderSeries() override;
     void synchronize(QQuickFramebufferObject *item) override;
 
@@ -44,9 +46,9 @@ protected:
 private:
     void initShaders();
 
-    bool m_showPeaks;
+    bool m_showPeaks, m_inited;
     unsigned int m_pointsPerOctave, m_mode;
-    QOpenGLShader m_vertexShader, m_geometryShader, m_fragmentShader;
+    QOpenGLShader *m_vertexShader, *m_geometryShader, *m_fragmentShader;
 };
 }
 #endif // RTASERIES_H

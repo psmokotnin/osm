@@ -27,6 +27,7 @@ class NyquistSeriesRenderer : public XYSeriesRenderer, public FrequencyBasedSeri
 {
 public:
     NyquistSeriesRenderer();
+    void init() override;
     void renderSeries() override;
     void synchronize(QQuickFramebufferObject *item) override;
 

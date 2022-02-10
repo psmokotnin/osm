@@ -33,20 +33,32 @@ class SeriesRenderer : public QQuickFramebufferObject::Renderer
 public:
     explicit SeriesRenderer();
     virtual ~SeriesRenderer() override = default;
+    virtual void init() {};//TODO: = 0;
     void render() override final;
     virtual void renderSeries() = 0;
+
     virtual void setWeight(unsigned int weight);
 
     QOpenGLFramebufferObject *createFramebufferObject(const QSize &size) override;
     void synchronize(QQuickFramebufferObject *item) override;
 
 protected:
+    float coherenceSpline(const bool &coherence, const float &threshold, const float data[4], const float &t) const;
+    void addLinePoint(unsigned int &i, unsigned int &verticiesCount, const float &x, const float &y,
+                      const float &c = 1);
+    void addLineSegment(unsigned int &i, unsigned int &verticiesCount,
+                        const float &fromX, const float &fromY,
+                        const float &toX, const float &toY,
+                        const float &fromC, const float &toC);
+    void drawOpenGL2(unsigned int verticiesCount, GLenum mode = GL_LINES);
+
     Source *m_source = nullptr;
     QQuickFramebufferObject *m_item = nullptr;
     QOpenGLShaderProgram m_program;
-    QOpenGLFunctions_3_3_Core *m_openGLFunctions = nullptr;
+    QOpenGLFunctions *m_openGLFunctions;
+    QOpenGLFunctions_3_3_Core *m_openGL33CoreFunctions = nullptr;
     GLfloat m_retinaScale;
-    int m_colorUniform;
+    int m_colorUniform, m_positionAttribute;
     GLsizei m_width, m_height;
     float m_weight;
     bool m_renderActive;
@@ -54,6 +66,12 @@ protected:
     bool m_refreshBuffers;
     unsigned int m_vertexBufferId, m_vertexArrayId;
     std::vector<GLfloat> m_vertices;
+
+    static const unsigned int MAX_LINE_SPLIT = 40;
+    constexpr static const float MAX_LINE_SPLITF = static_cast<float>(MAX_LINE_SPLIT);
+    static const unsigned int LINE_VERTEX_SIZE = 6; // x,y + r,g,b,a
+    static const unsigned int VERTEX_PER_SEGMENT = 2;
+    constexpr static const unsigned int PPO_BUFFER_MUL = 12 * VERTEX_PER_SEGMENT * LINE_VERTEX_SIZE * MAX_LINE_SPLITF;
 };
 }
 #endif // SERIESRENDERER_H

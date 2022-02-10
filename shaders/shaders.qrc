@@ -24,5 +24,8 @@
         <file>phasedelay.geom</file>
         <file>phasedelay.vert</file>
         <file>phasedelay.frag</file>
+        <file>opengl2/color.frag</file>
+        <file>opengl2/logx.vert</file>
+        <file>opengl2/point.vert</file>
     </qresource>
 </RCC>

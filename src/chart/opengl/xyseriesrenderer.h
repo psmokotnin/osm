@@ -23,16 +23,16 @@
 namespace chart {
 class XYSeriesRenderer : public SeriesRenderer
 {
+public:
+    XYSeriesRenderer();
+    virtual void synchronize(QQuickFramebufferObject *item) override;
+
 protected:
     virtual void updateMatrix() = 0;
 
     QMatrix4x4 m_matrix;
     int m_matrixUniform;
     float m_xMin, m_xMax, m_yMin, m_yMax;
-
-public:
-    XYSeriesRenderer();
-    virtual void synchronize(QQuickFramebufferObject *item) override;
 };
 }
 

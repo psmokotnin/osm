@@ -26,6 +26,7 @@ class ImpulseSeriesRenderer : public XYSeriesRenderer
 {
 public:
     ImpulseSeriesRenderer();
+    void init() override;
     void renderSeries() override;
     virtual void synchronize(QQuickFramebufferObject *item) override;
 

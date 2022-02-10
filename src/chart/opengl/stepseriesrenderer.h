@@ -27,6 +27,7 @@ class StepSeriesRenderer : public XYSeriesRenderer
 {
 public:
     StepSeriesRenderer();
+    void init() override;
     void renderSeries() override;
     void synchronize(QQuickFramebufferObject *item) override;
 
