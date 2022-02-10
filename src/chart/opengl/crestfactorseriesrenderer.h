@@ -27,6 +27,7 @@ class CrestFactorSeriesRenderer : public chart::FrequencyBasedSeriesRenderer
 {
 public:
     CrestFactorSeriesRenderer();
+    void init() override;
     void renderSeries() override;
     void synchronize(QQuickFramebufferObject *item) override;
 

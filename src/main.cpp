@@ -56,11 +56,13 @@ int main(int argc, char *argv[])
     QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QQuickWindow::setTextRenderType(QQuickWindow::NativeTextRendering);
+#ifdef Q_OS_MACOS
     QSurfaceFormat surfaceFormat;
     surfaceFormat.setMajorVersion(3);
     surfaceFormat.setMinorVersion(3);
     surfaceFormat.setProfile(QSurfaceFormat::CoreProfile);
     QSurfaceFormat::setDefaultFormat(surfaceFormat);
+#endif
 #endif
 
     QApplication app(argc, argv);

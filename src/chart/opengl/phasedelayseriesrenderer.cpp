@@ -25,20 +25,35 @@ using namespace chart;
 PhaseDelaySeriesRenderer::PhaseDelaySeriesRenderer() : FrequencyBasedSeriesRenderer(),
     m_pointsPerOctave(0), m_coherenceThreshold(0), m_coherence(false)
 {
-    m_program.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/phasedelay.vert");
-    m_program.addShaderFromSourceFile(QOpenGLShader::Geometry, ":/phasedelay.geom");
-    m_program.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/phasedelay.frag");
-    if (!m_program.link()) {
-        emit Notifier::getInstance()->newMessage("PhaseDelaySeriesRenderer", m_program.log());
+}
+void PhaseDelaySeriesRenderer::init()
+{
+    if (m_openGL33CoreFunctions) {
+        m_program.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/phasedelay.vert");
+        m_program.addShaderFromSourceFile(QOpenGLShader::Geometry, ":/phasedelay.geom");
+        m_program.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/phasedelay.frag");
+    } else {
+        m_program.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/opengl2/logx.vert");
+        m_program.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/opengl2/color.frag");
     }
 
-    m_widthUniform  = m_program.uniformLocation("width");
-    m_colorUniform  = m_program.uniformLocation("m_color");
-    m_matrixUniform = m_program.uniformLocation("matrix");
-    m_minmaxUniform = m_program.uniformLocation("minmax");
-    m_screenUniform = m_program.uniformLocation("screen");
-    m_coherenceThresholdU = m_program.uniformLocation("coherenceThreshold");
-    m_coherenceAlpha      = m_program.uniformLocation("coherenceAlpha");
+    if (!m_program.link()) {
+        emit Notifier::getInstance()->newMessage("MagnitudeSeriesRenderer", m_program.log());
+    }
+
+    if (m_openGL33CoreFunctions) {
+        m_widthUniform  = m_program.uniformLocation("width");
+        m_colorUniform  = m_program.uniformLocation("m_color");
+        m_matrixUniform = m_program.uniformLocation("matrix");
+        m_minmaxUniform = m_program.uniformLocation("minmax");
+        m_screenUniform = m_program.uniformLocation("screen");
+        m_coherenceThresholdU = m_program.uniformLocation("coherenceThreshold");
+        m_coherenceAlpha      = m_program.uniformLocation("coherenceAlpha");
+    } else {
+        m_positionAttribute = m_program.attributeLocation("position");
+        m_colorUniform  = m_program.attributeLocation("color");
+        m_matrixUniform = m_program.uniformLocation("matrix");
+    }
 }
 void PhaseDelaySeriesRenderer::synchronize(QQuickFramebufferObject *item)
 {
@@ -56,7 +71,8 @@ void PhaseDelaySeriesRenderer::renderSeries()
         return;
 
     //max octave count: 11
-    unsigned int maxBufferSize = m_pointsPerOctave * 12 * 12, i = 0, verticiesCount = 0;
+    unsigned int maxBufferSize = m_pointsPerOctave * 12 * (m_openGL33CoreFunctions ? 12 : PPO_BUFFER_MUL), i = 0,
+                 verticiesCount = 0;
     if (m_vertices.size() != maxBufferSize) {
         m_vertices.resize(maxBufferSize);
         m_refreshBuffers = true;
@@ -91,17 +107,42 @@ void PhaseDelaySeriesRenderer::renderSeries()
 
         float fx1 = (logf(f1) + xadd) * xmul;
         float fx2 = (logf(f2) + xadd) * xmul;
+        if (m_openGL33CoreFunctions) {
+            m_vertices[i + 0] = f1;
+            m_vertices[i + 1] = f2;
+            m_vertices[i + 2] = fx1;
+            m_vertices[i + 3] = fx2;
 
-        m_vertices[i + 0] = f1;
-        m_vertices[i + 1] = f2;
-        m_vertices[i + 2] = fx1;
-        m_vertices[i + 3] = fx2;
+            std::memcpy(m_vertices.data() + i + 4, ac, 4 * 4);
+            std::memcpy(m_vertices.data() + i + 8, c, 4 * 4);
+            verticiesCount ++;
+            i += 12;
+        } else {
+            auto points = std::min(MAX_LINE_SPLITF, std::abs(std::round(fx2 - fx1)));
+            float dt = 1.f / points;
 
-        std::memcpy(m_vertices.data() + i + 4, ac, 4 * 4);
-        std::memcpy(m_vertices.data() + i + 8, c, 4 * 4);
-        verticiesCount ++;
-        i += 12;
+            for (float t = 0; t < 1.0;) {
+                if (i > maxBufferSize) {
+                    qCritical("out of range");
+                    return;
+                }
+                auto x1 = f1 * std::pow(f2 / f1, t);
+                auto v1 = ac[0] + ac[1] * t + ac[2] * t * t + ac[3] * t * t * t;
+                v1 /= x1;
+                auto c1 = coherenceSpline(m_coherence, m_coherenceThreshold, c, t);
 
+                t += dt;
+                auto x2 = f1 * std::pow(f2 / f1, t);
+                auto v2 = ac[0] + ac[1] * t + ac[2] * t * t + ac[3] * t * t * t;
+                v2 /= x2;
+                auto c2 = coherenceSpline(m_coherence, m_coherenceThreshold, c, t);
+
+                addLineSegment(i, verticiesCount,
+                               x1, -v1,
+                               x2, -v2,
+                               c1, c2);
+            }
+        }
         coherence = 0.f;
         value = 0.f;
     };
@@ -109,39 +150,43 @@ void PhaseDelaySeriesRenderer::renderSeries()
     iterateForSpline<float, float>(m_pointsPerOctave, &value, &coherence, accumulate, collected, beforeSpline);
 
     setUniforms();
-    m_program.setUniformValue(m_coherenceThresholdU, m_coherenceThreshold);
-    m_program.setUniformValue(m_coherenceAlpha, m_coherence);
+    if (m_openGL33CoreFunctions) {
+        m_program.setUniformValue(m_coherenceThresholdU, m_coherenceThreshold);
+        m_program.setUniformValue(m_coherenceAlpha, m_coherence);
 
-    if (m_refreshBuffers) {
-        m_openGLFunctions->glGenBuffers(1, &m_vertexBufferId);
-        m_openGLFunctions->glGenVertexArrays(1, &m_vertexArrayId);
+        if (m_refreshBuffers) {
+            m_openGL33CoreFunctions->glGenBuffers(1, &m_vertexBufferId);
+            m_openGL33CoreFunctions->glGenVertexArrays(1, &m_vertexArrayId);
+        }
+
+        m_openGL33CoreFunctions->glBindVertexArray(m_vertexArrayId);
+        m_openGLFunctions->glBindBuffer(GL_ARRAY_BUFFER, m_vertexBufferId);
+
+        if (m_refreshBuffers) {
+            m_openGLFunctions->glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * maxBufferSize, nullptr, GL_DYNAMIC_DRAW);
+            m_openGLFunctions->glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 12 * sizeof(GLfloat),
+                                                     reinterpret_cast<const void *>(0));
+            m_openGLFunctions->glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 12 * sizeof(GLfloat),
+                                                     reinterpret_cast<const void *>(2 * sizeof(GLfloat)));
+            m_openGLFunctions->glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 12 * sizeof(GLfloat),
+                                                     reinterpret_cast<const void *>(4 * sizeof(GLfloat)));
+            m_openGLFunctions->glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 12 * sizeof(GLfloat),
+                                                     reinterpret_cast<const void *>(8 * sizeof(GLfloat)));
+        }
+        m_openGLFunctions->glBufferSubData(GL_ARRAY_BUFFER, 0, 12 * sizeof(GLfloat) * verticiesCount, m_vertices.data());
+
+        m_openGLFunctions->glEnableVertexAttribArray(0);
+        m_openGLFunctions->glEnableVertexAttribArray(1);
+        m_openGLFunctions->glEnableVertexAttribArray(2);
+        m_openGLFunctions->glEnableVertexAttribArray(3);
+        m_openGLFunctions->glDrawArrays(GL_POINTS, 0, verticiesCount);
+        m_openGLFunctions->glDisableVertexAttribArray(3);
+        m_openGLFunctions->glDisableVertexAttribArray(2);
+        m_openGLFunctions->glDisableVertexAttribArray(1);
+        m_openGLFunctions->glDisableVertexAttribArray(0);
+
+        m_refreshBuffers = false;
+    } else {
+        drawOpenGL2(verticiesCount);
     }
-
-    m_openGLFunctions->glBindVertexArray(m_vertexArrayId);
-    m_openGLFunctions->glBindBuffer(GL_ARRAY_BUFFER, m_vertexBufferId);
-
-    if (m_refreshBuffers) {
-        m_openGLFunctions->glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * maxBufferSize, nullptr, GL_DYNAMIC_DRAW);
-        m_openGLFunctions->glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 12 * sizeof(GLfloat),
-                                                 reinterpret_cast<const void *>(0));
-        m_openGLFunctions->glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 12 * sizeof(GLfloat),
-                                                 reinterpret_cast<const void *>(2 * sizeof(GLfloat)));
-        m_openGLFunctions->glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 12 * sizeof(GLfloat),
-                                                 reinterpret_cast<const void *>(4 * sizeof(GLfloat)));
-        m_openGLFunctions->glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 12 * sizeof(GLfloat),
-                                                 reinterpret_cast<const void *>(8 * sizeof(GLfloat)));
-    }
-    m_openGLFunctions->glBufferSubData(GL_ARRAY_BUFFER, 0, 12 * sizeof(GLfloat) * verticiesCount, m_vertices.data());
-
-    m_openGLFunctions->glEnableVertexAttribArray(0);
-    m_openGLFunctions->glEnableVertexAttribArray(1);
-    m_openGLFunctions->glEnableVertexAttribArray(2);
-    m_openGLFunctions->glEnableVertexAttribArray(3);
-    m_openGLFunctions->glDrawArrays(GL_POINTS, 0, verticiesCount);
-    m_openGLFunctions->glDisableVertexAttribArray(3);
-    m_openGLFunctions->glDisableVertexAttribArray(2);
-    m_openGLFunctions->glDisableVertexAttribArray(1);
-    m_openGLFunctions->glDisableVertexAttribArray(0);
-
-    m_refreshBuffers = false;
 }
