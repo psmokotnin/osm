@@ -25,6 +25,7 @@ class PhaseSeriesRenderer : public FrequencyBasedSeriesRenderer
 {
 public:
     PhaseSeriesRenderer();
+    void init() override;
     void renderSeries() override;
     void synchronize(QQuickFramebufferObject *item) override;
 

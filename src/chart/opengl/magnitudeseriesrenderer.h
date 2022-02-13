@@ -28,6 +28,7 @@ class MagnitudeSeriesRenderer : public FrequencyBasedSeriesRenderer
 {
 public:
     MagnitudeSeriesRenderer();
+    void init() override;
     void renderSeries() override;
     void synchronize(QQuickFramebufferObject *item) override;
 

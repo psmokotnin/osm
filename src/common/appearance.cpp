@@ -82,6 +82,14 @@ bool Appearance::showMenuBar() const
     return true;
 }
 
+bool Appearance::showAboutOnStartup() const
+{
+#ifdef Q_OS_IOS
+    return false;
+#endif
+    return true;
+}
+
 QWindow::Visibility Appearance::visibility() const
 {
 #ifdef Q_OS_IOS

@@ -93,7 +93,8 @@ void notificationHandler(CFNotificationCenterRef, void *userData, CFStringRef CF
 const DeviceInfo::Id AudioSessionPlugin::OUTPUT_DEVICE_ID = "output";
 const DeviceInfo::Id AudioSessionPlugin::INPUT_DEVICE_ID = "input";
 
-AudioSessionPlugin::AudioSessionPlugin() : m_permission(false), m_inInterrupt(false), m_inBackground(false)
+AudioSessionPlugin::AudioSessionPlugin() : m_permission(false), m_inInterrupt(false), m_inBackground(false),
+    m_deviceList()
 {
     [[AVAudioSession sharedInstance] requestRecordPermission: [this] (bool permission) {
                                         m_permission = permission;
@@ -103,7 +104,7 @@ AudioSessionPlugin::AudioSessionPlugin() : m_permission(false), m_inInterrupt(fa
         qDebug() << "AudioSession setCategory" <<
                  [[AVAudioSession sharedInstance]
                   setCategory: AVAudioSessionCategoryPlayAndRecord
-                  withOptions: AVAudioSessionCategoryOptionMixWithOthers
+                  withOptions: AVAudioSessionCategoryOptionMixWithOthers | AVAudioSessionCategoryOptionAllowBluetooth
                   error: nil];
     }
     @catch (NSException *exception) {
@@ -171,42 +172,52 @@ DeviceInfo::List AudioSessionPlugin::getDeviceInfoList() const
 {
     AVAudioSession *audioSession = AVAudioSession.sharedInstance;
     auto route = audioSession.currentRoute;
-    //TODO: need to know if device supports it
-    //auto success = [audioSession setPreferredSampleRate:96000 error:&error];
-
 
     DeviceInfo::List list = {};
+    QList<QPair<QString, int>> sampleRates = {{"", static_cast<int>([audioSession sampleRate])}};
+    if ([audioSession sampleRate] != 48000) {
+        sampleRates.push_back({"48k", 48000});
+    }
+    if ([audioSession sampleRate] != 96000) {
+        sampleRates.push_back({"96k", 96000});
+    }
+
     NSEnumerator *inputs = [[route inputs] objectEnumerator];
     while (id object = [inputs nextObject]) {
-        DeviceInfo info(INPUT_DEVICE_ID, name());
-        info.setName(QString::fromNSString([object portName]));
-        info.setDefaultSampleRate([audioSession sampleRate]);
-
         QStringList channelList;
         NSEnumerator *channels = [[object channels] objectEnumerator];
         while (id channel = [channels nextObject]) {
-            //QString::fromNSString([channel channelName]);
             channelList << QString::number([channel channelNumber]);
         }
-        info.setInputChannels(channelList);
-        list << info;
+
+        for (auto &sampleRate : sampleRates) {
+            QString sampleRateString = " (" + QString::number(sampleRate.second / 1000) + "kHz)";
+            DeviceInfo info(INPUT_DEVICE_ID + sampleRate.first, name());
+            info.setName(QString::fromNSString([object portName]) + sampleRateString);
+            info.setDefaultSampleRate(sampleRate.second);
+            info.setInputChannels(channelList);
+            list << info;
+        }
     }
 
     NSEnumerator *outputs = [[route outputs] objectEnumerator];
     while (id object = [outputs nextObject]) {
-        DeviceInfo info(OUTPUT_DEVICE_ID, name());
-        info.setName(QString::fromNSString([object portName]));
-        info.setDefaultSampleRate([audioSession sampleRate]);
-
         QStringList channelList;
         NSEnumerator *channels = [[object channels] objectEnumerator];
         while (id channel = [channels nextObject]) {
-            //QString::fromNSString([channel channelName]);
             channelList << QString::number([channel channelNumber]);
         }
-        info.setOutputChannels(channelList);
-        list << info;
+
+        for (auto &sampleRate : sampleRates) {
+            QString sampleRateString = " (" + QString::number(sampleRate.second / 1000) + "kHz)";
+            DeviceInfo info(OUTPUT_DEVICE_ID + sampleRate.first, name());
+            info.setName(QString::fromNSString([object portName]) + sampleRateString);
+            info.setDefaultSampleRate(sampleRate.second);
+            info.setOutputChannels(channelList);
+            list << info;
+        }
     }
+    m_deviceList = list;
     return list;
 }
 
@@ -223,18 +234,16 @@ DeviceInfo::Id AudioSessionPlugin::defaultDeviceId(const Plugin::Direction &mode
 
 Format AudioSessionPlugin::deviceFormat(const DeviceInfo::Id &id, const Plugin::Direction &mode) const
 {
-    Q_UNUSED(id);
-
-    AVAudioSession *audioSession = AVAudioSession.sharedInstance;
-    unsigned int sampleRate = [audioSession sampleRate];
-
-    unsigned int channels = static_cast<unsigned int>(mode == Input ?
-                                                      [audioSession maximumInputNumberOfChannels] :
-                                                      [audioSession maximumOutputNumberOfChannels]);
-    return {
-        sampleRate,
-        channels
-    };
+    for (auto &device : m_deviceList) {
+        if (device.id() == id) {
+            unsigned int count = (mode == Input ? device.inputChannels().count() : device.outputChannels().count());
+            return {
+                device.defaultSampleRate(),
+                count
+            };
+        }
+    }
+    return {};
 }
 
 Stream *AudioSessionPlugin::open(const DeviceInfo::Id &, const Plugin::Direction &mode, const Format &format,

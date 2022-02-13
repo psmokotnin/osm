@@ -145,6 +145,7 @@ ApplicationWindow {
         y: 50
         width: applicationWindow.width - 100
         height: applicationWindow.height - 100
+        visible: applicationAppearance.showAboutOnStartup
     }
 
     Updater {

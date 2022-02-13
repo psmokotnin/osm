@@ -31,6 +31,7 @@ class SpectrogramSeriesRenderer : public FrequencyBasedSeriesRenderer
 {
 public:
     explicit SpectrogramSeriesRenderer();
+    void init() override;
     void renderSeries() override;
     void synchronize(QQuickFramebufferObject *item) override;
 

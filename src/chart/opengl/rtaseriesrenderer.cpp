@@ -21,35 +21,68 @@
 #include "common/notifier.h"
 using namespace chart;
 RTASeriesRenderer::RTASeriesRenderer() : FrequencyBasedSeriesRenderer(),
-    m_pointsPerOctave(0),
+    m_showPeaks(false), m_inited(false), m_pointsPerOctave(0),
     m_mode(0),
-    m_vertexShader(QOpenGLShader::Vertex),
-    m_geometryShader(QOpenGLShader::Geometry),
-    m_fragmentShader(QOpenGLShader::Fragment)
+    m_vertexShader(nullptr),
+    m_geometryShader(nullptr),
+    m_fragmentShader(nullptr)
 {
-    m_vertexShader.compileSourceFile(":/logx.vert");
-    m_geometryShader.compileSourceFile(":/line.geom");
-    m_fragmentShader.compileSourceFile(":/color.frag");
+}
 
+RTASeriesRenderer::~RTASeriesRenderer()
+{
+    delete m_vertexShader;
+    delete m_geometryShader;
+    delete m_fragmentShader;
+}
+void RTASeriesRenderer::init()
+{
+    if (m_openGL33CoreFunctions) {
+        m_vertexShader   = new QOpenGLShader(QOpenGLShader::Vertex);
+        m_geometryShader = new QOpenGLShader(QOpenGLShader::Geometry);
+        m_fragmentShader = new QOpenGLShader(QOpenGLShader::Fragment);
+
+        m_vertexShader->compileSourceFile(":/logx.vert");
+        m_geometryShader->compileSourceFile(":/line.geom");
+        m_fragmentShader->compileSourceFile(":/color.frag");
+    } else {
+        m_program.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/opengl2/logx.vert");
+        m_program.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/opengl2/color.frag");
+    }
+
+    m_inited = true;
     initShaders();
 }
 void RTASeriesRenderer::initShaders()
 {
-    m_program.removeAllShaders();
-    m_program.addShader(&m_vertexShader);
-    m_program.addShader(&m_fragmentShader);
-    if (m_mode != 1) {
-        m_program.addShader(&m_geometryShader);
+    if (!m_inited) {
+        return;
     }
+
+    if (m_openGL33CoreFunctions) {
+        m_program.removeAllShaders();
+        m_program.addShader(m_vertexShader);
+        m_program.addShader(m_fragmentShader);
+        if (m_mode != 1) {
+            m_program.addShader(m_geometryShader);
+        }
+    }
+
     if (!m_program.link()) {
         emit Notifier::getInstance()->newMessage("RTASeriesRenderer", m_program.log());
     }
 
-    m_colorUniform  = m_program.uniformLocation("m_color");
-    m_matrixUniform = m_program.uniformLocation("matrix");
-    if (m_mode != 1) {
-        m_widthUniform  = m_program.uniformLocation("width");
-        m_screenUniform = m_program.uniformLocation("screen");
+    if (m_openGL33CoreFunctions) {
+        m_colorUniform  = m_program.uniformLocation("m_color");
+        m_matrixUniform = m_program.uniformLocation("matrix");
+        if (m_mode != 1) {
+            m_widthUniform  = m_program.uniformLocation("width");
+            m_screenUniform = m_program.uniformLocation("screen");
+        }
+    } else {
+        m_positionAttribute = m_program.attributeLocation("position");
+        m_colorUniform  = m_program.attributeLocation("color");
+        m_matrixUniform = m_program.uniformLocation("matrix");
     }
 }
 void RTASeriesRenderer::synchronize(QQuickFramebufferObject *item)
@@ -107,22 +140,35 @@ void RTASeriesRenderer::renderSeries()
 }
 void RTASeriesRenderer::renderLine()
 {
+    unsigned int maxBufferSize = m_source->size() * (m_openGL33CoreFunctions ? 2 : VERTEX_PER_SEGMENT * LINE_VERTEX_SIZE);
     unsigned int count = m_source->size();
-    if (m_vertices.size() != count * 2) {
-        m_vertices.resize(count * 2);
+    if (m_vertices.size() != maxBufferSize) {
+        m_vertices.resize(maxBufferSize);
         m_refreshBuffers = true;
     }
 
-    for (unsigned int i = 0, j = 0; i < count; ++i, j += 2) {
-        m_vertices[j] = m_source->frequency(i);
-        m_vertices[j + 1] = 20 * log10f(m_source->module(i));
-    }
+    if (m_openGL33CoreFunctions) {
+        for (unsigned int i = 0, j = 0; i < count; ++i, j += 2) {
+            m_vertices[j] = m_source->frequency(i);
+            m_vertices[j + 1] = 20 * log10f(m_source->module(i));
+        }
 
-    drawVertices(GL_LINE_STRIP, count);
+        drawVertices(GL_LINE_STRIP, count);
+    } else {
+        unsigned int j = 0, i, verticiesCount = 0;
+        for (i = 0; i < m_source->size() - 1; ++i) {
+            addLineSegment(j, verticiesCount,
+                           m_source->frequency(i), 20 * log10f(m_source->module(i)),
+                           m_source->frequency(i + 1), 20 * log10f(m_source->module(i + 1)),
+                           1, 1
+                          );
+        }
+        drawOpenGL2(verticiesCount);
+    }
 }
 void RTASeriesRenderer::renderBars()
 {
-    unsigned int maxBufferSize = m_pointsPerOctave * 12 * 12 * 2;
+    unsigned int maxBufferSize = m_pointsPerOctave * 12 * 12 * (m_openGL33CoreFunctions ? 2 : LINE_VERTEX_SIZE);
     if (m_vertices.size() != maxBufferSize) {
         m_vertices.resize(maxBufferSize);
         m_refreshBuffers = true;
@@ -152,91 +198,137 @@ void RTASeriesRenderer::renderBars()
         peak  = 10 * log10f(peak);
         auto shiftedStart = std::pow(M_E, std::log(start) + y);
         auto shiftedEnd   = std::pow(M_E, std::log(end  ) - y);
-        m_vertices[i + 0] = shiftedStart;
-        m_vertices[i + 1] = value;
-        m_vertices[i + 2] = shiftedStart;
-        m_vertices[i + 3] = m_yMin;
-        m_vertices[i + 4] = shiftedEnd;
-        m_vertices[i + 5] = value;
+        if (m_openGL33CoreFunctions) {
+            m_vertices[i + 0] = shiftedStart;
+            m_vertices[i + 1] = value;
+            m_vertices[i + 2] = shiftedStart;
+            m_vertices[i + 3] = m_yMin;
+            m_vertices[i + 4] = shiftedEnd;
+            m_vertices[i + 5] = value;
 
-        m_vertices[i + 6] = shiftedEnd;
-        m_vertices[i + 7] = value;
-        m_vertices[i + 8] = shiftedEnd;
-        m_vertices[i + 9] = m_yMin;
-        m_vertices[i + 10] = shiftedStart;
-        m_vertices[i + 11] = m_yMin;
+            m_vertices[i + 6] = shiftedEnd;
+            m_vertices[i + 7] = value;
+            m_vertices[i + 8] = shiftedEnd;
+            m_vertices[i + 9] = m_yMin;
+            m_vertices[i + 10] = shiftedStart;
+            m_vertices[i + 11] = m_yMin;
 
-        if (m_showPeaks) {
-            m_vertices[i + 12] = shiftedStart;
-            m_vertices[i + 13] = peak + 1;
-            m_vertices[i + 14] = shiftedStart;
-            m_vertices[i + 15] = peak;
-            m_vertices[i + 16] = shiftedEnd;
-            m_vertices[i + 17] = peak + 1;
+            if (m_showPeaks) {
+                m_vertices[i + 12] = shiftedStart;
+                m_vertices[i + 13] = peak + 1;
+                m_vertices[i + 14] = shiftedStart;
+                m_vertices[i + 15] = peak;
+                m_vertices[i + 16] = shiftedEnd;
+                m_vertices[i + 17] = peak + 1;
 
-            m_vertices[i + 18] = shiftedEnd;
-            m_vertices[i + 19] = peak + 1;
-            m_vertices[i + 20] = shiftedEnd;
-            m_vertices[i + 21] = peak;
-            m_vertices[i + 22] = shiftedStart;
-            m_vertices[i + 23] = peak;
+                m_vertices[i + 18] = shiftedEnd;
+                m_vertices[i + 19] = peak + 1;
+                m_vertices[i + 20] = shiftedEnd;
+                m_vertices[i + 21] = peak;
+                m_vertices[i + 22] = shiftedStart;
+                m_vertices[i + 23] = peak;
 
-            i += 24;
-            verticesCollected += 12;
+                i += 24;
+                verticesCollected += 12;
+            } else {
+                i += 12;
+                verticesCollected += 6;
+            }
         } else {
-            i += 12;
-            verticesCollected += 6;
+            addLinePoint(i, verticesCollected, shiftedStart, value);
+            addLinePoint(i, verticesCollected, shiftedStart, m_yMin);
+            addLinePoint(i, verticesCollected, shiftedEnd, value);
+            addLinePoint(i, verticesCollected, shiftedEnd, value);
+            addLinePoint(i, verticesCollected, shiftedEnd, m_yMin);
+            addLinePoint(i, verticesCollected, shiftedStart, m_yMin);
+
+            if (m_showPeaks) {
+                addLinePoint(i, verticesCollected, shiftedStart, peak + 1);
+                addLinePoint(i, verticesCollected, shiftedStart, peak);
+                addLinePoint(i, verticesCollected, shiftedEnd, peak + 1);
+                addLinePoint(i, verticesCollected, shiftedEnd, peak + 1);
+                addLinePoint(i, verticesCollected, shiftedEnd, peak);
+                addLinePoint(i, verticesCollected, shiftedStart, peak);
+            }
         }
         value = 0;
         peak = 0;
     };
 
     iterate(m_pointsPerOctave, accumalte, collected);
-    drawVertices(GL_TRIANGLES, verticesCollected);
+    if (m_openGL33CoreFunctions) {
+        drawVertices(GL_TRIANGLES, verticesCollected);
+    } else {
+        drawOpenGL2(verticesCollected, GL_TRIANGLES);
+    }
 }
 void RTASeriesRenderer::drawVertices(const GLenum &mode, const GLsizei &count)
 {
     if (m_refreshBuffers) {
-        m_openGLFunctions->glGenBuffers(1, &m_vertexBufferId);
-        m_openGLFunctions->glGenVertexArrays(1, &m_vertexArrayId);
+        m_openGL33CoreFunctions->glGenBuffers(1, &m_vertexBufferId);
+        m_openGL33CoreFunctions->glGenVertexArrays(1, &m_vertexArrayId);
     }
 
-    m_openGLFunctions->glBindVertexArray(m_vertexArrayId);
-    m_openGLFunctions->glBindBuffer(GL_ARRAY_BUFFER, m_vertexBufferId);
+    m_openGL33CoreFunctions->glBindVertexArray(m_vertexArrayId);
+    m_openGL33CoreFunctions->glBindBuffer(GL_ARRAY_BUFFER, m_vertexBufferId);
 
     if (m_refreshBuffers) {
-        m_openGLFunctions->glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * m_vertices.size(), m_vertices.data(),
-                                        GL_DYNAMIC_DRAW);
-        m_openGLFunctions->glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat),
-                                                 reinterpret_cast<const void *>(0));
+        m_openGL33CoreFunctions->glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * m_vertices.size(), m_vertices.data(),
+                                              GL_DYNAMIC_DRAW);
+        m_openGL33CoreFunctions->glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat),
+                                                       reinterpret_cast<const void *>(0));
     }
-    m_openGLFunctions->glBufferSubData(GL_ARRAY_BUFFER, 0, 2 * sizeof(GLfloat) * count, m_vertices.data());
+    m_openGL33CoreFunctions->glBufferSubData(GL_ARRAY_BUFFER, 0, 2 * sizeof(GLfloat) * count, m_vertices.data());
 
-    m_openGLFunctions->glEnableVertexAttribArray(0);
-    m_openGLFunctions->glDrawArrays(mode, 0, count);
-    m_openGLFunctions->glDisableVertexAttribArray(0);
+    m_openGL33CoreFunctions->glEnableVertexAttribArray(0);
+    m_openGL33CoreFunctions->glDrawArrays(mode, 0, count);
+    m_openGL33CoreFunctions->glDisableVertexAttribArray(0);
 }
 void RTASeriesRenderer::renderLines()
 {
+    unsigned int maxBufferSize = m_source->size() *
+                                 (m_openGL33CoreFunctions ? 4 : 2 * VERTEX_PER_SEGMENT * LINE_VERTEX_SIZE);
     unsigned int count = m_source->size();
-    if (m_vertices.size() != count * 4) {
-        m_vertices.resize(count * 4);
+    if (m_vertices.size() != maxBufferSize) {
+        m_vertices.resize(maxBufferSize);
         m_refreshBuffers = true;
     }
 
-    for (unsigned int i = 0, j = 0; i < count; ++i, j += 4) {
-        m_vertices[j + 0] = m_source->frequency(i);
-        m_vertices[j + 1] = m_yMin;
-        m_vertices[j + 2] = m_source->frequency(i);
-        m_vertices[j + 3] = 20 * log10f(m_source->module(i));
-    }
-    drawVertices(GL_LINES, count * 2);
-
-    if (m_showPeaks) {
+    if (m_openGL33CoreFunctions) {
         for (unsigned int i = 0, j = 0; i < count; ++i, j += 4) {
-            m_vertices[j + 1] = 10 * log10f(m_source->peakSquared(i));
-            m_vertices[j + 3] = 10 * log10f(m_source->peakSquared(i)) + 1;
+            m_vertices[j + 0] = m_source->frequency(i);
+            m_vertices[j + 1] = m_yMin;
+            m_vertices[j + 2] = m_source->frequency(i);
+            m_vertices[j + 3] = 20 * log10f(m_source->module(i));
         }
         drawVertices(GL_LINES, count * 2);
+
+        if (m_showPeaks) {
+            for (unsigned int i = 0, j = 0; i < count; ++i, j += 4) {
+                m_vertices[j + 1] = 10 * log10f(m_source->peakSquared(i));
+                m_vertices[j + 3] = 10 * log10f(m_source->peakSquared(i)) + 1;
+            }
+            drawVertices(GL_LINES, count * 2);
+        }
+    } else {
+        unsigned int verticiesCount = 0, j = 0;
+        float peak;
+        for (unsigned int i = 0; i < m_source->size(); ++i) {
+            addLineSegment(j, verticiesCount,
+                           m_source->frequency(i), m_yMin,
+                           m_source->frequency(i), 20 * log10f(m_source->module(i)),
+                           1, 1
+                          );
+
+            if (m_showPeaks) {
+                peak = 10 * log10f(m_source->peakSquared(i));
+                addLineSegment(j, verticiesCount,
+                               m_source->frequency(i), peak,
+                               m_source->frequency(i), peak + 1,
+                               1, 1
+                              );
+            }
+        }
+        drawOpenGL2(verticiesCount);
     }
 }

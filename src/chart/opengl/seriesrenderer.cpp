@@ -25,9 +25,11 @@
 using namespace chart;
 
 SeriesRenderer::SeriesRenderer() :
+    m_program(), m_openGLFunctions(nullptr), m_openGL33CoreFunctions(nullptr),
     m_retinaScale(1),
     m_colorUniform(0),
     m_width(0), m_height(0), m_weight(2),
+    m_renderActive(false),
     m_refreshBuffers(true),
     m_vertices()
 {
@@ -36,11 +38,15 @@ QOpenGLFramebufferObject *SeriesRenderer::createFramebufferObject(const QSize &s
 {
     QOpenGLFramebufferObjectFormat format;
     format.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
-    m_openGLFunctions = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctions_3_3_Core>();
     if (!m_openGLFunctions) {
-        qDebug() << "QOpenGLFunctions_3_3_Core is not available";
-    } else {
+        m_openGLFunctions = QOpenGLContext::currentContext()->functions();
         m_openGLFunctions->initializeOpenGLFunctions();
+
+        m_openGL33CoreFunctions = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctions_3_3_Core>();
+        if (m_openGL33CoreFunctions) {
+            m_openGL33CoreFunctions->initializeOpenGLFunctions();
+        }
+        init();
     }
     return new QOpenGLFramebufferObject(size, format);
 }
@@ -62,6 +68,70 @@ void SeriesRenderer::synchronize(QQuickFramebufferObject *item)
         }
     }
 }
+
+float SeriesRenderer::coherenceSpline(const bool &coherence, const float &threshold, const float data[],
+                                      const float &t) const
+{
+    if (!coherence) {
+        return 1.f;
+    }
+    auto alpha = std::abs(data[0] + data[1] * t + data[2] * t * t + data[3] * t * t * t);
+    if (alpha < threshold) {
+        alpha = FLT_MIN;
+    } else {
+        float k = 1.0 / (1.0 - threshold + FLT_MIN);
+        float b = -k * threshold;
+        alpha = sqrt(k * alpha + b);
+    }
+    if (alpha > 1.f) {
+        alpha = 1.f;
+    }
+    return alpha;
+}
+
+void SeriesRenderer::addLinePoint(unsigned int &i, unsigned int &verticiesCount,
+                                  const float &x, const float &y, const float &c)
+{
+    if (m_vertices.size() < i + 6) {
+        return;
+    }
+    m_vertices[i + 0] = x;
+    m_vertices[i + 1] = y;
+
+    m_vertices[i + 2] = static_cast<GLfloat>(m_source->color().redF());
+    m_vertices[i + 3] = static_cast<GLfloat>(m_source->color().greenF());
+    m_vertices[i + 4] = static_cast<GLfloat>(m_source->color().blueF());
+    m_vertices[i + 5] = static_cast<GLfloat>(c);
+    verticiesCount ++;
+    i += 6;
+}
+
+void SeriesRenderer::addLineSegment(unsigned int &i, unsigned int &verticiesCount,
+                                    const float &fromX, const float &fromY,
+                                    const float &toX, const float &toY,
+                                    const float &fromC, const float &toC)
+{
+    addLinePoint(i, verticiesCount, fromX, fromY, fromC);
+    addLinePoint(i, verticiesCount, toX, toY, toC);
+}
+
+void SeriesRenderer::drawOpenGL2(unsigned int verticiesCount, GLenum mode)
+{
+    m_openGLFunctions->glLineWidth(m_weight * m_retinaScale);
+
+    m_openGLFunctions->glVertexAttribPointer(static_cast<GLuint>(m_positionAttribute), 2,
+                                             GL_FLOAT, GL_FALSE, LINE_VERTEX_SIZE * sizeof(GLfloat),
+                                             static_cast<const void *>(m_vertices.data()));
+    m_openGLFunctions->glVertexAttribPointer(static_cast<GLuint>(m_colorUniform), 4,
+                                             GL_FLOAT, GL_FALSE, LINE_VERTEX_SIZE * sizeof(GLfloat),
+                                             static_cast<const void *>(&m_vertices[2]));
+
+    m_openGLFunctions->glEnableVertexAttribArray(0);
+    m_openGLFunctions->glEnableVertexAttribArray(1);
+    m_openGLFunctions->glDrawArrays(mode, 0, verticiesCount);
+    m_openGLFunctions->glDisableVertexAttribArray(1);
+    m_openGLFunctions->glDisableVertexAttribArray(0);
+}
 void SeriesRenderer::render()
 {
 #ifdef QT_DEBUG
@@ -69,10 +139,10 @@ void SeriesRenderer::render()
 #endif
 
     auto plot = static_cast<chart::Plot *>(m_item->parent());
-    if (!m_openGLFunctions) {
-        plot->setRendererError("OpenGL 3.3 required");
-        return;
-    }
+//    if (!m_openGL33CoreFunctions) {//TODO: remove
+//        plot->setRendererError("OpenGL 3.3 required");
+//        return;
+//    }
     if (!m_program.isLinked()) {
         qDebug() << QString("shader not setted or linked");
         return;
@@ -102,7 +172,11 @@ void SeriesRenderer::render()
     if (m_renderActive) {
         //m_openGLFunctions->glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         m_source->lock();
+//        if (m_openGL33CoreFunctions) {
         renderSeries();
+//        } else {
+//            renderSeries2();
+//        }
         m_source->unlock();
         //m_openGLFunctions->glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     }

@@ -34,7 +34,7 @@ PhaseDelayPlot::PhaseDelayPlot(Settings *settings, QQuickItem *parent) :
                  );
 
     m_y.setReset(
-        0.f * static_cast<float>(M_PI) / 500,
+        -1.f * static_cast<float>(M_PI) / 500,
         40.f * static_cast<float>(M_PI) / 500);
     m_y.reset();
     m_y.setUnit("ms");

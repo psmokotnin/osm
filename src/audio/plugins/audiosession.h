@@ -52,12 +52,13 @@ signals:
 private:
     void beginIterrupt();
     void endInterrupt();
-    
+
     void beginBackground();
     void endBackground();
 
     void stopQueues();
     bool m_permission, m_inInterrupt, m_inBackground;
+    mutable DeviceInfo::List m_deviceList;
 };
 
 } // namespace audio

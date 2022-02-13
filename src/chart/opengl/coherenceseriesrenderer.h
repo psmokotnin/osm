@@ -27,6 +27,7 @@ class CoherenceSeriesRenderer : public FrequencyBasedSeriesRenderer
 {
 public:
     CoherenceSeriesRenderer();
+    void init() override;
     void renderSeries() override;
     void synchronize(QQuickFramebufferObject *item) override;
 

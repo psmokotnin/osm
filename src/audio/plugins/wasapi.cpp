@@ -115,6 +115,11 @@ DeviceInfo::List WasapiPlugin::getDeviceInfoList() const
             channelCount = deviceFormat->nChannels;
         }
 
+        //TODO: FIX it! More than 2 outputs don't work in system
+        if (deviceFlow == EDataFlow::eRender && channelCount > 2) {
+            channelCount = 2;
+        }
+
         QStringList channelNames = {};
         channelNames.reserve(channelCount);
         for (UINT currentChannel = 1; currentChannel <= channelCount; ++currentChannel) {
@@ -180,6 +185,33 @@ Format WasapiPlugin::deviceFormat(const DeviceInfo::Id &id, const Plugin::Direct
     };
 }
 
+QDebug operator << (QDebug dbg, const WAVEFORMATEX &format)
+{
+    dbg.nospace() << "\nWAVEFORMATEX: {"
+                    << "nChannels: "        << format.nChannels << " "
+                    << "nAvgBytesPerSec: "  << format.nAvgBytesPerSec << " "
+                    << "nBlockAlign: "      << format.nBlockAlign << " "
+                    << "nSamplesPerSec: "   << format.nSamplesPerSec << " "
+                    << "wBitsPerSample: "   << format.wBitsPerSample << " "
+                    << "wFormatTag: "       << format.wFormatTag << " "
+                    << "cbSize: "           << format.cbSize << " "
+                    << "} \n";
+
+        return dbg.maybeSpace();
+}
+
+QDebug operator << (QDebug dbg, const _GUID &guid)
+{
+    dbg.nospace() << "{"
+                    << guid.Data1 << ":"
+                    << guid.Data2 << ":"
+                    << guid.Data3 << ":"
+                    << guid.Data4[0] << guid.Data4[1] << guid.Data4[2] << guid.Data4[3]
+                    << guid.Data4[4] << guid.Data4[5] << guid.Data4[6] << guid.Data4[7]
+                    << "}";
+
+        return dbg.maybeSpace();
+}
 Stream *WasapiPlugin::open(const DeviceInfo::Id &id, const Plugin::Direction &mode, const Format &format,
                            QIODevice *endpoint)
 {
@@ -197,39 +229,59 @@ Stream *WasapiPlugin::open(const DeviceInfo::Id &id, const Plugin::Direction &mo
         return nullptr;
     }
 
+    CoInitialize(nullptr);
+
     checkCall(m_enumerator->GetDevice(deviceID, &device), nullptr, "GetDevice");
     checkCall(device->Activate(__uuidof(IAudioClient), CLSCTX_ALL, NULL, reinterpret_cast<void **>(&client)),
               nullptr,
               "Activate IAudioClient");
 
-    WAVEFORMATEX waveFormat, *p_waveFormat = nullptr;
+    WAVEFORMATEX *p_waveFormat = nullptr;
     Format streamFormat = format;
     checkCall(client->GetMixFormat(&p_waveFormat), nullptr, "GitMixFormat");
-    waveFormat = *p_waveFormat;
 
     streamFormat.sampleRate = p_waveFormat->nSamplesPerSec;
-    CoTaskMemFree(p_waveFormat);
-    waveFormat.wFormatTag = WAVE_FORMAT_IEEE_FLOAT;
-    waveFormat.nChannels = streamFormat.channelCount;
-    waveFormat.nSamplesPerSec = streamFormat.sampleRate;
-    waveFormat.wBitsPerSample = sizeof(float) * 8;
-    waveFormat.nAvgBytesPerSec = waveFormat.nChannels * waveFormat.nSamplesPerSec * waveFormat.wBitsPerSample / 8;
-    waveFormat.nBlockAlign = waveFormat.nChannels * sizeof(float);
-    waveFormat.cbSize = 0;
+    if (p_waveFormat->wFormatTag != WAVE_FORMAT_EXTENSIBLE) {
+        p_waveFormat->wFormatTag = WAVE_FORMAT_IEEE_FLOAT;
+        p_waveFormat->nChannels = streamFormat.channelCount;
+        p_waveFormat->nSamplesPerSec = streamFormat.sampleRate;
+        p_waveFormat->wBitsPerSample = sizeof(float) * 8;
+        p_waveFormat->nAvgBytesPerSec = p_waveFormat->nChannels * p_waveFormat->nSamplesPerSec * p_waveFormat->wBitsPerSample / 8;
+        p_waveFormat->nBlockAlign = p_waveFormat->nChannels * sizeof(float);
+        p_waveFormat->cbSize = 0;
+    }
+    if (p_waveFormat->wFormatTag == WAVE_FORMAT_EXTENSIBLE){
+        auto formatEx = reinterpret_cast<WAVEFORMATEXTENSIBLE *>(p_waveFormat);
+        formatEx->Format.wFormatTag = WAVE_FORMAT_EXTENSIBLE;
+        formatEx->Format.nChannels = streamFormat.channelCount;
+        formatEx->dwChannelMask = std::pow(2, streamFormat.channelCount) - 1;
 
-    REFERENCE_TIME defaultPeriod, minimumPeriod;
-    checkCall(client->GetDevicePeriod(&defaultPeriod, &minimumPeriod), nullptr, "GetDevicePeriod");
+        //TODO: use to debug max 2 output channels
+        //qDebug() << formatEx->Format.nChannels << Qt::bin << formatEx->dwChannelMask;
+        formatEx->Format.nSamplesPerSec = streamFormat.sampleRate;
+        formatEx->Format.wBitsPerSample = sizeof(float) * 8;
+        formatEx->Format.nAvgBytesPerSec = formatEx->Format.nChannels * formatEx->Format.nSamplesPerSec * formatEx->Format.wBitsPerSample / 8;
+        formatEx->Format.nBlockAlign = formatEx->Format.nChannels * sizeof(float);
+        //formatEx->Format.cbSize = 22;
 
-    CoInitialize(nullptr);
-    checkCall(client->Initialize(AUDCLNT_SHAREMODE_SHARED, AUDCLNT_STREAMFLAGS_EVENTCALLBACK,
-                                 defaultPeriod, 0, &waveFormat, NULL),
+        formatEx->Samples.wValidBitsPerSample = 32;
+        formatEx->SubFormat = KSDATAFORMAT_SUBTYPE_IEEE_FLOAT;
+    }
+
+    REFERENCE_TIME defaultPeriod;
+    checkCall(client->GetDevicePeriod(&defaultPeriod, nullptr), nullptr, "GetDevicePeriod");
+
+    checkCall(client->Initialize(AUDCLNT_SHAREMODE_SHARED,
+                                 AUDCLNT_STREAMFLAGS_EVENTCALLBACK | AUDCLNT_STREAMFLAGS_AUTOCONVERTPCM,
+                                 defaultPeriod * 10, 0, p_waveFormat, NULL),
               nullptr,
               "Initialize audio client");
 
     checkCall(client->SetEventHandle(streamReadyEvent), nullptr, "SetEventHandle");
 
     checkCall(client->GetBufferSize(&bufferSizeInFrames), nullptr, "GetBufferSize");
-    bytesPerFrame = waveFormat.nBlockAlign;
+    bytesPerFrame = p_waveFormat->nBlockAlign;
+    CoTaskMemFree(p_waveFormat);
 
     switch (mode) {
     case Output: {
@@ -348,7 +400,7 @@ bool checkStatus(HRESULT result, QString message, std::list<HRESULT> goodStatuse
         {AUDCLNT_E_SERVICE_NOT_RUNNING, "AUDCLNT_E_SERVICE_NOT_RUNNING"},
         {E_INVALIDARG, "E_INVALIDARG"}
     };
-    qCritical() << message << Qt::hex << result << QString::fromWCharArray(errorMessage) << errorDesc.value(result, "unknown");
+    qDebug() << message << Qt::hex << result << QString::fromWCharArray(errorMessage) << errorDesc.value(result, "unknown");
 
     return false;
 }

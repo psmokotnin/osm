@@ -28,13 +28,24 @@ using namespace chart;
 SpectrogramSeriesRenderer::SpectrogramSeriesRenderer() : FrequencyBasedSeriesRenderer(),
     m_pointsPerOctave(0), m_timer()
 {
-    m_program.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/spectrogram.vert");
-    m_program.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/spectrogram.frag");
+}
+
+void SpectrogramSeriesRenderer::init()
+{
+    m_program.addShaderFromSourceFile(QOpenGLShader::Vertex,
+                                      m_openGL33CoreFunctions ? ":/spectrogram.vert" : ":/opengl2/logx.vert");
+    m_program.addShaderFromSourceFile(QOpenGLShader::Fragment,
+                                      m_openGL33CoreFunctions ? ":/spectrogram.frag" : ":/opengl2/color.frag");
 
     if (!m_program.link()) {
         emit Notifier::getInstance()->newMessage("SpectrogramSeriesRenderer", m_program.log());
     }
     m_matrixUniform = m_program.uniformLocation("matrix");
+
+    if (!m_openGL33CoreFunctions) {
+        m_positionAttribute = m_program.attributeLocation("position");
+        m_colorUniform  = m_program.attributeLocation("color");
+    }
 }
 void SpectrogramSeriesRenderer::synchronize(QQuickFramebufferObject *item)
 {
@@ -46,6 +57,7 @@ void SpectrogramSeriesRenderer::synchronize(QQuickFramebufferObject *item)
         ) {
             m_refreshBuffers = true;
             history.clear();
+            m_vertices.clear();
         }
         m_sourceSize = m_source->size();
         m_pointsPerOctave = plot->pointsPerOctave();
@@ -189,34 +201,50 @@ void SpectrogramSeriesRenderer::renderSeries()
     indicesCount--;
 
     m_program.setUniformValue(m_matrixUniform, m_matrix);
-    m_openGLFunctions->glLineWidth(m_weight * m_retinaScale);
 
-    if (m_refreshBuffers) {
-        m_openGLFunctions->glGenBuffers(1, &m_vertexBufferId);
-        m_openGLFunctions->glGenVertexArrays(1, &m_vertexArrayId);
-        m_openGLFunctions->glGenBuffers(1, &m_indexBufferId);
+    if (m_openGL33CoreFunctions) {
+        if (m_refreshBuffers) {
+            m_openGL33CoreFunctions->glGenBuffers(1, &m_vertexBufferId);
+            m_openGL33CoreFunctions->glGenVertexArrays(1, &m_vertexArrayId);
+            m_openGL33CoreFunctions->glGenBuffers(1, &m_indexBufferId);
+        }
+
+        m_openGL33CoreFunctions->glBindVertexArray(m_vertexArrayId);
+        m_openGL33CoreFunctions->glBindBuffer(GL_ARRAY_BUFFER, m_vertexBufferId);
+        m_openGL33CoreFunctions->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexBufferId);
+
+        if (m_refreshBuffers) {
+            m_openGL33CoreFunctions->glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLfloat) * maxIndicesCount, nullptr,
+                                                  GL_DYNAMIC_DRAW);
+            m_openGL33CoreFunctions->glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * maxBufferSize, nullptr, GL_DYNAMIC_DRAW);
+            m_openGL33CoreFunctions->glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat),
+                                                           reinterpret_cast<const void *>(0));
+            m_openGL33CoreFunctions->glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat),
+                                                           reinterpret_cast<const void *>(2 * sizeof(GLfloat)));
+        }
+        m_openGL33CoreFunctions->glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(GLfloat) * maxIndicesCount,
+                                                 m_indices.data());
+        m_openGL33CoreFunctions->glBufferSubData(GL_ARRAY_BUFFER, 0, 6 * sizeof(GLfloat) * verticiesCount, m_vertices.data());
+
+        m_openGL33CoreFunctions->glEnableVertexAttribArray(0);
+        m_openGL33CoreFunctions->glEnableVertexAttribArray(1);
+        m_openGL33CoreFunctions->glDrawElements(GL_TRIANGLE_STRIP, indicesCount, GL_UNSIGNED_INT, 0);
+        m_openGL33CoreFunctions->glDisableVertexAttribArray(1);
+        m_openGL33CoreFunctions->glDisableVertexAttribArray(0);
+
+        m_refreshBuffers = false;
+    } else {
+        m_openGLFunctions->glVertexAttribPointer(static_cast<GLuint>(m_positionAttribute), 2,
+                                                 GL_FLOAT, GL_FALSE, LINE_VERTEX_SIZE * sizeof(GLfloat),
+                                                 static_cast<const void *>(m_vertices.data()));
+        m_openGLFunctions->glVertexAttribPointer(static_cast<GLuint>(m_colorUniform), 4,
+                                                 GL_FLOAT, GL_FALSE, LINE_VERTEX_SIZE * sizeof(GLfloat),
+                                                 static_cast<const void *>(&m_vertices[2]));
+
+        m_openGLFunctions->glEnableVertexAttribArray(0);
+        m_openGLFunctions->glEnableVertexAttribArray(1);
+        m_openGLFunctions->glDrawElements(GL_TRIANGLE_STRIP, indicesCount, GL_UNSIGNED_INT, m_indices.data());
+        m_openGLFunctions->glDisableVertexAttribArray(1);
+        m_openGLFunctions->glDisableVertexAttribArray(0);
     }
-
-    m_openGLFunctions->glBindVertexArray(m_vertexArrayId);
-    m_openGLFunctions->glBindBuffer(GL_ARRAY_BUFFER, m_vertexBufferId);
-    m_openGLFunctions->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexBufferId);
-
-    if (m_refreshBuffers) {
-        m_openGLFunctions->glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLfloat) * maxIndicesCount, nullptr, GL_DYNAMIC_DRAW);
-        m_openGLFunctions->glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * maxBufferSize, nullptr, GL_DYNAMIC_DRAW);
-        m_openGLFunctions->glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat),
-                                                 reinterpret_cast<const void *>(0));
-        m_openGLFunctions->glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat),
-                                                 reinterpret_cast<const void *>(2 * sizeof(GLfloat)));
-    }
-    m_openGLFunctions->glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(GLfloat) * maxIndicesCount, m_indices.data());
-    m_openGLFunctions->glBufferSubData(GL_ARRAY_BUFFER, 0, 6 * sizeof(GLfloat) * verticiesCount, m_vertices.data());
-
-    m_openGLFunctions->glEnableVertexAttribArray(0);
-    m_openGLFunctions->glEnableVertexAttribArray(1);
-    m_openGLFunctions->glDrawElements(GL_TRIANGLE_STRIP, indicesCount, GL_UNSIGNED_INT, 0);
-    m_openGLFunctions->glDisableVertexAttribArray(1);
-    m_openGLFunctions->glDisableVertexAttribArray(0);
-
-    m_refreshBuffers = false;
 }

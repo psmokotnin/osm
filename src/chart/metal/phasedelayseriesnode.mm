@@ -58,21 +58,28 @@ void PhaseDelaySeriesNode::renderSeries()
 
     unsigned int maxBufferSize = m_pointsPerOctave * PPO_BUFFER_MUL, j = 0, verticiesCount = 0;
     float *vertex_ptr = vertexBuffer(maxBufferSize);
-    complex value(0);
+    float value(0), lastValue(0);
     float coherence = 0.f;
+    int periods = 0;
 
     float xadd, xmul;
     xadd = -1.0f * logf(m_xMin);
     xmul = width() / logf(m_xMax / m_xMin);
 
     auto accumulate = [ &, this] (const unsigned int &i) {
-        value += m_source->phase(i);
+        auto v = m_source->phase(i).arg() + periods * 2.0 * M_PI;
+        if (std::abs(lastValue - v) > M_PI) {
+            periods += (lastValue - v) > 0 ? 1 : -1;
+            v = m_source->phase(i).arg() + periods * 2.0 * M_PI;
+        }
+        value +=  v;
+        lastValue = v;
         coherence += m_source->coherence(i);
     };
     auto beforeSpline = [&] (const auto * value, auto, const auto & count) {
         return (*value) / count;
     };
-    auto collected = [&] (const float & f1, const float & f2, const complex ac[4], const float c[4]) {
+    auto collected = [&] (const float & f1, const float & f2, const float ac[4], const float c[4]) {
         float fx1 = (logf(f1) + xadd) * xmul;
         float fx2 = (logf(f2) + xadd) * xmul;
         auto points = std::min(MAX_LINE_SPLITF, std::abs(std::round(fx2 - fx1)));
@@ -85,32 +92,25 @@ void PhaseDelaySeriesNode::renderSeries()
             }
             auto x1 = f1 * std::pow(f2 / f1, t);
             auto v1 = ac[0] + ac[1] * t + ac[2] * t * t + ac[3] * t * t * t;
+            v1 /= x1;
             auto c1 = coherenceSpline(m_coherence, m_coherenceThreshold, c, t);
+
             t += dt;
             auto x2 = f1 * std::pow(f2 / f1, t);
             auto v2 = ac[0] + ac[1] * t + ac[2] * t * t + ac[3] * t * t * t;
+            v2 /= x2;
             auto c2 = coherenceSpline(m_coherence, m_coherenceThreshold, c, t);
 
-            float alpha = std::atan2f(v1.imag, v1.real);
-            float beta = std::atan2f(v2.imag, v2.real);
-            if (std::abs(alpha - beta) > M_PI) {
-                if (alpha > 0) {
-                    alpha -= 2 * M_PI;
-                } else {
-                    alpha += 2 * M_PI;
-                }
-            }
-
             addLineSegment(vertex_ptr, j, verticiesCount,
-                           x1, std::abs(alpha) / x1,
-                           x2, std::abs(alpha) / x2,
+                           x1, -v1,
+                           x2, -v2,
                            c1, c2);
         }
         coherence = 0.f;
         value = 0.f;
     };
 
-    iterateForSpline<complex, complex>(m_pointsPerOctave, &value, &coherence, accumulate, collected, beforeSpline);
+    iterateForSpline<float, float>(m_pointsPerOctave, &value, &coherence, accumulate, collected, beforeSpline);
     encodeLine(m_pipeline, verticiesCount);
 }
 
