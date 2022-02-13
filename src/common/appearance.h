@@ -25,6 +25,7 @@ class Appearance : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(bool darkMode READ darkMode WRITE setDarkMode NOTIFY darkModeChanged)
+    Q_PROPERTY(bool showAboutOnStartup READ showAboutOnStartup CONSTANT)
     Q_PROPERTY(bool experimentFunctions READ experimentFunctions WRITE setExperimentFunctions NOTIFY
                experimentFunctionsChanged)
     Q_PROPERTY(bool showMenuBar READ showMenuBar CONSTANT)
@@ -47,6 +48,7 @@ public:
     void setExperimentFunctions(bool value);
 
     bool showMenuBar() const;
+    bool showAboutOnStartup() const;
 
     QWindow::Visibility visibility() const;
     int cursorOffset() const;
