@@ -141,10 +141,10 @@ ApplicationWindow {
 
     AboutIOS {
         id: aboutpopup
-        x: 50
-        y: 50
-        width: applicationWindow.width - 100
-        height: applicationWindow.height - 100
+        x: 100
+        y: 100
+        width: applicationWindow.width - 200
+        height: applicationWindow.height - 200
         visible: applicationAppearance.showAboutOnStartup
     }
 

@@ -1,6 +1,6 @@
 /**
  *  OSM
- *  Copyright (C) 2020  Pavel Smokotnin
+ *  Copyright (C) 2022  Pavel Smokotnin
 
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -26,180 +26,159 @@ Popup {
     focus: true
     closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
 
-    ColumnLayout {
+    Item {
         anchors.fill: parent
-        spacing: 20
-        anchors.bottomMargin: 20
-        anchors.topMargin: 20
-        anchors.rightMargin: 0
-        anchors.leftMargin: 0
+        anchors.rightMargin: 10
+        anchors.leftMargin: 10
+        anchors.bottomMargin: 10
+        anchors.topMargin: 10
 
-        RowLayout {
-            Layout.fillHeight: false
-            Layout.alignment: Qt.AlignHCenter | Qt.AlignTop
+        ColumnLayout {
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.horizontalCenter: parent.horizontalCenter
+            spacing: 20
 
-            Image {
-                source: "qrc:/images/icons/whitec.png"
-                Layout.preferredHeight: 100
-                Layout.preferredWidth: 100
-                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            RowLayout {
+                Layout.fillWidth: true
+                Layout.fillHeight: false
+
+                Image {
+                    source: "qrc:/images/icons/whitec.png"
+                    Layout.preferredHeight: 100
+                    Layout.preferredWidth: 100
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                }
+
+                Item {
+                    Layout.fillWidth: true
+                }
+
+                ColumnLayout {
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    Layout.fillHeight: false
+                    Layout.fillWidth: false
+
+                    Label {
+                        horizontalAlignment: Text.AlignHCenter
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        Layout.fillWidth: true
+                        font.pointSize: 20
+                        text: qsTr("Open Sound Meter %1").arg(appVersion)
+                    }
+
+                    Label {
+                        horizontalAlignment: Text.AlignHCenter
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        Layout.fillWidth: true
+                        textFormat: Text.RichText
+                        text: qsTr(
+                                "<a style='color:%1' href=\"https://opensoundmeter.com\">https://opensoundmeter.com</a><br/><br/>" +
+                                "Copyright 2017 — %2  Pavel Smokotnin. <br/>" +
+                                "License: " +
+                                '<a style="color:%1" href="https://raw.githubusercontent.com/psmokotnin/osm/master/LICENSE">GPL v3.0</a>'
+                            ).arg(Material.accentColor).arg(new Date().getFullYear())
+                        onLinkActivated: Qt.openUrlExternally(link)
+                     }
+                }
             }
 
-            ColumnLayout {
+            Label {
+                text: qsTr("Distributed under <b>pay what you want</b> model")
                 Layout.fillHeight: false
                 Layout.fillWidth: false
-                Label {
-                    horizontalAlignment: Text.AlignHCenter
-                    Layout.fillWidth: true
-                    font.pointSize: 20
-                    text: qsTr("Open Sound Meter %1").arg(appVersion)
-                }
+                Layout.columnSpan: 2
+                onLinkActivated: Qt.openUrlExternally(link)
+            }
 
+            RowLayout {
                 Label {
-                    horizontalAlignment: Text.AlignHCenter
-                    Layout.fillWidth: true
-                    textFormat: Text.RichText
                     text: qsTr(
-                            "<a style='color:%1' href=\"https://opensoundmeter.com\">https://opensoundmeter.com</a><br/><br/>" +
-                            "Copyright (C) %2  Pavel Smokotnin<br/>" +
-                            "License: " +
-                            '<a style="color:%1" href="https://raw.githubusercontent.com/psmokotnin/osm/master/LICENSE">GPL v3.0</a>'
-                        ).arg(Material.accentColor).arg(new Date().getFullYear())
+                               "<a style='color:%1' href=\"https://opensoundmeter.com/about#donate\">donate</a><br/><br/>" +
+                               "<a style='color:%1' href=\"https://opensoundmeter.com/consulting\">consulting</a><br/>" +
+                               "<a style='color:%1' href=\"https://opensoundmeter.com/training\">trainings</a><br/>" +
+                               "<a style='color:%1' href=\"https://www.facebook.com/opensoundmeter/\">community</a><br/>"
+                              ).arg(Material.accentColor)
+                    horizontalAlignment: Text.AlignLeft
+                    Layout.preferredWidth: 200
+                    Layout.fillHeight: false
+                    Layout.fillWidth: true
                     onLinkActivated: Qt.openUrlExternally(link)
                 }
-            }
-        }
 
-        MouseArea {
-            cursorShape: Qt.PointingHandCursor
-            onClicked:  {
-                Qt.openUrlExternally("https://apps.apple.com/app/id1552933259");
+                MouseArea {
+                    id: mouseArea1
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    Layout.fillWidth: false
+                    Layout.preferredWidth: parent.width / 2
+                    Layout.preferredHeight: 100
+
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked:  {
+                        Qt.openUrlExternally("https://opensoundmeter.com/qr");
+                    }
+
+                    Image {
+                        anchors.right: parent.right
+                        anchors.top: parent.top
+                        anchors.bottom: parent.bottom
+                        source: "qrc:/images/icons/qrCode.png"
+                        anchors.rightMargin: 0
+                        anchors.bottomMargin: 0
+                        anchors.topMargin: 0
+                        fillMode: Image.PreserveAspectFit
+                        Layout.preferredHeight: 100
+                        Layout.preferredWidth: 100
+                        Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+                    }
+                }
             }
 
-            Layout.fillWidth: true
+            Label {
+                horizontalAlignment: Text.AlignLeft
+                verticalAlignment: Text.AlignBottom
+                Layout.fillWidth: true
+                Layout.fillHeight: false
+                Layout.preferredHeight: 20
+            }
+
+            MouseArea {
+                id: mouseArea
+                Layout.fillWidth: true
+                cursorShape: Qt.PointingHandCursor
+                onClicked:  {
+                    Qt.openUrlExternally("https://apps.apple.com/app/id1552933259");
+            }
+
             Layout.preferredHeight: 40
             Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
 
-            Image {
-                id: appstore
-                source: "qrc:/images/icons/appstore.png"
-                fillMode: Image.PreserveAspectFit
-                width: 120
-                height: 40
-                anchors.centerIn: parent
-            }
-        }
+            RowLayout {
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.horizontalCenter: parent.horizontalCenter
+                Layout.alignment: Qt.AlignHCenter | Qt.AlignTop
 
-        RowLayout {
-            Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-            Layout.fillWidth: true
-            Label {
-                text: qsTr("Like desktop version? Please <b>pay what you want</b> — to help me make further improvements and updates.<br/><br/>" +
-                           "Write your ideas and questions in comments on " +
-                           "<a style='color:%1' href=\"https://www.facebook.com/opensoundmeter/\">facebook</a>!"
-                           ).arg(Material.accentColor)
-                Layout.fillHeight: false
-                Layout.fillWidth: false
-                onLinkActivated: Qt.openUrlExternally(link)
-            }
-        }
-
-        RowLayout {
-            Layout.fillHeight: true
-            Layout.rightMargin: 40
-            Layout.leftMargin: 40
-            Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-            Layout.fillWidth: true
-            Layout.preferredWidth: parent.width
-
-            MouseArea {
-                cursorShape: Qt.PointingHandCursor
-                onClicked:  {
-                    Qt.openUrlExternally("https://pay.cloudtips.ru/p/28bedd0a");
-                }
-
-                Layout.fillWidth: true
-                Layout.preferredHeight: 100
-
-                ColumnLayout {
-                    spacing: 5
-                    anchors.fill: parent
+                Label {
+                    id: foriOs
+                    text: qsTr("Open Sound Meter for iOS:")
+                    horizontalAlignment: Text.AlignRight
                     Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+                    onLinkActivated: Qt.openUrlExternally(link)
+                }
 
-                    Label {
-                        text: "Donate with credit card"
-                        Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-                        Layout.topMargin: 0
-                        color: Material.color(Material.Indigo)
-                    }
-
-                    Image {
-                        id: qrcode
-                        source: "qrc:/images/icons/qrCode.png"
-                        fillMode: Image.PreserveAspectFit
-                        Layout.preferredHeight: 100
-                        Layout.preferredWidth: 100
-                        Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-                    }
-
-                    Label {
-                        text: "click or scan QR with your phone"
-                        Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-                        Layout.topMargin: 0
-                        color: Material.color(Material.Grey)
-                    }
+                Image {
+                    id: appstore
+                    source: "qrc:/images/icons/appstore.png"
+                    fillMode: Image.PreserveAspectFit
+                    Layout.preferredWidth: 120
+                    Layout.preferredHeight: 40
                 }
             }
-
-            MouseArea {
-                cursorShape: Qt.PointingHandCursor
-                Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-                Layout.fillWidth: true
-                Layout.preferredHeight: 100
-                onClicked:  {
-                    Qt.openUrlExternally("https://www.paypal.com/paypalme/psmokotnin");
-                }
-
-                ColumnLayout {
-                    spacing: 5
-                    anchors.fill: parent
-
-                    Label {
-                        text: "Donate via PayPal"
-                        Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-                        Layout.topMargin: 0
-                        color: Material.color(Material.Indigo)
-                    }
-
-                    Image {
-                        source: "qrc:/images/icons/pp.jpg"
-                        fillMode: Image.PreserveAspectFit
-                        Layout.preferredHeight: 100
-                        Layout.preferredWidth: 100
-                        Layout.alignment: Qt.AlignCenter
-                    }
-
-                    Label {
-                        text: "paypal.me/psmokotnin"
-                        Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-                        Layout.topMargin: 0
-                        color: Material.color(Material.Grey)
-                    }
-                }
             }
-        }
-
-        Label {
-            horizontalAlignment: Text.AlignLeft
-            verticalAlignment: Text.AlignBottom
-            Layout.fillWidth: true
-            Layout.fillHeight: false
-            Layout.preferredHeight: 25
         }
     }
 }
 /*##^##
 Designer {
-    D{i:0;autoSize:true;formeditorZoom:0.5;height:480;width:1240}
+    D{i:0;autoSize:true;height:400;width:568}
 }
 ##^##*/
