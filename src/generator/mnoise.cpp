@@ -50,6 +50,7 @@
     M‑Noise Test Signal and Test Method is Patent Pending.
 */
 #include "mnoise.h"
+#include <QtMath>
 
 MNoise::MNoise(QObject *parent) : Wav(parent)
 {

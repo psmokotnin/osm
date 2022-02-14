@@ -19,6 +19,7 @@
 #include "stored.h"
 #include "sourcelist.h"
 #include <QJsonArray>
+#include <cmath>
 
 Union::Union(Settings *settings, QObject *parent): chart::Source(parent),
     m_settings(settings),
@@ -320,7 +321,7 @@ void Union::calcdB(unsigned int count, chart::Source *primary) noexcept
     for (unsigned int i = 0; i < primary->size(); i++) {
         magnitude = primary->magnitude(i);
         phase = primary->phase(i);
-        module = 20.f * std::log10f((primary)->module(i));
+        module = 20.f * std::log10((primary)->module(i));
         coherence = std::abs(primary->module(i) * primary->coherence(i));
         coherenceWeight = std::abs(primary->module(i));
 
@@ -331,7 +332,7 @@ void Union::calcdB(unsigned int count, chart::Source *primary) noexcept
                 case Avg:
                     magnitude += (*it)->magnitude(i);
                     phase += (*it)->phase(i);
-                    module += 20.f * std::log10f((*it)->module(i));
+                    module += 20.f * std::log10((*it)->module(i));
                     break;
                 case Subtract:
                     magnitude -= (*it)->magnitude(i);
@@ -339,7 +340,7 @@ void Union::calcdB(unsigned int count, chart::Source *primary) noexcept
                     auto sign = (phase.imag - (*it)->phase(i).imag > 0 ? 1 : -1);
                     phase.real = p / (phase.abs() * (*it)->phase(i).abs());
                     phase.imag = sign * std::sqrt(1 - phase.real * phase.real);
-                    module -= 20.f * std::log10f((*it)->module(i));
+                    module -= 20.f * std::log10((*it)->module(i));
                     break;
                 }
 
