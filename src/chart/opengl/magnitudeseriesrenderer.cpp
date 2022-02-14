@@ -59,7 +59,7 @@ void MagnitudeSeriesRenderer::synchronize(QQuickFramebufferObject *item)
 {
     XYSeriesRenderer::synchronize(item);
 
-    if (auto *plot = dynamic_cast<MagnitudePlot *>(m_item->parent())) {
+    if (auto *plot = dynamic_cast<MagnitudePlot *>(m_item ? m_item->parent() : nullptr)) {
         m_pointsPerOctave    = plot->pointsPerOctave();
         m_coherence          = plot->coherence();
         m_invert             = plot->invert();

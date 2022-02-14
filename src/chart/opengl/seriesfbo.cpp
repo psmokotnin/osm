@@ -16,6 +16,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "seriesfbo.h"
+#include "seriesrenderer.h"
 
 using namespace chart;
 
@@ -36,7 +37,12 @@ Source *SeriesFBO::source() const noexcept
 }
 QQuickFramebufferObject::Renderer *SeriesFBO::createRenderer() const
 {
-    return m_rendererCreator();
+    SeriesRenderer *renderer = static_cast<SeriesRenderer *>(m_rendererCreator());
+    connect(this, &SeriesFBO::preSourceDeleted, this, [renderer]() {
+        renderer->synchronize(nullptr);
+    }, Qt::DirectConnection);
+
+    return renderer;
 }
 void SeriesFBO::setZIndex(int index)
 {

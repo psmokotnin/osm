@@ -121,7 +121,7 @@ void StepSeriesRenderer::renderSeries()
 void StepSeriesRenderer::synchronize(QQuickFramebufferObject *item)
 {
     XYSeriesRenderer::synchronize(item);
-    if (auto *plot = qobject_cast<StepPlot *>(m_item->parent())) {
+    if (auto *plot = qobject_cast<StepPlot *>(m_item ? m_item->parent() : nullptr)) {
         m_zero = plot->zero();
     }
 }

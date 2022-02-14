@@ -36,6 +36,7 @@ Plot::Plot(Settings *settings, QQuickItem *parent) :
 void Plot::clear()
 {
     for (auto &&series : m_serieses) {
+        emit series->preSourceDeleted();
         series->deleteLater();
     }
     m_serieses.clear();

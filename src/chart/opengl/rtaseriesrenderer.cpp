@@ -88,7 +88,8 @@ void RTASeriesRenderer::initShaders()
 void RTASeriesRenderer::synchronize(QQuickFramebufferObject *item)
 {
     XYSeriesRenderer::synchronize(item);
-    if (auto *plot = dynamic_cast<RTAPlot *>(m_item->parent())) {
+
+    if (auto *plot = dynamic_cast<RTAPlot *>(m_item ? m_item->parent() : nullptr)) {
         if (m_pointsPerOctave != plot->pointsPerOctave()) {
             m_refreshBuffers = true;
             m_pointsPerOctave = plot->pointsPerOctave();

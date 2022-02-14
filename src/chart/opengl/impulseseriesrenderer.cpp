@@ -68,7 +68,7 @@ void ImpulseSeriesRenderer::renderSeries()
             value = m_source->impulseValue(i) - dc;
             break;
         case ImpulsePlot::Log:
-            value = 10 * std::log10f(std::powf(m_source->impulseValue(i) - dc, 2));
+            value = 10 * std::log10(std::pow(m_source->impulseValue(i) - dc, 2));
             break;
         }
 
@@ -118,7 +118,7 @@ void ImpulseSeriesRenderer::synchronize(QQuickFramebufferObject *item)
 {
     XYSeriesRenderer::synchronize(item);
 
-    if (auto *plot = dynamic_cast<ImpulsePlot *>(m_item->parent())) {
+    if (auto *plot = dynamic_cast<ImpulsePlot *>(m_item ? m_item->parent() : nullptr)) {
         m_mode = plot->mode();
     }
 
