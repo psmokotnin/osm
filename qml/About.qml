@@ -94,6 +94,7 @@ Popup {
                 Label {
                     text: qsTr(
                                "<a style='color:%1' href=\"https://opensoundmeter.com/about#donate\">donate</a><br/><br/>" +
+                               "<a style='color:%1' href=\"https://opensoundmeter.com/support\">user manual</a><br/>" +
                                "<a style='color:%1' href=\"https://opensoundmeter.com/consulting\">consulting</a><br/>" +
                                "<a style='color:%1' href=\"https://opensoundmeter.com/training\">trainings</a><br/>" +
                                "<a style='color:%1' href=\"https://www.facebook.com/opensoundmeter/\">community</a><br/>"
