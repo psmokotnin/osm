@@ -50,6 +50,8 @@ signals:
     void coherenceThresholdChanged(float);
 
 protected:
+    void configureXAxis();
+
     unsigned int m_pointsPerOctave;
     float m_coherenceThreshold;
     bool m_coherence;

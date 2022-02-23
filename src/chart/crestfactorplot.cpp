@@ -19,17 +19,13 @@
 
 namespace chart {
 
-CrestFactorPlot::CrestFactorPlot(Settings *settings, QQuickItem *parent) : XYPlot(settings, parent),
+CrestFactorPlot::CrestFactorPlot(Settings *settings, QQuickItem *parent) : FrequencyBasedPlot(settings, parent),
     m_pointsPerOctave(12)
 {
-    m_x.configure(AxisType::Logarithmic, 20.f, 20000.f);
     m_y.configure(AxisType::Linear, 0.f, 60.f, 10);
-
-    m_x.setISOLabels();
     m_y.setCentralLabel(m_y.min() - 1.f);
     m_y.setReset(-0.f, 20.f);
     m_y.reset();
-    m_x.setUnit("Hz");
     m_y.setUnit("dB");
     setFlag(QQuickItem::ItemHasContents);
 }

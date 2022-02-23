@@ -18,7 +18,7 @@
 #ifndef COHERENCEPLOT_H
 #define COHERENCEPLOT_H
 
-#include "xyplot.h"
+#include "frequencybasedplot.h"
 
 namespace chart {
 
@@ -31,7 +31,7 @@ public:
     void parentHeightChanged();
 };
 
-class CoherencePlot : public XYPlot
+class CoherencePlot : public FrequencyBasedPlot
 {
     Q_OBJECT
     Q_PROPERTY(unsigned int pointsPerOctave READ pointsPerOctave WRITE setPointsPerOctave NOTIFY

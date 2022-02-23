@@ -25,9 +25,6 @@ using namespace chart;
 MagnitudePlot::MagnitudePlot(Settings *settings, QQuickItem *parent) :
     FrequencyBasedPlot(settings, parent), m_invert(false), m_mode(Linear)
 {
-    m_x.configure(AxisType::Logarithmic, 20.f, 20000.f);
-    m_x.setISOLabels();
-
     setMode(dB);
     setFlag(QQuickItem::ItemHasContents);
     m_targetTrace = new TargetTraceItem(m_palette, this);
