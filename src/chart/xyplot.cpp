@@ -26,15 +26,19 @@ XYPlot::XYPlot(Settings *settings, QQuickItem *parent) :
 {
     connect(&m_x, &Axis::minChanged, this, [this](auto value) {
         emit xminChanged(value);
+        update();
     });
     connect(&m_x, &Axis::maxChanged, this, [this](auto value) {
         emit xmaxChanged(value);
+        update();
     });
     connect(&m_y, &Axis::minChanged, this, [this](auto value) {
         emit yminChanged(value);
+        update();
     });
     connect(&m_y, &Axis::maxChanged, this, [this](auto value) {
         emit ymaxChanged(value);
+        update();
     });
 
     connect(&m_x, &Axis::unitChanged, this, &Plot::xLabelChanged);
@@ -100,39 +104,19 @@ QString XYPlot::yLabel() const
 }
 void XYPlot::setXMin(float v)
 {
-    if (qFuzzyCompare(v, m_x.min()))
-        return;
-
     m_x.setMin(v);
-    emit xminChanged(m_x.min());
-    update();
 }
 void XYPlot::setXMax(float v)
 {
-    if (qFuzzyCompare(v, m_x.max()))
-        return;
-
     m_x.setMax(v);
-    emit xmaxChanged(m_x.max());
-    update();
 }
 void XYPlot::setYMin(float v)
 {
-    if (qFuzzyCompare(v, m_y.min()))
-        return;
-
     m_y.setMin(v);
-    emit yminChanged(m_y.min());
-    update();
 }
 void XYPlot::setYMax(float v)
 {
-    if (qFuzzyCompare(v, m_y.max()))
-        return;
-
     m_y.setMax(v);
-    emit ymaxChanged(m_y.max());
-    update();
 }
 void XYPlot::setSettings(Settings *settings) noexcept
 {
