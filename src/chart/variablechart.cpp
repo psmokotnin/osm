@@ -100,6 +100,8 @@ void VariableChart::initType()
             newPlot->setSelected(m_plot->selected());
             newPlot->setSelectAppended(false);
         }
+
+        newPlot->inheritSettings(m_plot);
         m_plot->clear();
         m_plot->disconnectFromParent();
         m_plot->setParent(nullptr);

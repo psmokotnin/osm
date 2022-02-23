@@ -157,3 +157,16 @@ void XYPlot::storeSettings() noexcept
     m_settings->setValue("ymax", m_y.max());
 
 }
+
+void XYPlot::inheritSettings(const Plot *source)
+{
+    auto xySource = static_cast<const XYPlot *>(source);
+    if (!xySource) {
+        return;
+    }
+
+    if (xLabel() == xySource->xLabel()) {
+        setXMin(xySource->xmin());
+        setXMax(xySource->xmax());
+    }
+}
