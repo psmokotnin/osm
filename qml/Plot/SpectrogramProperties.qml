@@ -138,9 +138,8 @@ Item {
             Component.onCompleted: {
                 currentIndex = model.indexOf(dataObject.pointsPerOctave);
             }
-            onCurrentIndexChanged: {
-                dataObject.pointsPerOctave = model[currentIndex];
-            }
+            currentIndex: model.indexOf(dataObject.pointsPerOctave);
+            onCurrentIndexChanged: dataObject.pointsPerOctave = model[currentIndex];
         }
 
         SelectableSpinBox {
