@@ -41,6 +41,11 @@ void FrequencyBasedPlot::setPointsPerOctave(unsigned int p) noexcept
     emit pointsPerOctaveChanged(m_pointsPerOctave);
     update();
 }
+
+bool FrequencyBasedPlot::coherence() const noexcept
+{
+    return  m_coherence;
+}
 void FrequencyBasedPlot::setCoherence(bool coherence) noexcept
 {
     if (m_coherence == coherence)
@@ -49,6 +54,11 @@ void FrequencyBasedPlot::setCoherence(bool coherence) noexcept
     m_coherence = coherence;
     emit coherenceChanged(m_coherence);
     update();
+}
+
+float FrequencyBasedPlot::coherenceThreshold() const noexcept
+{
+    return m_coherenceThreshold;
 }
 void FrequencyBasedPlot::setSettings(Settings *settings) noexcept
 {
@@ -72,5 +82,10 @@ void FrequencyBasedPlot::storeSettings() noexcept
     m_settings->setValue("coherence", m_coherence);
     m_settings->setValue("coherenceThreshold", m_coherenceThreshold);
     m_settings->setValue("ppo", m_pointsPerOctave);
+}
+
+unsigned int FrequencyBasedPlot::pointsPerOctave() const noexcept
+{
+    return m_pointsPerOctave;
 }
 //BUG: m_settings could hugs((

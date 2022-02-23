@@ -29,39 +29,30 @@ class FrequencyBasedPlot : public XYPlot
     Q_PROPERTY(float coherenceThreshold READ coherenceThreshold WRITE setCoherenceThreshold NOTIFY
                coherenceThresholdChanged)
 
-protected:
-    unsigned int m_pointsPerOctave;
-    float m_coherenceThreshold;
-    bool m_coherence;
-
 public:
     FrequencyBasedPlot(Settings *settings, QQuickItem *parent = Q_NULLPTR);
 
     virtual void setSettings(Settings *settings) noexcept override;
     virtual void storeSettings() noexcept override;
 
-    unsigned int pointsPerOctave() const noexcept
-    {
-        return m_pointsPerOctave;
-    }
+    unsigned int pointsPerOctave() const noexcept;
     void setPointsPerOctave(unsigned int p) noexcept;
 
-    bool coherence() const noexcept
-    {
-        return  m_coherence;
-    }
+    bool coherence() const noexcept;
     void setCoherence(bool coherence) noexcept;
 
-    float coherenceThreshold() const noexcept
-    {
-        return m_coherenceThreshold;
-    }
+    float coherenceThreshold() const noexcept;
     void setCoherenceThreshold(float coherenceThreshold) noexcept;
 
 signals:
     void pointsPerOctaveChanged(unsigned int);
     void coherenceChanged(bool);
     void coherenceThresholdChanged(float);
+
+protected:
+    unsigned int m_pointsPerOctave;
+    float m_coherenceThreshold;
+    bool m_coherence;
 };
 }
 #endif // FREQUENCYBASEDPLOT_H
