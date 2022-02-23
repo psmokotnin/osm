@@ -104,6 +104,10 @@ Popup {
                     Layout.fillHeight: false
                     Layout.fillWidth: true
                     onLinkActivated: Qt.openUrlExternally(link)
+                    MouseArea {
+                        anchors.fill: parent
+                        cursorShape: Qt.PointingHandCursor
+                    }
                 }
 
                 MouseArea {
@@ -175,6 +179,24 @@ Popup {
                 }
             }
             }
+        }
+    }
+
+    MouseArea {
+        anchors.right: parent.right
+        anchors.top: parent.top
+        cursorShape: Qt.PointingHandCursor
+        implicitWidth: closeLabel.implicitWidth
+        implicitHeight: closeLabel.implicitHeight
+
+        Label {
+            id: closeLabel
+            font.family: "Osm"
+            font.pixelSize: 20
+            text: "\ue803"
+        }
+        onClicked: {
+            popup.close();
         }
     }
 }
