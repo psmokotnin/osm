@@ -55,6 +55,7 @@ chart::Source *Union::clone() const
 {
     auto cloned = new Union(nullptr, parent());
 
+    cloned->setCount(count());
     cloned->setOperation(operation());
     cloned->setType(type());
     cloned->setName(name());
