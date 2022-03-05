@@ -63,7 +63,7 @@ public:
     void setCount(int count) noexcept;
 
     Q_INVOKABLE chart::Source *getSource(int index) const noexcept;
-    Q_INVOKABLE void setSource(int index, chart::Source *s) noexcept;
+    Q_INVOKABLE bool setSource(int index, chart::Source *s) noexcept;
 
     Q_INVOKABLE QJsonObject toJSON(const SourceList *list = nullptr) const noexcept override;
     void fromJSON(QJsonObject data, const SourceList *list = nullptr) noexcept override;
@@ -78,6 +78,9 @@ public:
 
     bool autoName() const;
     void setAutoName(bool autoName);
+
+    bool checkLoop(Union *source) const;
+    const SourceVector &sources() const;
 
 public slots:
     void update() noexcept;
@@ -108,5 +111,7 @@ private:
     Operation m_operation;
     Type m_type;
     bool m_autoName;
+
+    static std::mutex s_calcmutex;
 };
 #endif // UNION_H

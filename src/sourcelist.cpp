@@ -38,11 +38,11 @@ SourceList::SourceList(QObject *parent, bool appendMeasurement) :
         add<Measurement>();
     }
 }
-SourceList *SourceList::clone(QObject *parent, bool filtered) const noexcept
+SourceList *SourceList::clone(QObject *parent, chart::Source *filter) const noexcept
 {
     SourceList *list = new SourceList(parent, false);
     for (auto item : items()) {
-        if (!filtered || item->objectName() == "Measurement" || item->objectName() == "Stored") {
+        if (filter != item) {
             list->appendItem(item);
         }
     }
