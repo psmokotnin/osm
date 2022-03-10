@@ -23,7 +23,7 @@
 using namespace chart;
 
 MagnitudePlot::MagnitudePlot(Settings *settings, QQuickItem *parent) :
-    FrequencyBasedPlot(settings, parent), m_invert(false), m_mode(Linear)
+    FrequencyBasedPlot(settings, parent), m_invert(false), m_mode(Linear), m_sensor(2.6)
 {
     setMode(dB);
     setFlag(QQuickItem::ItemHasContents);
@@ -36,6 +36,8 @@ void MagnitudePlot::setSettings(Settings *settings) noexcept
 
         setMode(m_settings->reactValue<MagnitudePlot, MagnitudePlot::Mode>(
                     "mode", this, &MagnitudePlot::modeChanged, m_mode).toInt());
+        setSensor(m_settings->reactValue<MagnitudePlot, float>(
+                      "sensor", this, &MagnitudePlot::sensorChanged, m_sensor).toFloat());
     }
 }
 void MagnitudePlot::storeSettings() noexcept
@@ -84,6 +86,13 @@ void MagnitudePlot::setMode(const MagnitudePlot::Mode &mode)
             m_y.reset();
             m_y.setUnit("");
             break;
+
+        case Impedance:
+            m_y.configure(AxisType::Linear, -10.f, 200.f,  21);
+            m_y.setReset(-10.f, 100.f);
+            m_y.reset();
+            m_y.setUnit("Ohm");
+            break;
         }
         update();
         emit modeChanged(m_mode);
@@ -93,6 +102,20 @@ void MagnitudePlot::setMode(const MagnitudePlot::Mode &mode)
 void MagnitudePlot::setMode(const int &mode)
 {
     setMode(static_cast<Mode>(mode));
+}
+
+float MagnitudePlot::sensor() const
+{
+    return m_sensor;
+}
+
+void MagnitudePlot::setSensor(float sensor)
+{
+    if (!qFuzzyCompare(sensor, m_sensor)) {
+        m_sensor = sensor;
+        update();
+        emit sensorChanged(m_sensor);
+    }
 }
 
 MagnitudePlot::TargetTraceItem::TargetTraceItem(const Palette &palette, QQuickItem *parent) : PaintedItem(parent),

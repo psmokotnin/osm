@@ -64,6 +64,7 @@ void MagnitudeSeriesRenderer::synchronize(QQuickFramebufferObject *item)
         m_coherence          = plot->coherence();
         m_invert             = plot->invert();
         m_mode               = plot->mode();
+        m_sensor             = plot->sensor();
         m_coherenceThreshold = plot->coherenceThreshold();
     }
 }
@@ -91,6 +92,10 @@ void MagnitudeSeriesRenderer::renderSeries()
         switch (m_mode) {
         case MagnitudePlot::Mode::Linear:
             value += std::abs(std::pow(m_source->magnitudeRaw(i), m_invert ? -1 : 1));
+            break;
+
+        case MagnitudePlot::Mode::Impedance:
+            value += std::abs(std::pow(m_source->magnitudeRaw(i), m_invert ? -1 : 1)) * m_sensor - m_sensor;
             break;
 
         case MagnitudePlot::Mode::dB:

@@ -35,7 +35,7 @@ public:
 private:
     int m_coherenceThresholdU, m_coherenceAlpha;
     unsigned int m_pointsPerOctave;
-    float m_coherenceThreshold;
+    float m_coherenceThreshold, m_sensor;
     bool m_coherence, m_invert;
     MagnitudePlot::Mode m_mode;
 };
