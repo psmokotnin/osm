@@ -172,6 +172,7 @@ HEADERS += \
     src/math/ssemath.h \
     src/math/deconvolution.h \
     src/container/fifo.h \
+    src/container/circular.h \
     src/container/array.h
 
 #dialogs

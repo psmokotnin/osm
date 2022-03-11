@@ -58,7 +58,8 @@ Measurement::Measurement(Settings *settings, QObject *parent) : chart::Source(pa
     m_workingDelay(0), m_delay(0), m_delayFinderCounter(0), m_gain(1.f),
     m_estimatedDelay(0),
     m_polarity(false), m_error(false),
-    m_dataMeter(12000), m_referenceMeter(12000), //250ms
+    m_data(65536), m_reference(65536), m_loopBuffer(65536),
+    m_dataMeter(12000), m_referenceMeter(12000), //250ms@48kHz
     m_windowFunctionType(WindowFunction::Type::Hann),
     m_averageType(AverageType::LPF),
     m_filtersFrequency(Filter::Frequency::FourthHz),
@@ -446,9 +447,7 @@ void Measurement::setError()
 
 void Measurement::newSampleFromGenerator(float sample)
 {
-    if (m_loopBuffer.size() < 48000) {
-        m_loopBuffer.push(sample);
-    }
+    m_loopBuffer.write(sample);
 }
 
 void Measurement::resetLoopBuffer()
@@ -482,9 +481,9 @@ void Measurement::updateDelay()
         delta = std::abs(delta);
         for (long i = 0; i != delta; ++i) {
             if (direction) {
-                m_reference.push(0.f);
+                m_reference.write(0.f);
             } else {
-                m_data.push(0.f);
+                m_data.write(0.f);
             }
         }
         emit delayChanged(m_workingDelay);
@@ -559,7 +558,7 @@ void Measurement::setWindowType(QVariant type)
 {
     setWindowType(static_cast<WindowFunction::Type>(type.toInt()));
 }
-void Measurement::writeData(const QByteArray &buffer)
+void Measurement::writeData(const char *data, qint64 len)
 {
     if (!m_audioStream || m_onReset.load()) {
         return;
@@ -574,37 +573,38 @@ void Measurement::writeData(const QByteArray &buffer)
     bool forceRef = referenceChanel() >= totalChanels;
     bool forceData = dataChanel() >= totalChanels;
     float loopSample = 0;
-
-    bool loopAvailable = m_loopBuffer.size() >= m_audioStream->depth() * buffer.size() / (totalChanels * sizeof(float));
-    for (auto it = buffer.begin(); it != buffer.end(); ++it) {
+    bool loopAvailable = m_loopBuffer.collected() >= m_audioStream->depth() * len / (totalChanels * sizeof(float));
+    qint64 offset = 0;
+    for (auto it = data; offset < len; ) {
         if (currentChanel == 0) {
-            loopSample = loopAvailable ? m_loopBuffer.pop() : 0;
+            loopSample = loopAvailable ? m_loopBuffer.read() : 0;
         }
 
         if (currentChanel == dataChanel()) {
             memcpy(&sample, it, sizeof(float));
-            m_data.pushnpop((m_polarity ? -1 * sample : sample), 48000);
+            m_data.write(m_polarity ? -1 * sample : sample);
             m_dataMeter.add(sample);
         }
 
         if (currentChanel == referenceChanel()) {
             memcpy(&sample, it, sizeof(float));
-            m_reference.pushnpop(sample, 48000);
+            m_reference.write(sample);
             m_referenceMeter.add(sample);
         }
         ++currentChanel;
         if (currentChanel >= totalChanels) {
             if (forceRef) {
-                m_reference.pushnpop(loopSample, 48000);
+                m_reference.write(loopSample);
                 m_referenceMeter.add(loopSample);
             }
             if (forceData) {
-                m_data.pushnpop(loopSample, 48000);
+                m_data.write(loopSample);
                 m_dataMeter.add(loopSample);
             }
             currentChanel = 0;
         }
-        it += 3;
+        it += 4;
+        offset += 4;
     }
 
 }
@@ -618,9 +618,9 @@ void Measurement::transform()
     updateDelay();
 
     float d, r;
-    while (m_data.size() > 0 && m_reference.size() > 0) {
-        d = m_data.pop() * m_gain;
-        r = m_reference.pop();
+    while (m_data.collected() > 0 && m_reference.collected() > 0) {
+        d = m_data.read() * m_gain;
+        r = m_reference.read();
 
         m_dataFT.add(d, r);
         m_deconvolution.add(r, d);
@@ -939,8 +939,8 @@ void Measurement::updateAudio()
         std::async([this]() {
             audio::Format format = audio::Client::getInstance()->deviceInputFormat(m_deviceId);
             m_sampleRate = format.sampleRate;
-            m_input.setCallback([this](const QByteArray & buffer) {
-                writeData(buffer);
+            m_input.setCallback([this](const char *buffer, qint64 size) {
+                writeData(buffer, size);
             });
             m_audioStream = audio::Client::getInstance()->openInput(m_deviceId, &m_input, format);
             if (!m_audioStream) {

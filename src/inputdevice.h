@@ -27,13 +27,13 @@ class InputDevice : public QIODevice
 public:
     InputDevice(QObject *parent);
 
-    qint64 writeData(const char *data, qint64 len) override;
+    qint64 writeData(const char *buffer, qint64 size) override;
     qint64 readData(char *data, qint64 maxlen) override;
 
-    void setCallback(const std::function<void(const QByteArray &buffer)> &callback);
+    void setCallback(const std::function<void (const char *, qint64)> &callback);
 
 private:
-    std::function<void(const QByteArray &buffer)> m_callback = nullptr;
+    std::function<void(const char *buffer, qint64 size)> m_callback = nullptr;
 };
 
 #endif // INPUTDEVICE_H

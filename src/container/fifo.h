@@ -104,6 +104,20 @@ public:
         return T(0);
     }
 
+    void pushLimit(const T value, const size_t &limit)
+    {
+        if (m_size >= limit && m_front && m_end) {
+            Cell *reserved = m_front;
+            m_front = m_front->next;
+            reserved->next = nullptr;
+            reserved->value = value;
+            m_end->next = reserved;
+            m_end = reserved;
+            return;
+        }
+        push(value);
+    }
+
     T front() const
     {
         if (!m_front) {

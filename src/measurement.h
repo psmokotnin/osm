@@ -35,6 +35,7 @@
 #include "math/filter.h"
 #include "math/coherence.h"
 #include "common/settings.h"
+#include "container/circular.h"
 
 class Measurement : public chart::Source
 {
@@ -159,7 +160,7 @@ public slots:
     void transform();
     void onSampleRateChanged();
     QObject *store();
-    void writeData(const QByteArray &buffer);
+    void writeData(const char *data, qint64 len);
     void setError();
     void newSampleFromGenerator(float sample);
     void resetLoopBuffer();
@@ -189,7 +190,7 @@ private:
     long m_estimatedDelay;
     bool m_polarity, m_error;
 
-    container::fifo<float> m_data, m_reference;
+    container::circular<float> m_data, m_reference, m_loopBuffer;
     Meter m_dataMeter, m_referenceMeter;
 
     WindowFunction::Type m_windowFunctionType;
@@ -205,8 +206,6 @@ private:
     Filter::Frequency m_filtersFrequency;
     container::array<Filter::BesselLPF<float>> m_moduleLPFs, m_magnitudeLPFs, m_deconvLPFs;
     container::array<Filter::BesselLPF<complex>> m_phaseLPFs;
-
-    container::fifo<float> m_loopBuffer;
     container::array<Meter> m_meters;
 
     void calculateDataLength();

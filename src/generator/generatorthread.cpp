@@ -103,7 +103,7 @@ void GeneratorThread::init()
     m_sources << new MNoise(this);
     for (auto &source : m_sources) {
         connect(source, &OutputDevice::sampleError, this, &GeneratorThread::deviceError);
-        connect(source, &OutputDevice::sampleOut, this, &GeneratorThread::sampleOut);
+        connect(source, &OutputDevice::sampleOut, this, &GeneratorThread::sampleOut, Qt::DirectConnection);
     }
     connect(this, SIGNAL(finished()), this, SLOT(finish()));
 }

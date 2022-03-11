@@ -21,13 +21,12 @@ InputDevice::InputDevice(QObject *parent) : QIODevice(parent)
 {
 }
 
-qint64 InputDevice::writeData(const char *data, qint64 len)
+qint64 InputDevice::writeData(const char *buffer, qint64 size)
 {
     if (m_callback) {
-        QByteArray buffer(data, len);
-        m_callback(buffer);
+        m_callback(buffer, size);
     }
-    return len;
+    return size;
 }
 
 qint64 InputDevice::readData(char *data, qint64 maxlen)
@@ -38,7 +37,7 @@ qint64 InputDevice::readData(char *data, qint64 maxlen)
     return -1;
 }
 
-void InputDevice::setCallback(const std::function<void(const QByteArray &buffer)> &callback)
+void InputDevice::setCallback(const std::function<void(const char *buffer, qint64 size)> &callback)
 {
     m_callback = callback;
 }
