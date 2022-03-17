@@ -113,6 +113,7 @@ public:
     QString yLabel() const override;
     virtual void setSettings(Settings *settings) noexcept override;
     virtual void storeSettings() noexcept override;
+    virtual void inheritSettings(const Plot *source) override;
 
 signals:
     void xminChanged(float);

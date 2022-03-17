@@ -376,7 +376,7 @@ void Axis::setMax(float v) noexcept
     auto newValue = std::min(m_highLimit,
                              std::max(v, m_min)
                             );
-    if (!qFuzzyCompare(newValue, m_min)) {
+    if (!qFuzzyCompare(newValue, m_max)) {
         m_max = newValue;
         needUpdate();
         emit maxChanged(m_max);

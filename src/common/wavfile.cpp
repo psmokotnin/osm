@@ -17,7 +17,9 @@
  */
 #include "wavfile.h"
 #include <QtEndian>
+#include <QtMath>
 #include <QDebug>
+#include <cstring>
 
 WavFile::WavFile() : m_dataPosition(0)
 {

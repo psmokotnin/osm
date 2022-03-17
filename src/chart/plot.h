@@ -68,6 +68,8 @@ public:
     virtual void setSettings(Settings *settings) noexcept;
     virtual void storeSettings() noexcept = 0;
 
+    virtual void inheritSettings(const Plot *source) = 0;
+
     const Palette &palette() const noexcept;
     bool darkMode() const noexcept;
     void setDarkMode(bool darkMode) noexcept;

@@ -21,7 +21,8 @@
 #include <QtGlobal>
 
 Meter::Meter(unsigned long size) :
-    m_size(size),
+    m_data(size),
+    m_size(0),
     m_integrator(0.f),
     m_peak(0.f)
 {
@@ -29,8 +30,11 @@ Meter::Meter(unsigned long size) :
 void Meter::add(const float &data) noexcept
 {
     float d = std::pow(data, 2);
-    auto p = m_data.pushnpop(d, m_size);
-    m_integrator -= m_data.pushnpop(d, m_size);
+    if (std::isnan(d)) {
+        d = 0;
+    }
+    auto p = m_data.replace(d);
+    m_integrator -= p;
     m_integrator += d;
 
     if (qFuzzyCompare(m_peak, p)) {
@@ -38,19 +42,19 @@ void Meter::add(const float &data) noexcept
     }
     m_peak = std::max(m_peak, d);
 
-    while ( m_data.size() > m_size) {
-        m_integrator -= m_data.front();
-        m_data.pop();
-    }
     if (m_integrator < 0.f)
         m_integrator = 0.f;
+
+    if (m_size < m_data.size()) {
+        ++m_size;
+    }
 }
 float Meter::value() const noexcept
 {
-    if (m_data.size() == 0)
+    if (m_size == 0)
         return std::numeric_limits<float>::min();
 
-    return m_integrator / m_data.size();
+    return m_integrator / m_size;
 }
 float Meter::dB() const noexcept
 {
@@ -70,9 +74,8 @@ float Meter::peakdB() const noexcept
 
 void Meter::reset() noexcept
 {
-    while (m_data.size()) {
-        m_data.pop();
-    }
+    m_size = 0;
     m_integrator = 0.f;
     m_peak = 0.f;
+    m_data.clear();
 }

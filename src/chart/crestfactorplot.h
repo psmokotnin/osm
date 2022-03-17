@@ -18,11 +18,11 @@
 #ifndef CHART_CRESTFACTORPLOT_H
 #define CHART_CRESTFACTORPLOT_H
 
-#include "xyplot.h"
+#include "frequencybasedplot.h"
 
 namespace chart {
 
-class CrestFactorPlot : public chart::XYPlot
+class CrestFactorPlot : public chart::FrequencyBasedPlot
 {
     Q_OBJECT
     Q_PROPERTY(unsigned int pointsPerOctave READ pointsPerOctave WRITE setPointsPerOctave NOTIFY

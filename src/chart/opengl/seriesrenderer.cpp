@@ -18,7 +18,6 @@
 #include "seriesrenderer.h"
 
 #include <QQuickWindow>
-
 #include "seriesfbo.h"
 #include "../plot.h"
 #include "common/profiler.h"
@@ -31,7 +30,8 @@ SeriesRenderer::SeriesRenderer() :
     m_width(0), m_height(0), m_weight(2),
     m_renderActive(false),
     m_refreshBuffers(true),
-    m_vertices()
+    m_vertices(),
+    m_active()
 {
 }
 QOpenGLFramebufferObject *SeriesRenderer::createFramebufferObject(const QSize &size)
@@ -52,19 +52,22 @@ QOpenGLFramebufferObject *SeriesRenderer::createFramebufferObject(const QSize &s
 }
 void SeriesRenderer::synchronize(QQuickFramebufferObject *item)
 {
+    std::lock_guard<std::mutex> guard(m_active);
     m_item = item;
-    auto seriesFBO = dynamic_cast<SeriesFBO *>(item);
-    if ((m_source = seriesFBO->source())) {
-        qreal retinaScale = m_item->window()->devicePixelRatio();
-        m_width  = static_cast<GLsizei>(m_item->width() * retinaScale);
-        m_height = static_cast<GLsizei>(m_item->height() * retinaScale);
-        m_retinaScale = static_cast<GLfloat>(retinaScale);
-        auto plot = static_cast<chart::Plot *>(m_item->parent());
-        if (plot) {
-            m_renderActive = plot->isSelected(m_source);
-            m_weight = plot->palette().lineWidth(seriesFBO->highlighted());
-        } else {
-            m_renderActive = false;
+    if (item) {
+        auto seriesFBO = dynamic_cast<SeriesFBO *>(item);
+        if ((m_source = seriesFBO->source())) {
+            qreal retinaScale = m_item->window()->devicePixelRatio();
+            m_width  = static_cast<GLsizei>(m_item->width() * retinaScale);
+            m_height = static_cast<GLsizei>(m_item->height() * retinaScale);
+            m_retinaScale = static_cast<GLfloat>(retinaScale);
+            auto plot = static_cast<chart::Plot *>(m_item->parent());
+            if (plot) {
+                m_renderActive = plot->isSelected(m_source);
+                m_weight = plot->palette().lineWidth(seriesFBO->highlighted());
+            } else {
+                m_renderActive = false;
+            }
         }
     }
 }
@@ -137,12 +140,12 @@ void SeriesRenderer::render()
 #ifdef QT_DEBUG
     Profiler p("SeriesRender");
 #endif
+    std::lock_guard<std::mutex> guard(m_active);
+    if (!m_item) {
+        return;
+    }
 
     auto plot = static_cast<chart::Plot *>(m_item->parent());
-//    if (!m_openGL33CoreFunctions) {//TODO: remove
-//        plot->setRendererError("OpenGL 3.3 required");
-//        return;
-//    }
     if (!m_program.isLinked()) {
         qDebug() << QString("shader not setted or linked");
         return;
@@ -172,11 +175,7 @@ void SeriesRenderer::render()
     if (m_renderActive) {
         //m_openGLFunctions->glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         m_source->lock();
-//        if (m_openGL33CoreFunctions) {
         renderSeries();
-//        } else {
-//            renderSeries2();
-//        }
         m_source->unlock();
         //m_openGLFunctions->glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     }

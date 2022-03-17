@@ -72,6 +72,9 @@ protected:
     static const unsigned int LINE_VERTEX_SIZE = 6; // x,y + r,g,b,a
     static const unsigned int VERTEX_PER_SEGMENT = 2;
     constexpr static const unsigned int PPO_BUFFER_MUL = 12 * VERTEX_PER_SEGMENT * LINE_VERTEX_SIZE * MAX_LINE_SPLITF;
+
+private:
+    std::mutex m_active;
 };
 }
 #endif // SERIESRENDERER_H

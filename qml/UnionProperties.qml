@@ -117,15 +117,21 @@ Item {
                     model: SourceModel {
                         id: sourceModel
                         addNone: (modelData > 1 ? true : false)
+                        filter: dataObject
                         noneTitle: "None"
                         list: sourceList
                     }
                     currentIndex: { model.indexOf(dataObject.getSource(index)) }
+                    property var prevIndex: currentIndex
                     textRole: "title"
                     valueRole: "source"
                     Layout.fillWidth: true
                     onCurrentIndexChanged: {
-                        dataObject.setSource(index, model.get(currentIndex));
+                        if (!dataObject.setSource(index, model.get(currentIndex))) {
+                            currentIndex = prevIndex;
+                            return;
+                        }
+                        prevIndex = currentIndex;
                     }
                 }
             }

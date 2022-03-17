@@ -138,13 +138,15 @@ Item {
             spacing: 0
 
             TitledCombo {
+                id: mode
                 tooltip: qsTr("Y axis mode")
-                model: ["dB", "Linear"]
+                model: ["dB", "Linear", "Impedance"]
 
                 currentIndex: dataObject.mode
                 onCurrentIndexChanged: {
                     dataObject.mode = currentIndex;
                 }
+                Layout.preferredWidth: 140
             }
 
             Item {
@@ -154,7 +156,7 @@ Item {
             TitledCombo {
                 title: qsTr("ppo")
                 tooltip: qsTr("points per octave")
-                Layout.fillWidth: true
+                Layout.preferredWidth: 140
                 model: [3, 6, 12, 24, 48]
                 currentIndex: {
                     var ppo = dataObject.pointsPerOctave;
@@ -169,7 +171,6 @@ Item {
             CheckBox {
                 id: coherence
                 text: qsTr("use coherence")
-                Layout.fillWidth: true
                 checked: dataObject.coherence
                 onCheckStateChanged: dataObject.coherence = checked
 
@@ -184,11 +185,23 @@ Item {
                 value: dataObject.coherenceThreshold
                 tooltiptext: qsTr("coherence threshold")
                 onValueChanged: dataObject.coherenceThreshold = value
-                Layout.fillWidth: true
+                Layout.preferredWidth: 200
                 visible: coherence.checked
             }
 
-            RowLayout {
+            FloatSpinBox {
+                min: 0.0
+                max: 1000.0
+                step: 1.0
+                value: dataObject.sensor
+                tooltiptext: qsTr("Senosr resistance")
+                onValueChanged: dataObject.sensor = value
+                Layout.preferredWidth: 200
+                visible: mode.currentText == "Impedance"
+                units: "Ohm"
+            }
+
+            Item {
                 Layout.fillWidth: true
             }
 

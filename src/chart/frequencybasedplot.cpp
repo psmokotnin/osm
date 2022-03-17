@@ -22,7 +22,7 @@ FrequencyBasedPlot::FrequencyBasedPlot(Settings *settings, QQuickItem *parent): 
                                                                                            parent),
     m_pointsPerOctave(12), m_coherenceThreshold(0.7f), m_coherence(true)
 {
-    m_x.setUnit("Hz");
+    configureXAxis();
 }
 void FrequencyBasedPlot::setCoherenceThreshold(float coherenceThreshold) noexcept
 {
@@ -31,6 +31,15 @@ void FrequencyBasedPlot::setCoherenceThreshold(float coherenceThreshold) noexcep
         emit coherenceThresholdChanged(m_coherenceThreshold);
         update();
     }
+}
+
+void FrequencyBasedPlot::configureXAxis()
+{
+    m_x.configure(AxisType::Logarithmic, 12.f, 96000.f);
+    m_x.setUnit("Hz");
+    m_x.setReset(20.f, 20'000.f);
+    m_x.setISOLabels();
+    m_x.reset();
 }
 void FrequencyBasedPlot::setPointsPerOctave(unsigned int p) noexcept
 {
@@ -41,6 +50,11 @@ void FrequencyBasedPlot::setPointsPerOctave(unsigned int p) noexcept
     emit pointsPerOctaveChanged(m_pointsPerOctave);
     update();
 }
+
+bool FrequencyBasedPlot::coherence() const noexcept
+{
+    return  m_coherence;
+}
 void FrequencyBasedPlot::setCoherence(bool coherence) noexcept
 {
     if (m_coherence == coherence)
@@ -49,6 +63,11 @@ void FrequencyBasedPlot::setCoherence(bool coherence) noexcept
     m_coherence = coherence;
     emit coherenceChanged(m_coherence);
     update();
+}
+
+float FrequencyBasedPlot::coherenceThreshold() const noexcept
+{
+    return m_coherenceThreshold;
 }
 void FrequencyBasedPlot::setSettings(Settings *settings) noexcept
 {
@@ -73,4 +92,8 @@ void FrequencyBasedPlot::storeSettings() noexcept
     m_settings->setValue("coherenceThreshold", m_coherenceThreshold);
     m_settings->setValue("ppo", m_pointsPerOctave);
 }
-//BUG: m_settings could hugs((
+
+unsigned int FrequencyBasedPlot::pointsPerOctave() const noexcept
+{
+    return m_pointsPerOctave;
+}

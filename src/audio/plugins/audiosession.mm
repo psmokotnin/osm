@@ -319,6 +319,9 @@ Stream *AudioSessionPlugin::open(const DeviceInfo::Id &, const Plugin::Direction
             break;
         }
     }
+
+    [[AVAudioSession sharedInstance] setPreferredSampleRate:format.sampleRate error:nil];
+
     auto res = AudioQueueStart(queue, NULL);
     if (!checkStatus(res, "start output")) {
         AudioQueueDispose(queue, true);

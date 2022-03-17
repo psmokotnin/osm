@@ -24,8 +24,6 @@ static unsigned int PHASE_TICKS = 9;
 PhasePlot::PhasePlot(Settings *settings, QQuickItem *parent): FrequencyBasedPlot(settings, parent),
     m_center(0), m_range(360), m_positivePeriod(false)
 {
-    m_x.configure(AxisType::Logarithmic, 20.f, 20000.f);
-    m_x.setISOLabels();
     m_y.configure(AxisType::Linear,
                   static_cast<float>(-M_PI),
                   static_cast<float>(M_PI),

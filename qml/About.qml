@@ -94,6 +94,7 @@ Popup {
                 Label {
                     text: qsTr(
                                "<a style='color:%1' href=\"https://opensoundmeter.com/about#donate\">donate</a><br/><br/>" +
+                               "<a style='color:%1' href=\"https://opensoundmeter.com/support\">user manual</a><br/>" +
                                "<a style='color:%1' href=\"https://opensoundmeter.com/consulting\">consulting</a><br/>" +
                                "<a style='color:%1' href=\"https://opensoundmeter.com/training\">trainings</a><br/>" +
                                "<a style='color:%1' href=\"https://www.facebook.com/opensoundmeter/\">community</a><br/>"
@@ -103,6 +104,10 @@ Popup {
                     Layout.fillHeight: false
                     Layout.fillWidth: true
                     onLinkActivated: Qt.openUrlExternally(link)
+                    MouseArea {
+                        anchors.fill: parent
+                        cursorShape: Qt.PointingHandCursor
+                    }
                 }
 
                 MouseArea {
@@ -174,6 +179,24 @@ Popup {
                 }
             }
             }
+        }
+    }
+
+    MouseArea {
+        anchors.right: parent.right
+        anchors.top: parent.top
+        cursorShape: Qt.PointingHandCursor
+        implicitWidth: closeLabel.implicitWidth
+        implicitHeight: closeLabel.implicitHeight
+
+        Label {
+            id: closeLabel
+            font.family: "Osm"
+            font.pixelSize: 20
+            text: "\ue803"
+        }
+        onClicked: {
+            popup.close();
         }
     }
 }

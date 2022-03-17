@@ -41,7 +41,7 @@ protected:
 
 private:
     unsigned int m_pointsPerOctave;
-    float m_coherenceThreshold;
+    float m_coherenceThreshold, m_sensor;
     bool m_coherence, m_invert;
 
     //! MTLRenderPipelineState

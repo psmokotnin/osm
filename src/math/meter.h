@@ -19,7 +19,7 @@
 #define METER_H
 
 #include <queue>
-#include "container/fifo.h"
+#include "container/circular.h"
 class Meter
 {
 public:
@@ -34,7 +34,7 @@ public:
     void  reset() noexcept;
 
 private:
-    container::fifo<float> m_data;
+    container::circular<float> m_data;
     unsigned long m_size;
     float m_integrator, m_peak;
 };

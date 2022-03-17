@@ -18,7 +18,11 @@
 #include "union.h"
 #include "stored.h"
 #include "sourcelist.h"
+#include "notifier.h"
 #include <QJsonArray>
+#include <cmath>
+
+std::mutex Union::s_calcmutex = std::mutex();
 
 Union::Union(Settings *settings, QObject *parent): chart::Source(parent),
     m_settings(settings),
@@ -54,6 +58,7 @@ chart::Source *Union::clone() const
 {
     auto cloned = new Union(nullptr, parent());
 
+    cloned->setCount(count());
     cloned->setOperation(operation());
     cloned->setType(type());
     cloned->setName(name());
@@ -91,6 +96,10 @@ void Union::setActive(bool active) noexcept
 {
     if (active == m_active)
         return;
+
+    if (active && checkLoop(this)) {
+        return;
+    }
     chart::Source::setActive(active);
     update();
 }
@@ -123,14 +132,26 @@ void Union::resize()
 chart::Source *Union::getSource(int index) const noexcept
 {
     if (index < m_sources.count()) {
-        return m_sources.at(index);
+        auto ptr = m_sources.at(index);
+        if (ptr.isNull()) {
+            return nullptr;
+        }
+        return ptr.data();
     }
     return nullptr;
 }
-void Union::setSource(int index, chart::Source *s) noexcept
+bool Union::setSource(int index, chart::Source *s) noexcept
 {
     if (s == getSource(index))
-        return;
+        return true;
+
+    auto unionSource = dynamic_cast<Union *>(s);
+    if (unionSource) {
+        if (unionSource->checkLoop(this)) {
+            setActive(false);
+            return false;
+        }
+    }
 
     if (index < m_sources.count()) {
         if (m_sources[index]) {
@@ -144,6 +165,7 @@ void Union::setSource(int index, chart::Source *s) noexcept
         update();
         emit modelChanged();
     }
+    return true;
 }
 void Union::update() noexcept
 {
@@ -158,6 +180,8 @@ void Union::calc() noexcept
     if (!active())
         return;
 
+
+    std::lock_guard<std::mutex> callGuard(s_calcmutex);
     std::lock_guard<std::mutex> guard(m_dataMutex);
     chart::Source *primary = m_sources.first();
     unsigned int count = 0;
@@ -176,6 +200,7 @@ void Union::calc() noexcept
             sources.insert(s);
             if (s->size() != primary->size()) {
                 setActive(false);
+                emit Notifier::getInstance()->newMessage(name(), " Source size is not the same: " + s->name());
                 return;
             }
             count ++;
@@ -188,7 +213,7 @@ void Union::calc() noexcept
 
     //lock each unique source, prevent deadlock
     for (auto &s : sources) {
-        if (s) s->lock();
+        if (s && s != this) s->lock();
     }
 
     switch (m_type) {
@@ -320,7 +345,7 @@ void Union::calcdB(unsigned int count, chart::Source *primary) noexcept
     for (unsigned int i = 0; i < primary->size(); i++) {
         magnitude = primary->magnitude(i);
         phase = primary->phase(i);
-        module = 20.f * std::log10f((primary)->module(i));
+        module = 20.f * std::log10((primary)->module(i));
         coherence = std::abs(primary->module(i) * primary->coherence(i));
         coherenceWeight = std::abs(primary->module(i));
 
@@ -331,7 +356,7 @@ void Union::calcdB(unsigned int count, chart::Source *primary) noexcept
                 case Avg:
                     magnitude += (*it)->magnitude(i);
                     phase += (*it)->phase(i);
-                    module += 20.f * std::log10f((*it)->module(i));
+                    module += 20.f * std::log10((*it)->module(i));
                     break;
                 case Subtract:
                     magnitude -= (*it)->magnitude(i);
@@ -339,7 +364,7 @@ void Union::calcdB(unsigned int count, chart::Source *primary) noexcept
                     auto sign = (phase.imag - (*it)->phase(i).imag > 0 ? 1 : -1);
                     phase.real = p / (phase.abs() * (*it)->phase(i).abs());
                     phase.imag = sign * std::sqrt(1 - phase.real * phase.real);
-                    module -= 20.f * std::log10f((*it)->module(i));
+                    module -= 20.f * std::log10((*it)->module(i));
                     break;
                 }
 
@@ -437,6 +462,30 @@ void Union::setAutoName(bool autoName)
 {
     m_autoName = autoName;
     emit autoNameChanged();
+}
+
+bool Union::checkLoop(Union *target) const
+{
+    for (auto &source : sources()) {
+        if (!source) {
+            continue;
+        }
+
+        auto unionSource = dynamic_cast<Union *>(source.data());
+        if (!unionSource) {
+            continue;
+        }
+        if ((source.data() == target) || unionSource->checkLoop(target)) {
+            emit Notifier::getInstance()->newMessage("Source loop detected:", target->name());
+            return true;
+        }
+    }
+    return false;
+}
+
+const Union::SourceVector &Union::sources() const
+{
+    return m_sources;
 }
 
 void Union::applyAutoName() noexcept

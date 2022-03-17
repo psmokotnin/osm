@@ -17,6 +17,7 @@
  */
 #include "crestfactorseriesrenderer.h"
 #include "common/notifier.h"
+#include <cstring>
 
 namespace chart {
 
@@ -55,7 +56,7 @@ void CrestFactorSeriesRenderer::synchronize(QQuickFramebufferObject *item)
 {
     XYSeriesRenderer::synchronize(item);
 
-    if (auto *plot = dynamic_cast<CrestFactorPlot *>(m_item->parent())) {
+    if (auto *plot = dynamic_cast<CrestFactorPlot *>(m_item ? m_item->parent() : nullptr)) {
         m_pointsPerOctave = plot->pointsPerOctave();
     }
 }

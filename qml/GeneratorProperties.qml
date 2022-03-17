@@ -69,7 +69,7 @@ Item {
                 visible: type.currentText == 'Sin';
                 value: generatorModel.frequency
                 from: 20
-                to: 20000
+                to: 192000
                 editable: true
                 onValueChanged: generatorModel.frequency = value
 

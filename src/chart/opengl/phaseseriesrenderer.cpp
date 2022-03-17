@@ -60,7 +60,7 @@ void PhaseSeriesRenderer::synchronize(QQuickFramebufferObject *item)
 {
     XYSeriesRenderer::synchronize(item);
 
-    if (auto *plot = dynamic_cast<PhasePlot *>(m_item->parent())) {
+    if (auto *plot = dynamic_cast<PhasePlot *>(m_item ? m_item->parent() : nullptr)) {
         m_pointsPerOctave = plot->pointsPerOctave();
         m_coherence = plot->coherence();
         constexpr float pk = static_cast<float>(-M_PI / 180.0);
@@ -138,8 +138,8 @@ void PhaseSeriesRenderer::renderSeries()
                 auto v2 = ac[0] + ac[1] * t + ac[2] * t * t + ac[3] * t * t * t;
                 auto c2 = coherenceSpline(m_coherence, m_coherenceThreshold, c, t);
 
-                float alpha = std::atan2f(v1.imag, v1.real);
-                float beta = std::atan2f(v2.imag, v2.real);
+                float alpha = std::atan2(v1.imag, v1.real);
+                float beta = std::atan2(v2.imag, v2.real);
                 if (std::abs(alpha - beta) > M_PI) {
                     if (alpha > 0) {
                         alpha -= 2 * M_PI;

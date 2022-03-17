@@ -26,13 +26,15 @@ class MagnitudePlot : public FrequencyBasedPlot
 public:
     enum Mode {
         dB      = 0x00,
-        Linear  = 0x01
+        Linear  = 0x01,
+        Impedance = 0x02,
     };
 
     Q_OBJECT
     Q_ENUM(Mode);
     Q_PROPERTY(Mode mode READ mode WRITE setMode NOTIFY modeChanged)
     Q_PROPERTY(bool invert READ invert WRITE setInvert NOTIFY invertChanged)
+    Q_PROPERTY(float sensor READ sensor WRITE setSensor NOTIFY sensorChanged)
 
 public:
     MagnitudePlot(Settings *settings, QQuickItem *parent = Q_NULLPTR);
@@ -47,9 +49,13 @@ public:
     void setMode(const Mode &mode);
     void setMode(const int &mode);
 
+    float sensor() const;
+    void setSensor(float sensor);
+
 signals:
     void invertChanged(bool);
     void modeChanged(Mode);
+    void sensorChanged(float);
 
 protected:
     virtual SeriesItem *createSeriesFromSource(Source *source) override;
@@ -57,6 +63,7 @@ protected:
 private:
     bool m_invert;
     Mode m_mode;
+    float m_sensor;
 
     class TargetTraceItem : public PaintedItem
     {

@@ -36,6 +36,7 @@ Plot::Plot(Settings *settings, QQuickItem *parent) :
 void Plot::clear()
 {
     for (auto &&series : m_serieses) {
+        emit series->preSourceDeleted();
         series->deleteLater();
     }
     m_serieses.clear();
@@ -115,9 +116,11 @@ void Plot::setSelected(const QList<Source *> selected)
     for (auto item : selected) {
         list.push_back(item);
     }
-    m_selected = list;
-    emit selectedChanged();
-    update();
+    if (m_selected != list) {
+        m_selected = list;
+        emit selectedChanged();
+        update();
+    }
 }
 
 bool Plot::isSelected(Source *source) const

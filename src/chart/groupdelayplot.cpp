@@ -24,8 +24,6 @@ GroupDelayPlot::GroupDelayPlot(Settings *settings, QQuickItem *parent) :
     FrequencyBasedPlot(settings, parent)
 {
     m_pointsPerOctave = 12;
-    m_x.configure(AxisType::Logarithmic, 20.f, 20000.f);
-    m_x.setISOLabels();
     m_y.configure(AxisType::Linear,
                   -50.f * static_cast<float>(M_PI) / 500,  //min
                   50.f  * static_cast<float>(M_PI) / 500,   //max

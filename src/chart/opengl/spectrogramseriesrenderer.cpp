@@ -50,7 +50,7 @@ void SpectrogramSeriesRenderer::init()
 void SpectrogramSeriesRenderer::synchronize(QQuickFramebufferObject *item)
 {
     XYSeriesRenderer::synchronize(item);
-    if (auto *plot = dynamic_cast<SpectrogramPlot *>(m_item->parent())) {
+    if (auto *plot = dynamic_cast<SpectrogramPlot *>(m_item ? m_item->parent() : nullptr)) {
         if (
             m_pointsPerOctave != plot->pointsPerOctave() ||
             m_sourceSize != m_source->size()

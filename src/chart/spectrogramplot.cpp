@@ -22,13 +22,10 @@ using namespace chart;
 SpectrogramPlot::SpectrogramPlot(Settings *settings,
                                  QQuickItem *parent): FrequencyBasedPlot(settings, parent), m_min(-90), m_mid(-50), m_max(10)
 {
-    m_x.configure(AxisType::Logarithmic, 20.f, 20000.f);
-    m_x.setISOLabels();
     m_y.configure(AxisType::Linear, 0.f,    4.f,  4);
     setPointsPerOctave(48);
     setFlag(QQuickItem::ItemHasContents);
     m_y.setCentralLabel(m_y.min() - 1.f);
-    m_x.setUnit("Hz");
     m_y.setUnit("s");
     connect(this, SIGNAL(pointsPerOctaveChanged(unsigned int)), this, SLOT(update()));
 }

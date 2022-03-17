@@ -18,6 +18,7 @@
 #include "nyquistseriesrenderer.h"
 #include "common/notifier.h"
 #include "../nyquistplot.h"
+#include <cstring>
 
 namespace chart {
 
@@ -177,7 +178,7 @@ void NyquistSeriesRenderer::synchronize(QQuickFramebufferObject *item)
 {
     XYSeriesRenderer::synchronize(item);
 
-    if (auto *plot = dynamic_cast<NyquistPlot *>(m_item->parent())) {
+    if (auto *plot = dynamic_cast<NyquistPlot *>(m_item ? m_item->parent() : nullptr)) {
         m_pointsPerOctave = plot->pointsPerOctave();
         m_coherence = plot->coherence();
         m_coherenceThreshold = plot->coherenceThreshold();

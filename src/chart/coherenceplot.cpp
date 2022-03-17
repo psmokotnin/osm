@@ -21,14 +21,11 @@
 
 using namespace chart;
 
-CoherencePlot::CoherencePlot(Settings *settings, QQuickItem *parent): XYPlot(settings, parent),
+CoherencePlot::CoherencePlot(Settings *settings, QQuickItem *parent): FrequencyBasedPlot(settings, parent),
     m_pointsPerOctave(12),
     m_threshold(0.91f), m_showThreshold(true), m_thresholdColor("#FF5722"), m_thresholdLine(this),
     m_type(Type::SNR)
 {
-    m_x.configure(AxisType::Logarithmic, 20.f, 20000.f);
-    m_x.setISOLabels();
-    m_x.setUnit("Hz");
     setType(Type::Normal);
     setFlag(QQuickItem::ItemHasContents);
 }
