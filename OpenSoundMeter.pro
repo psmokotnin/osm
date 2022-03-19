@@ -32,6 +32,7 @@ SOURCES += src/main.cpp \
     src/filesystem/dialog.cpp \
     src/filesystem/dialogPlugin.cpp \
     src/filesystem/plugins/widgetdialogplugin.cpp \
+    src/generator/burstnoise.cpp \
     src/generator/wav.cpp \
     src/inputdevice.cpp \
     src/common/appearance.cpp \
@@ -129,6 +130,7 @@ HEADERS += \
     src/filesystem/dialog.h \
     src/filesystem/dialogPlugin.h \
     src/filesystem/plugins/widgetdialogplugin.h \
+    src/generator/burstnoise.h \
     src/generator/wav.h \
     src/inputdevice.h \
     src/common/appearance.h \
