@@ -38,6 +38,9 @@
 #include "common/appearance.h"
 #include "common/autosaver.h"
 #include "filesystem/dialog.h"
+#include "remote/server.h"
+#include "remote/remoteclient.h"
+
 #ifdef GRAPH_METAL
 #include "src/chart/metal/seriesnode.h"
 #endif
@@ -85,6 +88,10 @@ int main(int argc, char *argv[])
     AutoSaver autoSaver(settings.getGroup("autosaver"), &sourceList);
     auto t = new TargetTrace(settings.getGroup("targettrace"));
     auto notifier = Notifier::getInstance();
+
+    auto server = remote::Server();
+    server.start();
+    auto client = remote::Client();
 
     qmlRegisterType<audio::DeviceModel>("Audio", 1, 0, "DeviceModel");
     qmlRegisterType<chart::VariableChart>("OpenSoundMeter", 1, 0, "VariableChart");
