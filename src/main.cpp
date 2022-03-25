@@ -89,8 +89,9 @@ int main(int argc, char *argv[])
     auto t = new TargetTrace(settings.getGroup("targettrace"));
     auto notifier = Notifier::getInstance();
 
-    auto server = remote::Server();
+    auto server = remote::Server(&sourceList);
     server.start();
+    server.setSourceList(&sourceList);
     auto client = remote::Client();
 
     qmlRegisterType<audio::DeviceModel>("Audio", 1, 0, "DeviceModel");

@@ -25,7 +25,8 @@ Source::Source(QObject *parent) : QObject(parent),
     m_impulseData(nullptr),
     m_dataLength(0),
     m_deconvolutionSize(0),
-    m_active(false)
+    m_active(false),
+    m_uuid(QUuid::createUuid())
 {
 }
 void Source::setActive(bool active)
@@ -60,6 +61,11 @@ void Source::setGlobalColor(int globalValue)
         m_color = Qt::GlobalColor(globalValue);
         emit colorChanged(m_color);
     }
+}
+
+QUuid Source::uuid() const
+{
+    return m_uuid;
 }
 const float &Source::frequency(const unsigned int &i) const noexcept
 {

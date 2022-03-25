@@ -41,7 +41,10 @@ public:
     typedef std::function<TCPReciever*(void)> createTCPReciver;
     typedef std::function<QByteArray (QHostAddress, const QByteArray &)> tcpCallback;
 
-    constexpr quint16 port() const noexcept;
+    constexpr quint16 port() const noexcept
+    {
+        return DEFAULT_PORT;
+    };
     void setTcpCallback(tcpCallback callback) noexcept;
     void setTcpReciever(createTCPReciver reciverCreator) noexcept;
 

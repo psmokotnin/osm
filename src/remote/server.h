@@ -21,6 +21,7 @@
 #include <QObject>
 #include "network.h"
 
+class SourceList;
 namespace remote {
 
 class Server : public QObject
@@ -32,6 +33,8 @@ public:
     explicit Server(QObject *parent = nullptr);
     ~Server();
 
+    void setSourceList(SourceList *list);
+
     bool start();
     void stop();
 
@@ -41,11 +44,14 @@ private slots:
     void sendHello();
 
 private:
+    QJsonObject prepareMessage(const QString &message) const;
+    void sourceNotify(const QUuid &id, const QString &message);
     void sendMulticast(const QByteArray &data);
 
     QTimer m_timer;
     QThread m_networkThread;
     Network m_network;
+    SourceList *m_sourceList;
 
 };
 

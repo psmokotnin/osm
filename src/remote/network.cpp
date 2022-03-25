@@ -30,11 +30,6 @@ Network::Network(QObject *parent) : QObject(parent), tcpServer(this), m_tcpCallb
     qRegisterMetaType<QHostAddress>("QHostAddress");
 }
 
-constexpr quint16 Network::port() const noexcept
-{
-    return DEFAULT_PORT;
-}
-
 void Network::setTcpCallback(Network::tcpCallback callback) noexcept
 {
     m_tcpCallback = callback;

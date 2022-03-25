@@ -16,10 +16,11 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "server.h"
+#include "../sourcelist.h"
 
 namespace remote {
 
-Server::Server(QObject *parent) : QObject(parent), m_networkThread(), m_network()
+Server::Server(QObject *parent) : QObject(parent), m_networkThread(), m_network(), m_sourceList(nullptr)
 {
     m_network.moveToThread(&m_networkThread);
     m_networkThread.setObjectName("Network");
@@ -29,7 +30,7 @@ Server::Server(QObject *parent) : QObject(parent), m_networkThread(), m_network(
 
     m_timer.setInterval(TIMER_INTERVAL);
     connect(&m_timer, &QTimer::timeout, this, &Server::sendHello);
-    m_timer.start();
+    connect(&m_networkThread, &QThread::started,  this, &Server::sendHello);
 }
 
 Server::~Server()
@@ -37,9 +38,45 @@ Server::~Server()
     stop();
 }
 
+void Server::setSourceList(SourceList *list)
+{
+    auto onAdded = [this](auto * source) {
+        sourceNotify(source->uuid(), "added");
+
+        connect(source, &chart::Source::readyRead, [this, source]() {
+            sourceNotify(source->uuid(), "readyRead");
+        });
+
+        connect(source, &chart::Source::activeChanged, [this, source]() {
+            sourceNotify(source->uuid(), "changed");
+        });
+
+        connect(source, &chart::Source::colorChanged, [this, source]() {
+            sourceNotify(source->uuid(), "changed");
+        });
+
+        connect(source, &chart::Source::nameChanged, [this, source]() {
+            sourceNotify(source->uuid(), "changed");
+        });
+    };
+
+    for (auto *source : *list) {
+        onAdded(source);
+    }
+
+    connect(list, &SourceList::postItemAppended, onAdded);
+    connect(list, &SourceList::preItemRemoved, [this, list](auto index) {
+        auto *source = list->get(index);
+        if (source) {
+            sourceNotify(source->uuid(), "removed");
+        }
+    });
+}
+
 bool Server::start()
 {
     m_networkThread.start();
+    m_timer.start();
     return m_networkThread.isRunning();
 }
 
@@ -50,20 +87,21 @@ void Server::stop()
     m_networkThread.wait();
 }
 
-void Server::sendHello()
+QJsonObject Server::prepareMessage(const QString &message) const
 {
     QJsonObject object;
     object["api"] = "Open Sound Meter";
     object["version"] = APP_GIT_VERSION;
-    object["message"] = "hello";
-    QJsonDocument document(object);
+    object["message"] = message;
+    return object;
+}
 
-    QByteArray data = document.toJson(QJsonDocument::JsonFormat::Compact);
-    QMetaObject::invokeMethod(
-        &m_network,
-        "sendUDP",
-        Qt::QueuedConnection,
-        Q_ARG(QByteArray, std::move(data)));
+void Server::sourceNotify(const QUuid &id, const QString &message)
+{
+    auto object = prepareMessage(message);
+    object["source"] = id.toString();
+    QJsonDocument document(object);
+    sendMulticast(document.toJson(QJsonDocument::JsonFormat::Compact));
 }
 
 void Server::sendMulticast(const QByteArray &data)
@@ -74,6 +112,22 @@ void Server::sendMulticast(const QByteArray &data)
         Qt::QueuedConnection,
         Q_ARG(QByteArray, std::move(data)),
         Q_ARG(QString, m_network.MULTICAST_IP));
+}
+
+void Server::sendHello()
+{
+    auto object = prepareMessage("hello");
+    object["port"] = m_network.port();
+    object["multicast"] = m_network.MULTICAST_IP;
+    QJsonDocument document(object);
+
+    QByteArray data = document.toJson(QJsonDocument::JsonFormat::Compact);
+    QMetaObject::invokeMethod(
+        &m_network,
+        "sendUDP",
+        Qt::QueuedConnection,
+        Q_ARG(QByteArray, std::move(data))
+    );
 }
 
 } // namespace remote
