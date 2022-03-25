@@ -22,12 +22,21 @@
 
 namespace remote {
 
+const QString Network::MULTICAST_IP = "239.255.42.42";
+const QHostAddress Network::MULTICAST_ADDRESS = QHostAddress{Network::MULTICAST_IP};
+
 Network::Network(QObject *parent) : QObject(parent), tcpServer(this), m_tcpCallback(nullptr), m_reciverCreator(nullptr)
 {
     udpSocket = new QUdpSocket(this);
     udpSocket->setSocketOption(QAbstractSocket::MulticastTtlOption, 1);
     connect(&tcpServer, &QTcpServer::newConnection, this, &Network::newTCPConnection);
     qRegisterMetaType<QHostAddress>("QHostAddress");
+}
+
+Network::~Network()
+{
+    unbindUDP();
+    stopTCPServer();
 }
 
 void Network::setTcpCallback(Network::tcpCallback callback) noexcept
@@ -53,13 +62,19 @@ void Network::stopTCPServer()
 
 bool Network::bindUDP()
 {
-    QHostAddress address(QHostAddress::AnyIPv4);
+    const QHostAddress &address = QHostAddress::AnyIPv4;
     auto connected = udpSocket->bind(address, DEFAULT_PORT);
     if (!connected) {
         qWarning() << "couldn't bind IPv4:" << address.toIPv4Address()  << " port" << DEFAULT_PORT;
         return false;
     }
+    connect(udpSocket, &QUdpSocket::readyRead, this, &Network::readUDP);
     return true;
+}
+
+void Network::joinMulticast()
+{
+    udpSocket->joinMulticastGroup(Network::MULTICAST_ADDRESS);
 }
 
 void Network::unbindUDP()

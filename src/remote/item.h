@@ -15,47 +15,35 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef REMOTE_SERVER_H
-#define REMOTE_SERVER_H
+#ifndef REMOTE_ITEM_H
+#define REMOTE_ITEM_H
 
-#include <QObject>
-#include "network.h"
+#include "chart/source.h"
 
-class SourceList;
 namespace remote {
 
-class Server : public QObject
+class Item : public chart::Source
 {
     Q_OBJECT
-    const static int TIMER_INTERVAL = 1000;
 
 public:
-    explicit Server(QObject *parent = nullptr);
-    ~Server();
+    Item(QObject *parent = nullptr);
 
-    void setSourceList(SourceList *list);
+    Source *clone() const override;
 
-    bool start();
-    void stop();
+    Q_INVOKABLE QJsonObject toJSON(const SourceList * = nullptr) const noexcept override;
+    void fromJSON(QJsonObject data, const SourceList * = nullptr) noexcept override;
 
-signals:
+    QUuid serverId() const;
+    void setServerId(const QUuid &serverId);
 
-private slots:
-    void sendHello();
+    QUuid sourceId() const;
+    void setSourceId(const QUuid &dataId);
 
 private:
-    QJsonObject prepareMessage(const QString &message) const;
-    void sourceNotify(const QUuid &id, const QString &message);
-    void sendMulticast(const QByteArray &data);
-
-    QUuid m_uuid;
-    QTimer m_timer;
-    QThread m_networkThread;
-    Network m_network;
-    SourceList *m_sourceList;
-
+    QUuid m_serverId, m_sourceId;
 };
 
 } // namespace remote
 
-#endif // REMOTE_SERVER_H
+#endif // REMOTE_ITEM_H

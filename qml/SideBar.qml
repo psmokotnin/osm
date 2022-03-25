@@ -115,6 +115,15 @@ Item {
             }
         }
 
+        Component {
+            id: remoteItemDelegate
+            RemoteItem {
+                width: sideList.width
+                dataModel: modelData
+                highlight: modelHighlight
+            }
+        }
+
         ListView {
             id: sideList
             Layout.fillHeight: true
@@ -212,6 +221,7 @@ Item {
                                         case "Stored": return storedDelegate;
                                         case "Union": return unionDelegate;
                                         case "ELC": return elcDelegate;
+                                        case "remoteItem": return remoteItemDelegate;
                                         default: console.log("unknow model " + model.name);return ;
                                     }
                                 }

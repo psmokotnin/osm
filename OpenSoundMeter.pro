@@ -40,6 +40,7 @@ SOURCES += src/main.cpp \
     src/generator/mnoise.cpp \
     src/common/notifier.cpp \
     src/common/profiler.cpp \
+    src/remote/item.cpp \
     src/remote/network.cpp \
     src/remote/remoteclient.cpp \
     src/remote/server.cpp \
@@ -142,6 +143,7 @@ HEADERS += \
     src/generator/mnoise.h \
     src/common/notifier.h \
     src/common/profiler.h \
+    src/remote/item.h \
     src/remote/network.h \
     src/remote/remoteclient.h \
     src/remote/server.h \

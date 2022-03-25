@@ -15,38 +15,8 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef REMOTE_CLIENT_H
-#define REMOTE_CLIENT_H
+import QtQuick 2.0
 
-#include <QObject>
-#include <QList>
-#include "network.h"
+Item {
 
-class SourceList;
-namespace remote {
-
-class Item;
-class Client : public QObject
-{
-    Q_OBJECT
-
-public:
-    explicit Client(QObject *parent = nullptr);
-    void setSourceList(SourceList *list);
-
-public slots:
-    void dataRecieved(QHostAddress senderAddress, int senderPort, const QByteArray &data);
-
-signals:
-
-private:
-    Network m_network;
-    SourceList *m_sourceList;
-    std::map<unsigned int, std::pair<QHostAddress, int>> m_servers;
-    QMap<unsigned int, Item *> m_items;
-
-};
-
-} // namespace remote
-
-#endif // REMOTE_CLIENT_H
+}

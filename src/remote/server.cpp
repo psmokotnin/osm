@@ -17,10 +17,12 @@
  */
 #include "server.h"
 #include "../sourcelist.h"
+#include "item.h"
 
 namespace remote {
 
-Server::Server(QObject *parent) : QObject(parent), m_networkThread(), m_network(), m_sourceList(nullptr)
+Server::Server(QObject *parent) : QObject(parent),
+    m_uuid(QUuid::createUuid()), m_networkThread(), m_network(), m_sourceList(nullptr)
 {
     m_network.moveToThread(&m_networkThread);
     m_networkThread.setObjectName("Network");
@@ -40,7 +42,13 @@ Server::~Server()
 
 void Server::setSourceList(SourceList *list)
 {
+    m_sourceList = list;
     auto onAdded = [this](auto * source) {
+
+        if (!source || dynamic_cast<remote::Item *>(source)) {
+            return ;
+        }
+
         sourceNotify(source->uuid(), "added");
 
         connect(source, &chart::Source::readyRead, [this, source]() {
@@ -93,6 +101,7 @@ QJsonObject Server::prepareMessage(const QString &message) const
     object["api"] = "Open Sound Meter";
     object["version"] = APP_GIT_VERSION;
     object["message"] = message;
+    object["uuid"] = m_uuid.toString();
     return object;
 }
 

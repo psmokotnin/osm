@@ -33,8 +33,10 @@ class Network : public QObject
 
 public:
     explicit Network(QObject *parent = nullptr);
+    ~Network();
     static const int DEFAULT_PORT = 49007;
-    const QString MULTICAST_IP{"239.255.42.42"};
+    static const QString MULTICAST_IP;
+    static const QHostAddress MULTICAST_ADDRESS;
 
     typedef const std::function<void(QByteArray)> responseCallback;
     typedef const std::function<void()> errorCallback;
@@ -53,6 +55,7 @@ public slots:
     void stopTCPServer();
 
     bool bindUDP();
+    void joinMulticast();
     void unbindUDP();
 
     bool sendUDP(const QByteArray &data, const QString &host = QString(), quint16 port = DEFAULT_PORT) const noexcept;

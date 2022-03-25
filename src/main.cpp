@@ -93,6 +93,7 @@ int main(int argc, char *argv[])
     server.start();
     server.setSourceList(&sourceList);
     auto client = remote::Client();
+    client.setSourceList(&sourceList);
 
     qmlRegisterType<audio::DeviceModel>("Audio", 1, 0, "DeviceModel");
     qmlRegisterType<chart::VariableChart>("OpenSoundMeter", 1, 0, "VariableChart");
