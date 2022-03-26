@@ -98,6 +98,18 @@ chart::Source *SourceList::get(int i) const noexcept
 
     return m_items.at(i);
 }
+
+chart::Source *SourceList::getByUUid(QUuid id) const noexcept
+{
+    auto result = std::find_if(m_items.cbegin(), m_items.cend(), [&id](chart::Source * source) {
+        return source->uuid() == id;
+    });
+    if (result != m_items.end()) {
+        return *result;
+    }
+    return nullptr;
+}
+
 void SourceList::clean() noexcept
 {
     m_selected = -1;

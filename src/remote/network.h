@@ -38,10 +38,10 @@ public:
     static const QString MULTICAST_IP;
     static const QHostAddress MULTICAST_ADDRESS;
 
-    typedef const std::function<void(QByteArray)> responseCallback;
+    typedef const std::function<void(const QByteArray &)> responseCallback;
     typedef const std::function<void()> errorCallback;
     typedef std::function<TCPReciever*(void)> createTCPReciver;
-    typedef std::function<QByteArray (QHostAddress, const QByteArray &)> tcpCallback;
+    typedef std::function<QByteArray (const QHostAddress &, const QByteArray &)> tcpCallback;
 
     constexpr quint16 port() const noexcept
     {
@@ -75,7 +75,6 @@ private:
     QUdpSocket *udpSocket;
     QTcpServer tcpServer;
     tcpCallback m_tcpCallback;
-    createTCPReciver m_reciverCreator;
 };
 
 } // namespace remote

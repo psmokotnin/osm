@@ -38,6 +38,8 @@ public:
     bool start();
     void stop();
 
+    QByteArray tcpCallback(const QHostAddress &address, const QByteArray &data) const;
+
 signals:
 
 private slots:

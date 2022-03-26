@@ -16,6 +16,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "item.h"
+#include <QJsonArray>
 
 namespace remote {
 
@@ -83,6 +84,39 @@ QUuid Item::sourceId() const
 void Item::setSourceId(const QUuid &dataId)
 {
     m_sourceId = dataId;
+}
+
+bool Item::originalActive() const
+{
+    return m_originalActive;
+}
+
+void Item::setOriginalActive(bool originalActive)
+{
+    m_originalActive = originalActive;
+}
+
+void Item::applyData(const QJsonArray &data)
+{
+    std::lock_guard guard(m_dataMutex);
+    //m_deconvolutionSize = static_cast<unsigned int>(impulse.count());
+    //m_impulseData        = new TimeData[m_deconvolutionSize];
+    if (m_dataLength != static_cast<unsigned int>(data.count())) {
+        m_dataLength         = static_cast<unsigned int>(data.count());
+        m_ftdata             = new FTData[m_dataLength];
+    }
+
+    for (int i = 0; i < data.count(); i++) {
+        auto row = data[i].toArray();
+        if (row.count() > 0) m_ftdata[i].frequency    = static_cast<float>(row[0].toDouble());
+        if (row.count() > 1) m_ftdata[i].module       = static_cast<float>(row[1].toDouble());
+        if (row.count() > 2) m_ftdata[i].magnitude    = static_cast<float>(row[2].toDouble());
+        if (row.count() > 3) m_ftdata[i].phase.polar(   static_cast<float>(row[3].toDouble()));
+        if (row.count() > 4) m_ftdata[i].coherence    = static_cast<float>(row[4].toDouble());
+        if (row.count() > 5) m_ftdata[i].peakSquared  = static_cast<float>(row[5].toDouble());
+        if (row.count() > 6) m_ftdata[i].meanSquared  = static_cast<float>(row[6].toDouble());
+    }
+    emit readyRead();
 }
 
 } // namespace remote

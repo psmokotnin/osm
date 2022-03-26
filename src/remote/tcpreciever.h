@@ -33,15 +33,21 @@ public:
     void setSocket(QTcpSocket *socket = nullptr);
     const QByteArray &data() const noexcept;
 
+    static QByteArray prepareForSend(const QByteArray &data);
+
 public slots:
-    virtual void socketReadyRead() = 0;
+    virtual void socketReadyRead();
 
 signals:
     void readyRead();
     void timeOut();
 
-protected:
-    QByteArray m_packet;
+private:
+    union {
+        qint32 value;
+        char byte[4];
+    } p_size;
+    QByteArray m_data;
     QTcpSocket *socket() const noexcept;
 };
 

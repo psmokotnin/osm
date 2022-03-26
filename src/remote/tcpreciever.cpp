@@ -20,7 +20,7 @@
 
 namespace remote {
 
-TCPReciever::TCPReciever(QTcpSocket *socket) : QObject(socket), m_packet()
+TCPReciever::TCPReciever(QTcpSocket *socket) : QObject(socket), p_size{0}, m_data()
 {
     if (socket)
         setSocket(socket);
@@ -30,6 +30,7 @@ void TCPReciever::setSocket(QTcpSocket *socket)
 {
     setParent(socket);
     connect(socket, &QTcpSocket::readyRead, this, &TCPReciever::socketReadyRead);
+
     //run timeout timer
     QTimer::singleShot(10000, this, [ = ]() {
         emit timeOut();
@@ -38,7 +39,32 @@ void TCPReciever::setSocket(QTcpSocket *socket)
 
 const QByteArray &TCPReciever::data() const noexcept
 {
-    return m_packet;
+    return m_data;
+}
+
+QByteArray TCPReciever::prepareForSend(const QByteArray &data)
+{
+    //TODO: ENDIAN!
+    qint32 size = static_cast<qint32>(data.size());
+    return QByteArray::fromRawData(reinterpret_cast<const char *>(&size), 4) + data;
+}
+
+void TCPReciever::socketReadyRead()
+{
+    const auto data = socket()->readAll();
+    m_data.push_back(data);
+
+    if (!p_size.value) {
+        auto packetSizeQBA = m_data.left(4);
+        p_size.byte[0] = packetSizeQBA[0];
+        p_size.byte[1] = packetSizeQBA[1];
+        p_size.byte[2] = packetSizeQBA[2];
+        p_size.byte[3] = packetSizeQBA[3];
+        m_data.remove(0, 4);
+    }
+    if (p_size.value <= m_data.size()) {
+        emit readyRead();
+    }
 }
 
 QTcpSocket *TCPReciever::socket() const noexcept

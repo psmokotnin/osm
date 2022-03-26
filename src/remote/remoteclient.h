@@ -40,11 +40,14 @@ public slots:
 signals:
 
 private:
+    void requestChanged(Item *item);
+    void requestData(Item *item);
+    void requestSource(Item *item, const QString &message, Network::responseCallback callback);
+
     Network m_network;
     SourceList *m_sourceList;
-    std::map<unsigned int, std::pair<QHostAddress, int>> m_servers;
+    QMap<unsigned int, std::pair<QHostAddress, int>> m_servers;
     QMap<unsigned int, Item *> m_items;
-
 };
 
 } // namespace remote

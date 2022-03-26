@@ -33,7 +33,7 @@ void Client::setSourceList(SourceList *list)
     m_sourceList = list;
 }
 
-void Client::dataRecieved(QHostAddress senderAddress, int senderPort, const QByteArray &data)
+void Client::dataRecieved(QHostAddress senderAddress, [[maybe_unused]] int senderPort, const QByteArray &data)
 {
     auto document = QJsonDocument::fromJson(data);
     if (document.isNull()) {
@@ -42,7 +42,9 @@ void Client::dataRecieved(QHostAddress senderAddress, int senderPort, const QByt
 
     if (document["message"].toString() == "hello") {
         auto uuid = QUuid::fromString(document["uuid"].toString());
-        m_servers[qHash(uuid)] = {senderAddress, senderPort};
+        auto port = document["port"].toInt();
+
+        m_servers[qHash(uuid)] = {senderAddress, port};
         return;
     }
 
@@ -70,16 +72,65 @@ void Client::dataRecieved(QHostAddress senderAddress, int senderPort, const QByt
             m_sourceList->removeItem(item);
         }
 
-        if (message == "changed") {
-            //update source by TCP
+        if (item && message == "changed") {
+            requestChanged(item);
         }
 
-        if (message == "readyRead") {
-            //schedulre TCP data request
+        if (item && message == "readyRead") {
+            requestData(item);
         }
 
         return;
     }
+}
+
+void Client::requestChanged(Item *item)
+{
+    Network::responseCallback onAnswer = [item](const QByteArray & data) {
+        auto document = QJsonDocument::fromJson(data);
+        auto jsonColor = document["color"].toObject();
+        QColor c(
+            jsonColor["red"  ].toInt(0),
+            jsonColor["green"].toInt(0),
+            jsonColor["blue" ].toInt(0),
+            jsonColor["alpha"].toInt(1));
+        item->setColor(c);
+        item->setName(document["name"].toString());
+        item->setOriginalActive(document["active"].toBool());
+    };
+    requestSource(item, "requestChanged", onAnswer);
+}
+
+void Client::requestData(Item *item)
+{
+    Network::responseCallback onAnswer = [item](const QByteArray & data) {
+        auto document = QJsonDocument::fromJson(data);
+        auto ftData = document["ftdata"].toArray();
+        item->applyData(ftData);
+    };
+    requestSource(item, "requestData", onAnswer);
+}
+
+void Client::requestSource(Item *item, const QString &message, Network::responseCallback callback)
+{
+    auto server = m_servers.value(qHash(item->serverId()), {{}, 0});
+    if (server.first.isNull()) {
+        return;
+    }
+
+    QJsonObject object;
+    object["api"] = "Open Sound Meter";
+    object["version"] = APP_GIT_VERSION;
+    object["message"] = message;
+    object["uuid"] = item->sourceId().toString();
+    QJsonDocument document(object);
+    auto data = document.toJson(QJsonDocument::JsonFormat::Compact);
+
+    Network::errorCallback onError = [item]() {
+        qDebug() << "onError";
+        item->setActive(false);
+    };
+    m_network.sendTCP(data, server.first.toString(), server.second, callback, onError);
 }
 
 } // namespace remote

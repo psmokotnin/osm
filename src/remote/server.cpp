@@ -32,7 +32,10 @@ Server::Server(QObject *parent) : QObject(parent),
 
     m_timer.setInterval(TIMER_INTERVAL);
     connect(&m_timer, &QTimer::timeout, this, &Server::sendHello);
-    connect(&m_networkThread, &QThread::started,  this, &Server::sendHello);
+
+    m_network.setTcpCallback([this] (const QHostAddress & address, const QByteArray & data) -> QByteArray {
+        return tcpCallback(address, data);
+    });
 }
 
 Server::~Server()
@@ -84,6 +87,7 @@ void Server::setSourceList(SourceList *list)
 bool Server::start()
 {
     m_networkThread.start();
+    sendHello();
     m_timer.start();
     return m_networkThread.isRunning();
 }
@@ -93,6 +97,72 @@ void Server::stop()
     m_network.disconnect();
     m_networkThread.quit();
     m_networkThread.wait();
+}
+
+QByteArray Server::tcpCallback(const QHostAddress &address, const QByteArray &data) const
+{
+    auto document = QJsonDocument::fromJson(data);
+    if (document.isNull()) {
+        return {};
+    }
+
+    if (!m_sourceList) {
+        return {};
+    }
+    auto message = document["message"].toString();
+    auto sourceId = QUuid::fromString(document["uuid"].toString());
+    auto source = m_sourceList->getByUUid(sourceId);
+    //BUG: what if source will be deleted here in another thread?
+    //mb m_sourceList->lock();
+
+    if (message == "requestChanged") {
+        QJsonObject object;
+        object["api"]     = "Open Sound Meter";
+        object["version"] = APP_GIT_VERSION;
+        object["message"] = "sourceSettings";
+        object["uuid"]    = source->uuid().toString();
+
+        QJsonObject color;
+        color["red"]     = source->color().red();
+        color["green"]   = source->color().green();
+        color["blue"]    = source->color().blue();
+        color["alpha"]   = source->color().alpha();
+        object["color"]  = color;
+        object["active"] = source->active();
+        object["name"]   = source->name();
+
+
+        QJsonDocument document(object);
+        return document.toJson(QJsonDocument::JsonFormat::Compact);
+    }
+
+    if (message == "requestData") {
+        QJsonObject object;
+        object["api"]     = "Open Sound Meter";
+        object["version"] = APP_GIT_VERSION;
+        object["message"] = "sourceData";
+        object["uuid"]    = source->uuid().toString();
+
+        QJsonArray ftdata;
+        for (unsigned int i = 0; i < source->size(); ++i) {
+            QJsonArray ftcell;
+            ftcell.append(static_cast<double>(source->frequency(i)  ));
+            ftcell.append(static_cast<double>(source->module(i)     ));
+            ftcell.append(static_cast<double>(source->magnitudeRaw(i)  ));
+            ftcell.append(static_cast<double>(source->phase(i).arg()));
+            ftcell.append(static_cast<double>(source->coherence(i)  ));
+            ftcell.append(static_cast<double>(source->peakSquared(i)));
+            //ftcell.append(static_cast<double>(source->meanSquared(i)));
+
+            ftdata.append(ftcell);
+        }
+        object["ftdata"] = ftdata;
+
+        QJsonDocument document(object);
+        return document.toJson(QJsonDocument::JsonFormat::Compact);
+    }
+
+    return {};
 }
 
 QJsonObject Server::prepareMessage(const QString &message) const

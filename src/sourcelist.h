@@ -53,6 +53,7 @@ public:
     QUrl currentFile() const noexcept;
 
     Q_INVOKABLE chart::Source *get(int i) const noexcept;
+    Q_INVOKABLE chart::Source *getByUUid(QUuid id) const noexcept;
     Q_INVOKABLE void clean() noexcept;
     Q_INVOKABLE void reset() noexcept;
     Q_INVOKABLE bool save(const QUrl &fileName) const noexcept;

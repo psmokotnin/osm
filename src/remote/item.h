@@ -40,8 +40,14 @@ public:
     QUuid sourceId() const;
     void setSourceId(const QUuid &dataId);
 
+    bool originalActive() const;
+    void setOriginalActive(bool originalActive);
+
+    void applyData(const QJsonArray &data);
+
 private:
     QUuid m_serverId, m_sourceId;
+    bool m_originalActive;
 };
 
 } // namespace remote

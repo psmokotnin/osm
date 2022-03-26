@@ -25,7 +25,7 @@ namespace remote {
 const QString Network::MULTICAST_IP = "239.255.42.42";
 const QHostAddress Network::MULTICAST_ADDRESS = QHostAddress{Network::MULTICAST_IP};
 
-Network::Network(QObject *parent) : QObject(parent), tcpServer(this), m_tcpCallback(nullptr), m_reciverCreator(nullptr)
+Network::Network(QObject *parent) : QObject(parent), tcpServer(this), m_tcpCallback(nullptr)
 {
     udpSocket = new QUdpSocket(this);
     udpSocket->setSocketOption(QAbstractSocket::MulticastTtlOption, 1);
@@ -42,11 +42,6 @@ Network::~Network()
 void Network::setTcpCallback(Network::tcpCallback callback) noexcept
 {
     m_tcpCallback = callback;
-}
-
-void Network::setTcpReciever(Network::createTCPReciver reciverCreator) noexcept
-{
-    m_reciverCreator = reciverCreator;
 }
 
 bool Network::startTCPServer()
@@ -105,14 +100,22 @@ void Network::newTCPConnection()
     connect(clientConnection, &QAbstractSocket::disconnected,
             clientConnection, &QObject::deleteLater);
 
-    auto reciever = m_reciverCreator();
-    reciever->setSocket(clientConnection);
+    auto reciever = new TCPReciever();
 
     connect(reciever, &TCPReciever::readyRead, [ = ]() {
         if (m_tcpCallback) {
             auto answer = m_tcpCallback(clientConnection->peerAddress(), reciever->data());
-            clientConnection->write(answer);
-            clientConnection->waitForBytesWritten();
+            answer = TCPReciever::prepareForSend(answer);
+
+            auto data_ptr = answer.data_ptr()->data();
+
+            int sent = 0, len;
+            while (sent < answer.size() && clientConnection->isWritable()) {
+                len = std::min(answer.size() - sent, 32767);
+                clientConnection->write(data_ptr + sent, len);
+                sent += len;
+                clientConnection->waitForBytesWritten();
+            }
         }
         clientConnection->close();
         clientConnection->deleteLater();
@@ -124,31 +127,30 @@ void Network::newTCPConnection()
             clientConnection->deleteLater();
         }
     });
+    reciever->setSocket(clientConnection);
 }
 
 void Network::sendTCP(const QByteArray &data, const QString &host, quint16 port, Network::responseCallback callback,
                       Network::errorCallback onError) noexcept
 {
     QHostAddress destination = (host.isNull() ? QHostAddress(host) : QHostAddress(QHostAddress::Broadcast));
-
     auto *socketThread = new QThread();
     TCPReciever *reciever = nullptr;
     QTcpSocket *socket = new QTcpSocket();
     socket->moveToThread(socketThread);
-    if (m_reciverCreator && callback) {
-        reciever = m_reciverCreator();
+    if (callback) {
+        reciever =  new TCPReciever();
         reciever->moveToThread(socketThread);
         reciever->setSocket(socket);
     }
-#ifdef QT_DEBUG
-    socket->setReadBufferSize(100); //poor network for debug only
-#endif
+
     connect(socketThread, &QThread::started, [ = ]() {
         socket->connectToHost(host, port);
     });
 
+    auto sendData = TCPReciever::prepareForSend(data);
     connect(socket, &QTcpSocket::connected, [ = ]() {
-        socket->write(data);
+        socket->write(sendData);
     });
 
     if (reciever) {
