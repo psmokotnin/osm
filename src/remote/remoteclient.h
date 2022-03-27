@@ -29,9 +29,11 @@ class Item;
 class Client : public QObject
 {
     Q_OBJECT
+    const static int TIMER_INTERVAL = 1000;
 
 public:
     explicit Client(QObject *parent = nullptr);
+    ~Client();
     void setSourceList(SourceList *list);
 
 public slots:
@@ -39,15 +41,25 @@ public slots:
 
 signals:
 
+private slots:
+    void sendRequests();
+
 private:
     void requestChanged(Item *item);
     void requestData(Item *item);
     void requestSource(Item *item, const QString &message, Network::responseCallback callback);
 
     Network m_network;
+    QThread m_thread;
+    QTimer m_timer;
     SourceList *m_sourceList;
     QMap<unsigned int, std::pair<QHostAddress, int>> m_servers;
     QMap<unsigned int, Item *> m_items;
+
+    typedef unsigned long UpdateKey;
+    const UpdateKey DEFAULT_UPDATE_KEY = std::numeric_limits<UpdateKey>::max();
+    std::atomic<UpdateKey> m_updateCounter;
+    QMap<unsigned int, UpdateKey> m_needUpdate;
 };
 
 } // namespace remote

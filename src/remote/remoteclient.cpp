@@ -21,16 +21,47 @@
 
 namespace remote {
 
-Client::Client(QObject *parent) : QObject(parent), m_network(), m_sourceList(nullptr), m_servers(), m_items()
+Client::Client(QObject *parent) : QObject(parent), m_network(),  m_thread(), m_timer(),
+    m_sourceList(nullptr), m_servers(), m_items(), m_updateCounter(0), m_needUpdate()
 {
     connect(&m_network, &Network::datagramRecieved, this, &Client::dataRecieved);
+    m_thread.setObjectName("NetworkClient");
     m_network.bindUDP();
     m_network.joinMulticast();
+
+    m_timer.setInterval(TIMER_INTERVAL);
+    m_timer.moveToThread(&m_thread);
+    connect(&m_timer, &QTimer::timeout, this, &Client::sendRequests);
+    connect(&m_thread, &QThread::started, this, [this]() {
+        m_timer.start();
+    }, Qt::DirectConnection);
+    connect(&m_thread, &QThread::finished, this, [this]() {
+        m_timer.stop();
+    }, Qt::DirectConnection);
+
+    m_thread.start();
+}
+
+Client::~Client()
+{
+    m_network.unbindUDP();
+    m_thread.quit();
+    m_thread.wait();
 }
 
 void Client::setSourceList(SourceList *list)
 {
     m_sourceList = list;
+}
+
+void Client::sendRequests()
+{
+    auto result = std::min_element(m_needUpdate.begin(), m_needUpdate.end());
+
+    if (result != m_needUpdate.end() && (*result) != DEFAULT_UPDATE_KEY) {
+        requestData(m_items[result.key()]);
+        (*result) = DEFAULT_UPDATE_KEY;
+    }
 }
 
 void Client::dataRecieved(QHostAddress senderAddress, [[maybe_unused]] int senderPort, const QByteArray &data)
@@ -70,6 +101,8 @@ void Client::dataRecieved(QHostAddress senderAddress, [[maybe_unused]] int sende
 
         if (item && message == "removed") {
             m_sourceList->removeItem(item);
+            m_items[qHash(sourceId)] = nullptr;
+            m_needUpdate[qHash(sourceId)] = DEFAULT_UPDATE_KEY;
         }
 
         if (item && message == "changed") {
@@ -77,7 +110,7 @@ void Client::dataRecieved(QHostAddress senderAddress, [[maybe_unused]] int sende
         }
 
         if (item && message == "readyRead") {
-            requestData(item);
+            m_needUpdate[qHash(sourceId)] = ++m_updateCounter;
         }
 
         return;

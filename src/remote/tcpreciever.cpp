@@ -32,7 +32,7 @@ void TCPReciever::setSocket(QTcpSocket *socket)
     connect(socket, &QTcpSocket::readyRead, this, &TCPReciever::socketReadyRead);
 
     //run timeout timer
-    QTimer::singleShot(10000, this, [ = ]() {
+    QTimer::singleShot(1000, this, [ = ]() {
         emit timeOut();
     });
 }

@@ -25,7 +25,7 @@ Server::Server(QObject *parent) : QObject(parent),
     m_uuid(QUuid::createUuid()), m_networkThread(), m_network(), m_sourceList(nullptr)
 {
     m_network.moveToThread(&m_networkThread);
-    m_networkThread.setObjectName("Network");
+    m_networkThread.setObjectName("NetworkServer");
 
     connect(&m_networkThread, &QThread::started,  &m_network, &Network::startTCPServer);
     connect(&m_networkThread, &QThread::finished, &m_network, &Network::stopTCPServer);
