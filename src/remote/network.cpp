@@ -105,10 +105,11 @@ void Network::newTCPConnection()
     connect(reciever, &TCPReciever::readyRead, [ = ]() {
         if (m_tcpCallback) {
             auto answer = m_tcpCallback(clientConnection->peerAddress(), reciever->data());
-            answer = TCPReciever::prepareForSend(answer);
+            auto header = TCPReciever::makeHeader(answer);
+            clientConnection->write(header.data(), header.size());
+            clientConnection->waitForBytesWritten();
 
             auto data_ptr = answer.data_ptr()->data();
-
             int sent = 0, len;
             while (sent < answer.size() && clientConnection->isWritable()) {
                 len = std::min(answer.size() - sent, 32767);
@@ -148,9 +149,12 @@ void Network::sendTCP(const QByteArray &data, const QString &host, quint16 port,
         socket->connectToHost(host, port);
     });
 
-    auto sendData = TCPReciever::prepareForSend(data);
+    auto header = TCPReciever::makeHeader(data);
     connect(socket, &QTcpSocket::connected, [ = ]() {
-        socket->write(sendData);
+        socket->write(header.data(), header.size());
+        socket->waitForBytesWritten();
+        socket->write(data);
+        socket->waitForBytesWritten();
     });
 
     if (reciever) {

@@ -33,7 +33,7 @@ public:
     void setSocket(QTcpSocket *socket = nullptr);
     const QByteArray &data() const noexcept;
 
-    static QByteArray prepareForSend(const QByteArray &data);
+    static std::array<char, 4> makeHeader(const QByteArray &data);
 
 public slots:
     virtual void socketReadyRead();

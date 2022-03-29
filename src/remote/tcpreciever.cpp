@@ -17,6 +17,7 @@
  */
 #include "tcpreciever.h"
 #include <QTimer>
+#include <QtEndian>
 
 namespace remote {
 
@@ -42,26 +43,28 @@ const QByteArray &TCPReciever::data() const noexcept
     return m_data;
 }
 
-QByteArray TCPReciever::prepareForSend(const QByteArray &data)
+std::array<char, 4> TCPReciever::makeHeader(const QByteArray &data)
 {
-    //TODO: ENDIAN!
-    qint32 size = static_cast<qint32>(data.size());
-    return QByteArray::fromRawData(reinterpret_cast<const char *>(&size), 4) + data;
+    qint32 size = qToLittleEndian<qint32>(data.size());
+    std::array<char, 4> a;
+    std::memmove(a.data(), &size, 4);
+    return a;
 }
 
 void TCPReciever::socketReadyRead()
 {
+    if (!p_size.value) {
+        const auto sizeData = socket()->read(4);
+        p_size.byte[0] = sizeData[0];
+        p_size.byte[1] = sizeData[1];
+        p_size.byte[2] = sizeData[2];
+        p_size.byte[3] = sizeData[3];
+        p_size.value = qFromLittleEndian(p_size.value);
+    }
+
     const auto data = socket()->readAll();
     m_data.push_back(data);
 
-    if (!p_size.value) {
-        auto packetSizeQBA = m_data.left(4);
-        p_size.byte[0] = packetSizeQBA[0];
-        p_size.byte[1] = packetSizeQBA[1];
-        p_size.byte[2] = packetSizeQBA[2];
-        p_size.byte[3] = packetSizeQBA[3];
-        m_data.remove(0, 4);
-    }
     if (p_size.value <= m_data.size()) {
         emit readyRead();
     }
