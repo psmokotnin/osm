@@ -177,6 +177,7 @@ QJsonObject Server::prepareMessage(const QString &message) const
     QJsonObject object;
     object["api"] = "Open Sound Meter";
     object["version"] = APP_GIT_VERSION;
+    object["host"] = QHostInfo::localHostName();
     object["message"] = message;
     object["uuid"] = m_uuid.toString();
     return object;

@@ -20,15 +20,25 @@
 
 namespace remote {
 
-Item::Item(QObject *parent) : chart::Source(parent), m_serverId(nullptr), m_sourceId(nullptr)
+Item::Item(QObject *parent) : chart::Source(parent), m_serverId(nullptr), m_sourceId(nullptr),
+    m_state(WAIT), m_stateTimer()
 {
     setObjectName("remoteItem");
     setActive(true);
+    m_stateTimer.setSingleShot(true);
+    m_stateTimer.setInterval(1000);
+    connect(&m_stateTimer, &QTimer::timeout, this, &Item::resetState);
+    connect(this, &Item::stateChanged, this, &Item::startResetTimer);
 }
 
 chart::Source *Item::clone() const
 {
     return nullptr;
+}
+
+bool Item::cloneable() const
+{
+    return false;
 }
 
 QJsonObject Item::toJSON(const SourceList *) const noexcept
@@ -117,6 +127,45 @@ void Item::applyData(const QJsonArray &data)
         if (row.count() > 6) m_ftdata[i].meanSquared  = static_cast<float>(row[6].toDouble());
     }
     emit readyRead();
+    setState(UPDATED);
+}
+
+Item::State Item::state() const
+{
+    return m_state;
+}
+
+void Item::setState(const State &state)
+{
+    if (m_state != state) {
+        m_state = state;
+        emit stateChanged();
+    }
+}
+
+void Item::startResetTimer()
+{
+    if (m_state == UPDATED) {
+        m_stateTimer.start();
+    }
+}
+
+void Item::resetState()
+{
+    setState(WAIT);
+}
+
+QString Item::host() const
+{
+    return m_host;
+}
+
+void Item::setHost(const QString &host)
+{
+    if (m_host != host) {
+        m_host = host;
+        emit hostChanged();
+    }
 }
 
 } // namespace remote

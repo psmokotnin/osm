@@ -29,6 +29,11 @@ Source::Source(QObject *parent) : QObject(parent),
     m_uuid(QUuid::createUuid())
 {
 }
+
+bool Source::cloneable() const
+{
+    return true;
+}
 void Source::setActive(bool active)
 {
     if (m_active != active) {

@@ -98,6 +98,7 @@ void Client::dataRecieved(QHostAddress senderAddress, [[maybe_unused]] int sende
             item = new remote::Item(this);
             item->setServerId(serverId);
             item->setSourceId(sourceId);
+            item->setHost(document["host"].toString());
             m_sourceList->appendItem(item);
             m_items[qHash(sourceId)] = item;
 

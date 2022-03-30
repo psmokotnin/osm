@@ -19,17 +19,30 @@
 #define REMOTE_ITEM_H
 
 #include "chart/source.h"
+#include <QTimer>
+
 
 namespace remote {
 
 class Item : public chart::Source
 {
+
+private:
     Q_OBJECT
+    Q_PROPERTY(State state READ state WRITE setState NOTIFY stateChanged)
+    Q_PROPERTY(QString host READ host WRITE setHost NOTIFY hostChanged)
 
 public:
     Item(QObject *parent = nullptr);
+    enum State {
+        WAIT    = 1,
+        UPDATED = 2,
+        ERROR   = 3
+    };
+    Q_ENUM(State);
 
     Source *clone() const override;
+    bool cloneable() const override;
 
     Q_INVOKABLE QJsonObject toJSON(const SourceList * = nullptr) const noexcept override;
     void fromJSON(QJsonObject data, const SourceList * = nullptr) noexcept override;
@@ -45,9 +58,26 @@ public:
 
     void applyData(const QJsonArray &data);
 
+    State state() const;
+    void setState(const State &state);
+
+    QString host() const;
+    void setHost(const QString &host);
+
+signals:
+    void stateChanged();
+    void hostChanged();
+
+private slots:
+    void startResetTimer();
+    void resetState();
+
 private:
     QUuid m_serverId, m_sourceId;
+    QString m_host;
     bool m_originalActive;
+    State m_state;
+    QTimer m_stateTimer;
 };
 
 } // namespace remote

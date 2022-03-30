@@ -33,6 +33,7 @@ class Source : public QObject
     Q_PROPERTY(bool active READ active WRITE setActive NOTIFY activeChanged)
     Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
     Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged)
+    Q_PROPERTY(bool cloneable READ cloneable CONSTANT)
 
 public:
     struct FTData {
@@ -52,6 +53,7 @@ public:
 
     explicit Source(QObject *parent = nullptr);
     virtual Source *clone() const = 0;
+    virtual bool cloneable() const;
 
     Q_INVOKABLE void destroy()
     {

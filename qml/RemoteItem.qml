@@ -18,6 +18,7 @@
 import QtQuick 2.7
 import QtQuick.Controls 2.1
 import QtQuick.Layouts 1.3
+import QtQuick.Controls.Material 2.2
 
 Item {
     property var dataModel;
@@ -50,9 +51,41 @@ Item {
             Label {
                 Layout.fillWidth: true
                 font.bold: highlight
-                text:  "Remote" + (dataModel ? dataModel.name : "")
+                text:  (dataModel ? dataModel.name : "")
             }
 
+            RowLayout {
+                Rectangle {
+                    id: indicator
+                    width: 7
+                    height: width
+                    radius: width /2
+                    color: updateColor()
+                    function updateColor() {
+                        switch(dataModel.state) {
+                           case 1:
+                               return Material.color(Material.Orange);
+                           case 2:
+                               return Material.color(Material.Green);
+                           }
+                        //error or unknown state
+                        return Material.color(Material.Red);
+                    }
+                    Connections {
+                        target: dataModel
+                        function onStateChanged() {
+                            color = indicator.updateColor();
+                        }
+                    }
+                }
+
+                Label {
+                    Layout.fillWidth: true
+                    font.bold: highlight
+                    font.pixelSize: 10
+                    text:  (dataModel ? "@" + dataModel.host : "")
+                }
+            }
         }
 
         Connections {
