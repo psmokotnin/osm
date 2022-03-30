@@ -22,7 +22,7 @@
 namespace remote {
 
 Server::Server(QObject *parent) : QObject(parent),
-    m_uuid(QUuid::createUuid()), m_networkThread(), m_network(), m_sourceList(nullptr)
+    m_uuid(QUuid::createUuid()), m_networkThread(), m_network(), m_sourceList(nullptr), m_sourceJsons()
 {
     m_network.moveToThread(&m_networkThread);
     m_networkThread.setObjectName("NetworkServer");
@@ -99,7 +99,7 @@ void Server::stop()
     m_networkThread.wait();
 }
 
-QByteArray Server::tcpCallback(const QHostAddress &address, const QByteArray &data) const
+QByteArray Server::tcpCallback([[maybe_unused]] const QHostAddress &address, const QByteArray &data) const
 {
     auto document = QJsonDocument::fromJson(data);
     if (document.isNull()) {
@@ -143,18 +143,25 @@ QByteArray Server::tcpCallback(const QHostAddress &address, const QByteArray &da
         object["message"] = "sourceData";
         object["uuid"]    = source->uuid().toString();
 
-        QJsonArray ftdata;
+        QJsonArray &ftdata = m_sourceJsons[source->uuid()];
+        if (static_cast<unsigned int>(ftdata.size()) != source->size()) {
+            ftdata = QJsonArray();
+        }
+        QJsonArray ftcell = {0, 0, 0, 0, 0, 0};
         for (unsigned int i = 0; i < source->size(); ++i) {
-            QJsonArray ftcell;
-            ftcell.append(static_cast<double>(source->frequency(i)  ));
-            ftcell.append(static_cast<double>(source->module(i)     ));
-            ftcell.append(static_cast<double>(source->magnitudeRaw(i)  ));
-            ftcell.append(static_cast<double>(source->phase(i).arg()));
-            ftcell.append(static_cast<double>(source->coherence(i)  ));
-            ftcell.append(static_cast<double>(source->peakSquared(i)));
-            //ftcell.append(static_cast<double>(source->meanSquared(i)));
+            ftcell[0] = static_cast<double>(source->frequency(i)  );
+            ftcell[1] = static_cast<double>(source->module(i)     );
+            ftcell[2] = static_cast<double>(source->magnitudeRaw(i)  );
+            ftcell[3] = static_cast<double>(source->phase(i).arg());
+            ftcell[4] = static_cast<double>(source->coherence(i)  );
+            ftcell[5] = static_cast<double>(source->peakSquared(i));
+            //ftcell[6] = static_cast<double>(source->meanSquared(i));
 
-            ftdata.append(ftcell);
+            if ( i >= static_cast<unsigned int>(ftdata.size())) {
+                ftdata << ftcell;
+            } else {
+                ftdata[i] = ftcell;
+            }
         }
         object["ftdata"] = ftdata;
 
