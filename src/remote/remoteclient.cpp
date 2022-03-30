@@ -62,8 +62,8 @@ void Client::sendRequests()
 
     auto result = std::min_element(m_needUpdate.begin(), m_needUpdate.end());
 
-    if (result != m_needUpdate.end() && (*result) < DEFAULT_ONUPDATE_KEY) {
-        (*result) = DEFAULT_ONUPDATE_KEY;
+    if (result != m_needUpdate.end() && (*result) < ON_UPDATE) {
+        (*result) = ON_UPDATE;
         m_onRequest = true;
         requestData(m_items[result.key()]);
     }
@@ -99,6 +99,7 @@ void Client::dataRecieved(QHostAddress senderAddress, [[maybe_unused]] int sende
             item->setServerId(serverId);
             item->setSourceId(sourceId);
             item->setHost(document["host"].toString());
+            connect(item, &Item::updateData, this, &Client::requestUpdate);
             m_sourceList->appendItem(item);
             m_items[qHash(sourceId)] = item;
 
@@ -108,19 +109,26 @@ void Client::dataRecieved(QHostAddress senderAddress, [[maybe_unused]] int sende
         if (item && message == "removed") {
             m_sourceList->removeItem(item);
             m_items[qHash(sourceId)] = nullptr;
-            m_needUpdate[qHash(sourceId)] = DEFAULT_UPDATE_KEY;
+            m_needUpdate[qHash(sourceId)] = READY_FOR_UPDATE;
         }
 
         if (item && message == "changed") {
             requestChanged(item);
         }
 
-        if (item && message == "readyRead" && item->active()) {
-            if (m_needUpdate[qHash(sourceId)] == DEFAULT_UPDATE_KEY) {
-                m_needUpdate[qHash(sourceId)] = ++m_updateCounter;
-            }
+        if (item && message == "readyRead") {
+            requestUpdate(item);
         }
         return;
+    }
+}
+
+void Client::requestUpdate(Item *item)
+{
+    if (item && item->active()) {
+        if (m_needUpdate[qHash(item->sourceId())] == READY_FOR_UPDATE) {
+            m_needUpdate[qHash(item->sourceId())] = ++m_updateCounter;
+        }
     }
 }
 
@@ -147,12 +155,12 @@ void Client::requestData(Item *item)
         auto document = QJsonDocument::fromJson(data);
         auto ftData = document["ftdata"].toArray();
         item->applyData(ftData);
-        m_needUpdate[qHash(item->sourceId())] = DEFAULT_UPDATE_KEY;
+        m_needUpdate[qHash(item->sourceId())] = READY_FOR_UPDATE;
         m_onRequest = false;
     };
     Network::errorCallback onError = [this, item]() {
         //item->setActive(false);
-        m_needUpdate[qHash(item->sourceId())] = DEFAULT_UPDATE_KEY;
+        m_needUpdate[qHash(item->sourceId())] = READY_FOR_UPDATE;
         m_onRequest = false;
     };
     requestSource(item, "requestData", onAnswer, onError);

@@ -247,7 +247,7 @@ Item {
                             font.pixelSize: 14
                             rightPadding: 4
                             leftPadding: 4
-                            visible: dragArea.source.cloneable
+                            visible: (dragArea.source ? dragArea.source.cloneable : false)
                             onClicked: {
                                 sourceList.cloneItem(dragArea.source);
                             }

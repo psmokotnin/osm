@@ -43,6 +43,7 @@ signals:
 
 private slots:
     void sendRequests();
+    void requestUpdate(Item *item);
 
 private:
     void requestChanged(Item *item);
@@ -59,8 +60,8 @@ private:
 
     bool m_onRequest;
     typedef unsigned long UpdateKey;
-    const UpdateKey DEFAULT_UPDATE_KEY = std::numeric_limits<UpdateKey>::max();
-    const UpdateKey DEFAULT_ONUPDATE_KEY = DEFAULT_UPDATE_KEY - 1;
+    const UpdateKey READY_FOR_UPDATE = std::numeric_limits<UpdateKey>::max();
+    const UpdateKey ON_UPDATE = READY_FOR_UPDATE - 1;
     std::atomic<UpdateKey> m_updateCounter;
     QMap<unsigned int, UpdateKey> m_needUpdate;
 };

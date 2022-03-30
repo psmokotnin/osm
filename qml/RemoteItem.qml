@@ -62,12 +62,14 @@ Item {
                     radius: width /2
                     color: updateColor()
                     function updateColor() {
-                        switch(dataModel.state) {
-                           case 1:
-                               return Material.color(Material.Orange);
-                           case 2:
-                               return Material.color(Material.Green);
-                           }
+                        if (dataModel) {
+                            switch(dataModel.state) {
+                                case 1:
+                                    return Material.color(Material.Orange);
+                                case 2:
+                                    return Material.color(Material.Green);
+                            }
+                        }
                         //error or unknown state
                         return Material.color(Material.Red);
                     }

@@ -15,8 +15,39 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-import QtQuick 2.0
+import QtQuick 2.13
+import QtQuick.Controls 2.13
+import QtQuick.Controls.Material 2.13
+import QtQuick.Layouts 1.12
 
 Item {
+    property var dataObject
 
+    ColumnLayout {
+        spacing: 0
+        anchors.fill: parent
+
+        RowLayout {
+
+            Button {
+                text: qsTr("Refresh")
+                onClicked: dataObject.refresh();
+            }
+
+            Label {
+                text: dataObject.name
+            }
+
+            Label {
+                text: "@"
+            }
+
+            Label {
+                text: dataObject.host
+            }
+        }
+
+        RowLayout {
+        }
+    }
 }

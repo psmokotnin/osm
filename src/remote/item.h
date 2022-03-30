@@ -64,9 +64,13 @@ public:
     QString host() const;
     void setHost(const QString &host);
 
+public slots:
+    Q_INVOKABLE void refresh();
+
 signals:
     void stateChanged();
     void hostChanged();
+    void updateData(Item *);
 
 private slots:
     void startResetTimer();

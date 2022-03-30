@@ -25,10 +25,12 @@ Item::Item(QObject *parent) : chart::Source(parent), m_serverId(nullptr), m_sour
 {
     setObjectName("remoteItem");
     setActive(true);
+
     m_stateTimer.setSingleShot(true);
     m_stateTimer.setInterval(1000);
     connect(&m_stateTimer, &QTimer::timeout, this, &Item::resetState);
     connect(this, &Item::stateChanged, this, &Item::startResetTimer);
+    connect(this, &Source::activeChanged, this, &Item::refresh);
 }
 
 chart::Source *Item::clone() const
@@ -166,6 +168,11 @@ void Item::setHost(const QString &host)
         m_host = host;
         emit hostChanged();
     }
+}
+
+void Item::refresh()
+{
+    emit updateData(this);
 }
 
 } // namespace remote
