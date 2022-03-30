@@ -175,6 +175,13 @@ void Network::sendTCP(const QByteArray &data, const QString &host, quint16 port,
         socketThread->exit();
     });
 
+    connect(socket, &QTcpSocket::errorOccurred, [ = ]([[maybe_unused]] auto socketError) {
+        //qDebug() << "socketError" << socketError;
+        onError();
+        socket->close();
+        socketThread->exit();
+    });
+
     connect(socketThread, &QThread::finished, [ = ]() {
         socket->deleteLater();
         socketThread->deleteLater();

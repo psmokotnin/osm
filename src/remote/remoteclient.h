@@ -29,7 +29,7 @@ class Item;
 class Client : public QObject
 {
     Q_OBJECT
-    const static int TIMER_INTERVAL = 1000;
+    const static int TIMER_INTERVAL = 500;
 
 public:
     explicit Client(QObject *parent = nullptr);
@@ -47,7 +47,8 @@ private slots:
 private:
     void requestChanged(Item *item);
     void requestData(Item *item);
-    void requestSource(Item *item, const QString &message, Network::responseCallback callback);
+    void requestSource(Item *item, const QString &message, Network::responseCallback callback,
+                       Network::errorCallback errorCallback = 0);
 
     Network m_network;
     QThread m_thread;
@@ -56,8 +57,10 @@ private:
     QMap<unsigned int, std::pair<QHostAddress, int>> m_servers;
     QMap<unsigned int, Item *> m_items;
 
+    bool m_onRequest;
     typedef unsigned long UpdateKey;
     const UpdateKey DEFAULT_UPDATE_KEY = std::numeric_limits<UpdateKey>::max();
+    const UpdateKey DEFAULT_ONUPDATE_KEY = DEFAULT_UPDATE_KEY - 1;
     std::atomic<UpdateKey> m_updateCounter;
     QMap<unsigned int, UpdateKey> m_needUpdate;
 };

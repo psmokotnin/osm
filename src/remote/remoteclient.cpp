@@ -22,7 +22,7 @@
 namespace remote {
 
 Client::Client(QObject *parent) : QObject(parent), m_network(),  m_thread(), m_timer(),
-    m_sourceList(nullptr), m_servers(), m_items(), m_updateCounter(0), m_needUpdate()
+    m_sourceList(nullptr), m_servers(), m_items(), m_onRequest(false), m_updateCounter(0), m_needUpdate()
 {
     connect(&m_network, &Network::datagramRecieved, this, &Client::dataRecieved);
     m_thread.setObjectName("NetworkClient");
@@ -56,11 +56,16 @@ void Client::setSourceList(SourceList *list)
 
 void Client::sendRequests()
 {
+    if (m_onRequest) {
+        return;
+    }
+
     auto result = std::min_element(m_needUpdate.begin(), m_needUpdate.end());
 
-    if (result != m_needUpdate.end() && (*result) != DEFAULT_UPDATE_KEY) {
+    if (result != m_needUpdate.end() && (*result) < DEFAULT_ONUPDATE_KEY) {
+        (*result) = DEFAULT_ONUPDATE_KEY;
+        m_onRequest = true;
         requestData(m_items[result.key()]);
-        (*result) = DEFAULT_UPDATE_KEY;
     }
 }
 
@@ -109,10 +114,11 @@ void Client::dataRecieved(QHostAddress senderAddress, [[maybe_unused]] int sende
             requestChanged(item);
         }
 
-        if (item && message == "readyRead") {
-            m_needUpdate[qHash(sourceId)] = ++m_updateCounter;
+        if (item && message == "readyRead" && item->active()) {
+            if (m_needUpdate[qHash(sourceId)] == DEFAULT_UPDATE_KEY) {
+                m_needUpdate[qHash(sourceId)] = ++m_updateCounter;
+            }
         }
-
         return;
     }
 }
@@ -136,15 +142,23 @@ void Client::requestChanged(Item *item)
 
 void Client::requestData(Item *item)
 {
-    Network::responseCallback onAnswer = [item](const QByteArray & data) {
+    Network::responseCallback onAnswer = [this, item](const QByteArray & data) {
         auto document = QJsonDocument::fromJson(data);
         auto ftData = document["ftdata"].toArray();
         item->applyData(ftData);
+        m_needUpdate[qHash(item->sourceId())] = DEFAULT_UPDATE_KEY;
+        m_onRequest = false;
     };
-    requestSource(item, "requestData", onAnswer);
+    Network::errorCallback onError = [this, item]() {
+        //item->setActive(false);
+        m_needUpdate[qHash(item->sourceId())] = DEFAULT_UPDATE_KEY;
+        m_onRequest = false;
+    };
+    requestSource(item, "requestData", onAnswer, onError);
 }
 
-void Client::requestSource(Item *item, const QString &message, Network::responseCallback callback)
+void Client::requestSource(Item *item, const QString &message, Network::responseCallback callback,
+                           Network::errorCallback errorCallback)
 {
     auto server = m_servers.value(qHash(item->serverId()), {{}, 0});
     if (server.first.isNull()) {
@@ -163,7 +177,7 @@ void Client::requestSource(Item *item, const QString &message, Network::response
         qDebug() << "onError";
         item->setActive(false);
     };
-    m_network.sendTCP(data, server.first.toString(), server.second, callback, onError);
+    m_network.sendTCP(data, server.first.toString(), server.second, callback, errorCallback ? errorCallback : onError);
 }
 
 } // namespace remote
