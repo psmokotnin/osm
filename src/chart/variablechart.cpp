@@ -79,6 +79,10 @@ void VariableChart::initType()
 
     case Spectrogram:
         newPlot = new SpectrogramPlot(m_settings, this);
+        newPlot->setSelectAppended(false);
+        if (m_sources) {
+            newPlot->setSelected({m_sources->firstSource()});
+        }
         break;
 
     case CrestFactor:
@@ -126,7 +130,7 @@ void VariableChart::setType(const Type &type)
                 appendDataSource(m_sources->items()[i]);
             }
         }
-        if (m_plot) {
+        if (m_plot && (type != Spectrogram)) {
             m_plot->setSelectAppended(true);
         }
         updateZOrders();

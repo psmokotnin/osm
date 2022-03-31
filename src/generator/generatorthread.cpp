@@ -24,6 +24,7 @@
 #include "sinnoise.h"
 #include "sinsweep.h"
 #include "mnoise.h"
+#include "burstnoise.h"
 
 GeneratorThread *GeneratorThread::s_instance = nullptr;
 
@@ -101,6 +102,7 @@ void GeneratorThread::init()
     m_sources << new SinNoise(this);
     m_sources << new SinSweep(this);
     m_sources << new MNoise(this);
+    m_sources << new BurstNoise(this);
     for (auto &source : m_sources) {
         connect(source, &OutputDevice::sampleError, this, &GeneratorThread::deviceError);
         connect(source, &OutputDevice::sampleOut, this, &GeneratorThread::sampleOut, Qt::DirectConnection);

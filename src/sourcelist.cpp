@@ -64,6 +64,9 @@ SourceList *SourceList::clone(QObject *parent, chart::Source *filter) const noex
 
 chart::Source *SourceList::firstSource() const noexcept
 {
+    if (m_items.count() == 0) {
+        return nullptr;
+    }
     return m_items.at(0);
 }
 
