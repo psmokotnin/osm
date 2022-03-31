@@ -87,6 +87,8 @@ public:
     QList<chart::Source *> checked() const;
     void setChecked(const QList<chart::Source *> &checked);
 
+    std::lock_guard<std::mutex> lock();
+
 public slots:
     Q_INVOKABLE QColor nextColor();
     Q_INVOKABLE Measurement *addMeasurement();
@@ -129,6 +131,7 @@ private:
     };
     int m_colorIndex;
     int m_selected;
+    std::mutex m_mutex;
 };
 
 #endif // SOURCELIST_H

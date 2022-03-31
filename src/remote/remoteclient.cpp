@@ -100,6 +100,11 @@ void Client::dataRecieved(QHostAddress senderAddress, [[maybe_unused]] int sende
             item->setSourceId(sourceId);
             item->setHost(document["host"].toString());
             connect(item, &Item::updateData, this, &Client::requestUpdate);
+            connect(item, &Item::destroyed, this, [ = ]() {
+                m_items[qHash(sourceId)] = nullptr;
+                m_needUpdate[qHash(sourceId)] = READY_FOR_UPDATE;
+            }, Qt::DirectConnection);
+
             m_sourceList->appendItem(item);
             m_items[qHash(sourceId)] = item;
 
@@ -151,6 +156,9 @@ void Client::requestChanged(Item *item)
 
 void Client::requestData(Item *item)
 {
+    if (!item) {
+        return;
+    }
     Network::responseCallback onAnswer = [this, item](const QByteArray & data) {
         auto document = QJsonDocument::fromJson(data);
         auto ftData = document["ftdata"].toArray();
@@ -159,7 +167,7 @@ void Client::requestData(Item *item)
         m_onRequest = false;
     };
     Network::errorCallback onError = [this, item]() {
-        //item->setActive(false);
+        item->setState(Item::ERROR);
         m_needUpdate[qHash(item->sourceId())] = READY_FOR_UPDATE;
         m_onRequest = false;
     };
@@ -184,6 +192,7 @@ void Client::requestSource(Item *item, const QString &message, Network::response
 
     Network::errorCallback onError = [item]() {
         qDebug() << "onError";
+        item->setState(Item::ERROR);
         item->setActive(false);
     };
     m_network.sendTCP(data, server.first.toString(), server.second, callback, errorCallback ? errorCallback : onError);

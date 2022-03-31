@@ -32,6 +32,7 @@ Server::Server(QObject *parent) : QObject(parent),
 
     m_timer.setInterval(TIMER_INTERVAL);
     connect(&m_timer, &QTimer::timeout, this, &Server::sendHello);
+    connect(&m_networkThread, &QThread::finished, &m_timer, &QTimer::stop);
 
     m_network.setTcpCallback([this] (const QHostAddress & address, const QByteArray & data) -> QByteArray {
         return tcpCallback(address, data);
@@ -54,19 +55,19 @@ void Server::setSourceList(SourceList *list)
 
         sourceNotify(source->uuid(), "added");
 
-        connect(source, &chart::Source::readyRead, [this, source]() {
+        connect(source, &chart::Source::readyRead, this, [this, source]() {
             sourceNotify(source->uuid(), "readyRead");
         });
 
-        connect(source, &chart::Source::activeChanged, [this, source]() {
+        connect(source, &chart::Source::activeChanged, this, [this, source]() {
             sourceNotify(source->uuid(), "changed");
         });
 
-        connect(source, &chart::Source::colorChanged, [this, source]() {
+        connect(source, &chart::Source::colorChanged, this, [this, source]() {
             sourceNotify(source->uuid(), "changed");
         });
 
-        connect(source, &chart::Source::nameChanged, [this, source]() {
+        connect(source, &chart::Source::nameChanged, this, [this, source]() {
             sourceNotify(source->uuid(), "changed");
         });
     };
@@ -75,8 +76,8 @@ void Server::setSourceList(SourceList *list)
         onAdded(source);
     }
 
-    connect(list, &SourceList::postItemAppended, onAdded);
-    connect(list, &SourceList::preItemRemoved, [this, list](auto index) {
+    connect(list, &SourceList::postItemAppended, this, onAdded);
+    connect(list, &SourceList::preItemRemoved, this, [this, list](auto index) {
         auto *source = list->get(index);
         if (source) {
             sourceNotify(source->uuid(), "removed");
@@ -109,11 +110,10 @@ QByteArray Server::tcpCallback([[maybe_unused]] const QHostAddress &address, con
     if (!m_sourceList) {
         return {};
     }
+    auto guard = m_sourceList->lock();
     auto message = document["message"].toString();
     auto sourceId = QUuid::fromString(document["uuid"].toString());
     auto source = m_sourceList->getByUUid(sourceId);
-    //BUG: what if source will be deleted here in another thread?
-    //mb m_sourceList->lock();
 
     if (message == "requestChanged") {
         QJsonObject object;

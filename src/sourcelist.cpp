@@ -32,7 +32,8 @@ SourceList::SourceList(QObject *parent, bool appendMeasurement) :
     m_items(0), m_checked(),
     m_currentFile(),
     m_colorIndex(3),
-    m_selected(-1)
+    m_selected(-1),
+    m_mutex()
 {
     if (appendMeasurement) {
         add<Measurement>();
@@ -99,6 +100,10 @@ chart::Source *SourceList::get(int i) const noexcept
     return m_items.at(i);
 }
 
+std::lock_guard<std::mutex> SourceList::lock()
+{
+    return std::lock_guard<std::mutex> {m_mutex};
+}
 chart::Source *SourceList::getByUUid(QUuid id) const noexcept
 {
     auto result = std::find_if(m_items.cbegin(), m_items.cend(), [&id](chart::Source * source) {
@@ -112,6 +117,7 @@ chart::Source *SourceList::getByUUid(QUuid id) const noexcept
 
 void SourceList::clean() noexcept
 {
+    auto guard = lock();
     m_selected = -1;
     m_checked.clear();
     emit selectedChanged();
@@ -534,6 +540,7 @@ int SourceList::appendAll()
 }
 void SourceList::appendItem(chart::Source *item, bool autocolor)
 {
+    auto guard = lock();
     emit preItemAppended();
 
     if (autocolor) {
@@ -545,6 +552,7 @@ void SourceList::appendItem(chart::Source *item, bool autocolor)
 void SourceList::removeItem(chart::Source *item, bool deleteItem)
 {
     m_checked.removeAll(item);
+    auto guard = lock();
 
     for (int i = 0; i < m_items.size(); ++i) {
         if (m_items.at(i) == item) {

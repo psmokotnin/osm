@@ -135,7 +135,7 @@ void Network::sendTCP(const QByteArray &data, const QString &host, quint16 port,
                       Network::errorCallback onError) noexcept
 {
     QHostAddress destination = (host.isNull() ? QHostAddress(host) : QHostAddress(QHostAddress::Broadcast));
-    auto *socketThread = new QThread();
+    auto *socketThread = new QThread(this);
     TCPReciever *reciever = nullptr;
     QTcpSocket *socket = new QTcpSocket();
     socket->moveToThread(socketThread);
@@ -145,44 +145,47 @@ void Network::sendTCP(const QByteArray &data, const QString &host, quint16 port,
         reciever->setSocket(socket);
     }
 
-    connect(socketThread, &QThread::started, [ = ]() {
+    connect(socketThread, &QThread::started, socketThread, [ = ]() {
         socket->connectToHost(host, port);
-    });
+    }, Qt::DirectConnection);
 
     auto header = TCPReciever::makeHeader(data);
-    connect(socket, &QTcpSocket::connected, [ = ]() {
+    connect(socket, &QTcpSocket::connected, socketThread, [ = ]() {
         socket->write(header.data(), header.size());
         socket->waitForBytesWritten();
         socket->write(data);
         socket->waitForBytesWritten();
-    });
+    }, Qt::DirectConnection);
 
     if (reciever) {
-        connect(reciever, &TCPReciever::readyRead, [ = ]() {
+        connect(reciever, &TCPReciever::readyRead, socketThread, [ = ]() {
             callback(reciever->data());
             socket->disconnectFromHost();
-        });
+        }, Qt::DirectConnection);
 
-        connect(reciever, &TCPReciever::timeOut, [ = ]() {
+        connect(reciever, &TCPReciever::timeOut, socketThread, [ = ]() {
             qInfo() << "Can't connect to the device. timeout expired.";
             socket->disconnectFromHost();
             onError();
-        });
+        }, Qt::DirectConnection);
     }
 
-    connect(socket, &QTcpSocket::disconnected, [ = ]() {
+    connect(socket, &QTcpSocket::disconnected, this, [ = ]() {
         socket->close();
         socketThread->exit();
     });
 
-    connect(socket, &QTcpSocket::errorOccurred, [ = ]([[maybe_unused]] auto socketError) {
+    connect(socket, &QTcpSocket::errorOccurred, this, [ = ]([[maybe_unused]] auto socketError) {
         //qDebug() << "socketError" << socketError;
         onError();
         socket->close();
         socketThread->exit();
     });
 
-    connect(socketThread, &QThread::finished, [ = ]() {
+    connect(socketThread, &QThread::finished, this, [ = ]() {
+        if (reciever) {
+            reciever->deleteLater();
+        }
         socket->deleteLater();
         socketThread->deleteLater();
     });

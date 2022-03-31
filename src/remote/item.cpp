@@ -154,7 +154,9 @@ void Item::startResetTimer()
 
 void Item::resetState()
 {
-    setState(WAIT);
+    if (m_state == UPDATED) {
+        setState(WAIT);
+    }
 }
 
 QString Item::host() const
