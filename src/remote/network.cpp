@@ -74,8 +74,7 @@ void Network::joinMulticast()
 
 void Network::unbindUDP()
 {
-    if (udpSocket->isOpen())
-        udpSocket->close();
+    udpSocket->close();
 }
 
 void Network::readUDP() const noexcept
@@ -120,12 +119,14 @@ void Network::newTCPConnection()
         }
         clientConnection->close();
         clientConnection->deleteLater();
+        reciever->deleteLater();
     });
 
     connect(reciever, &TCPReciever::timeOut, [ = ]() {
         if (clientConnection) {
             clientConnection->close();
             clientConnection->deleteLater();
+            reciever->deleteLater();
         }
     });
     reciever->setSocket(clientConnection);
@@ -135,7 +136,7 @@ void Network::sendTCP(const QByteArray &data, const QString &host, quint16 port,
                       Network::errorCallback onError) noexcept
 {
     QHostAddress destination = (host.isNull() ? QHostAddress(host) : QHostAddress(QHostAddress::Broadcast));
-    auto *socketThread = new QThread(this);
+    auto *socketThread = new QThread();
     TCPReciever *reciever = nullptr;
     QTcpSocket *socket = new QTcpSocket();
     socket->moveToThread(socketThread);

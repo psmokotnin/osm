@@ -26,12 +26,10 @@ Client::Client(QObject *parent) : QObject(parent), m_network(),  m_thread(), m_t
 {
     connect(&m_network, &Network::datagramRecieved, this, &Client::dataRecieved);
     m_thread.setObjectName("NetworkClient");
-    m_network.bindUDP();
-    m_network.joinMulticast();
 
     m_timer.setInterval(TIMER_INTERVAL);
     m_timer.moveToThread(&m_thread);
-    connect(&m_timer, &QTimer::timeout, this, &Client::sendRequests);
+    connect(&m_timer, &QTimer::timeout, this, &Client::sendRequests, Qt::DirectConnection);
     connect(&m_thread, &QThread::started, this, [this]() {
         m_timer.start();
     }, Qt::DirectConnection);
@@ -39,19 +37,47 @@ Client::Client(QObject *parent) : QObject(parent), m_network(),  m_thread(), m_t
         m_timer.stop();
     }, Qt::DirectConnection);
 
-    m_thread.start();
+    start();
 }
 
 Client::~Client()
+{
+    stop();
+}
+
+void Client::setSourceList(SourceList *list)
+{
+    m_sourceList = list;
+}
+
+bool Client::start()
+{
+    m_network.bindUDP();
+    m_network.joinMulticast();
+    m_thread.start();
+    return m_thread.isRunning();
+}
+
+void Client::stop()
 {
     m_network.unbindUDP();
     m_thread.quit();
     m_thread.wait();
 }
 
-void Client::setSourceList(SourceList *list)
+bool Client::active() const
 {
-    m_sourceList = list;
+    return m_thread.isRunning();
+}
+
+void Client::setActive(bool state)
+{
+    if (active() && !state) {
+        stop();
+    }
+    if (!active() && state) {
+        start();
+    }
 }
 
 void Client::sendRequests()

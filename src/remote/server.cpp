@@ -90,6 +90,7 @@ bool Server::start()
     m_networkThread.start();
     sendHello();
     m_timer.start();
+    emit activeChanged();
     return m_networkThread.isRunning();
 }
 
@@ -98,6 +99,22 @@ void Server::stop()
     m_network.disconnect();
     m_networkThread.quit();
     m_networkThread.wait();
+    emit activeChanged();
+}
+
+bool Server::active() const
+{
+    return m_networkThread.isRunning();
+}
+
+void Server::setActive(bool state)
+{
+    if (active() && !state) {
+        stop();
+    }
+    if (!active() && state) {
+        start();
+    }
 }
 
 QByteArray Server::tcpCallback([[maybe_unused]] const QHostAddress &address, const QByteArray &data) const

@@ -27,6 +27,7 @@ namespace remote {
 class Server : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(bool active READ active WRITE setActive NOTIFY activeChanged)
     const static int TIMER_INTERVAL = 1000;
 
 public:
@@ -38,9 +39,13 @@ public:
     bool start();
     void stop();
 
+    bool active() const;
+    void setActive(bool state);
+
     QByteArray tcpCallback(const QHostAddress &address, const QByteArray &data) const;
 
 signals:
+    void activeChanged();
 
 private slots:
     void sendHello();

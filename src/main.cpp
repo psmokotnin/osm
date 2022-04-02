@@ -125,6 +125,10 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("targetTraceModel", t);
     engine.rootContext()->setContextProperty("notifier", notifier);
     engine.rootContext()->setContextProperty("autoSaver", &autoSaver);
+
+    engine.rootContext()->setContextProperty("remoteServer", &server);
+    engine.rootContext()->setContextProperty("remoteClient", &client);
+
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
 
     if (engine.rootObjects().isEmpty())

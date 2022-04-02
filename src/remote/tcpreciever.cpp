@@ -60,6 +60,7 @@ void TCPReciever::socketReadyRead()
         p_size.byte[2] = sizeData[2];
         p_size.byte[3] = sizeData[3];
         p_size.value = qFromLittleEndian(p_size.value);
+        m_data.reserve(p_size.value);
     }
 
     const auto data = socket()->readAll();

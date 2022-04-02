@@ -50,5 +50,6 @@
         <file alias="Plot/PhaseDelayProperties.qml">qml/Plot/PhaseDelayProperties.qml</file>
         <file alias="RemoteItem.qml">qml/RemoteItem.qml</file>
         <file alias="RemoteItemProperties.qml">RemoteItemProperties.qml</file>
+        <file alias="RemoteProperties.qml">qml/RemoteProperties.qml</file>
     </qresource>
 </RCC>

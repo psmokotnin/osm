@@ -29,6 +29,7 @@ class Item;
 class Client : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(bool active READ active WRITE setActive NOTIFY activeChanged)
     const static int TIMER_INTERVAL = 500;
 
 public:
@@ -36,10 +37,17 @@ public:
     ~Client();
     void setSourceList(SourceList *list);
 
+    bool start();
+    void stop();
+
+    bool active() const;
+    void setActive(bool state);
+
 public slots:
     void dataRecieved(QHostAddress senderAddress, int senderPort, const QByteArray &data);
 
 signals:
+    void activeChanged();
 
 private slots:
     void sendRequests();
