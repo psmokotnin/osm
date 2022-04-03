@@ -63,10 +63,10 @@ public slots:
     void sendTCP(const QByteArray &data, const QString &host = QString(), quint16 port = DEFAULT_PORT,
                  Network::responseCallback callback = nullptr, Network::errorCallback onError = nullptr) noexcept;
 
-    void readUDP() const noexcept;
+    void readUDP() noexcept;
 
 signals:
-    void datagramRecieved(QHostAddress senderAddress, int senderPort, const QByteArray &) const;
+    void datagramRecieved(QHostAddress senderAddress, int senderPort, const QByteArray &);
 
 protected slots:
     void newTCPConnection();

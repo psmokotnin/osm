@@ -92,7 +92,6 @@ int main(int argc, char *argv[])
     auto client = remote::Client();
     client.setSourceList(&sourceList);
     auto server = remote::Server(&sourceList);
-    server.start();
     server.setSourceList(&sourceList);
 
     qmlRegisterType<audio::DeviceModel>("Audio", 1, 0, "DeviceModel");

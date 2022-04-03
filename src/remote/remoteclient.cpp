@@ -36,8 +36,6 @@ Client::Client(QObject *parent) : QObject(parent), m_network(),  m_thread(), m_t
     connect(&m_thread, &QThread::finished, this, [this]() {
         m_timer.stop();
     }, Qt::DirectConnection);
-
-    start();
 }
 
 Client::~Client()
@@ -95,6 +93,24 @@ void Client::sendRequests()
     }
 }
 
+Item *Client::addItem(const QUuid &serverId, const QUuid &sourceId, const QString &host)
+{
+    auto item = new remote::Item(this);
+    item->setServerId(serverId);
+    item->setSourceId(sourceId);
+    item->setHost(host);
+    connect(item, &Item::updateData, this, &Client::requestUpdate);
+    connect(item, &Item::destroyed, this, [ = ]() {
+        m_items[qHash(sourceId)] = nullptr;
+        m_needUpdate[qHash(sourceId)] = READY_FOR_UPDATE;
+    }, Qt::DirectConnection);
+
+    m_sourceList->appendItem(item);
+    m_items[qHash(sourceId)] = item;
+
+    return item;
+}
+
 void Client::dataRecieved(QHostAddress senderAddress, [[maybe_unused]] int senderPort, const QByteArray &data)
 {
     auto document = QJsonDocument::fromJson(data);
@@ -102,38 +118,38 @@ void Client::dataRecieved(QHostAddress senderAddress, [[maybe_unused]] int sende
         return;
     }
 
-    if (document["message"].toString() == "hello") {
-        auto uuid = QUuid::fromString(document["uuid"].toString());
-        auto port = document["port"].toInt();
+    auto serverId = QUuid::fromString(document["uuid"].toString());
+    auto time = document["time"].toString();
+    Q_UNUSED(time)
 
-        m_servers[qHash(uuid)] = {senderAddress, port};
+    if (document["message"].toString() == "hello") {
+        auto port = document["port"].toInt();
+        m_servers[qHash(serverId)] = {senderAddress, port};
+
+        if (document["sources"].isArray()) {
+            auto sources = document["sources"].toArray();
+            for (int i = 0; i < sources.count(); i++) {
+                auto sourceUuid = QUuid::fromString(sources[i].toString());
+                if (m_items.find(qHash(sourceUuid)) == m_items.end()) {
+                    auto item = addItem(serverId, sourceUuid, document["host"].toString());
+                    requestChanged(item);
+                }
+            }
+        }
+
         return;
     }
 
     if (!document["source"].toString().isNull()) {
         auto sourceId = QUuid::fromString(document["source"].toString());
-        auto serverId = QUuid::fromString(document["uuid"].toString());
         auto message = document["message"].toString();
         auto item = m_items.value(qHash(sourceId), nullptr);
-
         if (!m_sourceList) {
             return;
         }
 
         if (message == "added" && !item) {
-            item = new remote::Item(this);
-            item->setServerId(serverId);
-            item->setSourceId(sourceId);
-            item->setHost(document["host"].toString());
-            connect(item, &Item::updateData, this, &Client::requestUpdate);
-            connect(item, &Item::destroyed, this, [ = ]() {
-                m_items[qHash(sourceId)] = nullptr;
-                m_needUpdate[qHash(sourceId)] = READY_FOR_UPDATE;
-            }, Qt::DirectConnection);
-
-            m_sourceList->appendItem(item);
-            m_items[qHash(sourceId)] = item;
-
+            addItem(serverId, sourceId, document["host"].toString());
             message = "changed";
         }
 

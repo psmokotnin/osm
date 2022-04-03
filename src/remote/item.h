@@ -70,7 +70,7 @@ public slots:
 signals:
     void stateChanged();
     void hostChanged();
-    void updateData(Item *);
+    void updateData(remote::Item *);
 
 private slots:
     void startResetTimer();

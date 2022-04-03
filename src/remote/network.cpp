@@ -77,7 +77,7 @@ void Network::unbindUDP()
     udpSocket->close();
 }
 
-void Network::readUDP() const noexcept
+void Network::readUDP() noexcept
 {
     while (udpSocket->hasPendingDatagrams()) {
         QNetworkDatagram datagram = udpSocket->receiveDatagram();
@@ -135,7 +135,6 @@ void Network::newTCPConnection()
 void Network::sendTCP(const QByteArray &data, const QString &host, quint16 port, Network::responseCallback callback,
                       Network::errorCallback onError) noexcept
 {
-    QHostAddress destination = (host.isNull() ? QHostAddress(host) : QHostAddress(QHostAddress::Broadcast));
     auto *socketThread = new QThread();
     TCPReciever *reciever = nullptr;
     QTcpSocket *socket = new QTcpSocket();

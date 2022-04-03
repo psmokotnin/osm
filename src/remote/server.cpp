@@ -197,15 +197,18 @@ QJsonObject Server::prepareMessage(const QString &message) const
     object["host"] = QHostInfo::localHostName();
     object["message"] = message;
     object["uuid"] = m_uuid.toString();
+    object["time"] = QTime::currentTime().toString();
     return object;
 }
 
 void Server::sourceNotify(const QUuid &id, const QString &message)
 {
-    auto object = prepareMessage(message);
-    object["source"] = id.toString();
-    QJsonDocument document(object);
-    sendMulticast(document.toJson(QJsonDocument::JsonFormat::Compact));
+    if (active()) {
+        auto object = prepareMessage(message);
+        object["source"] = id.toString();
+        QJsonDocument document(object);
+        sendMulticast(document.toJson(QJsonDocument::JsonFormat::Compact));
+    }
 }
 
 void Server::sendMulticast(const QByteArray &data)
@@ -223,8 +226,15 @@ void Server::sendHello()
     auto object = prepareMessage("hello");
     object["port"] = m_network.port();
     object["multicast"] = m_network.MULTICAST_IP;
-    QJsonDocument document(object);
+    QJsonArray sources {};
+    for (auto *source : *m_sourceList) {
+        if (source && !dynamic_cast<remote::Item *>(source)) {
+            sources.push_back(source->uuid().toString());
+        }
+    }
 
+    object["sources"] = sources;
+    QJsonDocument document(object);
     QByteArray data = document.toJson(QJsonDocument::JsonFormat::Compact);
     QMetaObject::invokeMethod(
         &m_network,
