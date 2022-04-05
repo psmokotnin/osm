@@ -25,12 +25,13 @@ namespace remote {
 const QString Network::MULTICAST_IP = "239.255.42.42";
 const QHostAddress Network::MULTICAST_ADDRESS = QHostAddress{Network::MULTICAST_IP};
 
-Network::Network(QObject *parent) : QObject(parent), tcpServer(this), m_tcpCallback(nullptr)
+Network::Network(QObject *parent) : QObject(parent), m_udpSocket(nullptr), m_tcpServer(nullptr), m_tcpCallback(nullptr)
 {
-    udpSocket = new QUdpSocket(this);
-    udpSocket->setSocketOption(QAbstractSocket::MulticastTtlOption, 1);
-    connect(&tcpServer, &QTcpServer::newConnection, this, &Network::newTCPConnection);
+    m_udpSocket = new QUdpSocket(this);
+    m_udpSocket->setSocketOption(QAbstractSocket::MulticastTtlOption, 1);
+    connect(m_udpSocket, &QUdpSocket::readyRead, this, &Network::readUDP);
     qRegisterMetaType<QHostAddress>("QHostAddress");
+    qRegisterMetaType<remote::Network::responseErrorCallbacks>("remote::Network::responseErrorCallbacks");
 }
 
 Network::~Network()
@@ -47,40 +48,47 @@ void Network::setTcpCallback(Network::tcpCallback callback) noexcept
 bool Network::startTCPServer()
 {
     stopTCPServer();
-    return tcpServer.listen(QHostAddress::AnyIPv4, DEFAULT_PORT);
+    if (!m_tcpServer) {
+        m_tcpServer = new QTcpServer(this);
+        connect(m_tcpServer, &QTcpServer::newConnection, this, &Network::newTCPConnection);
+    }
+    return m_tcpServer->listen(QHostAddress::AnyIPv4, DEFAULT_PORT);
 }
 
 void Network::stopTCPServer()
 {
-    tcpServer.close();
+    if (m_tcpServer) {
+        m_tcpServer->close();
+    }
 }
 
 bool Network::bindUDP()
 {
-    const QHostAddress &address = QHostAddress::AnyIPv4;
-    auto connected = udpSocket->bind(address, DEFAULT_PORT);
+    auto connected = m_udpSocket->bind(QHostAddress::AnyIPv4, DEFAULT_PORT);
     if (!connected) {
-        qWarning() << "couldn't bind IPv4:" << address.toIPv4Address()  << " port" << DEFAULT_PORT;
+        qWarning() << "couldn't bind AnyIPv4 at port" << DEFAULT_PORT;
         return false;
     }
-    connect(udpSocket, &QUdpSocket::readyRead, this, &Network::readUDP);
+    joinMulticast();
     return true;
 }
 
 void Network::joinMulticast()
 {
-    udpSocket->joinMulticastGroup(Network::MULTICAST_ADDRESS);
+    m_udpSocket->joinMulticastGroup(Network::MULTICAST_ADDRESS);
 }
 
 void Network::unbindUDP()
 {
-    udpSocket->close();
+    if (m_udpSocket) {
+        m_udpSocket->close();
+    }
 }
 
 void Network::readUDP() noexcept
 {
-    while (udpSocket->hasPendingDatagrams()) {
-        QNetworkDatagram datagram = udpSocket->receiveDatagram();
+    while (m_udpSocket->hasPendingDatagrams()) {
+        QNetworkDatagram datagram = m_udpSocket->receiveDatagram();
         emit datagramRecieved(datagram.senderAddress(), datagram.senderPort(), datagram.data());
     }
 }
@@ -89,19 +97,25 @@ bool Network::sendUDP(const QByteArray &data, const QString &host, quint16 port)
 {
     QHostAddress destination = (!host.isNull() ? QHostAddress(host) : QHostAddress(QHostAddress::Broadcast));
 
-    qint64 sent = udpSocket->writeDatagram(data, destination, port);
+    qint64 sent = m_udpSocket->writeDatagram(data, destination, port);
     return (sent == data.size());
 }
 
 void Network::newTCPConnection()
 {
-    QTcpSocket *clientConnection = tcpServer.nextPendingConnection();
+    QTcpSocket *clientConnection = m_tcpServer->nextPendingConnection();
+    if (!clientConnection) {
+        return;
+    }
     connect(clientConnection, &QAbstractSocket::disconnected,
             clientConnection, &QObject::deleteLater);
 
-    auto reciever = new TCPReciever();
+    auto reciever = new TCPReciever(clientConnection);
 
-    connect(reciever, &TCPReciever::readyRead, [ = ]() {
+    connect(reciever, &TCPReciever::readyRead, this, [ = ]() {
+        if (!clientConnection->isWritable()) {
+            return;
+        }
         if (m_tcpCallback) {
             auto answer = m_tcpCallback(clientConnection->peerAddress(), reciever->data());
             auto header = TCPReciever::makeHeader(answer);
@@ -116,25 +130,30 @@ void Network::newTCPConnection()
                 sent += len;
                 clientConnection->waitForBytesWritten();
             }
+            clientConnection->flush();
         }
         clientConnection->close();
-        clientConnection->deleteLater();
-        reciever->deleteLater();
     });
 
-    connect(reciever, &TCPReciever::timeOut, [ = ]() {
+    connect(reciever, &TCPReciever::timeOut, this, [ = ]() {
         if (clientConnection) {
             clientConnection->close();
-            clientConnection->deleteLater();
-            reciever->deleteLater();
         }
+    });
+
+    connect(clientConnection, &QTcpSocket::disconnected, this, [ = ]() {
+        reciever->deleteLater();
+        clientConnection->deleteLater();
     });
     reciever->setSocket(clientConnection);
 }
 
-void Network::sendTCP(const QByteArray &data, const QString &host, quint16 port, Network::responseCallback callback,
-                      Network::errorCallback onError) noexcept
+void Network::sendTCP(const QByteArray &data, const QString &host, quint16 port,
+                      responseErrorCallbacks callbacks) noexcept
 {
+    auto callback = callbacks.first;
+    auto onError = callbacks.second;
+
     auto *socketThread = new QThread();
     TCPReciever *reciever = nullptr;
     QTcpSocket *socket = new QTcpSocket();
@@ -152,9 +171,8 @@ void Network::sendTCP(const QByteArray &data, const QString &host, quint16 port,
     auto header = TCPReciever::makeHeader(data);
     connect(socket, &QTcpSocket::connected, socketThread, [ = ]() {
         socket->write(header.data(), header.size());
-        socket->waitForBytesWritten();
         socket->write(data);
-        socket->waitForBytesWritten();
+        socket->flush();
     }, Qt::DirectConnection);
 
     if (reciever) {
@@ -164,29 +182,23 @@ void Network::sendTCP(const QByteArray &data, const QString &host, quint16 port,
         }, Qt::DirectConnection);
 
         connect(reciever, &TCPReciever::timeOut, socketThread, [ = ]() {
-            qInfo() << "Can't connect to the device. timeout expired.";
+            qInfo() << "Can't connect to the device" << host << port << ". timeout expired.";
             socket->disconnectFromHost();
             onError();
         }, Qt::DirectConnection);
     }
 
     connect(socket, &QTcpSocket::disconnected, this, [ = ]() {
-        socket->close();
         socketThread->exit();
     });
 
     connect(socket, &QTcpSocket::errorOccurred, this, [ = ]([[maybe_unused]] auto socketError) {
-        //qDebug() << "socketError" << socketError;
         onError();
         socket->close();
-        socketThread->exit();
     });
 
     connect(socketThread, &QThread::finished, this, [ = ]() {
-        if (reciever) {
-            reciever->deleteLater();
-        }
-        socket->deleteLater();
+        delete socket; //its QThread has finished
         socketThread->deleteLater();
     });
 

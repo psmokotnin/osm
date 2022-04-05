@@ -30,7 +30,7 @@ class Client : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(bool active READ active WRITE setActive NOTIFY activeChanged)
-    const static int TIMER_INTERVAL = 500;
+    const static int TIMER_INTERVAL = 250;
 
 public:
     explicit Client(QObject *parent = nullptr);

@@ -26,6 +26,7 @@ namespace remote {
 class TCPReciever : public QObject
 {
     Q_OBJECT
+    static const int TIMEOUT = 5000;
 
 public:
     //! To run reciever in the socket's thread use setSocket after moving socket to a new thread

@@ -42,6 +42,7 @@ public:
     typedef const std::function<void()> errorCallback;
     typedef std::function<TCPReciever*(void)> createTCPReciver;
     typedef std::function<QByteArray (const QHostAddress &, const QByteArray &)> tcpCallback;
+    typedef std::pair<responseCallback, errorCallback> responseErrorCallbacks;
 
     constexpr quint16 port() const noexcept
     {
@@ -59,9 +60,8 @@ public slots:
     void unbindUDP();
 
     bool sendUDP(const QByteArray &data, const QString &host = QString(), quint16 port = DEFAULT_PORT) const noexcept;
-
-    void sendTCP(const QByteArray &data, const QString &host = QString(), quint16 port = DEFAULT_PORT,
-                 Network::responseCallback callback = nullptr, Network::errorCallback onError = nullptr) noexcept;
+    void sendTCP(const QByteArray &data, const QString &host, quint16 port,
+                 remote::Network::responseErrorCallbacks callbacks) noexcept;
 
     void readUDP() noexcept;
 
@@ -72,8 +72,8 @@ protected slots:
     void newTCPConnection();
 
 private:
-    QUdpSocket *udpSocket;
-    QTcpServer tcpServer;
+    QUdpSocket *m_udpSocket;
+    QTcpServer *m_tcpServer;
     tcpCallback m_tcpCallback;
 };
 

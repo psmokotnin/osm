@@ -33,7 +33,7 @@ void TCPReciever::setSocket(QTcpSocket *socket)
     connect(socket, &QTcpSocket::readyRead, this, &TCPReciever::socketReadyRead);
 
     //run timeout timer
-    QTimer::singleShot(1000, this, [ = ]() {
+    QTimer::singleShot(TIMEOUT, this, [ = ]() {
         emit timeOut();
     });
 }
@@ -53,6 +53,9 @@ std::array<char, 4> TCPReciever::makeHeader(const QByteArray &data)
 
 void TCPReciever::socketReadyRead()
 {
+    if (!socket()->isReadable()) {
+        return;
+    }
     if (!p_size.value) {
         const auto sizeData = socket()->read(4);
         p_size.byte[0] = sizeData[0];
@@ -63,8 +66,10 @@ void TCPReciever::socketReadyRead()
         m_data.reserve(p_size.value);
     }
 
-    const auto data = socket()->readAll();
-    m_data.push_back(data);
+    if (p_size.value > m_data.size()) {
+        const auto data = socket()->read(p_size.value - m_data.size());
+        m_data.push_back(data);
+    }
 
     if (p_size.value <= m_data.size()) {
         emit readyRead();

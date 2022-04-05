@@ -26,6 +26,7 @@ Client::Client(QObject *parent) : QObject(parent), m_network(),  m_thread(), m_t
 {
     connect(&m_network, &Network::datagramRecieved, this, &Client::dataRecieved);
     m_thread.setObjectName("NetworkClient");
+    m_network.moveToThread(&m_thread);
 
     m_timer.setInterval(TIMER_INTERVAL);
     m_timer.moveToThread(&m_thread);
@@ -50,15 +51,14 @@ void Client::setSourceList(SourceList *list)
 
 bool Client::start()
 {
-    m_network.bindUDP();
-    m_network.joinMulticast();
+    QMetaObject::invokeMethod(&m_network, "bindUDP");
     m_thread.start();
     return m_thread.isRunning();
 }
 
 void Client::stop()
 {
-    m_network.unbindUDP();
+    QMetaObject::invokeMethod(&m_network, "unbindUDP");
     m_thread.quit();
     m_thread.wait();
 }
@@ -210,6 +210,7 @@ void Client::requestData(Item *item)
     };
     Network::errorCallback onError = [this, item]() {
         item->setState(Item::ERROR);
+        qDebug() << "requestData error";
         m_needUpdate[qHash(item->sourceId())] = READY_FOR_UPDATE;
         m_onRequest = false;
     };
@@ -237,7 +238,17 @@ void Client::requestSource(Item *item, const QString &message, Network::response
         item->setState(Item::ERROR);
         item->setActive(false);
     };
-    m_network.sendTCP(data, server.first.toString(), server.second, callback, errorCallback ? errorCallback : onError);
+
+    Network::responseErrorCallbacks pair = {callback, errorCallback};
+    QMetaObject::invokeMethod(
+        &m_network,
+        "sendTCP",
+        Qt::QueuedConnection,
+        Q_ARG(QByteArray, std::move(data)),
+        Q_ARG(QString, server.first.toString()),
+        Q_ARG(quint16, server.second),
+        Q_ARG(remote::Network::responseErrorCallbacks, pair)
+    );
 }
 
 } // namespace remote

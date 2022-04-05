@@ -114,8 +114,10 @@ void Item::applyData(const QJsonArray &data)
     //m_deconvolutionSize = static_cast<unsigned int>(impulse.count());
     //m_impulseData        = new TimeData[m_deconvolutionSize];
     if (m_dataLength != static_cast<unsigned int>(data.count())) {
-        m_dataLength         = static_cast<unsigned int>(data.count());
-        m_ftdata             = new FTData[m_dataLength];
+        m_dataLength = static_cast<unsigned int>(data.count());
+
+        delete[] m_ftdata;
+        m_ftdata = new FTData[m_dataLength];
     }
 
     for (int i = 0; i < data.count(); i++) {
