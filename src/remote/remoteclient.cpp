@@ -133,6 +133,7 @@ void Client::dataRecieved(QHostAddress senderAddress, [[maybe_unused]] int sende
                 if (m_items.find(qHash(sourceUuid)) == m_items.end()) {
                     auto item = addItem(serverId, sourceUuid, document["host"].toString());
                     requestChanged(item);
+                    requestUpdate(item);
                 }
             }
         }
@@ -149,8 +150,9 @@ void Client::dataRecieved(QHostAddress senderAddress, [[maybe_unused]] int sende
         }
 
         if (message == "added" && !item) {
-            addItem(serverId, sourceId, document["host"].toString());
-            message = "changed";
+            item = addItem(serverId, sourceId, document["host"].toString());
+            requestChanged(item);
+            requestUpdate(item);
         }
 
         if (item && message == "removed") {
