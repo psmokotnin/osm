@@ -83,7 +83,7 @@ void Client::sendRequests()
     if (m_onRequest) {
         return;
     }
-
+    auto guard = m_sourceList->lock();
     auto result = std::min_element(m_needUpdate.begin(), m_needUpdate.end());
 
     if (result != m_needUpdate.end() && (*result) < ON_UPDATE) {
@@ -241,7 +241,7 @@ void Client::requestSource(Item *item, const QString &message, Network::response
         item->setActive(false);
     };
 
-    Network::responseErrorCallbacks pair = {callback, errorCallback};
+    Network::responseErrorCallbacks callbacks = {item, callback, errorCallback};
     QMetaObject::invokeMethod(
         &m_network,
         "sendTCP",
@@ -249,7 +249,7 @@ void Client::requestSource(Item *item, const QString &message, Network::response
         Q_ARG(QByteArray, std::move(data)),
         Q_ARG(QString, server.first.toString()),
         Q_ARG(quint16, server.second),
-        Q_ARG(remote::Network::responseErrorCallbacks, pair)
+        Q_ARG(remote::Network::responseErrorCallbacks, callbacks)
     );
 }
 

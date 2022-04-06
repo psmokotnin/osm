@@ -551,9 +551,8 @@ void SourceList::appendItem(chart::Source *item, bool autocolor)
 }
 void SourceList::removeItem(chart::Source *item, bool deleteItem)
 {
-    m_checked.removeAll(item);
     auto guard = lock();
-
+    m_checked.removeAll(item);
     for (int i = 0; i < m_items.size(); ++i) {
         if (m_items.at(i) == item) {
             auto item = get(i);

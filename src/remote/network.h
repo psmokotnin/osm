@@ -42,7 +42,7 @@ public:
     typedef const std::function<void()> errorCallback;
     typedef std::function<TCPReciever*(void)> createTCPReciver;
     typedef std::function<QByteArray (const QHostAddress &, const QByteArray &)> tcpCallback;
-    typedef std::pair<responseCallback, errorCallback> responseErrorCallbacks;
+    typedef std::tuple<const QObject *, responseCallback, errorCallback> responseErrorCallbacks;
 
     constexpr quint16 port() const noexcept
     {
