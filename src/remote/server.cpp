@@ -18,6 +18,7 @@
 #include "server.h"
 #include "../sourcelist.h"
 #include "item.h"
+#include "apikey.h"
 
 namespace remote {
 
@@ -117,7 +118,20 @@ void Server::setActive(bool state)
     }
 }
 
-QByteArray Server::tcpCallback([[maybe_unused]] const QHostAddress &address, const QByteArray &data) const
+QString Server::lastConnected() const
+{
+    return m_lastConnected;
+}
+
+void Server::setLastConnected(const QString &lastConnected)
+{
+    if (m_lastConnected != lastConnected) {
+        m_lastConnected = lastConnected;
+        emit lastConnectedChanged();
+    }
+}
+
+QByteArray Server::tcpCallback([[maybe_unused]] const QHostAddress &address, const QByteArray &data)
 {
     auto document = QJsonDocument::fromJson(data);
     if (document.isNull()) {
@@ -131,6 +145,27 @@ QByteArray Server::tcpCallback([[maybe_unused]] const QHostAddress &address, con
     auto message = document["message"].toString();
     auto sourceId = QUuid::fromString(document["uuid"].toString());
     auto source = m_sourceList->getByUUid(sourceId);
+
+    auto license = document["license"];
+    auto owner = license["owner"].toString();
+    auto sign = license["sign"].toString();
+
+    if (m_validKeys[owner].isEmpty()) {
+        m_validKeys[owner] = ApiKey{owner, sign};
+        setLastConnected(owner);
+    }
+
+    if (!m_validKeys[owner].valid()) {
+        QJsonObject object;
+        object["api"]     = "Open Sound Meter";
+        object["version"] = APP_GIT_VERSION;
+        object["message"] = "error";
+        object["string"]  = "wrong API key";
+
+        QJsonDocument document(object);
+        return document.toJson(QJsonDocument::JsonFormat::Compact);
+    }
+
 
     if (message == "requestChanged") {
         QJsonObject object;

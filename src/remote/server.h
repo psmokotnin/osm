@@ -20,6 +20,7 @@
 
 #include <QObject>
 #include "network.h"
+#include "apikey.h"
 
 class SourceList;
 namespace remote {
@@ -28,6 +29,7 @@ class Server : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(bool active READ active WRITE setActive NOTIFY activeChanged)
+    Q_PROPERTY(QString lastConnected READ lastConnected NOTIFY lastConnectedChanged)
     const static int TIMER_INTERVAL = 1000;
 
 public:
@@ -42,10 +44,12 @@ public:
     bool active() const;
     void setActive(bool state);
 
-    QByteArray tcpCallback(const QHostAddress &address, const QByteArray &data) const;
+    QByteArray tcpCallback(const QHostAddress &address, const QByteArray &data);
+    QString lastConnected() const;
 
 signals:
     void activeChanged();
+    void lastConnectedChanged();
 
 private slots:
     void sendHello();
@@ -54,13 +58,16 @@ private:
     QJsonObject prepareMessage(const QString &message) const;
     void sourceNotify(const QUuid &id, const QString &message);
     void sendMulticast(const QByteArray &data);
+    void setLastConnected(const QString &lastConnected);
 
     QUuid m_uuid;
     QTimer m_timer;
+    QString m_lastConnected;
     QThread m_networkThread;
     Network m_network;
     SourceList *m_sourceList;
     mutable std::map<QUuid, QJsonArray> m_sourceJsons;
+    mutable std::map<QString, ApiKey> m_validKeys;
 
 };
 

@@ -21,6 +21,7 @@
 #include <QObject>
 #include <QList>
 #include "network.h"
+#include "apikey.h"
 
 class SourceList;
 namespace remote {
@@ -30,6 +31,8 @@ class Client : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(bool active READ active WRITE setActive NOTIFY activeChanged)
+    Q_PROPERTY(bool licensed READ licensed NOTIFY licenseChanged)
+    Q_PROPERTY(QString licenseOwner READ licenseOwner NOTIFY licenseChanged)
     const static int TIMER_INTERVAL = 250;
 
 public:
@@ -43,11 +46,16 @@ public:
     bool active() const;
     void setActive(bool state);
 
+    Q_INVOKABLE bool openLicenseFile(const QUrl &fileName);
+    bool licensed() const;
+    QString licenseOwner() const;
+
 public slots:
     void dataRecieved(QHostAddress senderAddress, int senderPort, const QByteArray &data);
 
 signals:
     void activeChanged();
+    void licenseChanged();
 
 private slots:
     void sendRequests();
@@ -61,6 +69,7 @@ private:
                        Network::errorCallback errorCallback = 0);
 
     Network m_network;
+    ApiKey m_key;
     QThread m_thread;
     QTimer m_timer;
     SourceList *m_sourceList;

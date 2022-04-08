@@ -19,79 +19,91 @@ import QtQuick 2.13
 import QtQuick.Controls 2.13
 import QtQuick.Controls.Material 2.13
 import QtQuick.Layouts 1.12
+import QtQuick.Dialogs 1.2
 
 Item {
 
-    GridLayout {
+    ColumnLayout {
         anchors.fill: parent
-        columns: 3
 
-        Label {
-            text: "Server:"
-        }
+        RowLayout {
 
-        Button {
-            checkable: true
-            text: qsTr("Active")
-            checked: remoteServer.active
-            onCheckedChanged: {
-                remoteServer.active = checked;
-            }
-        }
-
-        Item {
-            Layout.fillWidth: true
-        }
-
-        Label {
-            opacity: typeof(remoteClient) != "undefined"
-
-            text: "Client:"
-        }
-
-        Button {
-            opacity: typeof(remoteClient) != "undefined"
-
-            checkable: true
-            text: qsTr("Active")
-            checked: remoteClient.active
-            onCheckedChanged: {
-                remoteClient.active = checked;
-            }
-        }
-
-
-        MouseArea {
-            id: mouseArea
-            Layout.fillWidth: true
-            opacity: typeof(remoteClient) == "undefined"
-            Layout.preferredHeight: 40
-            Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-            cursorShape: Qt.PointingHandCursor
-            onClicked:  {
-                Qt.openUrlExternally("https://apps.apple.com/app/id1552933259");
-            }
-
-            RowLayout {
-                anchors.verticalCenter: parent.verticalCenter
-                anchors.horizontalCenter: parent.horizontalCenter
-                Layout.alignment: Qt.AlignHCenter | Qt.AlignTop
-
-                Label {
-                    id: foriOs
-                    text: qsTr("Use Open Sound Meter for iOS as a client:")
-                    horizontalAlignment: Text.AlignRight
-                    Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-                    onLinkActivated: Qt.openUrlExternally(link)
+            Button {
+                checkable: true
+                text: qsTr("Server")
+                checked: remoteServer.active
+                Material.background: parent.Material.background
+                onCheckedChanged: {
+                    remoteServer.active = checked;
                 }
+            }
 
-                Image {
-                    id: appstore
-                    source: "qrc:/images/icons/appstore.png"
-                    fillMode: Image.PreserveAspectFit
-                    Layout.preferredWidth: 120
-                    Layout.preferredHeight: 40
+            Label {
+                Layout.fillWidth: true
+                text: remoteServer.lastConnected ? "Last connected client: <b>" + remoteServer.lastConnected + "</b>" : ""
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+                textFormat: Text.RichText
+            }
+
+            Button {
+                text: qsTr("Available clients")
+                Layout.preferredWidth: 200
+                Material.background: parent.Material.background
+
+                onClicked:  {
+                    Qt.openUrlExternally("https://opensoundmeter.com/api/clients");
                 }
+            }
+        }
+
+        RowLayout {
+            Button {
+                checkable: true
+                enabled: remoteClient.licensed
+                text: qsTr("Client")
+                Material.background: parent.Material.background
+                checked: remoteClient.active
+                onCheckedChanged: {
+                    remoteClient.active = checked;
+                }
+            }
+
+            Label {
+                Layout.fillWidth: true
+                text: remoteClient.licensed ? "Licensed to <b>" + remoteClient.licenseOwner + "</b>" : "Key not found"
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+                textFormat: Text.RichText
+            }
+
+            Button {
+                text: qsTr("Open")
+                Layout.preferredWidth: 98
+                Material.background: parent.Material.background
+                onClicked: openLicenseDialog.open();
+            }
+
+            Button {
+                text: qsTr("Buy")
+                Layout.preferredWidth: 97
+                Material.background: parent.Material.background
+            }
+        }
+    }
+
+    FileDialog {
+        id: openLicenseDialog
+        selectExisting: true
+        title: qsTr("Please choose a license file")
+        folder: (typeof shortcuts !== 'undefined' ? shortcuts.home : Filesystem.StandardFolder.Home)
+        defaultSuffix: "osmkey"
+        nameFilters: [
+            "Open Sound Meter API license (*.osmkey)"
+        ]
+        onAccepted: function() {
+            if (!remoteClient.openLicenseFile(openLicenseDialog.fileUrl)) {
+                message.showError(qsTr("could not open license file"));
             }
         }
     }

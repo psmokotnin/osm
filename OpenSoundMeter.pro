@@ -40,6 +40,7 @@ SOURCES += src/main.cpp \
     src/generator/mnoise.cpp \
     src/common/notifier.cpp \
     src/common/profiler.cpp \
+    src/remote/apikey.cpp \
     src/remote/item.cpp \
     src/remote/network.cpp \
     src/remote/remoteclient.cpp \
@@ -144,6 +145,7 @@ HEADERS += \
     src/generator/mnoise.h \
     src/common/notifier.h \
     src/common/profiler.h \
+    src/remote/apikey.h \
     src/remote/item.h \
     src/remote/network.h \
     src/remote/remoteclient.h \
@@ -187,6 +189,10 @@ HEADERS += \
     src/container/fifo.h \
     src/container/circular.h \
     src/container/array.h
+
+# OpenSSL
+INCLUDEPATH   += "/usr/local/opt/openssl@3/include"
+LIBS          += -L/usr/local/opt/openssl@3/lib -lssl -lcrypto
 
 #dialogs
 ios: {
