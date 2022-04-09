@@ -150,12 +150,11 @@ QByteArray Server::tcpCallback([[maybe_unused]] const QHostAddress &address, con
     auto owner = license["owner"].toString();
     auto sign = license["sign"].toString();
 
-    if (m_validKeys[owner].isEmpty()) {
-        m_validKeys[owner] = ApiKey{owner, sign};
-        setLastConnected(owner);
+    if (m_knownApiKeys[owner].isEmpty()) {
+        m_knownApiKeys[owner] = ApiKey{owner, sign};
     }
 
-    if (!m_validKeys[owner].valid()) {
+    if (!m_knownApiKeys[owner].valid()) {
         QJsonObject object;
         object["api"]     = "Open Sound Meter";
         object["version"] = APP_GIT_VERSION;
@@ -164,6 +163,8 @@ QByteArray Server::tcpCallback([[maybe_unused]] const QHostAddress &address, con
 
         QJsonDocument document(object);
         return document.toJson(QJsonDocument::JsonFormat::Compact);
+    } else {
+        setLastConnected(owner);
     }
 
 
