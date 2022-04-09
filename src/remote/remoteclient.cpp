@@ -21,7 +21,10 @@
 
 namespace remote {
 
-Client::Client(QObject *parent) : QObject(parent), m_network(),  m_key(), m_thread(), m_timer(),
+const QString Client::SETTINGS_LICENSE_KEY = "licenseFile";
+
+Client::Client(Settings *settings, QObject *parent) : QObject(parent), m_network(),  m_key(), m_settings(settings),
+    m_thread(), m_timer(),
     m_sourceList(nullptr), m_servers(), m_items(), m_onRequest(false), m_updateCounter(0), m_needUpdate()
 {
     connect(&m_network, &Network::datagramRecieved, this, &Client::dataRecieved);
@@ -37,6 +40,11 @@ Client::Client(QObject *parent) : QObject(parent), m_network(),  m_key(), m_thre
     connect(&m_thread, &QThread::finished, this, [this]() {
         m_timer.stop();
     }, Qt::DirectConnection);
+
+    auto savedUrl = m_settings->value(SETTINGS_LICENSE_KEY).toUrl();
+    if (savedUrl.isValid()) {
+        openLicenseFile(savedUrl);
+    }
 }
 
 Client::~Client()
@@ -84,6 +92,11 @@ void Client::setActive(bool state)
 
 bool Client::openLicenseFile(const QUrl &fileName)
 {
+    auto savedUrl = m_settings->value(SETTINGS_LICENSE_KEY).toUrl();
+    if (savedUrl != fileName) {
+        m_settings->setValue(SETTINGS_LICENSE_KEY, fileName);
+    }
+
     QFile loadFile(fileName.toLocalFile());
     if (!loadFile.open(QIODevice::ReadOnly)) {
         qWarning("Couldn't open file");

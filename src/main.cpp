@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
     auto t = new TargetTrace(settings.getGroup("targettrace"));
     auto notifier = Notifier::getInstance();
 
-    auto client = remote::Client();
+    auto client = remote::Client(settings.getGroup("apiClient"));
     client.setSourceList(&sourceList);
     auto server = remote::Server(&sourceList);
     server.setSourceList(&sourceList);

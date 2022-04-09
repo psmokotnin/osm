@@ -22,6 +22,7 @@
 #include <QList>
 #include "network.h"
 #include "apikey.h"
+#include "settings.h"
 
 class SourceList;
 namespace remote {
@@ -34,9 +35,10 @@ class Client : public QObject
     Q_PROPERTY(bool licensed READ licensed NOTIFY licenseChanged)
     Q_PROPERTY(QString licenseOwner READ licenseOwner NOTIFY licenseChanged)
     const static int TIMER_INTERVAL = 250;
+    const static QString SETTINGS_LICENSE_KEY;
 
 public:
-    explicit Client(QObject *parent = nullptr);
+    explicit Client(Settings *settings, QObject *parent = nullptr);
     ~Client();
     void setSourceList(SourceList *list);
 
@@ -70,6 +72,7 @@ private:
 
     Network m_network;
     ApiKey m_key;
+    Settings *m_settings;
     QThread m_thread;
     QTimer m_timer;
     SourceList *m_sourceList;
