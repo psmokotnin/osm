@@ -243,16 +243,54 @@ void Client::requestUpdate(Item *item)
 void Client::requestChanged(Item *item)
 {
     Network::responseCallback onAnswer = [item](const QByteArray & data) {
-        auto document = QJsonDocument::fromJson(data);
-        auto jsonColor = document["color"].toObject();
-        QColor c(
-            jsonColor["red"  ].toInt(0),
-            jsonColor["green"].toInt(0),
-            jsonColor["blue" ].toInt(0),
-            jsonColor["alpha"].toInt(1));
-        item->setColor(c);
-        item->setName(document["name"].toString());
+        auto document = QJsonDocument::fromJson(data).object();
         item->setOriginalActive(document["active"].toBool());
+
+        auto metaObject = item->metaObject();;
+        for (auto &field : document.keys()) {
+
+            if (field == "objectName" || field == "active") {
+                continue;
+            }
+
+            auto index = metaObject->indexOfProperty(field.toStdString().c_str());
+            if (index == -1) {
+                continue;
+            }
+            auto property = metaObject->property(index);
+            switch (property.type()) {
+            case QVariant::Type::Bool:
+                property.write(item, document[field].toBool());
+                break;
+
+            case QVariant::Type::UInt:
+            case QVariant::Type::Int:
+                property.write(item, document[field].toInt());
+                break;
+
+            case QVariant::Type::Double:
+                property.write(item, document[field].toDouble());
+                break;
+
+            case QVariant::Type::String:
+                property.write(item, document[field].toString());
+                break;
+
+            case QVariant::Type::Color: {
+                auto colorObject = document[field].toObject();
+                QColor color(
+                    colorObject["red"  ].toInt(0),
+                    colorObject["green"].toInt(0),
+                    colorObject["blue" ].toInt(0),
+                    colorObject["alpha"].toInt(1));
+                property.write(item, color);
+                break;
+            }
+
+            default:
+                ;
+            }
+        }
     };
     requestSource(item, "requestChanged", onAnswer);
 }

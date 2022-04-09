@@ -167,7 +167,6 @@ QByteArray Server::tcpCallback([[maybe_unused]] const QHostAddress &address, con
         setLastConnected(owner);
     }
 
-
     if (message == "requestChanged") {
         QJsonObject object;
         object["api"]     = "Open Sound Meter";
@@ -175,16 +174,44 @@ QByteArray Server::tcpCallback([[maybe_unused]] const QHostAddress &address, con
         object["message"] = "sourceSettings";
         object["uuid"]    = source->uuid().toString();
 
-        QJsonObject color;
-        color["red"]     = source->color().red();
-        color["green"]   = source->color().green();
-        color["blue"]    = source->color().blue();
-        color["alpha"]   = source->color().alpha();
-        object["color"]  = color;
-        object["active"] = source->active();
-        object["name"]   = source->name();
+        for (int i = 0 ; i < source->metaObject()->propertyCount(); ++i) {
+            auto property = source->metaObject()->property(i);
 
+            switch (property.type()) {
 
+            case QVariant::Type::Bool:
+                object[property.name()]  = property.read(source).toBool();
+                break;
+
+            case QVariant::Type::UInt:
+            case QVariant::Type::Int:
+                object[property.name()]  = property.read(source).toInt();
+                break;
+
+            case QVariant::Type::Double:
+                object[property.name()]  = property.read(source).toDouble();
+                break;
+
+            case QVariant::Type::String:
+                object[property.name()]  = property.read(source).toString();
+                break;
+
+            case QVariant::Type::Color: {
+                QJsonObject color;
+                color["red"]     = source->color().red();
+                color["green"]   = source->color().green();
+                color["blue"]    = source->color().blue();
+                color["alpha"]   = source->color().alpha();
+                object[property.name()]  = color;
+                break;
+            }
+            case QVariant::Type::UserType: {
+
+            }
+            default:
+                ;
+            }
+        }
         QJsonDocument document(object);
         return document.toJson(QJsonDocument::JsonFormat::Compact);
     }
