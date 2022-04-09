@@ -62,7 +62,7 @@ private slots:
     void requestUpdate(remote::Item *item);
 
 private:
-    remote::Item *addItem(const QUuid &serverId, const QUuid &sourceId, const QString &host);
+    remote::Item *addItem(const QUuid &serverId, const QUuid &sourceId, const QString &objectName, const QString &host);
     void requestChanged(Item *item);
     void requestData(Item *item);
     void requestSource(Item *item, const QString &message, Network::responseCallback callback,

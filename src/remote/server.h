@@ -23,6 +23,10 @@
 #include "apikey.h"
 
 class SourceList;
+namespace chart {
+class Source;
+}
+
 namespace remote {
 
 class Server : public QObject
@@ -56,7 +60,7 @@ private slots:
 
 private:
     QJsonObject prepareMessage(const QString &message) const;
-    void sourceNotify(const QUuid &id, const QString &message);
+    void sourceNotify(chart::Source *source, const QString &message);
     void sendMulticast(const QByteArray &data);
     void setLastConnected(const QString &lastConnected);
 
@@ -68,7 +72,6 @@ private:
     SourceList *m_sourceList;
     mutable std::map<QUuid, QJsonArray> m_sourceJsons;
     mutable std::map<QString, ApiKey> m_validKeys;
-
 };
 
 } // namespace remote

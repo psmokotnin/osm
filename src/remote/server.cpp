@@ -54,22 +54,22 @@ void Server::setSourceList(SourceList *list)
             return ;
         }
 
-        sourceNotify(source->uuid(), "added");
+        sourceNotify(source, "added");
 
         connect(source, &chart::Source::readyRead, this, [this, source]() {
-            sourceNotify(source->uuid(), "readyRead");
+            sourceNotify(source, "readyRead");
         });
 
         connect(source, &chart::Source::activeChanged, this, [this, source]() {
-            sourceNotify(source->uuid(), "changed");
+            sourceNotify(source, "changed");
         });
 
         connect(source, &chart::Source::colorChanged, this, [this, source]() {
-            sourceNotify(source->uuid(), "changed");
+            sourceNotify(source, "changed");
         });
 
         connect(source, &chart::Source::nameChanged, this, [this, source]() {
-            sourceNotify(source->uuid(), "changed");
+            sourceNotify(source, "changed");
         });
     };
 
@@ -81,7 +81,7 @@ void Server::setSourceList(SourceList *list)
     connect(list, &SourceList::preItemRemoved, this, [this, list](auto index) {
         auto *source = list->get(index);
         if (source) {
-            sourceNotify(source->uuid(), "removed");
+            sourceNotify(source, "removed");
         }
     });
 }
@@ -236,11 +236,12 @@ QJsonObject Server::prepareMessage(const QString &message) const
     return object;
 }
 
-void Server::sourceNotify(const QUuid &id, const QString &message)
+void Server::sourceNotify(chart::Source *source, const QString &message)
 {
     if (active()) {
         auto object = prepareMessage(message);
-        object["source"] = id.toString();
+        object["source"] = source->uuid().toString();
+        object["objectName"] = source->objectName();
         QJsonDocument document(object);
         sendMulticast(document.toJson(QJsonDocument::JsonFormat::Compact));
     }
@@ -264,7 +265,10 @@ void Server::sendHello()
     QJsonArray sources {};
     for (auto *source : *m_sourceList) {
         if (source && !dynamic_cast<remote::Item *>(source)) {
-            sources.push_back(source->uuid().toString());
+            QJsonObject sourceObject;
+            sourceObject["uuid"] = source->uuid().toString();
+            sourceObject["objectName"] = source->objectName();
+            sources.push_back(sourceObject);
         }
     }
 

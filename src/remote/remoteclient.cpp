@@ -134,7 +134,7 @@ void Client::sendRequests()
     }
 }
 
-Item *Client::addItem(const QUuid &serverId, const QUuid &sourceId, const QString &host)
+Item *Client::addItem(const QUuid &serverId, const QUuid &sourceId, const QString &objectName, const QString &host)
 {
     auto item = new remote::Item(this);
     item->setServerId(serverId);
@@ -161,6 +161,7 @@ void Client::dataRecieved(QHostAddress senderAddress, [[maybe_unused]] int sende
 
     auto serverId = QUuid::fromString(document["uuid"].toString());
     auto time = document["time"].toString();
+    auto host = document["host"].toString();
     Q_UNUSED(time)
 
     if (document["message"].toString() == "hello") {
@@ -170,9 +171,13 @@ void Client::dataRecieved(QHostAddress senderAddress, [[maybe_unused]] int sende
         if (document["sources"].isArray()) {
             auto sources = document["sources"].toArray();
             for (int i = 0; i < sources.count(); i++) {
-                auto sourceUuid = QUuid::fromString(sources[i].toString());
+
+                auto sourceObject = sources[i].toObject();
+                auto sourceUuid = QUuid::fromString(sourceObject["uuid"].toString());
+                auto sourceObjectName = sourceObject["objectName"].toString();
+
                 if (m_items.find(qHash(sourceUuid)) == m_items.end()) {
-                    auto item = addItem(serverId, sourceUuid, document["host"].toString());
+                    auto item = addItem(serverId, sourceUuid, sourceObjectName, host);
                     requestChanged(item);
                     requestUpdate(item);
                 }
@@ -191,7 +196,7 @@ void Client::dataRecieved(QHostAddress senderAddress, [[maybe_unused]] int sende
         }
 
         if (message == "added" && !item) {
-            item = addItem(serverId, sourceId, document["host"].toString());
+            item = addItem(serverId, sourceId, document["objectName"].toString(), host);
             requestChanged(item);
             requestUpdate(item);
         }
