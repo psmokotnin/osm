@@ -55,6 +55,9 @@ signals:
     void activeChanged();
     void lastConnectedChanged();
 
+public slots:
+    void sendSouceNotify();
+
 private slots:
     void sendHello();
 

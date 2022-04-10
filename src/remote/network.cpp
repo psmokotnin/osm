@@ -179,21 +179,29 @@ void Network::sendTCP(const QByteArray &data, const QString &host, quint16 port,
     if (reciever) {
         connect(reciever, &TCPReciever::readyRead, context, [ = ]() {
             callback(reciever->data());
-            socket->disconnectFromHost();
+            if (socket) {
+                socket->disconnectFromHost();
+            }
         }, Qt::DirectConnection);
 
         connect(reciever, &TCPReciever::timeOut, context, [ = ]() {
             qInfo() << "Can't connect to the device" << host << port << ". timeout expired.";
-            socket->disconnectFromHost();
+            if (socket) {
+                socket->disconnectFromHost();
+            }
             onError();
         }, Qt::DirectConnection);
     }
 
     connect(socket, &QTcpSocket::disconnected, this, [ = ]() {
+        if (context) {
+            reciever->disconnect(context);
+        }
         socketThread->exit();
     });
 
     connect(socket, &QTcpSocket::errorOccurred, this, [ = ]([[maybe_unused]] auto socketError) {
+        qDebug() << socketError;
         onError();
         socket->close();
     });

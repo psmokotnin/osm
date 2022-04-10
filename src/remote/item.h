@@ -34,6 +34,8 @@ private:
 
 public:
     Item(QObject *parent = nullptr);
+    void connectProperties();
+
     enum State {
         WAIT    = 1,
         UPDATED = 2,
@@ -46,6 +48,8 @@ public:
 
     Q_INVOKABLE QJsonObject toJSON(const SourceList * = nullptr) const noexcept override;
     void fromJSON(QJsonObject data, const SourceList * = nullptr) noexcept override;
+
+    QJsonObject metaJsonObject() const;
 
     QUuid serverId() const;
     void setServerId(const QUuid &serverId);
@@ -64,6 +68,8 @@ public:
     QString host() const;
     void setHost(const QString &host);
 
+    void setEventSilence(bool eventSilence);
+
 public slots:
     Q_INVOKABLE void refresh();
 
@@ -71,15 +77,18 @@ signals:
     void stateChanged();
     void hostChanged();
     void updateData(remote::Item *);
+    void localChanged();
 
 private slots:
     void startResetTimer();
     void resetState();
+    void properiesChanged();
 
 private:
+    bool m_originalActive;
+    bool m_eventSilence;
     QUuid m_serverId, m_sourceId;
     QString m_host;
-    bool m_originalActive;
     State m_state;
     QTimer m_stateTimer;
 };

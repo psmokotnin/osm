@@ -100,4 +100,10 @@ Item {
             }
         }
     }
+
+    Component.onCompleted: {
+        if (dataModel.objectName === "RemoteStored") {
+            propertiesQml = "qrc:/StoredProperties.qml";
+        }
+    }
 }

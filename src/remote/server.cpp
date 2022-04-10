@@ -48,7 +48,7 @@ Server::~Server()
 void Server::setSourceList(SourceList *list)
 {
     m_sourceList = list;
-    auto onAdded = [this](auto * source) {
+    auto onAdded = [this](chart::Source * source) {
 
         if (!source || dynamic_cast<remote::Item *>(source)) {
             return ;
@@ -60,17 +60,15 @@ void Server::setSourceList(SourceList *list)
             sourceNotify(source, "readyRead");
         });
 
-        connect(source, &chart::Source::activeChanged, this, [this, source]() {
-            sourceNotify(source, "changed");
-        });
-
-        connect(source, &chart::Source::colorChanged, this, [this, source]() {
-            sourceNotify(source, "changed");
-        });
-
-        connect(source, &chart::Source::nameChanged, this, [this, source]() {
-            sourceNotify(source, "changed");
-        });
+        for (int i = 0 ; i < source->metaObject()->propertyCount(); ++i) {
+            auto property = source->metaObject()->property(i);
+            auto signal = property.notifySignal();
+            auto normalizedSignature = QMetaObject::normalizedSignature("sendSouceNotify()");
+            auto slotId = metaObject()->indexOfMethod(normalizedSignature);
+            if (signal.isValid()) {
+                connect(source, signal, this, metaObject()->method(slotId));
+            }
+        }
     };
 
     for (auto *source : *list) {
@@ -121,6 +119,14 @@ void Server::setActive(bool state)
 QString Server::lastConnected() const
 {
     return m_lastConnected;
+}
+
+void Server::sendSouceNotify()
+{
+    auto source = dynamic_cast<chart::Source *>(QObject::sender());
+    if (source) {
+        sourceNotify(source, "changed");
+    }
 }
 
 void Server::setLastConnected(const QString &lastConnected)
@@ -177,7 +183,7 @@ QByteArray Server::tcpCallback([[maybe_unused]] const QHostAddress &address, con
         for (int i = 0 ; i < source->metaObject()->propertyCount(); ++i) {
             auto property = source->metaObject()->property(i);
 
-            switch (property.type()) {
+            switch (static_cast<int>(property.type())) {
 
             case QVariant::Type::Bool:
                 object[property.name()]  = property.read(source).toBool();
@@ -186,6 +192,10 @@ QByteArray Server::tcpCallback([[maybe_unused]] const QHostAddress &address, con
             case QVariant::Type::UInt:
             case QVariant::Type::Int:
                 object[property.name()]  = property.read(source).toInt();
+                break;
+
+            case QMetaType::Float:
+                object[property.name()]  = property.read(source).toFloat();
                 break;
 
             case QVariant::Type::Double:
@@ -206,8 +216,69 @@ QByteArray Server::tcpCallback([[maybe_unused]] const QHostAddress &address, con
                 break;
             }
             case QVariant::Type::UserType: {
-
             }
+            default:
+                ;
+            }
+        }
+        QJsonDocument document(object);
+        return document.toJson(QJsonDocument::JsonFormat::Compact);
+    }
+
+    if (message == "update") {
+        QJsonObject object;
+        object["api"]     = "Open Sound Meter";
+        object["version"] = APP_GIT_VERSION;
+        object["message"] = "updated";
+        object["uuid"]    = source->uuid().toString();
+
+        auto itemData = document["data"].toObject();
+
+        auto metaObject = source->metaObject();
+        for (auto &field : itemData.keys()) {
+
+            if (field == "objectName" || field == "active") {
+                continue;
+            }
+
+            auto index = metaObject->indexOfProperty(field.toStdString().c_str());
+            if (index == -1) {
+                continue;
+            }
+            auto property = metaObject->property(index);
+
+            switch (static_cast<int>(property.type())) {
+            case QVariant::Type::Bool:
+                property.write(source, itemData[field].toBool());
+                break;
+
+            case QVariant::Type::UInt:
+            case QVariant::Type::Int:
+                property.write(source, itemData[field].toInt());
+                break;
+
+
+            case QMetaType::Float:
+            case QVariant::Type::Double:
+                property.write(source, itemData[field].toDouble());
+                break;
+
+            case QVariant::Type::String:
+                property.write(source, itemData[field].toString());
+                break;
+
+            case QVariant::Type::Color: {
+                auto colorObject = itemData[field].toObject();
+                QColor color(
+                    colorObject["red"  ].toInt(0),
+                    colorObject["green"].toInt(0),
+                    colorObject["blue" ].toInt(0),
+                    colorObject["alpha"].toInt(1));
+                property.write(source, color);
+                break;
+            }
+            case QVariant::Type::UserType:
+                break;
             default:
                 ;
             }

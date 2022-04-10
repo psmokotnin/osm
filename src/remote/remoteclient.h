@@ -65,10 +65,11 @@ private slots:
 
 private:
     remote::Item *addItem(const QUuid &serverId, const QUuid &sourceId, const QString &objectName, const QString &host);
+    void sendUpdate(Item *item);
     void requestChanged(Item *item);
     void requestData(Item *item);
     void requestSource(Item *item, const QString &message, Network::responseCallback callback,
-                       Network::errorCallback errorCallback = 0);
+                       Network::errorCallback errorCallback = 0, QJsonObject itemData = {});
 
     Network m_network;
     ApiKey m_key;

@@ -221,7 +221,9 @@ Item {
                                         case "Stored": return storedDelegate;
                                         case "Union": return unionDelegate;
                                         case "ELC": return elcDelegate;
-                                        case "remoteItem": return remoteItemDelegate;
+                                        case "RemoteItem":
+                                        case "RemoteStored":
+                                            return remoteItemDelegate;
                                         default: console.log("unknow model " + model.name);return ;
                                     }
                                 }

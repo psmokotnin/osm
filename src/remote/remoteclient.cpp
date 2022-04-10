@@ -18,6 +18,7 @@
 #include "remoteclient.h"
 #include "sourcelist.h"
 #include "item.h"
+#include "items/storeditem.h"
 
 namespace remote {
 
@@ -149,20 +150,38 @@ void Client::sendRequests()
 
 Item *Client::addItem(const QUuid &serverId, const QUuid &sourceId, const QString &objectName, const QString &host)
 {
-    auto item = new remote::Item(this);
+    remote::Item *item;
+    if (objectName == "Stored") {
+        item = new remote::StoredItem(this);
+    } else {
+        item = new remote::Item(this);
+    }
     item->setServerId(serverId);
     item->setSourceId(sourceId);
     item->setHost(host);
     connect(item, &Item::updateData, this, &Client::requestUpdate);
+    connect(item, &Item::localChanged, this, [ = ]() {
+        sendUpdate(item);
+    });
     connect(item, &Item::destroyed, this, [ = ]() {
         m_items[qHash(sourceId)] = nullptr;
         m_needUpdate[qHash(sourceId)] = READY_FOR_UPDATE;
     }, Qt::DirectConnection);
 
+    item->connectProperties();
     m_sourceList->appendItem(item);
     m_items[qHash(sourceId)] = item;
 
     return item;
+}
+
+void Client::sendUpdate(Item *item)
+{
+    Network::responseCallback onAnswer = [](const QByteArray &) {};
+
+    if (item) {
+        requestSource(item, "update", onAnswer, {}, item->metaJsonObject());
+    }
 }
 
 void Client::dataRecieved(QHostAddress senderAddress, [[maybe_unused]] int senderPort, const QByteArray &data)
@@ -244,9 +263,10 @@ void Client::requestChanged(Item *item)
 {
     Network::responseCallback onAnswer = [item](const QByteArray & data) {
         auto document = QJsonDocument::fromJson(data).object();
+        item->setEventSilence(true);
         item->setOriginalActive(document["active"].toBool());
 
-        auto metaObject = item->metaObject();;
+        auto metaObject = item->metaObject();
         for (auto &field : document.keys()) {
 
             if (field == "objectName" || field == "active") {
@@ -258,7 +278,8 @@ void Client::requestChanged(Item *item)
                 continue;
             }
             auto property = metaObject->property(index);
-            switch (property.type()) {
+
+            switch (static_cast<int>(property.type())) {
             case QVariant::Type::Bool:
                 property.write(item, document[field].toBool());
                 break;
@@ -268,6 +289,8 @@ void Client::requestChanged(Item *item)
                 property.write(item, document[field].toInt());
                 break;
 
+
+            case QMetaType::Float:
             case QVariant::Type::Double:
                 property.write(item, document[field].toDouble());
                 break;
@@ -286,13 +309,16 @@ void Client::requestChanged(Item *item)
                 property.write(item, color);
                 break;
             }
-
+            case QVariant::Type::UserType:
+                break;
             default:
                 ;
             }
         }
+
+        item->setEventSilence(false);
     };
-    requestSource(item, "requestChanged", onAnswer);
+    requestSource(item, "requestChanged", onAnswer, {});
 }
 
 void Client::requestData(Item *item)
@@ -317,7 +343,7 @@ void Client::requestData(Item *item)
 }
 
 void Client::requestSource(Item *item, const QString &message, Network::responseCallback callback,
-                           Network::errorCallback errorCallback)
+                           Network::errorCallback errorCallback, QJsonObject itemData)
 {
     auto server = m_servers.value(qHash(item->serverId()), {{}, 0});
     if (server.first.isNull()) {
@@ -334,6 +360,7 @@ void Client::requestSource(Item *item, const QString &message, Network::response
     license["owner"] = m_key.owner();
     license["sign"] = m_key.sign();
     object["license"] = license;
+    object["data"] = itemData;
 
     QJsonDocument document(object);
     auto data = document.toJson(QJsonDocument::JsonFormat::Compact);
@@ -344,7 +371,7 @@ void Client::requestSource(Item *item, const QString &message, Network::response
         item->setActive(false);
     };
 
-    Network::responseErrorCallbacks callbacks = {item, callback, errorCallback};
+    Network::responseErrorCallbacks callbacks = {item, callback, errorCallback ? errorCallback : onError};
     QMetaObject::invokeMethod(
         &m_network,
         "sendTCP",

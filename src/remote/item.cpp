@@ -17,13 +17,14 @@
  */
 #include "item.h"
 #include <QJsonArray>
+#include <QMetaProperty>
 
 namespace remote {
 
-Item::Item(QObject *parent) : chart::Source(parent), m_serverId(nullptr), m_sourceId(nullptr),
-    m_state(WAIT), m_stateTimer()
+Item::Item(QObject *parent) : chart::Source(parent), m_originalActive(false), m_eventSilence(true),
+    m_serverId(nullptr), m_sourceId(nullptr), m_state(WAIT), m_stateTimer()
 {
-    setObjectName("remoteItem");
+    setObjectName("RemoteItem");
     setActive(true);
 
     m_stateTimer.setSingleShot(true);
@@ -31,6 +32,19 @@ Item::Item(QObject *parent) : chart::Source(parent), m_serverId(nullptr), m_sour
     connect(&m_stateTimer, &QTimer::timeout, this, &Item::resetState);
     connect(this, &Item::stateChanged, this, &Item::startResetTimer);
     connect(this, &Source::activeChanged, this, &Item::refresh);
+}
+
+void Item::connectProperties()
+{
+    for (int i = 0 ; i < metaObject()->propertyCount(); ++i) {
+        auto property = metaObject()->property(i);
+        auto signal = property.notifySignal();
+        auto normalizedSignature = QMetaObject::normalizedSignature("properiesChanged()");
+        auto slotId = metaObject()->indexOfMethod(normalizedSignature);
+        if (signal.isValid()) {
+            connect(this, signal, this, metaObject()->method(slotId), Qt::DirectConnection);
+        }
+    }
 }
 
 chart::Source *Item::clone() const
@@ -46,36 +60,64 @@ bool Item::cloneable() const
 QJsonObject Item::toJSON(const SourceList *) const noexcept
 {
     QJsonObject object;
-    object["active"]    = active();
-    object["name"]      = name();
-
     object["serverId"]  = serverId().toString();
     object["sourceId"]  = sourceId().toString();
-
-    QJsonObject color;
-    color["red"]    = m_color.red();
-    color["green"]  = m_color.green();
-    color["blue"]   = m_color.blue();
-    color["alpha"]  = m_color.alpha();
-    object["color"] = color;
 
     return object;
 }
 
 void Item::fromJSON(QJsonObject data, const SourceList *) noexcept
 {
-    auto jsonColor = data["color"].toObject();
-    QColor c(
-        jsonColor["red"  ].toInt(0),
-        jsonColor["green"].toInt(0),
-        jsonColor["blue" ].toInt(0),
-        jsonColor["alpha"].toInt(1));
-    setColor(c);
-    setName(data["name"].toString());
-    setActive(data["active"].toBool(active()));
-
     setServerId(QUuid::fromString(data["serverId"].toString()));
     setSourceId(QUuid::fromString(data["sourceId"].toString()));
+}
+
+QJsonObject Item::metaJsonObject() const
+{
+    QJsonObject object;
+    for (int i = 0 ; i < metaObject()->propertyCount(); ++i) {
+        auto property = metaObject()->property(i);
+
+        switch (static_cast<int>(property.type())) {
+
+        case QVariant::Type::Bool:
+            object[property.name()]  = property.read(this).toBool();
+            break;
+
+        case QVariant::Type::UInt:
+        case QVariant::Type::Int:
+            object[property.name()]  = property.read(this).toInt();
+            break;
+
+        case QMetaType::Float:
+            object[property.name()]  = property.read(this).toFloat();
+            break;
+
+        case QVariant::Type::Double:
+            object[property.name()]  = property.read(this).toDouble();
+            break;
+
+        case QVariant::Type::String:
+            object[property.name()]  = property.read(this).toString();
+            break;
+
+        case QVariant::Type::Color: {
+            QJsonObject color;
+            color["red"]     = this->color().red();
+            color["green"]   = this->color().green();
+            color["blue"]    = this->color().blue();
+            color["alpha"]   = this->color().alpha();
+            object[property.name()]  = color;
+            break;
+        }
+        case QVariant::Type::UserType: {
+        }
+        default:
+            ;
+        }
+    }
+
+    return object;
 }
 
 QUuid Item::serverId() const
@@ -159,6 +201,25 @@ void Item::resetState()
     if (m_state == UPDATED) {
         setState(WAIT);
     }
+}
+
+void Item::properiesChanged()
+{
+    auto sender = QObject::sender();
+    if (!sender) return;
+
+    auto metaObject = sender->metaObject();
+    if (!metaObject) return;
+
+    auto signalName = metaObject->method(QObject::senderSignalIndex()).name();
+    if (!m_eventSilence && signalName != "stateChanged" & signalName != "activeChanged" ) {
+        emit localChanged();
+    }
+}
+
+void Item::setEventSilence(bool eventSilence)
+{
+    m_eventSilence = eventSilence;
 }
 
 QString Item::host() const

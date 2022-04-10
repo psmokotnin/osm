@@ -40,8 +40,10 @@ SOURCES += src/main.cpp \
     src/generator/mnoise.cpp \
     src/common/notifier.cpp \
     src/common/profiler.cpp \
+    src/meta/metastored.cpp \
     src/remote/apikey.cpp \
     src/remote/item.cpp \
+    src/remote/items/storeditem.cpp \
     src/remote/network.cpp \
     src/remote/remoteclient.cpp \
     src/remote/server.cpp \
@@ -145,8 +147,10 @@ HEADERS += \
     src/generator/mnoise.h \
     src/common/notifier.h \
     src/common/profiler.h \
+    src/meta/metastored.h \
     src/remote/apikey.h \
     src/remote/item.h \
+    src/remote/items/storeditem.h \
     src/remote/network.h \
     src/remote/remoteclient.h \
     src/remote/server.h \
