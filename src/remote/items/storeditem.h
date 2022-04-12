@@ -37,12 +37,12 @@ public:
     StoredItem(QObject *parent = nullptr);
 
 signals:
-    void notesChanged();
-    void polarityChanged();
-    void inverseChanged();
-    void gainChanged();
-    void delayChanged();
-    void ignoreCoherenceChanged();
+    void notesChanged() override;
+    void polarityChanged() override;
+    void inverseChanged() override;
+    void gainChanged() override;
+    void delayChanged() override;
+    void ignoreCoherenceChanged() override;
 };
 
 } // namespace remote

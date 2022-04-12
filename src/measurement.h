@@ -22,6 +22,7 @@
 #include <QTimer>
 #include <QThread>
 
+#include "meta/metameasurement.h"
 #include "audio/deviceinfo.h"
 #include "audio/stream.h"
 #include "inputdevice.h"
@@ -37,58 +38,50 @@
 #include "common/settings.h"
 #include "container/circular.h"
 
-class Measurement : public chart::Source
+class Measurement : public chart::Source, public meta::Measurement
 {
     Q_OBJECT
 
-    Q_PROPERTY(Mode mode READ mode WRITE setMode NOTIFY modeChanged)
-    Q_PROPERTY(QVariant modes READ getAvailableModes CONSTANT)
-
-    Q_PROPERTY(int sampleRate READ sampleRate NOTIFY audioFormatChanged)
-    Q_PROPERTY(QString deviceId READ deviceId WRITE setDeviceId NOTIFY deviceIdChanged)
-
-    //Current sound level
-    Q_PROPERTY(float level READ level NOTIFY levelChanged)
-    Q_PROPERTY(float referenceLevel READ referenceLevel NOTIFY referenceLevelChanged)
-
-    Q_PROPERTY(float measurementPeak READ measurementPeak NOTIFY levelChanged)
-    Q_PROPERTY(float referencePeak READ referencePeak NOTIFY referenceLevelChanged)
-
-    Q_PROPERTY(unsigned int delay READ delay WRITE setDelay NOTIFY delayChanged)
-    Q_PROPERTY(long estimated READ estimated NOTIFY estimatedChanged)
-    Q_PROPERTY(long estimatedDelta READ estimatedDelta NOTIFY estimatedChanged)
-    Q_PROPERTY(float gain READ gain WRITE setGain NOTIFY gainChanged)
-
-    Q_PROPERTY(AverageType averageType READ averageType WRITE setAverageType NOTIFY averageTypeChanged)
-    Q_PROPERTY(int average READ average WRITE setAverage NOTIFY averageChanged)
-    Q_PROPERTY(Filter::Frequency filtersFrequency READ filtersFrequency WRITE setFiltersFrequency NOTIFY
-               filtersFrequencyChanged)
-
+    //meta properties
     Q_PROPERTY(bool polarity READ polarity WRITE setPolarity NOTIFY polarityChanged)
-    Q_PROPERTY(bool error MEMBER m_error NOTIFY errorChanged)
-
-    //routing
+    Q_PROPERTY(float gain READ gain WRITE setGain NOTIFY gainChanged)
     Q_PROPERTY(int dataChanel READ dataChanel WRITE setDataChanel NOTIFY dataChanelChanged)
     Q_PROPERTY(int referenceChanel READ referenceChanel WRITE setReferenceChanel NOTIFY
                referenceChanelChanged)
+    Q_PROPERTY(unsigned int delay READ delay WRITE setDelay NOTIFY delayChanged)
+    Q_PROPERTY(int average READ average WRITE setAverage NOTIFY averageChanged)
+    Q_PROPERTY(meta::Measurement::Mode mode READ mode WRITE setMode NOTIFY modeChanged)
+    Q_PROPERTY(meta::Measurement::AverageType averageType READ averageType WRITE setAverageType NOTIFY averageTypeChanged)
+    Q_PROPERTY(Filter::Frequency filtersFrequency READ filtersFrequency WRITE setFiltersFrequency NOTIFY
+               filtersFrequencyChanged)
+    Q_PROPERTY(WindowFunction::Type window READ windowFunctionType WRITE setWindowFunctionType NOTIFY
+               windowFunctionTypeChanged)
 
-    //data window type
-    Q_PROPERTY(WindowFunction::Type window READ getWindowType WRITE setWindowType NOTIFY
-               windowTypeChanged)
+    //constant meta properties
+    Q_PROPERTY(QVariant modes READ getAvailableModes CONSTANT)
     Q_PROPERTY(QVariant windows READ getAvailableWindowTypes CONSTANT)
+
+    //local properties
+    Q_PROPERTY(int sampleRate READ sampleRate NOTIFY audioFormatChanged)
+    Q_PROPERTY(QString deviceId READ deviceId WRITE setDeviceId NOTIFY deviceIdChanged REVISION NO_API_REVISION)
+
+    //Current sound level
+    Q_PROPERTY(float level READ level NOTIFY levelChanged REVISION NO_API_REVISION)
+    Q_PROPERTY(float referenceLevel READ referenceLevel NOTIFY referenceLevelChanged REVISION NO_API_REVISION)
+
+    Q_PROPERTY(float measurementPeak READ measurementPeak NOTIFY levelChanged REVISION NO_API_REVISION)
+    Q_PROPERTY(float referencePeak READ referencePeak NOTIFY referenceLevelChanged REVISION NO_API_REVISION)
+
+    Q_PROPERTY(long estimated READ estimated NOTIFY estimatedChanged)
+    Q_PROPERTY(long estimatedDelta READ estimatedDelta NOTIFY estimatedChanged)
+
+    Q_PROPERTY(bool error MEMBER m_error NOTIFY errorChanged)
 
     //calibration
     Q_PROPERTY(bool calibrationLoaded READ calibrationLoaded NOTIFY calibrationLoadedChanged)
     Q_PROPERTY(bool calibration READ calibration WRITE setCalibration NOTIFY calibrationChanged)
 
 public:
-    enum AverageType {Off, LPF, FIFO};
-    Q_ENUM(AverageType)
-
-    enum Mode {FFT10, FFT11, FFT12, FFT13, FFT14, FFT15, FFT16, LFT};
-    Q_ENUM(Mode)
-    Q_ENUM(Filter::Frequency)
-
     explicit Measurement(Settings *settings = nullptr, QObject *parent = nullptr);
     ~Measurement() override;
     Source *clone() const override;
@@ -98,46 +91,15 @@ public:
     Q_INVOKABLE QJsonObject toJSON(const SourceList * = nullptr) const noexcept override;
     void fromJSON(QJsonObject data, const SourceList * = nullptr) noexcept override;
 
-    Mode mode() const;
-    void setMode(const Measurement::Mode &mode);
-    void setMode(QVariant mode);
-    QVariant getAvailableModes() const;
-
-    unsigned int dataChanel() const;
-    void setDataChanel(unsigned int channel);
-    unsigned int referenceChanel() const;
-    void setReferenceChanel(unsigned int channel);
-
     float level() const;
     float referenceLevel() const;
 
     float measurementPeak() const;
     float referencePeak() const;
 
-    unsigned int delay() const;
-    void setDelay(unsigned int delay);
-
-    unsigned int average() const;
-    void setAverage(unsigned int average);
     Q_INVOKABLE void resetAverage() noexcept;
 
-    bool polarity() const;
-    void setPolarity(bool polarity);
-
-    Filter::Frequency filtersFrequency() const;
-    void setFiltersFrequency(Filter::Frequency frequency);
-    void setFiltersFrequency(QVariant frequency);
-
-    AverageType averageType() const;
-    void setAverageType(AverageType type);
-    void setAverageType(QVariant type);
-
     unsigned int sampleRate() const;
-
-    QVariant getAvailableWindowTypes() const;
-    WindowFunction::Type getWindowType() const;
-    void setWindowType(WindowFunction::Type type);
-    void setWindowType(QVariant type);
 
     long estimated() const noexcept;
     long estimatedDelta() const noexcept;
@@ -146,10 +108,6 @@ public:
     bool calibrationLoaded() const noexcept;
     void setCalibration(bool c) noexcept;
     Q_INVOKABLE bool loadCalibrationFile(const QUrl &fileName) noexcept;
-
-    //! return and set gain in dB
-    float gain() const;
-    void setGain(float gain);
 
     audio::DeviceInfo::Id deviceId() const;
     void setDeviceId(const audio::DeviceInfo::Id &deviceId);
@@ -165,45 +123,40 @@ public slots:
     void newSampleFromGenerator(float sample);
     void resetLoopBuffer();
 
-protected:
+protected slots:
     void updateFftPower();
     void updateDelay();
+    void updateAverage();
+    void updateWindowFunction();
+    void updateFilterFrequency();
 
 private:
     QTimer m_timer;
     QThread m_timerThread;
     InputDevice m_input;
-    static const std::map<Mode, QString> m_modeMap;
-    static const std::map<Mode, int> m_FFTsizes;
+
     audio::DeviceInfo::Id m_deviceId;
     audio::Stream *m_audioStream;
-    unsigned int m_sampleRate;
 
     Settings *m_settings;
-    Mode m_mode, m_currentMode;
+    Mode m_currentMode;
 
-    unsigned int m_dataChanel, m_referenceChanel;
-    unsigned int m_average;
     bool m_resetDelay;
-    unsigned int m_workingDelay, m_delay, m_delayFinderCounter;
-    float m_gain;
+    unsigned int m_workingDelay, m_delayFinderCounter;
     long m_estimatedDelay;
-    bool m_polarity, m_error;
+    bool m_error;
 
     container::circular<float> m_data, m_reference, m_loopBuffer;
     Meter m_dataMeter, m_referenceMeter;
 
-    WindowFunction::Type m_windowFunctionType;
     FourierTransform m_dataFT;
     Deconvolution m_deconvolution, m_delayFinder;
 
     Averaging<float> m_deconvAvg;
-    AverageType m_averageType;
     Averaging<float> m_magnitudeAvg, m_moduleAvg;
     Averaging<complex> m_pahseAvg;
     Coherence m_coherence;
 
-    Filter::Frequency m_filtersFrequency;
     container::array<Filter::BesselLPF<float>> m_moduleLPFs, m_magnitudeLPFs, m_deconvLPFs;
     container::array<Filter::BesselLPF<complex>> m_phaseLPFs;
     container::array<Meter> m_meters;
@@ -221,25 +174,27 @@ private:
     void checkChannels();
 
 signals:
-    void modeChanged(Measurement::Mode);
     void audioFormatChanged();
     void deviceIdChanged(audio::DeviceInfo::Id);
     void deviceNameChanged(QString);
     void levelChanged();
-    void delayChanged(unsigned int);
     void referenceLevelChanged();
-    void averageChanged(unsigned int);
-    void polarityChanged(bool);
-    void dataChanelChanged(unsigned int);
-    void referenceChanelChanged(unsigned int);
-    void windowTypeChanged(WindowFunction::Type);
     void estimatedChanged();
-    void averageTypeChanged(Measurement::AverageType);
-    void filtersFrequencyChanged(Filter::Frequency);
     void errorChanged(bool);
     void calibrationChanged(bool);
     void calibrationLoadedChanged(bool);
-    void gainChanged(float);
+
+    void polarityChanged(bool) override;
+    void gainChanged(float) override;
+    void modeChanged(Measurement::Mode) override;
+    void averageChanged(unsigned int) override;
+    void dataChanelChanged(unsigned int) override;
+    void referenceChanelChanged(unsigned int) override;
+    void averageTypeChanged(Measurement::AverageType) override;
+    void windowFunctionTypeChanged(WindowFunction::Type) override;
+    void filtersFrequencyChanged(Filter::Frequency) override;
+    void delayChanged(unsigned int) override;
+    void sampleRateChanged(unsigned int) override;
 };
 
 #endif // MEASUREMENT_H

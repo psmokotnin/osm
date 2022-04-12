@@ -19,10 +19,11 @@
 #define META_STORED_H
 
 #include <QObject>
+#include "metabase.h"
 
 namespace meta {
 
-class Stored
+class Stored : public Base
 {
 public:
     Stored();

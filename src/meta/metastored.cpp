@@ -19,7 +19,8 @@
 
 namespace meta {
 
-Stored::Stored() : m_notes(), m_polarity(false), m_inverse(false),
+Stored::Stored() : Base(),
+    m_notes(), m_polarity(false), m_inverse(false),
     m_ignoreCoherence(false), m_gain(0), m_delay(0)
 {
 

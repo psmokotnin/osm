@@ -72,11 +72,14 @@ void Item::fromJSON(QJsonObject data, const SourceList *) noexcept
     setSourceId(QUuid::fromString(data["sourceId"].toString()));
 }
 
-QJsonObject Item::metaJsonObject() const
+QJsonObject Item::metaJsonObject(QString propertyName) const
 {
-    QJsonObject object;
+    QJsonObject object {};
     for (int i = 0 ; i < metaObject()->propertyCount(); ++i) {
         auto property = metaObject()->property(i);
+        if (!propertyName.isEmpty() && property.name() != propertyName) {
+            continue;
+        }
 
         switch (static_cast<int>(property.type())) {
 
@@ -86,6 +89,7 @@ QJsonObject Item::metaJsonObject() const
 
         case QVariant::Type::UInt:
         case QVariant::Type::Int:
+        case QMetaType::Long:
             object[property.name()]  = property.read(this).toInt();
             break;
 
@@ -111,6 +115,7 @@ QJsonObject Item::metaJsonObject() const
             break;
         }
         case QVariant::Type::UserType: {
+            object[property.name()] = property.read(this).toInt();
         }
         default:
             ;
@@ -211,9 +216,13 @@ void Item::properiesChanged()
     auto metaObject = sender->metaObject();
     if (!metaObject) return;
 
-    auto signalName = metaObject->method(QObject::senderSignalIndex()).name();
+    QString signalName = metaObject->method(QObject::senderSignalIndex()).name();
+    QString propertyName = signalName.left(signalName.indexOf("Changed"));
+
+
+    property("active");
     if (!m_eventSilence && signalName != "stateChanged" & signalName != "activeChanged" ) {
-        emit localChanged();
+        emit localChanged(propertyName);
     }
 }
 

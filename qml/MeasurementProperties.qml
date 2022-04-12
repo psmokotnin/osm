@@ -31,6 +31,7 @@ Item {
     property var dataObject
     readonly property int elementWidth: width / 7.7
     readonly property int spinboxWidth: width / 11
+    readonly property bool isLocal : dataObject.objectName === "Measurement"
 
     ColumnLayout {
         spacing: 0
@@ -109,11 +110,12 @@ Item {
 
                 CheckBox {
                     id: calibrateOn
+                    enabled: isLocal
                     text: qsTr("calibrate")
                     Layout.maximumWidth: elementWidth - 30
                     anchors.verticalCenter: parent.verticalCenter
                     anchors.left: parent.left
-                    checked: dataObject.calibration
+                    checked: isLocal ? dataObject.calibration : false
                     onCheckStateChanged: {
                         if (checked) {
                             if (dataObject.calibrationLoaded) {
@@ -140,6 +142,7 @@ Item {
                     }
                 }
                 Button {
+                    enabled: isLocal
                     implicitWidth: 30
                     anchors.verticalCenter: parent.verticalCenter
                     anchors.left: calibrateOn.right
@@ -280,6 +283,7 @@ Item {
 
             DropDown {
                 id: measurementChannel
+                enabled: isLocal
                 currentIndex: dataObject.dataChanel
                 onCurrentIndexChanged: dataObject.dataChanel = currentIndex
                 displayText: "M: " + currentText
@@ -290,6 +294,7 @@ Item {
 
             DropDown {
                 id: referenceChannel
+                enabled: isLocal
                 currentIndex: dataObject.referenceChanel
                 onCurrentIndexChanged: dataObject.referenceChanel = currentIndex
                 displayText: "R: " + currentText
@@ -300,6 +305,7 @@ Item {
 
             DropDown {
                 id: deviceSelect
+                enabled: isLocal
                 Layout.fillWidth: true
                 model: DeviceModel {
                     id: deviceModel

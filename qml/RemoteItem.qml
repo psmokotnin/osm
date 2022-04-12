@@ -21,6 +21,7 @@ import QtQuick.Layouts 1.3
 import QtQuick.Controls.Material 2.2
 
 Item {
+    id: item
     property var dataModel;
     property bool chartable : true;
     property bool highlight : false;
@@ -101,8 +102,32 @@ Item {
         }
     }
 
+    Button {
+        anchors.right: parent.right
+        anchors.top: parent.top
+
+        font.family: "Osm"
+        font.bold: false
+        text: "\ue808"
+
+        font.pixelSize: 12
+        rightPadding: 31
+        leftPadding: 4
+
+        background: Rectangle {
+            color: "transparent"
+        }
+
+        ToolTip.visible: hovered
+        ToolTip.text: qsTr("refresh data")
+
+        onClicked: dataModel.refresh();
+    }
+
     Component.onCompleted: {
-        if (dataModel.objectName === "RemoteStored") {
+        if (dataModel.objectName === "RemoteMeasurement") {
+            propertiesQml = "qrc:/MeasurementProperties.qml";
+        } else if (dataModel.objectName === "RemoteStored") {
             propertiesQml = "qrc:/StoredProperties.qml";
         }
     }

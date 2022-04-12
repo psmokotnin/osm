@@ -49,7 +49,7 @@ public:
     Q_INVOKABLE QJsonObject toJSON(const SourceList * = nullptr) const noexcept override;
     void fromJSON(QJsonObject data, const SourceList * = nullptr) noexcept override;
 
-    QJsonObject metaJsonObject() const;
+    QJsonObject metaJsonObject(QString propertyName = {}) const;
 
     QUuid serverId() const;
     void setServerId(const QUuid &serverId);
@@ -77,7 +77,7 @@ signals:
     void stateChanged();
     void hostChanged();
     void updateData(remote::Item *);
-    void localChanged();
+    void localChanged(QString);
 
 private slots:
     void startResetTimer();

@@ -19,6 +19,7 @@
 #include "sourcelist.h"
 #include "item.h"
 #include "items/storeditem.h"
+#include "items/measurementitem.h"
 
 namespace remote {
 
@@ -151,7 +152,9 @@ void Client::sendRequests()
 Item *Client::addItem(const QUuid &serverId, const QUuid &sourceId, const QString &objectName, const QString &host)
 {
     remote::Item *item;
-    if (objectName == "Stored") {
+    if (objectName == "Measurement") {
+        item = new remote::MeasurementItem(this);
+    } else if (objectName == "Stored") {
         item = new remote::StoredItem(this);
     } else {
         item = new remote::Item(this);
@@ -160,8 +163,8 @@ Item *Client::addItem(const QUuid &serverId, const QUuid &sourceId, const QStrin
     item->setSourceId(sourceId);
     item->setHost(host);
     connect(item, &Item::updateData, this, &Client::requestUpdate);
-    connect(item, &Item::localChanged, this, [ = ]() {
-        sendUpdate(item);
+    connect(item, &Item::localChanged, this, [ = ](QString propertyName) {
+        sendUpdate(item, propertyName);
     });
     connect(item, &Item::destroyed, this, [ = ]() {
         m_items[qHash(sourceId)] = nullptr;
@@ -175,12 +178,12 @@ Item *Client::addItem(const QUuid &serverId, const QUuid &sourceId, const QStrin
     return item;
 }
 
-void Client::sendUpdate(Item *item)
+void Client::sendUpdate(Item *item, QString propertyName)
 {
     Network::responseCallback onAnswer = [](const QByteArray &) {};
 
     if (item) {
-        requestSource(item, "update", onAnswer, {}, item->metaJsonObject());
+        requestSource(item, "update", onAnswer, {}, item->metaJsonObject(propertyName));
     }
 }
 
@@ -286,6 +289,7 @@ void Client::requestChanged(Item *item)
 
             case QVariant::Type::UInt:
             case QVariant::Type::Int:
+            case QMetaType::Long:
                 property.write(item, document[field].toInt());
                 break;
 
@@ -309,8 +313,10 @@ void Client::requestChanged(Item *item)
                 property.write(item, color);
                 break;
             }
-            case QVariant::Type::UserType:
+            case QVariant::Type::UserType: {
+                property.write(item, document[field].toInt());
                 break;
+            }
             default:
                 ;
             }

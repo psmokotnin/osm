@@ -19,6 +19,7 @@
 #include "../sourcelist.h"
 #include "item.h"
 #include "apikey.h"
+#include "meta/metabase.h"
 
 namespace remote {
 
@@ -63,9 +64,10 @@ void Server::setSourceList(SourceList *list)
         for (int i = 0 ; i < source->metaObject()->propertyCount(); ++i) {
             auto property = source->metaObject()->property(i);
             auto signal = property.notifySignal();
+            auto revision = property.revision();
             auto normalizedSignature = QMetaObject::normalizedSignature("sendSouceNotify()");
             auto slotId = metaObject()->indexOfMethod(normalizedSignature);
-            if (signal.isValid()) {
+            if (signal.isValid() && revision != NO_API_REVISION) {
                 connect(source, signal, this, metaObject()->method(slotId));
             }
         }
@@ -123,6 +125,14 @@ QString Server::lastConnected() const
 
 void Server::sendSouceNotify()
 {
+    auto sender = QObject::sender();
+    if (!sender) return;
+
+    auto metaObject = sender->metaObject();
+    if (!metaObject) return;
+
+    QString signalName = metaObject->method(QObject::senderSignalIndex()).name();
+
     auto source = dynamic_cast<chart::Source *>(QObject::sender());
     if (source) {
         sourceNotify(source, "changed");
@@ -191,6 +201,7 @@ QByteArray Server::tcpCallback([[maybe_unused]] const QHostAddress &address, con
 
             case QVariant::Type::UInt:
             case QVariant::Type::Int:
+            case QMetaType::Long:
                 object[property.name()]  = property.read(source).toInt();
                 break;
 
@@ -216,6 +227,7 @@ QByteArray Server::tcpCallback([[maybe_unused]] const QHostAddress &address, con
                 break;
             }
             case QVariant::Type::UserType: {
+                object[property.name()] = property.read(source).toInt();
             }
             default:
                 ;
@@ -254,6 +266,7 @@ QByteArray Server::tcpCallback([[maybe_unused]] const QHostAddress &address, con
 
             case QVariant::Type::UInt:
             case QVariant::Type::Int:
+            case QMetaType::Long:
                 property.write(source, itemData[field].toInt());
                 break;
 
@@ -278,6 +291,7 @@ QByteArray Server::tcpCallback([[maybe_unused]] const QHostAddress &address, con
                 break;
             }
             case QVariant::Type::UserType:
+                property.write(source, itemData[field].toInt());
                 break;
             default:
                 ;
