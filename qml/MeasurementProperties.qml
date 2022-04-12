@@ -371,7 +371,9 @@ Item {
 
     function store() {
         var stored = dataObject.store();
-        stored.active = true;
-        sourceList.appendItem(stored, true);
+        if (stored) {
+            stored.active = true;
+            sourceList.appendItem(stored, true);
+        }
     }
 }

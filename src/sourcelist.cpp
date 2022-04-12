@@ -572,6 +572,21 @@ void SourceList::cloneItem(chart::Source *item)
         appendItem(newItem, true);
     }
 }
+
+void SourceList::storeItem(chart::Source *item)
+{
+    chart::Source *newItem = nullptr;
+    QMetaObject::invokeMethod(
+        item,
+        "store",
+        Qt::DirectConnection,
+        Q_RETURN_ARG(chart::Source *, newItem));
+
+    if (newItem) {
+        newItem->setActive(true);
+        appendItem(newItem, true);
+    }
+}
 QColor SourceList::nextColor()
 {
     m_colorIndex += 3;

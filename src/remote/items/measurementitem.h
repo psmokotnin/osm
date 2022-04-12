@@ -59,6 +59,9 @@ public:
     long estimatedDelta() const;
     void setEstimatedDelta(long estimatedDelta);
 
+    Q_INVOKABLE void resetAverage() noexcept override;
+    Q_INVOKABLE chart::Source *store() noexcept override;
+
 signals:
     void polarityChanged(bool) override;
     void gainChanged(float)  override;

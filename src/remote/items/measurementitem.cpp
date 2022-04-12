@@ -45,4 +45,15 @@ void MeasurementItem::setEstimatedDelta(long estimatedDelta)
     m_estimatedDelta = estimatedDelta;
 }
 
+void MeasurementItem::resetAverage() noexcept
+{
+    emit sendCommand("resetAverage");
+}
+
+chart::Source *MeasurementItem::store() noexcept
+{
+    emit sendCommand("store");
+    return nullptr;
+}
+
 } // namespace remote

@@ -334,6 +334,25 @@ QByteArray Server::tcpCallback([[maybe_unused]] const QHostAddress &address, con
         return document.toJson(QJsonDocument::JsonFormat::Compact);
     }
 
+    if (message == "command") {
+        auto itemData = document["data"].toObject();
+        auto name = itemData["name"].toString();
+
+        if (!name.isEmpty()) {
+            if (name != "store") {
+                QMetaObject::invokeMethod(
+                    source,
+                    name.toLocal8Bit().data(),
+                    Qt::QueuedConnection);
+            } else {
+                QMetaObject::invokeMethod(
+                    m_sourceList,
+                    "storeItem",
+                    Qt::QueuedConnection,
+                    Q_ARG(chart::Source *, source));
+            }
+        }
+    }
     return {};
 }
 

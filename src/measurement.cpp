@@ -566,7 +566,7 @@ void Measurement::averaging()
         emit estimatedChanged();
     }
 }
-QObject *Measurement::store()
+chart::Source *Measurement::store() noexcept
 {
     auto *store = new Stored();
     store->build(this);

@@ -97,6 +97,7 @@ public slots:
     Q_INVOKABLE void appendItem(chart::Source *item, bool autocolor = false);
     Q_INVOKABLE void removeItem(chart::Source *item, bool deleteItem = true);
     Q_INVOKABLE void cloneItem(chart::Source *item);
+    Q_INVOKABLE void storeItem(chart::Source *item);
     int appendNone();
     int appendAll();
 

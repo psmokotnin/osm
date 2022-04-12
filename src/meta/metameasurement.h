@@ -23,6 +23,7 @@
 #include "metabase.h"
 #include "math/filter.h"
 #include "math/windowfunction.h"
+#include "chart/source.h"
 
 namespace meta {
 
@@ -82,6 +83,9 @@ public:
 
     unsigned int sampleRate() const;
     void setSampleRate(unsigned int sampleRate);
+
+    Q_INVOKABLE virtual void resetAverage() noexcept = 0;
+    Q_INVOKABLE virtual chart::Source *store() noexcept = 0;
 
 //virtual signals:
     virtual void polarityChanged(bool) = 0;

@@ -149,6 +149,17 @@ void Client::sendRequests()
     }
 }
 
+void Client::sendCommand(Item *item, QString command)
+{
+    Network::responseCallback onAnswer = [](const QByteArray &) {};
+
+    if (item) {
+        QJsonObject object;
+        object["name"] = command;
+        requestSource(item, "command", onAnswer, {}, object);
+    }
+}
+
 Item *Client::addItem(const QUuid &serverId, const QUuid &sourceId, const QString &objectName, const QString &host)
 {
     remote::Item *item;
@@ -165,6 +176,9 @@ Item *Client::addItem(const QUuid &serverId, const QUuid &sourceId, const QStrin
     connect(item, &Item::updateData, this, &Client::requestUpdate);
     connect(item, &Item::localChanged, this, [ = ](QString propertyName) {
         sendUpdate(item, propertyName);
+    });
+    connect(item, &Item::sendCommand, this, [ = ](QString name) {
+        sendCommand(item, name);
     });
     connect(item, &Item::destroyed, this, [ = ]() {
         m_items[qHash(sourceId)] = nullptr;

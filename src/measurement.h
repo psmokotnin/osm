@@ -97,7 +97,8 @@ public:
     float measurementPeak() const;
     float referencePeak() const;
 
-    Q_INVOKABLE void resetAverage() noexcept;
+    Q_INVOKABLE void resetAverage() noexcept override;
+    Q_INVOKABLE chart::Source *store() noexcept override;
 
     unsigned int sampleRate() const;
 
@@ -117,7 +118,6 @@ public:
 public slots:
     void transform();
     void onSampleRateChanged();
-    QObject *store();
     void writeData(const char *data, qint64 len);
     void setError();
     void newSampleFromGenerator(float sample);
