@@ -115,9 +115,10 @@ bool Client::openLicenseFile(const QUrl &fileName)
     }
 
     auto owner = loadedDocument["owner"].toString();
+    auto type = loadedDocument["type"].toString();
     auto sign = loadedDocument["sign"].toString();
 
-    m_key = {owner, sign};
+    m_key = {owner, type, sign};
 
     emit licenseChanged();
 
@@ -131,7 +132,7 @@ bool Client::licensed() const
 
 QString Client::licenseOwner() const
 {
-    return m_key.owner();
+    return m_key.title();
 }
 
 void Client::sendRequests()
@@ -378,6 +379,7 @@ void Client::requestSource(Item *item, const QString &message, Network::response
 
     QJsonObject license;
     license["owner"] = m_key.owner();
+    license["type"] = m_key.type();
     license["sign"] = m_key.sign();
     object["license"] = license;
     object["data"] = itemData;

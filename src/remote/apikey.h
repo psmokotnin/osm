@@ -27,10 +27,13 @@ class ApiKey
 {
 public:
     ApiKey();
-    ApiKey(QString owner, QString sign);
+    ApiKey(QString owner, QString type, QString sign);
 
     QString owner() const;
+    QString type() const;
     QString sign() const;
+
+    QString title() const;
 
     bool isEmpty() const;
     bool valid() const;
@@ -39,7 +42,7 @@ private:
     bool verifySignature(const unsigned char *sign, size_t signSize, const unsigned char *data, size_t dataSize) const;
     const static std::string PUBLIC_KEY;
 
-    QString m_owner;
+    QString m_owner, m_type;
     QByteArray m_hash;
     QByteArray m_sign;
     mutable std::optional<bool> m_valid;

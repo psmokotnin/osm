@@ -164,10 +164,11 @@ QByteArray Server::tcpCallback([[maybe_unused]] const QHostAddress &address, con
 
     auto license = document["license"];
     auto owner = license["owner"].toString();
+    auto type = license["type"].toString();
     auto sign = license["sign"].toString();
 
     if (m_knownApiKeys[owner].isEmpty()) {
-        m_knownApiKeys[owner] = ApiKey{owner, sign};
+        m_knownApiKeys[owner] = ApiKey{owner, type, sign};
     }
 
     if (!m_knownApiKeys[owner].valid()) {
@@ -180,7 +181,7 @@ QByteArray Server::tcpCallback([[maybe_unused]] const QHostAddress &address, con
         QJsonDocument document(object);
         return document.toJson(QJsonDocument::JsonFormat::Compact);
     } else {
-        setLastConnected(owner);
+        setLastConnected(m_knownApiKeys[owner].title());
     }
 
     if (message == "requestChanged") {

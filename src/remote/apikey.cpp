@@ -28,9 +28,10 @@ ApiKey::ApiKey() : m_owner(), m_sign()
 {
 }
 
-ApiKey::ApiKey(QString owner, QString sign) : m_owner(owner)
+ApiKey::ApiKey(QString owner, QString type, QString sign) : m_owner(owner), m_type(type)
 {
-    m_hash = QCryptographicHash::hash(m_owner.toLocal8Bit(), QCryptographicHash::Sha256);
+    QString forHash = owner + type;
+    m_hash = QCryptographicHash::hash(forHash.toLocal8Bit(), QCryptographicHash::Sha256);
     m_sign = QByteArray::fromBase64(sign.toLocal8Bit());
 }
 
@@ -39,9 +40,19 @@ QString ApiKey::owner() const
     return m_owner;
 }
 
+QString ApiKey::type() const
+{
+    return m_type;
+}
+
 QString ApiKey::sign() const
 {
     return m_sign.toBase64();
+}
+
+QString ApiKey::title() const
+{
+    return owner() + (type().isEmpty() ? "" : " (" + type() + ")");
 }
 
 bool ApiKey::isEmpty() const
@@ -106,6 +117,7 @@ QDebug operator<<(QDebug dbg, const remote::ApiKey &key)
 {
     dbg.nospace() << "Api key:"
                   << key.owner()
+                  << key.type()
                   << key.sign()
                   << key.valid();
 
