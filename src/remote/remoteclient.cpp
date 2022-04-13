@@ -21,20 +21,25 @@
 #include "items/storeditem.h"
 #include "items/measurementitem.h"
 
+#ifndef APP_API_KEY
+#define APP_API_KEY
+#endif
+
 namespace remote {
 
 const QString Client::SETTINGS_LICENSE_KEY = "licenseFile";
 
-Client::Client(Settings *settings, QObject *parent) : QObject(parent), m_network(),  m_key(), m_settings(settings),
+Client::Client(Settings *settings, QObject *parent) : QObject(parent), m_network(),  m_key(APP_API_KEY),
+    m_settings(settings),
     m_thread(), m_timer(),
     m_sourceList(nullptr), m_servers(), m_items(), m_onRequest(false), m_updateCounter(0), m_needUpdate()
 {
     connect(&m_network, &Network::datagramRecieved, this, &Client::dataRecieved);
     m_thread.setObjectName("NetworkClient");
     m_network.moveToThread(&m_thread);
-
     m_timer.setInterval(TIMER_INTERVAL);
     m_timer.moveToThread(&m_thread);
+
     connect(&m_timer, &QTimer::timeout, this, &Client::sendRequests, Qt::DirectConnection);
     connect(&m_thread, &QThread::started, this, [this]() {
         m_timer.start();
@@ -43,9 +48,11 @@ Client::Client(Settings *settings, QObject *parent) : QObject(parent), m_network
         m_timer.stop();
     }, Qt::DirectConnection);
 
-    auto savedUrl = m_settings->value(SETTINGS_LICENSE_KEY).toUrl();
-    if (savedUrl.isValid()) {
-        openLicenseFile(savedUrl);
+    if (m_key.isEmpty() || !m_key.valid()) {
+        auto savedUrl = m_settings->value(SETTINGS_LICENSE_KEY).toUrl();
+        if (savedUrl.isValid()) {
+            openLicenseFile(savedUrl);
+        }
     }
 }
 
@@ -104,21 +111,7 @@ bool Client::openLicenseFile(const QUrl &fileName)
         qWarning("Couldn't open file");
         return false;
     }
-    QByteArray saveData = loadFile.readAll();
-
-    QJsonDocument loadedDocument(QJsonDocument::fromJson(saveData));
-    if (loadedDocument.isNull() || loadedDocument.isEmpty())
-        return false;
-
-    if (loadedDocument["target"].toString() != "api") {
-        return false;
-    }
-
-    auto owner = loadedDocument["owner"].toString();
-    auto type = loadedDocument["type"].toString();
-    auto sign = loadedDocument["sign"].toString();
-
-    m_key = {owner, type, sign};
+    m_key = {loadFile.readAll()};
 
     emit licenseChanged();
 

@@ -27,6 +27,7 @@ class ApiKey
 {
 public:
     ApiKey();
+    ApiKey(QString key);
     ApiKey(QString owner, QString type, QString sign);
 
     QString owner() const;
@@ -39,6 +40,7 @@ public:
     bool valid() const;
 
 private:
+    void updateHash();
     bool verifySignature(const unsigned char *sign, size_t signSize, const unsigned char *data, size_t dataSize) const;
     const static std::string PUBLIC_KEY;
 

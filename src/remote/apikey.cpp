@@ -18,6 +18,7 @@
 #include "apikey.h"
 #include <QtDebug>
 #include <QCryptographicHash>
+#include <QJsonDocument>
 
 #define OPENSSL_NO_DEPRECATED_3_0
 #include <openssl/rsa.h>
@@ -28,10 +29,27 @@ ApiKey::ApiKey() : m_owner(), m_sign()
 {
 }
 
+ApiKey::ApiKey(QString key)
+{
+    QJsonDocument loadedDocument(QJsonDocument::fromJson(key.toLocal8Bit()));
+    if (loadedDocument.isNull() || loadedDocument.isEmpty())
+        return ;
+
+    if (loadedDocument["target"].toString() != "api") {
+        return ;
+    }
+    m_owner = loadedDocument["owner"].toString();
+    m_type = loadedDocument["type"].toString();
+
+    auto sign = loadedDocument["sign"].toString();
+    m_sign = QByteArray::fromBase64(sign.toLocal8Bit());
+
+    updateHash();
+}
+
 ApiKey::ApiKey(QString owner, QString type, QString sign) : m_owner(owner), m_type(type)
 {
-    QString forHash = owner + type;
-    m_hash = QCryptographicHash::hash(forHash.toLocal8Bit(), QCryptographicHash::Sha256);
+    updateHash();
     m_sign = QByteArray::fromBase64(sign.toLocal8Bit());
 }
 
@@ -75,6 +93,12 @@ bool ApiKey::valid() const
                   );
     }
     return m_valid.value_or(false);
+}
+
+void ApiKey::updateHash()
+{
+    QString forHash = m_owner + m_type;
+    m_hash = QCryptographicHash::hash(forHash.toLocal8Bit(), QCryptographicHash::Sha256);
 }
 
 const std::string ApiKey::PUBLIC_KEY =

@@ -205,6 +205,13 @@ HEADERS += \
 INCLUDEPATH   += "/usr/local/opt/openssl@3/include"
 LIBS          += -L/usr/local/opt/openssl@3/lib -lssl -lcrypto
 
+#API
+API_KEY = $$(APP_API_KEY)
+!isEmpty(API_KEY) {
+    message("Add APP_API_KEY")
+    DEFINES += APP_API_KEY=\\\"$$API_KEY\\\"
+}
+
 #dialogs
 ios: {
     QMAKE_IOS_DEPLOYMENT_TARGET = 12.0
