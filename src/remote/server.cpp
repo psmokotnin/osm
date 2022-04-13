@@ -36,8 +36,8 @@ Server::Server(QObject *parent) : QObject(parent),
     connect(&m_timer, &QTimer::timeout, this, &Server::sendHello);
     connect(&m_networkThread, &QThread::finished, &m_timer, &QTimer::stop);
 
-    m_network.setTcpCallback([this] (const QHostAddress & address, const QByteArray & data) -> QByteArray {
-        return tcpCallback(address, data);
+    m_network.setTcpCallback([this] (const QHostAddress && address, const QByteArray && data) -> QByteArray {
+        return tcpCallback(std::move(address), std::move(data));
     });
 }
 
@@ -147,7 +147,7 @@ void Server::setLastConnected(const QString &lastConnected)
     }
 }
 
-QByteArray Server::tcpCallback([[maybe_unused]] const QHostAddress &address, const QByteArray &data)
+QByteArray Server::tcpCallback([[maybe_unused]] const QHostAddress &&address, const QByteArray &&data)
 {
     auto document = QJsonDocument::fromJson(data);
     if (document.isNull()) {
@@ -178,7 +178,7 @@ QByteArray Server::tcpCallback([[maybe_unused]] const QHostAddress &address, con
         object["message"] = "error";
         object["string"]  = "wrong API key";
 
-        QJsonDocument document(object);
+        QJsonDocument document(std::move(object));
         return document.toJson(QJsonDocument::JsonFormat::Compact);
     } else {
         setLastConnected(m_knownApiKeys[owner].title());
@@ -234,7 +234,7 @@ QByteArray Server::tcpCallback([[maybe_unused]] const QHostAddress &address, con
                 ;
             }
         }
-        QJsonDocument document(object);
+        QJsonDocument document(std::move(object));
         return document.toJson(QJsonDocument::JsonFormat::Compact);
     }
 
@@ -298,7 +298,7 @@ QByteArray Server::tcpCallback([[maybe_unused]] const QHostAddress &address, con
                 ;
             }
         }
-        QJsonDocument document(object);
+        QJsonDocument document(std::move(object));
         return document.toJson(QJsonDocument::JsonFormat::Compact);
     }
 
@@ -324,14 +324,14 @@ QByteArray Server::tcpCallback([[maybe_unused]] const QHostAddress &address, con
             //ftcell[6] = static_cast<double>(source->meanSquared(i));
 
             if ( i >= static_cast<unsigned int>(ftdata.size())) {
-                ftdata << ftcell;
+                ftdata << std::move(ftcell);
             } else {
-                ftdata[i] = ftcell;
+                ftdata[i] = std::move(ftcell);
             }
         }
-        object["ftdata"] = ftdata;
+        object["ftdata"] = std::move(ftdata);
 
-        QJsonDocument document(object);
+        QJsonDocument document(std::move(object));
         return document.toJson(QJsonDocument::JsonFormat::Compact);
     }
 
@@ -375,7 +375,7 @@ void Server::sourceNotify(chart::Source *source, const QString &message)
         auto object = prepareMessage(message);
         object["source"] = source->uuid().toString();
         object["objectName"] = source->objectName();
-        QJsonDocument document(object);
+        QJsonDocument document(std::move(object));
         sendMulticast(document.toJson(QJsonDocument::JsonFormat::Compact));
     }
 }
@@ -406,7 +406,7 @@ void Server::sendHello()
     }
 
     object["sources"] = sources;
-    QJsonDocument document(object);
+    QJsonDocument document(std::move(object));
     QByteArray data = document.toJson(QJsonDocument::JsonFormat::Compact);
     QMetaObject::invokeMethod(
         &m_network,

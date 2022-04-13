@@ -117,7 +117,7 @@ void Network::newTCPConnection()
             return;
         }
         if (m_tcpCallback) {
-            auto answer = m_tcpCallback(clientConnection->peerAddress(), reciever->data());
+            auto answer = m_tcpCallback(std::move(clientConnection->peerAddress()), std::move(reciever->data()));
             auto header = TCPReciever::makeHeader(answer);
             clientConnection->write(header.data(), header.size());
             clientConnection->waitForBytesWritten();

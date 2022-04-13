@@ -48,7 +48,7 @@ public:
     bool active() const;
     void setActive(bool state);
 
-    QByteArray tcpCallback(const QHostAddress &address, const QByteArray &data);
+    QByteArray tcpCallback(const QHostAddress &&address, const QByteArray &&data);
     QString lastConnected() const;
 
 signals:

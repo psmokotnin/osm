@@ -377,7 +377,7 @@ void Client::requestSource(Item *item, const QString &message, Network::response
     object["license"] = license;
     object["data"] = itemData;
 
-    QJsonDocument document(object);
+    QJsonDocument document(std::move(object));
     auto data = document.toJson(QJsonDocument::JsonFormat::Compact);
 
     Network::errorCallback onError = [item]() {
