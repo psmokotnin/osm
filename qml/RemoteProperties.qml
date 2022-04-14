@@ -82,12 +82,16 @@ Item {
                 Layout.preferredWidth: 98
                 Material.background: parent.Material.background
                 onClicked: openLicenseDialog.open();
+                enabled: !remoteClient.staticLicense
+                visible: !remoteClient.staticLicense
             }
 
             Button {
                 text: qsTr("Buy")
                 Layout.preferredWidth: 97
                 Material.background: parent.Material.background
+                enabled: !remoteClient.staticLicense
+                visible: !remoteClient.staticLicense
             }
         }
     }

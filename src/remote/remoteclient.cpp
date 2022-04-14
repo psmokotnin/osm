@@ -21,15 +21,18 @@
 #include "items/storeditem.h"
 #include "items/measurementitem.h"
 
-#ifndef APP_API_KEY
-#define APP_API_KEY
+
+#if defined APP_API_KEY
+#   define USE_API_KEY APP_API_KEY
+#else
+#   define USE_API_KEY
 #endif
 
 namespace remote {
 
 const QString Client::SETTINGS_LICENSE_KEY = "licenseFile";
 
-Client::Client(Settings *settings, QObject *parent) : QObject(parent), m_network(),  m_key(APP_API_KEY),
+Client::Client(Settings *settings, QObject *parent) : QObject(parent), m_network(),  m_key(USE_API_KEY),
     m_settings(settings),
     m_thread(), m_timer(),
     m_sourceList(nullptr), m_servers(), m_items(), m_onRequest(false), m_updateCounter(0), m_needUpdate()
@@ -126,6 +129,15 @@ bool Client::licensed() const
 QString Client::licenseOwner() const
 {
     return m_key.title();
+}
+
+bool Client::staticLicense() const
+{
+#ifdef APP_API_KEY
+    return true;
+#else
+    return false;
+#endif
 }
 
 void Client::sendRequests()

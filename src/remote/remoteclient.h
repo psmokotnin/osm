@@ -34,6 +34,7 @@ class Client : public QObject
     Q_PROPERTY(bool active READ active WRITE setActive NOTIFY activeChanged)
     Q_PROPERTY(bool licensed READ licensed NOTIFY licenseChanged)
     Q_PROPERTY(QString licenseOwner READ licenseOwner NOTIFY licenseChanged)
+    Q_PROPERTY(bool staticLicense READ staticLicense CONSTANT)
     const static int TIMER_INTERVAL = 250;
     const static QString SETTINGS_LICENSE_KEY;
 
@@ -51,6 +52,8 @@ public:
     Q_INVOKABLE bool openLicenseFile(const QUrl &fileName);
     bool licensed() const;
     QString licenseOwner() const;
+
+    bool staticLicense() const;
 
 public slots:
     void dataRecieved(QHostAddress senderAddress, int senderPort, const QByteArray &data);
