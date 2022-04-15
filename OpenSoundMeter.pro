@@ -202,8 +202,12 @@ HEADERS += \
     src/container/array.h
 
 # OpenSSL
-INCLUDEPATH   += "/usr/local/opt/openssl@3/include"
-LIBS          += -L/usr/local/opt/openssl@3/lib -lssl -lcrypto
+OPENSSL_PATH = $$(OPENSSL_PATH)
+INCLUDEPATH   += $$OPENSSL_PATH/include
+LIBS          += -L$$OPENSSL_PATH/lib -lssl -lcrypto
+isEmpty(OPENSSL_PATH) {
+    error("OpenSSL path not setted")
+}
 
 #API
 API_KEY = $$(APP_API_KEY)
