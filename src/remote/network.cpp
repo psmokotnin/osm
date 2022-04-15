@@ -156,27 +156,15 @@ void Network::sendTCP(const QByteArray &data, const QString &host, quint16 port,
     auto onError = std::get<2>(callbacks);
 
     auto *socketThread = new QThread();
-    TCPReciever *reciever = nullptr;
     QTcpSocket *socket = new QTcpSocket();
-    socket->moveToThread(socketThread);
-    if (callback) {
-        reciever =  new TCPReciever();
-        reciever->moveToThread(socketThread);
-        reciever->setSocket(socket);
+    if (!socket) {
+        return;
     }
+    socket->moveToThread(socketThread);
 
     connect(socketThread, &QThread::started, socketThread, [ = ]() {
-        socket->connectToHost(host, port);
-    }, Qt::DirectConnection);
-
-    auto header = TCPReciever::makeHeader(data);
-    connect(socket, &QTcpSocket::connected, socketThread, [ = ]() {
-        socket->write(header.data(), header.size());
-        socket->write(data);
-        socket->flush();
-    }, Qt::DirectConnection);
-
-    if (reciever) {
+        auto reciever =  new TCPReciever(socket);
+        
         connect(reciever, &TCPReciever::readyRead, context, [ = ]() {
             callback(reciever->data());
             if (socket) {
@@ -191,14 +179,24 @@ void Network::sendTCP(const QByteArray &data, const QString &host, quint16 port,
             }
             onError();
         }, Qt::DirectConnection);
-    }
+        
+        connect(socket, &QTcpSocket::disconnected, this, [ = ]() {
+            if (context) {
+                reciever->disconnect(context);
+            }
+            socketThread->exit();
+        });
+        
+        socket->connectToHost(host, port);
+        
+    }, Qt::DirectConnection);
 
-    connect(socket, &QTcpSocket::disconnected, this, [ = ]() {
-        if (context) {
-            reciever->disconnect(context);
-        }
-        socketThread->exit();
-    });
+    auto header = TCPReciever::makeHeader(data);
+    connect(socket, &QTcpSocket::connected, socketThread, [ = ]() {
+        socket->write(header.data(), header.size());
+        socket->write(data);
+        socket->flush();
+    }, Qt::DirectConnection);
 
     connect(socket, &QTcpSocket::errorOccurred, this, [ = ]([[maybe_unused]] auto socketError) {
         qDebug() << socketError;
