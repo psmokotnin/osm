@@ -24,9 +24,10 @@
 namespace remote {
 
 Server::Server(QObject *parent) : QObject(parent),
-    m_uuid(QUuid::createUuid()), m_networkThread(), m_network(), m_sourceList(nullptr), m_sourceJsons()
+    m_uuid(QUuid::createUuid()), m_networkThread(), m_network(), m_sourceList(nullptr)
 {
     m_network.moveToThread(&m_networkThread);
+    m_timer.moveToThread(&m_networkThread);
     m_networkThread.setObjectName("NetworkServer");
 
     connect(&m_networkThread, &QThread::started,  &m_network, &Network::startTCPServer);
@@ -34,6 +35,9 @@ Server::Server(QObject *parent) : QObject(parent),
 
     m_timer.setInterval(TIMER_INTERVAL);
     connect(&m_timer, &QTimer::timeout, this, &Server::sendHello);
+    connect(&m_networkThread, &QThread::started,  &m_timer, [&]() {
+        m_timer.start();
+    });
     connect(&m_networkThread, &QThread::finished, &m_timer, &QTimer::stop);
 
     m_network.setTcpCallback([this] (const QHostAddress && address, const QByteArray && data) -> QByteArray {
@@ -90,7 +94,6 @@ bool Server::start()
 {
     m_networkThread.start();
     sendHello();
-    m_timer.start();
     emit activeChanged();
     return m_networkThread.isRunning();
 }
@@ -182,6 +185,17 @@ QByteArray Server::tcpCallback([[maybe_unused]] const QHostAddress &&address, co
         return document.toJson(QJsonDocument::JsonFormat::Compact);
     } else {
         setLastConnected(m_knownApiKeys[owner].title());
+    }
+
+    if (!source) {
+        QJsonObject object;
+        object["api"]     = "Open Sound Meter";
+        object["version"] = APP_GIT_VERSION;
+        object["message"] = "error";
+        object["string"]  = "source not found";
+
+        QJsonDocument document(std::move(object));
+        return document.toJson(QJsonDocument::JsonFormat::Compact);
     }
 
     if (message == "requestChanged") {
@@ -309,10 +323,7 @@ QByteArray Server::tcpCallback([[maybe_unused]] const QHostAddress &&address, co
         object["message"] = "sourceData";
         object["uuid"]    = source->uuid().toString();
 
-        QJsonArray &ftdata = m_sourceJsons[source->uuid()];
-        if (static_cast<unsigned int>(ftdata.size()) != source->size()) {
-            ftdata = QJsonArray();
-        }
+        QJsonArray ftdata;
         QJsonArray ftcell = {0, 0, 0, 0, 0, 0};
         for (unsigned int i = 0; i < source->size(); ++i) {
             ftcell[0] = static_cast<double>(source->frequency(i)  );
@@ -320,7 +331,7 @@ QByteArray Server::tcpCallback([[maybe_unused]] const QHostAddress &&address, co
             ftcell[2] = static_cast<double>(source->magnitudeRaw(i)  );
             ftcell[3] = static_cast<double>(source->phase(i).arg());
             ftcell[4] = static_cast<double>(source->coherence(i)  );
-            ftcell[5] = static_cast<double>(source->peakSquared(i));
+            //ftcell[5] = static_cast<double>(source->peakSquared(i));
             //ftcell[6] = static_cast<double>(source->meanSquared(i));
 
             if ( i >= static_cast<unsigned int>(ftdata.size())) {

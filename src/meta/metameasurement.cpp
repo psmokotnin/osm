@@ -51,8 +51,8 @@ Measurement::Measurement() : Base(),
     m_windowFunctionType(WindowFunction::Type::Hann)
 {
     qRegisterMetaType<Filter::Frequency>();
-    qRegisterMetaType<Measurement::Mode>();
-    qRegisterMetaType<Measurement::AverageType>();
+    qRegisterMetaType<meta::Measurement::Mode>();
+    qRegisterMetaType<meta::Measurement::AverageType>();
     qRegisterMetaType<WindowFunction::Type>();
 }
 

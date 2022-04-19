@@ -65,11 +65,11 @@ public:
 signals:
     void polarityChanged(bool) override;
     void gainChanged(float)  override;
-    void modeChanged(Mode)  override;
+    void modeChanged(meta::Measurement::Mode)  override;
     void averageChanged(unsigned int)  override;
     void dataChanelChanged(unsigned int)  override;
     void referenceChanelChanged(unsigned int)  override;
-    void averageTypeChanged(Measurement::AverageType)  override;
+    void averageTypeChanged(meta::Measurement::AverageType)  override;
     void windowFunctionTypeChanged(WindowFunction::Type)  override;
     void filtersFrequencyChanged(Filter::Frequency) override;
     void delayChanged(unsigned int) override;

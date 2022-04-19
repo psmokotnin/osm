@@ -24,14 +24,15 @@
 
 class Profiler
 {
-    using time_ype = std::chrono::time_point<std::chrono::system_clock>;
+    using time_type = std::chrono::time_point<std::chrono::system_clock>;
     using time_interval = std::chrono::microseconds;
 public:
-    explicit Profiler(QString name);
+    explicit Profiler(QString name, unsigned int divider = 60);
     ~Profiler();
 
 private:
-    time_ype m_begin;
+    time_type m_begin;
+    unsigned int m_divider;
     QString m_name;
     static QMap<QString, std::pair<int, time_interval>> m_calls;
 };

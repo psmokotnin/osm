@@ -53,7 +53,7 @@ std::array<char, 4> TCPReciever::makeHeader(const QByteArray &data)
 
 void TCPReciever::socketReadyRead()
 {
-    if (!socket()->isReadable()) {
+    if (!socket() || !socket()->isReadable()) {
         return;
     }
     if (!p_size.value) {

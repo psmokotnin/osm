@@ -90,11 +90,11 @@ public:
 //virtual signals:
     virtual void polarityChanged(bool) = 0;
     virtual void gainChanged(float)  = 0;
-    virtual void modeChanged(Mode)  = 0;
+    virtual void modeChanged(meta::Measurement::Mode)  = 0;
     virtual void averageChanged(unsigned int)  = 0;
     virtual void dataChanelChanged(unsigned int)  = 0;
     virtual void referenceChanelChanged(unsigned int)  = 0;
-    virtual void averageTypeChanged(Measurement::AverageType)  = 0;
+    virtual void averageTypeChanged(meta::Measurement::AverageType)  = 0;
     virtual void windowFunctionTypeChanged(WindowFunction::Type)  = 0;
     virtual void filtersFrequencyChanged(Filter::Frequency) = 0;
     virtual void delayChanged(unsigned int) = 0;

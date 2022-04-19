@@ -107,9 +107,9 @@ void Network::newTCPConnection()
     if (!clientConnection) {
         return;
     }
-    connect(clientConnection, &QAbstractSocket::disconnected,
-            clientConnection, &QObject::deleteLater);
 
+    clientConnection->setSocketOption(QAbstractSocket::LowDelayOption, 1);
+    clientConnection->setSocketOption(QAbstractSocket::KeepAliveOption, 1);
     auto reciever = new TCPReciever(clientConnection);
 
     connect(reciever, &TCPReciever::readyRead, this, [ = ]() {
@@ -120,7 +120,6 @@ void Network::newTCPConnection()
             auto answer = m_tcpCallback(std::move(clientConnection->peerAddress()), std::move(reciever->data()));
             auto header = TCPReciever::makeHeader(answer);
             clientConnection->write(header.data(), header.size());
-            clientConnection->waitForBytesWritten();
 
             auto data_ptr = answer.data_ptr()->data();
             int sent = 0, len;
@@ -128,11 +127,10 @@ void Network::newTCPConnection()
                 len = std::min(answer.size() - sent, 32767);
                 clientConnection->write(data_ptr + sent, len);
                 sent += len;
-                clientConnection->waitForBytesWritten();
             }
             clientConnection->flush();
         }
-        clientConnection->close();
+        clientConnection->disconnectFromHost();
     });
 
     connect(reciever, &TCPReciever::timeOut, this, [ = ]() {
@@ -145,7 +143,6 @@ void Network::newTCPConnection()
         reciever->deleteLater();
         clientConnection->deleteLater();
     });
-    reciever->setSocket(clientConnection);
 }
 
 void Network::sendTCP(const QByteArray &data, const QString &host, quint16 port,
@@ -157,14 +154,15 @@ void Network::sendTCP(const QByteArray &data, const QString &host, quint16 port,
 
     auto *socketThread = new QThread();
     QTcpSocket *socket = new QTcpSocket();
-    if (!socket) {
-        return;
-    }
+
     socket->moveToThread(socketThread);
+    socket->setProxy(QNetworkProxy::NoProxy);
+    socket->setSocketOption(QAbstractSocket::LowDelayOption, 1);
+    socket->setSocketOption(QAbstractSocket::KeepAliveOption, 1);
 
     connect(socketThread, &QThread::started, socketThread, [ = ]() {
         auto reciever =  new TCPReciever(socket);
-        
+
         connect(reciever, &TCPReciever::readyRead, context, [ = ]() {
             callback(reciever->data());
             if (socket) {
@@ -179,16 +177,16 @@ void Network::sendTCP(const QByteArray &data, const QString &host, quint16 port,
             }
             onError();
         }, Qt::DirectConnection);
-        
+
         connect(socket, &QTcpSocket::disconnected, this, [ = ]() {
             if (context) {
                 reciever->disconnect(context);
             }
             socketThread->exit();
         });
-        
+
         socket->connectToHost(host, port);
-        
+
     }, Qt::DirectConnection);
 
     auto header = TCPReciever::makeHeader(data);

@@ -21,7 +21,6 @@
 #include "items/storeditem.h"
 #include "items/measurementitem.h"
 
-
 #if defined APP_API_KEY
 #   define USE_API_KEY APP_API_KEY
 #else

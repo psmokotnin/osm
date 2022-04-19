@@ -73,7 +73,6 @@ private:
     QThread m_networkThread;
     Network m_network;
     SourceList *m_sourceList;
-    mutable std::map<QUuid, QJsonArray> m_sourceJsons;
     mutable std::map<QString, ApiKey> m_knownApiKeys;
 };
 

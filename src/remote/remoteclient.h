@@ -84,7 +84,7 @@ private:
     QMap<unsigned int, std::pair<QHostAddress, int>> m_servers;
     QMap<unsigned int, Item *> m_items;
 
-    bool m_onRequest;
+    std::atomic<bool> m_onRequest;
     typedef unsigned long UpdateKey;
     const UpdateKey READY_FOR_UPDATE = std::numeric_limits<UpdateKey>::max();
     const UpdateKey ON_UPDATE = READY_FOR_UPDATE - 1;
