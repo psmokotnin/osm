@@ -145,12 +145,26 @@ void Client::sendRequests()
         return;
     }
     auto guard = m_sourceList->lock();
-    auto result = std::min_element(m_needUpdate.begin(), m_needUpdate.end());
 
-    if (result != m_needUpdate.end() && (*result) < ON_UPDATE) {
-        (*result) = ON_UPDATE;
+    Item *updateItem = nullptr;
+    UpdateKey minUpdate = READY_FOR_UPDATE;
+    unsigned int minUpdateKey = 0;
+
+    for (auto &key : m_needUpdate.keys()) {
+        auto item = m_items.value(key, nullptr);
+        auto updateValue = m_needUpdate.value(key, READY_FOR_UPDATE);
+
+        if (item && item->active() && updateValue < minUpdate) {
+            minUpdateKey = key;
+            minUpdate = updateValue;
+            updateItem = item;
+        }
+    }
+
+    if (updateItem) {
+        m_needUpdate[minUpdateKey] = ON_UPDATE;
         m_onRequest = true;
-        requestData(m_items[result.key()]);
+        requestData(updateItem);
     }
 }
 
@@ -392,7 +406,7 @@ void Client::requestSource(Item *item, const QString &message, Network::response
     auto data = document.toJson(QJsonDocument::JsonFormat::Compact);
 
     Network::errorCallback onError = [item]() {
-        qDebug() << "onError";
+        qDebug() << "onError" << Qt::endl;
         item->setState(Item::ERROR);
         item->setActive(false);
     };

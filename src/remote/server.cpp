@@ -324,11 +324,11 @@ QByteArray Server::tcpCallback([[maybe_unused]] const QHostAddress &&address, co
         object["uuid"]    = source->uuid().toString();
 
         QJsonArray ftdata;
-        QJsonArray ftcell = {0, 0, 0, 0, 0, 0};
+        QJsonArray ftcell = {0, 0, 0, 0, 0};
         for (unsigned int i = 0; i < source->size(); ++i) {
             ftcell[0] = static_cast<double>(source->frequency(i)  );
             ftcell[1] = static_cast<double>(source->module(i)     );
-            ftcell[2] = static_cast<double>(source->magnitudeRaw(i)  );
+            ftcell[2] = static_cast<double>(source->magnitudeRaw(i));
             ftcell[3] = static_cast<double>(source->phase(i).arg());
             ftcell[4] = static_cast<double>(source->coherence(i)  );
             //ftcell[5] = static_cast<double>(source->peakSquared(i));

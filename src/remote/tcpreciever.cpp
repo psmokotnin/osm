@@ -21,10 +21,15 @@
 
 namespace remote {
 
-TCPReciever::TCPReciever(QTcpSocket *socket) : QObject(socket), p_size{0}, m_data()
+TCPReciever::TCPReciever(QTcpSocket *socket) : QObject(socket), p_size{0}, m_data(), m_timer(this)
 {
-    if (socket)
+    m_timer.setSingleShot(true);
+    m_timer.setInterval(TIMEOUT);
+    connect(&m_timer, &QTimer::timeout, this, &TCPReciever::timeOut);
+
+    if (socket) {
         setSocket(socket);
+    }
 }
 
 void TCPReciever::setSocket(QTcpSocket *socket)
@@ -32,10 +37,8 @@ void TCPReciever::setSocket(QTcpSocket *socket)
     setParent(socket);
     connect(socket, &QTcpSocket::readyRead, this, &TCPReciever::socketReadyRead);
 
-    //run timeout timer
-    QTimer::singleShot(TIMEOUT, this, [ = ]() {
-        emit timeOut();
-    });
+    m_timer.start();
+
 }
 
 const QByteArray &TCPReciever::data() const noexcept

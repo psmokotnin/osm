@@ -20,17 +20,19 @@
 
 #include <QObject>
 #include <QTcpSocket>
+#include <QTimer>
 
 namespace remote {
 
 class TCPReciever : public QObject
 {
     Q_OBJECT
-    static const int TIMEOUT = 5000;
+    static const int TIMEOUT = 10000;
 
 public:
     //! To run reciever in the socket's thread use setSocket after moving socket to a new thread
     explicit TCPReciever(QTcpSocket *socket = nullptr);
+
     void setSocket(QTcpSocket *socket = nullptr);
     const QByteArray &data() const noexcept;
 
@@ -50,6 +52,7 @@ private:
     } p_size;
     QByteArray m_data;
     QTcpSocket *socket() const noexcept;
+    QTimer m_timer;
 };
 
 } // namespace remote
