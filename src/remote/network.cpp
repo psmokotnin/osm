@@ -117,7 +117,7 @@ void Network::newTCPConnection()
             return;
         }
         if (m_tcpCallback) {
-            auto answer = m_tcpCallback(std::move(clientConnection->peerAddress()), std::move(reciever->data()));
+            auto answer = qCompress(m_tcpCallback(std::move(clientConnection->peerAddress()), std::move(reciever->data())));
             auto header = TCPReciever::makeHeader(answer);
             clientConnection->write(header.data(), header.size());
 
@@ -164,7 +164,7 @@ void Network::sendTCP(const QByteArray &data, const QString &host, quint16 port,
         auto reciever =  new TCPReciever(socket);
 
         connect(reciever, &TCPReciever::readyRead, context, [ = ]() {
-            callback(reciever->data());
+            callback(qUncompress(reciever->data()));
             if (socket) {
                 socket->disconnectFromHost();
             }
