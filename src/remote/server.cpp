@@ -342,6 +342,20 @@ QByteArray Server::tcpCallback([[maybe_unused]] const QHostAddress &&address, co
         }
         object["ftdata"] = std::move(ftdata);
 
+        QJsonArray timeData;
+        QJsonArray timeCell = {0, 0};
+        for (unsigned int i = 0; i < source->impulseSize(); ++i) {
+            timeCell[0] = source->impulseTime(i);
+            timeCell[1] = source->impulseValue(i);
+
+            if ( i >= static_cast<unsigned int>(timeData.size())) {
+                timeData << std::move(timeCell);
+            } else {
+                timeData[i] = std::move(timeCell);
+            }
+        }
+        object["timeData"] = std::move(timeData);
+
         QJsonDocument document(std::move(object));
         return document.toJson(QJsonDocument::JsonFormat::Compact);
     }

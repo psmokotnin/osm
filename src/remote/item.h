@@ -60,7 +60,7 @@ public:
     bool originalActive() const;
     void setOriginalActive(bool originalActive);
 
-    void applyData(const QJsonArray &data);
+    void applyData(const QJsonArray &data, const QJsonArray &timeData);
 
     State state() const;
     void setState(const State &state);

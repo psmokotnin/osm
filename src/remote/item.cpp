@@ -155,11 +155,10 @@ void Item::setOriginalActive(bool originalActive)
     m_originalActive = originalActive;
 }
 
-void Item::applyData(const QJsonArray &data)
+void Item::applyData(const QJsonArray &data, const QJsonArray &timeData)
 {
     std::lock_guard guard(m_dataMutex);
-    //m_deconvolutionSize = static_cast<unsigned int>(impulse.count());
-    //m_impulseData        = new TimeData[m_deconvolutionSize];
+
     if (m_dataLength != static_cast<unsigned int>(data.count())) {
         m_dataLength = static_cast<unsigned int>(data.count());
 
@@ -176,6 +175,20 @@ void Item::applyData(const QJsonArray &data)
         if (row.count() > 4) m_ftdata[i].coherence    = static_cast<float>(row[4].toDouble());
         if (row.count() > 5) m_ftdata[i].peakSquared  = static_cast<float>(row[5].toDouble());
         if (row.count() > 6) m_ftdata[i].meanSquared  = static_cast<float>(row[6].toDouble());
+    }
+
+    if (m_deconvolutionSize != static_cast<unsigned int>(timeData.count())) {
+        m_deconvolutionSize = static_cast<unsigned int>(timeData.count());
+
+        delete[] m_impulseData;
+        m_impulseData        = new TimeData[m_deconvolutionSize];
+    }
+
+    for (int i = 0; i < timeData.count(); i++) {
+        auto row = timeData[i].toArray();
+        if (row.count() > 0) m_impulseData[i].time   = static_cast<float>(row[0].toDouble());
+        if (row.count() > 1) m_impulseData[i].value  = static_cast<float>(row[1].toDouble());
+
     }
     emit readyRead();
     setState(UPDATED);

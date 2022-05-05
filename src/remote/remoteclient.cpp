@@ -367,8 +367,9 @@ void Client::requestData(Item *item)
     }
     Network::responseCallback onAnswer = [this, item](const QByteArray & data) {
         auto document = QJsonDocument::fromJson(data);
-        auto ftData = document["ftdata"].toArray();
-        item->applyData(ftData);
+        auto frequencyData = document["ftdata"].toArray();
+        auto timeData = document["timeData"].toArray();
+        item->applyData(frequencyData, timeData);
         m_needUpdate[qHash(item->sourceId())] = READY_FOR_UPDATE;
         m_onRequest = false;
     };
