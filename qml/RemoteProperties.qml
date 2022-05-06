@@ -60,54 +60,12 @@ Item {
         RowLayout {
             Button {
                 checkable: true
-                enabled: remoteClient.licensed
                 text: qsTr("Client")
                 Material.background: parent.Material.background
                 checked: remoteClient.active
                 onCheckedChanged: {
                     remoteClient.active = checked;
                 }
-            }
-
-            Label {
-                Layout.fillWidth: true
-                text: remoteClient.licensed ? "Licensed to <b>" + remoteClient.licenseOwner + "</b>" : "Key not found"
-                horizontalAlignment: Text.AlignHCenter
-                verticalAlignment: Text.AlignVCenter
-                textFormat: Text.RichText
-            }
-
-            Button {
-                text: qsTr("Open")
-                Layout.preferredWidth: 98
-                Material.background: parent.Material.background
-                onClicked: openLicenseDialog.open();
-                enabled: !remoteClient.staticLicense
-                visible: !remoteClient.staticLicense
-            }
-
-            Button {
-                text: qsTr("Buy")
-                Layout.preferredWidth: 97
-                Material.background: parent.Material.background
-                enabled: !remoteClient.staticLicense
-                visible: !remoteClient.staticLicense
-            }
-        }
-    }
-
-    FileDialog {
-        id: openLicenseDialog
-        selectExisting: true
-        title: qsTr("Please choose a license file")
-        folder: (typeof shortcuts !== 'undefined' ? shortcuts.home : Filesystem.StandardFolder.Home)
-        defaultSuffix: "osmkey"
-        nameFilters: [
-            "Open Sound Meter API license (*.osmkey)"
-        ]
-        onAccepted: function() {
-            if (!remoteClient.openLicenseFile(openLicenseDialog.fileUrl)) {
-                message.showError(qsTr("could not open license file"));
             }
         }
     }

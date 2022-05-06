@@ -18,7 +18,6 @@
 #include "server.h"
 #include "../sourcelist.h"
 #include "item.h"
-#include "apikey.h"
 #include "meta/metabase.h"
 
 namespace remote {
@@ -164,28 +163,7 @@ QByteArray Server::tcpCallback([[maybe_unused]] const QHostAddress &&address, co
     auto message = document["message"].toString();
     auto sourceId = QUuid::fromString(document["uuid"].toString());
     auto source = m_sourceList->getByUUid(sourceId);
-
-    auto license = document["license"];
-    auto owner = license["owner"].toString();
-    auto type = license["type"].toString();
-    auto sign = license["sign"].toString();
-
-    if (m_knownApiKeys[owner].isEmpty()) {
-        m_knownApiKeys[owner] = ApiKey{owner, type, sign};
-    }
-
-    if (!m_knownApiKeys[owner].valid()) {
-        QJsonObject object;
-        object["api"]     = "Open Sound Meter";
-        object["version"] = APP_GIT_VERSION;
-        object["message"] = "error";
-        object["string"]  = "wrong API key";
-
-        QJsonDocument document(std::move(object));
-        return document.toJson(QJsonDocument::JsonFormat::Compact);
-    } else {
-        setLastConnected(m_knownApiKeys[owner].title());
-    }
+    setLastConnected(document["name"].toString());
 
     if (!source) {
         QJsonObject object;

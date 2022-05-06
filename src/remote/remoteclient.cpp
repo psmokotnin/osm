@@ -21,17 +21,9 @@
 #include "items/storeditem.h"
 #include "items/measurementitem.h"
 
-#if defined APP_API_KEY
-#   define USE_API_KEY APP_API_KEY
-#else
-#   define USE_API_KEY
-#endif
-
 namespace remote {
 
-const QString Client::SETTINGS_LICENSE_KEY = "licenseFile";
-
-Client::Client(Settings *settings, QObject *parent) : QObject(parent), m_network(),  m_key(USE_API_KEY),
+Client::Client(Settings *settings, QObject *parent) : QObject(parent), m_network(),
     m_settings(settings),
     m_thread(), m_timer(),
     m_sourceList(nullptr), m_servers(), m_items(), m_onRequest(false), m_updateCounter(0), m_needUpdate()
@@ -49,13 +41,6 @@ Client::Client(Settings *settings, QObject *parent) : QObject(parent), m_network
     connect(&m_thread, &QThread::finished, this, [this]() {
         m_timer.stop();
     }, Qt::DirectConnection);
-
-    if (m_key.isEmpty() || !m_key.valid()) {
-        auto savedUrl = m_settings->value(SETTINGS_LICENSE_KEY).toUrl();
-        if (savedUrl.isValid()) {
-            openLicenseFile(savedUrl);
-        }
-    }
 }
 
 Client::~Client()
@@ -70,10 +55,6 @@ void Client::setSourceList(SourceList *list)
 
 bool Client::start()
 {
-    if (!licensed()) {
-        return false;
-    }
-
     QMetaObject::invokeMethod(&m_network, "bindUDP");
     m_thread.start();
     return m_thread.isRunning();
@@ -99,44 +80,6 @@ void Client::setActive(bool state)
     if (!active() && state) {
         start();
     }
-}
-
-bool Client::openLicenseFile(const QUrl &fileName)
-{
-    auto savedUrl = m_settings->value(SETTINGS_LICENSE_KEY).toUrl();
-    if (savedUrl != fileName) {
-        m_settings->setValue(SETTINGS_LICENSE_KEY, fileName);
-    }
-
-    QFile loadFile(fileName.toLocalFile());
-    if (!loadFile.open(QIODevice::ReadOnly)) {
-        qWarning("Couldn't open file");
-        return false;
-    }
-    m_key = {loadFile.readAll()};
-
-    emit licenseChanged();
-
-    return m_key.valid();
-}
-
-bool Client::licensed() const
-{
-    return m_key.valid();
-}
-
-QString Client::licenseOwner() const
-{
-    return m_key.title();
-}
-
-bool Client::staticLicense() const
-{
-#ifdef APP_API_KEY
-    return true;
-#else
-    return false;
-#endif
 }
 
 void Client::sendRequests()
@@ -391,16 +334,10 @@ void Client::requestSource(Item *item, const QString &message, Network::response
     }
 
     QJsonObject object;
-    object["api"] = "Open Sound Meter";
+    object["name"] = "Open Sound Meter";
     object["version"] = APP_GIT_VERSION;
     object["message"] = message;
     object["uuid"] = item->sourceId().toString();
-
-    QJsonObject license;
-    license["owner"] = m_key.owner();
-    license["type"] = m_key.type();
-    license["sign"] = m_key.sign();
-    object["license"] = license;
     object["data"] = itemData;
 
     QJsonDocument document(std::move(object));

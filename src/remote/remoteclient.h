@@ -21,7 +21,6 @@
 #include <QObject>
 #include <QList>
 #include "network.h"
-#include "apikey.h"
 #include "settings.h"
 
 class SourceList;
@@ -32,11 +31,7 @@ class Client : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(bool active READ active WRITE setActive NOTIFY activeChanged)
-    Q_PROPERTY(bool licensed READ licensed NOTIFY licenseChanged)
-    Q_PROPERTY(QString licenseOwner READ licenseOwner NOTIFY licenseChanged)
-    Q_PROPERTY(bool staticLicense READ staticLicense CONSTANT)
     const static int TIMER_INTERVAL = 250;
-    const static QString SETTINGS_LICENSE_KEY;
 
 public:
     explicit Client(Settings *settings, QObject *parent = nullptr);
@@ -49,18 +44,11 @@ public:
     bool active() const;
     void setActive(bool state);
 
-    Q_INVOKABLE bool openLicenseFile(const QUrl &fileName);
-    bool licensed() const;
-    QString licenseOwner() const;
-
-    bool staticLicense() const;
-
 public slots:
     void dataRecieved(QHostAddress senderAddress, int senderPort, const QByteArray &data);
 
 signals:
     void activeChanged();
-    void licenseChanged();
 
 private slots:
     void sendRequests();
@@ -76,7 +64,6 @@ private:
                        Network::errorCallback errorCallback = 0, QJsonObject itemData = {});
 
     Network m_network;
-    ApiKey m_key;
     Settings *m_settings;
     QThread m_thread;
     QTimer m_timer;

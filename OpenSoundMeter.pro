@@ -43,7 +43,6 @@ SOURCES += src/main.cpp \
     src/meta/metabase.cpp \
     src/meta/metameasurement.cpp \
     src/meta/metastored.cpp \
-    src/remote/apikey.cpp \
     src/remote/item.cpp \
     src/remote/items/measurementitem.cpp \
     src/remote/items/storeditem.cpp \
@@ -154,7 +153,6 @@ HEADERS += \
     src/meta/metabase.h \
     src/meta/metameasurement.h \
     src/meta/metastored.h \
-    src/remote/apikey.h \
     src/remote/item.h \
     src/remote/items/measurementitem.h \
     src/remote/items/storeditem.h \
@@ -200,21 +198,6 @@ HEADERS += \
     src/container/fifo.h \
     src/container/circular.h \
     src/container/array.h
-
-# OpenSSL
-OPENSSL_PATH = $$(OPENSSL_PATH)
-INCLUDEPATH   += $$OPENSSL_PATH/include
-LIBS          += -L$$OPENSSL_PATH/lib -lssl -lcrypto
-isEmpty(OPENSSL_PATH) {
-    error("OpenSSL path not setted")
-}
-
-#API
-API_KEY = $$(APP_API_KEY)
-!isEmpty(API_KEY) {
-    message("Add APP_API_KEY")
-    DEFINES += APP_API_KEY=\\\"$$API_KEY\\\"
-}
 
 #dialogs
 ios: {

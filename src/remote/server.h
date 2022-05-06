@@ -20,7 +20,6 @@
 
 #include <QObject>
 #include "network.h"
-#include "apikey.h"
 
 class SourceList;
 namespace chart {
@@ -73,7 +72,6 @@ private:
     QThread m_networkThread;
     Network m_network;
     SourceList *m_sourceList;
-    mutable std::map<QString, ApiKey> m_knownApiKeys;
 };
 
 } // namespace remote
