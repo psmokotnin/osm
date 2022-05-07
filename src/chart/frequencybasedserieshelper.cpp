@@ -67,6 +67,9 @@ void FrequencyBasedSeriesHelper::iterate(const unsigned int &pointsPerOctave,
         count ++;
         accumulate(i);
     }
+    if (count) {
+        collected(lastBandEnd, bandEnd, count);
+    }
 }
 
 } // namespace chart
