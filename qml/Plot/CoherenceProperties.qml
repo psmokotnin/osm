@@ -129,7 +129,7 @@ Item {
             title: qsTr("ppo")
             tooltip: qsTr("points per octave")
             Layout.fillWidth: true
-            model: [3, 6, 12, 24, 48]
+            model: [1, 3, 6, 12, 24, 48]
             currentIndex: {
                 var ppo = dataObject.pointsPerOctave;
                 model.indexOf(ppo);

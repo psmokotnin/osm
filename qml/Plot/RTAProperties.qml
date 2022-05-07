@@ -152,7 +152,7 @@ Item {
                 title: qsTr("ppo")
                 tooltip: qsTr("points per octave")
                 visible: mode.model[mode.currentIndex] !== "lines"
-                model: [3, 6, 12, 24, 48, "off"]
+                model: [1, 3, 6, 12, 24, 48, "off"]
                 currentIndex: {
                     model.indexOf(dataObject.pointsPerOctave ? dataObject.pointsPerOctave : "off")
                 }
