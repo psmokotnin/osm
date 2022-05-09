@@ -27,8 +27,12 @@ Item {
         chartsLayout.onCountChanged.connect(updateCount);
     }
 
-    function updateCount() {
+    function autoHeight() {
         first.height = second.height = third.height = chartsLayout.height / count;
+    }
+
+    function updateCount() {
+        autoHeight();
         applicationSettings.setValue("layout/charts/count", count)
     }
 
@@ -83,6 +87,21 @@ Item {
 
              Component.onCompleted: {
                  settings = applicationSettings.getGroup("layout/charts/3");
+             }
+         }
+
+         SystemPalette { id: pal }
+         handleDelegate: Rectangle {
+             width: 1
+             height: 1
+             color: Qt.darker(pal.window, 1.5)
+
+             MouseArea {
+                 anchors.fill: parent
+                 propagateComposedEvents: true
+                 onDoubleClicked: {
+                     autoHeight();
+                 }
              }
          }
      }
