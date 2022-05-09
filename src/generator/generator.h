@@ -50,8 +50,7 @@ class Generator : public QObject
     Q_PROPERTY(float gain READ gain WRITE setGain NOTIFY gainChanged)
     Q_PROPERTY(float duration READ duration WRITE setDuration NOTIFY durationChanged)
 
-    Q_PROPERTY(int channel READ channel WRITE setChannel NOTIFY channelChanged)
-    Q_PROPERTY(int aux READ aux WRITE setAux NOTIFY auxChanged)
+    Q_PROPERTY(QSet<int> channels READ channels WRITE setChannels NOTIFY channelsChanged)
 
 private:
     GeneratorThread m_thread;
@@ -104,26 +103,15 @@ public:
     }
     void setGain(float gain);
 
-    int channelsCount() const
-    {
-        return m_thread.channelsCount();
-    }
-    int channel() const
-    {
-        return m_thread.channel();
-    }
-    void setChannel(int channel);
-    int aux() const
-    {
-        return m_thread.aux();
-    }
-    void setAux(int channel);
-
     float duration() const;
     void setDuration(float duration);
 
     audio::DeviceInfo::Id deviceId() const;
     void setDeviceId(const audio::DeviceInfo::Id &deviceId);
+
+    QSet<int> channels() const;
+    void setChannels(const QSet<int> &channels);
+    void setChannels(const QList<QVariant> channels);
 
 signals:
     void enabledChanged(bool);
@@ -132,10 +120,10 @@ signals:
     void startFrequencyChanged(int f);
     void endFrequencyChanged(int f);
     void gainChanged(float);
-    void channelChanged(int);
-    void auxChanged(int);
     void durationChanged(float);
     void deviceIdChanged(audio::DeviceInfo::Id);
+    void channelsChanged(QSet<int>);
+    void channelsChangedQList(QList<QVariant>);
 };
 
 #endif // GENERATOR_H

@@ -80,24 +80,11 @@ public slots:
     }
     void setGain(float gain);
 
-    int channelsCount() const
-    {
-        return m_channelCount;
-    }
-    int channel() const
-    {
-        return m_channel;
-    }
-    void setChannel(int channel);
-
-    int aux() const
-    {
-        return m_aux;
-    }
-    void setAux(int channel);
-
     float duration() const;
     void setDuration(float duration);
+
+    QSet<int> channels() const;
+    void setChannels(const QSet<int> &channels);
 
 signals:
     void enabledChanged(bool);
@@ -106,12 +93,11 @@ signals:
     void startFrequencyChanged(int);
     void endFrequencyChanged(int);
     void gainChanged(float);
-    void channelChanged(int);
-    void auxChanged(int);
     void durationChanged(float);
     void deviceIdChanged(audio::DeviceInfo::Id);
     void deviceError();
     void sampleOut(float);
+    void channelsChanged(QSet<int>);
 
 private:
     void updateAudio();
@@ -120,11 +106,12 @@ private:
     audio::DeviceInfo::Id m_deviceId;
     audio::Stream *m_audioStream;
     QList<OutputDevice *> m_sources;
+    QSet<int> m_channels;
+    mutable std::mutex m_channelsMutex;
 
     float m_gain, m_duration;
     int m_type;
     int m_frequency, m_startFrequency, m_endFrequency;
-    int m_channelCount, m_channel, m_aux;
     bool m_enabled;
 };
 

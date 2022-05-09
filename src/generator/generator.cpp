@@ -36,15 +36,23 @@ Generator::Generator(Settings *settings, QObject *parent) : QObject(parent),
             Qt::QueuedConnection);
     connect(&m_thread, SIGNAL(durationChanged(float)), this, SIGNAL(durationChanged(float)),
             Qt::QueuedConnection);
-    connect(&m_thread, SIGNAL(channelChanged(int)),   this, SIGNAL(channelChanged(int)),
-            Qt::QueuedConnection);
-    connect(&m_thread, SIGNAL(auxChanged(int)),       this, SIGNAL(auxChanged(int)),
+    connect(&m_thread, SIGNAL(channelsChanged(QSet<int>)),   this, SIGNAL(channelsChanged(QSet<int>)),
             Qt::QueuedConnection);
     connect(&m_thread, SIGNAL(deviceIdChanged(audio::DeviceInfo::Id)),  this,
             SIGNAL(deviceIdChanged(audio::DeviceInfo::Id)),
             Qt::QueuedConnection);
     connect(&m_thread, &GeneratorThread::deviceError, this, [this]() {
         setEnabled(false);
+    });
+    connect(&m_thread, &GeneratorThread::channelsChanged, this, [this](QSet<int> set) {
+        QList<QVariant> channelsList = {};
+
+        channelsList.reserve(set.count());
+        for (auto &channel : set) {
+            channelsList.append(channel);
+        }
+        emit channelsChanged(set);
+        emit channelsChangedQList(channelsList);
     });
 
     loadSettings();
@@ -81,16 +89,44 @@ void Generator::loadSettings()
         setGain(m_settings->reactValue<GeneratorThread, float>(
                     "gain", &m_thread, &GeneratorThread::gainChanged, m_thread.gain()).toFloat());
 
-        setChannel(m_settings->reactValue<GeneratorThread, int>(
-                       "channel", &m_thread, &GeneratorThread::channelChanged, m_thread.channel()).toInt());
-        setAux(m_settings->reactValue<GeneratorThread, int>(
-                   "aux", &m_thread, &GeneratorThread::auxChanged, m_thread.aux()).toInt());
-
         setDeviceId(m_settings->reactValue<GeneratorThread, audio::DeviceInfo::Id>(
                         "deviceId", &m_thread, &GeneratorThread::deviceIdChanged, m_thread.deviceId()).toString());
+
+        setChannels(m_settings->reactValue<Generator, QList<QVariant>>(
+                        "channels", this, &Generator::channelsChangedQList, QList<QVariant>()).toList());
+
         //@TODO: Add settings for SinSweep parameters
     }
 }
+
+QSet<int> Generator::channels() const
+{
+    return m_thread.channels();
+}
+
+void Generator::setChannels(const QSet<int> &channels)
+{
+    QMetaObject::invokeMethod(
+        &m_thread,
+        "setChannels",
+        Qt::QueuedConnection,
+        Q_ARG(QSet<int>, channels)
+    );
+}
+
+void Generator::setChannels(const QList<QVariant> channels)
+{
+    QSet<int> set = {};
+    for (auto &channel : channels) {
+        bool ok = false;
+        auto number = channel.toInt(&ok);
+        if (ok) {
+            set << number;
+        }
+    }
+    setChannels(set);
+}
+
 void Generator::setEnabled(bool enabled)
 {
     QMetaObject::invokeMethod(
@@ -144,24 +180,6 @@ void Generator::setGain(float gain)
         "setGain",
         Qt::QueuedConnection,
         Q_ARG(float, gain)
-    );
-}
-void Generator::setChannel(int channel)
-{
-    QMetaObject::invokeMethod(
-        &m_thread,
-        "setChannel",
-        Qt::QueuedConnection,
-        Q_ARG(int, channel)
-    );
-}
-void Generator::setAux(int channel)
-{
-    QMetaObject::invokeMethod(
-        &m_thread,
-        "setAux",
-        Qt::QueuedConnection,
-        Q_ARG(int, channel)
     );
 }
 

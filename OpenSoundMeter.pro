@@ -33,6 +33,7 @@ SOURCES += src/main.cpp \
     src/filesystem/dialogPlugin.cpp \
     src/filesystem/plugins/widgetdialogplugin.cpp \
     src/generator/burstnoise.cpp \
+    src/generator/channelmodel.cpp \
     src/generator/wav.cpp \
     src/inputdevice.cpp \
     src/common/appearance.cpp \
@@ -115,7 +116,8 @@ INCLUDEPATH += \
     src \
     src/meta \
     src/common \
-    src/remote
+    src/remote \
+    src/generator
 
 HEADERS += \
     src/audio/client.h \
@@ -143,6 +145,7 @@ HEADERS += \
     src/filesystem/dialogPlugin.h \
     src/filesystem/plugins/widgetdialogplugin.h \
     src/generator/burstnoise.h \
+    src/generator/channelmodel.h \
     src/generator/wav.h \
     src/inputdevice.h \
     src/common/appearance.h \

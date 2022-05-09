@@ -19,6 +19,7 @@ import QtQuick 2.7
 import QtQuick.Controls 2.2
 import QtQuick.Layouts 1.3
 import QtQuick.Controls.Material 2.1
+import OpenSoundMeterModule 1.0
 import Audio 1.0
 import "elements"
 
@@ -200,33 +201,16 @@ Item {
                 }
 
                 function updateChannelNames() {
-                    var outIndex = outChannel.currentIndex;
-                    var auxIndex = auxChannel.currentIndex;
-                    var channelNames = ["none"].concat(model.channelNames(currentIndex));
+                    selectChannels.list = model.channelNames(currentIndex);
                     generatorModel.deviceId = model.deviceId(currentIndex);
-                    outChannel.model = channelNames;
-                    auxChannel.model = channelNames;
-                    outChannel.currentIndex = outIndex < channelNames.length ? outIndex : -1;
-                    auxChannel.currentIndex = auxIndex < channelNames.length ? auxIndex : -1;
                 }
             }
 
-            DropDown {
-                id: outChannel
-                implicitWidth: 120
-                currentIndex: generatorModel.channel + 1
-                onCurrentIndexChanged: generatorModel.channel = currentIndex - 1
-                ToolTip.visible: hovered
-                ToolTip.text: qsTr("channel number")
-            }
-
-            DropDown {
-                id: auxChannel
-                implicitWidth: 120
-                currentIndex: generatorModel.aux + 1
-                onCurrentIndexChanged: generatorModel.aux = currentIndex - 1
-                ToolTip.visible: hovered
-                ToolTip.text: qsTr("aux channel number")
+            GeneratorChannelSelect {
+                id: selectChannels
+                tooltip: qsTr("show only selected sources")
+                dataObject: generatorModel
+                Layout.preferredWidth: 240
             }
         }
     }

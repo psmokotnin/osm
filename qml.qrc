@@ -51,5 +51,6 @@
         <file alias="RemoteItem.qml">qml/RemoteItem.qml</file>
         <file alias="RemoteItemProperties.qml">RemoteItemProperties.qml</file>
         <file alias="RemoteProperties.qml">qml/RemoteProperties.qml</file>
+        <file alias="elements/GeneratorChannelSelect.qml">qml/elements/GeneratorChannelSelect.qml</file>
     </qresource>
 </RCC>

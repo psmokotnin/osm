@@ -40,6 +40,10 @@ qint64 OutputDevice::readData(char *data, qint64 maxlen)
     int chanel = m_chanelCount;
     Sample src = {0.f};
     std::memset(data, 0, maxlen);
+    auto generator = static_cast<GeneratorThread *>(parent());
+    if (generator) {
+        m_channels = generator->channels();
+    }
 
     while (maxlen - total > 0) {
         if (chanel >= m_chanelCount) {
@@ -52,7 +56,7 @@ qint64 OutputDevice::readData(char *data, qint64 maxlen)
             }
         }
 
-        if (chanel == m_chanel || chanel == m_aux) {
+        if (m_channels.contains(chanel)) {
             memcpy(data + total, &src.f, sizeof(float));
         }
 
