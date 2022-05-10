@@ -814,6 +814,7 @@ void Measurement::resetAverage() noexcept
     m_onReset.store(true);
     std::lock_guard<std::mutex> guard(m_dataMutex);
 
+    m_dataFT.reset();
     m_deconvAvg.reset();
     m_moduleAvg.reset();
     m_magnitudeAvg.reset();

@@ -91,6 +91,8 @@ public:
     unsigned int sampleRate() const;
     void setSampleRate(unsigned int sampleRate);
 
+    void reset();
+
 private:
     unsigned int m_size;
     unsigned int m_pointer;
@@ -100,6 +102,7 @@ private:
 
     //! income data channel
     container::array<float> m_inA, m_inB;
+    float m_integratedA, m_integratedB;
 
     //! fft swap map
     container::array<unsigned int> m_swapMap;
