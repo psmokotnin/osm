@@ -20,7 +20,7 @@ using namespace chart;
 
 StepPlot::StepPlot(Settings *settings, QQuickItem *parent) : XYPlot(settings, parent), m_zero(0)
 {
-    m_x.configure(AxisType::Linear, -20.0, 20.0, 41);
+    m_x.configure(AxisType::Linear, -50.0, 50.0, 101);
     m_x.setReset(-5.f, 5.f);
     m_x.reset();
     m_x.setUnit("ms");
@@ -49,7 +49,7 @@ void StepPlot::setZero(float zero)
 
 void StepPlot::setSettings(Settings *settings) noexcept
 {
-    if (settings && (settings->value("type") == "Impulse")) {
+    if (settings && (settings->value("type") == "Step")) {
         XYPlot::setSettings(settings);
         setZero(m_settings->reactValue<StepPlot, float>("zero", this, &StepPlot::zeroChanged, zero()).toFloat());
     }
