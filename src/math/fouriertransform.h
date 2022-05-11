@@ -102,7 +102,6 @@ private:
 
     //! income data channel
     container::array<float> m_inA, m_inB;
-    float m_integratedA, m_integratedB;
 
     //! fft swap map
     container::array<unsigned int> m_swapMap;

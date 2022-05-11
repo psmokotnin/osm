@@ -37,8 +37,7 @@ FourierTransform::FourierTransform(unsigned int size):
     m_type(Fast),
     m_window(WindowFunction::Rectangular),
     m_inA(m_size, 0.f),
-    m_inB(m_size, 0.f),
-    m_integratedA(0), m_integratedB(0)
+    m_inB(m_size, 0.f)
 {
 
 }
@@ -136,7 +135,6 @@ void FourierTransform::setSampleRate(unsigned int sampleRate)
 
 void FourierTransform::reset()
 {
-    m_integratedA = m_integratedB = 0;
     for (unsigned int i = 0; i < m_size; ++i) {
         m_inA[i] = m_inB[i] = 0;
     }
@@ -166,12 +164,8 @@ void FourierTransform::add(float sampleA, float sampleB)
     if (m_pointer >= m_size)
         m_pointer = 0;
 
-    m_integratedA -= m_inA[m_pointer];
-    m_integratedB -= m_inB[m_pointer];
     m_inA[m_pointer] = sampleA;
     m_inB[m_pointer] = sampleB;
-    m_integratedA += sampleA;
-    m_integratedB += sampleB;
 }
 void FourierTransform::set(unsigned int i, const complex &a, const complex &b)
 {
@@ -198,10 +192,20 @@ GNU_ALIGN void FourierTransform::fast(bool reverse, bool ultrafast)
 {
     if (!reverse) {
         //apply data-window
+        float m_integratedA = 0;
+        float m_integratedB = 0;
         for (unsigned int i = 0, n = m_pointer + 1; i < m_size; i++, n++) {
             if (n >= m_size) n = 0;
-            m_fastA[m_swapMap[i]] = (m_inA[n] - m_integratedA) * m_window.get(i);
-            m_fastB[m_swapMap[i]] = (m_inB[n] - m_integratedB) * m_window.get(i);
+            m_fastA[m_swapMap[i]] = m_inA[n] * m_window.get(i);
+            m_fastB[m_swapMap[i]] = m_inB[n] * m_window.get(i);
+
+            m_integratedA += m_fastA[m_swapMap[i]].real;
+            m_integratedB += m_fastB[m_swapMap[i]].real;
+        }
+
+        for (unsigned int i = 0; i < m_size; i++) {
+            m_fastA[i] -= m_integratedA;
+            m_fastB[i] -= m_integratedB;
         }
     }
 
