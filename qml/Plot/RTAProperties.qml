@@ -140,7 +140,7 @@ Item {
                 currentIndex: dataObject.mode;
                 onCurrentIndexChanged: {
                     dataObject.mode = currentIndex;
-                    if (model[currentIndex] === "bars") {
+                    if (model[currentIndex] === "bars" && dataObject.pointsPerOctave === 0) {
                         dataObject.pointsPerOctave = 12;
                     } else if (model[currentIndex] === "line") {
                         dataObject.pointsPerOctave = 0;
