@@ -41,6 +41,7 @@ SOURCES += src/main.cpp \
     src/generator/mnoise.cpp \
     src/common/notifier.cpp \
     src/common/profiler.cpp \
+    src/math/weighting.cpp \
     src/meta/metabase.cpp \
     src/meta/metameasurement.cpp \
     src/meta/metastored.cpp \
@@ -153,6 +154,7 @@ HEADERS += \
     src/generator/mnoise.h \
     src/common/notifier.h \
     src/common/profiler.h \
+    src/math/weighting.h \
     src/meta/metabase.h \
     src/meta/metameasurement.h \
     src/meta/metastored.h \
