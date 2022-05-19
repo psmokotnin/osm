@@ -62,8 +62,8 @@ Drawer {
             onclick: function() {sourceList.addUnion();}
         }
         ListElement {
-            name: qsTr("Add elc")
-            onclick: function() {sourceList.addElc();}
+            name: qsTr("Add standart line")
+            onclick: function() {sourceList.addStandartLine();}
             separator: true
         }
         ListElement {

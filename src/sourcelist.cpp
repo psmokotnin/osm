@@ -18,7 +18,7 @@
 #include "sourcelist.h"
 #include "measurement.h"
 #include "union.h"
-#include "elc.h"
+#include "standartline.h"
 #include "common/wavfile.h"
 #include <qmath.h>
 #include <QUrl>
@@ -459,12 +459,12 @@ chart::Source *SourceList::firstChecked() const noexcept
 
 bool SourceList::loadList(const QJsonDocument &document, const QUrl &fileName) noexcept
 {
-    enum LoadType {MeasurementType, StoredType, UnionType, ElcType};
+    enum LoadType {MeasurementType, StoredType, UnionType, StandartLineType};
     static std::map<QString, LoadType> typeMap = {
-        {"Measurement", MeasurementType},
-        {"Stored",      StoredType},
-        {"Union",       UnionType},
-        {"ELC",         ElcType},
+        {"Measurement",  MeasurementType},
+        {"Stored",       StoredType},
+        {"Union",        UnionType},
+        {"StandartLine", StandartLineType},
     };
 
     clean();
@@ -489,8 +489,8 @@ bool SourceList::loadList(const QJsonDocument &document, const QUrl &fileName) n
             loadObject<Union>(object["data"].toObject());
             break;
 
-        case ElcType:
-            loadObject<ELC>(object["data"].toObject());
+        case StandartLineType:
+            loadObject<StandartLine>(object["data"].toObject());
             break;
         }
     }
@@ -520,9 +520,9 @@ Union *SourceList::addUnion()
 {
     return add<Union>();
 }
-ELC *SourceList::addElc()
+StandartLine *SourceList::addStandartLine()
 {
-    return add<ELC>();
+    return add<StandartLine>();
 }
 Measurement *SourceList::addMeasurement()
 {

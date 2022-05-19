@@ -28,7 +28,6 @@ SOURCES += src/main.cpp \
     src/common/autosaver.cpp \
     src/common/recentfilesmodel.cpp \
     src/common/wavfile.cpp \
-    src/elc.cpp \
     src/filesystem/dialog.cpp \
     src/filesystem/dialogPlugin.cpp \
     src/filesystem/plugins/widgetdialogplugin.cpp \
@@ -54,6 +53,7 @@ SOURCES += src/main.cpp \
     src/remote/tcpreciever.cpp \
     src/sourcelist.cpp \
     src/sourcemodel.cpp \
+    src/standartline.cpp \
     src/targettrace.cpp \
     src/union.cpp \
     src/generator/generator.cpp \
@@ -141,7 +141,6 @@ HEADERS += \
     src/common/autosaver.h \
     src/common/recentfilesmodel.h \
     src/common/wavfile.h \
-    src/elc.h \
     src/filesystem/dialog.h \
     src/filesystem/dialogPlugin.h \
     src/filesystem/plugins/widgetdialogplugin.h \
@@ -167,6 +166,7 @@ HEADERS += \
     src/remote/tcpreciever.h \
     src/sourcelist.h \
     src/sourcemodel.h \
+    src/standartline.h \
     src/targettrace.h \
     src/union.h \
     src/generator/generator.h \

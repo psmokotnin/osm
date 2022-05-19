@@ -28,7 +28,7 @@
 class Measurement;
 class Union;
 class Stored;
-class ELC;
+class StandartLine;
 
 class SourceList : public QObject
 {
@@ -93,7 +93,7 @@ public slots:
     Q_INVOKABLE QColor nextColor();
     Q_INVOKABLE Measurement *addMeasurement();
     Q_INVOKABLE Union *addUnion();
-    Q_INVOKABLE ELC *addElc();
+    Q_INVOKABLE StandartLine *addStandartLine();
     Q_INVOKABLE void appendItem(chart::Source *item, bool autocolor = false);
     Q_INVOKABLE void removeItem(chart::Source *item, bool deleteItem = true);
     Q_INVOKABLE void cloneItem(chart::Source *item);

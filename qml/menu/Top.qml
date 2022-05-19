@@ -167,9 +167,9 @@ MenuBar {
             onTriggered: sourceList.addUnion();
         }
         MenuItem {
-            text: qsTr("&Add elc")
+            text: qsTr("&Add standart line")
             shortcut: "Ctrl+L"
-            onTriggered: sourceList.addElc();
+            onTriggered: sourceList.addStandartLine();
         }
         MenuItem {
             text: qsTr("&Show target")
