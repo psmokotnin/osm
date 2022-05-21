@@ -19,6 +19,7 @@
 #define WEIGHTING_H
 
 #include <array>
+#include <QtMath>
 
 class Weighting
 {
