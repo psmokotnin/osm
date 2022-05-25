@@ -127,7 +127,7 @@ QJsonObject Measurement::toJSON(const SourceList *) const noexcept
     data["active"]          = active();
     data["name"]            = name();
     data["delay"]           = static_cast<int>(delay());
-    data["gain"]            = static_cast<int>(gain());
+    data["gain"]            = gain();
     data["averageType"]     = averageType();
     data["average"]         = static_cast<int>(average());
     data["filtersFrequency"] = static_cast<int>(filtersFrequency());
@@ -168,8 +168,8 @@ void Measurement::fromJSON(QJsonObject data, const SourceList *) noexcept
         return static_cast<unsigned int>(value.toInt(static_cast<int>(defaultValue)));
     };
 
+    setGain(                      data["gain"].toDouble(    gain()));
     setDelay(            castUInt(data["delay"           ], delay()));
-    setGain(             castUInt(data["gain"            ], gain()));
     setAverage(          castUInt(data["average"         ], average()));
     setDataChanel(       castUInt(data["dataChanel"      ], dataChanel()));
     setReferenceChanel(  castUInt(data["referenceChanel" ], referenceChanel()));
