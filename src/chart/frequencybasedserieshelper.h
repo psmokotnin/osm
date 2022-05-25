@@ -96,6 +96,30 @@ protected:
             }
         };
         iterate(pointsPerOctave, accumulate, it);
+
+        if (bCount == 3) {
+            splinePoint[0]  = splinePoint[1];
+            splinePoint[1]  = splinePoint[2];
+            splinePoint[2]  = splinePoint[3];
+            splinePoint[3] = a[0] + a[1] * 2 + a[2] * 4 + a[3] * 8;
+
+            csplinePoint[0]  = csplinePoint[1];
+            csplinePoint[1]  = csplinePoint[2];
+            csplinePoint[2]  = csplinePoint[3];
+            csplinePoint[3] = c[0] + c[1] * 2 + c[2] * 4 + c[3] * 8;
+
+            a[0] = (splinePoint[0]      + splinePoint[1] * 4 + splinePoint[2]) / 6;
+            a[1] = (splinePoint[0] * -1 +                      splinePoint[2]) / 2;
+            a[2] = (splinePoint[0]      - splinePoint[1] * 2 + splinePoint[2]) / 2;
+            a[3] = (splinePoint[0] * -1 + splinePoint[1] * 3 - splinePoint[2] * 3 + splinePoint[3]) / 6;
+
+            c[0] = (     csplinePoint[0] + 4 * csplinePoint[1] +     csplinePoint[2]) / 6;
+            c[1] = (-1 * csplinePoint[0] +                           csplinePoint[2]) / 2;
+            c[2] = (     csplinePoint[0] - 2 * csplinePoint[1] +     csplinePoint[2]) / 2;
+            c[3] = (-1 * csplinePoint[0] + 3 * csplinePoint[1] - 3 * csplinePoint[2] + csplinePoint[3]) / 6;
+
+            collected(f[2], f[3], a, c);
+        }
     }
 
 

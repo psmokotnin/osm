@@ -20,7 +20,7 @@
 
 QMap<QString, std::pair<int, Profiler::time_interval>> Profiler::m_calls = {};
 
-Profiler::Profiler(QString name) : m_name(name)
+Profiler::Profiler(QString name, unsigned int divider) : m_divider(divider), m_name(name)
 {
     m_begin = std::chrono::system_clock::now();
 }
@@ -31,7 +31,7 @@ Profiler::~Profiler()
     l.first++;
     auto interval = std::chrono::system_clock::now() - m_begin;
     l.second +=  std::chrono::duration_cast<time_interval>(interval);
-    if (m_calls[m_name].first % 60 == 0) {
+    if (m_calls[m_name].first % m_divider == 0) {
         qDebug() << "Profile " << m_name <<
                  " average:" <<  (m_calls[m_name].second.count() / m_calls[m_name].first) << "us";
         m_calls[m_name] = {};

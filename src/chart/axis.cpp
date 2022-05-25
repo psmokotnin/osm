@@ -317,6 +317,7 @@ void Axis::autoLabels(unsigned int ticks)
             l += step;
         }
     }
+    std::sort(m_labels.begin(), m_labels.end());
 }
 
 void Axis::setLabels(std::vector<float> labels) noexcept

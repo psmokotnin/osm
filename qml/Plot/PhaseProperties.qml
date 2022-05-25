@@ -148,7 +148,7 @@ Item {
             TitledCombo {
                 title: qsTr("ppo")
                 tooltip: qsTr("points per octave")
-                model: [3, 6, 12, 24, 48]
+                model: [1, 3, 6, 12, 24, 48]
                 Layout.fillWidth: true
                 currentIndex: {
                     var ppo = dataObject.pointsPerOctave;

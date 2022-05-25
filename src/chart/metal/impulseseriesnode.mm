@@ -56,7 +56,7 @@ void ImpulseSeriesNode::renderSeries()
     unsigned int maxBufferSize = (m_source->impulseSize() - 1) * VERTEX_PER_SEGMENT * LINE_VERTEX_SIZE, verticiesCount = 0;
     float *vertex_ptr = vertexBuffer(maxBufferSize);
 
-    float dcOffset =  m_source->impulseValue(0);
+    float dcOffset =  (m_source->impulseValue(0) + m_source->impulseValue(m_source->impulseSize() - 1)) / 2;
     float value = 0, lastValue = 0;
     for (unsigned int i = 0, j = 0; i < m_source->impulseSize() - 1; ++i) {
         switch (m_mode) {

@@ -21,6 +21,7 @@ import QtQuick.Layouts 1.12
 import QtQuick.Dialogs 1.2
 import QtQuick.Controls.Material 2.13
 
+import StandartLine 1.0
 import SourceModel 1.0
 import "elements"
 
@@ -33,19 +34,34 @@ Item {
 
         RowLayout {
 
+            DropDown {
+                id: modeSelect
+                model: dataObject.modes
+                currentIndex: dataObject.mode
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Standart")
+                onCurrentIndexChanged: dataObject.mode = currentIndex;
+                Layout.preferredWidth: 200
+            }
+
             SelectableSpinBox {
                 value: dataObject.loudness
                 onValueChanged: dataObject.loudness = value
                 from: 20
-                to: 80
+                to: 100
                 editable: true
+                visible: dataObject.mode === StandartLine.ELC
             }
 
             Label {
                 text: qsTr("phon")
-                Layout.fillWidth: true
+                visible: dataObject.mode === StandartLine.ELC
 
                 horizontalAlignment: Text.AlignLeft
+            }
+
+            Item {
+                Layout.fillWidth: true
             }
 
             ColorPicker {

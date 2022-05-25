@@ -41,21 +41,34 @@ void FrequencyBasedSeriesHelper::iterate(const unsigned int &pointsPerOctave,
     for (unsigned int i = 1; i < source()->size(); ++i) {
         frequency = source()->frequency(i);
         if (frequency < bandStart) continue;
-        while (frequency > bandEnd) {
 
-            if (count) {
-                collected(lastBandEnd, bandEnd, count);
-                count = 0;
+        if (pointsPerOctave > 0) {
+            while (frequency > bandEnd) {
 
-                //extend current band to the end of the pervious collected
-                lastBandEnd = bandEnd;
+                if (count) {
+                    collected(lastBandEnd, bandEnd, count);
+                    count = 0;
+
+                    //extend current band to the end of the pervious collected
+                    lastBandEnd = bandEnd;
+                }
+
+                bandStart = bandEnd;
+                bandEnd   *= _frequencyFactor;
             }
-
-            bandStart = bandEnd;
-            bandEnd   *= _frequencyFactor;
+        } else {
+            if (count) {
+                auto delta = (frequency - lastBandEnd) / 2;
+                collected(frequency - delta, frequency + delta, count);
+            }
+            lastBandEnd = frequency;
+            count = 0;
         }
         count ++;
         accumulate(i);
+    }
+    if (count) {
+        collected(lastBandEnd, bandEnd, count);
     }
 }
 

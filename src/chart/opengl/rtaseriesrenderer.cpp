@@ -121,7 +121,11 @@ void RTASeriesRenderer::renderSeries()
     switch (m_mode) {
     //line
     case 0:
-        renderLine();
+        if (m_pointsPerOctave > 0) {
+            renderPPOLine();
+        } else {
+            renderLine();
+        }
         break;
 
     //bars
@@ -154,7 +158,7 @@ void RTASeriesRenderer::renderLine()
             m_vertices[j + 1] = 20 * log10f(m_source->module(i));
         }
 
-        drawVertices(GL_LINE_STRIP, count);
+        drawVertices(count, GL_LINE_STRIP);
     } else {
         unsigned int j = 0, i, verticiesCount = 0;
         for (i = 0; i < m_source->size() - 1; ++i) {
@@ -167,9 +171,60 @@ void RTASeriesRenderer::renderLine()
         drawOpenGL2(verticiesCount);
     }
 }
+void RTASeriesRenderer::renderPPOLine()
+{
+    unsigned int maxBufferSize = 12 * m_pointsPerOctave * (m_openGL33CoreFunctions ? 2 : VERTEX_PER_SEGMENT *
+                                                           LINE_VERTEX_SIZE);
+    if (m_vertices.size() != maxBufferSize) {
+        m_vertices.resize(maxBufferSize);
+        m_refreshBuffers = true;
+    }
+
+    float value = 0, peak = 0;
+
+    auto accumalte = [ &, this] (const unsigned int &i) {
+        if (i == 0) {
+            return ;
+        }
+        value += m_source->module(i);
+        peak = std::max(peak, m_source->peakSquared(i));
+    };
+
+    unsigned int i = 0, verticiesCount = 0;
+    auto collected = [ &, this] (const float & start, const float & end, const unsigned int &count) {
+        if (i > maxBufferSize) {
+            qCritical("out of range");
+            return;
+        }
+
+        auto frequencyPoint = (start + end) / 2;
+        value = 20 * log10f(value / count);
+
+        if (m_openGL33CoreFunctions) {
+            m_vertices[i] = frequencyPoint;
+            m_vertices[i + 1] = value;
+            i += 2;
+            verticiesCount++;
+        } else {
+            addLinePoint(i, verticiesCount, frequencyPoint, value, 1);
+        }
+
+        value = 0;
+    };
+    iterate(m_pointsPerOctave, accumalte, collected);
+
+    if (m_openGL33CoreFunctions) {
+        drawVertices(verticiesCount, GL_LINE_STRIP);
+    } else {
+        drawOpenGL2(verticiesCount, GL_LINE_STRIP);
+    }
+}
 void RTASeriesRenderer::renderBars()
 {
-    unsigned int maxBufferSize = m_pointsPerOctave * 12 * 12 * (m_openGL33CoreFunctions ? 2 : LINE_VERTEX_SIZE);
+    unsigned int maxBufferSize = (m_pointsPerOctave ? m_pointsPerOctave * 12 : m_source->size()) *
+                                 12 *
+                                 (m_openGL33CoreFunctions ? 2 : LINE_VERTEX_SIZE);
+
     if (m_vertices.size() != maxBufferSize) {
         m_vertices.resize(maxBufferSize);
         m_refreshBuffers = true;
@@ -197,8 +252,15 @@ void RTASeriesRenderer::renderBars()
 
         value = 10 * log10f(value);
         peak  = 10 * log10f(peak);
-        auto shiftedStart = std::pow(M_E, std::log(start) + y);
-        auto shiftedEnd   = std::pow(M_E, std::log(end  ) - y);
+        float shiftedStart = std::pow(M_E, std::log(start) + y);
+        float shiftedEnd   = std::pow(M_E, std::log(end  ) - y);
+        if (shiftedStart > shiftedEnd) {
+            std::swap(shiftedStart, shiftedEnd);
+        }
+        if (shiftedEnd - shiftedStart < 1) {
+            shiftedStart = start;
+            shiftedEnd = end;
+        }
         if (m_openGL33CoreFunctions) {
             m_vertices[i + 0] = shiftedStart;
             m_vertices[i + 1] = value;
@@ -258,12 +320,12 @@ void RTASeriesRenderer::renderBars()
 
     iterate(m_pointsPerOctave, accumalte, collected);
     if (m_openGL33CoreFunctions) {
-        drawVertices(GL_TRIANGLES, verticesCollected);
+        drawVertices(verticesCollected, GL_TRIANGLES);
     } else {
         drawOpenGL2(verticesCollected, GL_TRIANGLES);
     }
 }
-void RTASeriesRenderer::drawVertices(const GLenum &mode, const GLsizei &count)
+void RTASeriesRenderer::drawVertices(const GLsizei &count, const GLenum &mode)
 {
     if (m_refreshBuffers) {
         m_openGL33CoreFunctions->glGenBuffers(1, &m_vertexBufferId);
@@ -302,14 +364,14 @@ void RTASeriesRenderer::renderLines()
             m_vertices[j + 2] = m_source->frequency(i);
             m_vertices[j + 3] = 20 * log10f(m_source->module(i));
         }
-        drawVertices(GL_LINES, count * 2);
+        drawVertices(count * 2, GL_LINES);
 
         if (m_showPeaks) {
             for (unsigned int i = 0, j = 0; i < count; ++i, j += 4) {
                 m_vertices[j + 1] = 10 * log10f(m_source->peakSquared(i));
                 m_vertices[j + 3] = 10 * log10f(m_source->peakSquared(i)) + 1;
             }
-            drawVertices(GL_LINES, count * 2);
+            drawVertices(count * 2, GL_LINES);
         }
     } else {
         unsigned int verticiesCount = 0, j = 0;

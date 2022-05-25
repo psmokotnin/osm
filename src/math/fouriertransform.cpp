@@ -131,6 +131,13 @@ void FourierTransform::setSampleRate(unsigned int sampleRate)
 {
     m_sampleRate = sampleRate;
 }
+
+void FourierTransform::reset()
+{
+    for (unsigned int i = 0; i < m_size; ++i) {
+        m_inA[i] = m_inB[i] = 0;
+    }
+}
 long FourierTransform::f2i(double frequency, int sampleRate) const
 {
     return static_cast<long>(frequency * m_size / sampleRate);
@@ -184,10 +191,20 @@ GNU_ALIGN void FourierTransform::fast(bool reverse, bool ultrafast)
 {
     if (!reverse) {
         //apply data-window
+        float m_integratedA = 0;
+        float m_integratedB = 0;
         for (unsigned int i = 0, n = m_pointer + 1; i < m_size; i++, n++) {
             if (n >= m_size) n = 0;
             m_fastA[m_swapMap[i]] = m_inA[n] * m_window.get(i);
             m_fastB[m_swapMap[i]] = m_inB[n] * m_window.get(i);
+
+            m_integratedA += m_fastA[m_swapMap[i]].real;
+            m_integratedB += m_fastB[m_swapMap[i]].real;
+        }
+
+        for (unsigned int i = 0; i < m_size; i++) {
+            m_fastA[i] -= m_integratedA;
+            m_fastB[i] -= m_integratedB;
         }
     }
 

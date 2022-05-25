@@ -28,7 +28,7 @@
 #include "src/targettrace.h"
 #include "src/measurement.h"
 #include "src/union.h"
-#include "src/elc.h"
+#include "src/standartline.h"
 #include "src/sourcemodel.h"
 #include "src/sourcelist.h"
 #include "src/chart/variablechart.h"
@@ -38,6 +38,9 @@
 #include "common/appearance.h"
 #include "common/autosaver.h"
 #include "filesystem/dialog.h"
+#include "remote/server.h"
+#include "remote/remoteclient.h"
+
 #ifdef GRAPH_METAL
 #include "src/chart/metal/seriesnode.h"
 #endif
@@ -86,6 +89,11 @@ int main(int argc, char *argv[])
     auto t = new TargetTrace(settings.getGroup("targettrace"));
     auto notifier = Notifier::getInstance();
 
+    auto client = remote::Client(settings.getGroup("apiClient"));
+    client.setSourceList(&sourceList);
+    auto server = remote::Server(&sourceList);
+    server.setSourceList(&sourceList);
+
     qmlRegisterType<audio::DeviceModel>("Audio", 1, 0, "DeviceModel");
     qmlRegisterType<chart::VariableChart>("OpenSoundMeter", 1, 0, "VariableChart");
     qmlRegisterUncreatableMetaObject(Filter::staticMetaObject, "Measurement", 1, 0, "FilterFrequency",
@@ -93,7 +101,7 @@ int main(int argc, char *argv[])
     qmlRegisterType<Measurement>("Measurement", 1, 0, "Measurement");
     qmlRegisterType<Union>("Union", 1, 0, "Union");
     qmlRegisterType<Stored>("Stored", 1, 0, "Stored");
-    qmlRegisterType<ELC>("ELC", 1, 0, "ELC");
+    qmlRegisterType<StandartLine>("StandartLine", 1, 0, "StandartLine");
     qmlRegisterType<SourceModel>("SourceModel", 1, 0, "SourceModel");
     qmlRegisterUncreatableType<SourceList>("SourceModel", 1, 0, "SourceList",
                                            QStringLiteral("SourceList should not be created in QML"));
@@ -116,6 +124,10 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("targetTraceModel", t);
     engine.rootContext()->setContextProperty("notifier", notifier);
     engine.rootContext()->setContextProperty("autoSaver", &autoSaver);
+
+    engine.rootContext()->setContextProperty("remoteServer", &server);
+    engine.rootContext()->setContextProperty("remoteClient", &client);
+
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
 
     if (engine.rootObjects().isEmpty())

@@ -22,6 +22,8 @@ using namespace chart;
 RTAPlot::RTAPlot(Settings *settings, QQuickItem *parent): FrequencyBasedPlot(settings, parent),
     m_mode(0), m_spline(false)
 {
+    m_pointsPerOctave = 0;
+
     m_y.configure(AxisType::Linear, -140.f, 40.f,  15);
     m_y.setCentralLabel(m_y.min() - 1.f);
     m_y.setUnit("dB");

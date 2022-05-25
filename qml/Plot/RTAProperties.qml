@@ -138,20 +138,27 @@ Item {
                 tooltip: qsTr("render data as")
                 model: ["line", "bars", "lines"]
                 currentIndex: dataObject.mode;
-                onCurrentIndexChanged: {dataObject.mode = currentIndex;}
+                onCurrentIndexChanged: {
+                    dataObject.mode = currentIndex;
+                    if (model[currentIndex] === "bars" && dataObject.pointsPerOctave === 0) {
+                        dataObject.pointsPerOctave = 12;
+                    } else if (model[currentIndex] === "line") {
+                        dataObject.pointsPerOctave = 0;
+                    }
+                }
             }
 
             TitledCombo {
                 title: qsTr("ppo")
                 tooltip: qsTr("points per octave")
-                visible: mode.model[mode.currentIndex] === "bars"
-                model: [3, 6, 12, 24, 48]
-                currentIndex: model.indexOf(dataObject.pointsPerOctave)
-                Component.onCompleted: {
-                    currentIndex = model.indexOf(dataObject.pointsPerOctave);
+                visible: mode.model[mode.currentIndex] !== "lines"
+                model: [1, 3, 6, 12, 24, 48, "off"]
+                currentIndex: {
+                    model.indexOf(dataObject.pointsPerOctave ? dataObject.pointsPerOctave : "off")
                 }
+
                 onCurrentIndexChanged: {
-                    dataObject.pointsPerOctave = model[currentIndex];
+                    dataObject.pointsPerOctave = model[currentIndex] === "off" ? 0 : model[currentIndex];
                 }
             }
 

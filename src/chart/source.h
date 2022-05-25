@@ -33,6 +33,7 @@ class Source : public QObject
     Q_PROPERTY(bool active READ active WRITE setActive NOTIFY activeChanged)
     Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
     Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged)
+    Q_PROPERTY(bool cloneable READ cloneable CONSTANT)
 
 public:
     struct FTData {
@@ -49,23 +50,10 @@ public:
         float time; //ms
         complex value;
     };
-protected:
-    QString m_name;
-    QColor m_color;
 
-    std::mutex m_dataMutex;   //NOTE: shared_mutex (C++17)
-    std::atomic<bool> m_onReset;
-    FTData *m_ftdata;
-    TimeData *m_impulseData;
-
-    unsigned int m_dataLength;
-    unsigned int m_deconvolutionSize;
-    bool m_active;
-    const float m_zero{0.f};
-
-public:
     explicit Source(QObject *parent = nullptr);
     virtual Source *clone() const = 0;
+    virtual bool cloneable() const;
 
     Q_INVOKABLE void destroy()
     {
@@ -123,6 +111,8 @@ public:
     virtual Q_INVOKABLE QJsonObject toJSON(const SourceList * = nullptr) const noexcept = 0;
     virtual void fromJSON(QJsonObject data, const SourceList * = nullptr) noexcept = 0;
 
+    QUuid uuid() const;
+
 signals:
     void activeChanged();
     void nameChanged(QString);
@@ -131,6 +121,23 @@ signals:
 
 public slots:
     void setGlobalColor(int globalValue);
+
+protected:
+    QString m_name;
+    QColor m_color;
+
+    std::mutex m_dataMutex;   //NOTE: shared_mutex (C++17)
+    std::atomic<bool> m_onReset;
+    FTData *m_ftdata;
+    TimeData *m_impulseData;
+
+    unsigned int m_dataLength;
+    unsigned int m_deconvolutionSize;
+    bool m_active;
+    const float m_zero{0.f};
+
+private:
+    QUuid m_uuid;
 };
 }
 #endif // SOURCE_H

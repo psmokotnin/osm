@@ -49,6 +49,7 @@ signals:
 
 protected:
     QString m_name;
+    QSet<int> m_channels;
     int m_sampleRate;
     int m_chanel, m_aux, m_chanelCount;
     float m_gain;

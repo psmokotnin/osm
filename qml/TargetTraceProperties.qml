@@ -60,7 +60,7 @@ Item {
                 Layout.preferredWidth: 100
                 Layout.fillWidth: true
                 onValueChanged: targetTraceModel.setStart(0, value)
-                tooltiptext: qsTr("1 segment end")
+                tooltiptext: qsTr("1 segment start")
             }
 
             FloatSpinBox {

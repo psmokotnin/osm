@@ -28,7 +28,7 @@
 class Measurement;
 class Union;
 class Stored;
-class ELC;
+class StandartLine;
 
 class SourceList : public QObject
 {
@@ -53,6 +53,7 @@ public:
     QUrl currentFile() const noexcept;
 
     Q_INVOKABLE chart::Source *get(int i) const noexcept;
+    Q_INVOKABLE chart::Source *getByUUid(QUuid id) const noexcept;
     Q_INVOKABLE void clean() noexcept;
     Q_INVOKABLE void reset() noexcept;
     Q_INVOKABLE bool save(const QUrl &fileName) const noexcept;
@@ -86,14 +87,17 @@ public:
     QList<chart::Source *> checked() const;
     void setChecked(const QList<chart::Source *> &checked);
 
+    std::lock_guard<std::mutex> lock();
+
 public slots:
     Q_INVOKABLE QColor nextColor();
     Q_INVOKABLE Measurement *addMeasurement();
     Q_INVOKABLE Union *addUnion();
-    Q_INVOKABLE ELC *addElc();
+    Q_INVOKABLE StandartLine *addStandartLine();
     Q_INVOKABLE void appendItem(chart::Source *item, bool autocolor = false);
     Q_INVOKABLE void removeItem(chart::Source *item, bool deleteItem = true);
     Q_INVOKABLE void cloneItem(chart::Source *item);
+    Q_INVOKABLE void storeItem(chart::Source *item);
     int appendNone();
     int appendAll();
 
@@ -128,6 +132,7 @@ private:
     };
     int m_colorIndex;
     int m_selected;
+    std::mutex m_mutex;
 };
 
 #endif // SOURCELIST_H

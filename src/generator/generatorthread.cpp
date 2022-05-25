@@ -38,14 +38,12 @@ GeneratorThread::GeneratorThread(QObject *parent) :
     m_frequency(1000),
     m_startFrequency(20),
     m_endFrequency(20000),
-    m_channelCount(1),
-    m_channel(0),
-    m_aux(1),
     m_enabled(false)
 {
     start();
     QObject::moveToThread(this);
     s_instance = this;
+    qRegisterMetaType<QSet<int>>();
 }
 
 GeneratorThread::~GeneratorThread()
@@ -147,8 +145,6 @@ void GeneratorThread::updateAudio()
 
     if (m_enabled) {
         m_sources[m_type]->setGain(m_gain);
-        m_sources[m_type]->setChanel(m_channel);
-        m_sources[m_type]->setAux(m_aux);
 
         audio::Format format = audio::Client::getInstance()->deviceOutputFormat(m_deviceId);
         m_sources[m_type]->setChanelCount(format.channelCount);
@@ -165,6 +161,21 @@ void GeneratorThread::updateAudio()
         } else {
             emit deviceError();
         }
+    }
+}
+
+QSet<int> GeneratorThread::channels() const
+{
+    std::lock_guard guard(m_channelsMutex);
+    return m_channels;
+}
+
+void GeneratorThread::setChannels(const QSet<int> &channels)
+{
+    if (m_channels != channels) {
+        std::lock_guard guard(m_channelsMutex);
+        m_channels = channels;
+        emit channelsChanged(m_channels);
     }
 }
 QVariant GeneratorThread::getAvailableTypes() const
@@ -201,21 +212,5 @@ void GeneratorThread::setGain(float gain)
     if (!qFuzzyCompare(gain, m_gain)) {
         m_gain = gain;
         emit gainChanged(gain);
-    }
-}
-void GeneratorThread::setChannel(int chanel)
-{
-    if (m_channel != chanel) {
-        m_channel = chanel;
-        m_sources[m_type]->setChanel(m_channel);
-        emit channelChanged(m_channel);
-    }
-}
-void GeneratorThread::setAux(int chanel)
-{
-    if (m_aux != chanel) {
-        m_aux = chanel;
-        m_sources[m_type]->setAux(m_aux);
-        emit auxChanged(m_aux);
     }
 }

@@ -133,6 +133,9 @@ Item {
 
                     ToolTip.visible: hovered
                     ToolTip.text: qsTr("export data")
+
+                    enabled: dataObject.objectName === "Stored"
+                    visible: dataObject.objectName === "Stored"
                 }
             }
         }

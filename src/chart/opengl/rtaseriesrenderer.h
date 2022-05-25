@@ -37,10 +37,11 @@ public:
 
 protected:
     void renderLine();
+    void renderPPOLine();
     void renderLines();
     void renderBars();
 
-    void drawVertices(const GLenum &mode, const GLsizei &count);
+    void drawVertices(const GLsizei &count, const GLenum &mode);
     virtual void updateMatrix() override;
 
 private:

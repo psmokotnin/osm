@@ -24,8 +24,7 @@
 #include <QtEndian>
 #include "common/wavfile.h"
 
-Stored::Stored(QObject *parent) : chart::Source(parent), m_notes(),
-    m_polarity(false), m_inverse(false), m_ignoreCoherence(false), m_gain(0), m_delay(0)
+Stored::Stored(QObject *parent) : chart::Source(parent), meta::Stored()
 {
     setObjectName("Stored");
     connect(this, &Stored::polarityChanged, this, &Source::readyRead);
@@ -166,11 +165,6 @@ void Stored::fromJSON(QJsonObject data, const SourceList *) noexcept
     setActive(data["active"].toBool(active()));
 }
 
-QString Stored::notes() const noexcept
-{
-    return m_notes;
-}
-
 bool Stored::save(const QUrl &fileName) const noexcept
 {
     QFile saveFile(fileName.toLocalFile());
@@ -281,83 +275,23 @@ bool Stored::saveWAV(const QUrl &fileName) const noexcept
     return file.save(fileName.toLocalFile(), sampleRate, data);
 }
 
-void Stored::setNotes(const QString &notes) noexcept
-{
-    if (m_notes != notes) {
-        m_notes = notes;
-        emit notesChanged();
-    }
-}
-
-bool Stored::polarity() const
-{
-    return m_polarity;
-}
-
-void Stored::setPolarity(bool polarity)
-{
-    if (m_polarity != polarity) {
-        m_polarity = polarity;
-        emit polarityChanged();
-    }
-}
-
-bool Stored::inverse() const
-{
-    return m_inverse;
-}
-
-void Stored::setInverse(bool inverse)
-{
-    if (m_inverse != inverse) {
-        m_inverse = inverse;
-        emit inverseChanged();
-    }
-}
-
-float Stored::gain() const
-{
-    return m_gain;
-}
-
-void Stored::setGain(float gain)
-{
-    if (m_gain != gain) {
-        m_gain = gain;
-        emit gainChanged();
-    }
-}
-
-float Stored::delay() const
-{
-    return m_delay;
-}
-
-void Stored::setDelay(float delay)
-{
-    if (m_delay != delay) {
-        m_delay = delay;
-        emit delayChanged();
-    }
-}
-
 float Stored::module(const unsigned int &i) const noexcept {
-    return Source::module(i) * std::pow(10, m_gain / 20.f);
+    return Source::module(i) * std::pow(10, gain() / 20.f);
 }
 
 float Stored::magnitudeRaw(const unsigned int &i) const noexcept
 {
-    return std::pow(Source::magnitudeRaw(i), (inverse() ? -1 : 1)) * std::pow(10, m_gain / 20.f);
+    return std::pow(Source::magnitudeRaw(i), (inverse() ? -1 : 1)) * std::pow(10, gain() / 20.f);
 }
 
 float Stored::magnitude(const unsigned int &i) const noexcept
 {
-    return (inverse() ? -1 : 1) * (Source::magnitude(i) + m_gain);
+    return (inverse() ? -1 : 1) * (Source::magnitude(i) + gain());
 }
 
 complex Stored::phase(const unsigned int &i) const noexcept
 {
-    auto alpha = (m_polarity ? M_PI : 0) - 2 * M_PI * m_delay * frequency(i) / 1000.f;
+    auto alpha = (polarity() ? M_PI : 0) - 2 * M_PI * delay() * frequency(i) / 1000.f;
     return Source::phase(i).rotate(alpha);
 }
 
@@ -372,23 +306,10 @@ const float &Stored::coherence(const unsigned int &i) const noexcept
 
 float Stored::impulseTime(const unsigned int &i) const noexcept
 {
-    return Source::impulseTime(i) + m_delay;
+    return Source::impulseTime(i) + delay();
 }
 
 float Stored::impulseValue(const unsigned int &i) const noexcept
 {
-    return (m_polarity ? -1 : 1) * Source::impulseValue(i) * std::pow(10, m_gain / 20.f);;
-}
-
-bool Stored::ignoreCoherence() const
-{
-    return m_ignoreCoherence;
-}
-
-void Stored::setIgnoreCoherence(bool ignoreCoherence)
-{
-    if (m_ignoreCoherence != ignoreCoherence) {
-        m_ignoreCoherence = ignoreCoherence;
-        emit ignoreCoherenceChanged();
-    }
+    return (polarity() ? -1 : 1) * Source::impulseValue(i) * std::pow(10, gain() / 20.f);;
 }

@@ -18,10 +18,11 @@
 #ifndef STORED_H
 #define STORED_H
 
-#include "chart/source.h"
 #include <QJsonObject>
+#include "chart/source.h"
+#include "meta/metastored.h"
 
-class Stored: public chart::Source
+class Stored: public chart::Source, public meta::Stored
 {
     Q_OBJECT
     Q_PROPERTY(QString notes READ notes WRITE setNotes NOTIFY notesChanged)
@@ -47,21 +48,6 @@ public:
     Q_INVOKABLE QJsonObject toJSON(const SourceList * = nullptr) const noexcept override;
     void fromJSON(QJsonObject data, const SourceList * = nullptr) noexcept override;
 
-    QString notes() const noexcept;
-    void setNotes(const QString &notes) noexcept;
-
-    bool polarity() const;
-    void setPolarity(bool polarity);
-
-    bool inverse() const;
-    void setInverse(bool inverse);
-
-    float gain() const;
-    void setGain(float gain);
-
-    float delay() const;
-    void setDelay(float delay);
-
     float module(const unsigned int &i) const noexcept override;
     float magnitudeRaw(const unsigned int &i) const noexcept override;
     float magnitude(const unsigned int &i) const noexcept override;
@@ -71,24 +57,13 @@ public:
     float impulseTime(const unsigned int &i) const noexcept override;
     float impulseValue(const unsigned int &i) const noexcept override;
 
-    bool ignoreCoherence() const;
-    void setIgnoreCoherence(bool ignoreCoherence);
-
 signals:
-    void notesChanged();
-    void polarityChanged();
-    void inverseChanged();
-    void ignoreCoherenceChanged();
-    void gainChanged();
-    void delayChanged();
-
-private:
-    QString m_notes;
-    bool m_polarity;
-    bool m_inverse;
-    bool m_ignoreCoherence;
-    float m_gain;
-    float m_delay;
+    void notesChanged() override;
+    void polarityChanged() override;
+    void inverseChanged() override;
+    void ignoreCoherenceChanged() override;
+    void gainChanged() override;
+    void delayChanged() override;
 };
 
 #endif // STORED_H

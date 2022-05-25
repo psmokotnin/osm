@@ -164,9 +164,10 @@ void RTASeriesNode::renderLine()
         return;
     }
 
-    unsigned int vertexCount = (m_source->size() - 1) * 6;
-    if (m_vertices.size() != vertexCount * 5) {
-        m_vertices.resize(vertexCount * 5, 0);
+    unsigned int maxBufferSize = (m_pointsPerOctave > 0 ? 12 * m_pointsPerOctave : m_source->size() - 1) * 6 * 5;
+    unsigned int vertexCount = 0;
+    if (m_vertices.size() != maxBufferSize) {
+        m_vertices.resize(maxBufferSize, 0);
         m_refreshBuffers = true;
     }
 
@@ -179,6 +180,7 @@ void RTASeriesNode::renderLine()
 
         m_vertices[i + 4] = d;
         i += 5;
+        ++vertexCount;
     };
 
     auto addSegment = [&] (auto & i, auto fromX, auto fromY, auto toX, auto toY) {
@@ -191,12 +193,41 @@ void RTASeriesNode::renderLine()
         addPoint(i, toX, toY, fromX, fromY, -1.f);
     };
 
-    unsigned int j = 0, i;
-    for (i = 0; i < m_source->size() - 1; ++i) {
-        addSegment(j,
-                   m_source->frequency(i), 20 * log10f(m_source->module(i)),
-                   m_source->frequency(i + 1), 20 * log10f(m_source->module(i + 1))
-                  );
+    if (m_pointsPerOctave > 0) {
+        float value = 0, lastValue = 0, lastFrequency = 0;
+
+        auto accumalte = [ &, this] (const unsigned int &i) {
+            if (i == 0) {
+                return ;
+            }
+            value += m_source->module(i);
+        };
+        unsigned int i = 0;
+        auto collected = [ &, this] (const float & start, const float & end, const unsigned int &count) {
+            if (i > m_vertices.size()) {
+                qCritical("out of range");
+                return;
+            }
+
+            auto frequency = (start + end) / 2;
+            value = 20 * log10f(value / count);
+
+            if (lastFrequency > 0) {
+                addSegment(i, lastFrequency, lastValue, frequency, value);
+            }
+            lastValue = value;
+            lastFrequency = frequency;
+            value = 0;
+        };
+        iterate(m_pointsPerOctave, accumalte, collected);
+    } else {
+        unsigned int j = 0, i;
+        for (i = 0; i < m_source->size() - 1; ++i) {
+            addSegment(j,
+                       m_source->frequency(i), 20 * log10f(m_source->module(i)),
+                       m_source->frequency(i + 1), 20 * log10f(m_source->module(i + 1))
+                      );
+        }
     }
 
     if (m_refreshBuffers) {
@@ -236,7 +267,7 @@ void RTASeriesNode::renderBars()
     if (!m_pipelineBars) {
         return;
     }
-    unsigned int maxBufferSize = m_pointsPerOctave * 12 * 24;
+    unsigned int maxBufferSize = (m_pointsPerOctave ? m_pointsPerOctave * 12 : m_source->size()) * 24;
     if (m_vertices.size() != maxBufferSize) {
         m_vertices.resize(maxBufferSize);
         m_refreshBuffers = true;
@@ -263,8 +294,15 @@ void RTASeriesNode::renderBars()
 
         value = 10 * log10f(value);
         peak  = 10 * log10f(peak);
-        auto shiftedStart = std::pow(M_E, std::log(start) + y);
-        auto shiftedEnd   = std::pow(M_E, std::log(end  ) - y);
+        float shiftedStart = std::pow(M_E, std::log(start) + y);
+        float shiftedEnd   = std::pow(M_E, std::log(end  ) - y);
+        if (shiftedStart > shiftedEnd) {
+            std::swap(shiftedStart, shiftedEnd);
+        }
+        if (shiftedEnd - shiftedStart < 1) {
+            shiftedStart = start;
+            shiftedEnd = end;
+        }
 
         m_vertices[i + 0] = shiftedStart;
         m_vertices[i + 1] = value;

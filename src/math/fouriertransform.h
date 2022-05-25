@@ -97,6 +97,8 @@ public:
     unsigned int sampleRate() const;
     void setSampleRate(unsigned int sampleRate);
 
+    void reset();
+
 private:
     unsigned int m_size;
     unsigned int m_pointer;

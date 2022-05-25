@@ -59,7 +59,7 @@ void ImpulseSeriesRenderer::renderSeries()
         m_refreshBuffers = true;
     }
 
-    float dc = m_source->impulseValue(0);
+    float dc =  (m_source->impulseValue(0) + m_source->impulseValue(m_source->impulseSize() - 1)) / 2;
     float value = 0, lastValue = 0;
     for (unsigned int i = 0, j = 0; i < m_source->impulseSize() - 1; ++i) {
 

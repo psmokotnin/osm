@@ -173,11 +173,11 @@ void SeriesRenderer::render()
         static_cast<GLfloat>(m_source->color().alphaF())
     );
     if (m_renderActive) {
-        //m_openGLFunctions->glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        //m_openGL33CoreFunctions->glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         m_source->lock();
         renderSeries();
         m_source->unlock();
-        //m_openGLFunctions->glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        //m_openGL33CoreFunctions->glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     }
 
     m_program.release();

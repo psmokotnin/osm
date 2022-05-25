@@ -28,11 +28,11 @@ SOURCES += src/main.cpp \
     src/common/autosaver.cpp \
     src/common/recentfilesmodel.cpp \
     src/common/wavfile.cpp \
-    src/elc.cpp \
     src/filesystem/dialog.cpp \
     src/filesystem/dialogPlugin.cpp \
     src/filesystem/plugins/widgetdialogplugin.cpp \
     src/generator/burstnoise.cpp \
+    src/generator/channelmodel.cpp \
     src/generator/wav.cpp \
     src/inputdevice.cpp \
     src/common/appearance.cpp \
@@ -40,8 +40,20 @@ SOURCES += src/main.cpp \
     src/generator/mnoise.cpp \
     src/common/notifier.cpp \
     src/common/profiler.cpp \
+    src/math/weighting.cpp \
+    src/meta/metabase.cpp \
+    src/meta/metameasurement.cpp \
+    src/meta/metastored.cpp \
+    src/remote/item.cpp \
+    src/remote/items/measurementitem.cpp \
+    src/remote/items/storeditem.cpp \
+    src/remote/network.cpp \
+    src/remote/remoteclient.cpp \
+    src/remote/server.cpp \
+    src/remote/tcpreciever.cpp \
     src/sourcelist.cpp \
     src/sourcemodel.cpp \
+    src/standartline.cpp \
     src/targettrace.cpp \
     src/union.cpp \
     src/generator/generator.cpp \
@@ -102,7 +114,10 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 INCLUDEPATH += \
     src \
-    src/common
+    src/meta \
+    src/common \
+    src/remote \
+    src/generator
 
 HEADERS += \
     src/audio/client.h \
@@ -125,11 +140,11 @@ HEADERS += \
     src/common/autosaver.h \
     src/common/recentfilesmodel.h \
     src/common/wavfile.h \
-    src/elc.h \
     src/filesystem/dialog.h \
     src/filesystem/dialogPlugin.h \
     src/filesystem/plugins/widgetdialogplugin.h \
     src/generator/burstnoise.h \
+    src/generator/channelmodel.h \
     src/generator/wav.h \
     src/inputdevice.h \
     src/common/appearance.h \
@@ -137,8 +152,20 @@ HEADERS += \
     src/generator/mnoise.h \
     src/common/notifier.h \
     src/common/profiler.h \
+    src/math/weighting.h \
+    src/meta/metabase.h \
+    src/meta/metameasurement.h \
+    src/meta/metastored.h \
+    src/remote/item.h \
+    src/remote/items/measurementitem.h \
+    src/remote/items/storeditem.h \
+    src/remote/network.h \
+    src/remote/remoteclient.h \
+    src/remote/server.h \
+    src/remote/tcpreciever.h \
     src/sourcelist.h \
     src/sourcemodel.h \
+    src/standartline.h \
     src/targettrace.h \
     src/union.h \
     src/generator/generator.h \

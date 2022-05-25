@@ -15,37 +15,56 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef ELC_H
-#define ELC_H
+#ifndef STANDARTLINE_H
+#define STANDARTLINE_H
 
 #include <QObject>
 #include "chart/source.h"
 
-class ELC : public chart::Source
+class StandartLine : public chart::Source
 {
+public:
+    enum Mode {
+        ELC         = 0,
+        WEIGHTING_A = 1,
+        WEIGHTING_B = 2,
+        WEIGHTING_C = 3
+    };
+
     Q_OBJECT
+    Q_ENUM(Mode);
     Q_PROPERTY(float loudness READ loudness WRITE setLoudness NOTIFY loudnessChanged)
+    Q_PROPERTY(StandartLine::Mode mode READ mode WRITE setMode NOTIFY modeChanged)
+    Q_PROPERTY(QVariant modes READ getAvailableModes CONSTANT)
 
 public:
-    explicit ELC(QObject *parent = nullptr);
+    explicit StandartLine(QObject *parent = nullptr);
     Source *clone() const override;
 
     Q_INVOKABLE QJsonObject toJSON(const SourceList * = nullptr) const noexcept override;
     void fromJSON(QJsonObject data, const SourceList * = nullptr) noexcept override;
 
-    float loudness() const noexcept
-    {
-        return m_loudness;
-    }
+    float loudness() const noexcept;
     void setLoudness(float loudness);
 
-private:
-    float m_loudness;
-
-    void update();
+    Mode mode() const;
+    void setMode(const int &mode);
+    void setMode(const Mode &mode);
+    QVariant getAvailableModes() const;
 
 signals:
     void loudnessChanged(float);
+    void modeChanged(StandartLine::Mode);
+
+private:
+    void update();
+    void createELC();
+    void createWeighting();
+
+    Mode m_mode;
+    float m_loudness;
+
+    static const std::map<Mode, QString> m_modeMap;
 };
 
-#endif // ELC_H
+#endif // STANDARTLINE_H

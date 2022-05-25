@@ -18,7 +18,7 @@
 #include "sourcelist.h"
 #include "measurement.h"
 #include "union.h"
-#include "elc.h"
+#include "standartline.h"
 #include "common/wavfile.h"
 #include <qmath.h>
 #include <QUrl>
@@ -32,7 +32,8 @@ SourceList::SourceList(QObject *parent, bool appendMeasurement) :
     m_items(0), m_checked(),
     m_currentFile(),
     m_colorIndex(3),
-    m_selected(-1)
+    m_selected(-1),
+    m_mutex()
 {
     if (appendMeasurement) {
         add<Measurement>();
@@ -98,8 +99,25 @@ chart::Source *SourceList::get(int i) const noexcept
 
     return m_items.at(i);
 }
+
+std::lock_guard<std::mutex> SourceList::lock()
+{
+    return std::lock_guard<std::mutex> {m_mutex};
+}
+chart::Source *SourceList::getByUUid(QUuid id) const noexcept
+{
+    auto result = std::find_if(m_items.cbegin(), m_items.cend(), [&id](chart::Source * source) {
+        return source->uuid() == id;
+    });
+    if (result != m_items.end()) {
+        return *result;
+    }
+    return nullptr;
+}
+
 void SourceList::clean() noexcept
 {
+    auto guard = lock();
     m_selected = -1;
     m_checked.clear();
     emit selectedChanged();
@@ -441,12 +459,12 @@ chart::Source *SourceList::firstChecked() const noexcept
 
 bool SourceList::loadList(const QJsonDocument &document, const QUrl &fileName) noexcept
 {
-    enum LoadType {MeasurementType, StoredType, UnionType, ElcType};
+    enum LoadType {MeasurementType, StoredType, UnionType, StandartLineType};
     static std::map<QString, LoadType> typeMap = {
-        {"Measurement", MeasurementType},
-        {"Stored",      StoredType},
-        {"Union",       UnionType},
-        {"ELC",         ElcType},
+        {"Measurement",  MeasurementType},
+        {"Stored",       StoredType},
+        {"Union",        UnionType},
+        {"StandartLine", StandartLineType},
     };
 
     clean();
@@ -471,8 +489,8 @@ bool SourceList::loadList(const QJsonDocument &document, const QUrl &fileName) n
             loadObject<Union>(object["data"].toObject());
             break;
 
-        case ElcType:
-            loadObject<ELC>(object["data"].toObject());
+        case StandartLineType:
+            loadObject<StandartLine>(object["data"].toObject());
             break;
         }
     }
@@ -502,9 +520,9 @@ Union *SourceList::addUnion()
 {
     return add<Union>();
 }
-ELC *SourceList::addElc()
+StandartLine *SourceList::addStandartLine()
 {
-    return add<ELC>();
+    return add<StandartLine>();
 }
 Measurement *SourceList::addMeasurement()
 {
@@ -522,6 +540,7 @@ int SourceList::appendAll()
 }
 void SourceList::appendItem(chart::Source *item, bool autocolor)
 {
+    auto guard = lock();
     emit preItemAppended();
 
     if (autocolor) {
@@ -532,8 +551,8 @@ void SourceList::appendItem(chart::Source *item, bool autocolor)
 }
 void SourceList::removeItem(chart::Source *item, bool deleteItem)
 {
+    auto guard = lock();
     m_checked.removeAll(item);
-
     for (int i = 0; i < m_items.size(); ++i) {
         if (m_items.at(i) == item) {
             auto item = get(i);
@@ -550,6 +569,21 @@ void SourceList::cloneItem(chart::Source *item)
 {
     auto newItem = item->clone();
     if (newItem) {
+        appendItem(newItem, true);
+    }
+}
+
+void SourceList::storeItem(chart::Source *item)
+{
+    chart::Source *newItem = nullptr;
+    QMetaObject::invokeMethod(
+        item,
+        "store",
+        Qt::DirectConnection,
+        Q_RETURN_ARG(chart::Source *, newItem));
+
+    if (newItem) {
+        newItem->setActive(true);
         appendItem(newItem, true);
     }
 }

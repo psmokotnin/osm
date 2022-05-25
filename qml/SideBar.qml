@@ -107,8 +107,17 @@ Item {
             }
         }
         Component {
-            id: elcDelegate
-            ELC {
+            id: standartLineDelegate
+            StandartLine {
+                width: sideList.width
+                dataModel: modelData
+                highlight: modelHighlight
+            }
+        }
+
+        Component {
+            id: remoteItemDelegate
+            RemoteItem {
                 width: sideList.width
                 dataModel: modelData
                 highlight: modelHighlight
@@ -211,7 +220,12 @@ Item {
                                         case "Measurement": return measurementDelegate;
                                         case "Stored": return storedDelegate;
                                         case "Union": return unionDelegate;
-                                        case "ELC": return elcDelegate;
+                                        case "StandartLine": return standartLineDelegate;
+
+                                        case "RemoteItem":
+                                        case "RemoteStored":
+                                        case "RemoteMeasurement":
+                                            return remoteItemDelegate;
                                         default: console.log("unknow model " + model.name);return ;
                                     }
                                 }
@@ -237,6 +251,7 @@ Item {
                             font.pixelSize: 14
                             rightPadding: 4
                             leftPadding: 4
+                            visible: (dragArea.source ? dragArea.source.cloneable : false)
                             onClicked: {
                                 sourceList.cloneItem(dragArea.source);
                             }
@@ -362,62 +377,83 @@ Item {
             }
         }
 
-        MouseArea {
-            Layout.bottomMargin: 8
-            Layout.alignment: Qt.AlignCenter
-            Layout.preferredHeight: aboutButton.height + aboutButton.topPadding + aboutButton.bottomPadding
+        RowLayout {
             Layout.fillWidth: true
-            cursorShape: Qt.PointingHandCursor
-            onClicked: {
-                aboutpopup.open();
+            Layout.bottomMargin: 8
+
+            MouseArea {
+                Layout.alignment: Qt.AlignCenter
+                Layout.preferredHeight: aboutButton.height + aboutButton.topPadding + aboutButton.bottomPadding
+                Layout.fillWidth: true
+                cursorShape: Qt.PointingHandCursor
+                onClicked: {
+                    aboutpopup.open();
+                }
+
+                RowLayout {
+                    spacing: 0
+                    anchors.fill: parent
+                    Layout.alignment: Qt.AlignCenter
+                    Item {
+                        Layout.fillWidth: true
+                    }
+
+                    Image {
+                        id: logoImage
+                        source: "qrc:/images/icons/white80.png"
+                        Layout.preferredHeight: 30
+                        Layout.preferredWidth: 30
+                        Layout.alignment: Qt.AlignCenter
+
+                        RotationAnimation on rotation {
+                            id: rotateImage
+                            from: 0
+                            to: 360
+                            duration: 1200
+                        }
+
+                        Timer {
+                            interval: 614657
+                            running: true
+                            repeat: true
+                            onTriggered: rotateImage.start()
+                        }
+                    }
+
+                    Label {
+                        id:aboutButton
+                        text: "ABOUT"
+                        verticalAlignment: Text.AlignVCenter
+                        rightPadding: 8
+                        leftPadding: 8
+                        bottomPadding: 8
+                        topPadding: 8
+                        font.pointSize: 11
+                        Material.foreground: Material.Indigo
+                        height: 48
+                    }
+
+                    Item {
+                        Layout.fillWidth: true
+                    }
+                }
             }
 
-            RowLayout {
-                spacing: 0
-                anchors.fill: parent
-                Layout.alignment: Qt.AlignCenter
-                Item {
-                    Layout.fillWidth: true
+            Button {
+                font.family: "Osm"
+                text: "\ue807"
+                flat: true
+
+                PropertiesOpener {
+                   propertiesQml: "qrc:/RemoteProperties.qml"
+                   onClicked: {
+                       open();
+                   }
                 }
+            }
 
-                Image {
-                    id: logoImage
-                    source: "qrc:/images/icons/white80.png"
-                    Layout.preferredHeight: 30
-                    Layout.preferredWidth: 30
-                    Layout.alignment: Qt.AlignCenter
-
-                    RotationAnimation on rotation {
-                        id: rotateImage
-                        from: 0
-                        to: 360
-                        duration: 1200
-                    }
-
-                    Timer {
-                        interval: 614657
-                        running: true
-                        repeat: true
-                        onTriggered: rotateImage.start()
-                    }
-                }
-
-                Label {
-                    id:aboutButton
-                    text: "ABOUT"
-                    verticalAlignment: Text.AlignVCenter
-                    rightPadding: 8
-                    leftPadding: 8
-                    bottomPadding: 8
-                    topPadding: 8
-                    font.pointSize: 11
-                    Material.foreground: Material.Indigo
-                    height: 48
-                }
-
-                Item {
-                    Layout.fillWidth: true
-                }
+            Item {
+                Layout.preferredWidth: 0.1
             }
         }
     }
