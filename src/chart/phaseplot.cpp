@@ -57,6 +57,8 @@ void PhasePlot::setRange(int range) noexcept
         return;
 
     m_range = range;
+    m_y.setMin(-range * M_PI / 360.0);
+    m_y.setMax(range * M_PI / 360.0);
     emit rangeChanged(m_range);
     update();
 }
