@@ -63,7 +63,7 @@ Popup {
                 if (JsonObject.tag_name && JsonObject.tag_name !== appVersion) {
 
                     update.text = qsTr("
-                        You version (%3) is different then the latest release.<br/>
+                        Your version (%3) is different then the latest release.<br/>
                         <br/>
                         Click <a href=\"%2\" style=\"color:%4\">here</a> to download %1.
                     ")
