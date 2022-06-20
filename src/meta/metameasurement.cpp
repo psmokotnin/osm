@@ -213,12 +213,12 @@ void Measurement::setFiltersFrequency(QVariant frequency)
     setFiltersFrequency(static_cast<Filter::Frequency>(frequency.toInt()));
 }
 
-unsigned int Measurement::delay() const
+int Measurement::delay() const
 {
     return m_delay;
 }
 
-void Measurement::setDelay(unsigned int delay)
+void Measurement::setDelay(int delay)
 {
     if (m_delay != delay) {
         m_delay = delay;

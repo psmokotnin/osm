@@ -49,8 +49,8 @@ Measurement::Measurement(Settings *settings, QObject *parent) : chart::Source(pa
                                                                                 &Measurement::nameChanged,          name()).toString());
         setColor(       m_settings->reactValue<Measurement, QColor>(            "color",        this,
                                                                                 &Measurement::colorChanged,         color()).value<QColor>());
-        setDelay(       m_settings->reactValue<Measurement, unsigned int>(      "delay",        this,
-                                                                                &Measurement::delayChanged,         delay()).toUInt());
+        setDelay(       m_settings->reactValue<Measurement, int>(      "delay",        this,
+                                                                       &Measurement::delayChanged,         delay()).toInt());
         setGain(        m_settings->reactValue<Measurement, float>(             "gain",         this,
                                                                                 &Measurement::gainChanged,          gain()).toFloat());
         setAverageType( m_settings->reactValue<Measurement, AverageType>(       "average/type", this,

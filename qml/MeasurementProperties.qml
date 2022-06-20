@@ -222,8 +222,8 @@ Item {
                 Layout.preferredWidth: spinboxWidth
                 value: dataObject.delay
                 implicitHeight: titleField.implicitHeight
-                from: 0
-                to: 48000
+                from: -96000
+                to: 96000
                 editable: true
                 spacing: 0
                 down.indicator.width: 0
