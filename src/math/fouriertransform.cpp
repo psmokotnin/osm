@@ -58,6 +58,10 @@ void FourierTransform::setType(FourierTransform::Type type)
 {
     m_type = type;
 }
+FourierTransform::Type FourierTransform::type() const
+{
+    return m_type;
+}
 void FourierTransform::setWindowFunctionType(WindowFunction::Type type)
 {
     m_window.setType(type);

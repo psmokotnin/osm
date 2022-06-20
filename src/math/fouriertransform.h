@@ -36,6 +36,7 @@ public:
 
     //! set transform type
     void setType(Type type);
+    Type type() const;
 
     //! set type of applied window function
     void setWindowFunctionType(WindowFunction::Type type);
