@@ -180,7 +180,6 @@ void Union::calc() noexcept
     if (!active())
         return;
 
-
     std::lock_guard<std::mutex> callGuard(s_calcmutex);
     std::lock_guard<std::mutex> guard(m_dataMutex);
     chart::Source *primary = m_sources.first();
@@ -287,6 +286,11 @@ void Union::calcPolar(unsigned int count, chart::Source *primary) noexcept
         m_ftdata[i].magnitude  = magnitude;
         m_ftdata[i].coherence  = coherence;
     }
+
+    for (unsigned int i = 0; i < primary->impulseSize(); i++) {
+        m_impulseData[i].time = primary->impulseTime(i);
+        m_impulseData[i].value = NAN;
+    }
 }
 void Union::calcVector(unsigned int count, chart::Source *primary) noexcept
 {
@@ -334,6 +338,31 @@ void Union::calcVector(unsigned int count, chart::Source *primary) noexcept
         m_ftdata[i].magnitude  = m.abs();
         m_ftdata[i].coherence  = coherence;
         m_ftdata[i].peakSquared = p.abs();
+    }
+
+    float t, v;
+    for (unsigned int i = 0; i < primary->impulseSize(); i++) {
+        t = primary->impulseTime(i);
+        v = primary->impulseValue(i);
+
+        for (auto it = m_sources.begin(); it != m_sources.end(); ++it) {
+            switch (m_operation) {
+            case Summation:
+            case Avg:
+                v += (*it)->impulseValue(i);
+                break;
+            case Subtract:
+                v += (*it)->impulseValue(i);
+                break;
+            }
+        }
+
+        if (m_operation == Avg) {
+            v /= count;
+        }
+
+        m_impulseData[i].time = t;
+        m_impulseData[i].value = v;
     }
 }
 
@@ -391,6 +420,11 @@ void Union::calcdB(unsigned int count, chart::Source *primary) noexcept
         m_ftdata[i].phase      = phase.normalize();
         m_ftdata[i].magnitude  = magnitude;
         m_ftdata[i].coherence  = coherence;
+    }
+
+    for (unsigned int i = 0; i < primary->impulseSize(); i++) {
+        m_impulseData[i].time = primary->impulseTime(i);
+        m_impulseData[i].value = NAN;
     }
 }
 
@@ -450,6 +484,11 @@ void Union::calcPower(unsigned int count, chart::Source *primary) noexcept
         m_ftdata[i].phase      = phase.normalize();
         m_ftdata[i].magnitude  = magnitude;
         m_ftdata[i].coherence  = coherence;
+    }
+
+    for (unsigned int i = 0; i < primary->impulseSize(); i++) {
+        m_impulseData[i].time = primary->impulseTime(i);
+        m_impulseData[i].value = NAN;
     }
 }
 
