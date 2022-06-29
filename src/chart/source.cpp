@@ -34,6 +34,11 @@ bool Source::cloneable() const
 {
     return true;
 }
+void Source::destroy()
+{
+    emit beforeDestroy(this);
+    deleteLater();   //Schedules ~Source() from qml
+}
 void Source::setActive(bool active)
 {
     if (m_active != active) {

@@ -162,6 +162,7 @@ bool Union::setSource(int index, chart::Source *s) noexcept
             init();
 
         if (s) connect(s, &chart::Source::readyRead, this, &Union::update);
+        if (s) connect(s, &chart::Source::beforeDestroy, this, &Union::sourceDestroyed, Qt::DirectConnection);
         update();
         emit modelChanged();
     }
@@ -346,14 +347,16 @@ void Union::calcVector(unsigned int count, chart::Source *primary) noexcept
         v = primary->impulseValue(i);
 
         for (auto it = m_sources.begin(); it != m_sources.end(); ++it) {
-            switch (m_operation) {
-            case Summation:
-            case Avg:
-                v += (*it)->impulseValue(i);
-                break;
-            case Subtract:
-                v += (*it)->impulseValue(i);
-                break;
+            if (*it) {
+                switch (m_operation) {
+                case Summation:
+                case Avg:
+                    v += (*it)->impulseValue(i);
+                    break;
+                case Subtract:
+                    v += (*it)->impulseValue(i);
+                    break;
+                }
             }
         }
 
@@ -535,6 +538,19 @@ void Union::applyAutoName() noexcept
     setName(typeMap.at(m_type) + " " + operationMap.at(m_operation));
 }
 
+void Union::sourceDestroyed(Source *source)
+{
+    std::lock_guard l(s_calcmutex);
+
+    auto position = std::find_if(m_sources.begin(), m_sources.end(), [source](QPointer<chart::Source> &p) {
+        return p.data() == source;
+    });
+    if (position != m_sources.end()) {
+        auto index = std::distance(m_sources.begin(), position);
+        setSource(index, nullptr);
+    }
+}
+
 QJsonObject Union::toJSON(const SourceList *list) const noexcept
 {
     QJsonObject object;
@@ -604,7 +620,6 @@ void Union::fromJSON(QJsonObject data, const SourceList *list) noexcept
     };
     *connection_ptr = connect(list, &SourceList::loaded, fillSources);
 }
-
 Union::Operation Union::operation() const noexcept
 {
     return m_operation;
