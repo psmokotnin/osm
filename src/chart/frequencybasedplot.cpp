@@ -41,14 +41,22 @@ void FrequencyBasedPlot::configureXAxis()
     m_x.setISOLabels();
     m_x.reset();
 }
+
+bool FrequencyBasedPlot::isPointsPerOctaveValid(unsigned int &value) const
+{
+    return value >= 1 && value <= 48;
+}
+
 void FrequencyBasedPlot::setPointsPerOctave(unsigned int p) noexcept
 {
     if (m_pointsPerOctave == p)
         return;
 
-    m_pointsPerOctave = p;
-    emit pointsPerOctaveChanged(m_pointsPerOctave);
-    update();
+    if (isPointsPerOctaveValid(p)) {
+        m_pointsPerOctave = p;
+        emit pointsPerOctaveChanged(m_pointsPerOctave);
+        update();
+    }
 }
 
 bool FrequencyBasedPlot::coherence() const noexcept

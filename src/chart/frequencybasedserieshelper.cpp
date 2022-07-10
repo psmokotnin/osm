@@ -37,7 +37,11 @@ void FrequencyBasedSeriesHelper::iterate(const unsigned int &pointsPerOctave,
           bandEnd   = bandStart * _frequencyFactor,
           lastBandEnd = bandStart,
           frequency;
-
+    
+    if (!source()) {
+        return;
+    }
+    
     for (unsigned int i = 1; i < source()->size(); ++i) {
         frequency = source()->frequency(i);
         if (frequency < bandStart) continue;

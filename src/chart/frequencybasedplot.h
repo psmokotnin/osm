@@ -51,6 +51,7 @@ signals:
 
 protected:
     void configureXAxis();
+    virtual bool isPointsPerOctaveValid(unsigned int &value) const;
 
     unsigned int m_pointsPerOctave;
     float m_coherenceThreshold;
