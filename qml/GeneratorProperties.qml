@@ -93,7 +93,7 @@ Item {
                 implicitWidth: 165
                 value: generatorModel.duration
                 from: 0.5
-                to: 10
+                to: 60
                 units: "sec"
                 onValueChanged: generatorModel.duration = value
                 tooltiptext: qsTr("duration")

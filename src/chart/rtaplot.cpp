@@ -77,3 +77,8 @@ void RTAPlot::setShowPeaks(bool showPeaks)
         emit showPeaksChanged(m_showPeaks);
     }
 }
+
+bool RTAPlot::isPointsPerOctaveValid(unsigned int &value) const
+{
+    return value >= 0 && value <= 48;
+}

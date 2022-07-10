@@ -162,6 +162,7 @@ bool Union::setSource(int index, chart::Source *s) noexcept
             init();
 
         if (s) connect(s, &chart::Source::readyRead, this, &Union::update);
+        if (s) connect(s, &chart::Source::beforeDestroy, this, &Union::sourceDestroyed, Qt::DirectConnection);
         update();
         emit modelChanged();
     }
@@ -179,7 +180,6 @@ void Union::calc() noexcept
 
     if (!active())
         return;
-
 
     std::lock_guard<std::mutex> callGuard(s_calcmutex);
     std::lock_guard<std::mutex> guard(m_dataMutex);
@@ -287,6 +287,11 @@ void Union::calcPolar(unsigned int count, chart::Source *primary) noexcept
         m_ftdata[i].magnitude  = magnitude;
         m_ftdata[i].coherence  = coherence;
     }
+
+    for (unsigned int i = 0; i < primary->impulseSize(); i++) {
+        m_impulseData[i].time = primary->impulseTime(i);
+        m_impulseData[i].value = NAN;
+    }
 }
 void Union::calcVector(unsigned int count, chart::Source *primary) noexcept
 {
@@ -334,6 +339,33 @@ void Union::calcVector(unsigned int count, chart::Source *primary) noexcept
         m_ftdata[i].magnitude  = m.abs();
         m_ftdata[i].coherence  = coherence;
         m_ftdata[i].peakSquared = p.abs();
+    }
+
+    float t, v;
+    for (unsigned int i = 0; i < primary->impulseSize(); i++) {
+        t = primary->impulseTime(i);
+        v = primary->impulseValue(i);
+
+        for (auto it = m_sources.begin(); it != m_sources.end(); ++it) {
+            if (*it) {
+                switch (m_operation) {
+                case Summation:
+                case Avg:
+                    v += (*it)->impulseValue(i);
+                    break;
+                case Subtract:
+                    v += (*it)->impulseValue(i);
+                    break;
+                }
+            }
+        }
+
+        if (m_operation == Avg) {
+            v /= count;
+        }
+
+        m_impulseData[i].time = t;
+        m_impulseData[i].value = v;
     }
 }
 
@@ -391,6 +423,11 @@ void Union::calcdB(unsigned int count, chart::Source *primary) noexcept
         m_ftdata[i].phase      = phase.normalize();
         m_ftdata[i].magnitude  = magnitude;
         m_ftdata[i].coherence  = coherence;
+    }
+
+    for (unsigned int i = 0; i < primary->impulseSize(); i++) {
+        m_impulseData[i].time = primary->impulseTime(i);
+        m_impulseData[i].value = NAN;
     }
 }
 
@@ -451,6 +488,11 @@ void Union::calcPower(unsigned int count, chart::Source *primary) noexcept
         m_ftdata[i].magnitude  = magnitude;
         m_ftdata[i].coherence  = coherence;
     }
+
+    for (unsigned int i = 0; i < primary->impulseSize(); i++) {
+        m_impulseData[i].time = primary->impulseTime(i);
+        m_impulseData[i].value = NAN;
+    }
 }
 
 bool Union::autoName() const
@@ -494,6 +536,19 @@ void Union::applyAutoName() noexcept
         return;
     }
     setName(typeMap.at(m_type) + " " + operationMap.at(m_operation));
+}
+
+void Union::sourceDestroyed(Source *source)
+{
+    std::lock_guard l(s_calcmutex);
+
+    auto position = std::find_if(m_sources.begin(), m_sources.end(), [source](QPointer<chart::Source> &p) {
+        return p.data() == source;
+    });
+    if (position != m_sources.end()) {
+        auto index = std::distance(m_sources.begin(), position);
+        setSource(index, nullptr);
+    }
 }
 
 QJsonObject Union::toJSON(const SourceList *list) const noexcept
@@ -565,7 +620,6 @@ void Union::fromJSON(QJsonObject data, const SourceList *list) noexcept
     };
     *connection_ptr = connect(list, &SourceList::loaded, fillSources);
 }
-
 Union::Operation Union::operation() const noexcept
 {
     return m_operation;

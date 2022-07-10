@@ -43,6 +43,9 @@ signals:
     void modeChanged(unsigned int);
     void showPeaksChanged(bool);
 
+protected:
+    bool isPointsPerOctaveValid(unsigned int &value) const override;
+
 private:
     virtual SeriesItem *createSeriesFromSource(Source *source) override;
     unsigned int m_mode;

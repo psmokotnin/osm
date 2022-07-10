@@ -178,7 +178,7 @@ void SpectrogramSeriesNode::renderSeries()
     if (!m_pipeline) {
         return;
     }
-    if (!m_source->size() || m_history.empty()) {
+    if (!m_source->size() || m_history.empty() || !m_pointsPerOctave) {
         clearRender();
         return;
     }
@@ -199,7 +199,7 @@ void SpectrogramSeriesNode::renderSeries()
         [id_cast(MTLBuffer, m_indiciesBuffer) release];
         m_indiciesBuffer = [
                                id_cast(MTLDevice, m_device)
-                               newBufferWithLength: maxBufferSize * sizeof(unsigned int)
+                               newBufferWithLength: maxIndicesCount * sizeof(unsigned int)
                                options: MTLResourceStorageModeShared
                            ];
     }
@@ -222,22 +222,29 @@ void SpectrogramSeriesNode::renderSeries()
         verticiesCount ++;
     };
 
+    auto addIndices = [&](const unsigned int value) {
+        if (indicesCount >= maxIndicesCount) {
+            qCritical("out of indices count");
+            return;
+        }
+        indicies_ptr[indicesCount++] = value;
+    };
+
     for (auto row = m_history.crbegin(); row != m_history.crend(); ++row) {
         const historyRowData *rowData = &(row->data);
         tStep = row->time / 1000.f;
-
         if (rowData->size() != rowSize) {
             t += tStep;
             continue;
         }
         unsigned int i = 0;
-        indicies_ptr[indicesCount++] = index + i;
+        addIndices(index + i);
         for (; i < rowData->size(); ++i) {
             addPoint(rowData->at(i), t);
-            indicies_ptr[indicesCount++] = index + i;
-            indicies_ptr[indicesCount++] = index + i + rowSize;
+            addIndices(index + i);
+            addIndices(index + i + rowSize);
         }
-        indicies_ptr[indicesCount++] = index + (i - 1) + rowSize;
+        addIndices(index + (i - 1) + rowSize);
         t += tStep;
         index += rowSize;
     }
