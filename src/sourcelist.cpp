@@ -126,7 +126,7 @@ void SourceList::clean() noexcept
         auto item = get(0);
         m_items.removeAt(0);
         emit postItemRemoved();
-        item->deleteLater();
+        item->destroy();
     }
     m_colorIndex = 3;
 }
@@ -560,7 +560,7 @@ void SourceList::removeItem(chart::Source *item, bool deleteItem)
             m_items.removeAt(i);
             emit postItemRemoved();
             if (deleteItem)
-                item->deleteLater();
+                item->destroy();
             break;
         }
     }

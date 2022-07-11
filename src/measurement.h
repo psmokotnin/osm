@@ -48,7 +48,7 @@ class Measurement : public chart::Source, public meta::Measurement
     Q_PROPERTY(int dataChanel READ dataChanel WRITE setDataChanel NOTIFY dataChanelChanged)
     Q_PROPERTY(int referenceChanel READ referenceChanel WRITE setReferenceChanel NOTIFY
                referenceChanelChanged)
-    Q_PROPERTY(unsigned int delay READ delay WRITE setDelay NOTIFY delayChanged)
+    Q_PROPERTY(int delay READ delay WRITE setDelay NOTIFY delayChanged)
     Q_PROPERTY(int average READ average WRITE setAverage NOTIFY averageChanged)
     Q_PROPERTY(meta::Measurement::Mode mode READ mode WRITE setMode NOTIFY modeChanged)
     Q_PROPERTY(meta::Measurement::AverageType averageType READ averageType WRITE setAverageType NOTIFY averageTypeChanged)
@@ -142,7 +142,8 @@ private:
     Mode m_currentMode;
 
     bool m_resetDelay;
-    unsigned int m_workingDelay, m_delayFinderCounter;
+    int m_workingDelay;
+    unsigned int m_delayFinderCounter;
     long m_estimatedDelay;
     bool m_error;
 
@@ -193,7 +194,7 @@ signals:
     void averageTypeChanged(meta::Measurement::AverageType) override;
     void windowFunctionTypeChanged(WindowFunction::Type) override;
     void filtersFrequencyChanged(Filter::Frequency) override;
-    void delayChanged(unsigned int) override;
+    void delayChanged(int) override;
     void sampleRateChanged(unsigned int) override;
 };
 

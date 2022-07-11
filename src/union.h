@@ -87,6 +87,7 @@ public slots:
     void calc() noexcept;
     QObject *store();
     void applyAutoName() noexcept;
+    void sourceDestroyed(chart::Source *source);
 
 signals:
     void countChanged(int);

@@ -49,8 +49,8 @@ Measurement::Measurement(Settings *settings, QObject *parent) : chart::Source(pa
                                                                                 &Measurement::nameChanged,          name()).toString());
         setColor(       m_settings->reactValue<Measurement, QColor>(            "color",        this,
                                                                                 &Measurement::colorChanged,         color()).value<QColor>());
-        setDelay(       m_settings->reactValue<Measurement, unsigned int>(      "delay",        this,
-                                                                                &Measurement::delayChanged,         delay()).toUInt());
+        setDelay(       m_settings->reactValue<Measurement, int>(      "delay",        this,
+                                                                       &Measurement::delayChanged,         delay()).toInt());
         setGain(        m_settings->reactValue<Measurement, float>(             "gain",         this,
                                                                                 &Measurement::gainChanged,          gain()).toFloat());
         setAverageType( m_settings->reactValue<Measurement, AverageType>(       "average/type", this,
@@ -238,11 +238,14 @@ void Measurement::updateFftPower()
     switch (m_currentMode) {
     case Mode::LFT:
         m_dataFT.setType(FourierTransform::Log);
+        m_deconvolutionSize = pow(2, m_FFTsizes.at(FFT12));
         break;
 
     default:
         m_dataFT.setSize(pow(2, m_FFTsizes.at(m_currentMode)));
         m_dataFT.setType(FourierTransform::Fast);
+
+        m_deconvolutionSize = pow(2, m_FFTsizes.at(m_currentMode));
     }
     m_dataFT.setSampleRate(sampleRate());
     m_dataFT.prepare();
@@ -257,6 +260,14 @@ void Measurement::updateFftPower()
     m_magnitudeLPFs.resize(size());
     m_phaseLPFs.resize(size());
     m_meters.resize(size());
+
+    // Deconvolution:
+    m_deconvolution.setSize(m_deconvolutionSize);
+    delete []m_impulseData;
+    m_impulseData = new TimeData[m_deconvolutionSize];
+    m_deconvLPFs.resize(m_deconvolutionSize);
+    m_deconvAvg.setSize(m_deconvolutionSize);
+    m_deconvAvg.reset();
 }
 void Measurement::updateFilterFrequency()
 {
@@ -464,13 +475,13 @@ void Measurement::transform()
         r = m_reference.read();
 
         m_dataFT.add(d, r);
-        m_deconvolution.add(r, d);
-        m_delayFinder.add(r, d);
+        m_deconvolution.add(d, r);
+        m_delayFinder.add(d, r);
     }
-    m_dataFT.transform(true);
-    m_deconvolution.transform();
+    m_dataFT.transform();
+    m_deconvolution.transform(&m_dataFT);
     if ((++m_delayFinderCounter % 25) == 0) {
-        m_delayFinder.transform();
+        m_delayFinder.transform(nullptr);
         m_delayFinderCounter = 0;
     }
     averaging();

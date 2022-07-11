@@ -28,7 +28,7 @@ public:
     explicit Deconvolution(unsigned int size = 8);
     ~Deconvolution() = default;
     void add(float in, float out);
-    void transform();
+    void transform(const FourierTransform *forward);
     float get(const unsigned int i) const;
     void setSize(unsigned int size);
     void setWindowFunctionType(WindowFunction::Type type);

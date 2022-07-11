@@ -77,8 +77,8 @@ public:
     void setFiltersFrequency(const Filter::Frequency &filtersFrequency);
     void setFiltersFrequency(QVariant frequency);
 
-    unsigned int delay() const;
-    void setDelay(unsigned int delay);
+    int delay() const;
+    void setDelay(int delay);
 
 
     unsigned int sampleRate() const;
@@ -97,14 +97,14 @@ public:
     virtual void averageTypeChanged(meta::Measurement::AverageType)  = 0;
     virtual void windowFunctionTypeChanged(WindowFunction::Type)  = 0;
     virtual void filtersFrequencyChanged(Filter::Frequency) = 0;
-    virtual void delayChanged(unsigned int) = 0;
+    virtual void delayChanged(int) = 0;
     virtual void sampleRateChanged(unsigned int) = 0;
 
 protected:
     bool m_polarity;
     float m_gain;
     unsigned int m_dataChanel, m_referenceChanel;
-    unsigned int m_delay;
+    int m_delay;
     std::atomic<unsigned int> m_average;
     unsigned int m_sampleRate;
     Mode m_mode;

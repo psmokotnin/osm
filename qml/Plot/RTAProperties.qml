@@ -133,6 +133,7 @@ Item {
 
             TitledCombo {
                 id: mode
+                property bool checkModePPO : false
                 implicitWidth: 170
                 title: qsTr("mode")
                 tooltip: qsTr("render data as")
@@ -140,10 +141,12 @@ Item {
                 currentIndex: dataObject.mode;
                 onCurrentIndexChanged: {
                     dataObject.mode = currentIndex;
-                    if (model[currentIndex] === "bars" && dataObject.pointsPerOctave === 0) {
-                        dataObject.pointsPerOctave = 12;
-                    } else if (model[currentIndex] === "line") {
-                        dataObject.pointsPerOctave = 0;
+                    if (checkModePPO) {
+                        if (model[currentIndex] === "bars" && dataObject.pointsPerOctave === 0) {
+                            dataObject.pointsPerOctave = 12;
+                        } else if (model[currentIndex] === "line") {
+                            dataObject.pointsPerOctave = 0;
+                        }
                     }
                 }
             }
@@ -199,5 +202,9 @@ Item {
                 }
             }
         }
+    }
+
+    Component.onCompleted: {
+        mode.checkModePPO = true;
     }
 }

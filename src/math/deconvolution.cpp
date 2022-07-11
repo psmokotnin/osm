@@ -31,15 +31,23 @@ void Deconvolution::add(float in, float out)
 {
     m_fft.add(in, out);
 }
-void Deconvolution::transform()
+void Deconvolution::transform(const FourierTransform *forward)
 {
+    const FourierTransform *source;
+
     //direct
-    m_fft.transform();
+    if (!forward || (forward->type() != FourierTransform::Fast)) {
+        m_fft.transform();
+        source = &m_fft;
+    } else {
+        source = forward;
+    }
 
     //devision
     for (unsigned int i = 0; i < m_size; i++) {
-        m_ifft.set(i, m_fft.bf(i) / m_fft.af(i), 0.f);
+        m_ifft.set(i, source->af(i) / source->bf(i), 0.f);
     }
+
     //reverse
     m_ifft.reverse();
 

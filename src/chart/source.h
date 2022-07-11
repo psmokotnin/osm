@@ -55,10 +55,7 @@ public:
     virtual Source *clone() const = 0;
     virtual bool cloneable() const;
 
-    Q_INVOKABLE void destroy()
-    {
-        deleteLater();   //Schedules ~Source() from qml
-    }
+    Q_INVOKABLE void destroy();
 
     bool active() const noexcept
     {
@@ -118,6 +115,7 @@ signals:
     void nameChanged(QString);
     void colorChanged(QColor);
     void readyRead();
+    void beforeDestroy(chart::Source *);
 
 public slots:
     void setGlobalColor(int globalValue);
