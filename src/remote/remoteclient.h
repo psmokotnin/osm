@@ -44,6 +44,8 @@ public:
     bool active() const;
     void setActive(bool state);
 
+    Q_INVOKABLE void reset();
+
 public slots:
     void dataRecieved(QHostAddress senderAddress, int senderPort, const QByteArray &data);
 

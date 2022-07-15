@@ -82,6 +82,21 @@ void Client::setActive(bool state)
     }
 }
 
+void Client::reset()
+{
+    auto restart = m_thread.isRunning();
+    stop();
+
+    for (auto &item : m_items) {
+        m_sourceList->removeItem(item, true);
+    }
+    m_items.clear();
+
+    if (restart) {
+        start();
+    }
+}
+
 void Client::sendRequests()
 {
     if (m_onRequest) {

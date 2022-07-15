@@ -67,6 +67,15 @@ Item {
                     remoteClient.active = checked;
                 }
             }
+
+            Button {
+                font.family: "Osm"
+                font.bold: false
+                text: "\ue808"
+
+                Material.background: parent.Material.background
+                onClicked: remoteClient.reset()
+            }
         }
     }
 }
