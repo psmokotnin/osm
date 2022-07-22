@@ -19,12 +19,20 @@
 #define WEIGHTING_H
 
 #include <array>
+#include <map>
 #include <QtMath>
+#include <QVariant>
 
 class Weighting
 {
 public:
-    enum Curve {A, B, C, K, Z};
+    enum Curve {
+        A = 0,
+        B = 1,
+        C = 2,
+        K = 3,
+        Z = 4
+    };
 
     //! ANSI 1.43-1997
     constexpr static const double F1 = 20.598997;
@@ -37,7 +45,7 @@ public:
     constexpr static const double B_GAIN = 0.1696 + 1.2;
     constexpr static const double C_GAIN = 0.0619 + 1.5;
 
-    Weighting();
+    Weighting(Curve curve = Z);
 
     float operator() (const double &value);
 
@@ -46,6 +54,11 @@ public:
 
     Curve curve() const;
     void setCurve(const Curve &curve);
+
+    static constexpr Curve allCurves[] = {A, B, C, /*K,*/ Z};
+    static QVariant availableCurves();
+    static QString curveName(Curve time);
+    static Curve curveByName(QString name);
 
 private:
     void updateCoefficients();
@@ -76,6 +89,8 @@ private:
         std::array<double, 3> m_a, m_b, m_x, m_y;
 
     } m_filter1, m_filter2, m_filter3, m_filter4, m_filter5;
+
+    static const std::map<Curve, QString> m_curveMap;
 };
 
 #endif // WEIGHTING_H

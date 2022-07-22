@@ -21,8 +21,10 @@
 #include <QColor>
 #include <QJsonObject>
 #include <mutex>
+#include <unordered_map>
 
 #include "../math/complex.h"
+#include "../math/meter.h"
 class SourceList;
 
 namespace chart {
@@ -108,6 +110,9 @@ public:
     virtual Q_INVOKABLE QJsonObject toJSON(const SourceList * = nullptr) const noexcept = 0;
     virtual void fromJSON(QJsonObject data, const SourceList * = nullptr) noexcept = 0;
 
+    virtual float level(const Weighting::Curve curve = Weighting::Z, const Meter::Time time = Meter::Fast) const;
+    virtual QJsonObject levels();
+    virtual void setLevels(const QJsonObject &data);
     QUuid uuid() const;
 
 signals:
@@ -133,6 +138,30 @@ protected:
     unsigned int m_deconvolutionSize;
     bool m_active;
     const float m_zero{0.f};
+
+    struct Levels {
+        Levels();
+
+        auto begin();
+        auto end();
+
+        struct Key {
+            Weighting::Curve curve;
+            Meter::Time time;
+
+            bool operator==(const Key &other) const
+            {
+                return curve == other.curve && time == other.time;
+            }
+            struct Hash {
+                std::size_t operator()(const Key &k) const
+                {
+                    return std::hash<size_t>()(k.curve * 10 + k.time);
+                }
+            };
+        };
+        std::unordered_map<Key, float, Key::Hash> m_data;
+    } m_levelsData;
 
 private:
     QUuid m_uuid;

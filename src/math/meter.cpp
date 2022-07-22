@@ -21,15 +21,24 @@
 #include <QtGlobal>
 
 Meter::Meter(unsigned long size) :
-    m_data(size),
+    m_data(size), m_weighting(Weighting::Z), m_time(Fast),
     m_size(0),
     m_integrator(0.f),
     m_peak(0.f)
 {
 }
+
+Meter::Meter(Weighting w, Time time) :
+    m_data(DEFAULT_SIZE), m_weighting(w), m_time(time),
+    m_size(0),
+    m_integrator(0.f),
+    m_peak(0.f)
+{
+
+}
 void Meter::add(const float &data) noexcept
 {
-    float d = std::pow(data, 2);
+    float d = std::pow(m_weighting(data), 2);
     if (std::isnan(d)) {
         d = 0;
     }
@@ -78,4 +87,50 @@ void Meter::reset() noexcept
     m_integrator = 0.f;
     m_peak = 0.f;
     m_data.clear();
+}
+
+void Meter::setSampleRate(unsigned int sampleRate)
+{
+    switch (m_time) {
+    case Fast:
+        m_data.resize(0.125 * sampleRate);
+        break;
+    case Slow:
+        m_data.resize(1 * sampleRate);
+        break;
+    }
+
+    m_weighting.setSampleRate(sampleRate);
+    reset();
+}
+
+const std::map<Meter::Time, QString>Meter::m_timeMap = {
+    {Meter::Fast,   "Fast"},
+    {Meter::Slow,   "Slow"}
+};
+
+QVariant Meter::availableTimes()
+{
+    QStringList typeList;
+    for (const auto &type : m_timeMap) {
+        typeList << type.second;
+    }
+    return typeList;
+}
+
+QString Meter::timeName(Meter::Time time)
+{
+    return m_timeMap.at(time);
+}
+
+Meter::Time Meter::timeByName(QString name)
+{
+    auto it = std::find_if(m_timeMap.begin(), m_timeMap.end(), [name](const auto & el) {
+        return el.second == name;
+    });
+    if (it != m_timeMap.end()) {
+        return it->first;
+    }
+    Q_ASSERT(false);
+    return Time::Fast;
 }

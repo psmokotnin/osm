@@ -56,4 +56,9 @@ chart::Source *MeasurementItem::store() noexcept
     return nullptr;
 }
 
+void MeasurementItem::applyAutoGain(const float reference)
+{
+    emit sendCommand("applyAutoGain", reference);
+}
+
 } // namespace remote

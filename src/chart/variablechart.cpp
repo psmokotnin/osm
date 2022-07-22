@@ -27,6 +27,7 @@
 #include "spectrogramplot.h"
 #include "crestfactorplot.h"
 #include "nyquistplot.h"
+#include "levelplot.h"
 #include "src/sourcelist.h"
 
 using namespace chart;
@@ -93,7 +94,12 @@ void VariableChart::initType()
         newPlot = new NyquistPlot(m_settings, this);
         break;
 
+    case Level:
+        newPlot = new LevelPlot(m_settings, this);
+        break;
+
     default:
+        qCritical("unknown plot");
         return;
     }
     newPlot->setParentItem(this);

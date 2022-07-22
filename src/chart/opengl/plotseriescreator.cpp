@@ -24,6 +24,7 @@
 #include "../spectrogramplot.h"
 #include "../crestfactorplot.h"
 #include "../nyquistplot.h"
+#include "../levelplot.h"
 
 #include "rtaseriesrenderer.h"
 #include "magnitudeseriesrenderer.h"
@@ -36,6 +37,7 @@
 #include "spectrogramseriesrenderer.h"
 #include "crestfactorseriesrenderer.h"
 #include "nyquistseriesrenderer.h"
+#include "levelseriesrenderer.h"
 
 namespace chart {
 
@@ -113,6 +115,13 @@ SeriesFBO *NyquistPlot::createSeriesFromSource(Source *source)
 {
     return new SeriesFBO(source, []() {
         return new NyquistSeriesRenderer();
+    }, this);
+}
+
+SeriesFBO *LevelPlot::createSeriesFromSource(Source *source)
+{
+    return new SeriesFBO(source, []() {
+        return new LevelSeriesRenderer();
     }, this);
 }
 

@@ -62,7 +62,7 @@ private slots:
 
 private:
     QJsonObject prepareMessage(const QString &message) const;
-    void sourceNotify(chart::Source *source, const QString &message);
+    void sourceNotify(chart::Source *source, const QString &message, const QJsonValue &data = {});
     void sendMulticast(const QByteArray &data);
     void setLastConnected(const QString &lastConnected);
 

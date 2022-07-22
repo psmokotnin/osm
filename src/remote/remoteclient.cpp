@@ -126,13 +126,26 @@ void Client::sendRequests()
     }
 }
 
-void Client::sendCommand(Item *item, QString command)
+void Client::sendCommand(Item *item, QString command, QVariant arg)
 {
     Network::responseCallback onAnswer = [](const QByteArray &) {};
 
     if (item) {
         QJsonObject object;
         object["name"] = command;
+
+        switch (arg.type()) {
+        case QVariant::Type::Invalid:
+            break;
+        case QMetaType::Float:
+        case QVariant::Type::Double:
+            object["argType"] = "float";
+            object["argValue"] = arg.toFloat();
+            break;
+
+        default:
+            qDebug() << "unknown type: " << arg.typeName();
+        }
         requestSource(item, "command", onAnswer, {}, object);
     }
 }
@@ -154,8 +167,8 @@ Item *Client::addItem(const QUuid &serverId, const QUuid &sourceId, const QStrin
     connect(item, &Item::localChanged, this, [ = ](QString propertyName) {
         sendUpdate(item, propertyName);
     });
-    connect(item, &Item::sendCommand, this, [ = ](QString name) {
-        sendCommand(item, name);
+    connect(item, &Item::sendCommand, this, [ = ](QString name, QVariant arg) {
+        sendCommand(item, name, arg);
     });
     connect(item, &Item::destroyed, this, [ = ]() {
         m_items[qHash(sourceId)] = nullptr;
@@ -239,6 +252,10 @@ void Client::dataRecieved(QHostAddress senderAddress, [[maybe_unused]] int sende
 
         if (item && message == "readyRead") {
             requestUpdate(item);
+        }
+
+        if (item && message == "levels") {
+            item->setLevels(document["data"].toObject());
         }
         return;
     }

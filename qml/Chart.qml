@@ -86,6 +86,9 @@ Item {
             case "Nyquist":
                 opener.propertiesQml = "qrc:/Plot/NyquistProperties.qml";
                 break;
+            case "Level":
+                opener.propertiesQml = "qrc:/Plot/LevelProperties.qml";
+                break;
             }
         }
     }
@@ -262,6 +265,7 @@ Item {
                         obj.time = Math.abs(chart.plot.x2v(opener.mouseX));
                         break
                     case "Nyquist":
+                    case "Level":
                         return;
                 }
                 applicationWindow.properiesbar.open(obj, "qrc:/Calculator.qml");
@@ -335,8 +339,8 @@ Item {
         implicitHeight: Material.buttonHeight
         background: null
         model: applicationAppearance.experimentFunctions ?
-                   ["RTA", "Magnitude", "Phase", "Impulse", "Step", "Coherence", "Group Delay", "Phase Delay", "Spectrogram", "Crest Factor", "Nyquist"] :
-                   ["RTA", "Magnitude", "Phase", "Impulse", "Step", "Coherence", "Group Delay", "Spectrogram"]
+                   ["RTA", "Magnitude", "Phase", "Impulse", "Step", "Coherence", "Group Delay", "Phase Delay", "Spectrogram", "Level", "Crest Factor", "Nyquist"] :
+                   ["RTA", "Magnitude", "Phase", "Impulse", "Step", "Coherence", "Group Delay", "Spectrogram", "Level"]
         currentIndex: model.indexOf(type)
         onCurrentIndexChanged: {
             var pb = applicationWindow.properiesbar;

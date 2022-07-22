@@ -78,7 +78,7 @@ signals:
     void hostChanged();
     void updateData(remote::Item *);
     void localChanged(QString);
-    void sendCommand(QString);
+    void sendCommand(QString, QVariant arg = {});
 
 private slots:
     void startResetTimer();

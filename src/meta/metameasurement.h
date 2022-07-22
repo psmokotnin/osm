@@ -22,6 +22,7 @@
 #include <QtQml>
 #include "metabase.h"
 #include "math/filter.h"
+#include "math/meter.h"
 #include "math/windowfunction.h"
 #include "chart/source.h"
 
@@ -80,12 +81,12 @@ public:
     int delay() const;
     void setDelay(int delay);
 
-
     unsigned int sampleRate() const;
     void setSampleRate(unsigned int sampleRate);
 
     Q_INVOKABLE virtual void resetAverage() noexcept = 0;
     Q_INVOKABLE virtual chart::Source *store() noexcept = 0;
+    Q_INVOKABLE virtual void applyAutoGain(const float reference) = 0;
 
 //virtual signals:
     virtual void polarityChanged(bool) = 0;
@@ -114,7 +115,6 @@ protected:
 
     static const std::map<Mode, QString> m_modeMap;
     static const std::map<Mode, int> m_FFTsizes;
-
 };
 
 } // namespace meta

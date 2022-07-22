@@ -84,6 +84,9 @@ class Measurement : public chart::Source, public meta::Measurement
 public:
     explicit Measurement(Settings *settings = nullptr, QObject *parent = nullptr);
     ~Measurement() override;
+
+    static const unsigned int TIMER_INTERVAL = 80; //ms = 12.5 per sec
+
     Source *clone() const override;
 
     void setActive(bool active) override;
@@ -91,7 +94,7 @@ public:
     Q_INVOKABLE QJsonObject toJSON(const SourceList * = nullptr) const noexcept override;
     void fromJSON(QJsonObject data, const SourceList * = nullptr) noexcept override;
 
-    float level() const;
+    float level(const Weighting::Curve curve = Weighting::Z, const Meter::Time time = Meter::Fast) const override;
     float referenceLevel() const;
 
     float measurementPeak() const;
@@ -114,6 +117,8 @@ public:
     void setDeviceId(const audio::DeviceInfo::Id &deviceId);
     QString deviceName() const;
     void selectDevice(const QString &name);
+
+    Q_INVOKABLE void applyAutoGain(const float reference) override;
 
 public slots:
     void transform();
@@ -148,7 +153,16 @@ private:
     bool m_error;
 
     container::circular<float> m_data, m_reference, m_loopBuffer;
-    Meter m_dataMeter, m_referenceMeter;
+    struct Meters {
+        std::unordered_map<Levels::Key, Meter, Levels::Key::Hash> m_meters;
+        Meter m_reference;
+
+        Meters();
+        void setSampleRate(unsigned int sampleRate);
+        void add(const float &value);
+        void addToReference(const float &value);
+        void reset();
+    } m_levelMeters;
 
     FourierTransform m_dataFT;
     Deconvolution m_deconvolution, m_delayFinder;

@@ -171,3 +171,61 @@ void Source::copyFrom(size_t dataSize, size_t timeSize, Source::FTData *dataSrc,
     std::copy_n(dataSrc, size(), m_ftdata);
     std::copy_n(timeSrc, impulseSize(), m_impulseData);
 }
+
+float Source::level(const Weighting::Curve curve, const Meter::Time time) const
+{
+    if (m_levelsData.m_data.find({curve, time}) == m_levelsData.m_data.end()) {
+        Q_ASSERT(false);
+        return 0;
+    }
+    return m_levelsData.m_data.at({curve, time});
+}
+
+
+Source::Levels::Levels()
+{
+    for (auto &curve : Weighting::allCurves) {
+        for (auto &time : Meter::allTimes) {
+            Key   key   {curve, time};
+            Meter meter {curve, time};
+            m_data[key] = -INFINITY;
+        }
+    }
+}
+
+auto Source::Levels::begin()
+{
+    return m_data.begin();
+}
+
+auto Source::Levels::end()
+{
+    return m_data.end();
+}
+
+QJsonObject Source::levels()
+{
+    QJsonObject levels;
+    for (auto &&[key, value] : m_levelsData) {
+
+        auto curve = Weighting::curveName(key.curve);
+        auto time = Meter::timeName(key.time);
+
+        auto curveData = levels[curve].toObject();
+        curveData[time] = level(key.curve, key.time);
+        levels[curve] = curveData;
+    }
+    return levels;
+}
+
+void Source::setLevels(const QJsonObject &data)
+{
+    for (auto &&[key, value] : m_levelsData) {
+
+        auto curve = Weighting::curveName(key.curve);
+        auto time = Meter::timeName(key.time);
+
+        auto curveData = data[curve].toObject();
+        value = curveData[time].toDouble();
+    }
+}

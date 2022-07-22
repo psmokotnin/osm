@@ -61,6 +61,7 @@ public:
 
     Q_INVOKABLE void resetAverage() noexcept override;
     Q_INVOKABLE chart::Source *store() noexcept override;
+    Q_INVOKABLE void applyAutoGain(const float reference) override;
 
 signals:
     void polarityChanged(bool) override;

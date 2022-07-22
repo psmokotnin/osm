@@ -19,6 +19,7 @@ SOURCES += src/main.cpp \
     src/chart/frequencybasedplot.cpp \
     src/chart/frequencybasedserieshelper.cpp \
     src/chart/groupdelayplot.cpp \
+    src/chart/levelplot.cpp \
     src/chart/nyquistplot.cpp \
     src/chart/palette.cpp \
     src/chart/phasedelayplot.cpp \
@@ -132,6 +133,7 @@ HEADERS += \
     src/chart/frequencybasedplot.h \
     src/chart/frequencybasedserieshelper.h \
     src/chart/groupdelayplot.h \
+    src/chart/levelplot.h \
     src/chart/nyquistplot.h \
     src/chart/palette.h \
     src/chart/phasedelayplot.h \
@@ -313,6 +315,7 @@ isEqual(GRAPH, "METAL") {
         src/chart/metal/seriesnode.h \
         src/chart/metal/spectrogramseriesnode.h \
         src/chart/metal/crestfactorseriesnode.h \
+        src/chart/metal/levelseriesnode.h \
         src/chart/metal/nyquistseriesnode.h \
         src/chart/metal/stepseriesnode.h \
         src/chart/metal/xyseriesnode.h \
@@ -330,6 +333,7 @@ isEqual(GRAPH, "METAL") {
         src/chart/metal/seriesnode.mm \
         src/chart/metal/spectrogramseriesnode.mm \
         src/chart/metal/crestfactorseriesnode.mm \
+        src/chart/metal/levelseriesnode.mm \
         src/chart/metal/nyquistseriesnode.mm \
         src/chart/metal/stepseriesnode.mm \
         src/chart/metal/xyseriesnode.mm \
@@ -403,6 +407,7 @@ isEqual(GRAPH, "OPENGL") {
         src/chart/opengl/spectrogramseriesrenderer.h \
         src/chart/opengl/crestfactorseriesrenderer.h \
         src/chart/opengl/nyquistseriesrenderer.h \
+        src/chart/opengl/levelseriesrenderer.h \
         src/chart/opengl/stepseriesrenderer.h
 
     SOURCES += \
@@ -421,6 +426,7 @@ isEqual(GRAPH, "OPENGL") {
         src/chart/opengl/spectrogramseriesrenderer.cpp \
         src/chart/opengl/crestfactorseriesrenderer.cpp \
         src/chart/opengl/nyquistseriesrenderer.cpp \
+        src/chart/opengl/levelseriesrenderer.cpp \
         src/chart/opengl/stepseriesrenderer.cpp
 }
 

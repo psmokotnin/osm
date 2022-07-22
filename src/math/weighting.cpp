@@ -19,7 +19,15 @@
 #include <cmath>
 #include <numeric>
 
-Weighting::Weighting() : m_curve(A), m_sampleRate(48000), m_gain(1.0),
+const std::map<Weighting::Curve, QString>Weighting::m_curveMap = {
+    {Weighting::A,   "A"},
+    {Weighting::B,   "B"},
+    {Weighting::C,   "C"},
+    //{Weighting::K,   "K"},
+    {Weighting::Z,   "Z"},
+};
+
+Weighting::Weighting(Curve curve) : m_curve(curve), m_sampleRate(48000), m_gain(1.0),
     m_filter1(F1, Filter::TimeExponential, F4),
     m_filter2(F2), m_filter3(F3),
     m_filter4(F4, Filter::TimeExponential, F4), m_filter5(F5)
@@ -75,6 +83,32 @@ Weighting::Curve Weighting::curve() const
 void Weighting::setCurve(const Curve &curve)
 {
     m_curve = curve;
+}
+
+QVariant Weighting::availableCurves()
+{
+    QStringList typeList;
+    for (const auto &type : m_curveMap) {
+        typeList << type.second;
+    }
+    return typeList;
+}
+
+QString Weighting::curveName(Weighting::Curve time)
+{
+    return m_curveMap.at(time);
+}
+
+Weighting::Curve Weighting::curveByName(QString name)
+{
+    auto it = std::find_if(m_curveMap.begin(), m_curveMap.end(), [name](const auto & el) {
+        return el.second == name;
+    });
+    if (it != m_curveMap.end()) {
+        return it->first;
+    }
+    Q_ASSERT(false);
+    return Curve::Z;
 }
 
 void Weighting::updateCoefficients()

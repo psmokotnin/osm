@@ -29,7 +29,7 @@ import "elements"
 Item {
     id: measurementProperties
     property var dataObject
-    readonly property int elementWidth: width / 7.7
+    readonly property int elementWidth: width / 9
     readonly property int spinboxWidth: width / 11
     readonly property bool isLocal : dataObject.objectName === "Measurement"
 
@@ -207,13 +207,24 @@ Item {
                 Layout.preferredWidth: spinboxWidth
                 value: dataObject.gain
                 from: -90
-                to: 20
+                to: 90
                 units: "dB"
                 indicators: false
                 onValueChanged: dataObject.gain = value
                 tooltiptext: qsTr("gain")
                 implicitHeight: titleField.implicitHeight
                 Layout.alignment: Qt.AlignVCenter
+            }
+
+            Button {
+                text: qsTr("94 dB");
+                onClicked: {
+                    dataObject.applyAutoGain(94 - 140);
+                    gainSpinBox.value = dataObject.gain;
+                }
+                font.capitalization: Font.MixedCase
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("apply estimated gain for 94 dB SPL")
             }
 
             SelectableSpinBox {

@@ -62,6 +62,7 @@ void Server::setSourceList(SourceList *list)
 
         connect(source, &chart::Source::readyRead, this, [this, source]() {
             sourceNotify(source, "readyRead");
+            sourceNotify(source, "levels", source->levels());
         });
 
         for (int i = 0 ; i < source->metaObject()->propertyCount(); ++i) {
@@ -341,13 +342,29 @@ QByteArray Server::tcpCallback([[maybe_unused]] const QHostAddress &&address, co
     if (message == "command") {
         auto itemData = document["data"].toObject();
         auto name = itemData["name"].toString();
+        auto argType = itemData["argType"].toString();
+        auto argValue = itemData["argValue"].toObject();
+
 
         if (!name.isEmpty()) {
+
             if (name != "store") {
+
+                auto arg = QGenericArgument();
+                QVariant argValue;
+
+                if (argType == "float") {
+                    argValue = static_cast<float>(itemData["argValue"].toDouble());
+                    arg = QGenericArgument("float", argValue.data());
+                } else if (!argType.isNull()) {
+                    qDebug() << "unused argument";
+                }
+
                 QMetaObject::invokeMethod(
                     source,
                     name.toLocal8Bit().data(),
-                    Qt::QueuedConnection);
+                    Qt::QueuedConnection,
+                    arg);
             } else {
                 QMetaObject::invokeMethod(
                     m_sourceList,
@@ -372,12 +389,13 @@ QJsonObject Server::prepareMessage(const QString &message) const
     return object;
 }
 
-void Server::sourceNotify(chart::Source *source, const QString &message)
+void Server::sourceNotify(chart::Source *source, const QString &message, const QJsonValue &data)
 {
     if (active()) {
         auto object = prepareMessage(message);
-        object["source"] = source->uuid().toString();
+        object["source"]     = source->uuid().toString();
         object["objectName"] = source->objectName();
+        object["data"]       = data;
         QJsonDocument document(std::move(object));
         sendMulticast(document.toJson(QJsonDocument::JsonFormat::Compact));
     }

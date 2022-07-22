@@ -21,6 +21,7 @@
 #include <QDateTime>
 #include <QtMath>
 #include <algorithm>
+#include <utility>
 #include "measurement.h"
 #include "audio/client.h"
 #include "generator/generatorthread.h"
@@ -36,7 +37,6 @@ Measurement::Measurement(Settings *settings, QObject *parent) : chart::Source(pa
     m_estimatedDelay(0),
     m_error(false),
     m_data(65536), m_reference(65536), m_loopBuffer(65536),
-    m_dataMeter(12000), m_referenceMeter(12000), //250ms@48kHz
     m_enableCalibration(false), m_calibrationLoaded(false), m_calibrationList(), m_calibrationGain()
 {
     m_name = "Measurement";
@@ -89,7 +89,7 @@ Measurement::Measurement(Settings *settings, QObject *parent) : chart::Source(pa
     m_deconvAvg.reset();
     m_coherence.setDepth(21);//Filter::BesselLPF<float>::ORDER);
 
-    m_timer.setInterval(80);//12.5 per sec
+    m_timer.setInterval(TIMER_INTERVAL);
     m_timer.moveToThread(&m_timerThread);
     connect(&m_timer, SIGNAL(timeout()), SLOT(transform()), Qt::DirectConnection);
     connect(&m_timerThread, SIGNAL(started()), &m_timer, SLOT(start()), Qt::DirectConnection);
@@ -212,21 +212,25 @@ void Measurement::fromJSON(QJsonObject data, const SourceList *) noexcept
         setCalibration(calibration["enabled"].toBool());
     }
 }
-float Measurement::level() const
+float Measurement::level(const Weighting::Curve curve, const Meter::Time time) const
 {
-    return m_dataMeter.dB();
+    if (m_levelMeters.m_meters.find({curve, time}) == m_levelMeters.m_meters.end()) {
+        Q_ASSERT(false);
+        return 0;
+    }
+    return m_levelMeters.m_meters.at({curve, time}).dB();
 }
 float Measurement::referenceLevel() const
 {
-    return m_referenceMeter.dB();
+    return m_levelMeters.m_reference.dB();
 }
 float Measurement::measurementPeak() const
 {
-    return m_dataMeter.peakdB();
+    return m_levelMeters.m_meters.at({Weighting::Z, Meter::Fast}).peakdB();
 }
 float Measurement::referencePeak() const
 {
-    return m_referenceMeter.peakdB();
+    return m_levelMeters.m_reference.peakdB();
 }
 //this calls from timer thread
 //should be called while mutex locked
@@ -248,6 +252,7 @@ void Measurement::updateFftPower()
         m_deconvolutionSize = pow(2, m_FFTsizes.at(m_currentMode));
     }
     m_dataFT.setSampleRate(sampleRate());
+    m_levelMeters.setSampleRate(sampleRate());
     m_dataFT.prepare();
     calculateDataLength();
 
@@ -289,6 +294,7 @@ void Measurement::onSampleRateChanged()
         m_sampleRate = m_audioStream->format().sampleRate;
         m_dataFT.setSampleRate(sampleRate());
         m_dataFT.prepare();
+        m_levelMeters.setSampleRate(sampleRate());
         calculateDataLength();
     }
 }
@@ -313,6 +319,12 @@ void Measurement::selectDevice(const QString &name)
     auto id = audio::Client::getInstance()->deviceIdByName(name, audio::Plugin::Direction::Input);
     setDeviceId(id);
 }
+
+void Measurement::applyAutoGain(const float reference)
+{
+    setGain(reference - level(Weighting::A, Meter::Slow) + gain());
+}
+
 void Measurement::calculateDataLength()
 {
     auto frequencyList = m_dataFT.getFrequencies();
@@ -339,8 +351,7 @@ void Measurement::setActive(bool active)
 
     updateAudio();
 
-    m_dataMeter.reset();
-    m_referenceMeter.reset();
+    m_levelMeters.reset();
     m_loopBuffer.reset();
     emit levelChanged();
     emit referenceLevelChanged();
@@ -349,8 +360,7 @@ void Measurement::setError()
 {
     chart::Source::setActive(false);
     m_error = true;
-    m_dataMeter.reset();
-    m_referenceMeter.reset();
+    m_levelMeters.reset();
     m_input.close();
     emit errorChanged(m_error);
     emit levelChanged();
@@ -434,24 +444,24 @@ void Measurement::writeData(const char *data, qint64 len)
 
         if (currentChanel == dataChanel()) {
             memcpy(&sample, it, sizeof(float));
-            m_data.write(m_polarity ? -1 * sample : sample);
-            m_dataMeter.add(sample);
+            m_data.write(m_polarity ? -m_gain *sample : sample * m_gain);
+            m_levelMeters.add(sample * m_gain);
         }
 
         if (currentChanel == referenceChanel()) {
             memcpy(&sample, it, sizeof(float));
             m_reference.write(sample);
-            m_referenceMeter.add(sample);
+            m_levelMeters.addToReference(sample);
         }
         ++currentChanel;
         if (currentChanel >= totalChanels) {
             if (forceRef) {
                 m_reference.write(loopSample);
-                m_referenceMeter.add(loopSample);
+                m_levelMeters.addToReference(loopSample);
             }
             if (forceData) {
-                m_data.write(loopSample);
-                m_dataMeter.add(loopSample);
+                m_data.write(loopSample * m_gain);
+                m_levelMeters.add(loopSample * m_gain);
             }
             currentChanel = 0;
         }
@@ -471,7 +481,7 @@ void Measurement::transform()
 
     float d, r;
     while (m_data.collected() > 0 && m_reference.collected() > 0) {
-        d = m_data.read() * m_gain;
+        d = m_data.read();
         r = m_reference.read();
 
         m_dataFT.add(d, r);
@@ -838,9 +848,46 @@ void Measurement::resetAverage() noexcept
 
     m_meters.each(reset);
     m_loopBuffer.reset();
-
-    m_dataMeter.reset();
-    m_referenceMeter.reset();
+    m_levelMeters.reset();
 
     m_onReset.store(false);
+}
+
+Measurement::Meters::Meters() : m_reference(Weighting::Z, Meter::Fast)
+{
+    for (auto &curve : Weighting::allCurves) {
+        for (auto &time : Meter::allTimes) {
+            Levels::Key key     {curve, time};
+            Meter       meter   {curve, time};
+            m_meters[key] = meter;
+        }
+    }
+}
+
+void Measurement::Meters::addToReference(const float &value)
+{
+    m_reference.add(value);
+}
+
+void Measurement::Meters::setSampleRate(unsigned int sampleRate)
+{
+    for (auto &&meter : m_meters) {
+        meter.second.setSampleRate(sampleRate);
+    }
+    m_reference.setSampleRate(sampleRate);
+}
+
+void Measurement::Meters::add(const float &value)
+{
+    for (auto &&meter : m_meters) {
+        meter.second.add(value);
+    }
+}
+
+void Measurement::Meters::reset()
+{
+    for (auto &&meter : m_meters) {
+        meter.second.reset();
+    }
+    m_reference.reset();
 }

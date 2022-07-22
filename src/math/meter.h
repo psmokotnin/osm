@@ -19,11 +19,21 @@
 #define METER_H
 
 #include <queue>
+#include <map>
+#include <vector>
+#include <QVariant>
 #include "container/circular.h"
+#include "weighting.h"
 class Meter
 {
 public:
+    enum Time {
+        Fast = 0,
+        Slow = 1
+    };
+
     Meter(unsigned long size = DEFAULT_SIZE);
+    Meter(Weighting w, Time time);
     static const unsigned long DEFAULT_SIZE = 100;
 
     void  add(const float &data) noexcept;
@@ -33,10 +43,21 @@ public:
     float peakdB() const noexcept;
     void  reset() noexcept;
 
+    void setSampleRate(unsigned int sampleRate);
+    static constexpr Time allTimes[] = {Fast, Slow};
+
+    static QVariant availableTimes();
+    static QString timeName(Time time);
+    static Time timeByName(QString name);
+
 private:
     container::circular<float> m_data;
+    Weighting m_weighting;
+    Time m_time;
     unsigned long m_size;
     float m_integrator, m_peak;
+
+    static const std::map<Time, QString> m_timeMap;
 };
 
 #endif // METER_H

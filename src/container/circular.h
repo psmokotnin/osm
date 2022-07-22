@@ -29,6 +29,12 @@ public:
         m_data.resize(m_size, 0);
     }
 
+    void operator=(circular &other)
+    {
+        m_size = other.m_size.load();
+        clear();
+    }
+
     const T &read()
     {
         if (m_collected == 0) {
@@ -90,6 +96,12 @@ public:
         return m_size;
     }
 
+    void resize(size_t size)
+    {
+        m_size = size;
+        m_data.resize(m_size, 0);
+        clear();
+    }
 private:
     std::atomic<size_t> m_size;
     std::atomic<size_t> m_read, m_write, m_collected;

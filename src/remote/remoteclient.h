@@ -55,7 +55,7 @@ signals:
 private slots:
     void sendRequests();
     void requestUpdate(remote::Item *item);
-    void sendCommand(remote::Item *item, QString command);
+    void sendCommand(remote::Item *item, QString command, QVariant arg);
 
 private:
     remote::Item *addItem(const QUuid &serverId, const QUuid &sourceId, const QString &objectName, const QString &host);
