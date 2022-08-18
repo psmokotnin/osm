@@ -21,13 +21,14 @@ namespace audio {
 
 DeviceInfo::DeviceInfo() :
     m_id(), m_name(),
+    m_defaultSampleRate(1),
     m_pluginName(),
     m_inputChannels(), m_outputChannels()
 {
 }
 
 DeviceInfo::DeviceInfo(const Id &id, const QString &pluginName) :
-    m_id(id), m_name(),
+    m_id(id), m_name(), m_defaultSampleRate(1),
     m_pluginName(pluginName),
     m_inputChannels(), m_outputChannels()
 {

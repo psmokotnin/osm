@@ -19,7 +19,7 @@
 
 namespace chart {
 
-MeterPlot::MeterPlot(QObject *parent) : QObject(parent), LevelObject(), m_source(nullptr)
+MeterPlot::MeterPlot(QObject *parent) : QObject(parent), LevelObject(), m_source(nullptr), m_threshold(0)
 {
     connect(this, &MeterPlot::curveChanged, this, &MeterPlot::updateThreshold);
     updateThreshold();

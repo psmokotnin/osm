@@ -39,12 +39,12 @@ class Source : public QObject
 
 public:
     struct FTData {
-        float frequency;
-        float module;
-        float magnitude;
-        complex phase;
-        float coherence;
-        float peakSquared;
+        float frequency = 0;
+        float module = 0;
+        float magnitude = 0;
+        complex phase = 0;
+        float coherence = 0;
+        float peakSquared = 0;
         float meanSquared = NAN;
     };
 
