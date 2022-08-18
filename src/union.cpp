@@ -354,7 +354,7 @@ void Union::calcVector(unsigned int count, chart::Source *primary) noexcept
                     v += (*it)->impulseValue(i);
                     break;
                 case Subtract:
-                    v += (*it)->impulseValue(i);
+                    v -= (*it)->impulseValue(i);
                     break;
                 }
             }
