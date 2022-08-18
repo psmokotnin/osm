@@ -118,7 +118,6 @@ void SpectrogramSeriesRenderer::renderSeries()
         if (value < m_min) {
             // transparent -> blue
             pointColor = qblue;
-            pointColor = qblue;
             alpha = (value - floor) / (m_min   - floor);
         } else if (value < m_mid) {
             // blue -> green
