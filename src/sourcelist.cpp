@@ -39,7 +39,7 @@ SourceList::SourceList(QObject *parent, bool appendMeasurement) :
         add<Measurement>();
     }
 }
-SourceList *SourceList::clone(QObject *parent, chart::Source *filter) const noexcept
+SourceList *SourceList::clone(QObject *parent, chart::Source *filter) const
 {
     SourceList *list = new SourceList(parent, false);
     for (auto item : items()) {
@@ -49,7 +49,6 @@ SourceList *SourceList::clone(QObject *parent, chart::Source *filter) const noex
     }
 
     connect(this, &SourceList::preItemRemoved, list, [ = ](int index) {
-        if (!list) return;
         auto item = get(index);
         list->removeItem(item, false);
     });
@@ -223,7 +222,7 @@ bool SourceList::load(const QUrl &fileName) noexcept
     return false;
 }
 
-bool SourceList::import(const QUrl &fileName, const int &type) noexcept
+bool SourceList::import(const QUrl &fileName, const int &type)
 {
     switch (type) {
     case TRANSFER_TXT:
@@ -244,7 +243,7 @@ bool SourceList::import(const QUrl &fileName, const int &type) noexcept
     return false;
 }
 
-bool SourceList::importFile(const QUrl &fileName, QString separator) noexcept
+bool SourceList::importFile(const QUrl &fileName, QString separator)
 {
     QFile file(fileName.toLocalFile());
     if (!file.open(QIODevice::ReadOnly)) {
@@ -312,7 +311,7 @@ void SourceList::setChecked(const QList<chart::Source *> &checked)
 {
     m_checked = checked;
 }
-bool SourceList::importImpulse(const QUrl &fileName, QString separator) noexcept
+bool SourceList::importImpulse(const QUrl &fileName, QString separator)
 {
     QFile file(fileName.toLocalFile());
     if (!file.open(QIODevice::ReadOnly)) {
@@ -351,7 +350,7 @@ bool SourceList::importImpulse(const QUrl &fileName, QString separator) noexcept
     appendItem(s, true);
     return true;
 }
-bool SourceList::importWav(const QUrl &fileName) noexcept
+bool SourceList::importWav(const QUrl &fileName)
 {
     WavFile wav;
     if (!wav.load(fileName.toLocalFile())) {
@@ -499,7 +498,7 @@ bool SourceList::loadList(const QJsonDocument &document, const QUrl &fileName) n
     emit loaded(fileName);
     return true;
 }
-template<typename T> bool SourceList::loadObject(const QJsonObject &data) noexcept
+template<typename T> bool SourceList::loadObject(const QJsonObject &data)
 {
     if (data.isEmpty())
         return false;
@@ -510,7 +509,7 @@ template<typename T> bool SourceList::loadObject(const QJsonObject &data) noexce
     nextColor();
     return true;
 }
-template<typename T> T *SourceList::add() noexcept
+template<typename T> T *SourceList::add()
 {
     auto *t = new T();
     appendItem(t, true);

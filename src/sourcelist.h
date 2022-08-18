@@ -42,7 +42,7 @@ class SourceList : public QObject
 
 public:
     explicit SourceList(QObject *parent = nullptr, bool appendMeasurement = true);
-    SourceList *clone(QObject *parent, chart::Source *filter = nullptr) const noexcept;
+    SourceList *clone(QObject *parent, chart::Source *filter = nullptr) const;
 
     int count() const noexcept;
     chart::Source *firstSource() const noexcept;
@@ -58,9 +58,9 @@ public:
     Q_INVOKABLE void reset() noexcept;
     Q_INVOKABLE bool save(const QUrl &fileName) const noexcept;
     Q_INVOKABLE bool load(const QUrl &fileName) noexcept;
-    Q_INVOKABLE bool import(const QUrl &fileName, const int &type) noexcept;
-    Q_INVOKABLE bool importImpulse(const QUrl &fileName, QString separator) noexcept;
-    Q_INVOKABLE bool importWav(const QUrl &fileName) noexcept;
+    Q_INVOKABLE bool import(const QUrl &fileName, const int &type);
+    Q_INVOKABLE bool importImpulse(const QUrl &fileName, QString separator);
+    Q_INVOKABLE bool importWav(const QUrl &fileName) ;
     Q_INVOKABLE bool move(int from, int to) noexcept;
     Q_INVOKABLE int indexOf(chart::Source *) const noexcept;
 
@@ -116,9 +116,9 @@ signals:
 
 private:
     bool loadList(const QJsonDocument &document, const QUrl &fileName) noexcept;
-    template<typename T> bool loadObject(const QJsonObject &data) noexcept;
-    template<typename T> T *add() noexcept;
-    bool importFile(const QUrl &fileName, QString separator) noexcept;
+    template<typename T> bool loadObject(const QJsonObject &data);
+    template<typename T> T *add();
+    bool importFile(const QUrl &fileName, QString separator);
 
     QVector<chart::Source *> m_items;
     QList<chart::Source *> m_checked;
