@@ -21,7 +21,7 @@
 
 namespace chart {
 
-CrestFactorSeriesRenderer::CrestFactorSeriesRenderer()
+CrestFactorSeriesRenderer::CrestFactorSeriesRenderer() : m_pointsPerOctave(0)
 {
 }
 void CrestFactorSeriesRenderer::init()

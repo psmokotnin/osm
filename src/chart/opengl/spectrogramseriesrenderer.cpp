@@ -26,7 +26,9 @@
 using namespace chart;
 
 SpectrogramSeriesRenderer::SpectrogramSeriesRenderer() : FrequencyBasedSeriesRenderer(),
-    m_pointsPerOctave(0), m_timer()
+    m_min(0), m_mid(0), m_max(0),
+    m_pointsPerOctave(0), m_timer(),
+    m_indexBufferId(0), m_sourceSize(0)
 {
 }
 
