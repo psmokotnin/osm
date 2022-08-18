@@ -58,12 +58,12 @@ private:
             const static qint16 FLOAT   = 3;
 
             Chunk chunk             = {{'f', 'm', 't', ' '}, 16};
-            qint16 audioFormat;     //! PCM = 1
-            qint16 channels;        //! Number of channels
-            qint32 sampleRate;
-            qint32 byteRate;        //! SampleRate * NumChannels * BitsPerSample/8
-            qint16 blockAlign;      //! NumChannels * BitsPerSample/8
-            qint16 bitsPerSample;   //! 8 bits = 8, 16 bits = 16, etc.
+            qint16 audioFormat  = PCM;    //! PCM = 1
+            qint16 channels     = 1;      //! Number of channels
+            qint32 sampleRate   = 48000;
+            qint32 byteRate     = 48000;  //! SampleRate * NumChannels * BitsPerSample/8
+            qint16 blockAlign   = 1;      //! NumChannels * BitsPerSample/8
+            qint16 bitsPerSample = 8;   //! 8 bits = 8, 16 bits = 16, etc.
         };
 
         Wave wave;

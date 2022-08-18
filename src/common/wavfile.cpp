@@ -21,7 +21,7 @@
 #include <QDebug>
 #include <cstring>
 
-WavFile::WavFile() : m_dataPosition(0)
+WavFile::WavFile() : m_header(), m_dataPosition(0)
 {
 }
 

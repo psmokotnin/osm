@@ -29,7 +29,7 @@
 
 namespace filesystem {
 
-Dialog::Dialog(QQuickItem *parent) : QQuickItem(parent), m_files()
+Dialog::Dialog(QQuickItem *parent) : QQuickItem(parent), m_plugin(nullptr), m_files()
 {
 #ifdef FILE_DIALOG_PLUGIN
     m_plugin = new FILE_DIALOG_PLUGIN(this);
