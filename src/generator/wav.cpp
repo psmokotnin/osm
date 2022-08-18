@@ -26,7 +26,6 @@ Wav::Wav(QObject *parent) : OutputDevice(parent)
 Sample Wav::sample()
 {
     Sample s;
-    s.f = NAN;
     s.f = m_gain * nextSample(true);
     return s;
 }
