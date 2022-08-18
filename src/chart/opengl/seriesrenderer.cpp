@@ -26,10 +26,11 @@ using namespace chart;
 SeriesRenderer::SeriesRenderer() :
     m_program(), m_openGLFunctions(nullptr), m_openGL33CoreFunctions(nullptr),
     m_retinaScale(1),
-    m_colorUniform(0),
+    m_colorUniform(0), m_positionAttribute(0),
     m_width(0), m_height(0), m_weight(2),
     m_renderActive(false),
     m_refreshBuffers(true),
+    m_vertexBufferId(0), m_vertexArrayId(0),
     m_vertices(),
     m_active()
 {

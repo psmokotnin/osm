@@ -19,7 +19,8 @@
 #include "common/notifier.h"
 using namespace chart;
 
-ImpulseSeriesRenderer::ImpulseSeriesRenderer() : XYSeriesRenderer(), m_mode(ImpulsePlot::Mode::Linear)
+ImpulseSeriesRenderer::ImpulseSeriesRenderer() : XYSeriesRenderer(),
+    m_widthUniform(0), m_screenUniform(0), m_mode(ImpulsePlot::Mode::Linear)
 {
 }
 void ImpulseSeriesRenderer::init()

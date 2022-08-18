@@ -36,7 +36,7 @@ protected:
     Source *source() const override;
 
 private:
-    int m_matrixUniform, m_widthUniform, m_screenUniform;
+    int m_widthUniform, m_screenUniform;
 
     int  m_coherenceThresholdU, m_coherenceAlpha;
     unsigned int m_pointsPerOctave;

@@ -40,7 +40,7 @@ protected:
     virtual void updateMatrix() override;
 
 private:
-    int m_matrixUniform, m_widthUniform, m_screenUniform;
+    int m_widthUniform, m_screenUniform;
 
     Weighting::Curve m_curve;
     Meter::Time m_time;

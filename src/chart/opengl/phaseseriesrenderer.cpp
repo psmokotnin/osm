@@ -24,6 +24,7 @@
 using namespace chart;
 
 PhaseSeriesRenderer::PhaseSeriesRenderer() : FrequencyBasedSeriesRenderer(),
+    m_coherenceThresholdU(0), m_coherenceAlpha(0),
     m_pointsPerOctave(0), m_rotate(0),
     m_coherenceThreshold(0), m_coherence(false)
 {

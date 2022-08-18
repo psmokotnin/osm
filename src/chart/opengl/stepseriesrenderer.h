@@ -35,7 +35,7 @@ protected:
     virtual void updateMatrix() override;
 
 private:
-    int m_matrixUniform, m_widthUniform, m_screenUniform;
+    int m_widthUniform, m_screenUniform;
     WindowFunction m_window;
     std::vector<float> m_windowed;
     float m_zero;

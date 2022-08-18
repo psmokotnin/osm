@@ -34,7 +34,7 @@ protected:
     virtual void updateMatrix() override;
 
 private:
-    int m_matrixUniform, m_widthUniform, m_screenUniform;
+    int m_widthUniform, m_screenUniform;
     ImpulsePlot::Mode m_mode;
 };
 
