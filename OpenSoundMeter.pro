@@ -19,7 +19,9 @@ SOURCES += src/main.cpp \
     src/chart/frequencybasedplot.cpp \
     src/chart/frequencybasedserieshelper.cpp \
     src/chart/groupdelayplot.cpp \
+    src/chart/levelobject.cpp \
     src/chart/levelplot.cpp \
+    src/chart/meterplot.cpp \
     src/chart/nyquistplot.cpp \
     src/chart/palette.cpp \
     src/chart/phasedelayplot.cpp \
@@ -133,7 +135,9 @@ HEADERS += \
     src/chart/frequencybasedplot.h \
     src/chart/frequencybasedserieshelper.h \
     src/chart/groupdelayplot.h \
+    src/chart/levelobject.h \
     src/chart/levelplot.h \
+    src/chart/meterplot.h \
     src/chart/nyquistplot.h \
     src/chart/palette.h \
     src/chart/phasedelayplot.h \

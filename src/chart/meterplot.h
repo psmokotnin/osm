@@ -15,17 +15,16 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef CHART_LEVELPLOT_H
-#define CHART_LEVELPLOT_H
+#ifndef CHART_METERPLOT_H
+#define CHART_METERPLOT_H
 
-#include "xyplot.h"
+#include <QtCore>
 #include "levelobject.h"
-#include "math/weighting.h"
-#include "math/meter.h"
+#include "source.h"
 
 namespace chart {
 
-class LevelPlot : public XYPlot, public LevelObject
+class MeterPlot : public QObject, public LevelObject
 {
 public:
     Q_OBJECT
@@ -33,27 +32,44 @@ public:
     Q_PROPERTY(QVariant availableCurves READ getAvailableCurves CONSTANT)
     Q_PROPERTY(QVariant availableTimes READ getAvailableTimes CONSTANT)
 
+    Q_PROPERTY(chart::Source *source READ source WRITE setSource NOTIFY sourceChanged)
     Q_PROPERTY(QString curve READ curveName WRITE setCurve NOTIFY curveChanged)
     Q_PROPERTY(QString time READ timeName WRITE setTime NOTIFY timeChanged)
     Q_PROPERTY(chart::LevelObject::Mode mode READ mode WRITE setMode NOTIFY modeChanged)
+    Q_PROPERTY(QString modeName READ modeName NOTIFY modeChanged)
+
+    Q_PROPERTY(float value READ value NOTIFY valueChanged)
+    Q_PROPERTY(float threshold READ threshold WRITE setThreshold NOTIFY thresholdChanged)
 
 public:
-    LevelPlot(Settings *settings, QQuickItem *parent = Q_NULLPTR);
-    void setSettings(Settings *settings) noexcept override;
-    void storeSettings() noexcept override;
+    MeterPlot(QObject *parent = nullptr);
+
+    chart::Source *source() const;
+    void setSource(chart::Source *source);
+
+    float value() const;
+
+    float threshold() const;
+    void setThreshold(float threshold);
 
 signals:
     void curveChanged(QString) override;
     void timeChanged(QString) override;
     void modeChanged(chart::LevelObject::Mode) override;
 
-protected:
-    virtual SeriesItem *createSeriesFromSource(Source *source) override;
+    void sourceChanged(chart::Source *);
+    void valueChanged();
+    void thresholdChanged(float);
 
 private slots:
-    void updateAxes();
+    void updateThreshold();
+
+private:
+    chart::Source *m_source;
+    QMetaObject::Connection m_sourceConnection;
+    float m_threshold;
 };
 
 } // namespace chart
 
-#endif // CHART_LEVELPLOT_H
+#endif // CHART_METERPLOT_H

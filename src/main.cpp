@@ -40,6 +40,7 @@
 #include "filesystem/dialog.h"
 #include "remote/server.h"
 #include "remote/remoteclient.h"
+#include "chart/meterplot.h"
 
 #ifdef GRAPH_METAL
 #include "src/chart/metal/seriesnode.h"
@@ -108,6 +109,7 @@ int main(int argc, char *argv[])
     qmlRegisterType<Settings>("Settings", 1, 0, "Settings");
     qmlRegisterType<Appearance>("OpenSoundMeter", 1, 0, "Appearance");
     qmlRegisterType<Notifier>("OpenSoundMeter", 1, 0, "Notifier");
+    qmlRegisterType<chart::MeterPlot>("OpenSoundMeter", 1, 0, "MeterPlot");
 #ifdef Q_OS_IOS
     //replace for QQuickControls2 FileDialog:
     qmlRegisterUncreatableMetaObject(filesystem::staticMetaObject, "OpenSoundMeter", 1, 0, "Filesystem",

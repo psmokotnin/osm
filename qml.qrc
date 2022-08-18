@@ -53,5 +53,8 @@
         <file alias="RemoteProperties.qml">qml/RemoteProperties.qml</file>
         <file alias="elements/GeneratorChannelSelect.qml">qml/elements/GeneratorChannelSelect.qml</file>
         <file alias="Plot/LevelProperties.qml">qml/Plot/LevelProperties.qml</file>
+        <file alias="SPL/Grid.qml">qml/SPL/Grid.qml</file>
+        <file alias="SPL/Meter.qml">qml/SPL/Meter.qml</file>
+        <file alias="SPL/MeterProperties.qml">qml/SPL/MeterProperties.qml</file>
     </qresource>
 </RCC>

@@ -19,8 +19,7 @@
 
 namespace chart {
 
-LevelPlot::LevelPlot(Settings *settings, QQuickItem *parent): XYPlot(settings, parent),
-    m_curve(Weighting::Z), m_time(Meter::Fast), m_mode(SPL)
+LevelPlot::LevelPlot(Settings *settings, QQuickItem *parent): XYPlot(settings, parent), LevelObject()
 {
     setFlag(QQuickItem::ItemHasContents);
 
@@ -34,6 +33,9 @@ LevelPlot::LevelPlot(Settings *settings, QQuickItem *parent): XYPlot(settings, p
 
     m_x.setUnit("s");
     m_y.setUnit("dB");
+
+    connect(this, &LevelPlot::modeChanged, this, &LevelPlot::updateAxes);
+    updateAxes();
 }
 
 void LevelPlot::setSettings(Settings *settings) noexcept
@@ -62,87 +64,24 @@ void LevelPlot::storeSettings() noexcept
     m_settings->setValue("time", timeName());
 }
 
-QVariant LevelPlot::getAvailableCurves() const
+void LevelPlot::updateAxes()
 {
-    return Weighting::availableCurves();
-}
+    switch (mode()) {
+    case SPL:
+        m_y.configure(AxisType::Linear, 20.f, 140.f,  20);
+        m_y.setCentralLabel(m_y.min() - 1.f);
+        m_y.setReset(62.f, 140.f);
+        m_y.reset();
+        break;
 
-QVariant LevelPlot::getAvailableTimes() const
-{
-    return Meter::availableTimes();
-}
-
-Weighting::Curve LevelPlot::curve() const
-{
-    return m_curve;
-}
-
-QString LevelPlot::curveName() const
-{
-    return Weighting::curveName(m_curve);
-}
-
-void LevelPlot::setCurve(const QString &curve)
-{
-    auto newCurve = Weighting::curveByName(curve);
-    if (newCurve != m_curve) {
-        m_curve = newCurve;
-        emit curveChanged(curveName());
+    case dBfs:
+        m_y.configure(AxisType::Linear, -144.f, 0.f,  24);
+        m_y.setCentralLabel(m_y.min() - 1.f);
+        m_y.setReset(-140.f, 0.f);
+        m_y.reset();
+        break;
     }
-}
-
-Meter::Time LevelPlot::time() const
-{
-    return m_time;
-}
-
-QString LevelPlot::timeName() const
-{
-    return Meter::timeName(m_time);
-}
-
-void LevelPlot::setTime(const QString &time)
-{
-    auto newTime = Meter::timeByName(time);
-    if (newTime != m_time) {
-        m_time = newTime;
-        emit timeChanged(timeName());
-    }
-}
-
-void LevelPlot::setMode(const Mode &mode)
-{
-    if (m_mode != mode) {
-        m_mode = mode;
-
-        switch (m_mode) {
-        case SPL:
-            m_y.configure(AxisType::Linear, 20.f, 140.f,  20);
-            m_y.setCentralLabel(m_y.min() - 1.f);
-            m_y.setReset(62.f, 140.f);
-            m_y.reset();
-            break;
-
-        case dBfs:
-            m_y.configure(AxisType::Linear, -144.f, 0.f,  24);
-            m_y.setCentralLabel(m_y.min() - 1.f);
-            m_y.setReset(-140.f, 0.f);
-            m_y.reset();
-            break;
-        }
-        update();
-        emit modeChanged(m_mode);
-    }
-}
-
-void LevelPlot::setMode(const int &mode)
-{
-    setMode(static_cast<Mode>(mode));
-}
-
-LevelPlot::Mode LevelPlot::mode() const
-{
-    return m_mode;
+    update();
 }
 
 } // namespace chart

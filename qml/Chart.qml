@@ -21,6 +21,7 @@ import QtQuick.Controls.Material 2.2
 import QtGraphicalEffects 1.15
 import OpenSoundMeter 1
 import "elements"
+import "SPL" as SPL;
 
 Item {
     id: chartview
@@ -135,7 +136,7 @@ Item {
                 return directionIndex;
             }
 
-            if (gestureEvent.touchPoints.length === 2) {
+            if (chart.plot && gestureEvent.touchPoints.length === 2) {
                 let p1 = gestureEvent.touchPoints[0];
                 let p2 = gestureEvent.touchPoints[1];
 
@@ -205,6 +206,7 @@ Item {
             id: opener
             property int mouseButtonClicked: Qt.NoButton
             pushObject: chart.plot;
+            enabled: chart.plot
             cursorShape: "CrossCursor";
             hoverEnabled: true
             onEntered: cursor.visible = true
@@ -281,15 +283,15 @@ Item {
         property int cursorX : 0
         property int cursorY : 0
 
-        text: "%1".arg(chart.plot.y2v(cursor.cursorY).toFixed(2)) + chart.plot.yLabel + "\n" +
-              "%1".arg(chart.plot.x2v(cursor.cursorX).toFixed(2)) + chart.plot.xLabel;
+        text: (chart.plot ? "%1".arg(chart.plot.y2v(cursor.cursorY).toFixed(2)) + chart.plot.yLabel + "\n" +
+              "%1".arg(chart.plot.x2v(cursor.cursorX).toFixed(2)) + chart.plot.xLabel : "");
         xRight:  cursorX + applicationAppearance.cursorOffset + cursor.fontInfo.pixelSize / 2
         xLeft:   cursorX - applicationAppearance.cursorOffset - cursor.width - cursor.fontInfo.pixelSize / 2
         yTop:    cursorY - applicationAppearance.cursorOffset - cursor.height / 2
         yBottom: cursorY + applicationAppearance.cursorOffset + cursor.height / 2
         x: xRight < parent.width  - width  - 50 ? xRight : xLeft
         y: yTop   < 2 * height ? yBottom : yTop + 30 + height / 2 > parent.height ? yTop - height : yTop
-        visible: opener.containsMouse
+        visible: chart.plot && opener.containsMouse
 
         Label {
             id: cursorText
@@ -308,10 +310,10 @@ Item {
         }
 
         onCursorXChanged: {
-            chart.plot.setHelper(cursorX, cursorY);
+            if (chart.plot) chart.plot.setHelper(cursorX, cursorY);
         }
         onCursorYChanged: {
-            chart.plot.setHelper(cursorX, cursorY);
+            if (chart.plot) chart.plot.setHelper(cursorX, cursorY);
         }
 
         Connections {
@@ -319,17 +321,22 @@ Item {
             function onMouseXChanged() {
                 var x = touchPoint2.pressed ? touchPoint1.startX : opener.mouseX;
                 cursor.cursorX = x;
-                chart.plot.setHelper(cursor.cursorX, cursor.cursorY);
+                if (chart.plot) chart.plot.setHelper(cursor.cursorX, cursor.cursorY);
             }
             function onMouseYChanged() {
                 var y = touchPoint2.pressed ? touchPoint1.startY : opener.mouseY;
                 cursor.cursorY = y;
-                chart.plot.setHelper(cursor.cursorX, cursor.cursorY);
+                if (chart.plot) chart.plot.setHelper(cursor.cursorX, cursor.cursorY);
             }
             function onExited() {
-                chart.plot.unsetHelper();
+                if (chart.plot) chart.plot.unsetHelper();
             }
         }
+    }
+
+    SPL.Grid {
+        enabled: chart.type == "SPL"
+        visible: chart.type == "SPL"
     }
 
     DropDown {
@@ -339,7 +346,7 @@ Item {
         implicitHeight: Material.buttonHeight
         background: null
         model: applicationAppearance.experimentFunctions ?
-                   ["RTA", "Magnitude", "Phase", "Impulse", "Step", "Coherence", "Group Delay", "Phase Delay", "Spectrogram", "Level", "Crest Factor", "Nyquist"] :
+                   ["RTA", "Magnitude", "Phase", "Impulse", "Step", "Coherence", "Group Delay", "Phase Delay", "Spectrogram", "Level", "SPL", "Crest Factor", "Nyquist"] :
                    ["RTA", "Magnitude", "Phase", "Impulse", "Step", "Coherence", "Group Delay", "Spectrogram", "Level"]
         currentIndex: model.indexOf(type)
         onCurrentIndexChanged: {
@@ -350,10 +357,10 @@ Item {
                 reopen = true;
             }
             chart.type = model[currentIndex];
-            if (model[currentIndex] === "Spectrogram") {
+            if (chart.plot && model[currentIndex] === "Spectrogram") {
                 chart.plot.selected = [sourceList.first];
             }
-            if (reopen) {
+            if (chart.plot && reopen) {
                 pb.open(chart.plot, opener.propertiesQml);
             }
         }

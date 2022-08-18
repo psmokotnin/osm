@@ -61,8 +61,10 @@ void Server::setSourceList(SourceList *list)
         sourceNotify(source, "added");
 
         connect(source, &chart::Source::readyRead, this, [this, source]() {
-            sourceNotify(source, "readyRead");
-            sourceNotify(source, "levels", source->levels());
+            if (source) {
+                sourceNotify(source, "readyRead");
+                sourceNotify(source, "levels", source->levels());
+            }
         });
 
         for (int i = 0 ; i < source->metaObject()->propertyCount(); ++i) {

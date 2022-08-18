@@ -98,26 +98,31 @@ void VariableChart::initType()
         newPlot = new LevelPlot(m_settings, this);
         break;
 
+    case SPL:
+        newPlot = nullptr;
+        break;
+
     default:
         qCritical("unknown plot");
         return;
     }
-    newPlot->setParentItem(this);
-    newPlot->setDarkMode(darkMode());
+    if (newPlot) {
+        newPlot->setParentItem(this);
+        newPlot->setDarkMode(darkMode());
+        newPlot->inheritSettings(m_plot);
+    }
 
     if (m_plot) {
-        if (!qobject_cast<SpectrogramPlot *>(m_plot)) {
+        if (newPlot && !qobject_cast<SpectrogramPlot *>(m_plot)) {
             newPlot->setSelected(m_plot->selected());
-            newPlot->setSelectAppended(false);
         }
 
-        newPlot->inheritSettings(m_plot);
         m_plot->clear();
         m_plot->disconnectFromParent();
         m_plot->setParent(nullptr);
         m_plot->setParentItem(nullptr);
         m_plot->deleteLater();
-        newPlot->storeSettings();
+        if (newPlot) newPlot->storeSettings();
     }
 
     m_plot = newPlot;
@@ -147,9 +152,10 @@ void VariableChart::setTypeByString(const QString &type)
 {
     for (auto &it : typeMap) {
         if (it.second == type) {
-            setType(it.first);
+            return setType(it.first);
         }
     }
+    qDebug() << "unknown type" << type;
 }
 Settings *VariableChart::settings() const noexcept
 {
