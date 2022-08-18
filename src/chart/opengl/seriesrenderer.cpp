@@ -56,7 +56,7 @@ void SeriesRenderer::synchronize(QQuickFramebufferObject *item)
     m_item = item;
     if (item) {
         auto seriesFBO = dynamic_cast<SeriesFBO *>(item);
-        if ((m_source = seriesFBO->source())) {
+        if (seriesFBO && (m_source = seriesFBO->source())) {
             qreal retinaScale = m_item->window()->devicePixelRatio();
             m_width  = static_cast<GLsizei>(m_item->width() * retinaScale);
             m_height = static_cast<GLsizei>(m_item->height() * retinaScale);
