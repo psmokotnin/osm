@@ -42,8 +42,6 @@ signals:
 
 protected:
     virtual SeriesItem *createSeriesFromSource(Source *source) override;
-
-    unsigned int m_pointsPerOctave;
 };
 
 } // namespace chart

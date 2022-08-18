@@ -77,7 +77,6 @@ signals:
     void showThresholdChanged(bool);
 
 protected:
-    unsigned int m_pointsPerOctave;
     float m_threshold;
     bool m_showThreshold;
     QColor m_thresholdColor;

@@ -22,7 +22,6 @@
 using namespace chart;
 
 CoherencePlot::CoherencePlot(Settings *settings, QQuickItem *parent): FrequencyBasedPlot(settings, parent),
-    m_pointsPerOctave(12),
     m_threshold(0.91f), m_showThreshold(true), m_thresholdColor("#FF5722"), m_thresholdLine(this),
     m_type(Type::SNR)
 {
