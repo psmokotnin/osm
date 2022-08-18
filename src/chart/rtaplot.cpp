@@ -20,7 +20,7 @@
 using namespace chart;
 
 RTAPlot::RTAPlot(Settings *settings, QQuickItem *parent): FrequencyBasedPlot(settings, parent),
-    m_mode(0), m_spline(false)
+    m_mode(0), m_spline(false), m_showPeaks(true)
 {
     m_pointsPerOctave = 0;
 

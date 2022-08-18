@@ -18,7 +18,7 @@
 #include "deconvolution.h"
 #include <complex>
 Deconvolution::Deconvolution(unsigned int size) :
-    m_size(size),
+    m_size(size), m_maxIndex(0),
     m_norm(1),
     m_fft(size),
     m_ifft(size)
