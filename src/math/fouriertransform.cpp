@@ -192,6 +192,7 @@ void FourierTransform::reverse()
     Q_ASSERT(m_type == Fast);
     fast(true);
 }
+
 GNU_ALIGN void FourierTransform::fast(bool reverse, bool ultrafast)
 {
     if (!reverse) {
@@ -285,6 +286,75 @@ GNU_ALIGN void FourierTransform::fast(bool reverse, bool ultrafast)
                 m_fastB[t2].real = std::move(stored[2]);
                 m_fastB[t2].imag = std::move(stored[3]);
 
+
+                vw1 = _mm_set_ps(w.imag, w.real, w.imag, w.real);
+
+                //w *= wlen[l];
+                vw1 = _mm_mul_ps(vw1, vwl);
+                _mm_store_ps(stored, vw1);
+                w.real = stored[0] - stored[1];
+                w.imag = stored[2] + stored[3];
+            }
+        }
+    }
+}
+
+GNU_ALIGN void FourierTransform::reverseOne()
+{
+    complex w;//, ua, va, ub,vb;
+    v4sf vw1, vw2, vu, vv, vr, v1, v2, vwl, norm;
+#ifdef _MSC_VER
+    __declspec(align(16))
+#endif
+    float stored[4];
+
+    norm = _mm_set1_ps(1.f / sqrtf(m_size));
+    for (unsigned int len = 2, l = 0; len <= m_size; len <<= 1, l++) {
+        vwl = _mm_set_ps(
+                  m_wlen[l].real,      //vwl[0] = vwl[3] = wlen[l].real;
+                  -1 * m_wlen[l].imag, //vwl[1] = vwl[2] = reverse ? -1 * wlen[l].imag : wlen[l].imag;
+                  -1 * m_wlen[l].imag,
+                  m_wlen[l].real
+              );
+
+        for (unsigned int i = 0, t1 = 0, t2 = len / 2; i < m_size; i += len, t1 = i, t2 = i + len / 2) {
+            w = 1.0;
+            for (unsigned long j = 0; j < len / 2; ++j, ++t1, ++t2) {
+                //t1 = i + j
+                //t2 = i + j + len / 2
+
+                //va = _fastA[i + j + len / 2] * w;
+                //vb = _fastB[i + j + len / 2] * w;
+                v1  = _mm_set_ps(m_fastA[t2].real, m_fastA[t2].real,
+                                 m_fastA[t2].real, m_fastA[t2].real);
+                vw1 = _mm_set_ps(-w.imag, -w.real, w.imag, w.real);
+
+                v2  = _mm_set_ps(m_fastA[t2].imag, -1.f * m_fastA[t2].imag,
+                                 m_fastA[t2].imag, -1.f * m_fastA[t2].imag);
+                vw2 = _mm_set_ps(-w.real, -w.imag, w.real, w.imag);
+
+                v1 = _mm_mul_ps(v1, vw1);
+                v2 = _mm_mul_ps(v2, vw2);
+                vv = _mm_add_ps(v1, v2);
+
+                //ua = _fastA[i + j];
+                //ub = _fastB[i + j];
+                vu = _mm_set_ps(m_fastA[t1].imag, m_fastA[t1].real, m_fastA[t1].imag, m_fastA[t1].real);
+
+                //_fastA[i + j] = ua + va;
+                //_fastB[i + j] = ub + vb;
+                vr = _mm_add_ps(vu, vv);
+                if (len == m_size) { //final data normalized
+                    vr = _mm_mul_ps(vr, norm);
+                }
+                _mm_store_ps(stored, vr);
+                //ua + va;
+                m_fastA[t1].real = std::move(stored[0]);
+                m_fastA[t1].imag = std::move(stored[1]);
+
+                //ua - va;
+                m_fastA[t2].real = std::move(stored[2]);
+                m_fastA[t2].imag = std::move(stored[3]);
 
                 vw1 = _mm_set_ps(w.imag, w.real, w.imag, w.real);
 

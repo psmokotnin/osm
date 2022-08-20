@@ -62,6 +62,9 @@ public:
     //! run reverse transform
     void reverse();
 
+    //! run reverse only for A transform
+    void reverseOne();
+
     //! run log transform
     void log();
 

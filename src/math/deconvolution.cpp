@@ -49,7 +49,7 @@ void Deconvolution::transform(const FourierTransform *forward)
     }
 
     //reverse
-    m_ifft.reverse();
+    m_ifft.reverseOne();
 
     float max = 0;
     for (unsigned int i = 0; i < m_size; i++) {
