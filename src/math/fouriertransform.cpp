@@ -214,9 +214,10 @@ GNU_ALIGN void FourierTransform::fast(bool reverse, bool ultrafast)
         }
     }
 
-
-    complex w;//, ua, va, ub,vb;
     v4sf vw1, vw2, vu, vv, vr, v1, v2, vwl, norm;
+
+    v4sf tmp0, tmp1, tmp2, tmp3, vw;
+    v4sf tmpi = _mm_set_ps(1, -1, 1, -1);
 #ifdef _MSC_VER
     __declspec(align(16))
 #endif
@@ -235,7 +236,9 @@ GNU_ALIGN void FourierTransform::fast(bool reverse, bool ultrafast)
 
         for (unsigned int i = 0, t1 = 0, t2 = len / 2; i < m_size
                 && !breakloop; i += len, t1 = i, t2 = i + len / 2) {
-            w = 1.0;
+            // w = 1.0;
+            vw  = _mm_set_ps(0, -1, 0, 1);
+
             for (unsigned long j = 0; j < len / 2; ++j, ++t1, ++t2) {
                 //t1 = i + j
                 //t2 = i + j + len / 2
@@ -248,10 +251,15 @@ GNU_ALIGN void FourierTransform::fast(bool reverse, bool ultrafast)
                 //va = _fastA[i + j + len / 2] * w;
                 //vb = _fastB[i + j + len / 2] * w;
                 v1  = _mm_set_ps(m_fastB[t2].real, m_fastB[t2].real, m_fastA[t2].real, m_fastA[t2].real);
-                vw1 = _mm_set_ps(w.imag, w.real, w.imag, w.real);
+
+                //vw1 = _mm_set_ps(w.imag, w.real, w.imag, w.real);
+                vw1 = _mm_shuffle_ps(vw, vw, _MM_SHUFFLE(1, 0, 1, 0));
+
                 v2  = _mm_set_ps(m_fastB[t2].imag, -1.f * m_fastB[t2].imag, m_fastA[t2].imag,
                                  -1.f * m_fastA[t2].imag);
-                vw2 = _mm_set_ps(w.real, w.imag, w.real, w.imag);
+
+                //vw2 = _mm_set_ps(w.real, w.imag, w.real, w.imag);
+                vw2 = _mm_shuffle_ps(vw, vw, _MM_SHUFFLE(0, 1, 0, 1));
 
                 v1 = _mm_mul_ps(v1, vw1);
                 v2 = _mm_mul_ps(v2, vw2);
@@ -286,14 +294,20 @@ GNU_ALIGN void FourierTransform::fast(bool reverse, bool ultrafast)
                 m_fastB[t2].real = std::move(stored[2]);
                 m_fastB[t2].imag = std::move(stored[3]);
 
-
-                vw1 = _mm_set_ps(w.imag, w.real, w.imag, w.real);
-
                 //w *= wlen[l];
-                vw1 = _mm_mul_ps(vw1, vwl);
-                _mm_store_ps(stored, vw1);
-                w.real = stored[0] - stored[1];
-                w.imag = stored[2] + stored[3];
+                tmp0 = _mm_shuffle_ps(vw,   vw, _MM_SHUFFLE(2, 2, 0, 0));
+                tmp1 = _mm_shuffle_ps(vwl, vwl, _MM_SHUFFLE(1, 0, 1, 0));
+
+                tmp2 = _mm_shuffle_ps(vw,   vw, _MM_SHUFFLE(3, 3, 1, 1));
+                tmp3 = _mm_shuffle_ps(vwl, vwl, _MM_SHUFFLE(0, 1, 0, 1));
+
+                tmpi = _mm_set_ps(1, -1, 1, -1);
+                tmp2 = _mm_mul_ps(tmp2, tmpi);
+
+                vw = _mm_add_ps(
+                         _mm_mul_ps(tmp0, tmp1),
+                         _mm_mul_ps(tmp2, tmp3)
+                     );
             }
         }
     }
@@ -301,8 +315,10 @@ GNU_ALIGN void FourierTransform::fast(bool reverse, bool ultrafast)
 
 GNU_ALIGN void FourierTransform::reverseOne()
 {
-    complex w;//, ua, va, ub,vb;
     v4sf vw1, vw2, vu, vv, vr, v1, v2, vwl, norm;
+    v4sf tmp0, tmp1, tmp2, tmp3, vw;
+    v4sf tmpi = _mm_set_ps(1, -1, 1, -1);
+
 #ifdef _MSC_VER
     __declspec(align(16))
 #endif
@@ -318,7 +334,9 @@ GNU_ALIGN void FourierTransform::reverseOne()
               );
 
         for (unsigned int i = 0, t1 = 0, t2 = len / 2; i < m_size; i += len, t1 = i, t2 = i + len / 2) {
-            w = 1.0;
+            // w = 1.0;
+            vw  = _mm_set_ps(0, -1, 0, 1);
+
             for (unsigned long j = 0; j < len / 2; ++j, ++t1, ++t2) {
                 //t1 = i + j
                 //t2 = i + j + len / 2
@@ -327,11 +345,15 @@ GNU_ALIGN void FourierTransform::reverseOne()
                 //vb = _fastB[i + j + len / 2] * w;
                 v1  = _mm_set_ps(m_fastA[t2].real, m_fastA[t2].real,
                                  m_fastA[t2].real, m_fastA[t2].real);
-                vw1 = _mm_set_ps(-w.imag, -w.real, w.imag, w.real);
+
+                //vw1 = _mm_set_ps(-w.imag, -w.real, w.imag, w.real);
+                vw1 = _mm_shuffle_ps(vw, vw, _MM_SHUFFLE(3, 2, 1, 0));
 
                 v2  = _mm_set_ps(m_fastA[t2].imag, -1.f * m_fastA[t2].imag,
                                  m_fastA[t2].imag, -1.f * m_fastA[t2].imag);
-                vw2 = _mm_set_ps(-w.real, -w.imag, w.real, w.imag);
+
+                //vw2 = _mm_set_ps(-w.real, -w.imag, w.real, w.imag);
+                vw2 = _mm_shuffle_ps(vw, vw, _MM_SHUFFLE(2, 3, 0, 1));
 
                 v1 = _mm_mul_ps(v1, vw1);
                 v2 = _mm_mul_ps(v2, vw2);
@@ -356,13 +378,20 @@ GNU_ALIGN void FourierTransform::reverseOne()
                 m_fastA[t2].real = std::move(stored[2]);
                 m_fastA[t2].imag = std::move(stored[3]);
 
-                vw1 = _mm_set_ps(w.imag, w.real, w.imag, w.real);
-
                 //w *= wlen[l];
-                vw1 = _mm_mul_ps(vw1, vwl);
-                _mm_store_ps(stored, vw1);
-                w.real = stored[0] - stored[1];
-                w.imag = stored[2] + stored[3];
+                tmp0 = _mm_shuffle_ps(vw,   vw, _MM_SHUFFLE(2, 2, 0, 0));
+                tmp1 = _mm_shuffle_ps(vwl, vwl, _MM_SHUFFLE(1, 0, 1, 0));
+
+                tmp2 = _mm_shuffle_ps(vw,   vw, _MM_SHUFFLE(3, 3, 1, 1));
+                tmp3 = _mm_shuffle_ps(vwl, vwl, _MM_SHUFFLE(0, 1, 0, 1));
+
+                tmpi = _mm_set_ps(1, -1, 1, -1);
+                tmp2 = _mm_mul_ps(tmp2, tmpi);
+
+                vw = _mm_add_ps(
+                         _mm_mul_ps(tmp0, tmp1),
+                         _mm_mul_ps(tmp2, tmp3)
+                     );
             }
         }
     }
