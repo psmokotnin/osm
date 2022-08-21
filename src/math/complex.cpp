@@ -21,6 +21,11 @@ float complex::abs() const noexcept
 {
     return sqrtf(powf(real, 2) + powf(imag, 2));
 }
+
+float complex::absSquared() const noexcept
+{
+    return real * real + imag * imag;
+}
 float complex::arg() const noexcept
 {
     return atan2f(imag, real);

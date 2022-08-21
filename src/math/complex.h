@@ -29,6 +29,7 @@ struct complex {
     complex (complex &&c) noexcept : real(std::move(c.real)), imag(std::move(c.imag)) {}
 
     float abs() const noexcept;
+    float absSquared() const noexcept;
     float arg() const noexcept;
 
     const complex conjugate() const;
