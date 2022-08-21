@@ -21,6 +21,8 @@
 #include <cmath>
 #include "./complex.h"
 #include "container/array.h"
+#include "chart/source.h"
+#include "fouriertransform.h"
 
 class Coherence
 {
@@ -30,13 +32,21 @@ private:
     unsigned int m_subpointer;
     size_t m_depth;
 
+    container::array<float> m_Crr, m_Cmm;
+    container::array<complex> m_Crm;
+
 public:
     Coherence();
 
     void setDepth(const size_t &depth) noexcept;
     void setSize(const size_t &size) noexcept;
-    void append(unsigned int i, complex refernce, complex measurement) noexcept;
-    float value(unsigned int i) const noexcept;
+    [[deprecated]] void append(unsigned int i, const complex &refernce, const complex &measurement) noexcept;
+    [[deprecated]] float value(unsigned int i) const noexcept;
+
+    void calculate(chart::Source::FTData *dst, FourierTransform *src);
+    inline void calculateRR(unsigned int i, FourierTransform *src);
+    inline void calculateMM(unsigned int i, FourierTransform *src);
+    inline void calculateRM(unsigned int i, FourierTransform *src);
 };
 
 #endif // COHERENCE_H
