@@ -64,7 +64,7 @@ typedef __m64 v2si;   // vector of 2 int (mmx)
 #define _PS_CONST_TYPE(Name, Type, Val)                                 \
   static const ALIGN16_BEG Type _ps_##Name[4] ALIGN16_END = { Val, Val, Val, Val }
 
-_PS_CONST(1  , 1.0f);
+_PS_CONST(1, 1.0f);
 _PS_CONST(0p5, 0.5f);
 /* the smallest non denormalized float number */
 _PS_CONST_TYPE(min_norm_pos, int, 0x00800000);
@@ -95,8 +95,8 @@ _PS_CONST(cephes_log_q2, 0.693359375);
 
 #ifndef USE_SSE2
 typedef union xmm_mm_union {
-  __m128 xmm;
-  __m64 mm[2];
+    __m128 xmm;
+    __m64 mm[2];
 } xmm_mm_union;
 
 #define COPY_XMM_TO_MM(xmm_, mm0_, mm1_) {          \
@@ -116,8 +116,8 @@ typedef union xmm_mm_union {
 */
 v4sf log_ps(v4sf x);
 
-_PS_CONST(exp_hi,	88.3762626647949f);
-_PS_CONST(exp_lo,	-88.3762626647949f);
+_PS_CONST(exp_hi,   88.3762626647949f);
+_PS_CONST(exp_lo,   -88.3762626647949f);
 
 _PS_CONST(cephes_LOG2EF, 1.44269504088896341);
 _PS_CONST(cephes_exp_C1, 0.693359375);
@@ -180,5 +180,32 @@ v4sf cos_ps(v4sf x);
 /* since sin_ps and cos_ps are almost identical, sincos_ps could replace both of them..
    it is almost as fast, and gives you a free cosine with your sine */
 void sincos_ps(v4sf x, v4sf *s, v4sf *c);
+
+
+/**
+ *  OSM
+ *  Copyright (C) 2018  Pavel Smokotnin
+
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#ifdef __GNUC__
+#define GNU_ALIGN __attribute__((force_align_arg_pointer))
+#else
+#define GNU_ALIGN
+#endif
+
+v4sf rsqrt_ps(v4sf x);
 
 #endif // SSEMATH_H

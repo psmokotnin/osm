@@ -77,7 +77,7 @@ float Coherence::value(unsigned int i) const noexcept
     return Crm.abs() / std::sqrt(Crr * Cmm);
 }
 
-void Coherence::calculate(chart::Source::FTData *dst, FourierTransform *src)
+GNU_ALIGN void Coherence::calculate(chart::Source::FTData *dst, FourierTransform *src)
 {
     ++m_subpointer;
     if (m_subpointer >= m_depth)

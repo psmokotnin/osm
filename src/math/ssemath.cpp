@@ -578,3 +578,8 @@ void sincos_ps(v4sf x, v4sf *s, v4sf *c)
     *s = _mm_xor_ps(xmm1, sign_bit_sin);
     *c = _mm_xor_ps(xmm2, sign_bit_cos);
 }
+
+v4sf rsqrt_ps(v4sf x)
+{
+    return _mm_rsqrt_ps(x);
+}

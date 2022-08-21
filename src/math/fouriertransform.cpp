@@ -22,12 +22,6 @@
 #define USE_SSE2
 #endif
 
-#ifdef __GNUC__
-#define GNU_ALIGN __attribute__((force_align_arg_pointer))
-#else
-#define GNU_ALIGN
-#endif
-
 #include "ssemath.h"
 
 FourierTransform::FourierTransform(unsigned int size):
