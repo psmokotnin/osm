@@ -36,6 +36,7 @@ struct complex {
     const complex normalize() const;
     const complex rotate(const float &a) const;
     void polar(const float &phase);
+    void polar(const complex &a, const complex &b);
 
     complex &operator=(const float &r);
     complex &operator=(const complex &c);

@@ -58,6 +58,34 @@ void complex::polar(const float &phase)
     real = cos(phase);
     imag = sin(phase);
 }
+
+void complex::polar(const complex &x, const complex &y)
+{
+    float tanx = x.imag / x.real;
+    float tany = y.imag / y.real;
+
+    float cosx, sinx, cosy, siny;
+
+    if (x.real >= 0) {
+        cosx = 1 / sqrt(1 + tanx * tanx);
+        sinx = tanx * cosx;
+    } else {
+        cosx = -1 / sqrt(1 + tanx * tanx);
+        sinx = tanx * cosx;
+    }
+
+    if (y.real >= 0) {
+        cosy = 1 / sqrt(1 + tany * tany);
+        siny = tany * cosy;
+    } else {
+        cosy = -1 / sqrt(1 + tany * tany);
+        siny = tany * cosy;
+    }
+
+    real = cosx * cosy + sinx * siny;
+    imag = sinx * cosy - cosx * siny;
+}
+
 complex &complex::operator=(const float &r)
 {
     real = r;

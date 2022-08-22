@@ -513,9 +513,11 @@ void Measurement::averaging()
 
         if (m_enableCalibration && m_calibrationGain.size() > j) {
             calibratedA /= m_calibrationGain[j];
+        }
+        if (m_enableCalibration && m_calibrationGain.size() > j && !qFuzzyCompare(m_calibrationPhase[j], 0)) {
             p.polar(m_dataFT.bf(i).arg() - m_dataFT.af(i).arg() - m_calibrationPhase[j]);
         } else {
-            p.polar(m_dataFT.bf(i).arg() - m_dataFT.af(i).arg());
+            p.polar(m_dataFT.bf(i), m_dataFT.af(i));
         }
 
         float magnitude = calibratedA / m_dataFT.bf(i).abs();
@@ -551,13 +553,11 @@ void Measurement::averaging()
             break;
         }
 
-        m_coherence.append(i, m_dataFT.bf(i), m_dataFT.af(i));
-        m_ftdata[i].coherence = m_coherence.value(i);
-
         m_meters[i].add(calibratedA);
         m_ftdata[i].peakSquared = m_meters[i].peakSquared();
         m_ftdata[i].meanSquared = m_meters[i].value();
     }
+    m_coherence.calculate(m_ftdata, &m_dataFT);
 
     int t = 0;
     float kt = 1000.f / sampleRate();
