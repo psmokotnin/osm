@@ -232,6 +232,11 @@ bool complex::operator!=(const complex &c) const
 {
     return (real != c.real || imag != c.imag);
 }
+
+bool complex::operator<(const complex &c) const
+{
+    return absSquared() < c.absSquared();
+}
 QDebug operator<<(QDebug dbg, const complex &c)
 {
     dbg.nospace() << "Complex value: r:"

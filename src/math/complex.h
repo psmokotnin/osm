@@ -68,6 +68,8 @@ struct complex {
 
     bool operator==(const complex &c) const;
     bool operator!=(const complex &c) const;
+
+    bool operator<(const complex &c) const;
 };
 
 QDebug operator<<(QDebug dbg, const complex &c);

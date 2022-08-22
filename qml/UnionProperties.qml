@@ -34,7 +34,7 @@ Item {
         RowLayout {
 
             DropDown {
-                model: ["Summation", "Subtract", "Average"]
+                model: ["Summation", "Subtract", "Average", "Min", "Max"]
                 currentIndex: dataObject.operation
                 onCurrentIndexChanged: dataObject.operation = currentIndex;
                 Layout.preferredWidth: 150
