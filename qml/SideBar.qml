@@ -65,6 +65,12 @@ Item {
                     sequence: "Ctrl+3"
                     onActivated: chartsCount.currentIndex = 2;
                 }
+                Shortcut {
+                    sequence: "Ctrl+4"
+                    onActivated: {
+                        applicationWindow.charts.autoHeight();
+                    }
+                }
             }
             Button {
                 font.family: "Osm"

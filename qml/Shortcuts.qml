@@ -65,6 +65,7 @@ Popup {
                 <tr><td>%1+1</td><td>show 1 chart</td></tr>
                 <tr><td>%1+2</td><td>show 2 charts</td></tr>
                 <tr><td>%1+3</td><td>show 3 charts</td></tr>
+                <tr><td>%1+4</td><td>equal heights</td></tr>
                 <tr><td>right click</td><td>open wavelength calculator for current frequency (time for impulse)</td></tr>
 
                 <tr><th colspan='2'>Tools</th></tr>
