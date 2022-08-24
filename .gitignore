@@ -59,6 +59,9 @@ Thumbs.db
 *.vcxproj
 *vcxproj.*
 
+#XCode
+*.xcodeproj
+
 # MinGW generated files
 *.Debug
 *.Release
