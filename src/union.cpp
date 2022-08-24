@@ -362,37 +362,47 @@ void Union::calcVector(unsigned int count, chart::Source *primary) noexcept
         m_ftdata[i].peakSquared = p.abs();
     }
 
-    float t, v;
-    for (unsigned int i = 0; i < primary->impulseSize(); i++) {
-        t = primary->impulseTime(i);
-        v = primary->impulseValue(i);
+    if (primary->impulseSize() < 2) {
+        return;
+    }
 
+    for (unsigned int i = 0; i < primary->impulseSize(); i++) {
+        m_impulseData[i].time = primary->impulseTime(i);
+        m_impulseData[i].value = primary->impulseValue(i);
+    }
+    float dt = m_impulseData[1].time - m_impulseData[0].time;
+
+    for (unsigned int i = 0; i < primary->impulseSize(); i++) {
         for (auto it = m_sources.begin(); it != m_sources.end(); ++it) {
-            if (*it) {
+
+            float st = (*it)->impulseTime(i);
+            long offseted =  (long)i + (st - m_impulseData[i].time) / dt;
+
+            if (*it && it != m_sources.begin() && offseted > 0 && offseted < impulseSize()) {
                 switch (m_operation) {
                 case Summation:
                 case Avg:
-                    v += (*it)->impulseValue(i);
+                    m_impulseData[offseted].value += (*it)->impulseValue(i);
                     break;
                 case Subtract:
-                    v -= (*it)->impulseValue(i);
+                    m_impulseData[offseted].value -= (*it)->impulseValue(i);
                     break;
                 case Min:
-                    v = std::min(v, (*it)->impulseValue(i));
+                    m_impulseData[offseted].value = std::min(m_impulseData[offseted].value, complex{(*it)->impulseValue(i)});
                     break;
                 case Max:
-                    v = std::max(v, (*it)->impulseValue(i));
+                    m_impulseData[offseted].value = std::max(m_impulseData[offseted].value, complex{(*it)->impulseValue(i)});
                     break;
                 }
             }
         }
 
-        if (m_operation == Avg) {
-            v /= count;
-        }
+    }
 
-        m_impulseData[i].time = t;
-        m_impulseData[i].value = v;
+    if (m_operation == Avg) {
+        for (unsigned int i = 0; i < primary->impulseSize(); i++) {
+            m_impulseData[i].value /= count;
+        }
     }
 }
 
