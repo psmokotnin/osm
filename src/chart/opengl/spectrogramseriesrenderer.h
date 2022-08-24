@@ -52,6 +52,7 @@ private:
 
     unsigned int m_indexBufferId, m_sourceSize;
     std::vector<unsigned int> m_indices;
+    bool m_active;
 };
 }
 #endif // SPECTROGRAMSERIESRENDERER_H

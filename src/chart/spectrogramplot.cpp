@@ -19,8 +19,8 @@
 
 using namespace chart;
 
-SpectrogramPlot::SpectrogramPlot(Settings *settings,
-                                 QQuickItem *parent): FrequencyBasedPlot(settings, parent), m_min(-90), m_mid(-50), m_max(10)
+SpectrogramPlot::SpectrogramPlot(Settings *settings, QQuickItem *parent): FrequencyBasedPlot(settings, parent),
+    m_min(-90), m_mid(-50), m_max(10), m_active(true)
 {
     m_y.configure(AxisType::Linear, 0.f,    4.f,  4);
     setPointsPerOctave(48);
@@ -66,6 +66,19 @@ void SpectrogramPlot::setMax(int max)
     if (m_max != max) {
         m_max = max;
         emit maxChanged(m_max);
+    }
+}
+
+bool SpectrogramPlot::active() const
+{
+    return m_active;
+}
+
+void SpectrogramPlot::setActive(bool active)
+{
+    if (m_active != active) {
+        m_active = active;
+        emit activeChanged(m_active);
     }
 }
 

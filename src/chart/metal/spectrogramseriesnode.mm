@@ -97,6 +97,7 @@ void SpectrogramSeriesNode::synchronizeSeries()
         m_min = spectrogramPlot->min();
         m_mid = spectrogramPlot->mid();
         m_max = spectrogramPlot->max();
+        m_active = spectrogramPlot->active();
     }
 }
 
@@ -165,11 +166,13 @@ void SpectrogramSeriesNode::updateHistory()
         value = 0;
     };
 
-    iterate(m_pointsPerOctave, accumalte, collected);
+    if (m_active) {
+        iterate(m_pointsPerOctave, accumalte, collected);
 
-    m_history.push_back(std::move(row));
-    if (m_history.size() > MAX_HISTORY) {
-        m_history.pop_front();
+        m_history.push_back(std::move(row));
+        if (m_history.size() > MAX_HISTORY) {
+            m_history.pop_front();
+        }
     }
 }
 

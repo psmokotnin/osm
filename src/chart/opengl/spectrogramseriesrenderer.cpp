@@ -66,6 +66,7 @@ void SpectrogramSeriesRenderer::synchronize(QQuickFramebufferObject *item)
         m_min = plot->min();
         m_mid = plot->mid();
         m_max = plot->max();
+        m_active = plot->active();
     }
 }
 
@@ -140,12 +141,14 @@ void SpectrogramSeriesRenderer::renderSeries()
         value = 0;
     };
 
-    iterate(m_pointsPerOctave, accumalte, collected);
+    if (m_active) {
+        iterate(m_pointsPerOctave, accumalte, collected);
 
-    //TODO: change to fifo instead of deque
-    history.push_back(std::move(row));
-    if (history.size() > 51) {
-        history.pop_front();
+        //TODO: change to fifo instead of deque
+        history.push_back(std::move(row));
+        if (history.size() > 51) {
+            history.pop_front();
+        }
     }
 
     unsigned int maxBufferSize = 51 * (m_pointsPerOctave * 12 + 4) * 6,

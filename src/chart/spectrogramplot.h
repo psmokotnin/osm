@@ -27,11 +27,7 @@ class SpectrogramPlot : public FrequencyBasedPlot
     Q_PROPERTY(int min READ min WRITE setMin NOTIFY minChanged)
     Q_PROPERTY(int mid READ mid WRITE setMid NOTIFY midChanged)
     Q_PROPERTY(int max READ max WRITE setMax NOTIFY maxChanged)
-
-protected:
-    virtual SeriesItem *createSeriesFromSource(Source *source) override;
-
-    int m_min, m_mid, m_max;
+    Q_PROPERTY(bool active READ active WRITE setActive NOTIFY activeChanged)
 
 public:
     SpectrogramPlot(Settings *settings, QQuickItem *parent = Q_NULLPTR);
@@ -47,10 +43,20 @@ public:
     int max() const;
     void setMax(int max);
 
+    bool active() const;
+    void setActive(bool active);
+
 signals:
     void minChanged(int);
     void midChanged(int);
     void maxChanged(int);
+    void activeChanged(bool);
+
+protected:
+    virtual SeriesItem *createSeriesFromSource(Source *source) override;
+
+    int m_min, m_mid, m_max;
+    bool m_active;
 };
 }
 #endif // SPECTROGRAMPLOT_H

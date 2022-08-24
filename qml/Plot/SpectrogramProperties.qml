@@ -122,6 +122,23 @@ Item {
 
         Button {
             font.family: "Osm"
+            text: "\ue809"
+            implicitWidth: 60
+            checkable: true
+            checked: !dataObject.active
+            onCheckedChanged: {
+                dataObject.active = !checked
+            }
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("pause")
+        }
+
+        Item {
+            width: 5
+        }
+
+        Button {
+            font.family: "Osm"
             text: "\ue804"
             implicitWidth: 60
             onClicked: fileDialog.open();
