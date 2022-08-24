@@ -16,6 +16,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 import QtQml 2.15
+import QtQuick 2.15
 import QtQuick.Controls 2.15
 
 ComboBox {
@@ -28,5 +29,30 @@ ComboBox {
                 control.popup.scale = 1.0;
             }
         }
+    }
+
+    popup.onOpened: {
+        //Popup ListView    MenuItem       IconLabel
+        //popup.contentItem.itemAtIndex(0).contentItem
+
+        let maxWidth = control.width;
+        for (let i = 0; i < popup.contentItem.count; ++i) {
+            text.text = popup.contentItem.itemAtIndex(i).text;
+
+            //MenuItem{padding: 16}
+            maxWidth = Math.max(maxWidth, text.paintedWidth + popup.padding * 2 + 32);
+        }
+        popup.width = maxWidth;
+        let x = control.mapToGlobal(0, 0).x - applicationWindow.x + 2; //2 pixels padding
+        if (x + popup.width > applicationWindow.width) {
+            popup.x = applicationWindow.width - x - popup.width;
+        }
+    }
+
+    Text {
+        id: text
+        text: ""
+        font.pixelSize: 18
+        visible: false
     }
 }
