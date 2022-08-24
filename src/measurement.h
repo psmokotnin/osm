@@ -119,6 +119,7 @@ public:
     void selectDevice(const QString &name);
 
     Q_INVOKABLE void applyAutoGain(const float reference) override;
+    Q_INVOKABLE void destroy() override final;
 
 public slots:
     void transform();

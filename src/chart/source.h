@@ -57,7 +57,7 @@ public:
     virtual Source *clone() const = 0;
     virtual bool cloneable() const;
 
-    Q_INVOKABLE void destroy();
+    virtual Q_INVOKABLE void destroy();
 
     bool active() const noexcept
     {

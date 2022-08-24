@@ -825,6 +825,13 @@ void Measurement::checkChannels()
         setDataChanel(format.channelCount - 1);
     }
 }
+
+void Measurement::destroy()
+{
+    setActive(false);
+    updateAudio();
+    chart::Source::destroy();
+}
 void Measurement::resetAverage() noexcept
 {
     auto reset = [](auto * f) {
