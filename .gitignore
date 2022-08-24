@@ -71,3 +71,11 @@ Thumbs.db
 *.dll
 *.exe
 
+
+# PVS studio
+PVS-Studio/
+PVS-Studio.cfg
+*.PVS-Studio.i
+*.PVS-Studio.cfg
+.pvsconfig
+pvs.log*
