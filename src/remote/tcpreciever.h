@@ -21,6 +21,7 @@
 #include <QObject>
 #include <QTcpSocket>
 #include <QTimer>
+#include <array>
 
 namespace remote {
 

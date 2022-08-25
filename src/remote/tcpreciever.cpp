@@ -18,6 +18,7 @@
 #include "tcpreciever.h"
 #include <QTimer>
 #include <QtEndian>
+#include <array>
 
 namespace remote {
 
