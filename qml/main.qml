@@ -62,7 +62,7 @@ ApplicationWindow {
         applicationWindow.onYChanged.connect(function() {applicationSettings.setValue("mainwindow/y", y)});
     }
     minimumWidth: 768
-    minimumHeight: 600
+    minimumHeight: 540
     visibility: applicationAppearance.visibility
     color: applicationAppearance.darkMode ? Material.backgroundColor : "#FFFFFF"
     Material.theme: applicationAppearance.darkMode ? Material.Dark : Material.Light
