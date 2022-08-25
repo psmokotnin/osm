@@ -44,6 +44,9 @@ void MeterPlot::setSource(chart::Source *source)
 
 float MeterPlot::value() const
 {
+    if (!m_source) {
+        return NAN;
+    }
     switch (mode()) {
     case dBfs:
         return m_source->level(curve(), time());
