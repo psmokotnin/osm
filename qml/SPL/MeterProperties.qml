@@ -84,7 +84,7 @@ Item {
 
             FloatSpinBox {
                 id:threshold
-                min: 0.0
+                min: -150
                 max: 150
                 step: 1.0
                 value: dataObject.meter.threshold
