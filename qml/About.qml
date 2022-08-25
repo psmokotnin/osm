@@ -99,15 +99,12 @@ Popup {
                                "<a style='color:%1' href=\"https://opensoundmeter.com/training\">trainings</a><br/>" +
                                "<a style='color:%1' href=\"https://www.facebook.com/opensoundmeter/\">community</a><br/>"
                               ).arg(Material.accentColor)
+                    textFormat: Text.RichText
                     horizontalAlignment: Text.AlignLeft
                     Layout.preferredWidth: 200
                     Layout.fillHeight: false
                     Layout.fillWidth: true
                     onLinkActivated: Qt.openUrlExternally(link)
-                    MouseArea {
-                        anchors.fill: parent
-                        cursorShape: Qt.PointingHandCursor
-                    }
                 }
 
                 MouseArea {
@@ -151,7 +148,7 @@ Popup {
                 Layout.fillWidth: true
                 cursorShape: Qt.PointingHandCursor
                 onClicked:  {
-                    Qt.openUrlExternally("https://apps.apple.com/app/id1552933259");
+                    Qt.openUrlExternally("https://apps.apple.com/app/apple-store/id1552933259?pt=122681649&ct=inapp&mt=8");
             }
 
             Layout.preferredHeight: 40

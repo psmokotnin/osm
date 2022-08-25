@@ -47,12 +47,12 @@ Item {
             }
 
             Button {
-                text: qsTr("Available clients")
+                text: qsTr("About remote control")
                 Layout.preferredWidth: 200
                 Material.background: parent.Material.background
 
                 onClicked:  {
-                    Qt.openUrlExternally("https://opensoundmeter.com/api/clients");
+                    Qt.openUrlExternally("https://opensoundmeter.com/api");
                 }
             }
         }
