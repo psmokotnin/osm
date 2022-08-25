@@ -19,6 +19,7 @@
 #include <QTimer>
 #include <QtEndian>
 #include <array>
+#include <cstring>
 
 namespace remote {
 

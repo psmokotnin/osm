@@ -510,13 +510,13 @@ void Union::calcPower(unsigned int count, chart::Source *primary) noexcept
                 }
                 break;
                 case Min:
-                    magnitude = std::min(magnitude, std::powf((*it)->magnitudeRaw(i), 2));
-                    module = std::min(module, std::powf((*it)->module(i), 2));
+                    magnitude = std::min(magnitude, powf((*it)->magnitudeRaw(i), 2));
+                    module = std::min(module, powf((*it)->module(i), 2));
                     phase.polar(std::min(phase.arg(), (*it)->phase(i).arg()));
                     break;
                 case Max:
-                    magnitude = std::max(magnitude, std::powf((*it)->magnitudeRaw(i), 2));
-                    module = std::max(module, std::powf((*it)->module(i), 2));
+                    magnitude = std::max(magnitude, powf((*it)->magnitudeRaw(i), 2));
+                    module = std::max(module, powf((*it)->module(i), 2));
                     phase.polar(std::max(phase.arg(), (*it)->phase(i).arg()));
                     break;
                 }
