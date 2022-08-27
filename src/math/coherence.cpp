@@ -16,7 +16,12 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "coherence.h"
+#if defined(Q_PROCESSOR_X86_64)
 #include "ssemath.h"
+#endif
+#if defined(Q_PROCESSOR_ARM)
+#include "armmath.h"
+#endif
 
 Coherence::Coherence(): m_subpointer(0), m_depth(1)
 {

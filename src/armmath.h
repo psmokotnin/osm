@@ -19,6 +19,17 @@
 #define ARMMATH_H
 
 #include "arm_neon.h"
+
+#ifdef Q_PROCESSOR_ARM
+#define GNU_ALIGN  __attribute__((aligned(16)))
+#elif defined(__GNUC__)
+#define GNU_ALIGN __attribute__((force_align_arg_pointer))
+#else
+#define GNU_ALIGN
+#endif
+
+#define _MM_SHUFFLE(z, y, x, w) (((z) << 6) | ((y) << 4) | ((x) << 2) | (w))
+
 using v4sf = float32x4_t;
 
 __attribute__((aligned(16))) inline v4sf _mm_set1_ps(const float &v)
@@ -44,6 +55,11 @@ __attribute__((aligned(16))) inline v4sf _mm_mul_ps(const v4sf &left, const v4sf
     return vmulq_f32(left, right);
 }
 
+__attribute__((aligned(16))) inline v4sf _mm_div_ps(const v4sf &left, const v4sf &right)
+{
+    return vdivq_f32(left, right);
+}
+
 __attribute__((aligned(16))) inline v4sf _mm_add_ps(const v4sf &left, const v4sf &right)
 {
     return vaddq_f32(left, right);
@@ -59,6 +75,25 @@ __attribute__((aligned(16))) inline v4sf _mm_sub_ps(const v4sf &left, const v4sf
     return vsubq_f32(left, right);
 }
 
+__attribute__((aligned(16))) inline v4sf _mm_rsqrt_ps(const v4sf &left)
+{
+    return vrsqrteq_f32(left);
+}
+
+__attribute__((aligned(16))) inline v4sf _mm_load_ps( float *source )
+{
+    return _mm_set_ps(source[3], source[2], source[1], source[0]);
+}
+
+
+#define _mm_shuffle_ps(a, b, imm8) \
+__extension__({ \
+                float32x4_t ret;                                                   \
+                ret = vmovq_n_f32(   vgetq_lane_f32(a,  (imm8)       & (0x3)));     \
+                ret = vsetq_lane_f32(vgetq_lane_f32(a, ((imm8) >> 2) & 0x3), ret, 1);                                                       \
+                ret = vsetq_lane_f32(vgetq_lane_f32(b, ((imm8) >> 4) & 0x3), ret, 2);                                                       \
+                ret = vsetq_lane_f32(vgetq_lane_f32(b, ((imm8) >> 6) & 0x3), ret, 3);                                                                    \
+              })
 /*
 //STD version for testing:
 #include <array>
