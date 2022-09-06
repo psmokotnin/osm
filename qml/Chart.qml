@@ -347,7 +347,7 @@ Item {
         background: null
         model: applicationAppearance.experimentFunctions ?
                    ["RTA", "Magnitude", "Phase", "Impulse", "Step", "Coherence", "Group Delay", "Phase Delay", "Spectrogram", "Level", "SPL", "Crest Factor", "Nyquist"] :
-                   ["RTA", "Magnitude", "Phase", "Impulse", "Step", "Coherence", "Group Delay", "Spectrogram", "Level"]
+                   ["RTA", "Magnitude", "Phase", "Impulse", "Step", "Coherence", "Group Delay", "Spectrogram", "Level", "SPL"]
         currentIndex: model.indexOf(type)
         onCurrentIndexChanged: {
             var pb = applicationWindow.properiesbar;
