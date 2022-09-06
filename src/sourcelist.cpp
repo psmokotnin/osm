@@ -292,7 +292,7 @@ bool SourceList::importFile(const QUrl &fileName, QString separator)
 
     for (auto &row : d) {
         row.module = std::pow(10.f, (row.module - maxMagnitude) / 20.f);
-        row.magnitude = std::pow(10.f, (row.magnitude) / 20.f);
+        row.magnitude = std::pow(10.f, (row.magnitude - (maxMagnitude > 30 ? maxMagnitude : 0)) / 20.f);
     }
     s->copyFrom(d.size(), 0, d.data(), nullptr);
     s->setName(fileName.fileName());
