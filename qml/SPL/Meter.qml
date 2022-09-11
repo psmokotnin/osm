@@ -33,7 +33,7 @@ Rectangle {
         id: meter
         anchors.fill: parent
 
-        property var heightPart : height / 4
+        property int heightPart : height / 4
         spacing: 0
 
         Label {
@@ -67,7 +67,7 @@ Rectangle {
             Layout.fillWidth: true
             Layout.preferredHeight: meter.heightPart
 
-            text: dataSource.source.name;
+            text: (dataSource.source ? dataSource.source.name : "");
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
         }
