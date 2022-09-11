@@ -36,8 +36,11 @@ void MeterPlot::setSource(chart::Source *source)
         disconnect(m_sourceConnection);
 
         m_source = source;
-        m_sourceConnection = connect(m_source, &chart::Source::readyRead, this, &MeterPlot::valueChanged);
 
+        if (m_source) {
+            m_sourceConnection = connect(m_source, &chart::Source::readyRead, this, &MeterPlot::valueChanged);
+            connect(m_source, &chart::Source::beforeDestroy, this, &MeterPlot::resetSource, Qt::DirectConnection);
+        }
         emit sourceChanged(m_source);
     }
 }
@@ -84,6 +87,11 @@ void MeterPlot::updateThreshold()
         setThreshold(135);
         break;
     }
+}
+
+void MeterPlot::resetSource()
+{
+    setSource(nullptr);
 }
 
 } // namespace chart

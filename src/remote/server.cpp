@@ -88,6 +88,7 @@ void Server::setSourceList(SourceList *list)
         auto *source = list->get(index);
         if (source) {
             sourceNotify(source, "removed");
+            source->disconnect(this);
         }
     });
 }

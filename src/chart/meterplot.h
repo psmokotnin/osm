@@ -63,6 +63,7 @@ signals:
 
 private slots:
     void updateThreshold();
+    void resetSource();
 
 private:
     chart::Source *m_source;
