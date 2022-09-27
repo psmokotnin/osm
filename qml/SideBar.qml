@@ -120,6 +120,14 @@ Item {
                 highlight: modelHighlight
             }
         }
+        Component {
+            id: filterDelegate
+            Filter {
+                width: sideList.width
+                dataModel: modelData
+                highlight: modelHighlight
+            }
+        }
 
         Component {
             id: remoteItemDelegate
@@ -227,6 +235,7 @@ Item {
                                         case "Stored": return storedDelegate;
                                         case "Union": return unionDelegate;
                                         case "StandartLine": return standartLineDelegate;
+                                        case "Filter": return filterDelegate;
 
                                         case "RemoteItem":
                                         case "RemoteStored":

@@ -83,7 +83,7 @@ void Measurement::setGain(float gain)
     }
 }
 
-QVariant Measurement::getAvailableModes() const
+QVariant Measurement::getAvailableModes()
 {
     QStringList typeList;
     for (const auto &type : m_modeMap) {
@@ -92,7 +92,7 @@ QVariant Measurement::getAvailableModes() const
     return typeList;
 }
 
-QVariant Measurement::getAvailableWindowTypes() const
+QVariant Measurement::getAvailableWindowTypes()
 {
     return WindowFunction::getTypes();
 }

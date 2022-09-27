@@ -22,6 +22,9 @@
 #include <QDebug>
 
 struct complex {
+
+    static const complex i;
+
     float real;
     float imag;
     complex (float r = 0.0, float i = 0.0): real(r), imag(i) {}

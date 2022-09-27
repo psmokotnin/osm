@@ -34,6 +34,7 @@ SOURCES += src/main.cpp \
     src/filesystem/dialog.cpp \
     src/filesystem/dialogPlugin.cpp \
     src/filesystem/plugins/widgetdialogplugin.cpp \
+    src/filtersource.cpp \
     src/generator/burstnoise.cpp \
     src/generator/channelmodel.cpp \
     src/generator/wav.cpp \
@@ -45,6 +46,7 @@ SOURCES += src/main.cpp \
     src/common/profiler.cpp \
     src/math/weighting.cpp \
     src/meta/metabase.cpp \
+    src/meta/metafilter.cpp \
     src/meta/metameasurement.cpp \
     src/meta/metastored.cpp \
     src/remote/item.cpp \
@@ -150,6 +152,7 @@ HEADERS += \
     src/filesystem/dialog.h \
     src/filesystem/dialogPlugin.h \
     src/filesystem/plugins/widgetdialogplugin.h \
+    src/filtersource.h \
     src/generator/burstnoise.h \
     src/generator/channelmodel.h \
     src/generator/wav.h \
@@ -159,8 +162,10 @@ HEADERS += \
     src/generator/mnoise.h \
     src/common/notifier.h \
     src/common/profiler.h \
+    src/math/bessellpf.h \
     src/math/weighting.h \
     src/meta/metabase.h \
+    src/meta/metafilter.h \
     src/meta/metameasurement.h \
     src/meta/metastored.h \
     src/remote/item.h \
@@ -198,7 +203,6 @@ HEADERS += \
     src/chart/magnitudeplot.h \
     src/chart/xyplot.h \
     src/math/meter.h \
-    src/math/filter.h \
     src/math/coherence.h \
     src/math/averaging.h \
     src/math/complex.h \

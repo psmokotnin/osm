@@ -17,6 +17,8 @@
  */
 #include "./complex.h"
 
+const complex complex::i = {0, 1};
+
 float complex::abs() const noexcept
 {
     return sqrtf(powf(real, 2) + powf(imag, 2));

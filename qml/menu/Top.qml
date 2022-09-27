@@ -183,6 +183,11 @@ MenuBar {
             onTriggered: sourceList.addStandartLine();
         }
         MenuItem {
+            text: qsTr("&Add filter")
+            shortcut: "Ctrl+F"
+            onTriggered: sourceList.addFilter();
+        }
+        MenuItem {
             text: qsTr("&Show target")
             shortcut: "Ctrl+T"
             checkable: true

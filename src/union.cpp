@@ -374,7 +374,9 @@ void Union::calcVector(unsigned int count, chart::Source *primary) noexcept
 
     for (unsigned int i = 0; i < primary->impulseSize(); i++) {
         for (auto it = m_sources.begin(); it != m_sources.end(); ++it) {
-
+            if (!(*it)) {
+                continue;
+            }
             float st = (*it)->impulseTime(i);
             long offseted =  (long)i + (st - m_impulseData[i].time) / dt;
 

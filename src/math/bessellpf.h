@@ -15,8 +15,8 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef FILTER_H
-#define FILTER_H
+#ifndef MATH_FILTER_H
+#define MATH_FILTER_H
 
 #include "complex.h"
 
@@ -127,4 +127,4 @@ public:
 
 };
 }
-#endif // FILTER_H
+#endif // MATH_FILTER_H

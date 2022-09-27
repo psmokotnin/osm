@@ -21,7 +21,7 @@
 #include <QObject>
 #include <QtQml>
 #include "metabase.h"
-#include "math/filter.h"
+#include "math/bessellpf.h"
 #include "math/meter.h"
 #include "math/windowfunction.h"
 #include "chart/source.h"
@@ -43,8 +43,8 @@ public:
 
     Measurement();
 
-    QVariant getAvailableModes() const;
-    QVariant getAvailableWindowTypes() const;
+    static QVariant getAvailableModes();
+    static QVariant getAvailableWindowTypes();
 
     bool polarity() const;
     void setPolarity(bool polarity);
@@ -101,6 +101,9 @@ public:
     virtual void delayChanged(int) = 0;
     virtual void sampleRateChanged(unsigned int) = 0;
 
+    static const std::map<Mode, QString> m_modeMap;
+    static const std::map<Mode, int> m_FFTsizes;
+
 protected:
     bool m_polarity;
     float m_gain;
@@ -112,9 +115,6 @@ protected:
     AverageType m_averageType;
     Filter::Frequency m_filtersFrequency;
     WindowFunction::Type m_windowFunctionType;
-
-    static const std::map<Mode, QString> m_modeMap;
-    static const std::map<Mode, int> m_FFTsizes;
 };
 
 } // namespace meta

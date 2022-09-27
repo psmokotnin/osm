@@ -56,5 +56,7 @@
         <file alias="SPL/Grid.qml">qml/SPL/Grid.qml</file>
         <file alias="SPL/Meter.qml">qml/SPL/Meter.qml</file>
         <file alias="SPL/MeterProperties.qml">qml/SPL/MeterProperties.qml</file>
+        <file alias="Filter.qml">qml/Filter.qml</file>
+        <file alias="FilterProperties.qml">qml/FilterProperties.qml</file>
     </qresource>
 </RCC>

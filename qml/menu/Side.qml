@@ -76,6 +76,10 @@ Drawer {
         ListElement {
             name: qsTr("Add standart line")
             onclick: function() {sourceList.addStandartLine();}
+        }
+        ListElement {
+            name: qsTr("Add filter")
+            onclick: function() {sourceList.addFilter();}
             separator: true
         }
         ListElement {

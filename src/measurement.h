@@ -33,7 +33,7 @@
 #include "math/averaging.h"
 #include "math/fouriertransform.h"
 #include "math/deconvolution.h"
-#include "math/filter.h"
+#include "math/bessellpf.h"
 #include "math/coherence.h"
 #include "common/settings.h"
 #include "container/circular.h"
