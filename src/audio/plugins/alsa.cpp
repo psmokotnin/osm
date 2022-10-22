@@ -16,6 +16,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "alsa.h"
+#include <cassert>
 #include <cstring>
 #include <QCoreApplication>
 #define ALSA_BUFFER_SIZE 1024
@@ -175,23 +176,26 @@ Format AlsaPlugin::deviceFormat(const DeviceInfo::Id &id, const Plugin::Directio
 Stream *AlsaPlugin::open(const DeviceInfo::Id &id, const Plugin::Direction &mode, const Format &format,
                          QIODevice *endpoint)
 {
-    std::lock_guard<std::mutex> lock(m_deviceListMutex);
+    std::unique_lock<std::mutex> lock(m_deviceListMutex, std::defer_lock);
     if (id.isNull()) {
         return nullptr;
     }
 
+    assert(!lock.owns_lock());
+    lock.lock();
     AlsaPCMDevice *device = m_devices[ {mode, id}];
     if (!device) {
         device = new AlsaPCMDevice(id, mode, format, m_deviceListMutex);
         connect (device, &AlsaPCMDevice::closed, this, [this, mode, id, device]() {
-            //mutex is locked here by device
+            std::lock_guard<std::mutex> lock{m_deviceListMutex};
             m_devices[ {mode, id}] = nullptr;
             device->deleteLater();
-            m_deviceListMutex.unlock();
         });
 
         m_devices[ {mode, id}] = device;
     }
+    assert(lock.owns_lock());
+    lock.unlock();
     if (!device->start()) {
         return nullptr;
     }
@@ -326,14 +330,18 @@ bool AlsaPCMDevice::start()
             }
             QCoreApplication::processEvents();
             if (m_callbacks.empty()) {
-                m_mutex.lock();
+                std::unique_lock<std::mutex> lock{m_mutex};
                 if (m_keepAlive) {
+                    lock.unlock();
                     QCoreApplication::processEvents();
+                    lock.lock();
                 } else {
-                    m_threadActive = false;
+                    assert(lock.owns_lock());
+                    lock.unlock();
                     break;
                 }
-                m_mutex.unlock();
+                assert(lock.owns_lock());
+                lock.unlock();
             }
             m_threadActive = true;
             m_keepAlive = false;
