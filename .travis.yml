@@ -10,6 +10,7 @@ before_install:
 install:
   - sudo apt-get install build-essential libgl1-mesa-dev
   - sudo apt-get install qt514base qt514multimedia qt514quickcontrols2
+  - sudo apt-get install libjack-dev
   - source /opt/qt514/bin/qt514-env.sh
 
 
