@@ -284,6 +284,9 @@ void Union::calcPolar(unsigned int count, chart::Source *primary) noexcept
                     module = std::max(module, (*it)->module(i));
                     phase.polar(std::max(phase.arg(), (*it)->phase(i).arg()));
                     break;
+                case Apply:
+                    Q_ASSERT(false);
+                    break;
                 }
 
                 coherence += std::abs((*it)->module(i) * (*it)->coherence(i));
@@ -349,6 +352,9 @@ void Union::calcVector(unsigned int count, chart::Source *primary) noexcept
                     p = std::min(p, (*it)->phase(i) * (*it)->peakSquared(i));
                     m = std::min(m, (*it)->phase(i) * (*it)->magnitudeRaw(i));
                     break;
+                case Apply: //work in calcApply
+                    Q_ASSERT(false);
+                    break;
                 }
 
                 coherence       += std::abs((*it)->module(i) * (*it)->coherence(i));
@@ -403,6 +409,10 @@ void Union::calcVector(unsigned int count, chart::Source *primary) noexcept
                 case Max:
                     m_impulseData[offseted].value = std::max(m_impulseData[offseted].value, complex{(*it)->impulseValue(i)});
                     break;
+                case Apply:
+                    //calculated in calcApply
+                    Q_ASSERT(false);
+                    break;
                 }
             }
         }
@@ -455,6 +465,9 @@ void Union::calcdB(unsigned int count, chart::Source *primary) noexcept
                     magnitude = std::max(magnitude, (*it)->magnitude(i));
                     module = std::max(module, 20.f * std::log10((*it)->module(i)));
                     phase.polar(std::max(phase.arg(), (*it)->phase(i).arg()));
+                    break;
+                case Apply:
+                    Q_ASSERT(false);
                     break;
                 }
 
@@ -528,6 +541,9 @@ void Union::calcPower(unsigned int count, chart::Source *primary) noexcept
                     magnitude = std::max(magnitude, powf((*it)->magnitudeRaw(i), 2));
                     module = std::max(module, powf((*it)->module(i), 2));
                     phase.polar(std::max(phase.arg(), (*it)->phase(i).arg()));
+                    break;
+                case Apply:
+                    Q_ASSERT(false);
                     break;
                 }
 
