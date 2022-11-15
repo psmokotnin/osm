@@ -142,11 +142,11 @@ void FilterSource::update()
     for (auto frequency : frequencyList) {
         auto H = calculate(frequency);
 
-        m_ftdata[i].frequency = frequency;
-        m_ftdata[i].module = 1.f;
-        m_ftdata[i].coherence = 1.f;
-        m_ftdata[i].magnitude = H.abs();
-        m_ftdata[i].phase = H.normalize();
+        m_ftdata[i].frequency   = frequency;
+        m_ftdata[i].module      = H.abs();
+        m_ftdata[i].coherence   = 1.f;
+        m_ftdata[i].magnitude   = H.abs();
+        m_ftdata[i].phase       = H.normalize();
         ++i;
     }
 

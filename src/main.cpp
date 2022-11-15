@@ -100,7 +100,7 @@ int main(int argc, char *argv[])
     qmlRegisterUncreatableMetaObject(Filter::staticMetaObject, "Measurement", 1, 0, "FilterFrequency",
                                      "Error: only enums");
     qmlRegisterType<Measurement>("Measurement", 1, 0, "Measurement");
-    qmlRegisterType<Union>("Union", 1, 0, "Union");
+    qmlRegisterType<Union>("OpenSoundMeter", 1, 0, "UnionSource");
     qmlRegisterType<Stored>("Stored", 1, 0, "Stored");
     qmlRegisterType<StandartLine>("StandartLine", 1, 0, "StandartLine");
     qmlRegisterType<SourceModel>("SourceModel", 1, 0, "SourceModel");

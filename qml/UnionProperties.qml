@@ -22,6 +22,7 @@ import QtQuick.Dialogs 1.2
 import QtQuick.Controls.Material 2.13
 
 import SourceModel 1.0
+import OpenSoundMeter 1.0
 import "elements"
 
 Item {
@@ -34,9 +35,14 @@ Item {
         RowLayout {
 
             DropDown {
-                model: ["Summation", "Subtract", "Average", "Min", "Max"]
+                model: ["Summation", "Subtract", "Average", "Min", "Max", "Apply"]
                 currentIndex: dataObject.operation
-                onCurrentIndexChanged: dataObject.operation = currentIndex;
+                onCurrentIndexChanged: {
+                    dataObject.operation = currentIndex;
+                    if (dataObject.operation === UnionSource.Apply) {
+                        dataObject.type = UnionSource.Vector;
+                    }
+                }
                 Layout.preferredWidth: 150
 
                 ToolTip.visible: hovered
@@ -47,6 +53,7 @@ Item {
                 model: ["Vector", "Polar", "dB", "Power"]
                 currentIndex: dataObject.type
                 onCurrentIndexChanged: dataObject.type = currentIndex;
+                enabled: dataObject.operation !== UnionSource.Apply
 
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Complex numbers behaviour")

@@ -39,14 +39,15 @@ class Union : public chart::Source
     using SourceVector = QVector<QPointer<chart::Source>>;
 
 public:
-    enum Operation {Summation, Subtract, Avg, Min, Max};
+    enum Operation {Summation, Subtract, Avg, Min, Max, Apply};
     enum Type {Vector, Polar, dB, Power};
     const std::map<Operation, QString> operationMap = {
         {Summation, "Sum"},
         {Subtract,  "Subtract"},
         {Avg,       "Average"},
         {Min,       "Min"},
-        {Max,       "Max"}
+        {Max,       "Max"},
+        {Apply,     "Apply"}
     };
     const std::map<Type, QString> typeMap = {
         {Vector,    "Vector"},
@@ -106,6 +107,7 @@ private:
     void calcVector(unsigned int count, chart::Source *primary) noexcept;
     void calcdB(unsigned int count, chart::Source *primary) noexcept;
     void calcPower(unsigned int count, chart::Source *primary) noexcept;
+    void calcApply(unsigned int count, chart::Source *primary) noexcept;
 
     Settings *m_settings;
     SourceVector m_sources;

@@ -216,19 +216,23 @@ void Union::calc() noexcept
         if (s && s != this) s->lock();
     }
 
-    switch (m_type) {
-    case Vector:
-        calcVector(count, primary);
-        break;
-    case Polar:
-        calcPolar(count, primary);
-        break;
-    case dB:
-        calcdB(count, primary);
-        break;
-    case Power:
-        calcPower(count, primary);
-        break;
+    if (m_operation == Apply) {
+        calcApply(count, primary);
+    } else {
+        switch (m_type) {
+        case Vector:
+            calcVector(count, primary);
+            break;
+        case Polar:
+            calcPolar(count, primary);
+            break;
+        case dB:
+            calcdB(count, primary);
+            break;
+        case Power:
+            calcPower(count, primary);
+            break;
+        }
     }
 
     for (auto &s : sources) {
@@ -536,6 +540,47 @@ void Union::calcPower(unsigned int count, chart::Source *primary) noexcept
             module    = std::abs(module);
         }
         coherence /= coherenceWeight;
+        if (std::isnan(phase.real) || std::isnan(phase.imag)) {
+            phase = {1, 0};
+        }
+
+        magnitude = std::sqrt(magnitude);
+        module    = std::sqrt(module);
+
+        m_ftdata[i].frequency  = primary->frequency(i);
+        m_ftdata[i].module     = module;
+        m_ftdata[i].phase      = phase.normalize();
+        m_ftdata[i].magnitude  = magnitude;
+        m_ftdata[i].coherence  = coherence;
+    }
+
+    for (unsigned int i = 0; i < primary->impulseSize(); i++) {
+        m_impulseData[i].time = primary->impulseTime(i);
+        m_impulseData[i].value = NAN;
+    }
+}
+
+void Union::calcApply(unsigned int count, Source *primary) noexcept
+{
+    float magnitude, module, coherence, coherenceWeight;
+    complex phase;
+
+    for (unsigned int i = 0; i < primary->size(); i++) {
+        magnitude   = std::pow(primary->magnitudeRaw(i), 2);
+        phase       = primary->phase(i);
+        module      = std::pow((primary)->module(i), 2);
+        coherence   = primary->coherence(i);
+        coherenceWeight = std::abs(primary->module(i));
+
+        for (auto it = m_sources.begin(); it != m_sources.end(); ++it) {
+            if (*it && it != m_sources.begin()) {
+
+                magnitude *= (*it)->magnitudeRaw(i);
+                module    *= (*it)->magnitudeRaw(i);
+                coherence  = std::min(coherence, (*it)->coherence(i));
+                phase.polar(phase.arg() + (*it)->phase(i).arg());
+            }
+        }
         if (std::isnan(phase.real) || std::isnan(phase.imag)) {
             phase = {1, 0};
         }
