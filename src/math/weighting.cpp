@@ -18,6 +18,7 @@
 #include "weighting.h"
 #include <cmath>
 #include <numeric>
+#include <QDebug>
 
 const std::map<Weighting::Curve, QString>Weighting::m_curveMap = {
     {Weighting::A,   "A"},
@@ -96,7 +97,13 @@ QVariant Weighting::availableCurves()
 
 QString Weighting::curveName(Weighting::Curve time)
 {
-    return m_curveMap.at(time);
+    try {
+        return m_curveMap.at(time);
+    } catch (std::exception &e) {
+        qDebug() << __FILE__ << ":" << __LINE__  << e.what();
+    }
+    Q_ASSERT(false);
+    return "";
 }
 
 Weighting::Curve Weighting::curveByName(QString name)

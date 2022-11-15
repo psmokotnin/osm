@@ -224,8 +224,12 @@ void StandartLine::setMode(const Mode &mode)
 {
     if (m_mode != mode) {
         m_mode = mode;
+        try {
+            setName(m_modeMap.at(m_mode));
+        } catch (std::exception &e) {
+            qDebug() << __FILE__ << ":" << __LINE__  << e.what();
+        }
 
-        setName(m_modeMap.at(m_mode));
         update();
         emit modeChanged(m_mode);
     }

@@ -19,6 +19,7 @@
 #include <cmath>
 #include "meter.h"
 #include <QtGlobal>
+#include <QDebug>
 
 Meter::Meter(unsigned long size) :
     m_data(size), m_weighting(Weighting::Z), m_time(Fast),
@@ -120,7 +121,13 @@ QVariant Meter::availableTimes()
 
 QString Meter::timeName(Meter::Time time)
 {
-    return m_timeMap.at(time);
+    try {
+        return m_timeMap.at(time);
+    } catch (std::exception &e) {
+        qDebug() << __FILE__ << ":" << __LINE__  << e.what();
+    }
+    Q_ASSERT(false);
+    return "";
 }
 
 Meter::Time Meter::timeByName(QString name)

@@ -16,6 +16,8 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "levelobject.h"
+#include <QDebug>
+
 namespace chart {
 
 LevelObject::LevelObject() : m_curve(Weighting::A), m_time(Meter::Slow), m_mode(SPL)
@@ -82,7 +84,13 @@ const std::unordered_map<LevelObject::Mode, QString>LevelObject::m_modeMap = {
 
 QString LevelObject::modeName() const
 {
-    return m_modeMap.at(m_mode);
+    try {
+        return m_modeMap.at(m_mode);
+    } catch (std::exception &e) {
+        qDebug() << __FILE__ << ":" << __LINE__  << e.what();
+    }
+    Q_ASSERT(false);
+    return "";
 }
 
 void LevelObject::setMode(const Mode &mode)

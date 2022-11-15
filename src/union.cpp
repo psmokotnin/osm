@@ -131,12 +131,16 @@ void Union::resize()
 }
 chart::Source *Union::getSource(int index) const noexcept
 {
-    if (index < m_sources.count()) {
-        auto ptr = m_sources.at(index);
-        if (ptr.isNull()) {
-            return nullptr;
+    try {
+        if (index < m_sources.count()) {
+            auto ptr = m_sources.at(index);
+            if (ptr.isNull()) {
+                return nullptr;
+            }
+            return ptr.data();
         }
-        return ptr.data();
+    } catch (std::exception &e) {
+        qDebug() << __FILE__ << ":" << __LINE__  << e.what();
     }
     return nullptr;
 }
@@ -641,7 +645,11 @@ void Union::applyAutoName() noexcept
     if (!m_autoName) {
         return;
     }
-    setName(typeMap.at(m_type) + " " + operationMap.at(m_operation));
+    try {
+        setName(typeMap.at(m_type) + " " + operationMap.at(m_operation));
+    } catch (std::exception &e) {
+        qDebug() << __FILE__ << ":" << __LINE__  << e.what();
+    }
 }
 
 void Union::sourceDestroyed(Source *source)
@@ -736,12 +744,16 @@ QObject *Union::store()
     store->build(this);
     store->autoName(name());
 
-    QString notes = operationMap.at(m_operation) + " " + typeMap.at(m_type) + ":\n";
-    for (auto &s : m_sources) {
-        if (s) {
-            notes += s->name() + "\t";
+    try {
+        QString notes = operationMap.at(m_operation) + " " + typeMap.at(m_type) + ":\n";
+        for (auto &s : m_sources) {
+            if (s) {
+                notes += s->name() + "\t";
+            }
         }
+        store->setNotes(notes);
+    } catch (std::exception &e) {
+        qDebug() << __FILE__ << ":" << __LINE__  << e.what();
     }
-    store->setNotes(notes);
     return store;
 }

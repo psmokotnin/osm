@@ -129,7 +129,13 @@ void VariableChart::initType()
 }
 QString VariableChart::typeString() const
 {
-    return typeMap.at(m_selected);
+    try {
+        return typeMap.at(m_selected);
+    } catch (std::exception &e) {
+        qDebug() << __FILE__ << ":" << __LINE__  << e.what();
+    }
+    Q_ASSERT(false);
+    return "";
 }
 void VariableChart::setType(const Type &type)
 {

@@ -117,7 +117,13 @@ void Measurement::setMode(QVariant mode)
 
 QString Measurement::modeName() const
 {
-    return m_modeMap.at(mode());
+    try {
+        return m_modeMap.at(mode());
+    } catch (std::exception &e) {
+        qDebug() << __FILE__ << ":" << __LINE__  << e.what();
+    }
+    Q_ASSERT(false);
+    return "";
 }
 
 unsigned int Measurement::dataChanel() const

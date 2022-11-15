@@ -116,17 +116,24 @@ void FilterSource::update()
     m_dataFT.setSampleRate(sampleRate());
     m_inverse.setSampleRate(sampleRate());
 
-    using M = meta::Measurement;
-    switch (mode()) {
-    case M::Mode::LFT:
-        m_dataFT.setType(FourierTransform::Log);
-        m_deconvolutionSize = pow(2, M::m_FFTsizes.at(M::FFT12));
-        break;
+    try {
+        using M = meta::Measurement;
+        switch (mode()) {
+        case M::Mode::LFT:
+            m_dataFT.setType(FourierTransform::Log);
+            m_deconvolutionSize = pow(2, M::m_FFTsizes.at(M::FFT12));
+            break;
 
-    default:
-        m_dataFT.setType(FourierTransform::Fast);
-        m_dataFT.setSize(pow(2, M::m_FFTsizes.at(mode())));
-        m_deconvolutionSize = pow(2, M::m_FFTsizes.at(mode()));
+        default:
+            m_dataFT.setType(FourierTransform::Fast);
+            m_dataFT.setSize(pow(2, M::m_FFTsizes.at(mode())));
+            m_deconvolutionSize = pow(2, M::m_FFTsizes.at(mode()));
+        }
+    } catch (std::exception &e) {
+        qDebug() << __FILE__ << ":" << __LINE__  << e.what();
+        m_deconvolutionSize = 0;
+        m_dataLength = 0;
+        return;
     }
 
     m_inverse.setType(FourierTransform::Fast);
@@ -186,7 +193,12 @@ void FilterSource::applyAutoName()
     if (!m_autoName) {
         return;
     }
-    setName(m_typeShortMap.at(type()) + " " + QString::number(order()));
+    try {
+        setName(m_typeShortMap.at(type()) + " " + QString::number(order()));
+    } catch (std::exception &e) {
+        qDebug() << __FILE__ << ":" << __LINE__  << e.what();
+    }
+    Q_ASSERT(false);
 }
 
 complex FilterSource::calculate(float frequency) const
