@@ -37,15 +37,28 @@ Meter::Meter(Weighting w, Time time) :
 {
 
 }
-void Meter::add(const float &data) noexcept
+void Meter::add(const data_t &data) noexcept
 {
-    float d = std::pow(m_weighting(data), 2);
+    data_t d = std::pow(m_weighting(data), 2);
     if (std::isnan(d)) {
         d = 0;
     }
-    auto p = m_data.replace(d);
-    m_integrator -= p;
-    m_integrator += d;
+
+    data_t p = m_data.replace(d);
+    m_integrator -= p ;
+
+    //if (data > m_integrator) then subtruct float summation error from the result
+    //to prevent stucking on low values
+    data_t s, z, t = 0;
+    if (d > m_integrator) {
+        s = d + m_integrator;
+        z = s - d;
+        t = m_integrator - z;
+        m_integrator = s;
+        m_integrator -= t;
+    } else {
+        m_integrator += d;
+    }
 
     if (qFuzzyCompare(m_peak, p)) {
         m_peak = d;
@@ -59,25 +72,25 @@ void Meter::add(const float &data) noexcept
         ++m_size;
     }
 }
-float Meter::value() const noexcept
+Meter::data_t Meter::value() const noexcept
 {
     if (m_size == 0)
-        return std::numeric_limits<float>::min();
+        return std::numeric_limits<data_t>::min();
 
     return m_integrator / m_size;
 }
-float Meter::dB() const noexcept
+Meter::data_t Meter::dB() const noexcept
 {
     // 20log(sqrt(v)) = 10log(v)
     return 10.f * std::log10(value());
 }
 
-float Meter::peakSquared() const noexcept
+Meter::data_t Meter::peakSquared() const noexcept
 {
     return m_peak;
 }
 
-float Meter::peakdB() const noexcept
+Meter::data_t Meter::peakdB() const noexcept
 {
     return 10.f * std::log10(m_peak);;
 }
@@ -100,7 +113,6 @@ void Meter::setSampleRate(unsigned int sampleRate)
         m_data.resize(1 * sampleRate);
         break;
     }
-
     m_weighting.setSampleRate(sampleRate);
     reset();
 }

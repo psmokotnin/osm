@@ -31,16 +31,17 @@ public:
         Fast = 0,
         Slow = 1
     };
+    typedef double data_t;
 
     Meter(unsigned long size = DEFAULT_SIZE);
     Meter(Weighting w, Time time);
     static const unsigned long DEFAULT_SIZE = 100;
 
-    void  add(const float &data) noexcept;
-    float value() const noexcept;   //! mean squared value
-    float dB() const noexcept;
-    float peakSquared() const noexcept;
-    float peakdB() const noexcept;
+    void  add(const data_t &data) noexcept;
+    data_t value() const noexcept;   //! mean squared value
+    data_t dB() const noexcept;
+    data_t peakSquared() const noexcept;
+    data_t peakdB() const noexcept;
     void  reset() noexcept;
 
     void setSampleRate(unsigned int sampleRate);
@@ -51,11 +52,11 @@ public:
     static Time timeByName(QString name);
 
 private:
-    container::circular<float> m_data;
+    container::circular<data_t> m_data;
     Weighting m_weighting;
     Time m_time;
     unsigned long m_size;
-    float m_integrator, m_peak;
+    data_t m_integrator, m_peak;
 
     static const std::map<Time, QString> m_timeMap;
 };
