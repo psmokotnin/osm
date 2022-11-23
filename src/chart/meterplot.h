@@ -40,6 +40,7 @@ public:
 
     Q_PROPERTY(float value READ value NOTIFY valueChanged)
     Q_PROPERTY(float threshold READ threshold WRITE setThreshold NOTIFY thresholdChanged)
+    Q_PROPERTY(bool pause READ pause WRITE setPause NOTIFY pauseChanged)
 
 public:
     MeterPlot(QObject *parent = nullptr);
@@ -56,6 +57,7 @@ signals:
     void curveChanged(QString) override;
     void timeChanged(QString) override;
     void modeChanged(chart::LevelObject::Mode) override;
+    void pauseChanged(bool) override;
 
     void sourceChanged(chart::Source *);
     void valueChanged();

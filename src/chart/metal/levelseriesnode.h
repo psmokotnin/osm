@@ -47,6 +47,7 @@ private:
     Weighting::Curve m_curve;
     Meter::Time m_time;
     LevelPlot::Mode m_mode;
+    bool m_pause;
 
     QElapsedTimer m_timer;
 

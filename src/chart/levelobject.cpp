@@ -20,7 +20,7 @@
 
 namespace chart {
 
-LevelObject::LevelObject() : m_curve(Weighting::A), m_time(Meter::Slow), m_mode(SPL)
+LevelObject::LevelObject() : m_curve(Weighting::A), m_time(Meter::Slow), m_mode(SPL), m_pause(false)
 {
 }
 
@@ -104,6 +104,20 @@ void LevelObject::setMode(const Mode &mode)
 void LevelObject::setMode(const int &mode)
 {
     setMode(static_cast<Mode>(mode));
+}
+
+bool LevelObject::pause() const
+{
+    return m_pause;
+}
+
+void LevelObject::setPause(bool pause)
+{
+    if (m_pause != pause) {
+
+        m_pause = pause;
+        emit pauseChanged(m_pause);
+    }
 }
 
 } // namespace chart

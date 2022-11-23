@@ -68,6 +68,7 @@ void LevelSeriesRenderer::synchronize(QQuickFramebufferObject *item)
 
             m_history.clear();
         }
+        m_pause = plot->pause();
     }
 }
 
@@ -82,7 +83,7 @@ void LevelSeriesRenderer::renderSeries()
     if (!m_source->active())
         return;
 
-    if (m_timer.elapsed() >= Measurement::TIMER_INTERVAL) {
+    if (m_timer.elapsed() >= Measurement::TIMER_INTERVAL && !m_pause) {
         auto time = static_cast<float>(m_timer.restart()) / 1000.f;
         auto level = m_source->level(m_curve, m_time);
         if (m_mode == LevelPlot::SPL) {

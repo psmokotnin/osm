@@ -19,6 +19,7 @@ import QtQuick 2.9
 import QtQuick.Controls 2.2
 import QtQuick.Layouts 1.3
 import QtQuick.Dialogs 1.3
+import QtQuick.Controls.Material 2.13
 
 import "../" as Root
 import "../elements"
@@ -151,6 +152,17 @@ Item {
 
             ToolTip.visible: hovered
             ToolTip.text: qsTr("time")
+        }
+
+        Button {
+            text: "pause"
+            checkable: true
+            checked: dataObject.pause
+            onCheckedChanged: dataObject.pause = checked
+            Material.background: parent.Material.background
+
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("pause updating")
         }
 
         Item {

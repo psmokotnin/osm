@@ -36,6 +36,7 @@ public:
     Q_PROPERTY(QString curve READ curveName WRITE setCurve NOTIFY curveChanged)
     Q_PROPERTY(QString time READ timeName WRITE setTime NOTIFY timeChanged)
     Q_PROPERTY(chart::LevelObject::Mode mode READ mode WRITE setMode NOTIFY modeChanged)
+    Q_PROPERTY(bool pause READ pause WRITE setPause NOTIFY pauseChanged)
 
 public:
     LevelPlot(Settings *settings, QQuickItem *parent = Q_NULLPTR);
@@ -46,6 +47,7 @@ signals:
     void curveChanged(QString) override;
     void timeChanged(QString) override;
     void modeChanged(chart::LevelObject::Mode) override;
+    void pauseChanged(bool) override;
 
 protected:
     virtual SeriesItem *createSeriesFromSource(Source *source) override;

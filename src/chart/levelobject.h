@@ -54,15 +54,20 @@ public:
     void setMode(const chart::LevelObject::Mode &mode);
     void setMode(const int &mode);
 
+    bool pause() const;
+    void setPause(bool pause);
+
 //virtual signals:
     virtual void curveChanged(QString) = 0;
     virtual void timeChanged(QString) = 0;
     virtual void modeChanged(chart::LevelObject::Mode) = 0;
+    virtual void pauseChanged(bool) = 0;
 
 private:
     Weighting::Curve m_curve;
     Meter::Time m_time;
     Mode m_mode;
+    bool m_pause;
 
     static const std::unordered_map<Mode, QString> m_modeMap;
 };
