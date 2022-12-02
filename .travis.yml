@@ -15,7 +15,7 @@ install:
 
 
 script:
-  - /opt/qt514/bin/qmake PREFIX=/usr
+  - /opt/qt514/bin/qmake PREFIX=/usr CONFIG+=jack
   - make
   - # Generate AppImage
 #  - sudo apt-get -y install checkinstall
