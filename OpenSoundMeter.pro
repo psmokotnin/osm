@@ -294,16 +294,24 @@ win32 {
 
 unix:!macx:!ios {
     HEADERS += \
-        src/audio/plugins/alsa.h \
-        src/audio/plugins/jack.h
+        src/audio/plugins/alsa.h
 
     SOURCES += \
-        src/audio/plugins/alsa.cpp \
-        src/audio/plugins/jack.cpp
+        src/audio/plugins/alsa.cpp
 
-    LIBS += \
-        -lasound \
-        -ljack
+    LIBS += -lasound
+
+    CONFIG(jack) {
+        HEADERS += \
+            src/audio/plugins/jack.h
+
+        SOURCES += \
+            src/audio/plugins/jack.cpp
+
+        LIBS += -ljack
+
+        DEFINES += USE_JACK
+    }
 }
 
 GRAPH = $$(GRAPH_BACKEND)
