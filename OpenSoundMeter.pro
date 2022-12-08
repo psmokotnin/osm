@@ -31,6 +31,7 @@ SOURCES += src/main.cpp \
     src/common/autosaver.cpp \
     src/common/recentfilesmodel.cpp \
     src/common/wavfile.cpp \
+    src/common/workingfolder.cpp \
     src/filesystem/dialog.cpp \
     src/filesystem/dialogPlugin.cpp \
     src/filesystem/plugins/widgetdialogplugin.cpp \
@@ -149,6 +150,7 @@ HEADERS += \
     src/common/autosaver.h \
     src/common/recentfilesmodel.h \
     src/common/wavfile.h \
+    src/common/workingfolder.h \
     src/filesystem/dialog.h \
     src/filesystem/dialogPlugin.h \
     src/filesystem/plugins/widgetdialogplugin.h \

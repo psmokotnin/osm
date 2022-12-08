@@ -16,6 +16,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "settings.h"
+#include "workingfolder.h"
 
 QSettings *Settings::m_settings = nullptr;
 
@@ -23,9 +24,8 @@ Settings::Settings(const QString &group, QObject *parent) : QObject(parent), m_g
 {
     if (!m_settings) {
         Settings::m_settings = new QSettings(
-            QSettings::UserScope,
-            QCoreApplication::organizationName(),
-            QCoreApplication::applicationName(), nullptr
+            workingfolder::settingsFilePath(),
+            QSettings::NativeFormat
         );
     }
 }

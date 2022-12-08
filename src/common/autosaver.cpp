@@ -18,24 +18,11 @@
 #include "autosaver.h"
 #include "sourcelist.h"
 #include "settings.h"
-
-#include <QDir>
-#include <QSettings>
-
-static QSettings *m_qsettings;
+#include "workingfolder.h"
 
 AutoSaver::AutoSaver(Settings *settings, SourceList *parent) : QObject(parent),
     m_settings(settings), m_timer()
 {
-    if (!m_qsettings) {
-        m_qsettings = new QSettings(
-            QSettings::Format::IniFormat,
-            QSettings::UserScope,
-            QCoreApplication::organizationName(),
-            QCoreApplication::applicationName()
-        );
-    }
-
     m_timer.setInterval(30'000); //30 sec
     m_timer.moveToThread(&m_timerThread);
 
@@ -63,12 +50,7 @@ SourceList *AutoSaver::list() const
 
 QUrl AutoSaver::fileName() const
 {
-    QDir dir(m_qsettings->fileName());
-    dir.cdUp();
-    if (!dir.exists()) {
-        dir.mkpath(".");
-    }
-    return "file:/" + dir.absolutePath() + "/autosave.osm";
+    return "file:/" + workingfolder::autosaveFilePath();
 }
 
 void AutoSaver::load()

@@ -18,12 +18,13 @@
 #include "logger.h"
 #include <iostream>
 #include <QFile>
+#include <workingfolder.h>
 
 void logger::messageHandler(QtMsgType type, const QMessageLogContext &context, const QString &message)
 {
     QString formatedMessage = qFormatLogMessage(type, context, message);
     static QString lastMessage = "";
-    static QFile outFile("log.txt");
+    static QFile outFile(workingfolder::logFilePath());
     if (!outFile.isOpen()) {
         outFile.open(QIODevice::WriteOnly | QIODevice::Append);
     }
