@@ -111,6 +111,7 @@ public:
     virtual void fromJSON(QJsonObject data, const SourceList * = nullptr) noexcept = 0;
 
     virtual float level(const Weighting::Curve curve = Weighting::Z, const Meter::Time time = Meter::Fast) const;
+    virtual float peak(const Weighting::Curve curve = Weighting::Z, const Meter::Time time = Meter::Fast) const;
     virtual QJsonObject levels();
     virtual void setLevels(const QJsonObject &data);
     QUuid uuid() const;

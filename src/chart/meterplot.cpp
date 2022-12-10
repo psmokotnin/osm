@@ -19,7 +19,14 @@
 
 namespace chart {
 
-MeterPlot::MeterPlot(QObject *parent) : QObject(parent), LevelObject(), m_source(nullptr), m_threshold(0)
+const std::map<MeterPlot::Type, QString> MeterPlot::m_typesMap = {
+    {MeterPlot::Type::RMS,   "RMS"  },
+    {MeterPlot::Type::Peak,  "Peak" },
+    {MeterPlot::Type::Crest, "Crest"},
+};
+
+MeterPlot::MeterPlot(QObject *parent) : QObject(parent), LevelObject(),
+    m_source(nullptr), m_type(RMS), m_threshold(0)
 {
     connect(this, &MeterPlot::curveChanged, this, &MeterPlot::updateThreshold);
     updateThreshold();
@@ -45,18 +52,34 @@ void MeterPlot::setSource(chart::Source *source)
     }
 }
 
-float MeterPlot::value() const
+QString MeterPlot::value() const
 {
     if (!m_source) {
-        return NAN;
+        return "";
     }
-    switch (mode()) {
-    case dBfs:
-        return m_source->level(curve(), time());
+    return dBValue();
+}
 
-    case SPL:
-        return SPL_OFFSET +  m_source->level(curve(), time());
+QString MeterPlot::dBValue() const
+{
+    float level = 0;
+    switch (m_type) {
+    case RMS:
+        level = m_source->level(curve(), time());
+        break;
+    case Peak:
+        level = m_source->peak(curve(), time());
+        break;
+    case Crest:
+        level = m_source->peak(curve(), time()) - m_source->level(curve(), time());
+        break;
+    default:
+        qDebug() << "not db value";
+        Q_ASSERT(false);
+        return "";
     }
+
+    return QString("%1").arg(level, 0, 'f', 1);
 }
 
 float MeterPlot::threshold() const
@@ -70,6 +93,15 @@ void MeterPlot::setThreshold(float threshold)
         m_threshold = threshold;
         emit thresholdChanged(m_threshold);
     }
+}
+
+QVariant MeterPlot::getAvailableTypes() const
+{
+    QStringList typeList;
+    for (const auto &type : m_typesMap) {
+        typeList << type.second;
+    }
+    return typeList;
 }
 
 void MeterPlot::updateThreshold()
@@ -92,6 +124,40 @@ void MeterPlot::updateThreshold()
 void MeterPlot::resetSource()
 {
     setSource(nullptr);
+}
+
+const MeterPlot::Type &MeterPlot::type() const
+{
+    return m_type;
+}
+
+QString MeterPlot::typeName() const noexcept
+{
+    try {
+        return m_typesMap.at(m_type);
+    } catch (std::out_of_range) {}
+
+    return "";
+}
+
+void MeterPlot::setType(const Type &type)
+{
+    if (m_type == type)
+        return;
+    m_type = type;
+    emit typeChanged();
+}
+
+void MeterPlot::setType(const QString &type)
+{
+    std::find_if(m_typesMap.cbegin(), m_typesMap.cend(),
+    [&type, this](auto & e) {
+        if (e.second == type) {
+            setType(e.first);
+            return true;
+        }
+        return false;
+    });
 }
 
 } // namespace chart

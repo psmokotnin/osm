@@ -182,6 +182,14 @@ float Source::level(const Weighting::Curve curve, const Meter::Time time) const
     return m_levelsData.m_data.at({curve, time});
 }
 
+float Source::peak(const Weighting::Curve curve, const Meter::Time time) const
+{
+    if (m_levelsData.m_data.find({curve, time}) == m_levelsData.m_data.end()) {
+        Q_ASSERT(false);
+        return 0;
+    }
+    return m_levelsData.m_data.at({curve, time});//TODO: m_peakData ??
+}
 
 Source::Levels::Levels()
 {

@@ -221,7 +221,7 @@ void Union::calc() noexcept
     }
 
     if (m_operation == Apply) {
-        calcApply(count, primary);
+        calcApply(primary);
     } else {
         switch (m_type) {
         case Vector:
@@ -580,7 +580,7 @@ void Union::calcPower(unsigned int count, chart::Source *primary) noexcept
     }
 }
 
-void Union::calcApply(unsigned int count, Source *primary) noexcept
+void Union::calcApply(Source *primary) noexcept
 {
     float magnitude, module, coherence, coherenceWeight;
     complex phase;

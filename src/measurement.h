@@ -95,6 +95,7 @@ public:
     void fromJSON(QJsonObject data, const SourceList * = nullptr) noexcept override;
 
     float level(const Weighting::Curve curve = Weighting::Z, const Meter::Time time = Meter::Fast) const override;
+    float peak(const Weighting::Curve curve = Weighting::Z, const Meter::Time time = Meter::Fast) const override;
     float referenceLevel() const;
 
     float measurementPeak() const;

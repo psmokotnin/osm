@@ -34,8 +34,8 @@ Item {
         columnSpacing: 5
         rowSpacing: 5
 
-        property var itemWidth:  (width  - (columns - 1) * columnSpacing) / columns - 1
-        property var itemHeight: (height - (rows    - 1) * rowSpacing   ) / rows - 1
+        property int itemWidth:  (width  - (columns - 1) * columnSpacing) / columns - 1
+        property int itemHeight: (height - (rows    - 1) * rowSpacing   ) / rows - 1
 
         Repeater {
             model: grid.rows * grid.columns

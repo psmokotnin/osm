@@ -27,18 +27,26 @@ namespace chart {
 class MeterPlot : public QObject, public LevelObject
 {
 public:
+    enum Type {
+        RMS     = 0x00,
+        Peak    = 0x01,
+        Crest   = 0x02
+    };
     Q_OBJECT
+    Q_ENUM(Type);
 
     Q_PROPERTY(QVariant availableCurves READ getAvailableCurves CONSTANT)
     Q_PROPERTY(QVariant availableTimes READ getAvailableTimes CONSTANT)
+    Q_PROPERTY(QVariant availableTypes READ getAvailableTypes CONSTANT)
 
     Q_PROPERTY(chart::Source *source READ source WRITE setSource NOTIFY sourceChanged)
     Q_PROPERTY(QString curve READ curveName WRITE setCurve NOTIFY curveChanged)
     Q_PROPERTY(QString time READ timeName WRITE setTime NOTIFY timeChanged)
+    Q_PROPERTY(QString type READ typeName WRITE setType NOTIFY typeChanged)
     Q_PROPERTY(chart::LevelObject::Mode mode READ mode WRITE setMode NOTIFY modeChanged)
     Q_PROPERTY(QString modeName READ modeName NOTIFY modeChanged)
 
-    Q_PROPERTY(float value READ value NOTIFY valueChanged)
+    Q_PROPERTY(QString value READ value NOTIFY valueChanged)
     Q_PROPERTY(float threshold READ threshold WRITE setThreshold NOTIFY thresholdChanged)
     Q_PROPERTY(bool pause READ pause WRITE setPause NOTIFY pauseChanged)
 
@@ -48,10 +56,17 @@ public:
     chart::Source *source() const;
     void setSource(chart::Source *source);
 
-    float value() const;
+    QString value() const;
 
     float threshold() const;
     void setThreshold(float threshold);
+
+    QVariant getAvailableTypes() const;
+
+    const Type &type() const;
+    QString typeName() const noexcept;
+    void setType(const Type &type);
+    void setType(const QString &type);
 
 signals:
     void curveChanged(QString) override;
@@ -63,14 +78,21 @@ signals:
     void valueChanged();
     void thresholdChanged(float);
 
+    void typeChanged();
+
 private slots:
     void updateThreshold();
     void resetSource();
 
 private:
+    QString dBValue() const;
+
     chart::Source *m_source;
+    Type m_type;
     QMetaObject::Connection m_sourceConnection;
     float m_threshold;
+
+    static const std::map<Type, QString> m_typesMap;
 };
 
 } // namespace chart

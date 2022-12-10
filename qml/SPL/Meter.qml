@@ -40,7 +40,8 @@ Rectangle {
             Layout.fillWidth: true
             Layout.preferredHeight: meter.heightPart
 
-            text: dataSource.modeName + " " + dataSource.curve + " " + dataSource.time;
+            text: dataSource.type  + " " + dataSource.modeName + " " +
+                  dataSource.curve + " " + dataSource.time;
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignBottom
         }
@@ -57,7 +58,7 @@ Rectangle {
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
 
-            text: dataSource.value.toFixed(1)
+            text: dataSource.value
 
             font.pixelSize: {(2 * height < parent.width ? meter.heightPart * 2 : parent.width / 3)}
             font.capitalization: Font.AllUppercase

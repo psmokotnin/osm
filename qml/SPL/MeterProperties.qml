@@ -26,18 +26,23 @@ import OpenSoundMeter 1.0
 
 Item {
     property var dataObject
+    readonly property int wideWidth: width / 4 - 2
+    readonly property int middleWidth: width / 8 - 2
+    readonly property int narrowWidth: width / 8 - 2
+
     ColumnLayout {
         anchors.fill: parent
         spacing: 0
 
         RowLayout {
+            spacing: 4
 
             TitledCombo {
                 tooltip: qsTr("show only this source")
                 model: SourceModel {
                     list: sourceList
                 }
-                Layout.preferredWidth: 205
+                Layout.preferredWidth: wideWidth
                 currentIndex: {
                     model.indexOf(dataObject.meter.source)
                 }
@@ -48,9 +53,21 @@ Item {
                 }
             }
 
+            DropDown {
+                Layout.preferredWidth: middleWidth
+
+                model: dataObject.meter.availableTypes
+                currentIndex: model.indexOf(dataObject.meter.type)
+
+                onCurrentValueChanged: dataObject.meter.type = currentValue
+
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("type")
+            }
+
             TitledCombo {
                 id: type
-                Layout.preferredWidth: 100
+                Layout.preferredWidth: narrowWidth
                 model: ["dBFs", "SPL"]
                 currentIndex: dataObject.meter.mode
                 onCurrentIndexChanged: {
@@ -62,7 +79,7 @@ Item {
             }
 
             DropDown {
-                Layout.preferredWidth: 100
+                Layout.preferredWidth: narrowWidth
                 model: dataObject.meter.availableCurves
                 currentIndex: model.indexOf(dataObject.meter.curve)
                 onCurrentValueChanged: dataObject.meter.curve = currentValue
@@ -72,7 +89,7 @@ Item {
             }
 
             DropDown {
-                Layout.preferredWidth: 100
+                Layout.preferredWidth: narrowWidth
 
                 model: dataObject.meter.availableTimes
                 currentIndex: model.indexOf(dataObject.meter.time)
@@ -90,7 +107,7 @@ Item {
                 value: dataObject.meter.threshold
                 tooltiptext: qsTr("warning threshold")
                 onValueChanged: dataObject.meter.threshold = value
-                Layout.preferredWidth: 200
+                Layout.preferredWidth: wideWidth
                 units: "dB"
 
                 Connections {
@@ -106,7 +123,7 @@ Item {
         RowLayout {
 
             DropDown {
-                Layout.preferredWidth: 100
+                Layout.preferredWidth: narrowWidth
                 model: [1, 2, 3]
                 currentIndex: dataObject.grid.rows - 1
                 onCurrentIndexChanged: {
@@ -117,7 +134,7 @@ Item {
             }
 
             DropDown {
-                Layout.preferredWidth: 100
+                Layout.preferredWidth: narrowWidth
                 model: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
                 currentIndex: dataObject.grid.columns - 1
                 onCurrentIndexChanged: {

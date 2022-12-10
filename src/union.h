@@ -107,7 +107,7 @@ private:
     void calcVector(unsigned int count, chart::Source *primary) noexcept;
     void calcdB(unsigned int count, chart::Source *primary) noexcept;
     void calcPower(unsigned int count, chart::Source *primary) noexcept;
-    void calcApply(unsigned int count, chart::Source *primary) noexcept;
+    void calcApply(chart::Source *primary) noexcept;
 
     Settings *m_settings;
     SourceVector m_sources;

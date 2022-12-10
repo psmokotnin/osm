@@ -220,6 +220,15 @@ float Measurement::level(const Weighting::Curve curve, const Meter::Time time) c
     }
     return m_levelMeters.m_meters.at({curve, time}).dB();
 }
+
+float Measurement::peak(const Weighting::Curve curve, const Meter::Time time) const
+{
+    if (m_levelMeters.m_meters.find({curve, time}) == m_levelMeters.m_meters.end()) {
+        Q_ASSERT(false);
+        return 0;
+    }
+    return m_levelMeters.m_meters.at({curve, time}).peakdB();
+}
 float Measurement::referenceLevel() const
 {
     return m_levelMeters.m_reference.dB();
