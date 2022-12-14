@@ -28,7 +28,7 @@
 class Measurement;
 class Union;
 class Stored;
-class StandartLine;
+class StandardLine;
 class FilterSource;
 
 class SourceList : public QObject
@@ -94,7 +94,7 @@ public slots:
     Q_INVOKABLE QColor nextColor();
     Q_INVOKABLE Measurement *addMeasurement();
     Q_INVOKABLE Union *addUnion();
-    Q_INVOKABLE StandartLine *addStandartLine();
+    Q_INVOKABLE StandardLine *addStandardLine();
     Q_INVOKABLE FilterSource *addFilter();
     Q_INVOKABLE void appendItem(chart::Source *item, bool autocolor = false);
     Q_INVOKABLE void removeItem(chart::Source *item, bool deleteItem = true);

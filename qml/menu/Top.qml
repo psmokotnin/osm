@@ -178,9 +178,9 @@ MenuBar {
             onTriggered: sourceList.addUnion();
         }
         MenuItem {
-            text: qsTr("&Add standart line")
+            text: qsTr("&Add standard line")
             shortcut: "Ctrl+L"
-            onTriggered: sourceList.addStandartLine();
+            onTriggered: sourceList.addStandardLine();
         }
         MenuItem {
             text: qsTr("&Add filter")

@@ -59,7 +59,7 @@ SOURCES += src/main.cpp \
     src/remote/tcpreciever.cpp \
     src/sourcelist.cpp \
     src/sourcemodel.cpp \
-    src/standartline.cpp \
+    src/standardline.cpp \
     src/targettrace.cpp \
     src/union.cpp \
     src/generator/generator.cpp \
@@ -179,7 +179,7 @@ HEADERS += \
     src/remote/tcpreciever.h \
     src/sourcelist.h \
     src/sourcemodel.h \
-    src/standartline.h \
+    src/standardline.h \
     src/targettrace.h \
     src/union.h \
     src/generator/generator.h \

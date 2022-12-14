@@ -28,7 +28,7 @@
 #include "src/targettrace.h"
 #include "src/measurement.h"
 #include "src/union.h"
-#include "src/standartline.h"
+#include "src/standardline.h"
 #include "src/sourcemodel.h"
 #include "src/sourcelist.h"
 #include "src/chart/variablechart.h"
@@ -102,7 +102,7 @@ int main(int argc, char *argv[])
     qmlRegisterType<Measurement>("Measurement", 1, 0, "Measurement");
     qmlRegisterType<Union>("OpenSoundMeter", 1, 0, "UnionSource");
     qmlRegisterType<Stored>("Stored", 1, 0, "Stored");
-    qmlRegisterType<StandartLine>("StandartLine", 1, 0, "StandartLine");
+    qmlRegisterType<StandardLine>("StandardLine", 1, 0, "StandardLine");
     qmlRegisterType<SourceModel>("SourceModel", 1, 0, "SourceModel");
     qmlRegisterUncreatableType<SourceList>("SourceModel", 1, 0, "SourceList",
                                            QStringLiteral("SourceList should not be created in QML"));
