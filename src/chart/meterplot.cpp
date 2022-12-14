@@ -65,10 +65,10 @@ QString MeterPlot::dBValue() const
     float level = 0;
     switch (m_type) {
     case RMS:
-        level = m_source->level(curve(), time());
+        level = (mode() == SPL ? SPL_OFFSET : 0 ) + m_source->level(curve(), time());
         break;
     case Peak:
-        level = m_source->peak(curve(), time());
+        level = (mode() == SPL ? SPL_OFFSET : 0 ) + m_source->peak(curve(), time());
         break;
     case Crest:
         level = m_source->peak(curve(), time()) - m_source->level(curve(), time());
