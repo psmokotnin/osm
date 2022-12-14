@@ -24,6 +24,8 @@ Generator::Generator(Settings *settings, QObject *parent) : QObject(parent),
 
     connect(&m_thread, SIGNAL(enabledChanged(bool)),  this, SIGNAL(enabledChanged(bool)),
             Qt::QueuedConnection);
+    connect(&m_thread, SIGNAL(evenPolarityChanged(bool)),  this, SIGNAL(evenPolarityChanged(bool)),
+            Qt::QueuedConnection);
     connect(&m_thread, SIGNAL(typeChanged(int)),      this, SIGNAL(typeChanged()),
             Qt::QueuedConnection);
     connect(&m_thread, SIGNAL(frequencyChanged(int)), this, SIGNAL(frequencyChanged(int)),
@@ -95,6 +97,9 @@ void Generator::loadSettings()
         setChannels(m_settings->reactValue<Generator, QList<QVariant>>(
                         "channels", this, &Generator::channelsChangedQList, QList<QVariant>()).toList());
 
+        setEvenPolarity(m_settings->reactValue<GeneratorThread, bool>(
+                            "evenPolarity", &m_thread, &GeneratorThread::evenPolarityChanged, m_thread.evenPolarity()).toBool());
+
         //@TODO: Add settings for SinSweep parameters
     }
 }
@@ -125,6 +130,21 @@ void Generator::setChannels(const QList<QVariant> channels)
         }
     }
     setChannels(set);
+}
+
+bool Generator::evenPolarity() const
+{
+    return m_thread.evenPolarity();
+}
+
+void Generator::setEvenPolarity(bool newevenPolarity)
+{
+    QMetaObject::invokeMethod(
+        &m_thread,
+        "setEvenPolarity",
+        Qt::QueuedConnection,
+        Q_ARG(bool, newevenPolarity)
+    );
 }
 
 void Generator::setEnabled(bool enabled)

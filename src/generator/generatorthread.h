@@ -86,6 +86,9 @@ public slots:
     QSet<int> channels() const;
     void setChannels(const QSet<int> &channels);
 
+    bool evenPolarity() const;
+    void setEvenPolarity(bool evenPolarity);
+
 signals:
     void enabledChanged(bool);
     void typeChanged(int);
@@ -98,6 +101,8 @@ signals:
     void deviceError();
     void sampleOut(float);
     void channelsChanged(QSet<int>);
+
+    void evenPolarityChanged(bool);
 
 private:
     void updateAudio();
@@ -112,7 +117,7 @@ private:
     float m_gain, m_duration;
     int m_type;
     int m_frequency, m_startFrequency, m_endFrequency;
-    bool m_enabled;
+    bool m_enabled, m_evenPolarity;
 };
 
 #endif // GENERATORTHREAD_H

@@ -52,6 +52,8 @@ class Generator : public QObject
 
     Q_PROPERTY(QSet<int> channels READ channels WRITE setChannels NOTIFY channelsChanged)
 
+    Q_PROPERTY(bool evenPolarity READ evenPolarity WRITE setEvenPolarity NOTIFY evenPolarityChanged)
+
 private:
     GeneratorThread m_thread;
     Settings *m_settings;
@@ -113,6 +115,9 @@ public:
     void setChannels(const QSet<int> &channels);
     void setChannels(const QList<QVariant> channels);
 
+    bool evenPolarity() const;
+    void setEvenPolarity(bool newevenPolarity);
+
 signals:
     void enabledChanged(bool);
     void typeChanged();
@@ -124,6 +129,7 @@ signals:
     void deviceIdChanged(audio::DeviceInfo::Id);
     void channelsChanged(QSet<int>);
     void channelsChangedQList(QList<QVariant>);
+    void evenPolarityChanged(bool);
 };
 
 #endif // GENERATOR_H

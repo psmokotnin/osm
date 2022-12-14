@@ -206,6 +206,17 @@ Item {
                 }
             }
 
+            Button {
+                text: "even inv"
+                checkable: true
+                checked: generatorModel.evenPolarity
+                onCheckedChanged: generatorModel.evenPolarity = checked
+                Material.background: parent.Material.background
+
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("inverse polarity at even channels")
+            }
+
             GeneratorChannelSelect {
                 id: selectChannels
                 tooltip: qsTr("show only selected sources")

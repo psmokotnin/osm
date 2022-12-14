@@ -23,7 +23,6 @@
 OutputDevice::OutputDevice(QObject *parent) : QIODevice(parent),
     m_name("Silent"),
     m_sampleRate(0),
-    m_chanel(1), m_aux(2),
     m_chanelCount(1),
     m_gain(1.f)
 {
@@ -38,7 +37,7 @@ qint64 OutputDevice::readData(char *data, qint64 maxlen)
 {
     qint64 total = 0;
     int chanel = m_chanelCount;
-    Sample src = {0.f};
+    Sample src = {0.f}, inv = src;
     std::memset(data, 0, maxlen);
     auto generator = static_cast<GeneratorThread *>(parent());
     if (generator) {
@@ -49,6 +48,7 @@ qint64 OutputDevice::readData(char *data, qint64 maxlen)
         if (chanel >= m_chanelCount) {
             chanel = 0;
             src = this->sample();
+            inv.f = -src.f;
             emit sampleOut(src.f);
             if (std::isnan(src.f)) {
                 emit sampleError();
@@ -57,7 +57,7 @@ qint64 OutputDevice::readData(char *data, qint64 maxlen)
         }
 
         if (m_channels.contains(chanel)) {
-            memcpy(data + total, &src.f, sizeof(float));
+            memcpy(data + total, (chanel % 2 && generator->evenPolarity() ? &inv.f : &src.f), sizeof(float));
         }
 
         total += sizeof(float);
@@ -89,16 +89,6 @@ qint64 OutputDevice::writeData(const char *data, qint64 len)
 void OutputDevice::setGain(float gaindB)
 {
     m_gain = powf(10.f, gaindB / 20.f);
-}
-
-void OutputDevice::setChanel(int chanel)
-{
-    m_chanel = chanel;
-}
-
-void OutputDevice::setAux(int chanel)
-{
-    m_aux = chanel;
 }
 
 void OutputDevice::setChanelCount(int count)

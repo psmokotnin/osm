@@ -38,7 +38,8 @@ GeneratorThread::GeneratorThread(QObject *parent) :
     m_frequency(1000),
     m_startFrequency(20),
     m_endFrequency(20000),
-    m_enabled(false)
+    m_enabled(false),
+    m_evenPolarity(false)
 {
     start();
     QObject::moveToThread(this);
@@ -162,6 +163,19 @@ void GeneratorThread::updateAudio()
             emit deviceError();
         }
     }
+}
+
+bool GeneratorThread::evenPolarity() const
+{
+    return m_evenPolarity;
+}
+
+void GeneratorThread::setEvenPolarity(bool evenPolarity)
+{
+    if (m_evenPolarity == evenPolarity)
+        return;
+    m_evenPolarity = evenPolarity;
+    emit evenPolarityChanged(m_evenPolarity);
 }
 
 QSet<int> GeneratorThread::channels() const

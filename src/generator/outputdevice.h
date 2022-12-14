@@ -39,8 +39,6 @@ public:
 public slots:
     void setSamplerate(int sampleRate);
     void setGain(float gaindB);
-    void setChanel(int chanel);
-    void setAux(int chanel);
     void setChanelCount(int count);
 
 signals:
