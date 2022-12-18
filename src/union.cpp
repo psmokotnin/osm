@@ -582,15 +582,14 @@ void Union::calcPower(unsigned int count, chart::Source *primary) noexcept
 
 void Union::calcApply(Source *primary) noexcept
 {
-    float magnitude, module, coherence, coherenceWeight;
+    float magnitude, module, coherence;
     complex phase;
 
     for (unsigned int i = 0; i < primary->size(); i++) {
-        magnitude   = std::pow(primary->magnitudeRaw(i), 2);
+        magnitude   = primary->magnitudeRaw(i);
         phase       = primary->phase(i);
-        module      = std::pow((primary)->module(i), 2);
+        module      = (primary)->module(i);
         coherence   = primary->coherence(i);
-        coherenceWeight = std::abs(primary->module(i));
 
         for (auto it = m_sources.begin(); it != m_sources.end(); ++it) {
             if (*it && it != m_sources.begin()) {
@@ -604,9 +603,6 @@ void Union::calcApply(Source *primary) noexcept
         if (std::isnan(phase.real) || std::isnan(phase.imag)) {
             phase = {1, 0};
         }
-
-        magnitude = std::sqrt(magnitude);
-        module    = std::sqrt(module);
 
         m_ftdata[i].frequency  = primary->frequency(i);
         m_ftdata[i].module     = module;
