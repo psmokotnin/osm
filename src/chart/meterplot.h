@@ -18,7 +18,7 @@
 #ifndef CHART_METERPLOT_H
 #define CHART_METERPLOT_H
 
-#include <QtCore>
+#include <QTimer>
 #include "levelobject.h"
 #include "source.h"
 
@@ -30,7 +30,8 @@ public:
     enum Type {
         RMS     = 0x00,
         Peak    = 0x01,
-        Crest   = 0x02
+        Crest   = 0x02,
+        Time    = 0x03
     };
     Q_OBJECT
     Q_ENUM(Type);
@@ -46,7 +47,9 @@ public:
     Q_PROPERTY(chart::LevelObject::Mode mode READ mode WRITE setMode NOTIFY modeChanged)
     Q_PROPERTY(QString modeName READ modeName NOTIFY modeChanged)
 
+    Q_PROPERTY(QString title READ title NOTIFY titleChanged)
     Q_PROPERTY(QString value READ value NOTIFY valueChanged)
+    Q_PROPERTY(QString sourceName READ sourceName NOTIFY sourceNameChanged)
     Q_PROPERTY(float threshold READ threshold WRITE setThreshold NOTIFY thresholdChanged)
     Q_PROPERTY(bool pause READ pause WRITE setPause NOTIFY pauseChanged)
 
@@ -56,7 +59,9 @@ public:
     chart::Source *source() const;
     void setSource(chart::Source *source);
 
+    QString title() const;
     QString value() const;
+    QString sourceName() const;
 
     float threshold() const;
     void setThreshold(float threshold);
@@ -79,15 +84,21 @@ signals:
     void thresholdChanged(float);
 
     void typeChanged();
+    void titleChanged();
+    void sourceNameChanged();
 
 private slots:
     void updateThreshold();
     void resetSource();
+    void sourceReadyRead();
+    void timeReadyRead();
 
 private:
     QString dBValue() const;
+    QString timeValue() const;
 
     chart::Source *m_source;
+    QTimer m_timer;
     Type m_type;
     QMetaObject::Connection m_sourceConnection;
     float m_threshold;

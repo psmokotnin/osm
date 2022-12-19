@@ -23,12 +23,24 @@ const std::map<MeterPlot::Type, QString> MeterPlot::m_typesMap = {
     {MeterPlot::Type::RMS,   "RMS"  },
     {MeterPlot::Type::Peak,  "Peak" },
     {MeterPlot::Type::Crest, "Crest"},
+    {MeterPlot::Type::Time,  "Time" },
 };
 
 MeterPlot::MeterPlot(QObject *parent) : QObject(parent), LevelObject(),
-    m_source(nullptr), m_type(RMS), m_threshold(0)
+    m_source(nullptr), m_timer(this), m_type(RMS), m_threshold(0)
 {
+    m_timer.setInterval(1000);
     connect(this, &MeterPlot::curveChanged, this, &MeterPlot::updateThreshold);
+    connect(&m_timer, &QTimer::timeout, this, &MeterPlot::timeReadyRead);
+
+    connect(this, &MeterPlot::typeChanged, this, &MeterPlot::titleChanged);
+    connect(this, &MeterPlot::modeChanged, this, &MeterPlot::titleChanged);
+    connect(this, &MeterPlot::curveChanged, this, &MeterPlot::titleChanged);
+    connect(this, &MeterPlot::timeChanged, this, &MeterPlot::titleChanged);
+
+    connect(this, &MeterPlot::sourceChanged, this, &MeterPlot::sourceNameChanged);
+    connect(this, &MeterPlot::typeChanged, this, &MeterPlot::sourceNameChanged);
+
     updateThreshold();
 }
 
@@ -45,10 +57,22 @@ void MeterPlot::setSource(chart::Source *source)
         m_source = source;
 
         if (m_source) {
-            m_sourceConnection = connect(m_source, &chart::Source::readyRead, this, &MeterPlot::valueChanged);
+            m_sourceConnection = connect(m_source, &chart::Source::readyRead, this, &MeterPlot::sourceReadyRead);
             connect(m_source, &chart::Source::beforeDestroy, this, &MeterPlot::resetSource, Qt::DirectConnection);
         }
         emit sourceChanged(m_source);
+    }
+}
+
+QString MeterPlot::title() const
+{
+    switch (m_type) {
+    case Time:
+        return typeName();
+    case Crest:
+        return typeName() + " " + curveName() + " " + timeName();
+    default:
+        return typeName() + " " + modeName() + " " + curveName() + " " + timeName();
     }
 }
 
@@ -57,7 +81,22 @@ QString MeterPlot::value() const
     if (!m_source) {
         return "";
     }
-    return dBValue();
+    switch (m_type) {
+    case Time:
+        return timeValue();
+    default:
+        return dBValue();
+    }
+}
+
+QString MeterPlot::sourceName() const
+{
+    switch (m_type) {
+    case Time:
+        return "System";
+    default:
+        return (source() ? source()->name() : "");
+    }
 }
 
 QString MeterPlot::dBValue() const
@@ -80,6 +119,11 @@ QString MeterPlot::dBValue() const
     }
 
     return QString("%1").arg(level, 0, 'f', 1);
+}
+
+QString MeterPlot::timeValue() const
+{
+    return QTime::currentTime().toString("HH:mm");
 }
 
 float MeterPlot::threshold() const
@@ -126,6 +170,26 @@ void MeterPlot::resetSource()
     setSource(nullptr);
 }
 
+void MeterPlot::sourceReadyRead()
+{
+    switch (m_type) {
+    case RMS:
+    case Peak:
+    case Crest:
+        emit valueChanged();
+        break;
+    case Time:
+    {/*ignore*/}
+    }
+}
+
+void MeterPlot::timeReadyRead()
+{
+    if (m_type == Time) {
+        emit valueChanged();
+    }
+}
+
 const MeterPlot::Type &MeterPlot::type() const
 {
     return m_type;
@@ -145,7 +209,15 @@ void MeterPlot::setType(const Type &type)
     if (m_type == type)
         return;
     m_type = type;
+
     emit typeChanged();
+    emit valueChanged();
+
+    if (m_type == Time) {
+        m_timer.start();
+    } else {
+        m_timer.stop();
+    }
 }
 
 void MeterPlot::setType(const QString &type)
