@@ -145,7 +145,7 @@ void Network::newTCPConnection()
     });
 }
 
-void Network::sendTCP(const QByteArray &data, const QString &host, quint16 port,
+void Network::sendTCP(const QByteArray &data, const QString host, quint16 port,
                       responseErrorCallbacks callbacks)
 {
     auto context = std::get<0>(callbacks);

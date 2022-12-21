@@ -60,7 +60,7 @@ public slots:
     void unbindUDP();
 
     bool sendUDP(const QByteArray &data, const QString &host = QString(), quint16 port = DEFAULT_PORT) const noexcept;
-    void sendTCP(const QByteArray &data, const QString &host, quint16 port,
+    void sendTCP(const QByteArray &data, const QString host, quint16 port,
                  remote::Network::responseErrorCallbacks callbacks) ;
 
     void readUDP() noexcept;
