@@ -41,9 +41,9 @@ public:
     constexpr static const double F4 = 12194.217;
     constexpr static const double F5 = 158.489032;
 
-    constexpr static const double A_GAIN = 1.9997 + 0.5;
+    constexpr static const double A_GAIN = 1.9997 + 0.8;
     constexpr static const double B_GAIN = 0.1696 + 1.2;
-    constexpr static const double C_GAIN = 0.0619 + 1.5;
+    constexpr static const double C_GAIN = 0.0619 + 1.3;
 
     Weighting(Curve curve = Z);
 
