@@ -30,26 +30,26 @@ Drawer {
     interactive: true
     edge: Qt.RightEdge
 
+    function closeAccepted() {
+        applicationWindow.properiesbar.clear();
+        sourceList.reset();
+        closeRejected();
+    }
+    function closeRejected() {
+        applicationWindow.dialog.accepted.disconnect(closeAccepted);
+        applicationWindow.dialog.rejected.disconnect(closeRejected);
+    }
+
     ListModel {
         id: actions
         ListElement {
             name: qsTr("New")
             onclick: function() {
                 dialog.title = qsTr("Create new workspace?")
-                dialog.accepted.connect(closeAccepted);
-                dialog.rejected.connect(closeRejected);
+                dialog.accepted.connect(drawer.closeAccepted);
+                dialog.rejected.connect(drawer.closeRejected);
                 dialog.open();
             }
-            function closeAccepted() {
-                applicationWindow.properiesbar.clear();
-                sourceList.reset();
-                closeRejected();
-            }
-            function closeRejected() {
-                applicationWindow.dialog.accepted.disconnect(closeAccepted);
-                applicationWindow.dialog.rejected.disconnect(closeRejected);
-            }
-
         }
         ListElement {
             name: qsTr("Save")
