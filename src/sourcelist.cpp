@@ -100,7 +100,7 @@ chart::Source *SourceList::get(int i) const noexcept
     return m_items.at(i);
 }
 
-std::lock_guard<std::mutex> SourceList::lock()
+std::lock_guard<std::mutex> SourceList::lock() const
 {
     return std::lock_guard<std::mutex> {m_mutex};
 }
@@ -168,6 +168,7 @@ bool SourceList::save(const QUrl &fileName) const noexcept
         qWarning("Couldn't open file");
         return false;
     }
+    auto guard = lock();
 
     QJsonObject object;
     object["type"] = "sourcelsist";
@@ -175,6 +176,9 @@ bool SourceList::save(const QUrl &fileName) const noexcept
     QJsonArray data;
     for (int i = 0; i < m_items.size(); ++i) {
         auto item = m_items.at(i);
+        if (!item) {
+            continue;
+        }
         QJsonObject itemJson;
         itemJson["type"] = item->objectName();
         itemJson["data"] = item->toJSON(this);
