@@ -340,6 +340,7 @@ void Client::requestData(Item *item)
     if (!item) {
         return;
     }
+    //BUG: crash if item was deleted before any callback
     Network::responseCallback onAnswer = [this, item](const QByteArray & data) {
         auto document = QJsonDocument::fromJson(data);
         if (!document.isNull()) {
@@ -379,6 +380,7 @@ void Client::requestSource(Item *item, const QString &message, Network::response
     QJsonDocument document(std::move(object));
     auto data = document.toJson(QJsonDocument::JsonFormat::Compact);
 
+    //BUG: crash if item was deleted before any callback
     Network::errorCallback onError = [item]() {
         qDebug() << "onError" << Qt::endl;
         item->setState(Item::ERROR);

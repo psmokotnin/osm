@@ -63,7 +63,7 @@ void Server::setSourceList(SourceList *list)
         connect(source, &chart::Source::readyRead, this, [this, source]() {
             if (source) {
                 sourceNotify(source, "readyRead");
-                sourceNotify(source, "levels", source->levels());
+                sourceNotify(source, "levels", source->levels());//BUG: once crashed if source == null. remove raw ptr
             }
         });
 
