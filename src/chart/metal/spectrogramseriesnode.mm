@@ -83,6 +83,9 @@ void SpectrogramSeriesNode::initRender()
 
 void SpectrogramSeriesNode::synchronizeSeries()
 {
+    if (!m_source) {
+        return;
+    }
     synchronizeMatrix();
     if (auto *spectrogramPlot = dynamic_cast<SpectrogramPlot *>(plot())) {
         if (
@@ -101,6 +104,7 @@ void SpectrogramSeriesNode::synchronizeSeries()
     }
 }
 
+//BUG: crash ifm_source was deleted during updating
 void SpectrogramSeriesNode::updateHistory()
 {
     //QSGRenderThread
