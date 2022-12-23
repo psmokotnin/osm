@@ -41,16 +41,15 @@ QVariant SourceModel::data(const QModelIndex &index, int role) const
     auto j = index.row();
     chart::Source *source = m_list->items().at(j);
     QVariant r = {};
-    if (!source) {
-        return r;
-    }
     switch (role) {
     case NameRole:
         r.setValue(source ? source->objectName() : m_noneTitle);
         break;
 
     case SourceRole:
-        r.setValue(source);
+        if (source) {
+            r.setValue(source);
+        }
         break;
 
     case TitleRole:

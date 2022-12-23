@@ -445,6 +445,9 @@ void SourceList::uncheckAll()
 
 bool SourceList::isChecked(chart::Source *item) const noexcept
 {
+    if (!item) {
+        return false;
+    }
     return m_checked.contains(item);
 }
 
