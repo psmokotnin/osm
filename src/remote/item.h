@@ -20,7 +20,7 @@
 
 #include "chart/source.h"
 #include <QTimer>
-
+#include <QJsonArray>
 
 namespace remote {
 
@@ -72,6 +72,8 @@ public:
 
 public slots:
     Q_INVOKABLE void refresh();
+    void dataError(const uint hash, const bool deactivate);
+    void dataReceived(const uint hash, const QJsonArray &data, const QJsonArray &timeData);
 
 signals:
     void stateChanged();

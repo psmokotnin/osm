@@ -264,4 +264,26 @@ void Item::refresh()
     emit updateData(this);
 }
 
+void Item::dataError(const uint hash, const bool deactivate)
+{
+    if (hash != qHash(sourceId())) {
+        return;
+    }
+    auto guard = std::lock_guard<std::mutex>(m_dataMutex);
+    setState(Item::ERROR);
+    if (deactivate) {
+        setActive(false);
+    }
+
+}
+
+void Item::dataReceived(const uint hash, const QJsonArray &data, const QJsonArray &timeData)
+{
+    if (hash != qHash(sourceId())) {
+        return;
+    }
+
+    applyData(data, timeData);
+}
+
 } // namespace remote
