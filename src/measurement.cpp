@@ -431,7 +431,7 @@ void Measurement::updateWindowFunction()
 }
 void Measurement::writeData(const char *data, qint64 len)
 {
-    if (!m_audioStream || m_onReset.load()) {
+    if (!m_audioStream || m_onReset.load() || !m_active) {
         return;
     }
     std::lock_guard<std::mutex> guard(m_dataMutex);
@@ -838,7 +838,6 @@ void Measurement::checkChannels()
 void Measurement::destroy()
 {
     setActive(false);
-    updateAudio();
     chart::Source::destroy();
 }
 void Measurement::resetAverage() noexcept

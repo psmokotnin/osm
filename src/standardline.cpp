@@ -15,26 +15,26 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "standartline.h"
+#include "standardline.h"
 
-const std::map<StandartLine::Mode, QString>StandartLine::m_modeMap = {
-    {StandartLine::ELC,         "ELC"},
-    {StandartLine::WEIGHTING_A, "Weighting A"},
-    {StandartLine::WEIGHTING_B, "Weighting B"},
-    {StandartLine::WEIGHTING_C, "Weighting C"},
+const std::map<StandardLine::Mode, QString>StandardLine::m_modeMap = {
+    {StandardLine::ELC,         "ELC"},
+    {StandardLine::WEIGHTING_A, "Weighting A"},
+    {StandardLine::WEIGHTING_B, "Weighting B"},
+    {StandardLine::WEIGHTING_C, "Weighting C"},
 };
 
-StandartLine::StandartLine(QObject *parent) : chart::Source(parent), m_mode(ELC), m_loudness(80.f)
+StandardLine::StandardLine(QObject *parent) : chart::Source(parent), m_mode(ELC), m_loudness(80.f)
 {
-    setObjectName("StandartLine");
+    setObjectName("StandardLine");
     setActive(true);
     setName("ELC");
     update();
 }
 
-chart::Source *StandartLine::clone() const
+chart::Source *StandardLine::clone() const
 {
-    auto cloned = new StandartLine(parent());
+    auto cloned = new StandardLine(parent());
     cloned->setMode(mode());
     cloned->setLoudness(loudness());
     cloned->setName(name());
@@ -42,7 +42,7 @@ chart::Source *StandartLine::clone() const
     return cloned;
 }
 
-QJsonObject StandartLine::toJSON(const SourceList *) const noexcept
+QJsonObject StandardLine::toJSON(const SourceList *) const noexcept
 {
     QJsonObject object;
     object["mode"]      = mode();
@@ -60,7 +60,7 @@ QJsonObject StandartLine::toJSON(const SourceList *) const noexcept
     return object;
 }
 
-void StandartLine::fromJSON(QJsonObject data, const SourceList *) noexcept
+void StandardLine::fromJSON(QJsonObject data, const SourceList *) noexcept
 {
     auto jsonColor = data["color"].toObject();
     QColor c(
@@ -75,12 +75,12 @@ void StandartLine::fromJSON(QJsonObject data, const SourceList *) noexcept
     setActive(data["active"].toBool(active()));
 }
 
-float StandartLine::loudness() const noexcept
+float StandardLine::loudness() const noexcept
 {
     return m_loudness;
 }
 
-void StandartLine::setLoudness(float loudness)
+void StandardLine::setLoudness(float loudness)
 {
     if (!qFuzzyCompare(loudness, m_loudness)) {
         m_loudness = loudness;
@@ -89,7 +89,7 @@ void StandartLine::setLoudness(float loudness)
     }
 }
 
-void StandartLine::update()
+void StandardLine::update()
 {
     m_dataMutex.lock();
 
@@ -109,7 +109,7 @@ void StandartLine::update()
     emit readyRead();
 }
 
-void StandartLine::createELC()
+void StandardLine::createELC()
 {
     static const std::vector<double> fs {20, 25, 31.5, 40, 50, 63, 80, 100, 125, 160, 200, 250, 315, 400, 500, 630, 800, 1000, 1250, 1600, 2000,
                                          2500, 3150, 4000, 5000, 6300, 8000, 10000, 12500};
@@ -146,7 +146,7 @@ void StandartLine::createELC()
     }
 }
 
-void StandartLine::createWeighting()
+void StandardLine::createWeighting()
 {
     m_dataLength = 34;
     m_deconvolutionSize = 0;
@@ -210,17 +210,17 @@ void StandartLine::createWeighting()
     }
 }
 
-StandartLine::Mode StandartLine::mode() const
+StandardLine::Mode StandardLine::mode() const
 {
     return m_mode;
 }
 
-void StandartLine::setMode(const int &mode)
+void StandardLine::setMode(const int &mode)
 {
     setMode(static_cast<Mode>(mode));
 }
 
-void StandartLine::setMode(const Mode &mode)
+void StandardLine::setMode(const Mode &mode)
 {
     if (m_mode != mode) {
         m_mode = mode;
@@ -235,7 +235,7 @@ void StandartLine::setMode(const Mode &mode)
     }
 }
 
-QVariant StandartLine::getAvailableModes() const
+QVariant StandardLine::getAvailableModes() const
 {
     QStringList typeList;
     for (const auto &type : m_modeMap) {

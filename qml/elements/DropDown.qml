@@ -36,11 +36,13 @@ ComboBox {
         //popup.contentItem.itemAtIndex(0).contentItem
 
         let maxWidth = control.width;
-        for (let i = 0; i < popup.contentItem.count; ++i) {
-            text.text = popup.contentItem.itemAtIndex(i).text;
+        if (text) {
+            for (let i = 0; i < popup.contentItem.count; ++i) {
+                text.text = popup.contentItem.itemAtIndex(i).text;
 
-            //MenuItem{padding: 16}
-            maxWidth = Math.max(maxWidth, text.paintedWidth + popup.padding * 2 + 32);
+                //MenuItem{padding: 16}
+                maxWidth = Math.max(maxWidth, text.paintedWidth + popup.padding * 2 + 32);
+            }
         }
         popup.width = maxWidth;
         let x = control.mapToGlobal(0, 0).x - applicationWindow.x + 2; //2 pixels padding

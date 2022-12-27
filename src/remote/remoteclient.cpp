@@ -28,7 +28,7 @@ Client::Client(Settings *settings, QObject *parent) : QObject(parent), m_network
     m_thread(), m_timer(),
     m_sourceList(nullptr), m_servers(), m_items(), m_onRequest(false), m_updateCounter(0), m_needUpdate()
 {
-    connect(&m_network, &Network::datagramRecieved, this, &Client::dataRecieved);
+    connect(&m_network, &Network::datagramRecieved, this, &Client::processData);
     m_thread.setObjectName("NetworkClient");
     m_network.moveToThread(&m_thread);
     m_timer.setInterval(TIMER_INTERVAL);
@@ -103,7 +103,6 @@ void Client::sendRequests()
         return;
     }
     auto guard = m_sourceList->lock();
-
     Item *updateItem = nullptr;
     UpdateKey minUpdate = READY_FOR_UPDATE;
     unsigned int minUpdateKey = 0;
@@ -163,6 +162,10 @@ Item *Client::addItem(const QUuid &serverId, const QUuid &sourceId, const QStrin
     item->setServerId(serverId);
     item->setSourceId(sourceId);
     item->setHost(host);
+
+    connect(this, &Client::dataError, item, &Item::dataError);
+    connect(this, &Client::dataReceived, item, &Item::dataReceived);
+
     connect(item, &Item::updateData, this, &Client::requestUpdate);
     connect(item, &Item::localChanged, this, [ = ](QString propertyName) {
         sendUpdate(item, propertyName);
@@ -170,7 +173,7 @@ Item *Client::addItem(const QUuid &serverId, const QUuid &sourceId, const QStrin
     connect(item, &Item::sendCommand, this, [ = ](QString name, QVariant arg) {
         sendCommand(item, name, arg);
     });
-    connect(item, &Item::destroyed, this, [ = ]() {
+    connect(item, &Item::beforeDestroy, this, [ = ]() {
         m_items[qHash(sourceId)] = nullptr;
         m_needUpdate[qHash(sourceId)] = READY_FOR_UPDATE;
     }, Qt::DirectConnection);
@@ -191,13 +194,12 @@ void Client::sendUpdate(Item *item, QString propertyName)
     }
 }
 
-void Client::dataRecieved(QHostAddress senderAddress, [[maybe_unused]] int senderPort, const QByteArray &data)
+void Client::processData(QHostAddress senderAddress, [[maybe_unused]] int senderPort, const QByteArray &data)
 {
     auto document = QJsonDocument::fromJson(data);
     if (document.isNull()) {
         return;
     }
-
     auto serverId = QUuid::fromString(document["uuid"].toString());
     auto time = document["time"].toString();
     auto host = document["host"].toString();
@@ -340,18 +342,24 @@ void Client::requestData(Item *item)
     if (!item) {
         return;
     }
-    Network::responseCallback onAnswer = [this, item](const QByteArray & data) {
+    auto hash = qHash(item->sourceId());
+    Network::responseCallback onAnswer = [this, hash](const QByteArray & data) {
         auto document = QJsonDocument::fromJson(data);
-        auto frequencyData = document["ftdata"].toArray();
-        auto timeData = document["timeData"].toArray();
-        item->applyData(frequencyData, timeData);
-        m_needUpdate[qHash(item->sourceId())] = READY_FOR_UPDATE;
+        if (!document.isNull()) {
+            auto frequencyData = document["ftdata"].toArray();
+            auto timeData = document["timeData"].toArray();
+            emit dataReceived(hash, frequencyData, timeData);
+            m_needUpdate[hash] = READY_FOR_UPDATE;
+        } else {
+            emit dataError(hash, false);
+        }
         m_onRequest = false;
     };
-    Network::errorCallback onError = [this, item]() {
-        item->setState(Item::ERROR);
+    Network::errorCallback onError = [this, hash]() {
+
+        emit dataError(hash, false);
         qDebug() << "requestData error";
-        m_needUpdate[qHash(item->sourceId())] = READY_FOR_UPDATE;
+        m_needUpdate[hash] = READY_FOR_UPDATE;
         m_onRequest = false;
     };
     requestSource(item, "requestData", onAnswer, onError);
@@ -374,11 +382,10 @@ void Client::requestSource(Item *item, const QString &message, Network::response
 
     QJsonDocument document(std::move(object));
     auto data = document.toJson(QJsonDocument::JsonFormat::Compact);
-
-    Network::errorCallback onError = [item]() {
+    auto hash = qHash(item->sourceId());
+    Network::errorCallback onError = [this, hash]() {
         qDebug() << "onError" << Qt::endl;
-        item->setState(Item::ERROR);
-        item->setActive(false);
+        emit dataError(hash, true);
     };
 
     Network::responseErrorCallbacks callbacks = {item, callback, errorCallback ? errorCallback : onError};

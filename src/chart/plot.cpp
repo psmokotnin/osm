@@ -125,6 +125,9 @@ void Plot::setSelected(const QList<Source *> selected)
 
 bool Plot::isSelected(Source *source) const
 {
+    if (!source) {
+        return false;
+    }
     return m_selected.contains(source);
 }
 

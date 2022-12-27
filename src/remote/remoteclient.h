@@ -47,10 +47,12 @@ public:
     Q_INVOKABLE void reset();
 
 public slots:
-    void dataRecieved(QHostAddress senderAddress, int senderPort, const QByteArray &data);
+    void processData(QHostAddress senderAddress, int senderPort, const QByteArray &data);
 
 signals:
     void activeChanged();
+    void dataError(const uint hash, const bool deactivate);
+    void dataReceived(const uint hash, const QJsonArray &data, const QJsonArray &timeData);
 
 private slots:
     void sendRequests();

@@ -18,7 +18,7 @@
 #include "sourcelist.h"
 #include "measurement.h"
 #include "union.h"
-#include "standartline.h"
+#include "standardline.h"
 #include "filtersource.h"
 #include "common/wavfile.h"
 #include <qmath.h>
@@ -100,7 +100,7 @@ chart::Source *SourceList::get(int i) const noexcept
     return m_items.at(i);
 }
 
-std::lock_guard<std::mutex> SourceList::lock()
+std::lock_guard<std::mutex> SourceList::lock() const
 {
     return std::lock_guard<std::mutex> {m_mutex};
 }
@@ -168,6 +168,7 @@ bool SourceList::save(const QUrl &fileName) const noexcept
         qWarning("Couldn't open file");
         return false;
     }
+    auto guard = lock();
 
     QJsonObject object;
     object["type"] = "sourcelsist";
@@ -175,6 +176,9 @@ bool SourceList::save(const QUrl &fileName) const noexcept
     QJsonArray data;
     for (int i = 0; i < m_items.size(); ++i) {
         auto item = m_items.at(i);
+        if (!item) {
+            continue;
+        }
         QJsonObject itemJson;
         itemJson["type"] = item->objectName();
         itemJson["data"] = item->toJSON(this);
@@ -441,6 +445,9 @@ void SourceList::uncheckAll()
 
 bool SourceList::isChecked(chart::Source *item) const noexcept
 {
+    if (!item) {
+        return false;
+    }
     return m_checked.contains(item);
 }
 
@@ -459,12 +466,12 @@ chart::Source *SourceList::firstChecked() const noexcept
 
 bool SourceList::loadList(const QJsonDocument &document, const QUrl &fileName) noexcept
 {
-    enum LoadType {MeasurementType, StoredType, UnionType, StandartLineType, FilterType};
+    enum LoadType {MeasurementType, StoredType, UnionType, StandardLineType, FilterType};
     static std::map<QString, LoadType> typeMap = {
         {"Measurement",  MeasurementType},
         {"Stored",       StoredType},
         {"Union",        UnionType},
-        {"StandartLine", StandartLineType},
+        {"StandardLine", StandardLineType},
         {"Filter",       FilterType},
     };
 
@@ -490,8 +497,8 @@ bool SourceList::loadList(const QJsonDocument &document, const QUrl &fileName) n
             loadObject<Union>(object["data"].toObject());
             break;
 
-        case StandartLineType:
-            loadObject<StandartLine>(object["data"].toObject());
+        case StandardLineType:
+            loadObject<StandardLine>(object["data"].toObject());
             break;
 
         case FilterType:
@@ -525,9 +532,9 @@ Union *SourceList::addUnion()
 {
     return add<Union>();
 }
-StandartLine *SourceList::addStandartLine()
+StandardLine *SourceList::addStandardLine()
 {
-    return add<StandartLine>();
+    return add<StandardLine>();
 }
 
 FilterSource *SourceList::addFilter()

@@ -47,7 +47,9 @@ QVariant SourceModel::data(const QModelIndex &index, int role) const
         break;
 
     case SourceRole:
-        r.setValue(source);
+        if (source) {
+            r.setValue(source);
+        }
         break;
 
     case TitleRole:

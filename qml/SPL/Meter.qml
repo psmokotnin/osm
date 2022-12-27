@@ -40,8 +40,7 @@ Rectangle {
             Layout.fillWidth: true
             Layout.preferredHeight: meter.heightPart
 
-            text: dataSource.type  + " " + dataSource.modeName + " " +
-                  dataSource.curve + " " + dataSource.time;
+            text: dataSource.title;
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignBottom
         }
@@ -68,7 +67,7 @@ Rectangle {
             Layout.fillWidth: true
             Layout.preferredHeight: meter.heightPart
 
-            text: (dataSource.source ? dataSource.source.name : "");
+            text: dataSource.sourceName
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
         }

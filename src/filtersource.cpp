@@ -111,80 +111,81 @@ chart::Source *FilterSource::store() noexcept
 
 void FilterSource::update()
 {
-    std::lock_guard guard{m_dataMutex};
+    {
+        std::lock_guard guard{m_dataMutex};
 
-    m_dataFT.setSampleRate(sampleRate());
-    m_inverse.setSampleRate(sampleRate());
+        m_dataFT.setSampleRate(sampleRate());
+        m_inverse.setSampleRate(sampleRate());
 
-    try {
-        using M = meta::Measurement;
-        switch (mode()) {
-        case M::Mode::LFT:
-            m_dataFT.setType(FourierTransform::Log);
-            m_deconvolutionSize = pow(2, M::m_FFTsizes.at(M::FFT12));
-            break;
+        try {
+            using M = meta::Measurement;
+            switch (mode()) {
+            case M::Mode::LFT:
+                m_dataFT.setType(FourierTransform::Log);
+                m_deconvolutionSize = pow(2, M::m_FFTsizes.at(M::FFT12));
+                break;
 
-        default:
-            m_dataFT.setType(FourierTransform::Fast);
-            m_dataFT.setSize(pow(2, M::m_FFTsizes.at(mode())));
-            m_deconvolutionSize = pow(2, M::m_FFTsizes.at(mode()));
-        }
-    } catch (std::exception &e) {
-        qDebug() << __FILE__ << ":" << __LINE__  << e.what();
-        m_deconvolutionSize = 0;
-        m_dataLength = 0;
-        return;
-    }
-
-    m_inverse.setType(FourierTransform::Fast);
-    m_inverse.setSize(m_deconvolutionSize);
-    m_inverse.prepare();
-    m_dataFT.prepare();
-
-    auto frequencyList = m_dataFT.getFrequencies();
-    m_dataLength = frequencyList.size();
-    delete[] m_ftdata;
-    m_ftdata = new FTData[m_dataLength];
-    unsigned int i = 0;
-    for (auto frequency : frequencyList) {
-        auto H = calculate(frequency);
-
-        m_ftdata[i].frequency   = frequency;
-        m_ftdata[i].module      = H.abs();
-        m_ftdata[i].coherence   = 1.f;
-        m_ftdata[i].magnitude   = H.abs();
-        m_ftdata[i].phase       = H.normalize();
-        ++i;
-    }
-
-    delete []m_impulseData;
-    m_impulseData = new TimeData[m_deconvolutionSize];
-
-    frequencyList = m_inverse.getFrequencies();
-    for (unsigned int i = 0; i < frequencyList.size(); ++i) {
-        auto v = calculate(frequencyList[i]);
-        if (std::isnan(v.real) || std::isnan(v.imag)) {
-            v = 0;
-        }
-        m_inverse.set(i, v, 0.f);
-        m_inverse.set(m_deconvolutionSize - i - 1, v, 0.f);
-    }
-
-    m_inverse.reverseOne();
-
-    int t = 0;
-    float kt = 1000.f / sampleRate();
-    auto norm = 1.f / sqrtf(m_deconvolutionSize);
-    for (unsigned int i = 0, j = m_deconvolutionSize / 2 - 1; i < m_deconvolutionSize; i++, j++, t++) {
-        if (t > static_cast<int>(m_deconvolutionSize / 2)) {
-            t -= static_cast<int>(m_deconvolutionSize);
-            j -= m_deconvolutionSize;
+            default:
+                m_dataFT.setType(FourierTransform::Fast);
+                m_dataFT.setSize(pow(2, M::m_FFTsizes.at(mode())));
+                m_deconvolutionSize = pow(2, M::m_FFTsizes.at(mode()));
+            }
+        } catch (std::exception &e) {
+            qDebug() << __FILE__ << ":" << __LINE__  << e.what();
+            m_deconvolutionSize = 0;
+            m_dataLength = 0;
+            return;
         }
 
-        m_impulseData[j].value = m_inverse.af(i).real * norm;
-        m_impulseData[j].time  = t * kt;//ms
-    }
+        m_inverse.setType(FourierTransform::Fast);
+        m_inverse.setSize(m_deconvolutionSize);
+        m_inverse.prepare();
+        m_dataFT.prepare();
 
+        auto frequencyList = m_dataFT.getFrequencies();
+        m_dataLength = frequencyList.size();
+        delete[] m_ftdata;
+        m_ftdata = new FTData[m_dataLength];
+        unsigned int i = 0;
+        for (auto frequency : frequencyList) {
+            auto H = calculate(frequency);
+
+            m_ftdata[i].frequency   = frequency;
+            m_ftdata[i].module      = H.abs();
+            m_ftdata[i].coherence   = 1.f;
+            m_ftdata[i].magnitude   = H.abs();
+            m_ftdata[i].phase       = H.normalize();
+            ++i;
+        }
+
+        delete []m_impulseData;
+        m_impulseData = new TimeData[m_deconvolutionSize];
+
+        frequencyList = m_inverse.getFrequencies();
+        for (unsigned int i = 0; i < frequencyList.size(); ++i) {
+            auto v = calculate(frequencyList[i]);
+            if (std::isnan(v.real) || std::isnan(v.imag)) {
+                v = 0;
+            }
+            m_inverse.set(i, v, 0.f);
+            m_inverse.set(m_deconvolutionSize - i - 1, v, 0.f);
+        }
+
+        m_inverse.reverseOne();
+
+        int t = 0;
+        float kt = 1000.f / sampleRate();
+        auto norm = 1.f / sqrtf(m_deconvolutionSize);
+        for (unsigned int i = 0, j = m_deconvolutionSize / 2 - 1; i < m_deconvolutionSize; i++, j++, t++) {
+            if (t > static_cast<int>(m_deconvolutionSize / 2)) {
+                t -= static_cast<int>(m_deconvolutionSize);
+                j -= m_deconvolutionSize;
+            }
+
+            m_impulseData[j].value = m_inverse.af(i).real * norm;
+            m_impulseData[j].time  = t * kt;//ms
+        }
+    }
     emit readyRead();
 }
 

@@ -113,8 +113,8 @@ Item {
             }
         }
         Component {
-            id: standartLineDelegate
-            StandartLine {
+            id: standardLineDelegate
+            StandardLine {
                 width: sideList.width
                 dataModel: modelData
                 highlight: modelHighlight
@@ -234,7 +234,7 @@ Item {
                                         case "Measurement": return measurementDelegate;
                                         case "Stored": return storedDelegate;
                                         case "Union": return unionDelegate;
-                                        case "StandartLine": return standartLineDelegate;
+                                        case "StandardLine": return standardLineDelegate;
                                         case "Filter": return filterDelegate;
 
                                         case "RemoteItem":

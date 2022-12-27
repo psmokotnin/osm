@@ -15,13 +15,13 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef STANDARTLINE_H
-#define STANDARTLINE_H
+#ifndef STANDARDLINE_H
+#define STANDARDLINE_H
 
 #include <QObject>
 #include "chart/source.h"
 
-class StandartLine : public chart::Source
+class StandardLine : public chart::Source
 {
 public:
     enum Mode {
@@ -34,11 +34,11 @@ public:
     Q_OBJECT
     Q_ENUM(Mode);
     Q_PROPERTY(float loudness READ loudness WRITE setLoudness NOTIFY loudnessChanged)
-    Q_PROPERTY(StandartLine::Mode mode READ mode WRITE setMode NOTIFY modeChanged)
+    Q_PROPERTY(StandardLine::Mode mode READ mode WRITE setMode NOTIFY modeChanged)
     Q_PROPERTY(QVariant modes READ getAvailableModes CONSTANT)
 
 public:
-    explicit StandartLine(QObject *parent = nullptr);
+    explicit StandardLine(QObject *parent = nullptr);
     Source *clone() const override;
 
     Q_INVOKABLE QJsonObject toJSON(const SourceList * = nullptr) const noexcept override;
@@ -54,7 +54,7 @@ public:
 
 signals:
     void loudnessChanged(float);
-    void modeChanged(StandartLine::Mode);
+    void modeChanged(StandardLine::Mode);
 
 private:
     void update();
@@ -67,4 +67,4 @@ private:
     static const std::map<Mode, QString> m_modeMap;
 };
 
-#endif // STANDARTLINE_H
+#endif // STANDARDLINE_H

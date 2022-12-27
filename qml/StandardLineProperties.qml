@@ -21,7 +21,7 @@ import QtQuick.Layouts 1.12
 import QtQuick.Dialogs 1.2
 import QtQuick.Controls.Material 2.13
 
-import StandartLine 1.0
+import StandardLine 1.0
 import SourceModel 1.0
 import "elements"
 
@@ -39,7 +39,7 @@ Item {
                 model: dataObject.modes
                 currentIndex: dataObject.mode
                 ToolTip.visible: hovered
-                ToolTip.text: qsTr("Standart")
+                ToolTip.text: qsTr("Standard")
                 onCurrentIndexChanged: dataObject.mode = currentIndex;
                 Layout.preferredWidth: 200
             }
@@ -50,12 +50,12 @@ Item {
                 from: 20
                 to: 100
                 editable: true
-                visible: dataObject.mode === StandartLine.ELC
+                visible: dataObject.mode === StandardLine.ELC
             }
 
             Label {
                 text: qsTr("phon")
-                visible: dataObject.mode === StandartLine.ELC
+                visible: dataObject.mode === StandardLine.ELC
 
                 horizontalAlignment: Text.AlignLeft
             }

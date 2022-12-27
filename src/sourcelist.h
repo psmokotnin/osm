@@ -28,7 +28,7 @@
 class Measurement;
 class Union;
 class Stored;
-class StandartLine;
+class StandardLine;
 class FilterSource;
 
 class SourceList : public QObject
@@ -88,13 +88,13 @@ public:
     QList<chart::Source *> checked() const;
     void setChecked(const QList<chart::Source *> &checked);
 
-    std::lock_guard<std::mutex> lock();
+    std::lock_guard<std::mutex> lock() const;
 
 public slots:
     Q_INVOKABLE QColor nextColor();
     Q_INVOKABLE Measurement *addMeasurement();
     Q_INVOKABLE Union *addUnion();
-    Q_INVOKABLE StandartLine *addStandartLine();
+    Q_INVOKABLE StandardLine *addStandardLine();
     Q_INVOKABLE FilterSource *addFilter();
     Q_INVOKABLE void appendItem(chart::Source *item, bool autocolor = false);
     Q_INVOKABLE void removeItem(chart::Source *item, bool deleteItem = true);
@@ -134,7 +134,7 @@ private:
     };
     int m_colorIndex;
     int m_selected;
-    std::mutex m_mutex;
+    mutable std::mutex m_mutex;
 };
 
 #endif // SOURCELIST_H
