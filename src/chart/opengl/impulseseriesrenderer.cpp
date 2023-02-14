@@ -61,8 +61,8 @@ void ImpulseSeriesRenderer::renderSeries()
     }
 
     float dc =  (m_source->impulseValue(0) + m_source->impulseValue(m_source->impulseSize() - 1)) / 2;
-    float value = 0, lastValue = 0;
-    for (unsigned int i = 0, j = 0; i < m_source->impulseSize() - 1; ++i) {
+    float value = 0, lastValue = 0, lastTime = 0;
+    for (unsigned int i = 0, j = 0; i < m_source->impulseSize(); ++i) {
 
         switch (m_mode) {
         case ImpulsePlot::Linear:
@@ -79,11 +79,14 @@ void ImpulseSeriesRenderer::renderSeries()
             verticiesCount += 1;
             j += 2;
         } else {
-            addLineSegment(j, verticiesCount,
-                           m_source->impulseTime(i),     lastValue,
-                           m_source->impulseTime(i + 1), value,
-                           1, 1);
+            if (i > 0) {
+                addLineSegment(j, verticiesCount,
+                               lastTime,                 lastValue,
+                               m_source->impulseTime(i), value,
+                               1, 1);
+            }
             lastValue = value;
+            lastTime = m_source->impulseTime(i);
         }
     }
 
