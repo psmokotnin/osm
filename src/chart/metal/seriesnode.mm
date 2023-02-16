@@ -129,9 +129,11 @@ void SeriesNode::synchronize()
         setRect(0, 0, m_item->width(), m_item->height());
         init();
     }
-    m_renderActive = plot()->isSelected(m_source);
-    m_weight = m_retinaScale * plot()->palette().lineWidth(m_item->highlighted());
-    synchronizeSeries();
+    if (plot()) {
+        m_renderActive = plot()->isSelected(m_source);
+        m_weight = m_retinaScale * plot()->palette().lineWidth(m_item->highlighted());
+        synchronizeSeries();
+    }
 }
 
 void SeriesNode::init()
