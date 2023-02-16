@@ -47,7 +47,7 @@ Item {
                 id: gainSpinBox
                 implicitWidth: 165
                 value: generatorModel.gain
-                from: -90
+                from: -140
                 to: 0
                 editable: true
                 onValueChanged: generatorModel.gain = value
