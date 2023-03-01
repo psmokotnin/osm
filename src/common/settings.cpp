@@ -24,8 +24,15 @@ Settings::Settings(const QString &group, QObject *parent) : QObject(parent), m_g
 {
     if (!m_settings) {
         Settings::m_settings = new QSettings(
+#ifdef Q_OS_WIN
+            QSettings::UserScope,
+            QCoreApplication::organizationName(),
+            QCoreApplication::applicationName(), nullptr
+#else
             workingfolder::settingsFilePath(),
-            QSettings::NativeFormat
+            QSettings::NativeFormat //TODO: IniFormat
+#endif
+
         );
     }
 }
