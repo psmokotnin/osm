@@ -18,6 +18,7 @@
 #ifndef MLSPLUS_H
 #define MLSPLUS_H
 
+#include <array>
 #include "outputdevice.h"
 
 class MLSPlus : public OutputDevice
