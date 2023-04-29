@@ -121,11 +121,9 @@ Measurement::~Measurement()
     m_timerThread.quit();
     m_timerThread.wait();
 }
-QJsonObject Measurement::toJSON(const SourceList *) const noexcept
+QJsonObject Measurement::toJSON(const SourceList *list) const noexcept
 {
-    QJsonObject data;
-    data["active"]          = active();
-    data["name"]            = name();
+    auto data = Source::toJSON(list);
     data["delay"]           = static_cast<int>(delay());
     data["gain"]            = gain();
     data["averageType"]     = averageType();
@@ -137,13 +135,6 @@ QJsonObject Measurement::toJSON(const SourceList *) const noexcept
     data["polarity"]        = polarity();
     data["deviceName"]      = deviceName();
     data["mode"]            = mode();
-
-    QJsonObject color;
-    color["red"]    = m_color.red();
-    color["green"]  = m_color.green();
-    color["blue"]   = m_color.blue();
-    color["alpha"]  = m_color.alpha();
-    data["color"]   = color;
 
     QJsonObject calibration;
     calibration["enabled"] = m_enableCalibration;
@@ -162,8 +153,10 @@ QJsonObject Measurement::toJSON(const SourceList *) const noexcept
     data["calibration"] = calibration;
     return data;
 }
-void Measurement::fromJSON(QJsonObject data, const SourceList *) noexcept
+void Measurement::fromJSON(QJsonObject data, const SourceList *list) noexcept
 {
+    Source::fromJSON(data, list);
+
     auto castUInt = [](const QJsonValue & value, unsigned int defaultValue = 0) {
         return static_cast<unsigned int>(value.toInt(static_cast<int>(defaultValue)));
     };
@@ -174,22 +167,12 @@ void Measurement::fromJSON(QJsonObject data, const SourceList *) noexcept
     setDataChanel(       castUInt(data["dataChanel"      ], dataChanel()));
     setReferenceChanel(  castUInt(data["referenceChanel" ], referenceChanel()));
 
-    auto jsonColor = data["color"].toObject();
-    QColor c(
-        jsonColor["red"     ].toInt(0),
-        jsonColor["green"   ].toInt(0),
-        jsonColor["blue"    ].toInt(0),
-        jsonColor["alpha"   ].toInt(1));
-    setColor(c);
-
-    setName(             data["name"             ].toString(name()));
     setMode(             data["mode"             ].toInt(mode()));
     setAverageType(      data["averageType"      ].toInt(averageType()));
     setFiltersFrequency( data["filtersFrequency" ].toInt(filtersFrequency()));
     setWindowFunctionType(data["window.type"      ].toInt(m_windowFunctionType));
     setPolarity(         data["polarity"         ].toBool(polarity()));
     selectDevice(        data["deviceName"       ].toString(deviceName()));
-    setActive(           data["active"           ].toBool(active()));
 
     QJsonObject calibration = data["calibration"].toObject();
     if (!calibration.isEmpty()) {
@@ -646,8 +629,8 @@ chart::Source *Measurement::store() noexcept
         QString(" M: %1").arg(dataChanel() + 1) +
         (polarity() ? " polarity inversed" : "") +
         (calibration() ? " calibrated" : "") + " \n" +
-        "Window: " + WindowFunction::name(m_windowFunctionType) + "\t"
-        "Average: " + avg + "\n"
+        "Window: " + WindowFunction::name(m_windowFunctionType) + "\t" +
+        "Average: " + avg + "\n" +
         "Date: " + QDateTime::currentDateTime().toString()
 
     );

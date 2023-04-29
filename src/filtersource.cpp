@@ -73,17 +73,9 @@ QJsonObject FilterSource::toJSON(const SourceList *) const noexcept
     return object;
 }
 
-void FilterSource::fromJSON(QJsonObject data, const SourceList *) noexcept
+void FilterSource::fromJSON(QJsonObject data, const SourceList *list) noexcept
 {
-    auto jsonColor = data["color"].toObject();
-    QColor c(
-        jsonColor["red"  ].toInt(0),
-        jsonColor["green"].toInt(0),
-        jsonColor["blue" ].toInt(0),
-        jsonColor["alpha"].toInt(1));
-    setColor(c);
-    setName(data["name"].toString());
-    setActive(data["active"].toBool(active()));
+    Source::fromJSON(data, list);
 
     auto variantMode = data["mode"].toVariant();
     if (variantMode.isValid()) {
@@ -199,7 +191,6 @@ void FilterSource::applyAutoName()
     } catch (std::exception &e) {
         qDebug() << __FILE__ << ":" << __LINE__  << e.what();
     }
-    Q_ASSERT(false);
 }
 
 complex FilterSource::calculate(float frequency) const

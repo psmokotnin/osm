@@ -30,6 +30,16 @@ Source::Source(QObject *parent) : QObject(parent),
 {
 }
 
+Source::~Source()
+{
+    if (m_impulseData) {
+        delete[] m_impulseData;
+    }
+    if (m_ftdata) {
+        delete[] m_ftdata;
+    }
+}
+
 bool Source::cloneable() const
 {
     return true;
@@ -72,6 +82,11 @@ void Source::setGlobalColor(int globalValue)
         m_color = Qt::GlobalColor(globalValue);
         emit colorChanged(m_color);
     }
+}
+
+void Source::setUuid(const QUuid &newUuid)
+{
+    m_uuid = newUuid;
 }
 
 QUuid Source::uuid() const
@@ -150,8 +165,12 @@ float Source::impulseValue(const unsigned int &i) const noexcept
 }
 void Source::copy(FTData *dataDist, TimeData *timeDist)
 {
-    std::copy_n(m_ftdata, size(), dataDist);
-    std::copy_n(m_impulseData, impulseSize(), timeDist);
+    if (dataDist) {
+        std::copy_n(m_ftdata, size(), dataDist);
+    }
+    if (timeDist) {
+        std::copy_n(m_impulseData, impulseSize(), timeDist);
+    }
 }
 
 void Source::copyFrom(size_t dataSize, size_t timeSize, Source::FTData *dataSrc,
@@ -171,6 +190,41 @@ void Source::copyFrom(size_t dataSize, size_t timeSize, Source::FTData *dataSrc,
 
     std::copy_n(dataSrc, size(), m_ftdata);
     std::copy_n(timeSrc, impulseSize(), m_impulseData);
+}
+
+QJsonObject Source::toJSON(const SourceList *) const noexcept
+{
+    QJsonObject object;
+    object["uuid"]      = uuid().toString();
+    object["active"]    = active();
+    object["name"]      = name();
+
+    QJsonObject color;
+    color["red"]    = m_color.red();
+    color["green"]  = m_color.green();
+    color["blue"]   = m_color.blue();
+    color["alpha"]  = m_color.alpha();
+    object["color"] = color;
+
+    return object;
+}
+
+void Source::fromJSON(QJsonObject data, const SourceList *) noexcept
+{
+    auto uuid = QUuid::fromString(data["uuid"].toString());
+    if (!uuid.isNull()) {
+        setUuid(uuid);
+    }
+    setActive(data["active"].toBool(active()));
+    setName(data["name"].toString());
+
+    auto jsonColor = data["color"].toObject();
+    QColor c(
+        jsonColor["red"  ].toInt(0),
+        jsonColor["green"].toInt(0),
+        jsonColor["blue" ].toInt(0),
+        jsonColor["alpha"].toInt(1));
+    setColor(c);
 }
 
 float Source::level(const Weighting::Curve curve, const Meter::Time time) const

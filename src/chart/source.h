@@ -54,6 +54,7 @@ public:
     };
 
     explicit Source(QObject *parent = nullptr);
+    virtual ~Source();
     virtual Source *clone() const = 0;
     virtual bool cloneable() const;
 
@@ -107,14 +108,16 @@ public:
         m_dataMutex.unlock();
     }
 
-    virtual Q_INVOKABLE QJsonObject toJSON(const SourceList * = nullptr) const noexcept = 0;
-    virtual void fromJSON(QJsonObject data, const SourceList * = nullptr) noexcept = 0;
+    virtual Q_INVOKABLE QJsonObject toJSON(const SourceList * = nullptr) const noexcept;
+    virtual void fromJSON(QJsonObject data, const SourceList * = nullptr) noexcept;
 
     virtual float level(const Weighting::Curve curve = Weighting::Z, const Meter::Time time = Meter::Fast) const;
     virtual float peak(const Weighting::Curve curve = Weighting::Z, const Meter::Time time = Meter::Fast) const;
     virtual QJsonObject levels();
     virtual void setLevels(const QJsonObject &data);
-    QUuid uuid() const;
+    Q_INVOKABLE QUuid uuid() const;
+
+    void setUuid(const QUuid &newUuid);
 
 signals:
     void activeChanged();
@@ -129,6 +132,7 @@ public slots:
 protected:
     QString m_name;
     QColor m_color;
+    //TODO: unsigned int m_sample_rate;
 
     std::mutex m_dataMutex;   //NOTE: shared_mutex (C++17)
     std::atomic<bool> m_onReset;

@@ -69,11 +69,9 @@ void Stored::autoName(const QString &prefix) noexcept
     setName(name);
 }
 
-QJsonObject Stored::toJSON(const SourceList *) const noexcept
+QJsonObject Stored::toJSON(const SourceList *list) const noexcept
 {
-    QJsonObject object;
-    object["active"]    = active();
-    object["name"]      = name();
+    auto object = Source::toJSON(list);
     object["notes"]     = notes();
 
     object["polarity"]  = polarity();
@@ -81,13 +79,6 @@ QJsonObject Stored::toJSON(const SourceList *) const noexcept
     object["icoherence"] = ignoreCoherence();
     object["delay"]     = delay();
     object["gain"]      = gain();
-
-    QJsonObject color;
-    color["red"]    = m_color.red();
-    color["green"]  = m_color.green();
-    color["blue"]   = m_color.blue();
-    color["alpha"]  = m_color.alpha();
-    object["color"] = color;
 
     QJsonArray ftdata;
     for (unsigned int i = 0; i < m_dataLength; ++i) {
@@ -119,8 +110,10 @@ QJsonObject Stored::toJSON(const SourceList *) const noexcept
 
     return object;
 }
-void Stored::fromJSON(QJsonObject data, const SourceList *) noexcept
+void Stored::fromJSON(QJsonObject data, const SourceList *list) noexcept
 {
+    Source::fromJSON(data, list);
+
     auto ftdata         = data["ftdata"].toArray();
     auto impulse        = data["impulse"].toArray();
 
@@ -146,23 +139,12 @@ void Stored::fromJSON(QJsonObject data, const SourceList *) noexcept
         m_impulseData[i].value   = static_cast<float>(row[1].toDouble());
     }
 
-    auto jsonColor = data["color"].toObject();
-    QColor c(
-        jsonColor["red"  ].toInt(0),
-        jsonColor["green"].toInt(0),
-        jsonColor["blue" ].toInt(0),
-        jsonColor["alpha"].toInt(1));
-    setColor(c);
-
     setPolarity(data["polarity"].toBool(false));
     setInverse( data["inverse" ].toBool(false));
     setIgnoreCoherence(data["icoherence"].toBool(false));
     setDelay(data["delay"].toDouble(0));
     setGain( data["gain" ].toDouble(0));
-
-    setName(data["name"].toString());
     setNotes(data["notes"].toString());
-    setActive(data["active"].toBool(active()));
 }
 
 bool Stored::save(const QUrl &fileName) const noexcept
