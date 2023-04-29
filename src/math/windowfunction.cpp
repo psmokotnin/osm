@@ -31,7 +31,8 @@ const std::map<WindowFunction::Type, QString> WindowFunction::TypeMap = {
     {WindowFunction::Type::Hamming, "Hamming"},
     {WindowFunction::Type::FlatTop, "Flat Top"},
     {WindowFunction::Type::BlackmanHarris, "Blackman Harris"},
-    {WindowFunction::Type::HFT223D, "HFT223D"}
+    {WindowFunction::Type::HFT223D, "HFT223D"},
+    {WindowFunction::Type::Exponental, "Exponental"}
 };
 void WindowFunction::setSize(unsigned int size)
 {
@@ -68,8 +69,8 @@ float WindowFunction::pointGain(float i, unsigned int N) const
 
     case Type::FlatTop:
         return 1 -
-               1.930 * cos(2 * z) + 1.290 * cos(4 * z) -
-               0.388 * cos(6 * z) + 0.028 * cos(8 * z);
+               1.930 * cos(1 * z) + 1.290 * cos(2 * z) -
+               0.388 * cos(3 * z) + 0.028 * cos(4 * z);
 
     case Type::HFT223D:
         return 1.0 -
@@ -78,6 +79,12 @@ float WindowFunction::pointGain(float i, unsigned int N) const
                0.17296769663 * cos(5 * z) + 0.03233247087 * cos(6 * z) -
                0.00324954578 * cos(7 * z) + 0.00013801040 * cos(8 * z) -
                0.00000132725 * cos(9 * z);
+
+    case Type::Exponental: {
+        auto t = (N / 2) * 8.69 / (7 * 8.69); //-140dB on edges
+        auto power = - std::abs(i - N / 2) / t;
+        return std::pow(M_E, power);
+    }
     }
 }
 void WindowFunction::setType(Type t)
@@ -93,6 +100,11 @@ QVariant WindowFunction::getTypes()
     }
     return typeList;
 }
+float WindowFunction::gain() const
+{
+    return m_gain;
+}
+
 void WindowFunction::calculate()
 {
     float cg = 0.0;

@@ -28,7 +28,7 @@ class WindowFunction : QObject
     Q_OBJECT
 
 public:
-    enum Type {Rectangular, Hann, Hamming, FlatTop, BlackmanHarris, HFT223D};
+    enum Type {Rectangular, Hann, Hamming, FlatTop, BlackmanHarris, HFT223D, Exponental};
     Q_ENUM(Type)
     static const std::map<Type, QString> TypeMap;
 
@@ -72,6 +72,7 @@ public:
         return WindowFunction::TypeMap.at(type);
     }
 
+    float gain() const;
 };
 QDebug operator<<(QDebug dbg, const WindowFunction::Type &t);
 #endif // WINDOWFUNCTION_H
