@@ -51,6 +51,7 @@ SOURCES += src/main.cpp \
     src/meta/metafilter.cpp \
     src/meta/metameasurement.cpp \
     src/meta/metastored.cpp \
+    src/meta/metawindowing.cpp \
     src/remote/item.cpp \
     src/remote/items/measurementitem.cpp \
     src/remote/items/storeditem.cpp \
@@ -58,6 +59,7 @@ SOURCES += src/main.cpp \
     src/remote/remoteclient.cpp \
     src/remote/server.cpp \
     src/remote/tcpreciever.cpp \
+    src/source/sourcewindowing.cpp \
     src/sourcelist.cpp \
     src/sourcemodel.cpp \
     src/standardline.cpp \
@@ -125,7 +127,8 @@ INCLUDEPATH += \
     src/meta \
     src/common \
     src/remote \
-    src/generator
+    src/generator \
+    src/source
 
 HEADERS += \
     src/audio/client.h \
@@ -172,6 +175,7 @@ HEADERS += \
     src/meta/metafilter.h \
     src/meta/metameasurement.h \
     src/meta/metastored.h \
+    src/meta/metawindowing.h \
     src/remote/item.h \
     src/remote/items/measurementitem.h \
     src/remote/items/storeditem.h \
@@ -179,6 +183,7 @@ HEADERS += \
     src/remote/remoteclient.h \
     src/remote/server.h \
     src/remote/tcpreciever.h \
+    src/source/sourcewindowing.h \
     src/sourcelist.h \
     src/sourcemodel.h \
     src/standardline.h \

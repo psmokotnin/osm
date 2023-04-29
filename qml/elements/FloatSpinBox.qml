@@ -79,7 +79,10 @@ Item {
         }
 
         function updateValue() {
-            spinbox.value = Math.round(floatspinbox.value * floatspinbox.scale * Math.pow(10, floatspinbox.decimals));
+            var newValue = Math.round(floatspinbox.value * floatspinbox.scale * Math.pow(10, floatspinbox.decimals));
+            if (spinbox.value != newValue) {
+                spinbox.value = newValue;
+            }
         }
 
         onValueChanged: function() {

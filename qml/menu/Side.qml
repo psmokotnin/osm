@@ -80,6 +80,10 @@ Drawer {
         ListElement {
             name: qsTr("Add filter")
             onclick: function() {sourceList.addFilter();}
+        }
+        ListElement {
+            name: qsTr("Add windowing")
+            onclick: function() {sourceList.addWindowing();}
             separator: true
         }
         ListElement {

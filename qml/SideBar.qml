@@ -25,6 +25,7 @@ import QtQuick.Controls.Material 2.12
 import SourceModel 1.0
 import OpenSoundMeter 1.0
 import "elements"
+import "source"
 
 /**
  * SideBar
@@ -123,6 +124,14 @@ Item {
         Component {
             id: filterDelegate
             Filter {
+                width: sideList.width
+                dataModel: modelData
+                highlight: modelHighlight
+            }
+        }
+        Component {
+            id: windowingDelegate
+            Windowing {
                 width: sideList.width
                 dataModel: modelData
                 highlight: modelHighlight
@@ -236,6 +245,7 @@ Item {
                                         case "Union": return unionDelegate;
                                         case "StandardLine": return standardLineDelegate;
                                         case "Filter": return filterDelegate;
+                                        case "Windowing": return windowingDelegate;
 
                                         case "RemoteItem":
                                         case "RemoteStored":

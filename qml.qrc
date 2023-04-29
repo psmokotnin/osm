@@ -58,5 +58,7 @@
         <file alias="SPL/MeterProperties.qml">qml/SPL/MeterProperties.qml</file>
         <file alias="Filter.qml">qml/Filter.qml</file>
         <file alias="FilterProperties.qml">qml/FilterProperties.qml</file>
+        <file alias="source/Windowing.qml">qml/source/Windowing.qml</file>
+        <file alias="source/WindowingProperties.qml">qml/source/WindowingProperties.qml</file>
     </qresource>
 </RCC>

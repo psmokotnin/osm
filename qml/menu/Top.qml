@@ -188,6 +188,11 @@ MenuBar {
             onTriggered: sourceList.addFilter();
         }
         MenuItem {
+            text: qsTr("&Add windowing")
+            shortcut: "Ctrl+W"
+            onTriggered: sourceList.addWindowing();
+        }
+        MenuItem {
             text: qsTr("&Show target")
             shortcut: "Ctrl+T"
             checkable: true
@@ -215,7 +220,7 @@ MenuBar {
         MenuItem {
             id: calculator
             text: qsTr("&Calculator")
-            shortcut: "Ctrl+W"
+            shortcut: "Ctrl+K"
             checkable: false
             onTriggered: {
                 applicationWindow.properiesbar.open(null, "qrc:/Calculator.qml");
