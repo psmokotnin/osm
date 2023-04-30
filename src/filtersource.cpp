@@ -51,18 +51,9 @@ chart::Source *FilterSource::clone() const
     return cloned;
 }
 
-QJsonObject FilterSource::toJSON(const SourceList *) const noexcept
+QJsonObject FilterSource::toJSON(const SourceList *list) const noexcept
 {
-    QJsonObject object;
-    object["active"]    = active();
-    object["name"]      = name();
-
-    QJsonObject color;
-    color["red"]    = m_color.red();
-    color["green"]  = m_color.green();
-    color["blue"]   = m_color.blue();
-    color["alpha"]  = m_color.alpha();
-    object["color"] = color;
+    auto object = Source::toJSON(list);
 
     object["mode"]          = mode();
     object["type"]          = type();

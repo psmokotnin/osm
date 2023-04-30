@@ -42,7 +42,7 @@ public:
     FilterSource(QObject *parent = nullptr);
 
     Source *clone() const override;
-    Q_INVOKABLE QJsonObject toJSON(const SourceList * = nullptr) const noexcept override;
+    Q_INVOKABLE QJsonObject toJSON(const SourceList * list = nullptr) const noexcept override;
     void fromJSON(QJsonObject data, const SourceList * list = nullptr) noexcept override;
 
     Q_INVOKABLE chart::Source *store() noexcept override;

@@ -42,37 +42,20 @@ chart::Source *StandardLine::clone() const
     return cloned;
 }
 
-QJsonObject StandardLine::toJSON(const SourceList *) const noexcept
+QJsonObject StandardLine::toJSON(const SourceList *list) const noexcept
 {
-    QJsonObject object;
+    auto object = Source::toJSON(list);
     object["mode"]      = mode();
     object["loudness"]  = loudness();
-    object["active"]    = active();
-    object["name"]      = name();
-
-    QJsonObject color;
-    color["red"]    = m_color.red();
-    color["green"]  = m_color.green();
-    color["blue"]   = m_color.blue();
-    color["alpha"]  = m_color.alpha();
-    object["color"] = color;
 
     return object;
 }
 
-void StandardLine::fromJSON(QJsonObject data, const SourceList *) noexcept
+void StandardLine::fromJSON(QJsonObject data, const SourceList *list) noexcept
 {
-    auto jsonColor = data["color"].toObject();
-    QColor c(
-        jsonColor["red"  ].toInt(0),
-        jsonColor["green"].toInt(0),
-        jsonColor["blue" ].toInt(0),
-        jsonColor["alpha"].toInt(1));
-    setColor(c);
     setMode(data["mode"].toInt(mode()));
     setLoudness(data["loudness"].toDouble());
-    setName(data["name"].toString());
-    setActive(data["active"].toBool(active()));
+    Source::fromJSON(data, list);
 }
 
 float StandardLine::loudness() const noexcept
