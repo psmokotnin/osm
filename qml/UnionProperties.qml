@@ -124,7 +124,7 @@ Item {
                     model: SourceModel {
                         id: sourceModel
                         addNone: (modelData > 1 ? true : false)
-                        filter: dataObject
+                        filter: dataObject.uuid
                         noneTitle: "None"
                         list: sourceList
                     }

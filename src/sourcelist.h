@@ -44,7 +44,7 @@ class SourceList : public QObject
 
 public:
     explicit SourceList(QObject *parent = nullptr, bool appendMeasurement = true);
-    SourceList *clone(QObject *parent, chart::Source *filter = nullptr) const;
+    SourceList *clone(QObject *parent, chart::Source::id filter = {}) const;
 
     int count() const noexcept;
     chart::Source *firstSource() const noexcept;

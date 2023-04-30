@@ -19,7 +19,7 @@
 #include "sourcelist.h"
 
 SourceModel::SourceModel(QObject *parent)
-    : QAbstractListModel(parent), m_list(nullptr), m_filter(nullptr),
+    : QAbstractListModel(parent), m_list(nullptr), m_filter(),
       m_addNone(false), m_addAll(false),
       m_noneIndex(-1), m_allIndex(-1),
       m_noneTitle("None"), m_allTitle("All")
@@ -100,7 +100,7 @@ void SourceModel::setList(SourceList *list)
 {
     beginResetModel();
 
-    if (m_addAll || m_addNone || m_filter) {
+    if (m_addAll || m_addNone || !m_filter.isNull()) {
         list = list->clone(this, filter());
     }
 
@@ -229,12 +229,12 @@ void SourceModel::setChecked(QList<chart::Source *> selected)
     m_list->setChecked(selected);
 }
 
-chart::Source *SourceModel::filter() const
+chart::Source::id SourceModel::filter() const
 {
     return m_filter;
 }
 
-void SourceModel::setFilter(chart::Source *filter)
+void SourceModel::setFilter(const chart::Source::id filter)
 {
     if (m_filter != filter) {
         m_filter = filter;

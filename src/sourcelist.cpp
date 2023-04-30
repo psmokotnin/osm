@@ -41,11 +41,11 @@ SourceList::SourceList(QObject *parent, bool appendMeasurement) :
         add<Measurement>();
     }
 }
-SourceList *SourceList::clone(QObject *parent, chart::Source *filter) const
+SourceList *SourceList::clone(QObject *parent, chart::Source::id filter) const
 {
     SourceList *list = new SourceList(parent, false);
     for (auto item : items()) {
-        if (filter != item) {
+        if (filter.isNull() || filter != item->uuid()) {
             list->appendItem(item);
         }
     }

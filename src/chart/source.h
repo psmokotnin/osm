@@ -36,8 +36,11 @@ class Source : public QObject
     Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
     Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged)
     Q_PROPERTY(bool cloneable READ cloneable CONSTANT)
+    Q_PROPERTY(QUuid uuid READ uuid CONSTANT)
 
 public:
+    typedef QUuid id;
+
     struct FTData {
         float frequency = 0;
         float module = 0;

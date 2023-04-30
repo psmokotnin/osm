@@ -19,18 +19,15 @@
 #define SOURCEMODEL_H
 
 #include <QAbstractListModel>
-
+#include "chart/source.h"
 class SourceList;
-namespace chart {
-class Source;
-}
 
 class SourceModel : public QAbstractListModel
 {
     Q_OBJECT
     Q_PROPERTY(SourceList *list READ list WRITE setList)
     Q_PROPERTY(QList<chart::Source *> checked READ checked WRITE setChecked NOTIFY checkedChanged)
-    Q_PROPERTY(chart::Source *filter READ filter WRITE setFilter NOTIFY filterChanged)
+    Q_PROPERTY(QUuid filter READ filter WRITE setFilter NOTIFY filterChanged)
     Q_PROPERTY(bool addNone READ addNone WRITE setAddNone)
     Q_PROPERTY(bool addAll READ addAll WRITE setAddAll)
     Q_PROPERTY(QString noneTitle READ noneTitle WRITE setNoneTitle)
@@ -77,8 +74,8 @@ public:
     QList<chart::Source *> checked() const;
     void setChecked(QList<chart::Source *> selected);
 
-    chart::Source *filter() const;
-    void setFilter(chart::Source *filter);
+    chart::Source::id filter() const;
+    void setFilter(const chart::Source::id filter);
 
 signals:
     void changed();
@@ -87,7 +84,7 @@ signals:
 
 private:
     SourceList *m_list;
-    chart::Source *m_filter;
+    chart::Source::id m_filter;
     bool m_addNone, m_addAll;
     int m_noneIndex, m_allIndex;
     QString m_noneTitle, m_allTitle;
