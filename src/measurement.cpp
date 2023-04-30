@@ -83,7 +83,7 @@ Measurement::Measurement(Settings *settings, QObject *parent) : chart::Source(pa
     m_deconvolution.setWindowFunctionType(m_windowFunctionType);
     m_delayFinder.setSize(pow(2, 16));
     m_delayFinder.setWindowFunctionType(m_windowFunctionType);
-    m_impulseData = new TimeData[m_deconvolutionSize];
+    m_impulseData.resize(m_deconvolutionSize);
     m_deconvLPFs.resize(m_deconvolutionSize);
     m_deconvAvg.setSize(m_deconvolutionSize);
     m_deconvAvg.reset();
@@ -260,8 +260,7 @@ void Measurement::updateFftPower()
 
     // Deconvolution:
     m_deconvolution.setSize(m_deconvolutionSize);
-    delete []m_impulseData;
-    m_impulseData = new TimeData[m_deconvolutionSize];
+    m_impulseData.resize(m_deconvolutionSize);
     m_deconvLPFs.resize(m_deconvolutionSize);
     m_deconvAvg.setSize(m_deconvolutionSize);
     m_deconvAvg.reset();
@@ -321,10 +320,7 @@ void Measurement::calculateDataLength()
 {
     auto frequencyList = m_dataFT.getFrequencies();
     m_dataLength = frequencyList.size();
-
-    if (m_ftdata)
-        delete[] m_ftdata;
-    m_ftdata = new FTData[m_dataLength];
+    m_ftdata.resize(m_dataLength);
     unsigned int i = 0;
     for (auto frequency : frequencyList) {
         m_ftdata[i++].frequency = frequency;
@@ -549,7 +545,7 @@ void Measurement::averaging()
         m_ftdata[i].peakSquared = m_meters[i].peakSquared();
         m_ftdata[i].meanSquared = m_meters[i].value();
     }
-    m_coherence.calculate(m_ftdata, &m_dataFT);
+    m_coherence.calculate(m_ftdata.data(), &m_dataFT);
 
     int t = 0;
     float kt = 1000.f / sampleRate();

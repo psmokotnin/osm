@@ -127,8 +127,7 @@ void FilterSource::update()
 
         auto frequencyList = m_dataFT.getFrequencies();
         m_dataLength = frequencyList.size();
-        delete[] m_ftdata;
-        m_ftdata = new FTData[m_dataLength];
+        m_ftdata.resize(m_dataLength);
         unsigned int i = 0;
         for (auto frequency : frequencyList) {
             auto H = calculate(frequency);
@@ -141,8 +140,7 @@ void FilterSource::update()
             ++i;
         }
 
-        delete []m_impulseData;
-        m_impulseData = new TimeData[m_deconvolutionSize];
+        m_impulseData.resize(m_deconvolutionSize);
 
         frequencyList = m_inverse.getFrequencies();
         for (unsigned int i = 0; i < frequencyList.size(); ++i) {

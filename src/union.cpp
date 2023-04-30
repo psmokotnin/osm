@@ -126,8 +126,8 @@ void Union::resize()
     chart::Source *primary = m_sources.first();
     m_dataLength         = static_cast<unsigned int>(primary ? primary->size() : 1);
     m_deconvolutionSize = static_cast<unsigned int>(primary ? primary->impulseSize() : 1);
-    m_ftdata             = new FTData[m_dataLength];
-    m_impulseData        = new TimeData[m_deconvolutionSize];
+    m_ftdata.resize(m_dataLength);
+    m_impulseData.resize(m_deconvolutionSize);
 }
 chart::Source *Union::getSource(int index) const noexcept
 {
@@ -203,9 +203,13 @@ void Union::calc() noexcept
         if (s) {
             sources.insert(s);
             if (s->size() != primary->size()) {
-                setActive(false);
-                emit Notifier::getInstance()->newMessage(name(), " Source size is not the same: " + s->name());
-                return;
+                if (0/*can resize*/) {
+                    //resize
+                } else {
+                    setActive(false);
+                    emit Notifier::getInstance()->newMessage(name(), " Source size is not the same: " + s->name());
+                    return;
+                }
             }
             count ++;
         }
@@ -679,21 +683,12 @@ void Union::sourceDestroyed(Source *source)
 
 QJsonObject Union::toJSON(const SourceList *list) const noexcept
 {
-    QJsonObject object;
-    object["active"]    = active();
-    object["name"]      = name();
+    auto object = Source::toJSON(list);
 
     object["count"]     = count();
     object["type"]      = type();
     object["operation"] = operation();
     object["autoName"]  = autoName();
-
-    QJsonObject color;
-    color["red"]    = m_color.red();
-    color["green"]  = m_color.green();
-    color["blue"]   = m_color.blue();
-    color["alpha"]  = m_color.alpha();
-    object["color"] = color;
 
     QJsonArray sources;
     if (list) {

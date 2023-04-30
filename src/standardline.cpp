@@ -106,11 +106,9 @@ void StandardLine::createELC()
     static const std::vector<double> Tf {78.5, 68.7, 59.5, 51.1, 44.0, 37.5, 31.5, 26.5, 22.1, 17.9, 14.4, 11.4, 8.6, 6.2, 4.4, 3.0, 2.2, 2.4, 3.5,
                                          1.7, -1.3, -4.2, -6.0, -5.4, -1.5, 6.0, 12.6, 13.9, 12.3};
 
-    m_dataLength = fs.size();
     m_deconvolutionSize = 0;
-
-    delete[] m_ftdata;
-    m_ftdata = new FTData[fs.size()];
+    m_dataLength = fs.size();
+    m_ftdata.resize(fs.size());
 
     for (size_t i = 0; i < fs.size(); ++i) {
         m_ftdata[i].frequency   = fs[i];
@@ -140,8 +138,7 @@ void StandardLine::createWeighting()
     static const auto f4 = 12194.217;
     static const auto f5 = 158.489032;
 
-    delete[] m_ftdata;
-    m_ftdata = new FTData[m_dataLength];
+    m_ftdata.resize(m_dataLength);
 
     //i = 10...43
     for (size_t i = 0; i < m_dataLength; ++i) {

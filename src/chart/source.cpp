@@ -21,8 +21,8 @@
 using namespace chart;
 Source::Source(QObject *parent) : QObject(parent),
     m_dataMutex(), m_onReset(false),
-    m_ftdata(nullptr),
-    m_impulseData(nullptr),
+    m_ftdata(),
+    m_impulseData(),
     m_dataLength(0),
     m_deconvolutionSize(0),
     m_active(false),
@@ -32,12 +32,6 @@ Source::Source(QObject *parent) : QObject(parent),
 
 Source::~Source()
 {
-    if (m_impulseData) {
-        delete[] m_impulseData;
-    }
-    if (m_ftdata) {
-        delete[] m_ftdata;
-    }
 }
 
 bool Source::cloneable() const
@@ -166,30 +160,23 @@ float Source::impulseValue(const unsigned int &i) const noexcept
 void Source::copy(FTData *dataDist, TimeData *timeDist)
 {
     if (dataDist) {
-        std::copy_n(m_ftdata, size(), dataDist);
+        std::copy_n(m_ftdata.data(), size(), dataDist);
     }
     if (timeDist) {
-        std::copy_n(m_impulseData, impulseSize(), timeDist);
+        std::copy_n(m_impulseData.data(), impulseSize(), timeDist);
     }
 }
 
 void Source::copyFrom(size_t dataSize, size_t timeSize, Source::FTData *dataSrc,
                       Source::TimeData *timeSrc)
 {
-    if (m_ftdata) {
-        delete[] m_ftdata;
-    }
-    if (m_impulseData) {
-        delete[] m_impulseData;
-    }
-
     m_dataLength = dataSize;
     m_deconvolutionSize = timeSize;
-    m_ftdata = new FTData[m_dataLength];
-    m_impulseData = new TimeData[m_deconvolutionSize];
+    m_ftdata.resize(m_dataLength);
+    m_impulseData.resize(m_deconvolutionSize);
 
-    std::copy_n(dataSrc, size(), m_ftdata);
-    std::copy_n(timeSrc, impulseSize(), m_impulseData);
+    std::copy_n(dataSrc, size(), m_ftdata.data());
+    std::copy_n(timeSrc, impulseSize(), m_impulseData.data());
 }
 
 QJsonObject Source::toJSON(const SourceList *) const noexcept

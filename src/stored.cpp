@@ -54,9 +54,9 @@ void Stored::build (chart::Source *source)
     source->lock();
     m_dataLength = source->size();
     m_deconvolutionSize = source->impulseSize();
-    m_ftdata = new FTData[m_dataLength];
-    m_impulseData = new TimeData[m_deconvolutionSize];
-    source->copy(m_ftdata, m_impulseData);
+    m_ftdata.resize(m_dataLength);
+    m_impulseData.resize(m_deconvolutionSize);
+    source->copy(m_ftdata.data(), m_impulseData.data());
     source->unlock();
     emit readyRead();
 }
@@ -119,8 +119,8 @@ void Stored::fromJSON(QJsonObject data, const SourceList *list) noexcept
 
     m_dataLength         = static_cast<unsigned int>(ftdata.count());
     m_deconvolutionSize = static_cast<unsigned int>(impulse.count());
-    m_ftdata             = new FTData[m_dataLength];
-    m_impulseData        = new TimeData[m_deconvolutionSize];
+    m_ftdata.resize(m_dataLength);
+    m_impulseData.resize(m_deconvolutionSize);
 
     for (int i = 0; i < ftdata.count(); i++) {
         auto row = ftdata[i].toArray();

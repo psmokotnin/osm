@@ -162,9 +162,7 @@ void Item::applyData(const QJsonArray &data, const QJsonArray &timeData)
 
         if (m_dataLength != static_cast<unsigned int>(data.count())) {
             m_dataLength = static_cast<unsigned int>(data.count());
-
-            delete[] m_ftdata;
-            m_ftdata = new FTData[m_dataLength];
+            m_ftdata.resize(m_dataLength);
         }
 
         for (int i = 0; i < data.count(); i++) {
@@ -180,9 +178,7 @@ void Item::applyData(const QJsonArray &data, const QJsonArray &timeData)
 
         if (m_deconvolutionSize != static_cast<unsigned int>(timeData.count())) {
             m_deconvolutionSize = static_cast<unsigned int>(timeData.count());
-
-            delete[] m_impulseData;
-            m_impulseData        = new TimeData[m_deconvolutionSize];
+            m_impulseData.resize(m_deconvolutionSize);
         }
 
         for (int i = 0; i < timeData.count(); i++) {

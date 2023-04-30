@@ -151,12 +151,8 @@ void Windowing::resizeData()
     if (impulseSize() != size) {
         m_sampleRate = std::round(10.0 / (m_source->impulseTime(1) - m_source->impulseTime(0)));
         m_sampleRate *= 100;
-
-        if (m_impulseData) {
-            delete[] m_impulseData;
-        }
         m_deconvolutionSize = size;
-        m_impulseData = new TimeData[m_deconvolutionSize];
+        m_impulseData.resize(m_deconvolutionSize);
         m_window.setSize(m_deconvolutionSize);
 
         // FFT:
@@ -167,10 +163,7 @@ void Windowing::resizeData()
 
         auto frequencyList = m_dataFT.getFrequencies();
         m_dataLength = frequencyList.size();
-        if (m_ftdata) {
-            delete[] m_ftdata;
-        }
-        m_ftdata = new FTData[m_dataLength];
+        m_ftdata.resize(m_dataLength);
 
         unsigned int i = 0;
         for (auto frequency : frequencyList) {

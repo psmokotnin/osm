@@ -135,9 +135,9 @@ protected:
     //TODO: unsigned int m_sample_rate;
 
     std::mutex m_dataMutex;   //NOTE: shared_mutex (C++17)
-    std::atomic<bool> m_onReset;
-    FTData *m_ftdata;
-    TimeData *m_impulseData;
+    std::atomic<bool>       m_onReset;
+    std::vector<FTData>     m_ftdata;
+    std::vector<TimeData>   m_impulseData;
 
     unsigned int m_dataLength;
     unsigned int m_deconvolutionSize;
