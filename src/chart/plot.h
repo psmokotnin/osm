@@ -42,7 +42,7 @@ namespace chart {
 class Plot : public QQuickItem
 {
     Q_OBJECT
-    Q_PROPERTY(QList<chart::Source *> selected READ selected WRITE setSelected NOTIFY selectedChanged)
+    Q_PROPERTY(QList<QUuid> selected READ selected WRITE setSelected NOTIFY selectedChanged)
     Q_PROPERTY(QString xLabel READ xLabel NOTIFY xLabelChanged)
     Q_PROPERTY(QString yLabel READ yLabel NOTIFY yLabelChanged)
     Q_PROPERTY(QString rendererError READ rendererError NOTIFY rendererErrorChanged)
@@ -77,10 +77,10 @@ public:
     QString rendererError() const;
     void setRendererError(QString error);
 
-    QList<chart::Source *> selected() const;
-    void select(Source *source);
-    void setSelected(const QList<chart::Source *> selected);
-    bool isSelected(chart::Source *source) const;
+    QList<QUuid> selected() const;
+    void select(const QUuid &source);
+    void setSelected(const QList<QUuid> &selected);
+    bool isSelected(const QUuid &source) const;
 
     void setSelectAppended(bool selectAppended);
 
@@ -113,7 +113,7 @@ protected:
     QList<SeriesItem *> m_serieses;
     Settings *m_settings;
     Palette m_palette;
-    QList<QPointer<chart::Source>> m_selected;
+    QList<QUuid> m_selected;
     QString m_rendererError;
 
     static CursorHelper *s_cursorHelper;

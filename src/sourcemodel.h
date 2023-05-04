@@ -26,7 +26,7 @@ class SourceModel : public QAbstractListModel
 {
     Q_OBJECT
     Q_PROPERTY(SourceList *list READ list WRITE setList)
-    Q_PROPERTY(QList<chart::Source *> checked READ checked WRITE setChecked NOTIFY checkedChanged)
+    Q_PROPERTY(QList<QUuid> checked READ checked WRITE setChecked NOTIFY checkedChanged)
     Q_PROPERTY(QUuid filter READ filter WRITE setFilter NOTIFY filterChanged)
     Q_PROPERTY(bool addNone READ addNone WRITE setAddNone)
     Q_PROPERTY(bool addAll READ addAll WRITE setAddAll)
@@ -52,12 +52,12 @@ public:
     SourceList *list() const;
     void setList(SourceList *list);
 
-    Q_INVOKABLE int indexOf(chart::Source *item) const noexcept;
-    Q_INVOKABLE chart::Source *get(const int &index) const noexcept;
+    Q_INVOKABLE int indexOf(const QUuid &item) const noexcept;
+    Q_INVOKABLE QUuid get(const int &index) const noexcept;
 
     Q_INVOKABLE void check(const int &index, const bool &checked) noexcept;
     Q_INVOKABLE int checkedCount() const;
-    Q_INVOKABLE chart::Source *firstChecked() const noexcept;
+    Q_INVOKABLE QUuid firstChecked() const noexcept;
 
     bool addNone() const noexcept;
     void setAddNone(bool addNone) noexcept;
@@ -71,11 +71,11 @@ public:
     QString allTitle() const;
     void setAllTitle(const QString &allTitle);
 
-    QList<chart::Source *> checked() const;
-    void setChecked(QList<chart::Source *> selected);
+    QList<QUuid> checked() const;
+    void setChecked(const QList<QUuid> &selected);
 
-    chart::Source::id filter() const;
-    void setFilter(const chart::Source::id filter);
+    QUuid filter() const;
+    void setFilter(const QUuid filter);
 
 signals:
     void changed();
@@ -84,7 +84,7 @@ signals:
 
 private:
     SourceList *m_list;
-    chart::Source::id m_filter;
+    QUuid m_filter;
     bool m_addNone, m_addAll;
     int m_noneIndex, m_allIndex;
     QString m_noneTitle, m_allTitle;

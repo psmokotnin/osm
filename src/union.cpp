@@ -24,8 +24,7 @@
 
 std::mutex Union::s_calcmutex = std::mutex();
 
-Union::Union(Settings *settings, QObject *parent): chart::Source(parent),
-    m_settings(settings),
+Union::Union(QObject *parent): chart::Source(parent),
     m_sources(2),
     m_timer(nullptr), m_timerThread(nullptr),
     m_operation(Summation),
@@ -56,7 +55,7 @@ Union::~Union()
 
 chart::Source *Union::clone() const
 {
-    auto cloned = new Union(nullptr, parent());
+    auto cloned = new Union(parent());
 
     cloned->setCount(count());
     cloned->setOperation(operation());
@@ -144,6 +143,15 @@ chart::Source *Union::getSource(int index) const noexcept
     }
     return nullptr;
 }
+
+QUuid Union::getSourceId(int index) const noexcept
+{
+    auto source = getSource(index);
+    if (source) {
+        return source->uuid();
+    }
+    return {};
+}
 bool Union::setSource(int index, chart::Source *s) noexcept
 {
     if (s == getSource(index))
@@ -171,6 +179,16 @@ bool Union::setSource(int index, chart::Source *s) noexcept
         emit modelChanged();
     }
     return true;
+}
+
+bool Union::setSource(int index, QUuid id) noexcept
+{
+    auto list = qobject_cast<SourceList *>(parent());
+    if ( list) {
+        auto source = list->getByUUid(id);
+        return setSource(index, source);
+    }
+    return false;
 }
 void Union::update() noexcept
 {

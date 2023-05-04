@@ -19,7 +19,7 @@ import QtQuick 2.12
 import QtQuick.Controls 2.2
 import QtQuick.Controls.Material 2.2
 import QtGraphicalEffects 1.15
-import OpenSoundMeter 1
+import OpenSoundMeter 1.0
 import "elements"
 import "SPL" as SPL;
 

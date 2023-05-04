@@ -41,7 +41,7 @@ SourceList::SourceList(QObject *parent, bool appendMeasurement) :
         add<Measurement>();
     }
 }
-SourceList *SourceList::clone(QObject *parent, chart::Source::id filter) const
+SourceList *SourceList::clone(QObject *parent, QUuid filter) const
 {
     SourceList *list = new SourceList(parent, false);
     for (auto item : items()) {
@@ -64,12 +64,13 @@ SourceList *SourceList::clone(QObject *parent, chart::Source::id filter) const
     return list;
 }
 
-chart::Source *SourceList::firstSource() const noexcept
+QUuid SourceList::firstSource() const noexcept
 {
     if (m_items.count() == 0) {
-        return nullptr;
+        return {};
     }
-    return m_items.at(0);
+    auto first = m_items.at(0);
+    return first ? first->uuid() : QUuid();
 }
 
 const QVector<chart::Source *> &SourceList::items() const
@@ -162,6 +163,18 @@ int SourceList::indexOf(chart::Source *item) const noexcept
 {
     return m_items.indexOf(item);
 }
+
+int SourceList::indexOf(const QUuid &id) const noexcept
+{
+    for (auto &e : m_items) {
+        if (e->uuid() == id) {
+            return m_items.indexOf(e);
+        }
+    }
+
+    return -1;
+}
+
 bool SourceList::save(const QUrl &fileName) const noexcept
 {
     QFile saveFile(fileName.toLocalFile());
@@ -308,12 +321,12 @@ bool SourceList::importFile(const QUrl &fileName, QString separator)
     return true;
 }
 
-QList<chart::Source *> SourceList::checked() const
+QList<QUuid> SourceList::checked() const
 {
     return m_checked;
 }
 
-void SourceList::setChecked(const QList<chart::Source *> &checked)
+void SourceList::setChecked(const QList<QUuid> &checked)
 {
     m_checked = checked;
 }
@@ -418,14 +431,14 @@ void SourceList::setSelected(int selected)
     }
 }
 
-void SourceList::check(chart::Source *item)
+void SourceList::check(const QUuid item)
 {
     if (!isChecked(item)) {
         m_checked.push_back(item);
     }
 }
 
-void SourceList::uncheck(chart::Source *item)
+void SourceList::uncheck(const QUuid item)
 {
     m_checked.removeAll(item);
 }
@@ -434,7 +447,7 @@ void SourceList::checkAll()
 {
     for (auto &item : m_items) {
         if (item) {
-            check(item);
+            check(item->uuid());
         }
     }
 }
@@ -444,9 +457,9 @@ void SourceList::uncheckAll()
     m_checked.clear();
 }
 
-bool SourceList::isChecked(chart::Source *item) const noexcept
+bool SourceList::isChecked(const QUuid &item) const noexcept
 {
-    if (!item) {
+    if (item.isNull()) {
         return false;
     }
     return m_checked.contains(item);
@@ -457,10 +470,10 @@ int SourceList::checkedCount() const
     return m_checked.count();
 }
 
-chart::Source *SourceList::firstChecked() const noexcept
+QUuid SourceList::firstChecked() const noexcept
 {
     if (m_checked.length() == 0) {
-        return nullptr;
+        return {};
     }
     return m_checked.at(0);
 }
@@ -522,7 +535,7 @@ template<typename T> bool SourceList::loadObject(const QJsonObject &data)
     if (data.isEmpty())
         return false;
 
-    auto s = new T();
+    auto s = new T(this);
     s->fromJSON(data, this);
     appendItem(s, false);
     nextColor();
@@ -530,7 +543,7 @@ template<typename T> bool SourceList::loadObject(const QJsonObject &data)
 }
 template<typename T> T *SourceList::add()
 {
-    auto *t = new T();
+    auto *t = new T(this);
     appendItem(t, true);
     return t;
 }
@@ -577,10 +590,13 @@ void SourceList::appendItem(chart::Source *item, bool autocolor)
     m_items.append(item);
     emit postItemAppended(item);
 }
-void SourceList::removeItem(chart::Source *item, bool deleteItem)
+void SourceList::removeItem(chart::Source *item, bool deleteItem)//TODO:uuid
 {
     auto guard = lock();
-    m_checked.removeAll(item);
+    if (!item) {
+        return;
+    }
+    m_checked.removeAll(item->uuid());
     for (int i = 0; i < m_items.size(); ++i) {
         if (m_items.at(i) == item) {
             auto item = get(i);

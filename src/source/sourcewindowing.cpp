@@ -271,6 +271,24 @@ void Windowing::setSource(chart::Source *newSource)
     emit sourceChanged();
 }
 
+QUuid Windowing::sourceId() const
+{
+    if (m_source) {
+        return m_source->uuid();
+    }
+
+    return QUuid{};
+}
+
+void Windowing::setSource(QUuid id)
+{
+    auto list = qobject_cast<SourceList *>(parent());
+    if ( list) {
+        auto source = list->getByUUid(id);
+        setSource(source);
+    }
+}
+
 chart::Source *Windowing::store() noexcept
 {
     auto *store = new Stored();

@@ -82,7 +82,7 @@ class Measurement : public chart::Source, public meta::Measurement
     Q_PROPERTY(bool calibration READ calibration WRITE setCalibration NOTIFY calibrationChanged)
 
 public:
-    explicit Measurement(Settings *settings = nullptr, QObject *parent = nullptr);
+    explicit Measurement(QObject *parent = nullptr);
     ~Measurement() override;
 
     static const unsigned int TIMER_INTERVAL = 80; //ms = 12.5 per sec
@@ -91,8 +91,8 @@ public:
 
     void setActive(bool active) override;
 
-    Q_INVOKABLE QJsonObject toJSON(const SourceList * list = nullptr) const noexcept override;
-    void fromJSON(QJsonObject data, const SourceList * list = nullptr) noexcept override;
+    Q_INVOKABLE QJsonObject toJSON(const SourceList *list = nullptr) const noexcept override;
+    void fromJSON(QJsonObject data, const SourceList *list = nullptr) noexcept override;
 
     float level(const Weighting::Curve curve = Weighting::Z, const Meter::Time time = Meter::Fast) const override;
     float peak(const Weighting::Curve curve = Weighting::Z, const Meter::Time time = Meter::Fast) const override;

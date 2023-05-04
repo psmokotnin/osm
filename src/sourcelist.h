@@ -37,17 +37,17 @@ class SourceList : public QObject
     Q_OBJECT
     Q_PROPERTY(int count READ count)
     Q_PROPERTY(QUrl currentFile READ currentFile)
-    Q_PROPERTY(chart::Source *first READ firstSource)
+    Q_PROPERTY(QUuid first READ firstSource)
     Q_PROPERTY(int selectedIndex READ selectedIndex WRITE setSelected NOTIFY selectedChanged)
     Q_PROPERTY(chart::Source *selected READ selected NOTIFY selectedChanged)
     using iterator = QVector<chart::Source *>::iterator;
 
 public:
     explicit SourceList(QObject *parent = nullptr, bool appendMeasurement = true);
-    SourceList *clone(QObject *parent, chart::Source::id filter = {}) const;
+    SourceList *clone(QObject *parent, QUuid filter = {}) const;
 
     int count() const noexcept;
-    chart::Source *firstSource() const noexcept;
+    QUuid firstSource() const noexcept;
     const QVector<chart::Source *> &items() const;
     SourceList::iterator begin() noexcept;
     SourceList::iterator end() noexcept;
@@ -64,19 +64,20 @@ public:
     Q_INVOKABLE bool importImpulse(const QUrl &fileName, QString separator);
     Q_INVOKABLE bool importWav(const QUrl &fileName) ;
     Q_INVOKABLE bool move(int from, int to) noexcept;
-    Q_INVOKABLE int indexOf(chart::Source *) const noexcept;
+    Q_INVOKABLE int indexOf(chart::Source *item) const noexcept;
+    Q_INVOKABLE int indexOf(const QUuid &id) const noexcept;
 
     int selectedIndex() const;
     chart::Source *selected() const noexcept;
     void setSelected(int selected);
 
-    void check(chart::Source *item);
-    void uncheck(chart::Source *item);
+    void check(const QUuid item);
+    void uncheck(const QUuid item);
     void checkAll();
     void uncheckAll();
-    bool isChecked(chart::Source *item) const noexcept;
+    bool isChecked(const QUuid &item) const noexcept;
     int checkedCount() const;
-    chart::Source *firstChecked() const noexcept;
+    QUuid firstChecked() const noexcept;
 
     enum {
         TRANSFER_TXT    = 0,
@@ -86,8 +87,8 @@ public:
         IMPULSE_WAV     = 4
     };
 
-    QList<chart::Source *> checked() const;
-    void setChecked(const QList<chart::Source *> &checked);
+    QList<QUuid> checked() const;
+    void setChecked(const QList<QUuid> &checked);
 
     std::lock_guard<std::mutex> lock() const;
 
@@ -124,8 +125,8 @@ private:
     template<typename T> T *add();
     bool importFile(const QUrl &fileName, QString separator);
 
-    QVector<chart::Source *> m_items;
-    QList<chart::Source *> m_checked;
+    QVector<chart::Source *> m_items; //TODO: unordered_map<uuid, shared_ptr>
+    QList<QUuid> m_checked;
     QUrl m_currentFile;
     const QList<QColor> m_colors {
         "#F44336", "#FFEB3B", "#9C27B0", "#673AB7",

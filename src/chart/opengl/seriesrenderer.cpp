@@ -63,8 +63,8 @@ void SeriesRenderer::synchronize(QQuickFramebufferObject *item)
             m_height = static_cast<GLsizei>(m_item->height() * retinaScale);
             m_retinaScale = static_cast<GLfloat>(retinaScale);
             auto plot = static_cast<chart::Plot *>(m_item->parent());
-            if (plot) {
-                m_renderActive = plot->isSelected(m_source);
+            if (plot && m_source) {
+                m_renderActive = plot->isSelected(m_source->uuid());
                 m_weight = plot->palette().lineWidth(seriesFBO->highlighted());
             } else {
                 m_renderActive = false;

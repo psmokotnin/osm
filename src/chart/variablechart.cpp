@@ -82,7 +82,8 @@ void VariableChart::initType()
         newPlot = new SpectrogramPlot(m_settings, this);
         newPlot->setSelectAppended(false);
         if (m_sources) {
-            newPlot->setSelected({m_sources->firstSource()});
+            auto first = m_sources->firstSource();
+            newPlot->setSelected({first});
         }
         break;
 

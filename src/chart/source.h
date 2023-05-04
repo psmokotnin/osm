@@ -17,14 +17,16 @@
  */
 #ifndef SOURCE_H
 #define SOURCE_H
-#include <QObject>
-#include <QColor>
-#include <QJsonObject>
+
 #include <mutex>
 #include <unordered_map>
 
-#include "../math/complex.h"
-#include "../math/meter.h"
+#include <QObject>
+#include <QColor>
+#include <QJsonObject>
+
+#include "math/complex.h"
+#include "math/meter.h"
 class SourceList;
 
 namespace chart {
@@ -39,8 +41,6 @@ class Source : public QObject
     Q_PROPERTY(QUuid uuid READ uuid CONSTANT)
 
 public:
-    typedef QUuid id;
-
     struct FTData {
         float frequency = 0;
         float module = 0;

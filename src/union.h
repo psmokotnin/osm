@@ -25,7 +25,6 @@
 
 #include <set>
 #include "chart/source.h"
-#include "common/settings.h"
 
 class Union : public chart::Source
 {
@@ -58,7 +57,7 @@ public:
     Q_ENUMS(Operation)
     Q_ENUMS(Type)
 
-    explicit Union(Settings *settings = nullptr, QObject *parent = nullptr);
+    explicit Union(QObject *parent = nullptr);
     ~Union() override;
     Source *clone() const override;
 
@@ -66,7 +65,10 @@ public:
     void setCount(int count) noexcept;
 
     Q_INVOKABLE chart::Source *getSource(int index) const noexcept;
-    Q_INVOKABLE bool setSource(int index, chart::Source *s) noexcept;
+    Q_INVOKABLE QUuid getSourceId(int index) const noexcept;
+
+    bool setSource(int index, chart::Source *s) noexcept;
+    Q_INVOKABLE bool setSource(int index, QUuid id) noexcept;
 
     Q_INVOKABLE QJsonObject toJSON(const SourceList *list = nullptr) const noexcept override;
     void fromJSON(QJsonObject data, const SourceList *list = nullptr) noexcept override;
@@ -109,7 +111,6 @@ private:
     void calcPower(unsigned int count, chart::Source *primary) noexcept;
     void calcApply(chart::Source *primary) noexcept;
 
-    Settings *m_settings;
     SourceVector m_sources;
     QTimer m_timer;
     QThread m_timerThread;

@@ -32,7 +32,7 @@ class Windowing : public chart::Source, public meta::Windowing
 
     Q_PROPERTY(float wide READ wide WRITE setWide NOTIFY wideChanged)
     Q_PROPERTY(float offset READ offset WRITE setOffset NOTIFY offsetChanged)
-    Q_PROPERTY(chart::Source *source READ source WRITE setSource NOTIFY sourceChanged)
+    Q_PROPERTY(QUuid source READ sourceId WRITE setSource NOTIFY sourceChanged)
     Q_PROPERTY(meta::Windowing::Mode mode READ mode WRITE setMode NOTIFY modeChanged)
     Q_PROPERTY(QString tipName READ tipName WRITE setTipName NOTIFY tipNameChanged)
     Q_PROPERTY(WindowFunction::Type window READ windowFunctionType WRITE setWindowFunctionType NOTIFY
@@ -52,6 +52,9 @@ public:
 
     chart::Source *source() const;
     void setSource(chart::Source *newSource);
+
+    QUuid sourceId() const;
+    void setSource(QUuid id);
 
     Q_INVOKABLE chart::Source *store() noexcept override;
 

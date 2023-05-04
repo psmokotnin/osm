@@ -95,37 +95,29 @@ void Plot::setSelectAppended(bool selectAppended)
     m_selectAppended = selectAppended;
 }
 
-QList<Source *> Plot::selected() const
+QList<QUuid> Plot::selected() const
 {
-    QList<Source *> list;
-    for (auto &item : m_selected) {
-        list.push_back(item);
-    }
-    return list;
+    return m_selected;
 }
 
-void Plot::select(Source *source)
+void Plot::select(const QUuid &source)
 {
     m_selected.push_back(source);
     emit selectedChanged();
 }
 
-void Plot::setSelected(const QList<Source *> selected)
+void Plot::setSelected(const QList<QUuid> &selected)
 {
-    QList<QPointer<chart::Source>> list = {};
-    for (auto item : selected) {
-        list.push_back(item);
-    }
-    if (m_selected != list) {
-        m_selected = list;
+    if (m_selected != selected) {
+        m_selected = selected;
         emit selectedChanged();
         update();
     }
 }
 
-bool Plot::isSelected(Source *source) const
+bool Plot::isSelected(const QUuid &source) const
 {
-    if (!source) {
+    if (source.isNull()) {
         return false;
     }
     return m_selected.contains(source);
@@ -164,7 +156,7 @@ void Plot::appendDataSource(Source *source)
         applyHeightForSeries(sourceItem);
 
         if (m_selectAppended) {
-            select(source);
+            select(source->uuid());
         }
     }
 }
@@ -175,7 +167,9 @@ void Plot::removeDataSource(Source *source)
             emit series->preSourceDeleted();
             series->deleteLater();
             m_serieses.removeOne(series);
-            m_selected.removeAll(source);
+            if (source) {
+                m_selected.removeAll(source->uuid());
+            }
             emit selectedChanged();
             update();
             return;

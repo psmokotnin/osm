@@ -125,6 +125,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 INCLUDEPATH += \
     src \
     src/meta \
+    src/chart \
     src/common \
     src/remote \
     src/generator \

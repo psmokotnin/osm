@@ -63,7 +63,7 @@ QVariant SourceModel::data(const QModelIndex &index, int role) const
         break;
 
     case CheckedRole:
-        r.setValue(m_list->isChecked(source));
+        r.setValue(m_list->isChecked(source ? source->uuid() : ""));
         break;
 
     case ColorRole:
@@ -145,14 +145,15 @@ void SourceModel::setList(SourceList *list)
     endResetModel();
 }
 
-int SourceModel::indexOf(chart::Source *item) const noexcept
+int SourceModel::indexOf(const QUuid &item) const noexcept
 {
     return m_list->indexOf(item);
 }
 
-chart::Source *SourceModel::get(const int &index) const noexcept
+QUuid SourceModel::get(const int &index) const noexcept
 {
-    return m_list->get(index);
+    auto item = m_list->get(index);
+    return item ? item->uuid() : QUuid{};
 }
 
 void SourceModel::check(const int &index, const bool &checked) noexcept
@@ -174,7 +175,7 @@ int SourceModel::checkedCount() const
     return m_list->checkedCount();
 }
 
-chart::Source *SourceModel::firstChecked() const noexcept
+QUuid SourceModel::firstChecked() const noexcept
 {
     return m_list->firstChecked();
 }
@@ -219,22 +220,22 @@ void SourceModel::setAllTitle(const QString &allTitle)
     m_allTitle = allTitle;
 }
 
-QList<chart::Source *> SourceModel::checked() const
+QList<QUuid> SourceModel::checked() const
 {
     return m_list->checked();
 }
 
-void SourceModel::setChecked(QList<chart::Source *> selected)
+void SourceModel::setChecked(const QList<QUuid> &selected)
 {
     m_list->setChecked(selected);
 }
 
-chart::Source::id SourceModel::filter() const
+QUuid SourceModel::filter() const
 {
     return m_filter;
 }
 
-void SourceModel::setFilter(const chart::Source::id filter)
+void SourceModel::setFilter(const QUuid filter)
 {
     if (m_filter != filter) {
         m_filter = filter;

@@ -26,12 +26,12 @@
 #include "audio/client.h"
 #include "generator/generatorthread.h"
 
-Measurement::Measurement(Settings *settings, QObject *parent) : chart::Source(parent), meta::Measurement(),
+Measurement::Measurement(QObject *parent) : chart::Source(parent), meta::Measurement(),
     m_timer(nullptr), m_timerThread(nullptr),
     m_input(this),
     m_deviceId(audio::Client::defaultInputDeviceId()),
     m_audioStream(nullptr),
-    m_settings(settings),
+    m_settings(nullptr),//TODO: alean and remove
     m_currentMode(Mode::FFT10),
     m_workingDelay(0), m_delayFinderCounter(0),
     m_estimatedDelay(0),
@@ -635,7 +635,7 @@ chart::Source *Measurement::store() noexcept
 }
 chart::Source *Measurement::clone() const
 {
-    auto cloned = new Measurement(nullptr, parent());
+    auto cloned = new Measurement(parent());
     cloned->setActive(false);
     cloned->setMode(mode());
     cloned->setAverageType(averageType());

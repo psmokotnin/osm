@@ -128,8 +128,8 @@ Item {
                         noneTitle: "None"
                         list: sourceList
                     }
-                    currentIndex: { model.indexOf(dataObject.getSource(index)) }
-                    property var prevIndex: currentIndex
+                    currentIndex: { model.indexOf(dataObject.getSourceId(index)) }
+                    property int prevIndex: currentIndex
                     textRole: "title"
                     valueRole: "source"
                     Layout.fillWidth: true

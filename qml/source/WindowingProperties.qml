@@ -122,7 +122,9 @@ Item {
                     noneTitle: "None"
                     list: sourceList
                 }
-                currentIndex: { model.indexOf(dataObject.source) }
+                currentIndex: {
+                    model.indexOf(dataObject.source)
+                }
                 textRole: "title"
                 valueRole: "source"
                 Layout.preferredWidth: elementWidth
