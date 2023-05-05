@@ -148,7 +148,7 @@ void FilterSource::update()
             if (std::isnan(v.real) || std::isnan(v.imag)) {
                 v = 0;
             }
-            m_inverse.set(i, v, 0.f);
+            m_inverse.set(i, v.conjugate(), 0.f);
             m_inverse.set(m_deconvolutionSize - i - 1, v, 0.f);
         }
 
