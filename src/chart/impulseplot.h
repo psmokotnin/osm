@@ -32,6 +32,7 @@ public:
     Q_OBJECT
     Q_ENUM(Mode);
     Q_PROPERTY(Mode mode READ mode WRITE setMode NOTIFY modeChanged)
+    Q_PROPERTY(bool normalized READ normalized WRITE setNormalized NOTIFY normalizedChanged)
 
 public:
     ImpulsePlot(Settings *settings, QQuickItem *parent = Q_NULLPTR);
@@ -42,15 +43,19 @@ public:
     void setMode(const Mode &mode);
     void setMode(const int &mode);
 
+    bool normalized() const;
+    void setNormalized(bool newNormalized);
+
 signals:
     void modeChanged(Mode);
+    void normalizedChanged(bool);
 
 protected:
     virtual SeriesItem *createSeriesFromSource(Source *source) override;
 
 private:
     Mode m_mode;
-
+    bool m_normalized;
 };
 }
 #endif // IMPULSEPLOT_H

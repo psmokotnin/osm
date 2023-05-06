@@ -41,6 +41,7 @@ private:
     void *m_pipeline;
 
     ImpulsePlot::Mode m_mode;
+    bool m_normalized;
 };
 
 } // namespace chart

@@ -43,6 +43,7 @@ void ImpulseSeriesNode::synchronizeSeries()
     synchronizeMatrix();
     if (auto *impulsePlot = dynamic_cast<ImpulsePlot *>(plot())) {
         m_mode = impulsePlot->mode();
+        m_normalized = impulsePlot->normalized();
     }
 }
 
@@ -56,15 +57,25 @@ void ImpulseSeriesNode::renderSeries()
     unsigned int maxBufferSize = (m_source->impulseSize() - 1) * VERTEX_PER_SEGMENT * LINE_VERTEX_SIZE, verticiesCount = 0;
     float *vertex_ptr = vertexBuffer(maxBufferSize);
 
+    float max = 0;
+    if (m_normalized) {
+        for (unsigned int i = 0, j = 0; i < m_source->impulseSize(); ++i) {
+            max = std::max(max, std::abs(m_source->impulseValue(i)));
+        }
+    } else {
+        max = 1;
+    }
+
     float dcOffset =  (m_source->impulseValue(0) + m_source->impulseValue(m_source->impulseSize() - 1)) / 2;
+    dcOffset /= max;
     float value = 0, lastValue = 0, lastTime = 0;
     for (unsigned int i = 0, j = 0; i < m_source->impulseSize(); ++i) {
         switch (m_mode) {
         case ImpulsePlot::Linear:
-            value = m_source->impulseValue(i) - dcOffset;
+            value = m_source->impulseValue(i) / max - dcOffset;
             break;
         case ImpulsePlot::Log:
-            value = 10 * std::log10f(std::powf(m_source->impulseValue(i) - dcOffset, 2));
+            value = 10 * std::log10f(std::powf(m_source->impulseValue(i) / max - dcOffset, 2));
             break;
         }
         if (i > 0) {

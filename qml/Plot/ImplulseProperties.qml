@@ -19,6 +19,7 @@ import QtQuick 2.9
 import QtQuick.Controls 2.2
 import QtQuick.Layouts 1.3
 import QtQuick.Dialogs 1.3
+import QtQuick.Controls.Material 2.12
 
 import "../elements"
 import SourceModel 1.0
@@ -117,7 +118,7 @@ Item {
         }
     }
     RowLayout {
-        spacing: 0
+        spacing: 5
 
         TitledCombo {
             tooltip: qsTr("Y axis mode")
@@ -129,7 +130,19 @@ Item {
             }
         }
 
-        RowLayout {
+        Button {
+            text: "normalize"
+            checkable: true
+            checked: dataObject.normalized
+            onCheckedChanged: dataObject.normalized = checked
+
+            Material.background: parent.Material.background
+
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("normalize data")
+        }
+
+        Item {
             Layout.fillWidth: true
         }
 

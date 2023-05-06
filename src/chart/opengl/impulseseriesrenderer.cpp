@@ -60,16 +60,26 @@ void ImpulseSeriesRenderer::renderSeries()
         m_refreshBuffers = true;
     }
 
+    float max = 0;
+    if (m_normalized) {
+        for (unsigned int i = 0, j = 0; i < m_source->impulseSize(); ++i) {
+            max = std::max(max, std::abs(m_source->impulseValue(i)));
+        }
+    } else {
+        max = 1;
+    }
+
     float dc =  (m_source->impulseValue(0) + m_source->impulseValue(m_source->impulseSize() - 1)) / 2;
+    dc /= max;
     float value = 0, lastValue = 0, lastTime = 0;
     for (unsigned int i = 0, j = 0; i < m_source->impulseSize(); ++i) {
 
         switch (m_mode) {
         case ImpulsePlot::Linear:
-            value = m_source->impulseValue(i) - dc;
+            value = m_source->impulseValue(i) / max - dc;
             break;
         case ImpulsePlot::Log:
-            value = 10 * std::log10(std::pow(m_source->impulseValue(i) - dc, 2));
+            value = 10 * std::log10(std::pow(m_source->impulseValue(i) / max - dc, 2));
             break;
         }
 
@@ -124,6 +134,7 @@ void ImpulseSeriesRenderer::synchronize(QQuickFramebufferObject *item)
 
     if (auto *plot = dynamic_cast<ImpulsePlot *>(m_item ? m_item->parent() : nullptr)) {
         m_mode = plot->mode();
+        m_normalized = plot->normalized();
     }
 
 }

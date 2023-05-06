@@ -32,6 +32,8 @@ void ImpulsePlot::setSettings(Settings *settings) noexcept
 
         setMode(m_settings->reactValue<ImpulsePlot, ImpulsePlot::Mode>("mode", this, &ImpulsePlot::modeChanged,
                                                                        m_mode).toInt());
+        setNormalized(
+            m_settings->reactValue<ImpulsePlot, bool>("normalized", this, &ImpulsePlot::normalizedChanged, m_normalized).toBool());
     }
 }
 void ImpulsePlot::storeSettings() noexcept
@@ -41,6 +43,7 @@ void ImpulsePlot::storeSettings() noexcept
 
     XYPlot::storeSettings();
     m_settings->setValue("mode", m_mode);
+    m_settings->setValue("normalized", m_normalized);
 }
 
 ImpulsePlot::Mode ImpulsePlot::mode() const
@@ -86,4 +89,18 @@ void ImpulsePlot::setMode(const Mode &mode)
 void ImpulsePlot::setMode(const int &mode)
 {
     setMode(static_cast<Mode>(mode));
+}
+
+bool ImpulsePlot::normalized() const
+{
+    return m_normalized;
+}
+
+void ImpulsePlot::setNormalized(bool newNormalized)
+{
+    if (m_normalized == newNormalized)
+        return;
+    m_normalized = newNormalized;
+    update();
+    emit normalizedChanged(m_normalized);
 }

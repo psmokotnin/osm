@@ -35,6 +35,7 @@ protected:
 
 private:
     int m_widthUniform, m_screenUniform;
+    bool m_normalized;
     ImpulsePlot::Mode m_mode;
 };
 
