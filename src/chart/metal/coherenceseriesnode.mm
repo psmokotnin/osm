@@ -67,10 +67,11 @@ void CoherenceSeriesNode::renderSeries()
         case CoherencePlot::Type::Normal:
             value += m_source->coherence(i);
             break;
-        case CoherencePlot::Type::SNR:
-            value += 10.f * log10f(m_source->coherence(i) / (1 - m_source->coherence(i)));
-            break;
-
+        case CoherencePlot::Type::SNR: {
+            auto squared = powf(m_source->coherence(i), 2);
+            value += 10.f * log10f(squared / (1 - squared));
+        }
+        break;
         }
     };
     auto collected = [ &] (const float & f1, const float & f2, const float * ac, const float *) {
