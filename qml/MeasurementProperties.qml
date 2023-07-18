@@ -293,6 +293,16 @@ Item {
             }
 
             DropDown {
+                id: inputFilterSelect
+                model: dataObject.inputFilters
+                currentIndex: dataObject.inputFilter
+                onCurrentIndexChanged: dataObject.inputFilter = currentIndex
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("apply filter on M input")
+                Layout.preferredWidth: elementWidth
+            }
+
+            DropDown {
                 id: measurementChannel
                 enabled: isLocal
                 currentIndex: dataObject.dataChanel

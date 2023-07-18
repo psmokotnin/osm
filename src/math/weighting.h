@@ -22,8 +22,9 @@
 #include <map>
 #include <QtMath>
 #include <QVariant>
+#include "math/biquad.h"
 
-class Weighting
+class Weighting : public math::Filter
 {
 public:
     enum Curve {
@@ -45,9 +46,9 @@ public:
     constexpr static const double B_GAIN = 0.1696 + 1.2;
     constexpr static const double C_GAIN = 0.0619 + 1.3;
 
-    Weighting(Curve curve = Z);
+    Weighting(Curve curve = C, unsigned int sampleRate = 48000);
 
-    float operator() (const double &value);
+    float operator() (const float &value) override;
 
     unsigned int sampleRate() const;
     void setSampleRate(unsigned int sampleRate);
@@ -66,9 +67,9 @@ private:
     Curve m_curve;
     unsigned int m_sampleRate;
 
-    double m_gain;
+    float m_gain;
 
-    struct Filter {
+    struct WeghtingFilter : math::BiQuad {
         enum Mode {
             //! s / (s+a)
             Exponential,
@@ -77,16 +78,13 @@ private:
             TimeExponential
         };
 
-        explicit Filter(double frequency, Mode mode = Exponential, double numerator = 0.5 / M_PI);
+        explicit WeghtingFilter(double frequency, Mode mode = Exponential, double numerator = 0.5 / M_PI);
 
         void calculate(unsigned int sampleRate);
-        float operator() (const double &value);
 
         Mode m_mode;
         double m_numerator;
         double m_frequency;
-
-        std::array<double, 3> m_a, m_b, m_x, m_y;
 
     } m_filter1, m_filter2, m_filter3, m_filter4, m_filter5;
 

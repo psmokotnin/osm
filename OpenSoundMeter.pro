@@ -46,6 +46,8 @@ SOURCES += src/main.cpp \
     src/generator/mnoise.cpp \
     src/common/notifier.cpp \
     src/common/profiler.cpp \
+    src/math/biquad.cpp \
+    src/math/notch.cpp \
     src/math/weighting.cpp \
     src/meta/metabase.cpp \
     src/meta/metafilter.cpp \
@@ -171,6 +173,9 @@ HEADERS += \
     src/common/notifier.h \
     src/common/profiler.h \
     src/math/bessellpf.h \
+    src/math/biquad.h \
+    src/math/filter.h \
+    src/math/notch.h \
     src/math/weighting.h \
     src/meta/metabase.h \
     src/meta/metafilter.h \

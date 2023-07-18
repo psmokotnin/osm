@@ -28,17 +28,18 @@ const std::map<Weighting::Curve, QString>Weighting::m_curveMap = {
     {Weighting::Z,   "Z"},
 };
 
-Weighting::Weighting(Curve curve) : m_curve(curve), m_sampleRate(48000), m_gain(1.0),
-    m_filter1(F1, Filter::TimeExponential, F4),
+Weighting::Weighting(Curve curve, unsigned int sampleRate) : m_curve(curve), m_sampleRate(sampleRate),
+    m_gain(1.0),
+    m_filter1(F1, WeghtingFilter::TimeExponential, F4),
     m_filter2(F2), m_filter3(F3),
-    m_filter4(F4, Filter::TimeExponential, F4), m_filter5(F5)
+    m_filter4(F4, WeghtingFilter::TimeExponential, F4), m_filter5(F5)
 {
     updateCoefficients();
 }
 
-float Weighting::operator()(const double &value)
+float Weighting::operator()(const float &value)
 {
-    double result = m_gain * value;
+    float result = m_gain * value;
     switch (m_curve) {
     case A:
         result = m_filter1(result);
@@ -74,6 +75,7 @@ unsigned int Weighting::sampleRate() const
 void Weighting::setSampleRate(unsigned int sampleRate)
 {
     m_sampleRate = sampleRate;
+    updateCoefficients();
 }
 
 Weighting::Curve Weighting::curve() const
@@ -84,6 +86,7 @@ Weighting::Curve Weighting::curve() const
 void Weighting::setCurve(const Curve &curve)
 {
     m_curve = curve;
+    updateCoefficients();
 }
 
 QVariant Weighting::availableCurves()
@@ -145,13 +148,12 @@ void Weighting::updateCoefficients()
     }
 }
 
-Weighting::Filter::Filter(double frequency, Mode mode, double numerator) :
-    m_mode(mode), m_numerator(numerator), m_frequency(frequency),
-    m_a(), m_b(), m_x(), m_y()
+Weighting::WeghtingFilter::WeghtingFilter(double frequency, Mode mode, double numerator) :
+    m_mode(mode), m_numerator(numerator), m_frequency(frequency)
 {
 }
 
-void Weighting::Filter::calculate(unsigned int sampleRate)
+void Weighting::WeghtingFilter::calculate(unsigned int sampleRate)
 {
     std::fill(m_x.begin(), m_x.end(), 0);
     std::fill(m_y.begin(), m_y.end(), 0);
@@ -189,31 +191,4 @@ void Weighting::Filter::calculate(unsigned int sampleRate)
     }
     break;
     }
-}
-
-float Weighting::Filter::operator()(const double &value)
-{
-    for (int i = 2; i > 0; --i) {
-        m_x[i] = m_x[i - 1];
-        m_y[i] = m_y[i - 1];
-    }
-    m_x[0] = value;
-    m_y[0] = 0;
-
-    auto y_iter = m_y.begin() + 1;
-    float y = std::accumulate(m_a.cbegin() + 1, m_a.cend(), 0.f, [&](float acc, float value) {
-        acc += value * (*y_iter);
-        y_iter++;
-        return acc;
-    });
-
-    auto x_iter = m_x.begin();
-    float x = std::accumulate(m_b.cbegin(), m_b.cend(), 0.f, [&](float acc, float value) {
-        acc += value * (*x_iter);
-        x_iter++;
-        return acc;
-    });
-
-    m_y[0] = (x - y) / m_a[0];
-    return m_y[0];
 }

@@ -35,6 +35,7 @@
 #include "math/deconvolution.h"
 #include "math/bessellpf.h"
 #include "math/coherence.h"
+#include "math/filter.h"
 #include "common/settings.h"
 #include "container/circular.h"
 
@@ -59,6 +60,7 @@ class Measurement : public chart::Source, public meta::Measurement
 
     //constant meta properties
     Q_PROPERTY(QVariant modes READ getAvailableModes CONSTANT)
+    Q_PROPERTY(QVariant inputFilters READ getAvailableInputFilters CONSTANT)
     Q_PROPERTY(QVariant windows READ getAvailableWindowTypes CONSTANT)
 
     //local properties
@@ -80,6 +82,8 @@ class Measurement : public chart::Source, public meta::Measurement
     //calibration
     Q_PROPERTY(bool calibrationLoaded READ calibrationLoaded NOTIFY calibrationLoadedChanged)
     Q_PROPERTY(bool calibration READ calibration WRITE setCalibration NOTIFY calibrationChanged)
+
+    Q_PROPERTY(meta::Measurement::InputFilter inputFilter READ inputFilter WRITE setInputFilter NOTIFY inputFilterChanged)
 
 public:
     explicit Measurement(QObject *parent = nullptr);
@@ -136,6 +140,7 @@ protected slots:
     void updateAverage();
     void updateWindowFunction();
     void updateFilterFrequency();
+    void applyInputFilters();
 
 private:
     QTimer m_timer;
@@ -187,6 +192,8 @@ private:
     QVector<float> m_calibrationPhase;
     void applyCalibration();
 
+    std::pair<std::shared_ptr<math::Filter>, std::shared_ptr<math::Filter>> m_inputFilters;
+
     void updateAudio();
     void checkChannels();
 
@@ -212,6 +219,7 @@ signals:
     void filtersFrequencyChanged(Filter::Frequency) override;
     void delayChanged(int) override;
     void sampleRateChanged(unsigned int) override;
+    void inputFilterChanged(meta::Measurement::InputFilter) override;
 };
 
 #endif // MEASUREMENT_H

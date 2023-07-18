@@ -25,6 +25,7 @@
 #include "measurement.h"
 #include "audio/client.h"
 #include "generator/generatorthread.h"
+#include "math/notch.h"
 
 Measurement::Measurement(QObject *parent) : chart::Source(parent), meta::Measurement(),
     m_timer(nullptr), m_timerThread(nullptr),
@@ -110,6 +111,7 @@ Measurement::Measurement(QObject *parent) : chart::Source(parent), meta::Measure
     connect(this, &Measurement::averageChanged, this, &Measurement::updateAverage);
     connect(this, &Measurement::windowFunctionTypeChanged, this, &Measurement::updateWindowFunction);
     connect(this, &Measurement::filtersFrequencyChanged, this, &Measurement::updateFilterFrequency);
+    connect(this, &Measurement::inputFilterChanged, this, &Measurement::applyInputFilters);
 
     m_timerThread.start();
     setActive(true);
@@ -135,6 +137,7 @@ QJsonObject Measurement::toJSON(const SourceList *list) const noexcept
     data["polarity"]        = polarity();
     data["deviceName"]      = deviceName();
     data["mode"]            = mode();
+    data["inputFilters"]    = static_cast<int>(inputFilter());
 
     QJsonObject calibration;
     calibration["enabled"] = m_enableCalibration;
@@ -170,9 +173,10 @@ void Measurement::fromJSON(QJsonObject data, const SourceList *list) noexcept
     setMode(             data["mode"             ].toInt(mode()));
     setAverageType(      data["averageType"      ].toInt(averageType()));
     setFiltersFrequency( data["filtersFrequency" ].toInt(filtersFrequency()));
-    setWindowFunctionType(data["window.type"      ].toInt(m_windowFunctionType));
+    setWindowFunctionType(data["window.type"     ].toInt(m_windowFunctionType));
     setPolarity(         data["polarity"         ].toBool(polarity()));
     selectDevice(        data["deviceName"       ].toString(deviceName()));
+    setInputFilter(      data["inputFilters"     ].toInt(inputFilter()));
 
     QJsonObject calibration = data["calibration"].toObject();
     if (!calibration.isEmpty()) {
@@ -278,6 +282,35 @@ void Measurement::updateFilterFrequency()
         f->setFrequency(m_filtersFrequency);
     });
 }
+
+void Measurement::applyInputFilters()
+{
+    switch (m_inputFilter) {
+    case InputFilter::A:
+        std::atomic_store(&m_inputFilters.first,  std::shared_ptr<math::Filter>(new Weighting(Weighting::Curve::A,
+                                                                                              sampleRate())));
+        std::atomic_store(&m_inputFilters.second, std::shared_ptr<math::Filter>(new Weighting(Weighting::Curve::A,
+                                                                                              sampleRate())));
+        break;
+    case InputFilter::C:
+        std::atomic_store(&m_inputFilters.first,  std::shared_ptr<math::Filter>(new Weighting(Weighting::Curve::C,
+                                                                                              sampleRate())));
+        std::atomic_store(&m_inputFilters.second, std::shared_ptr<math::Filter>(new Weighting(Weighting::Curve::C,
+                                                                                              sampleRate())));
+        break;
+    case InputFilter::Notch: {
+        auto q = 3.f;// AES17-1998 says: 1 to 5
+        std::atomic_store(&m_inputFilters.first,  std::shared_ptr<math::Filter>(new math::Notch(1000, q, sampleRate())));
+        std::atomic_store(&m_inputFilters.second, std::shared_ptr<math::Filter>(new math::Notch(1000, q, sampleRate())));
+    }
+    break;
+    case InputFilter::Z:
+        std::atomic_store(&m_inputFilters.first, std::shared_ptr<math::Filter>());
+        std::atomic_store(&m_inputFilters.second, std::shared_ptr<math::Filter>());
+        break;
+    }
+}
+
 void Measurement::onSampleRateChanged()
 {
     std::lock_guard<std::mutex> guard(m_dataMutex);
@@ -287,6 +320,8 @@ void Measurement::onSampleRateChanged()
         m_dataFT.prepare();
         m_levelMeters.setSampleRate(sampleRate());
         calculateDataLength();
+        updateFilterFrequency();
+        applyInputFilters();
     }
 }
 audio::DeviceInfo::Id Measurement::deviceId() const
@@ -468,9 +503,17 @@ void Measurement::transform()
     updateDelay();
 
     float d, r;
+    auto filterM = m_inputFilters.first;
+    auto filterR = m_inputFilters.second;
+
     while (m_data.collected() > 0 && m_reference.collected() > 0) {
         d = m_data.read();
         r = m_reference.read();
+
+        if (filterM && filterR) {
+            d = filterM->operator()(d);
+            r = filterR->operator()(r);
+        }
 
         m_dataFT.add(d, r);
         m_deconvolution.add(d, r);

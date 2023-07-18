@@ -32,6 +32,7 @@ class Measurement : public Base
 {
     Q_GADGET
     QML_ELEMENT
+    //Q_PROPERTY(InputFilter inputFilter READ inputFilter WRITE setInputFilter NOTIFY inputFilterChanged)
 
 public:
     enum AverageType {Off, LPF, FIFO};
@@ -41,10 +42,14 @@ public:
     Q_ENUM(Mode)
     Q_ENUM(Filter::Frequency)
 
+    enum InputFilter {Z, A, C, Notch};
+    Q_ENUM(InputFilter)
+
     Measurement();
 
     static QVariant getAvailableModes();
     static QVariant getAvailableWindowTypes();
+    static QVariant getAvailableInputFilters();
 
     bool polarity() const;
     void setPolarity(bool polarity);
@@ -84,6 +89,10 @@ public:
     unsigned int sampleRate() const;
     void setSampleRate(unsigned int sampleRate);
 
+    meta::Measurement::InputFilter inputFilter() const;
+    void setInputFilter(meta::Measurement::InputFilter inputFilter);
+    void setInputFilter(QVariant inputFilter);
+
     Q_INVOKABLE virtual void resetAverage() noexcept = 0;
     Q_INVOKABLE virtual chart::Source *store() noexcept = 0;
     Q_INVOKABLE virtual void applyAutoGain(const float reference) = 0;
@@ -100,8 +109,10 @@ public:
     virtual void filtersFrequencyChanged(Filter::Frequency) = 0;
     virtual void delayChanged(int) = 0;
     virtual void sampleRateChanged(unsigned int) = 0;
+    virtual void inputFilterChanged(meta::Measurement::InputFilter) = 0;
 
     static const std::map<Mode, QString> m_modeMap;
+    static const std::map<InputFilter, QString> m_inputFilterMap;
     static const std::map<Mode, int> m_FFTsizes;
 
 protected:
@@ -112,6 +123,7 @@ protected:
     std::atomic<unsigned int> m_average;
     unsigned int m_sampleRate;
     Mode m_mode;
+    meta::Measurement::InputFilter m_inputFilter;
     AverageType m_averageType;
     Filter::Frequency m_filtersFrequency;
     WindowFunction::Type m_windowFunctionType;

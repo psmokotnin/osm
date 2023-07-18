@@ -29,6 +29,12 @@ const std::map<Measurement::Mode, QString>Measurement::m_modeMap = {
     {Measurement::FFT16, "16"},
     {Measurement::LFT,   "LTW"}
 };
+const std::map<Measurement::InputFilter, QString>Measurement::m_inputFilterMap = {
+    {Measurement::InputFilter::Z,     "Z"},
+    {Measurement::InputFilter::A,     "A"},
+    {Measurement::InputFilter::C,     "C"},
+    {Measurement::InputFilter::Notch, "Notch"},
+};
 const std::map<Measurement::Mode, int>Measurement::m_FFTsizes = {
     {Measurement::FFT10, 10},
     {Measurement::FFT11, 11},
@@ -46,6 +52,7 @@ Measurement::Measurement() : Base(),
     m_average(1),
     m_sampleRate(48000),
     m_mode(FFT14),
+    m_inputFilter(InputFilter::Z),
     m_averageType(AverageType::LPF),
     m_filtersFrequency(Filter::Frequency::FourthHz),
     m_windowFunctionType(WindowFunction::Type::Hann)
@@ -53,6 +60,7 @@ Measurement::Measurement() : Base(),
     qRegisterMetaType<Filter::Frequency>();
     qRegisterMetaType<meta::Measurement::Mode>();
     qRegisterMetaType<meta::Measurement::AverageType>();
+    qRegisterMetaType<meta::Measurement::InputFilter>();
     qRegisterMetaType<WindowFunction::Type>();
 }
 
@@ -95,6 +103,15 @@ QVariant Measurement::getAvailableModes()
 QVariant Measurement::getAvailableWindowTypes()
 {
     return WindowFunction::getTypes();
+}
+
+QVariant Measurement::getAvailableInputFilters()
+{
+    QStringList typeList;
+    for (const auto &type : m_inputFilterMap) {
+        typeList << type.second;
+    }
+    return typeList;
 }
 
 Measurement::Mode Measurement::mode() const
@@ -243,6 +260,26 @@ void Measurement::setSampleRate(unsigned int sampleRate)
         m_sampleRate = sampleRate;
         emit sampleRateChanged(m_sampleRate);
     }
+}
+
+meta::Measurement::Measurement::InputFilter Measurement::inputFilter() const
+{
+    return m_inputFilter;
+}
+
+void Measurement::setInputFilter(InputFilter inputFilter)
+{
+    if (m_inputFilter == inputFilter) {
+        return;
+    }
+
+    m_inputFilter = inputFilter;
+    emit inputFilterChanged(m_inputFilter);
+}
+
+void Measurement::setInputFilter(QVariant inputFilter)
+{
+    setInputFilter(static_cast<InputFilter>(inputFilter.toInt()));
 }
 
 } // namespace meta
