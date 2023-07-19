@@ -45,7 +45,8 @@ Item {
                 Layout.preferredWidth: grid.itemWidth
                 gridRef: grid
                 dataSource: MeterPlot {
-                    source: sourceList.get(0)
+                    list: sourceList
+                    source: sourceList.firstSource()
                 }
             }
         }

@@ -47,7 +47,6 @@ public:
     SourceList *clone(QObject *parent, QUuid filter = {}) const;
 
     int count() const noexcept;
-    QUuid firstSource() const noexcept;
     const QVector<chart::Source *> &items() const;
     SourceList::iterator begin() noexcept;
     SourceList::iterator end() noexcept;
@@ -56,6 +55,7 @@ public:
 
     Q_INVOKABLE chart::Source *get(int i) const noexcept;
     Q_INVOKABLE chart::Source *getByUUid(QUuid id) const noexcept;
+    Q_INVOKABLE QUuid firstSource() const noexcept;
     Q_INVOKABLE void clean() noexcept;
     Q_INVOKABLE void reset() noexcept;
     Q_INVOKABLE bool save(const QUrl &fileName) const noexcept;

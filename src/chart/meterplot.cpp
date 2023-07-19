@@ -16,6 +16,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "meterplot.h"
+#include "sourcelist.h"
 
 namespace chart {
 
@@ -44,13 +45,15 @@ MeterPlot::MeterPlot(QObject *parent) : QObject(parent), LevelObject(),
     updateThreshold();
 }
 
-chart::Source *MeterPlot::source() const
+QUuid MeterPlot::source() const
 {
-    return m_source;
+    return m_source ? m_source->uuid() : QUuid{};
 }
 
-void MeterPlot::setSource(chart::Source *source)
+void MeterPlot::setSource(QUuid sourceId)
 {
+    auto source = m_sourceList ? m_sourceList->getByUUid(sourceId) : nullptr;
+
     if (m_source != source) {
         disconnect(m_sourceConnection);
 
@@ -59,8 +62,9 @@ void MeterPlot::setSource(chart::Source *source)
         if (m_source) {
             m_sourceConnection = connect(m_source, &chart::Source::readyRead, this, &MeterPlot::sourceReadyRead);
             connect(m_source, &chart::Source::beforeDestroy, this, &MeterPlot::resetSource, Qt::DirectConnection);
+            connect(m_source, &chart::Source::nameChanged, this, &MeterPlot::sourceNameChanged);
         }
-        emit sourceChanged(m_source);
+        emit sourceChanged(sourceId);
     }
 }
 
@@ -95,7 +99,7 @@ QString MeterPlot::sourceName() const
     case Time:
         return "System";
     default:
-        return (source() ? source()->name() : "");
+        return (m_source ? m_source->name() : "");
     }
 }
 
@@ -124,6 +128,20 @@ QString MeterPlot::dBValue() const
 QString MeterPlot::timeValue() const
 {
     return QTime::currentTime().toString("HH:mm");
+}
+
+SourceList *MeterPlot::sourceList() const
+{
+    return m_sourceList;
+}
+
+void MeterPlot::setSourceList(SourceList *sourceList)
+{
+    if (m_sourceList == sourceList) {
+        return;
+    }
+    m_sourceList = sourceList;
+    emit sourceListChanged();
 }
 
 float MeterPlot::threshold() const

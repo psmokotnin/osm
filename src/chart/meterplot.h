@@ -40,7 +40,9 @@ public:
     Q_PROPERTY(QVariant availableTimes READ getAvailableTimes CONSTANT)
     Q_PROPERTY(QVariant availableTypes READ getAvailableTypes CONSTANT)
 
-    Q_PROPERTY(chart::Source *source READ source WRITE setSource NOTIFY sourceChanged)
+    Q_PROPERTY(QUuid source READ source WRITE setSource NOTIFY sourceChanged)
+    Q_PROPERTY(SourceList *list READ sourceList WRITE setSourceList NOTIFY sourceListChanged)
+
     Q_PROPERTY(QString curve READ curveName WRITE setCurve NOTIFY curveChanged)
     Q_PROPERTY(QString time READ timeName WRITE setTime NOTIFY timeChanged)
     Q_PROPERTY(QString type READ typeName WRITE setType NOTIFY typeChanged)
@@ -56,8 +58,8 @@ public:
 public:
     MeterPlot(QObject *parent = nullptr);
 
-    chart::Source *source() const;
-    void setSource(chart::Source *source);
+    QUuid source() const;
+    void setSource(QUuid sourceId);
 
     QString title() const;
     QString value() const;
@@ -73,19 +75,24 @@ public:
     void setType(const Type &type);
     void setType(const QString &type);
 
+    SourceList *sourceList() const;
+    void setSourceList(SourceList *sourceList);
+
 signals:
     void curveChanged(QString) override;
     void timeChanged(QString) override;
     void modeChanged(chart::LevelObject::Mode) override;
     void pauseChanged(bool) override;
 
-    void sourceChanged(chart::Source *);
+    void sourceChanged(QUuid);
     void valueChanged();
     void thresholdChanged(float);
 
     void typeChanged();
     void titleChanged();
     void sourceNameChanged();
+
+    void sourceListChanged();
 
 private slots:
     void updateThreshold();
@@ -98,6 +105,7 @@ private:
     QString timeValue() const;
 
     chart::Source *m_source;
+    SourceList *m_sourceList;
     QTimer m_timer;
     Type m_type;
     QMetaObject::Connection m_sourceConnection;
