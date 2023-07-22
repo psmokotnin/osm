@@ -38,7 +38,7 @@ class Union : public chart::Source
     using SourceVector = QVector<QPointer<chart::Source>>;
 
 public:
-    enum Operation {Summation, Subtract, Avg, Min, Max, Apply};
+    enum Operation {Summation, Subtract, Avg, Min, Max, Diff, Apply};
     enum Type {Vector, Polar, dB, Power};
     const std::map<Operation, QString> operationMap = {
         {Summation, "Sum"},
@@ -46,6 +46,7 @@ public:
         {Avg,       "Average"},
         {Min,       "Min"},
         {Max,       "Max"},
+        {Diff,      "Diff"},
         {Apply,     "Apply"}
     };
     const std::map<Type, QString> typeMap = {
