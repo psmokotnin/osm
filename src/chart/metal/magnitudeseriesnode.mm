@@ -88,7 +88,7 @@ void MagnitudeSeriesNode::renderSeries()
         float dt = 1.f / points;
 
         for (float t = 0; t < 1.0;) {
-            if (j > maxBufferSize) {
+            if (j + 30 > maxBufferSize) {
                 qCritical("out of range");
                 return;
             }

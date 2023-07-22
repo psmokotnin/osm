@@ -51,7 +51,7 @@ protected:
     constexpr static const float MAX_LINE_SPLITF = static_cast<float>(MAX_LINE_SPLIT);
     static const unsigned int LINE_VERTEX_SIZE = 5;
     static const unsigned int VERTEX_PER_SEGMENT = 6;
-    constexpr static const unsigned int PPO_BUFFER_MUL = 12 * VERTEX_PER_SEGMENT * LINE_VERTEX_SIZE * MAX_LINE_SPLITF;
+    constexpr static const unsigned int PPO_BUFFER_MUL = 13 * VERTEX_PER_SEGMENT * LINE_VERTEX_SIZE * MAX_LINE_SPLITF;
 
     QMatrix4x4 m_matrix;
     float m_xMin, m_xMax, m_yMin, m_yMax;

@@ -85,11 +85,11 @@ void NyquistSeriesRenderer::renderSeries()
     };
 
     auto collected = [ &, this] (const float & f1, const float & f2, const complex ac[4], const float c[4]) {
-        if (i > maxBufferSize) {
-            qCritical("out of range");
-            return;
-        }
+
         if (m_openGL33CoreFunctions) {
+            if (i + 12 > maxBufferSize) {
+                return;
+            }
             m_vertices[i + 0] = ac[0].real;
             m_vertices[i + 1] = ac[1].real;
             m_vertices[i + 2] = ac[2].real;
@@ -107,10 +107,7 @@ void NyquistSeriesRenderer::renderSeries()
             float dt = 1.f / points;
 
             for (float t = 0; t < 1.0;) {
-                if (i > maxBufferSize) {
-                    qCritical("out of range");
-                    return;
-                }
+
                 auto x1 = ac[0].real + ac[1].real * t + ac[2].real * t * t + ac[3].real * t * t * t;
                 auto y1 = ac[0].imag + ac[1].imag * t + ac[2].imag * t * t + ac[3].imag * t * t * t;
                 auto c1 = coherenceSpline(m_coherence, m_coherenceThreshold, c, t);

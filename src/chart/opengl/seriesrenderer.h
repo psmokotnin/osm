@@ -71,7 +71,7 @@ protected:
     constexpr static const float MAX_LINE_SPLITF = static_cast<float>(MAX_LINE_SPLIT);
     static const unsigned int LINE_VERTEX_SIZE = 6; // x,y + r,g,b,a
     static const unsigned int VERTEX_PER_SEGMENT = 2;
-    constexpr static const unsigned int PPO_BUFFER_MUL = 12 * VERTEX_PER_SEGMENT * LINE_VERTEX_SIZE * MAX_LINE_SPLITF;
+    constexpr static const unsigned int PPO_BUFFER_MUL = 13 * VERTEX_PER_SEGMENT * LINE_VERTEX_SIZE * MAX_LINE_SPLITF;
 
 private:
     std::mutex m_active;

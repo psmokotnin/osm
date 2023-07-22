@@ -204,7 +204,7 @@ void RTASeriesNode::renderLine()
         };
         unsigned int i = 0;
         auto collected = [ &, this] (const float & start, const float & end, const unsigned int &count) {
-            if (i > m_vertices.size()) {
+            if (i + 30 > m_vertices.size()) {
                 qCritical("out of range");
                 return;
             }
@@ -286,8 +286,9 @@ void RTASeriesNode::renderBars()
     };
 
     unsigned int i = 0;
+    auto maxI = maxBufferSize - (m_showPeaks ? 24 : 12);
     auto collected = [ &, this] (const float & start, const float & end, const unsigned int &) {
-        if (i > maxBufferSize) {
+        if (i > maxI) {
             qCritical("out of range");
             return;
         }

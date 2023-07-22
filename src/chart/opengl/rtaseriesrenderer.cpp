@@ -192,15 +192,14 @@ void RTASeriesRenderer::renderPPOLine()
 
     unsigned int i = 0, verticiesCount = 0;
     auto collected = [ &, this] (const float & start, const float & end, const unsigned int &count) {
-        if (i > maxBufferSize) {
-            qCritical("out of range");
-            return;
-        }
 
         auto frequencyPoint = (start + end) / 2;
         value = 20 * log10f(value / count);
 
         if (m_openGL33CoreFunctions) {
+            if (i + 2 > maxBufferSize) {
+                return;
+            }
             m_vertices[i] = frequencyPoint;
             m_vertices[i + 1] = value;
             i += 2;
@@ -245,10 +244,6 @@ void RTASeriesRenderer::renderBars()
 
     unsigned int i = 0;
     auto collected = [ &, this] (const float & start, const float & end, const unsigned int &) {
-        if (i > maxBufferSize) {
-            qCritical("out of range");
-            return;
-        }
 
         value = 10 * log10f(value);
         peak  = 10 * log10f(peak);
@@ -262,6 +257,9 @@ void RTASeriesRenderer::renderBars()
             shiftedEnd = end;
         }
         if (m_openGL33CoreFunctions) {
+            if (i + 24 > maxBufferSize) {
+                return;
+            }
             m_vertices[i + 0] = shiftedStart;
             m_vertices[i + 1] = value;
             m_vertices[i + 2] = shiftedStart;

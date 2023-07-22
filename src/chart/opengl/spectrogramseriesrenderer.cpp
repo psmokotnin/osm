@@ -168,8 +168,7 @@ void SpectrogramSeriesRenderer::renderSeries()
     float t(0), tStep(0);
     unsigned int j = 0, index = 0;
     auto addPoint = [&](const historyPoint & data, const float & time) {
-        if (j > maxBufferSize) {
-            qCritical("out of range");
+        if (j + 6 > maxBufferSize) {
             return;
         }
         m_vertices[j + 0] = data[0];

@@ -100,14 +100,14 @@ void PhaseDelaySeriesRenderer::renderSeries()
         return (*value) / count;
     };
     auto collected = [ &, this] (const float & f1, const float & f2, const float ac[4], const float c[4]) {
-        if (i > maxBufferSize) {
-            qCritical("out of range");
-            return;
-        }
 
         float fx1 = (logf(f1) + xadd) * xmul;
         float fx2 = (logf(f2) + xadd) * xmul;
         if (m_openGL33CoreFunctions) {
+            if (i + 12 > maxBufferSize) {
+                return;
+            }
+
             m_vertices[i + 0] = f1;
             m_vertices[i + 1] = f2;
             m_vertices[i + 2] = fx1;
@@ -122,10 +122,6 @@ void PhaseDelaySeriesRenderer::renderSeries()
             float dt = 1.f / points;
 
             for (float t = 0; t < 1.0;) {
-                if (i > maxBufferSize) {
-                    qCritical("out of range");
-                    return;
-                }
                 auto x1 = f1 * std::pow(f2 / f1, t);
                 auto v1 = ac[0] + ac[1] * t + ac[2] * t * t + ac[3] * t * t * t;
                 v1 /= x1;
