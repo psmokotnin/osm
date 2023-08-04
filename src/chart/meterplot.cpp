@@ -24,6 +24,7 @@ const std::map<MeterPlot::Type, QString> MeterPlot::m_typesMap = {
     {MeterPlot::Type::RMS,   "RMS"  },
     {MeterPlot::Type::Peak,  "Peak" },
     {MeterPlot::Type::Crest, "Crest"},
+    {MeterPlot::Type::THDN,  "THD+N"},
     {MeterPlot::Type::Time,  "Time" },
 };
 
@@ -73,6 +74,8 @@ QString MeterPlot::title() const
     switch (m_type) {
     case Time:
         return typeName();
+    case THDN:
+        return typeName();
     case Crest:
         return typeName() + " " + curveName() + " " + timeName();
     default:
@@ -88,6 +91,8 @@ QString MeterPlot::value() const
     switch (m_type) {
     case Time:
         return timeValue();
+    case THDN:
+        return thdnValue();
     default:
         return dBValue();
     }
@@ -128,6 +133,18 @@ QString MeterPlot::dBValue() const
 QString MeterPlot::timeValue() const
 {
     return QTime::currentTime().toString("HH:mm");
+}
+
+QString MeterPlot::thdnValue() const
+{
+
+    auto level = m_source->level(Weighting::Curve::Z, Meter::Time::Fast) - m_source->referenceLevel();//Ref: Z Fast
+    level = 100 * std::pow(10, level / 20);
+    if (level < 1) {
+        return QString("%1"   ).arg(level * 1000, 0, 'f', 0) + QString::fromUtf8("‰");
+    } else {
+        return QString("%1\%" ).arg(level, 0, 'f', 1);
+    }
 }
 
 SourceList *MeterPlot::sourceList() const
@@ -194,6 +211,7 @@ void MeterPlot::sourceReadyRead()
     case RMS:
     case Peak:
     case Crest:
+    case THDN:
         emit valueChanged();
         break;
     case Time:

@@ -73,6 +73,7 @@ Item {
                 onCurrentIndexChanged: {
                     dataObject.meter.mode = currentIndex;
                 }
+                enabled: dataObject.meter.type !== "Time" && dataObject.meter.type !== "THD+N"
 
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("scale")
@@ -83,6 +84,8 @@ Item {
                 model: dataObject.meter.availableCurves
                 currentIndex: model.indexOf(dataObject.meter.curve)
                 onCurrentValueChanged: dataObject.meter.curve = currentValue
+
+                enabled: dataObject.meter.type !== "Time" && dataObject.meter.type !== "THD+N"
 
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("weighting")
@@ -95,8 +98,10 @@ Item {
                 currentIndex: model.indexOf(dataObject.meter.time)
                 onCurrentValueChanged: dataObject.meter.time = currentValue
 
+                enabled: dataObject.meter.type !== "Time" && dataObject.meter.type !== "THD+N"
+
                 ToolTip.visible: hovered
-                ToolTip.text: qsTr("time")
+                ToolTip.text: qsTr("integration time")
             }
 
             FloatSpinBox {
@@ -109,6 +114,7 @@ Item {
                 onValueChanged: dataObject.meter.threshold = value
                 Layout.preferredWidth: wideWidth
                 units: "dB"
+                enabled: dataObject.meter.type !== "Time" && dataObject.meter.type !== "THD+N"
 
                 Connections {
                     target: dataObject.meter

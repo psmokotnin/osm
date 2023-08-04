@@ -116,6 +116,7 @@ public:
 
     virtual float level(const Weighting::Curve curve = Weighting::Z, const Meter::Time time = Meter::Fast) const;
     virtual float peak(const Weighting::Curve curve = Weighting::Z, const Meter::Time time = Meter::Fast) const;
+    virtual float referenceLevel() const;
     virtual QJsonObject levels();
     virtual void setLevels(const QJsonObject &data);
     Q_INVOKABLE QUuid uuid() const;
@@ -169,6 +170,7 @@ protected:
             };
         };
         std::unordered_map<Key, float, Key::Hash> m_data;
+        float m_referenceLevel;
     } m_levelsData;
 
 private:

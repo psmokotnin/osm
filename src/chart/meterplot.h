@@ -31,7 +31,8 @@ public:
         RMS     = 0x00,
         Peak    = 0x01,
         Crest   = 0x02,
-        Time    = 0x03
+        THDN    = 0x03,
+        Time    = 0x04
     };
     Q_OBJECT
     Q_ENUM(Type);
@@ -103,6 +104,7 @@ private slots:
 private:
     QString dBValue() const;
     QString timeValue() const;
+    QString thdnValue() const;
 
     chart::Source *m_source;
     SourceList *m_sourceList;

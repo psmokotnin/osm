@@ -309,6 +309,12 @@ void Measurement::applyInputFilters()
         std::atomic_store(&m_inputFilters.second, std::shared_ptr<math::Filter>());
         break;
     }
+
+    if (m_inputFilter == InputFilter::Notch) {
+        std::atomic_store(&m_levelMeters.m_filter, std::shared_ptr<math::Filter>(new math::Notch(1000, 3.f, sampleRate())));
+    } else {
+        std::atomic_store(&m_levelMeters.m_filter, std::shared_ptr<math::Filter>());
+    }
 }
 
 void Measurement::onSampleRateChanged()
@@ -510,8 +516,10 @@ void Measurement::transform()
         d = m_data.read();
         r = m_reference.read();
 
-        if (filterM && filterR) {
+        if (filterM) {
             d = filterM->operator()(d);
+        }
+        if (filterR) {
             r = filterR->operator()(r);
         }
 
@@ -914,8 +922,11 @@ void Measurement::Meters::setSampleRate(unsigned int sampleRate)
     m_reference.setSampleRate(sampleRate);
 }
 
-void Measurement::Meters::add(const float &value)
+void Measurement::Meters::add(float value)
 {
+    if (auto filter = m_filter) {
+        value = filter->operator()(value);
+    }
     for (auto &&meter : m_meters) {
         meter.second.add(value);
     }

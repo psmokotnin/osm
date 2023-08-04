@@ -100,7 +100,7 @@ public:
 
     float level(const Weighting::Curve curve = Weighting::Z, const Meter::Time time = Meter::Fast) const override;
     float peak(const Weighting::Curve curve = Weighting::Z, const Meter::Time time = Meter::Fast) const override;
-    float referenceLevel() const;
+    float referenceLevel() const override;
 
     float measurementPeak() const;
     float referencePeak() const;
@@ -163,10 +163,11 @@ private:
     struct Meters {
         std::unordered_map<Levels::Key, Meter, Levels::Key::Hash> m_meters;
         Meter m_reference;
+        std::shared_ptr<math::Filter> m_filter;
 
         Meters();
         void setSampleRate(unsigned int sampleRate);
-        void add(const float &value);
+        void add(float value);
         void addToReference(const float &value);
         void reset();
     } m_levelMeters;
