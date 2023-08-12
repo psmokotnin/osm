@@ -21,7 +21,7 @@ import QtQuick.Controls 2.13
 import QtQuick.Layouts 1.3
 import OpenSoundMeter 1.0
 import Measurement 1.0
-import "elements"
+import "qrc:/elements"
 
 Item {
     property var dataObject

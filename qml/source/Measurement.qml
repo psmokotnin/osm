@@ -18,32 +18,34 @@
 import QtQuick 2.7
 import QtQuick.Controls 2.1
 import QtQuick.Layouts 1.3
+import "qrc:/"
 
 Item {
-    id: store
+    id: measurement
 
-    property var dataModel : [];
+    property var dataModel;
     property bool chartable : true;
     property bool highlight : false;
-    property string propertiesQml: "qrc:/StoredProperties.qml"
+    property string propertiesQml: "qrc:/source/MeasurementProperties.qml"
     height: 50
-    width: parent.width
+    width: (parent ? parent.width : 0)
 
     RowLayout {
-        width: parent.width
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.rightMargin: 10
 
         MulticolorCheckBox {
             id: checkbox
             Layout.alignment: Qt.AlignVCenter
-
-            checkedColor: (dataModel ? dataModel.color : "")
+            checked: (dataModel ? dataModel.active : false)
+            checkedColor: (dataModel ? dataModel.color : "none")
 
             onCheckStateChanged: {
-                dataModel.active = checked
+                if (dataModel)
+                    dataModel.active = checked
             }
-            Component.onCompleted: {
-                checked = dataModel ? dataModel.active : false
-            }
+            error: (dataModel ? dataModel.error : false)
         }
 
         ColumnLayout {
@@ -55,6 +57,17 @@ Item {
                 text:  (dataModel ? dataModel.name : "")
             }
 
+            Meter {
+                dBV: (dataModel ? dataModel.level : 0)
+                peak:(dataModel ? dataModel.measurementPeak : 0)
+                width: parent.width
+            }
+
+            Meter {
+                dBV: (dataModel ? dataModel.referenceLevel : 0)
+                peak:(dataModel ? dataModel.referencePeak : 0)
+                width: parent.width
+            }
         }
 
         Connections {
@@ -62,6 +75,17 @@ Item {
             function onColorChanged() {
                 checkbox.checkedColor = dataModel.color;
             }
+        }
+
+        Component.onCompleted: {
+            if (!dataModel.isColorValid()) {
+                dataModel.color = applicationWindow.dataSourceList.nextColor();
+            }
+            dataModel.errorChanged.connect(function(error) {
+                if (error) {
+                    applicationWindow.message.showError(qsTr("Can't start the %1.<br/>Device is not supported or busy.").arg(dataModel.name));
+                }
+            });
         }
     }
 }

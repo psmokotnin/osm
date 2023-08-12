@@ -24,7 +24,7 @@ import QtQuick.Controls.Material 2.13
 import OpenSoundMeter 1.0
 import Measurement 1.0
 import Audio 1.0
-import "elements"
+import "qrc:/elements"
 
 Item {
     id: measurementProperties

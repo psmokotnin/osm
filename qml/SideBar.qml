@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-import QtQuick 2.13
+import QtQuick 2.15
 import QtQuick.Controls 2.12
 import QtQuick.Layouts 1.3
 import QtQml 2.2
@@ -154,6 +154,7 @@ Item {
             Layout.alignment: Qt.AlignHCenter
             Layout.margins: 0
             spacing: 0
+            reuseItems: true
             model: SourceModel {
                 id: sourceModel
                 list: sourceList
@@ -165,7 +166,7 @@ Item {
                 MouseArea {
                     id: dragArea
                     property bool held: false
-                    property var swipeStart: 0
+                    property int swipeStart: 0
                     property var source: model.source
 
                     anchors {
@@ -195,11 +196,15 @@ Item {
                         }
 
                         //swipe delete:
-                        if (content.opacity <= 0) {
+
+                        if ((swipeStart - mouseX) / content.width >= 1) {
                             if (applicationWindow && applicationWindow.properiesbar.currentObject === dragArea.source) {
                                 applicationWindow.properiesbar.reset();
                             }
                             sourceList.removeItem(dragArea.source);
+                        } else if ((swipeStart - mouseX) / content.width <= -0.5) {
+                            content.opacity = 0;
+                            content.height = 0;
                         } else {
                             content.opacity = 1;
                         }
@@ -398,6 +403,13 @@ Item {
                             sourceList.get(i).resetAverage();
                         }
                     }
+                }
+            }
+
+            Shortcut {
+                sequence: "Ctrl+5"
+                onActivated: {
+                    sourceModel.layoutChanged();
                 }
             }
         }

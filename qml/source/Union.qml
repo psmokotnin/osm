@@ -1,6 +1,6 @@
 /**
  *  OSM
- *  Copyright (C) 2022  Pavel Smokotnin
+ *  Copyright (C) 2018  Pavel Smokotnin
 
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,12 +18,13 @@
 import QtQuick 2.7
 import QtQuick.Controls 2.1
 import QtQuick.Layouts 1.3
+import "qrc:/"
 
 Item {
-    property var dataModel : [];
+    property var dataModel;
     property bool chartable : true;
     property bool highlight : false;
-    property string propertiesQml: "qrc:/FilterProperties.qml"
+    property string propertiesQml: "qrc:/source/UnionProperties.qml"
     height: 50
     width: parent.width
 
@@ -40,7 +41,7 @@ Item {
                 dataModel.active = checked
             }
             Component.onCompleted: {
-                checked = dataModel ? dataModel.active : false
+                checked = dataModel.active
             }
         }
 
@@ -53,12 +54,38 @@ Item {
                 text:  (dataModel ? dataModel.name : "")
             }
 
+            RowLayout {
+                Layout.maximumHeight: 7
+
+                Repeater {
+                    model: dataModel ? dataModel.count : 0
+
+                    Rectangle {
+                        property var source: dataModel ? dataModel.getSource(index) : null
+                        color: (source ? source.color : "transparent")
+                        width: 7
+                        height: 7
+                        visible: (source ? true : false)
+
+                        Connections {
+                            target: dataModel
+                            function onModelChanged() {
+                                source = dataModel.getSource(index);
+                            }
+                        }
+                    }
+                }
+            }
+
         }
 
         Connections {
             target: dataModel
             function onColorChanged() {
                 checkbox.checkedColor = dataModel.color;
+            }
+            function onActiveChanged() {
+                checkbox.checked = dataModel.active;
             }
         }
     }

@@ -19,13 +19,14 @@ import QtQuick 2.7
 import QtQuick.Controls 2.1
 import QtQuick.Layouts 1.3
 import QtQuick.Controls.Material 2.2
+import "qrc:/"
 
 Item {
     id: item
     property var dataModel;
     property bool chartable : true;
     property bool highlight : false;
-    property string propertiesQml: "qrc:/RemoteItemProperties.qml"
+    property string propertiesQml: "qrc:/source/RemoteItemProperties.qml"
     height: 50
     width: parent.width
 
@@ -126,9 +127,9 @@ Item {
 
     Component.onCompleted: {
         if (dataModel.objectName === "RemoteMeasurement") {
-            propertiesQml = "qrc:/MeasurementProperties.qml";
+            propertiesQml = "qrc:/source/MeasurementProperties.qml";
         } else if (dataModel.objectName === "RemoteStored") {
-            propertiesQml = "qrc:/StoredProperties.qml";
+            propertiesQml = "qrc:/source/StoredProperties.qml";
         }
     }
 }

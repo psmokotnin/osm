@@ -23,7 +23,7 @@ import QtQuick.Controls.Material 2.13
 
 import StandardLine 1.0
 import SourceModel 1.0
-import "elements"
+import "qrc:/elements"
 
 Item {
     property var dataObject

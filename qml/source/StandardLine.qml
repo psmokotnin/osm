@@ -18,12 +18,13 @@
 import QtQuick 2.7
 import QtQuick.Controls 2.1
 import QtQuick.Layouts 1.3
+import "qrc:/"
 
 Item {
     property var dataModel;
     property bool chartable : true;
     property bool highlight : false;
-    property string propertiesQml: "qrc:/StandardLineProperties.qml"
+    property string propertiesQml: "qrc:/source/StandardLineProperties.qml"
     height: 50
     width: parent.width
 
