@@ -39,6 +39,7 @@ SOURCES += src/main.cpp \
     src/generator/burstnoise.cpp \
     src/generator/channelmodel.cpp \
     src/generator/mlsplus.cpp \
+    src/generator/musicnoise.cpp \
     src/generator/wav.cpp \
     src/inputdevice.cpp \
     src/common/appearance.cpp \
@@ -165,6 +166,7 @@ HEADERS += \
     src/generator/burstnoise.h \
     src/generator/channelmodel.h \
     src/generator/mlsplus.h \
+    src/generator/musicnoise.h \
     src/generator/wav.h \
     src/inputdevice.h \
     src/common/appearance.h \

@@ -23,7 +23,7 @@
 #include "pinknoise.h"
 #include "sinnoise.h"
 #include "sinsweep.h"
-#include "mnoise.h"
+#include "musicnoise.h"
 #include "burstnoise.h"
 #include "mlsplus.h"
 
@@ -101,7 +101,7 @@ void GeneratorThread::init()
     m_sources << new WhiteNoise(this);
     m_sources << new SinNoise(this);
     m_sources << new SinSweep(this);
-    m_sources << new MNoise(this);
+    m_sources << new MusicNoise(this);
     m_sources << new BurstNoise(this);
     m_sources << new MLSPlus(this);
 
