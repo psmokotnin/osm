@@ -1,6 +1,6 @@
 /**
  *  OSM
- *  Copyright (C) 2022  Pavel Smokotnin
+ *  Copyright (C) 2023  Pavel Smokotnin
 
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -15,39 +15,19 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-import QtQuick 2.13
-import QtQuick.Controls 2.13
-import QtQuick.Controls.Material 2.13
-import QtQuick.Layouts 1.12
+import QtQuick 2.7
+import QtQuick.Controls 2.1
+import QtQuick.Layouts 1.3
+import "qrc:/"
 
 Item {
-    property var dataObject
+    id: control
+    property var dataModel
+    property bool chartable
+    property bool highlight
+    property string propertiesQml
+    height: 50
+    width: parent.width
 
-    ColumnLayout {
-        spacing: 0
-        anchors.fill: parent
 
-        RowLayout {
-
-            Button {
-                text: qsTr("Refresh")
-                onClicked: dataObject.refresh();
-            }
-
-            Label {
-                text: dataObject.name
-            }
-
-            Label {
-                text: "@"
-            }
-
-            Label {
-                text: dataObject.host
-            }
-        }
-
-        RowLayout {
-        }
-    }
 }
