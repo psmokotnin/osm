@@ -152,7 +152,7 @@ void FilterSource::update()
             m_inverse.set(m_deconvolutionSize - i - 1, v, 0.f);
         }
 
-        m_inverse.reverseOne();
+        m_inverse.transformSingleChannel();
 
         int t = 0;
         float kt = 1000.f / sampleRate();

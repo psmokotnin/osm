@@ -34,6 +34,7 @@ Windowing::Windowing(QObject *parent) : chart::Source(parent), meta::Windowing()
     connect(this, &Windowing::modeChanged,   this, &Windowing::update);
     connect(this, &Windowing::offsetChanged, this, &Windowing::update);
     connect(this, &Windowing::sourceChanged, this, &Windowing::update);
+    connect(this, &Windowing::domainChanged, this, &Windowing::update);
     connect(this, &Windowing::modeChanged,   this, &Windowing::applyAutoWide);
     connect(this, &Windowing::windowFunctionTypeChanged, this, &Windowing::update);
 
@@ -61,6 +62,7 @@ QJsonObject Windowing::toJSON(const SourceList *list) const noexcept
     auto object = Source::toJSON(list);
 
     object["mode"]                  = mode();
+    object["domain"]                = domain();
     object["offset"]                = offset();
     object["wide"]                  = wide();
     object["windowFunctionType"]    = windowFunctionType();
@@ -76,6 +78,7 @@ void Windowing::fromJSON(QJsonObject data, const SourceList *list) noexcept
     Source::fromJSON(data, list);
 
     setMode(data["mode"].toInt(mode()));
+    setDomain(data["domain"].toInt(domain()));
     setOffset(data["offset"].toDouble(offset()));
     setWide(data["wide"].toDouble(wide()));
     setWindowFunctionType(data["windowFunctionType"].toInt(windowFunctionType()));
@@ -118,8 +121,8 @@ void Windowing::update()
         // [2] resize
         resizeData();
 
-        // [3] copy impulse and apply Window
-        applyWindow();
+        // [3] create impulse and apply Window
+        updateFromDomain();
 
         // [4] ifft
         transform();
@@ -151,6 +154,9 @@ void Windowing::resizeData()
     if (impulseSize() != size) {
         m_sampleRate = std::round(10.0 / (m_source->impulseTime(1) - m_source->impulseTime(0)));
         m_sampleRate *= 100;
+        if (!m_sampleRate) {
+            m_sampleRate = 48'000; //TODO: get from source, apply default in the source
+        }
         m_deconvolutionSize = size;
         m_impulseData.resize(m_deconvolutionSize);
         m_window.setSize(m_deconvolutionSize);
@@ -170,16 +176,112 @@ void Windowing::resizeData()
             m_ftdata[i++].frequency = frequency;
         }
     }
+
+    //fill frequency data
+    int t = 0;
+    float kt = 1000.f / sampleRate();
+    for (unsigned int i = 0, j = m_deconvolutionSize / 2 - 1; i < m_deconvolutionSize; i++, j++, t++) {
+        if (t > static_cast<int>(m_deconvolutionSize / 2)) {
+            t -= static_cast<int>(m_deconvolutionSize);
+            j -= m_deconvolutionSize;
+        }
+
+        m_impulseData[j].time = t * kt;//ms
+    }
 }
 
-void Windowing::applyWindow()
+void Windowing::updateFromDomain()
+{
+    switch (domain()) {
+    case Windowing::SourceDomain::Frequency:
+        updateFromFrequencyDomain();
+        break;
+    case Windowing::SourceDomain::Time:
+        updateFromTimeDomain(m_source);
+        break;
+    }
+}
+
+void Windowing::updateFromFrequencyDomain()
 {
     Q_ASSERT(m_source);
+
+    unsigned last = 0;
+    int j = 0;
+    float kg, bg, g, g1, g2, f1, f2;
+    complex p1, p2, kp, bp, p;
+    bool inList = false;
+
+    for (unsigned i = 0; i < size(); ++i) {
+
+        while (frequency(i) > m_source->frequency(j)) {
+            last = j;
+            if (j + 1 < m_source->size()) {
+                ++j;
+                inList = true;
+            } else {
+                inList = false;
+                break;
+            }
+        }
+
+        f1 = m_source->frequency(last);
+        g1 = m_source->magnitudeRaw(last);
+        p1 = m_source->phase(last);
+        f2 = m_source->frequency(j);
+        g2 = m_source->magnitudeRaw(j);
+        p2 = m_source->phase(j);
+
+        if (inList) {
+            kg = (g2 - g1) / (f2 - f1);
+            bg = g2 - f2 * kg;
+
+            kp = (p2 - p1) / (f2 - f1);
+            bp = p2 - kp * f2;
+
+            g = kg * frequency(i) + bg;
+            p = kp * frequency(i) + bp;
+        } else {
+            g = g2;
+            p = p2;
+        }
+
+        auto complexMagnitude = i == 0 ? 0 : p * g;
+        m_ftdata[i].magnitude = g;
+        m_ftdata[i].phase = p;
+        m_dataFT.set(                i,     complexMagnitude.conjugate(), 0);
+        m_dataFT.set(impulseSize() - i - 1, complexMagnitude,             0);
+    }
+
+    // apply iFFT
+    m_dataFT.transformSingleChannel();
+
+    //fill time data
+    int t = 0;
+    float kt = 1000.f / sampleRate();
+    float norm = 1 / sqrt(m_deconvolutionSize);
+    for (unsigned int i = 0, j = m_deconvolutionSize / 2 - 1; i < m_deconvolutionSize; i++, j++, t++) {
+
+        if (t > static_cast<int>(m_deconvolutionSize / 2)) {
+            t -= static_cast<int>(m_deconvolutionSize);
+            j -= m_deconvolutionSize;
+        }
+
+        m_impulseData[j].value.real = norm * m_dataFT.af(i).real;
+        m_impulseData[j].time = t * kt;//ms
+    }
+
+    updateFromTimeDomain(this);
+}
+
+void Windowing::updateFromTimeDomain(chart::Source *source)
+{
+    Q_ASSERT(source);
 
     float dt = 1000.f / m_sampleRate, time = -dt * m_deconvolutionSize / 2;
 
     //=m_source->impulseZeroOffset()
-    auto zeroOffset = m_source->impulseSize() / 2;
+    auto zeroOffset = source->impulseSize() / 2;
 
     int center  = zeroOffset + m_offset * m_sampleRate / 1000;
     int from    = center - m_deconvolutionSize / 2;
@@ -194,9 +296,11 @@ void Windowing::applyWindow()
     auto tukeyFrom = center - sampleWide / 2;
     auto tukeyEnd  = center + sampleWide / 2;
 
+    auto windowKoefficient = m_window.gain() / m_window.norm();
+
     for (int i = from, j = 0, f = m_deconvolutionSize / 2 + 1; i < end; ++i, ++j, time += dt, ++f) {
-        m_impulseData[j].time = m_source->impulseTime(i);
-        float value = (i >= 0 ? m_source->impulseValue(i) * m_window.get(j) * m_window.gain() : 0);
+
+        float value = (i >= 0 ? source->impulseValue(i) * m_window.get(j) * windowKoefficient : 0);
 
         if (i < tukeyFrom || i > tukeyEnd) {
             value = 0;
@@ -217,7 +321,7 @@ void Windowing::applyWindow()
 
 void Windowing::transform()
 {
-    m_dataFT.reverseOne();
+    m_dataFT.transformSingleChannel(true);
     auto m_norm = 1.f / sqrtf(m_deconvolutionSize);
 
     auto criticalFrequency = 1000 / wide();

@@ -43,7 +43,8 @@ const std::map<Windowing::Mode, int>Windowing::m_FFTsizes = {
     {Windowing::Mode::FFT16, 16}
 };
 
-Windowing::Windowing() : m_wide(1), m_offset(0), m_mode(FFT10), m_windowFunctionType(WindowFunction::Type::Hann)
+Windowing::Windowing() : m_wide(1), m_offset(0), m_mode(FFT10), m_domain(SourceDomain::Time),
+    m_windowFunctionType(WindowFunction::Type::Hann)
 {
 }
 
@@ -77,6 +78,25 @@ void Windowing::setWindowFunctionType(const WindowFunction::Type &newWindowFunct
         return;
     m_windowFunctionType = newWindowFunctionType;
     emit windowFunctionTypeChanged(m_windowFunctionType);
+}
+
+Windowing::SourceDomain Windowing::domain() const
+{
+    return m_domain;
+}
+
+void Windowing::setDomain(SourceDomain newDomain)
+{
+    if (m_domain == newDomain) {
+        return;
+    }
+    m_domain = newDomain;
+    emit domainChanged(m_domain);
+}
+
+void Windowing::setDomain(QVariant newDomain)
+{
+    setDomain(newDomain.value<SourceDomain>());
 }
 
 Windowing::Mode Windowing::mode() const

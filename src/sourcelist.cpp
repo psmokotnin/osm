@@ -167,8 +167,10 @@ int SourceList::indexOf(chart::Source *item) const noexcept
 int SourceList::indexOf(const QUuid &id) const noexcept
 {
     for (auto &e : m_items) {
-        if (e->uuid() == id) {
-            return m_items.indexOf(e);
+        if (e) {
+            if (e->uuid() == id) {
+                return m_items.indexOf(e);
+            }
         }
     }
 

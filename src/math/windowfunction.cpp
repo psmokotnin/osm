@@ -43,6 +43,11 @@ void WindowFunction::setSize(unsigned int size)
     }
 }
 
+unsigned int WindowFunction::size() const
+{
+    return m_size;
+}
+
 float WindowFunction::pointGain(float i, unsigned int N) const
 {
     double z = 2.0 * M_PI * i / N;
@@ -87,6 +92,11 @@ float WindowFunction::pointGain(float i, unsigned int N) const
     }
     }
 }
+
+WindowFunction::Type WindowFunction::type() const
+{
+    return m_type;
+}
 void WindowFunction::setType(Type t)
 {
     m_type = t;
@@ -100,9 +110,25 @@ QVariant WindowFunction::getTypes()
     }
     return typeList;
 }
+
+const float &WindowFunction::get(unsigned int k) const
+{
+    return m_data[k];
+}
+
+QString WindowFunction::name(Type type) noexcept
+{
+    return WindowFunction::TypeMap.at(type);
+}
+
 float WindowFunction::gain() const
 {
     return m_gain;
+}
+
+float WindowFunction::norm() const
+{
+    return m_norm;
 }
 
 void WindowFunction::calculate()
@@ -112,6 +138,7 @@ void WindowFunction::calculate()
         cg += pointGain(i, m_size);
     }
     m_gain = cg / m_size;
+    m_norm = pointGain(1, 2);
 
     for (unsigned int i = 0; i < m_size; i++) {
         m_data[i] = pointGain(i, m_size) / m_gain;

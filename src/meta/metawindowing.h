@@ -38,12 +38,17 @@ class Windowing : public Base
     //Q_PROPERTY(Mode mode READ mode WRITE setMode NOTIFY modeChanged)
     //Q_PROPERTY(QString tipName READ tipName WRITE setTipName NOTIFY tipNameChanged)
     //Q_PROPERTY(WindowFunction::Type windowFunctionType READ windowFunctionType WRITE setWindowFunctionType NOTIFY windowFunctionTypeChanged)
+    //Q_PROPERTY(SourceDomain domain READ domain WRITE setDomain NOTIFY domainChanged)
 
 public:
     enum Mode {
         FFT8, FFT9, FFT10, FFT11, FFT12, FFT13, FFT14, FFT15, FFT16
     };
     Q_ENUM(Mode)
+    enum SourceDomain {
+        Time, Frequency
+    };
+    Q_ENUM(SourceDomain)
 
     Windowing();
 
@@ -70,6 +75,10 @@ public:
     void setWindowFunctionType(const QVariant &newWindowFunctionType);
     void setWindowFunctionType(const WindowFunction::Type &newWindowFunctionType);
 
+    meta::Windowing::SourceDomain domain() const;
+    void setDomain(QVariant newDomain);
+    void setDomain(SourceDomain newDomain);
+
     Q_INVOKABLE virtual chart::Source *store() noexcept = 0;
 
 //virtual signals:
@@ -78,12 +87,14 @@ public:
     virtual void modeChanged(Mode) = 0;
     virtual void tipNameChanged(QString) = 0;
     virtual void windowFunctionTypeChanged(WindowFunction::Type) = 0;
+    virtual void domainChanged(meta::Windowing::SourceDomain) = 0;
 
 protected:
     float                   m_wide;
     float                   m_offset;
     QString                 m_tipName;
     Mode                    m_mode;
+    SourceDomain            m_domain;
     WindowFunction::Type    m_windowFunctionType;
 };
 

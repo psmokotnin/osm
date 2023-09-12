@@ -307,7 +307,7 @@ GNU_ALIGN void FourierTransform::fast(bool reverse, bool ultrafast)
     }
 }
 
-GNU_ALIGN void FourierTransform::reverseOne()
+GNU_ALIGN void FourierTransform::transformSingleChannel(bool reverse)
 {
     v4sf vw1, vw2, vu, vv, vr, v1, v2, vwl, norm;
     v4sf tmp0, tmp1, tmp2, tmp3, vw;
@@ -321,9 +321,10 @@ GNU_ALIGN void FourierTransform::reverseOne()
     norm = _mm_set1_ps(1.f / sqrtf(m_size));
     for (unsigned int len = 2, l = 0; len <= m_size; len <<= 1, l++) {
         vwl = _mm_set_ps(
-                  m_wlen[l].real,      //vwl[0] = vwl[3] = wlen[l].real;
-                  -1 * m_wlen[l].imag, //vwl[1] = vwl[2] = reverse ? -1 * wlen[l].imag : wlen[l].imag;
-                  -1 * m_wlen[l].imag,
+                  m_wlen[l].real,                               //vwl[0] = vwl[3] = wlen[l].real;
+                  reverse ? -1 * m_wlen[l].imag :
+                  m_wlen[l].imag, //vwl[1] = vwl[2] = reverse ? -1 * wlen[l].imag : wlen[l].imag;
+                  reverse ? -1 * m_wlen[l].imag : m_wlen[l].imag,
                   m_wlen[l].real
               );
 

@@ -34,6 +34,7 @@ class Windowing : public chart::Source, public meta::Windowing
     Q_PROPERTY(float offset READ offset WRITE setOffset NOTIFY offsetChanged)
     Q_PROPERTY(QUuid source READ sourceId WRITE setSource NOTIFY sourceChanged)
     Q_PROPERTY(meta::Windowing::Mode mode READ mode WRITE setMode NOTIFY modeChanged)
+    Q_PROPERTY(meta::Windowing::SourceDomain domain READ domain WRITE setDomain NOTIFY domainChanged)
     Q_PROPERTY(QString tipName READ tipName WRITE setTipName NOTIFY tipNameChanged)
     Q_PROPERTY(WindowFunction::Type window READ windowFunctionType WRITE setWindowFunctionType NOTIFY
                windowFunctionTypeChanged)
@@ -70,6 +71,7 @@ signals:
     void wideChanged(float) override;
     void offsetChanged(float) override;
     void modeChanged(meta::Windowing::Mode) override;
+    void domainChanged(meta::Windowing::SourceDomain) override;
     void tipNameChanged(QString) override;
     void windowFunctionTypeChanged(WindowFunction::Type) override;
     void sourceChanged();
@@ -77,7 +79,9 @@ signals:
 private:
     void resizeData();
     void syncData();
-    void applyWindow();
+    void updateFromDomain();
+    void updateFromFrequencyDomain();
+    void updateFromTimeDomain(Source *source);
     void transform();
 
     unsigned m_sampleRate;

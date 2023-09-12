@@ -27,7 +27,7 @@ import "qrc:/elements"
 
 Item {
     property var dataObject
-    readonly property int elementWidth: 200//width / 9
+    readonly property int elementWidth: width / 5
 
     ColumnLayout {
         spacing: 0
@@ -39,7 +39,7 @@ Item {
                 id: wideSpinBox
                 Layout.preferredWidth: elementWidth
                 value: dataObject.wide
-                from: -2000
+                from: 0.1
                 to: 2000
                 units: "ms"
                 onValueChanged: dataObject.wide = value
@@ -101,6 +101,16 @@ Item {
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Transfrom mode")
                 onCurrentIndexChanged: dataObject.mode = currentIndex;
+                Layout.preferredWidth: elementWidth
+            }
+
+            DropDown {
+                id: domainSelect
+                model: ["Impulse", "Frequency"]
+                currentIndex: dataObject.domain
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Take data from")
+                onCurrentIndexChanged: dataObject.domain = currentIndex;
                 Layout.preferredWidth: elementWidth
             }
 

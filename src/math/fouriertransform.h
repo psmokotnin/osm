@@ -63,7 +63,7 @@ public:
     void reverse();
 
     //! run reverse only for A transform
-    void reverseOne();
+    void transformSingleChannel(bool reverse = true);
 
     //! run log transform
     void log();

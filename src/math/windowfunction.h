@@ -32,47 +32,37 @@ public:
     Q_ENUM(Type)
     static const std::map<Type, QString> TypeMap;
 
+    explicit WindowFunction(Type type, QObject *parent = nullptr);
+
+    void setSize(unsigned int size);
+    unsigned int size() const;
+
+    //! return gain for point \b{i} in vector size \n{N}
+    float pointGain(float i, unsigned int N) const;
+
+    Type type() const;
+
+    void setType(Type t);
+    static QVariant getTypes();
+
+    //! return gain of point k (corrcted with global wf gain data)
+    const float &get(unsigned int k) const;
+
+    //! static function return string name of type
+    QString static name(Type type) noexcept;
+
+    float gain() const;
+    float norm() const;
+
 private:
     Type m_type;
     unsigned int m_size;
     container::array<float> m_data;
     float m_gain;
+    float m_norm;
 
-    //calculate data for current type
+    //! calculate data for current type
     void calculate();
-
-public:
-    explicit WindowFunction(Type type, QObject *parent = nullptr);
-
-    void setSize(unsigned int size);
-    unsigned int size() const
-    {
-        return m_size;
-    }
-
-    //! return gain for point \b{i} in vector size \n{N}
-    float pointGain(float i, unsigned int N) const;
-
-    Type type() const
-    {
-        return m_type;
-    }
-    void setType(Type t);
-    static QVariant getTypes();
-
-    //! return gain of point k (corrcted with global wf gain data)
-    const float &get(unsigned int k) const
-    {
-        return m_data[k];
-    }
-
-    //! static function return string name of type
-    QString static name(Type type) noexcept
-    {
-        return WindowFunction::TypeMap.at(type);
-    }
-
-    float gain() const;
 };
 QDebug operator<<(QDebug dbg, const WindowFunction::Type &t);
 #endif // WINDOWFUNCTION_H
