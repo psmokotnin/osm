@@ -154,7 +154,7 @@ Item {
             Layout.alignment: Qt.AlignHCenter
             Layout.margins: 0
             spacing: 0
-            reuseItems: true
+            reuseItems: false
             model: SourceModel {
                 id: sourceModel
                 list: sourceList
