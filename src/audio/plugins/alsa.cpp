@@ -188,7 +188,7 @@ Stream *AlsaPlugin::open(const DeviceInfo::Id &id, const Plugin::Direction &mode
             m_devices[ {mode, id}] = nullptr;
             device->deleteLater();
             m_deviceListMutex.unlock();
-        });
+        }, Qt::DirectConnection);
 
         m_devices[ {mode, id}] = device;
     }
