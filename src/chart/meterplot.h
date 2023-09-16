@@ -21,6 +21,7 @@
 #include <QTimer>
 #include "levelobject.h"
 #include "source.h"
+#include "math/leq.h"
 
 namespace chart {
 
@@ -32,13 +33,14 @@ public:
         Peak    = 0x01,
         Crest   = 0x02,
         THDN    = 0x03,
-        Time    = 0x04
+        Time    = 0x04,
+        Leq     = 0x05
     };
     Q_OBJECT
     Q_ENUM(Type);
 
     Q_PROPERTY(QVariant availableCurves READ getAvailableCurves CONSTANT)
-    Q_PROPERTY(QVariant availableTimes READ getAvailableTimes CONSTANT)
+    Q_PROPERTY(QVariant availableTimes READ getAvailableTimes NOTIFY typeChanged)
     Q_PROPERTY(QVariant availableTypes READ getAvailableTypes CONSTANT)
 
     Q_PROPERTY(QUuid source READ source WRITE setSource NOTIFY sourceChanged)
@@ -70,6 +72,9 @@ public:
     void setThreshold(float threshold);
 
     QVariant getAvailableTypes() const;
+    QVariant getAvailableTimes() const override;
+    QString timeName() const override;
+    void setTime(const QString &time) override;
 
     const Type &type() const;
     QString typeName() const noexcept;
@@ -110,6 +115,7 @@ private:
     SourceList *m_sourceList;
     QTimer m_timer;
     Type m_type;
+    math::Leq m_leq;
     QMetaObject::Connection m_sourceConnection;
     float m_threshold;
 

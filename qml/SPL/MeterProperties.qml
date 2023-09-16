@@ -73,7 +73,7 @@ Item {
                 onCurrentIndexChanged: {
                     dataObject.meter.mode = currentIndex;
                 }
-                enabled: dataObject.meter.type !== "Time" && dataObject.meter.type !== "THD+N"
+                enabled: dataObject.meter.type !== "Time" && dataObject.meter.type !== "THD+N" && dataObject.meter.type !== "Leq" && dataObject.meter.type !== "Crest"
 
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("scale")
@@ -96,7 +96,7 @@ Item {
 
                 model: dataObject.meter.availableTimes
                 currentIndex: model.indexOf(dataObject.meter.time)
-                onCurrentValueChanged: dataObject.meter.time = currentValue
+                onCurrentValueChanged: currentValue ? dataObject.meter.time = currentValue : {}
 
                 enabled: dataObject.meter.type !== "Time" && dataObject.meter.type !== "THD+N"
 

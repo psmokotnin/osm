@@ -39,15 +39,15 @@ public:
     LevelObject();
 
     QVariant getAvailableCurves() const;
-    QVariant getAvailableTimes() const;
+    virtual QVariant getAvailableTimes() const;
 
     Weighting::Curve curve() const;
     QString curveName() const;
     void setCurve(const QString &curve);
 
     Meter::Time time() const;
-    QString timeName() const;
-    void setTime(const QString &time);
+    virtual QString timeName() const;
+    virtual void setTime(const QString &time);
 
     chart::LevelObject::Mode mode() const;
     QString modeName() const;

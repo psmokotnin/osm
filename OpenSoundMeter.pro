@@ -48,6 +48,8 @@ SOURCES += src/main.cpp \
     src/common/notifier.cpp \
     src/common/profiler.cpp \
     src/math/biquad.cpp \
+    src/math/integration_tree.cpp \
+    src/math/leq.cpp \
     src/math/notch.cpp \
     src/math/weighting.cpp \
     src/meta/metabase.cpp \
@@ -155,6 +157,7 @@ HEADERS += \
     src/chart/spectrogramplot.h \
     src/chart/stepplot.h \
     src/chart/coherenceplot.h \
+    src/common/atomic.h \
     src/common/autosaver.h \
     src/common/recentfilesmodel.h \
     src/common/wavfile.h \
@@ -177,6 +180,8 @@ HEADERS += \
     src/math/bessellpf.h \
     src/math/biquad.h \
     src/math/filter.h \
+    src/math/integration_tree.h \
+    src/math/leq.h \
     src/math/notch.h \
     src/math/weighting.h \
     src/meta/metabase.h \

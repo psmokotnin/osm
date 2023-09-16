@@ -26,6 +26,7 @@ const std::map<MeterPlot::Type, QString> MeterPlot::m_typesMap = {
     {MeterPlot::Type::Crest, "Crest"},
     {MeterPlot::Type::THDN,  "THD+N"},
     {MeterPlot::Type::Time,  "Time" },
+    {MeterPlot::Type::Leq,   "Leq"  },
 };
 
 MeterPlot::MeterPlot(QObject *parent) : QObject(parent), LevelObject(),
@@ -78,6 +79,8 @@ QString MeterPlot::title() const
         return typeName();
     case Crest:
         return typeName() + " " + curveName() + " " + timeName();
+    case Leq:
+        return "L" + curveName() + "eq " + timeName();
     default:
         return typeName() + " " + modeName() + " " + curveName() + " " + timeName();
     }
@@ -120,6 +123,9 @@ QString MeterPlot::dBValue() const
         break;
     case Crest:
         level = m_source->peak(curve(), time()) - m_source->level(curve(), time());
+        break;
+    case Leq:
+        level = m_leq.value() + SPL_OFFSET;
         break;
     default:
         qDebug() << "not db value";
@@ -183,6 +189,41 @@ QVariant MeterPlot::getAvailableTypes() const
     return typeList;
 }
 
+QVariant MeterPlot::getAvailableTimes() const
+{
+    switch (m_type) {
+    case Type::Leq:
+        return math::Leq::availableTimes();
+    default:
+        break;
+    }
+    return LevelObject::getAvailableTimes();
+}
+
+QString MeterPlot::timeName() const
+{
+    switch (m_type) {
+    case Type::Leq:
+        return m_leq.timeName();
+    default:
+        break;
+    }
+    return LevelObject::timeName();
+}
+
+void MeterPlot::setTime(const QString &time)
+{
+    switch (m_type) {
+    case Leq:
+        m_leq.setTime(time);
+        emit timeChanged(timeName());
+        break;
+    default:
+        LevelObject::setTime(time);
+        break;
+    }
+}
+
 void MeterPlot::updateThreshold()
 {
     switch (curve()) {
@@ -214,6 +255,7 @@ void MeterPlot::sourceReadyRead()
     case THDN:
         emit valueChanged();
         break;
+    case Leq:
     case Time:
     {/*ignore*/}
     }
@@ -221,7 +263,10 @@ void MeterPlot::sourceReadyRead()
 
 void MeterPlot::timeReadyRead()
 {
-    if (m_type == Time) {
+    if (m_source && m_source->active() && m_type == Leq) {
+        m_leq.addOneSecondValue(m_source->level(curve(), Meter::Time::Fast));
+        emit valueChanged();
+    } else if (m_type == Time) {
         emit valueChanged();
     }
 }
@@ -248,8 +293,9 @@ void MeterPlot::setType(const Type &type)
 
     emit typeChanged();
     emit valueChanged();
+    emit timeChanged(timeName());
 
-    if (m_type == Time) {
+    if (m_type == Time || m_type == Leq) {
         m_timer.start();
     } else {
         m_timer.stop();
