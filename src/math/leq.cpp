@@ -35,6 +35,7 @@ QVariant Leq::availableTimes()
     for (const auto &type : m_timeMap) {
         typeList << type.second;
     }
+    typeList.sort();
     return typeList;
 }
 
@@ -60,8 +61,10 @@ float Leq::value() const
 }
 
 const std::unordered_map<std::size_t, QString> Leq::m_timeMap = {
-    {  5 * 60,  "5 min" },
+    {  1 * 60, " 1 min" },
+    {  5 * 60, " 5 min" },
     { 15 * 60, "15 min" },
+    { 30 * 60, "30 min" },
     { 60 * 60, "60 min" },
 };
 
