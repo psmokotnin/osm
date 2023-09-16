@@ -17,6 +17,7 @@
  */
 
 #include "musicnoise.h"
+#include <math.h>
 
 MusicNoise::MusicNoise(QObject *parent) : OutputDevice(parent)
 {
