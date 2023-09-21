@@ -217,6 +217,8 @@ bool Stored::saveTXT(const QUrl &fileName) const noexcept
         auto p = m_ftdata[i].phase.arg() * 180.f / static_cast<float>(M_PI);
         if (std::isnormal(m) && std::isnormal(p)) {
             out << m_ftdata[i].frequency << "\t" << m << "\t" << p << "\t" << coherence(i) << "\n";
+        } else {
+            out << m_ftdata[i].frequency << "\t*\t*\t" << coherence(i) << "\n";
         }
     }
     saveFile.close();
@@ -237,6 +239,8 @@ bool Stored::saveCSV(const QUrl &fileName) const noexcept
         auto p = m_ftdata[i].phase.arg() * 180.f / static_cast<float>(M_PI);
         if (std::isnormal(m) && std::isnormal(p)) {
             out << m_ftdata[i].frequency << "," << m << "," << p << "," << coherence(i) << "\n";
+        } else {
+            out << m_ftdata[i].frequency << ",*,*," << coherence(i) << "\n";
         }
     }
     saveFile.close();
