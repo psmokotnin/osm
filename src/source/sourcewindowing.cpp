@@ -173,7 +173,9 @@ void Windowing::resizeData()
 
         unsigned int i = 0;
         for (auto frequency : frequencyList) {
-            m_ftdata[i++].frequency = frequency;
+            m_ftdata[i].frequency = frequency;
+            m_ftdata[i].coherence = 1;
+            i++;
         }
     }
 
@@ -208,7 +210,7 @@ void Windowing::updateFromFrequencyDomain()
 
     unsigned last = 0;
     int j = 0;
-    float kg, bg, g, g1, g2, f1, f2;
+    float kg, bg, g, g1, g2, f1, f2, c, kc, bc, c1, c2;
     complex p1, p2, kp, bp, p;
     bool inList = false;
 
@@ -228,9 +230,12 @@ void Windowing::updateFromFrequencyDomain()
         f1 = m_source->frequency(last);
         g1 = m_source->magnitudeRaw(last);
         p1 = m_source->phase(last);
+        c1 = m_source->coherence(last);
+
         f2 = m_source->frequency(j);
         g2 = m_source->magnitudeRaw(j);
         p2 = m_source->phase(j);
+        c2 = m_source->coherence(j);
 
         if (inList) {
             kg = (g2 - g1) / (f2 - f1);
@@ -239,16 +244,22 @@ void Windowing::updateFromFrequencyDomain()
             kp = (p2 - p1) / (f2 - f1);
             bp = p2 - kp * f2;
 
+            kc = (c2 - c1) / (f2 - f1);
+            bc = c2 - kc * f2;
+
             g = kg * frequency(i) + bg;
             p = kp * frequency(i) + bp;
+            c = kc * frequency(i) + bc;
         } else {
             g = g2;
             p = p2;
+            c = c2;
         }
 
         auto complexMagnitude = i == 0 ? 0 : p * g;
         m_ftdata[i].magnitude = g;
         m_ftdata[i].phase = p;
+        m_ftdata[i].coherence = c;
         m_dataFT.set(                i,     complexMagnitude.conjugate(), 0);
         m_dataFT.set(impulseSize() - i - 1, complexMagnitude,             0);
     }
@@ -329,9 +340,9 @@ void Windowing::transform()
         if (m_ftdata[i].frequency < criticalFrequency) {
             m_ftdata[i].coherence = 0;
         } else if (m_ftdata[i].frequency > criticalFrequency * 2) {
-            m_ftdata[i].coherence = 1;
+            m_ftdata[i].coherence *= 1;
         } else {
-            m_ftdata[i].coherence = (m_ftdata[i].frequency - criticalFrequency) / criticalFrequency;
+            m_ftdata[i].coherence *= (m_ftdata[i].frequency - criticalFrequency) / criticalFrequency;
         }
 
         m_ftdata[i].magnitude   = m_dataFT.af(i).abs() / m_norm;
