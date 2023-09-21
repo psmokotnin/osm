@@ -25,7 +25,7 @@ Appearance::Appearance(Settings *settings) : QObject(settings)
     connect(app, &QGuiApplication::paletteChanged, this, &Appearance::setDarkModeFromSystem);
 
     if (
-        (settings->value("darkMode").type() != QVariant::Bool) ||
+        (!settings->value("darkMode").isValid()) ||
         (darkModeFromSystem() && !darkMode())
     ) {
         setDarkModeFromSystem();

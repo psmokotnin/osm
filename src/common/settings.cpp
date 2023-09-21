@@ -24,15 +24,8 @@ Settings::Settings(const QString &group, QObject *parent) : QObject(parent), m_g
 {
     if (!m_settings) {
         Settings::m_settings = new QSettings(
-#ifdef Q_OS_WIN
-            QSettings::UserScope,
-            QCoreApplication::organizationName(),
-            QCoreApplication::applicationName(), nullptr
-#else
             workingfolder::settingsFilePath(),
-            QSettings::NativeFormat //TODO: IniFormat
-#endif
-
+            QSettings::IniFormat
         );
     }
 }
@@ -54,4 +47,9 @@ QVariant Settings::value(const QString &key, const QVariant &defaultValue)
 Settings *Settings::getGroup(const QString &groupName)
 {
     return new Settings(groupName, this);
+}
+
+void Settings::flush()
+{
+    m_settings->sync();
 }

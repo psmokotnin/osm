@@ -62,6 +62,7 @@ void AutoSaver::load()
 
     //don't reload this file on next open if this failed/crashed
     m_settings->setValue(FILE_KEY, "");
+    m_settings->flush();
     QUrl url(file);
     if (list()->load(url)) {
         //restore if we still alive

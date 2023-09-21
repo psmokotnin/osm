@@ -25,9 +25,6 @@ class Settings : public QObject
 {
     Q_OBJECT
 
-    static QSettings *m_settings;
-    QString m_group;
-
 public:
     explicit Settings(const QString &group = "", QObject *parent = nullptr);
     QSettings *parent()
@@ -51,6 +48,7 @@ public:
         return value(key, defaultValue);
     }
 
+    void flush();
 
 protected:
     class group_guard
@@ -69,6 +67,10 @@ protected:
                 m_settings->endGroup();
         }
     };
+
+private:
+    static QSettings *m_settings;
+    QString m_group;
 };
 
 #endif // SETTINGS_H
