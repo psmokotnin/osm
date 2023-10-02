@@ -131,9 +131,9 @@ Item {
             DropDown {
                 Layout.preferredWidth: narrowWidth
                 model: [1, 2, 3]
-                currentIndex: dataObject.grid.rows - 1
+                currentIndex: dataObject.grid.model.rows - 1
                 onCurrentIndexChanged: {
-                    dataObject.grid.rows = currentIndex + 1;
+                    dataObject.grid.model.rows = currentIndex + 1;
                 }
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("meter rows")
@@ -142,9 +142,9 @@ Item {
             DropDown {
                 Layout.preferredWidth: narrowWidth
                 model: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-                currentIndex: dataObject.grid.columns - 1
+                currentIndex: dataObject.grid.model.columns - 1
                 onCurrentIndexChanged: {
-                    dataObject.grid.columns = currentIndex + 1;
+                    dataObject.grid.model.columns = currentIndex + 1;
                 }
 
                 ToolTip.visible: hovered

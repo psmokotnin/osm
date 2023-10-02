@@ -55,6 +55,7 @@ public:
 
     Q_INVOKABLE chart::Source *get(int i) const noexcept;
     Q_INVOKABLE chart::Source *getByUUid(QUuid id) const noexcept;
+    Q_INVOKABLE QUuid getUUid(int id) const noexcept;
     Q_INVOKABLE QUuid firstSource() const noexcept;
     Q_INVOKABLE void clean() noexcept;
     Q_INVOKABLE void reset() noexcept;

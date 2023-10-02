@@ -40,7 +40,7 @@ Rectangle {
             Layout.fillWidth: true
             Layout.preferredHeight: meter.heightPart
 
-            text: dataSource.title;
+            text: dataSource ? dataSource.title : "";
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignBottom
         }
@@ -50,14 +50,14 @@ Rectangle {
             Layout.fillHeight: true
 
             color:
-                dataSource.value > dataSource.threshold ?
+                dataSource && (dataSource.value > dataSource.threshold) ?
                     Material.color(Material.Red) :
                     Material.color(Material.LightGreen)
 
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
 
-            text: dataSource.value
+            text: dataSource ? dataSource.value : ""
 
             font.pixelSize: {(2 * height < parent.width ? meter.heightPart * 2 : parent.width / 3)}
             font.capitalization: Font.AllUppercase
@@ -67,7 +67,7 @@ Rectangle {
             Layout.fillWidth: true
             Layout.preferredHeight: meter.heightPart
 
-            text: dataSource.sourceName
+            text: dataSource ? dataSource.sourceName : ""
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
         }

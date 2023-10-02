@@ -337,6 +337,10 @@ Item {
     SPL.Grid {
         enabled: chart.type == "SPL"
         visible: chart.type == "SPL"
+
+        Component.onCompleted: {
+            settings = chartview.settings;
+        }
     }
 
     DropDown {

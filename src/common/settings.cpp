@@ -49,6 +49,11 @@ Settings *Settings::getGroup(const QString &groupName)
     return new Settings(groupName, this);
 }
 
+Settings *Settings::getSubGroup(const QString &groupName)
+{
+    return getGroup(m_group + groupName);
+}
+
 void Settings::flush()
 {
     m_settings->sync();

@@ -1,6 +1,6 @@
 /**
  *  OSM
- *  Copyright (C) 2022  Pavel Smokotnin
+ *  Copyright (C) 2023  Pavel Smokotnin
 
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -15,39 +15,61 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-import QtQuick 2.12
+import QtQuick 2.15
 import QtQuick.Layouts 1.12
 import "../" as Root
 import "../SPL" as SPL
-import OpenSoundMeter 1.0;
+import OpenSoundMeter 1.0
+import OpenSoundMeterModule 1.0
 
 Item {
+    id: control
+    property alias settings: model.settings
     anchors.fill: parent
 
-    GridLayout {
-        id: grid
-        rows: 1
-        columns: 3
-
-        flow: GridLayout.LeftToRight
+    TableView{
+        id: view
         anchors.fill: parent
-        columnSpacing: 5
-        rowSpacing: 5
+        columnSpacing: 2
+        rowSpacing: 2
+        clip: false
+        reuseItems: true
 
-        property int itemWidth:  (width  - (columns - 1) * columnSpacing) / columns - 1
-        property int itemHeight: (height - (rows    - 1) * rowSpacing   ) / rows - 1
+        property int cellWidth:  Math.floor(width  / columns)  - columnSpacing
+        property int cellHeight: Math.floor(height / rows)     - rowSpacing
 
-        Repeater {
-            model: grid.rows * grid.columns
+        columnWidthProvider : function() {return control.width > 0 ? cellWidth : 1; }
+        rowHeightProvider : function() { return control.height > 0 ? cellHeight : 1; }
 
-            delegate: SPL.Meter {
-                Layout.preferredHeight: grid.itemHeight
-                Layout.preferredWidth: grid.itemWidth
-                gridRef: grid
-                dataSource: MeterPlot {
-                    list: sourceList
-                    source: sourceList.firstSource()
-                }
+        model: MeterTableModel {
+            id: model
+        }
+        Component.onCompleted: {
+            model.sourceList = sourceList;
+            model.settings = control.settings;
+        }
+        delegate: SPL.Meter {
+            gridRef: view
+            dataSource: model.meter
+        }
+
+        Connections {
+            target: control
+            function onWidthChanged() {
+                view.forceLayout();
+            }
+            function onHeightChanged() {
+                view.forceLayout();
+            }
+        }
+        Connections {
+            target: model
+
+            function onRowsChanged() {
+                view.forceLayout();
+            }
+            function onColumnsChanged() {
+                view.forceLayout();
             }
         }
     }

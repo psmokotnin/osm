@@ -22,6 +22,7 @@
 #include "levelobject.h"
 #include "source.h"
 #include "math/leq.h"
+#include "common/settings.h"
 
 namespace chart {
 
@@ -84,6 +85,8 @@ public:
     SourceList *sourceList() const;
     void setSourceList(SourceList *sourceList);
 
+    void setSettings(Settings *newSettings);
+
 signals:
     void curveChanged(QString) override;
     void timeChanged(QString) override;
@@ -94,7 +97,7 @@ signals:
     void valueChanged();
     void thresholdChanged(float);
 
-    void typeChanged();
+    void typeChanged(QString);
     void titleChanged();
     void sourceNameChanged();
 
@@ -113,6 +116,7 @@ private:
 
     chart::Source *m_source;
     SourceList *m_sourceList;
+    Settings   *m_settings;
     QTimer m_timer;
     Type m_type;
     math::Leq m_leq;
@@ -123,5 +127,7 @@ private:
 };
 
 } // namespace chart
+
+Q_DECLARE_METATYPE(chart::MeterPlot *)
 
 #endif // CHART_METERPLOT_H

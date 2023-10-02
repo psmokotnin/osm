@@ -109,12 +109,20 @@ std::lock_guard<std::mutex> SourceList::lock() const
 chart::Source *SourceList::getByUUid(QUuid id) const noexcept
 {
     auto result = std::find_if(m_items.cbegin(), m_items.cend(), [&id](chart::Source * source) {
-        return source->uuid() == id;
+        return source && source->uuid() == id;
     });
     if (result != m_items.end()) {
         return *result;
     }
     return nullptr;
+}
+
+QUuid SourceList::getUUid(int i) const noexcept
+{
+    if (i < 0 || i >= m_items.size())
+        return QUuid{};
+
+    return m_items.at(i)->uuid();
 }
 
 void SourceList::clean() noexcept

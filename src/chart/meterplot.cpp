@@ -30,7 +30,7 @@ const std::map<MeterPlot::Type, QString> MeterPlot::m_typesMap = {
 };
 
 MeterPlot::MeterPlot(QObject *parent) : QObject(parent), LevelObject(),
-    m_source(nullptr), m_timer(this), m_type(RMS), m_threshold(0)
+    m_source(nullptr), m_sourceList(nullptr), m_settings(nullptr), m_timer(this), m_type(RMS), m_threshold(0)
 {
     m_timer.setInterval(1000);
     connect(this, &MeterPlot::curveChanged, this, &MeterPlot::updateThreshold);
@@ -55,7 +55,6 @@ QUuid MeterPlot::source() const
 void MeterPlot::setSource(QUuid sourceId)
 {
     auto source = m_sourceList ? m_sourceList->getByUUid(sourceId) : nullptr;
-
     if (m_source != source) {
         disconnect(m_sourceConnection);
 
@@ -153,6 +152,32 @@ QString MeterPlot::thdnValue() const
     }
 }
 
+void MeterPlot::setSettings(Settings *newSettings)
+{
+    if (m_settings == newSettings)
+        return;
+    m_settings = newSettings;
+
+    setSource(
+        m_settings->reactValue<MeterPlot, QUuid>("source", this, &MeterPlot::sourceChanged, source()).toUuid()
+    );
+    setCurve(
+        m_settings->reactValue<MeterPlot, QString>("curve", this, &MeterPlot::curveChanged, curveName()).toString()
+    );
+    setType(
+        m_settings->reactValue<MeterPlot, QString>("type", this, &MeterPlot::typeChanged, typeName()).toString()
+    );
+    setMode(
+        m_settings->reactValue<MeterPlot, chart::LevelObject::Mode>("mode", this, &MeterPlot::modeChanged, mode()).toInt()
+    );
+    setThreshold(
+        m_settings->reactValue<MeterPlot, float>("threshold", this, &MeterPlot::thresholdChanged, threshold()).toFloat()
+    );
+    setPause(
+        m_settings->reactValue<MeterPlot, bool>("pause", this, &MeterPlot::pauseChanged, pause()).toBool()
+    );
+}
+
 SourceList *MeterPlot::sourceList() const
 {
     return m_sourceList;
@@ -165,6 +190,10 @@ void MeterPlot::setSourceList(SourceList *sourceList)
     }
     m_sourceList = sourceList;
     emit sourceListChanged();
+
+    if (sourceList && source().isNull()) {
+        setSource(sourceList->firstSource());
+    }
 }
 
 float MeterPlot::threshold() const
@@ -291,7 +320,7 @@ void MeterPlot::setType(const Type &type)
         return;
     m_type = type;
 
-    emit typeChanged();
+    emit typeChanged(typeName());
     emit valueChanged();
     emit timeChanged(timeName());
 

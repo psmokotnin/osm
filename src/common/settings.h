@@ -34,6 +34,7 @@ public:
     Q_INVOKABLE void setValue(const QString &key, const QVariant &value);
     Q_INVOKABLE QVariant value(const QString &key, const QVariant &defaultValue = QVariant());
     Q_INVOKABLE Settings *getGroup(const QString &groupName);
+    Q_INVOKABLE Settings *getSubGroup(const QString &groupName);
 
     template <typename C, typename T>
     QVariant reactValue(
