@@ -312,21 +312,10 @@ Item {
                             rightPadding: 4
                             leftPadding: 4
                             onClicked: {
-                                applicationWindow.dialog.accepted.connect(deleteModel);
-                                applicationWindow.dialog.rejected.connect(freeDialog);
-                                applicationWindow.dialog.title = "Delete " + dragArea.source.name + "?";
-                                applicationWindow.dialog.open();
-                            }
-                            function deleteModel() {
                                 if (applicationWindow.properiesbar.currentObject === dragArea.source) {
                                     applicationWindow.properiesbar.reset();
                                 }
                                 sourceList.removeItem(dragArea.source);
-                                freeDialog();
-                            }
-                            function freeDialog() {
-                                applicationWindow.dialog.accepted.disconnect(deleteModel);
-                                applicationWindow.dialog.rejected.disconnect(freeDialog);
                             }
                             background: Rectangle {
                                 color: "transparent"

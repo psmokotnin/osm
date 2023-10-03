@@ -61,7 +61,7 @@ Popup {
                     <tr><td>%1+L</td><td>append new equal Loudness contour</td></tr>
                     <tr><td>%1+F</td><td>append new filter</td></tr>
                     <tr><td>%1+X</td><td>store all measurements</td></tr>
-                    <tr><td>%1+R</td><td>reset aveverages</td></tr>
+                    <tr><td>%1+R</td><td>reset buffer</td></tr>
                     <tr><td>%1+C</td><td>store current measurement</td></tr>
                     <tr><td>%1+E</td><td>apply estimated delay for current measuremts</td></tr>
 

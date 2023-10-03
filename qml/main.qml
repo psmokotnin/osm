@@ -75,7 +75,7 @@ ApplicationWindow {
         z: -1
     }
 
-    property bool askBeforeClose : true
+    property bool askBeforeClose : false
     onClosing: function (close) {
         if (!askBeforeClose) {
             return;

@@ -100,7 +100,7 @@ Item {
                 Material.background: parent.Material.background
 
                 ToolTip.visible: hovered
-                ToolTip.text: qsTr("reset buffers")
+                ToolTip.text: qsTr("reset buffer")
             }
 
             Item {
