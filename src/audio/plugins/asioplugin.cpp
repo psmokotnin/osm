@@ -422,6 +422,9 @@ template<typename T> inline void getSample(void *data, float *value, size_t chan
     constexpr unsigned long bound = cpow(2, sizeof(T) * 8 - 1) - 1;
     T *pData = reinterpret_cast<T *>(data) + sampleNumber;
     float v = static_cast<double>(*pData) / static_cast<double>(bound);
+    if (v > 1) {
+        v -= 2;
+    }
     memmove(value + channelNumber + sampleNumber * channelsPerFrame, &v, sizeof(float));
 }
 template<> inline void getSample<float>(void *data, float *value, size_t channelNumber, size_t sampleNumber,
