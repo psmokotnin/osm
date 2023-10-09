@@ -246,7 +246,7 @@ Item {
                 list: sourceList
             }
             Layout.preferredWidth: 160
-            currentIndex: { model.indexOf(dataObject.selected[0]) }
+            currentIndex: { dataObject.selected ? model.indexOf(dataObject.selected[0]) : -1 }
             textRole: "title"
             valueRole: "source"
             onCurrentIndexChanged: {

@@ -52,7 +52,7 @@ private:
     };
     static const unsigned int MAX_HISTORY = 52;
     std::deque<historyRow> m_history;
-    bool m_refreshBuffers, m_active;
+    bool m_refreshBuffers, m_plotActive;
     int m_min, m_mid, m_max;
     unsigned int m_pointsPerOctave;
     unsigned int m_sourceSize;

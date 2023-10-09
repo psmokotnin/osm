@@ -100,11 +100,10 @@ void SpectrogramSeriesNode::synchronizeSeries()
         m_min = spectrogramPlot->min();
         m_mid = spectrogramPlot->mid();
         m_max = spectrogramPlot->max();
-        m_active = spectrogramPlot->active();
+        m_plotActive = spectrogramPlot->active();
     }
 }
 
-//BUG: crash ifm_source was deleted during updating
 void SpectrogramSeriesNode::updateHistory()
 {
     //QSGRenderThread
@@ -113,6 +112,7 @@ void SpectrogramSeriesNode::updateHistory()
     float floor = -140.f;
     float alpha;
 
+    std::lock_guard guard(m_active);
     historyRowData rowData;
     historyRow row;
     row.time = static_cast<int>(m_timer.restart());
@@ -128,7 +128,7 @@ void SpectrogramSeriesNode::updateHistory()
         mixedColor.setGreenF(k * (second.greenF() - first.greenF()) + first.greenF());
         return mixedColor;
     };
-    auto accumalte = [m_source = m_source, &value] (const unsigned int &i) {
+    auto accumalte = [this, &value] (const unsigned int &i) {
         if (i == 0) {
             return ;
         }
@@ -170,7 +170,7 @@ void SpectrogramSeriesNode::updateHistory()
         value = 0;
     };
 
-    if (m_active) {
+    if (m_plotActive) {
         iterate(m_pointsPerOctave, accumalte, collected);
 
         m_history.push_back(std::move(row));

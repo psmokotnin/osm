@@ -92,6 +92,8 @@ protected:
     //! MTLCommandBuffer
     void *m_commandBuffer;
 
+protected:
+    std::mutex m_active;
 
 private:
     void init();
@@ -119,7 +121,6 @@ private:
     QSize m_size;
     float m_retinaScale;
 
-    std::mutex m_active;
     bool m_renderActive;
     float m_weight;
     std::atomic<bool> m_readyRender;
