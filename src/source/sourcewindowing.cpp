@@ -334,7 +334,6 @@ void Windowing::transform()
 {
     m_dataFT.transformSingleChannel(true);
     auto m_norm = 1.f / sqrtf(m_deconvolutionSize);
-
     auto criticalFrequency = 1000 / wide();
     for (unsigned i = 0; i < size(); ++i) {
         if (m_ftdata[i].frequency < criticalFrequency) {
@@ -349,7 +348,7 @@ void Windowing::transform()
         m_ftdata[i].module      = m_ftdata[i].magnitude;
         m_ftdata[i].meanSquared = m_ftdata[i].magnitude * m_ftdata[i].magnitude;
         m_ftdata[i].peakSquared = 0;
-        m_ftdata[i].phase       = m_dataFT.af(i);
+        m_ftdata[i].phase       = m_dataFT.af(i).normalize();
     }
 }
 
