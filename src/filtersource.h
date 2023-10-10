@@ -42,8 +42,8 @@ public:
     FilterSource(QObject *parent = nullptr);
 
     Source *clone() const override;
-    Q_INVOKABLE QJsonObject toJSON(const SourceList * list = nullptr) const noexcept override;
-    void fromJSON(QJsonObject data, const SourceList * list = nullptr) noexcept override;
+    Q_INVOKABLE QJsonObject toJSON(const SourceList *list = nullptr) const noexcept override;
+    void fromJSON(QJsonObject data, const SourceList *list = nullptr) noexcept override;
 
     Q_INVOKABLE chart::Source *store() noexcept override;
 
@@ -65,6 +65,7 @@ private slots:
 private:
     complex calculate(float frequency) const;
     complex Bessel(bool hpf, complex s) const;
+    complex calculateAPF(complex s) const;
 
     complex Butterworth(bool hpf, unsigned int order, const complex &s) const;
     complex ButterworthPolinom(unsigned int k, unsigned int order, const complex &s) const;

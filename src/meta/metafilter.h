@@ -36,7 +36,8 @@ public:
         LinkwitzRileyLPF,
         LinkwitzRileyHPF,
         BesselLPF,
-        BesselHPF
+        BesselHPF,
+        APF
     };
     Q_ENUM(Type)
 

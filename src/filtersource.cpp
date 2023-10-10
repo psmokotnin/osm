@@ -200,6 +200,8 @@ complex FilterSource::calculate(float frequency) const
         return Bessel(true, s);
     case BesselLPF:
         return Bessel(false, s);
+    case APF:
+        return calculateAPF(s);
     }
 }
 
@@ -252,6 +254,28 @@ complex FilterSource::Bessel(bool hpf, complex s) const
     for (unsigned int k = 0; k <= n; ++k) {
         denominator += s_k * a(k);
         s_k *= s;
+    }
+
+    return numerator / denominator;
+}
+
+complex FilterSource::calculateAPF(complex s) const
+{
+    float q;
+    complex numerator;
+    complex denominator;
+
+    switch (order()) {
+    case 2:
+        q = 1.f / 2;
+        numerator = s * s - 1;
+        denominator = s * s + s / q + 1;
+        break;
+    case 4:
+        q = 1.f / sqrt(2);
+        numerator = s * s - s / q + 1;
+        denominator = s * s + s / q + 1;
+        break;
     }
 
     return numerator / denominator;

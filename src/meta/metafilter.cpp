@@ -25,7 +25,8 @@ const std::map<Filter::Type, QString>Filter::m_typeMap = {
     {Filter::LinkwitzRileyLPF, "Linkwitz-Riley LPF"},
     {Filter::LinkwitzRileyHPF, "Linkwitz-Riley HPF"},
     {Filter::BesselLPF, "Bessel LPF"},
-    {Filter::BesselHPF, "Bessel HPF"}
+    {Filter::BesselHPF, "Bessel HPF"},
+    {Filter::APF,       "All pass"}
 };
 
 const std::map<Filter::Type, QString>Filter::m_typeShortMap = {
@@ -34,7 +35,8 @@ const std::map<Filter::Type, QString>Filter::m_typeShortMap = {
     {Filter::LinkwitzRileyLPF, "LR LPF"},
     {Filter::LinkwitzRileyHPF, "LR HPF"},
     {Filter::BesselLPF,        "Bessel LPF"},
-    {Filter::BesselHPF,        "Bessel HPF"}
+    {Filter::BesselHPF,        "Bessel HPF"},
+    {Filter::APF,              "APF"}
 };
 
 Filter::Filter() : Base(), m_type(ButterworthLPF), m_mode(Measurement::FFT14),
@@ -143,6 +145,9 @@ QVariant Filter::getAvailableOrders()
     case BesselHPF:
     case BesselLPF:
         orders = QList<QVariant>({1, 2, 3, 4, 5, 6});
+        break;
+    case APF:
+        orders = QList<QVariant>({2, 4});
         break;
     }
     return orders;
