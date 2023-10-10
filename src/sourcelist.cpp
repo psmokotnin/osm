@@ -251,8 +251,17 @@ bool SourceList::load(const QUrl &fileName) noexcept
     return false;
 }
 
-bool SourceList::import(const QUrl &fileName, const int &type)
+bool SourceList::import(const QUrl &fileName, int type)
 {
+    if (type == -1) {
+        QFileInfo info(fileName.toLocalFile());
+        auto ext = info.suffix().toLower();
+        if (ext == "txt") { type = TRANSFER_TXT; }
+        else if (ext == "csv") { type = TRANSFER_CSV; }
+        else if (ext == "wav") { type = IMPULSE_WAV; }
+        else { type = TRANSFER_TXT; }
+    }
+    
     switch (type) {
     case TRANSFER_TXT:
         return importFile(fileName, "\t");

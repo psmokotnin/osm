@@ -61,7 +61,7 @@ public:
     Q_INVOKABLE void reset() noexcept;
     Q_INVOKABLE bool save(const QUrl &fileName) const noexcept;
     Q_INVOKABLE bool load(const QUrl &fileName) noexcept;
-    Q_INVOKABLE bool import(const QUrl &fileName, const int &type);
+    Q_INVOKABLE bool import(const QUrl &fileName, int type);
     Q_INVOKABLE bool importImpulse(const QUrl &fileName, QString separator);
     Q_INVOKABLE bool importWav(const QUrl &fileName) ;
     Q_INVOKABLE bool move(int from, int to) noexcept;
