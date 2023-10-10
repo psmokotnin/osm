@@ -26,7 +26,8 @@ const std::map<Filter::Type, QString>Filter::m_typeMap = {
     {Filter::LinkwitzRileyHPF, "Linkwitz-Riley HPF"},
     {Filter::BesselLPF, "Bessel LPF"},
     {Filter::BesselHPF, "Bessel HPF"},
-    {Filter::APF,       "All pass"}
+    {Filter::APF,       "All pass"},
+    {Filter::Peak,      "Peak"}
 };
 
 const std::map<Filter::Type, QString>Filter::m_typeShortMap = {
@@ -36,7 +37,8 @@ const std::map<Filter::Type, QString>Filter::m_typeShortMap = {
     {Filter::LinkwitzRileyHPF, "LR HPF"},
     {Filter::BesselLPF,        "Bessel LPF"},
     {Filter::BesselHPF,        "Bessel HPF"},
-    {Filter::APF,              "APF"}
+    {Filter::APF,              "APF"},
+    {Filter::Peak,             "Peak"}
 };
 
 Filter::Filter() : Base(), m_type(ButterworthLPF), m_mode(Measurement::FFT14),
@@ -149,8 +151,24 @@ QVariant Filter::getAvailableOrders()
     case APF:
         orders = QList<QVariant>({2, 4});
         break;
+    case Peak:
+        orders = QList<QVariant>({1});
+        break;
     }
     return orders;
+}
+
+float Filter::gain() const
+{
+    return m_gain;
+}
+
+void Filter::setGain(float newGain)
+{
+    if (qFuzzyCompare(m_gain, newGain))
+        return;
+    m_gain = newGain;
+    emit gainChanged(m_gain);
 }
 
 } // namespace meta

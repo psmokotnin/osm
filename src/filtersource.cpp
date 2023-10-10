@@ -28,6 +28,7 @@ FilterSource::FilterSource(QObject *parent) : chart::Source(parent), meta::Filte
     connect(this, &FilterSource::typeChanged, this, &FilterSource::update);
     connect(this, &FilterSource::modeChanged, this, &FilterSource::update);
     connect(this, &FilterSource::orderChanged, this, &FilterSource::update);
+    connect(this, &FilterSource::gainChanged, this, &FilterSource::update);
     connect(this, &FilterSource::cornerFrequencyChanged, this, &FilterSource::update);
     connect(this, &FilterSource::sampleRateChanged, this, &FilterSource::update);
 
@@ -202,6 +203,8 @@ complex FilterSource::calculate(float frequency) const
         return Bessel(false, s);
     case APF:
         return calculateAPF(s);
+    case Peak:
+        return calculatePeak(s);
     }
 }
 
@@ -277,6 +280,20 @@ complex FilterSource::calculateAPF(complex s) const
         denominator = s * s + s / q + 1;
         break;
     }
+
+    return numerator / denominator;
+}
+
+complex FilterSource::calculatePeak(complex s) const
+{
+    float a, q;
+    complex numerator;
+    complex denominator;
+
+    a = std::pow(10, gain() / 20);
+    q = 1.f / sqrt(2);
+    numerator   = s * s + (s * a) / q + 1;
+    denominator = s * s + s / (a * q) + 1;
 
     return numerator / denominator;
 }

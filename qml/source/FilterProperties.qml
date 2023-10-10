@@ -132,6 +132,21 @@ Item {
                 Layout.preferredWidth: elementWidth
             }
 
+            FloatSpinBox {
+                value: dataObject.gain
+                from: -90
+                to: 90
+                decimals: 1
+                step: 0.1
+                units: "dB"
+                onValueChanged: dataObject.gain = value
+
+                visible: dataObject.type == 7
+
+                tooltiptext: qsTr("gain")
+                Layout.preferredWidth: elementWidth
+            }
+
             Item {
                 Layout.fillWidth: true
             }

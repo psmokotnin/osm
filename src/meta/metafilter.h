@@ -37,7 +37,8 @@ public:
         LinkwitzRileyHPF,
         BesselLPF,
         BesselHPF,
-        APF
+        APF,
+        Peak    = 7
     };
     Q_ENUM(Type)
 
@@ -58,6 +59,9 @@ public:
     float cornerFrequency() const;
     void setCornerFrequency(float newFrequency);
 
+    float gain() const;
+    void setGain(float newGain);
+
     unsigned int order() const;
     void setOrder(unsigned int newOrder);
     QVariant getAvailableOrders();
@@ -70,6 +74,7 @@ public:
     virtual void modeChanged(meta::Measurement::Mode) = 0;
     virtual void cornerFrequencyChanged(float) = 0;
     virtual void orderChanged(unsigned int) = 0;
+    virtual void gainChanged(float) = 0;
 
     static const std::map<Type, QString> m_typeMap;
     static const std::map<Type, QString> m_typeShortMap;
@@ -79,6 +84,7 @@ private:
     Measurement::Mode m_mode;
     unsigned int m_sampleRate, m_order;
     float m_cornerFrequency;
+    float m_gain;
 };
 
 } // namespace meta

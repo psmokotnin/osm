@@ -37,6 +37,7 @@ class FilterSource : public chart::Source, public meta::Filter
     Q_PROPERTY(meta::Filter::Type type READ type WRITE setType NOTIFY typeChanged)
     Q_PROPERTY(unsigned int order READ order WRITE setOrder NOTIFY orderChanged)
     Q_PROPERTY(float cornerFrequency READ cornerFrequency WRITE setCornerFrequency NOTIFY cornerFrequencyChanged)
+    Q_PROPERTY(float gain READ gain WRITE setGain NOTIFY gainChanged)
 
 public:
     FilterSource(QObject *parent = nullptr);
@@ -56,6 +57,7 @@ signals:
     void modeChanged(meta::Measurement::Mode) override;
     void cornerFrequencyChanged(float) override;
     void orderChanged(unsigned int) override;
+    void gainChanged(float) override;
     void autoNameChanged();
 
 private slots:
@@ -66,6 +68,7 @@ private:
     complex calculate(float frequency) const;
     complex Bessel(bool hpf, complex s) const;
     complex calculateAPF(complex s) const;
+    complex calculatePeak(complex s) const;
 
     complex Butterworth(bool hpf, unsigned int order, const complex &s) const;
     complex ButterworthPolinom(unsigned int k, unsigned int order, const complex &s) const;
