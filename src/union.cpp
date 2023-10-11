@@ -225,7 +225,8 @@ void Union::calc() noexcept
                     //resize
                 } else {
                     setActive(false);
-                    emit Notifier::getInstance()->newMessage(name(), " Source size is not the same: " + s->name());
+                    emit Notifier::getInstance()->newMessage(name(),
+                                                             " Sources must have the same window size and sample rate: " + s->name());
                     return;
                 }
             }
