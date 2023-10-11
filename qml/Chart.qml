@@ -54,7 +54,7 @@ Item {
         function initOpener() {
             opener.propertiesQml = null;
             switch(type) {
-            case "RTA":
+            case "Spectrum":
                 opener.propertiesQml = "qrc:/Plot/RTAProperties.qml";
                 break;
             case "Magnitude":
@@ -252,7 +252,7 @@ Item {
             function openCalculator() {
                 var obj = {};
                 switch(type) {
-                    case "RTA":
+                    case "Spectrum":
                     case "Magnitude":
                     case "Phase":
                     case "Group Delay":
@@ -335,8 +335,8 @@ Item {
     }
 
     SPL.Grid {
-        enabled: chart.type == "SPL"
-        visible: chart.type == "SPL"
+        enabled: chart.type == "Numeric"
+        visible: chart.type == "Numeric"
 
         Component.onCompleted: {
             settings = chartview.settings;
@@ -350,8 +350,8 @@ Item {
         implicitHeight: Material.buttonHeight
         background: null
         model: applicationAppearance.experimentFunctions ?
-                   ["RTA", "Magnitude", "Phase", "Impulse", "Step", "Coherence", "Group Delay", "Phase Delay", "Spectrogram", "Level", "SPL", "Crest Factor", "Nyquist"] :
-                   ["RTA", "Magnitude", "Phase", "Impulse", "Step", "Coherence", "Group Delay", "Spectrogram", "Level", "SPL"]
+                   ["Spectrum", "Magnitude", "Phase", "Impulse", "Step", "Coherence", "Group Delay", "Phase Delay", "Spectrogram", "Level", "Numeric", "Crest Factor", "Nyquist"] :
+                   ["Spectrum", "Magnitude", "Phase", "Impulse", "Step", "Coherence", "Group Delay", "Spectrogram", "Level", "Numeric"]
         currentIndex: model.indexOf(type)
         onCurrentIndexChanged: {
             var pb = applicationWindow.properiesbar;
