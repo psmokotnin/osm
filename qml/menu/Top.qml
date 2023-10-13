@@ -210,11 +210,22 @@ MenuBar {
         MenuItem {
             id: darkModeSelect
             text: qsTr("&Dark Mode")
-            shortcut: "Ctrl+D"
+            shortcut: applicationAppearance.useSystemBrightness ? null : "Ctrl+D"
             checkable: true
+            visible: applicationAppearance.useSystemBrightness ? false : true
             checked: applicationAppearance.darkMode
             onCheckedChanged: {
                 applicationAppearance.darkMode = darkModeSelect.checked;
+            }
+        }
+        MenuItem {
+            id: systemBrightness
+            text: qsTr("&Use system brightness")
+            shortcut: "Ctrl+Shift+D"
+            checkable: true
+            checked: applicationAppearance.useSystemBrightness
+            onCheckedChanged: {
+                applicationAppearance.useSystemBrightness = systemBrightness.checked;
             }
         }
         MenuItem {
