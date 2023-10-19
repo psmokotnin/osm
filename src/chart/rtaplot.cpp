@@ -48,7 +48,7 @@ unsigned int RTAPlot::mode()
 
 void RTAPlot::setSettings(Settings *settings) noexcept
 {
-    if (settings && (settings->value("type") == "RTA")) {
+    if (settings && (settings->value("type") == "Spectrum")) {
         FrequencyBasedPlot::setSettings(settings);
 
         setMode(m_settings->reactValue<RTAPlot, unsigned int>("mode", this, &RTAPlot::modeChanged, m_mode).toUInt());

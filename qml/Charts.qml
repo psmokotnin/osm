@@ -50,7 +50,7 @@ Item {
              Layout.fillHeight: true
              height: applicationSettings.value("layout/charts/1/height")
              onHeightChanged: applicationSettings.setValue("layout/charts/1/height", height)
-             type: applicationSettings.value("layout/charts/1/type", "RTA")
+             type: applicationSettings.value("layout/charts/1/type", "Spectrum")
              onTypeChanged: applicationSettings.setValue("layout/charts/1/type", type)
 
              Component.onCompleted: {
@@ -66,7 +66,7 @@ Item {
              Layout.preferredWidth: parent.width
              height: applicationSettings.value("layout/charts/2/height")
              onHeightChanged: applicationSettings.setValue("layout/charts/2/height", height)
-             type: applicationSettings.value("layout/charts/2/type", "RTA")
+             type: applicationSettings.value("layout/charts/2/type", "Spectrum")
              onTypeChanged: applicationSettings.setValue("layout/charts/2/type", type)
 
              Component.onCompleted: {
@@ -82,7 +82,7 @@ Item {
              Layout.preferredWidth: parent.width
              height: applicationSettings.value("layout/charts/3/height")
              onHeightChanged: applicationSettings.setValue("layout/charts/3/height", height)
-             type: applicationSettings.value("layout/charts/3/type", "RTA")
+             type: applicationSettings.value("layout/charts/3/type", "Spectrum")
              onTypeChanged: applicationSettings.setValue("layout/charts/3/type", type)
 
              Component.onCompleted: {
