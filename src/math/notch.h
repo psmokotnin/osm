@@ -26,6 +26,7 @@ class Notch : public math::BiQuad
 {
 public:
     Notch(float frequency = 0, float q = 1, unsigned sampleRate = 0);
+    virtual ~Notch() = default;
 
     void setFrequency(float newFrequency);
     void setSampleRate(const unsigned &newSampleRate);

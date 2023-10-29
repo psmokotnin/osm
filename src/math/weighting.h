@@ -47,6 +47,7 @@ public:
     constexpr static const double C_GAIN = 0.0619 + 1.3;
 
     Weighting(Curve curve = C, unsigned int sampleRate = 48000);
+    virtual ~Weighting() = default;
 
     float operator() (const float &value) override;
 

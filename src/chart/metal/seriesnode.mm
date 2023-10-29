@@ -31,11 +31,11 @@ SeriesNode::SeriesNode(QQuickItem *item) : m_item(static_cast<SeriesItem *>(item
     m_library(nullptr), m_devicePixelRatio(1),
     m_clearPipeline(nullptr),
     m_colorBuffer(nullptr), m_widthBuffer(nullptr), m_sizeBuffer(nullptr),
-    m_device(nullptr), m_commandQueue(nullptr), m_commandBuffer(nullptr),
+    m_device(nullptr), m_commandQueue(nullptr), m_commandBuffer(nullptr), m_active(),
     m_initialized(false), m_texture(nullptr),
     m_glTexture(nullptr), m_buffer(nullptr),
     m_window(item->window()),
-    m_size(), m_active(), m_renderActive(false), m_readyRender(true)
+    m_size(), m_renderActive(false), m_readyRender(true)
 
 {
     m_source = m_item->source();

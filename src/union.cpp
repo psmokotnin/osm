@@ -431,6 +431,7 @@ void Union::calcVector(unsigned int count, chart::Source *primary) noexcept
                     m_impulseData[offseted].value += (*it)->impulseValue(i);
                     break;
                 case Subtract:
+                case Diff:
                     m_impulseData[offseted].value -= (*it)->impulseValue(i);
                     break;
                 case Min:

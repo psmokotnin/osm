@@ -62,7 +62,7 @@ void ImpulseSeriesRenderer::renderSeries()
 
     float max = 0;
     if (m_normalized) {
-        for (unsigned int i = 0, j = 0; i < m_source->impulseSize(); ++i) {
+        for (unsigned int i = 0; i < m_source->impulseSize(); ++i) {
             max = std::max(max, std::abs(m_source->impulseValue(i)));
         }
     } else {
