@@ -21,13 +21,13 @@
 
 MusicNoise::MusicNoise(QObject *parent) : OutputDevice(parent)
 {
-    m_name = "Music Noise";
+    m_name = "Music-Noise";
 
     if (!m_48.load(":/audio/musicnoise48.wav")) {
-        qDebug() << "can't load Music Noise 48";
+        qDebug() << "can't load Music-Noise 48";
     }
     if (!m_96.load(":/audio/musicnoise96.wav")) {
-        qDebug() << "can't load Music Noise 96";
+        qDebug() << "can't load Music-Noise 96";
     }
 }
 
