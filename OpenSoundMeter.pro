@@ -237,6 +237,16 @@ HEADERS += \
     src/container/circular.h \
     src/container/array.h
 
+#math
+equals(QT_ARCH, "arm64") {
+    message("Building for: ARM64")
+    HEADERS += src/armmath.h
+} else {
+    message("Building for: x64")
+    HEADERS += src/math/ssemath.h
+    SOURCES += src/math/ssemath.cpp
+}
+
 #dialogs
 ios: {
     QMAKE_IOS_DEPLOYMENT_TARGET = 12.0
@@ -246,10 +256,6 @@ ios: {
 
     HEADERS += src/filesystem/plugins/iosdialogplugin.h
     SOURCES += src/filesystem/plugins/iosdialogplugin.mm
-    HEADERS += src/armmath.h
-} else {
-    HEADERS += src/math/ssemath.h
-    SOURCES += src/math/ssemath.cpp
 }
 
 APP_GIT_VERSION = $$system(git --git-dir $$_PRO_FILE_PWD_/.git --work-tree $$_PRO_FILE_PWD_ describe --tags $$system(git --git-dir $$_PRO_FILE_PWD_/.git --work-tree $$_PRO_FILE_PWD_ rev-list --tags --max-count=1))
