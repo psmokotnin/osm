@@ -510,7 +510,11 @@ macx {
 }
 
 macx {
-    QMAKE_POST_LINK += plutil -replace NSMicrophoneUsageDescription -string \"Audio measurement.\" $${TARGET}.app/Contents/Info.plist
+    isEqual(GRAPH, "METAL") {
+        QMAKE_POST_LINK += &&
+    }
+
+    QMAKE_POST_LINK += plutil -replace NSMicrophoneUsageDescription -string \"Audio measurement\" $${TARGET}.app/Contents/Info.plist
 }
 ios {
     QMAKE_POST_LINK += plutil -replace NSMicrophoneUsageDescription -string \"Audio measurement.\" Info.plist
