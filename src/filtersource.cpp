@@ -29,6 +29,7 @@ FilterSource::FilterSource(QObject *parent) : chart::Source(parent), meta::Filte
     connect(this, &FilterSource::modeChanged, this, &FilterSource::update);
     connect(this, &FilterSource::orderChanged, this, &FilterSource::update);
     connect(this, &FilterSource::gainChanged, this, &FilterSource::update);
+    connect(this, &FilterSource::qChanged, this, &FilterSource::update);
     connect(this, &FilterSource::cornerFrequencyChanged, this, &FilterSource::update);
     connect(this, &FilterSource::sampleRateChanged, this, &FilterSource::update);
 
@@ -58,7 +59,9 @@ QJsonObject FilterSource::toJSON(const SourceList *list) const noexcept
 
     object["mode"]          = mode();
     object["type"]          = type();
-    object["cornerFrequency"] = cornerFrequency();
+    object["cornerFrequency"]     = cornerFrequency();
+    object["gain"]          = gain();
+    object["q"]             = q();
     object["order"]         = static_cast<int>(order());
     object["sampleRate"]    = static_cast<int>(sampleRate());
 
@@ -83,6 +86,8 @@ void FilterSource::fromJSON(QJsonObject data, const SourceList *list) noexcept
     setSampleRate(      data["sampleRate"].toInt(       sampleRate()));
     setOrder(           data["order"].toInt(            order()));
     setCornerFrequency( data["cornerFrequency"].toDouble(cornerFrequency()));
+    setGain( data["gain"].toDouble(cornerFrequency()));
+    setQ(    data["q"].toDouble(cornerFrequency()));
 }
 
 chart::Source *FilterSource::store() noexcept
@@ -286,14 +291,13 @@ complex FilterSource::calculateAPF(complex s) const
 
 complex FilterSource::calculatePeak(complex s) const
 {
-    float a, q;
+    float a;
     complex numerator;
     complex denominator;
 
-    a = std::pow(10, gain() / 20);
-    q = 1.f / sqrt(2);
-    numerator   = s * s + (s * a) / q + 1;
-    denominator = s * s + s / (a * q) + 1;
+    a = std::pow(10, gain() / 40);
+    numerator   = s * s + (s * a) / q() + 1;
+    denominator = s * s + s / (a * q()) + 1;
 
     return numerator / denominator;
 }

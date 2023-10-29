@@ -42,7 +42,7 @@ const std::map<Filter::Type, QString>Filter::m_typeShortMap = {
 };
 
 Filter::Filter() : Base(), m_type(ButterworthLPF), m_mode(Measurement::FFT14),
-    m_sampleRate(48000), m_order(3), m_cornerFrequency(1000)
+    m_sampleRate(48000), m_order(3), m_cornerFrequency(1000), m_q(1.f / sqrt(2))
 {
 
 }
@@ -156,6 +156,19 @@ QVariant Filter::getAvailableOrders()
         break;
     }
     return orders;
+}
+
+float Filter::q() const
+{
+    return m_q;
+}
+
+void Filter::setQ(float newQ)
+{
+    if (qFuzzyCompare(m_q, newQ))
+        return;
+    m_q = newQ;
+    emit qChanged(m_q);
 }
 
 float Filter::gain() const

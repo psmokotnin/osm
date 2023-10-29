@@ -30,14 +30,18 @@ class FilterSource : public chart::Source, public meta::Filter
     Q_PROPERTY(QVariant modes READ getAvailableModes CONSTANT)
     Q_PROPERTY(QVariant types READ getAvailableTypes CONSTANT)
 
+    Q_PROPERTY(bool autoName READ autoName WRITE setAutoName NOTIFY autoNameChanged)
+
     Q_PROPERTY(meta::Measurement::Mode mode READ mode WRITE setMode NOTIFY modeChanged)
     Q_PROPERTY(unsigned int sampleRate READ sampleRate WRITE setSampleRate NOTIFY sampleRateChanged)
 
     Q_PROPERTY(QVariant orders READ getAvailableOrders NOTIFY typeChanged)
     Q_PROPERTY(meta::Filter::Type type READ type WRITE setType NOTIFY typeChanged)
     Q_PROPERTY(unsigned int order READ order WRITE setOrder NOTIFY orderChanged)
+
     Q_PROPERTY(float cornerFrequency READ cornerFrequency WRITE setCornerFrequency NOTIFY cornerFrequencyChanged)
     Q_PROPERTY(float gain READ gain WRITE setGain NOTIFY gainChanged)
+    Q_PROPERTY(float q READ q WRITE setQ NOTIFY qChanged)
 
 public:
     FilterSource(QObject *parent = nullptr);
@@ -58,6 +62,7 @@ signals:
     void cornerFrequencyChanged(float) override;
     void orderChanged(unsigned int) override;
     void gainChanged(float) override;
+    void qChanged(float) override;
     void autoNameChanged();
 
 private slots:
@@ -77,8 +82,6 @@ private:
 
     bool m_autoName;
     FourierTransform m_dataFT, m_inverse;
-
-    Q_PROPERTY(bool autoName READ autoName WRITE setAutoName NOTIFY autoNameChanged)
 };
 
 #endif // FILTERSOURCE_H

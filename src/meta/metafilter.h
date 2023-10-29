@@ -62,6 +62,9 @@ public:
     float gain() const;
     void setGain(float newGain);
 
+    float q() const;
+    void setQ(float newQ);
+
     unsigned int order() const;
     void setOrder(unsigned int newOrder);
     QVariant getAvailableOrders();
@@ -75,6 +78,7 @@ public:
     virtual void cornerFrequencyChanged(float) = 0;
     virtual void orderChanged(unsigned int) = 0;
     virtual void gainChanged(float) = 0;
+    virtual void qChanged(float) = 0;
 
     static const std::map<Type, QString> m_typeMap;
     static const std::map<Type, QString> m_typeShortMap;
@@ -85,6 +89,7 @@ private:
     unsigned int m_sampleRate, m_order;
     float m_cornerFrequency;
     float m_gain;
+    float m_q;
 };
 
 } // namespace meta
