@@ -79,6 +79,7 @@ Popup {
                     <tr><th colspan='2'>Tools</th></tr>
                     <tr><td>%1+W</td><td>show wavelength calculator</td></tr>
                     <tr><td>%1+D</td><td>toggle dark mode</td></tr>
+                    <tr><td>%1+Shift+D</td><td>toggle system brightness</td></tr>
                     <tr><td>F1</td><td>show keys combinations</td></tr>
                     <tr><td>F2</td><td>show info</td></tr>
                     <tr><td>F3</td><td>check for update</td></tr>

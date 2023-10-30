@@ -43,7 +43,8 @@ bool Appearance::darkMode() const
 
 void Appearance::setDarkMode(const bool &setDark)
 {
-    if (setDark == darkMode()) {
+    if (setDark == darkMode())
+    {
         return;
     }
     auto store = settings();
@@ -51,6 +52,29 @@ void Appearance::setDarkMode(const bool &setDark)
 
     store->setValue("darkMode", setDark);
     emit darkModeChanged(setDark);
+}
+
+bool Appearance::useSystemBrightness() const
+{
+    auto store = settings();
+    Q_ASSERT(store);
+
+    auto value = store->value("useSystemBrightness");
+    return value.isValid() ? value.toBool() : true;
+}
+
+void Appearance::setUseSystemBrightness(const bool &setSystemBrightness)
+{
+    if (setSystemBrightness == useSystemBrightness())
+    {
+        return;
+    }
+    auto store = settings();
+    Q_ASSERT(store);
+
+    store->setValue("useSystemBrightness", setSystemBrightness);
+    emit useSystemBrightnessChanged(setSystemBrightness);
+    setDarkModeFromSystem();
 }
 
 bool Appearance::experimentFunctions() const
@@ -64,7 +88,8 @@ bool Appearance::experimentFunctions() const
 
 void Appearance::setExperimentFunctions(bool value)
 {
-    if (value == experimentFunctions()) {
+    if (value == experimentFunctions())
+    {
         return;
     }
     auto store = settings();
@@ -108,10 +133,13 @@ int Appearance::cursorOffset() const
 
 bool Appearance::setDarkModeFromSystem()
 {
-    bool darkMode = darkModeFromSystem();
+    if (useSystemBrightness())
+    {
+        bool darkMode = darkModeFromSystem();
 
-    setDarkMode(darkMode);
-    return darkMode;
+        setDarkMode(darkMode);
+    }
+    return darkMode();
 }
 
 Settings *Appearance::settings() const
@@ -123,5 +151,6 @@ bool Appearance::darkModeFromSystem() const
 {
     QColor middleGrey(127, 127, 127);
     auto app = qobject_cast<QGuiApplication *>(QGuiApplication::instance());
-    return middleGrey.lightnessF() > app->palette().color(QPalette::Window).lightnessF();
+    return middleGrey.lightnessF()
+        > app->palette().color(QPalette::Window).lightnessF();
 }
