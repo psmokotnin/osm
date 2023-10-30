@@ -75,6 +75,12 @@ QString OutputDevice::name() const
 {
     return m_name;
 }
+
+void OutputDevice::close()
+{
+    QIODevice::close();
+}
+
 void OutputDevice::setSamplerate(int sampleRate)
 {
     m_sampleRate = sampleRate;

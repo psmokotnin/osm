@@ -67,7 +67,7 @@ void StepSeriesRenderer::renderSeries()
     for (unsigned int i = 1; i < m_source->impulseSize() / 4; ++i) {
         dcOffset += m_source->impulseValue(i);
     }
-    dcOffset /= m_source->impulseSize() / 4;
+    dcOffset /= m_source->impulseSize() / 4.0;
     for (unsigned int i = 1, j = 0; i < m_source->impulseSize() - 1; ++i) {
         res += m_source->impulseValue(i) - dcOffset;
 

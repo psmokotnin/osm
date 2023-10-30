@@ -63,7 +63,7 @@ public:
     void setEstimatedDelta(long estimatedDelta);
 
     Q_INVOKABLE void resetAverage() noexcept override;
-    Q_INVOKABLE chart::Source *store() noexcept override;
+    Q_INVOKABLE chart::Source *store() override;
     Q_INVOKABLE void applyAutoGain(const float reference) override;
 
 signals:

@@ -140,8 +140,6 @@ void Weighting::updateCoefficients()
         m_gain = std::pow(10.0, C_GAIN / 20);
         break;
     case K:
-        m_gain = 1.0;
-        break;
     case Z:
         m_gain = 1.0;
         break;

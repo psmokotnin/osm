@@ -106,7 +106,7 @@ public:
     float referencePeak() const;
 
     Q_INVOKABLE void resetAverage() noexcept override;
-    Q_INVOKABLE chart::Source *store() noexcept override;
+    Q_INVOKABLE chart::Source *store() override;
 
     unsigned int sampleRate() const;
 

@@ -21,7 +21,7 @@
 #include "stored.h"
 
 Windowing::Windowing(QObject *parent) : chart::Source(parent), meta::Windowing(),
-    m_source(nullptr),
+    m_sampleRate(1), m_source(nullptr),
     m_window(WindowFunction::Type::Rectangular, this)
 {
     m_name = "Windowing";
@@ -403,7 +403,7 @@ void Windowing::setSource(QUuid id)
     }
 }
 
-chart::Source *Windowing::store() noexcept
+chart::Source *Windowing::store()
 {
     auto *store = new Stored();
     store->build(this);

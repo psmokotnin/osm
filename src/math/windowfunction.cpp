@@ -86,7 +86,7 @@ float WindowFunction::pointGain(float i, unsigned int N) const
                0.00000132725 * cos(9 * z);
 
     case Type::Exponental: {
-        auto t = (N / 2) * 8.69 / (7 * 8.69); //-140dB on edges
+        auto t = (N / 2.0) * 8.69 / (7 * 8.69); //-140dB on edges
         auto power = - std::abs(i - N / 2) / t;
         return std::pow(M_E, power);
     }

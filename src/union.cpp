@@ -173,8 +173,10 @@ bool Union::setSource(int index, chart::Source *s) noexcept
         if (index == 0)
             init();
 
-        if (s) connect(s, &chart::Source::readyRead, this, &Union::update);
-        if (s) connect(s, &chart::Source::beforeDestroy, this, &Union::sourceDestroyed, Qt::DirectConnection);
+        if (s) {
+            connect(s, &chart::Source::readyRead, this, &Union::update);
+            connect(s, &chart::Source::beforeDestroy, this, &Union::sourceDestroyed, Qt::DirectConnection);
+        }
         update();
         emit modelChanged();
     }

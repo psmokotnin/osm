@@ -57,7 +57,7 @@ public:
     QUuid sourceId() const;
     void setSource(QUuid id);
 
-    Q_INVOKABLE chart::Source *store() noexcept override;
+    Q_INVOKABLE chart::Source *store() override;
 
     unsigned sampleRate() const;
 

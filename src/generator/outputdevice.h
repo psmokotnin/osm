@@ -36,6 +36,8 @@ public:
     virtual Sample sample();
     QString name() const;
 
+    void close() final;
+
 public slots:
     void setSamplerate(int sampleRate);
     void setGain(float gaindB);
@@ -49,7 +51,7 @@ protected:
     QString m_name;
     QSet<int> m_channels;
     int m_sampleRate;
-    int m_chanel, m_aux, m_chanelCount;
+    int m_chanelCount;
     float m_gain;
 };
 

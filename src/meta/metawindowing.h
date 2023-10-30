@@ -79,7 +79,7 @@ public:
     void setDomain(QVariant newDomain);
     void setDomain(SourceDomain newDomain);
 
-    Q_INVOKABLE virtual chart::Source *store() noexcept = 0;
+    Q_INVOKABLE virtual chart::Source *store() = 0;
 
 //virtual signals:
     virtual void wideChanged(float) = 0;

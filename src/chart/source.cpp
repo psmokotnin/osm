@@ -237,7 +237,7 @@ float Source::peak(const Weighting::Curve curve, const Meter::Time time) const
     return m_levelsData.m_data.at({curve, time});//TODO: m_peakData ??
 }
 
-Source::Levels::Levels()
+Source::Levels::Levels() : m_referenceLevel(0)
 {
     for (auto &curve : Weighting::allCurves) {
         for (auto &time : Meter::allTimes) {

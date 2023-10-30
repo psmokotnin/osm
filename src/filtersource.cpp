@@ -90,7 +90,7 @@ void FilterSource::fromJSON(QJsonObject data, const SourceList *list) noexcept
     setQ(    data["q"].toDouble(cornerFrequency()));
 }
 
-chart::Source *FilterSource::store() noexcept
+chart::Source *FilterSource::store()
 {
     auto *store = new Stored();
     store->build(this);

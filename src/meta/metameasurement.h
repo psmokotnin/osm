@@ -94,7 +94,7 @@ public:
     void setInputFilter(QVariant inputFilter);
 
     Q_INVOKABLE virtual void resetAverage() noexcept = 0;
-    Q_INVOKABLE virtual chart::Source *store() noexcept = 0;
+    Q_INVOKABLE virtual chart::Source *store() = 0;
     Q_INVOKABLE virtual void applyAutoGain(const float reference) = 0;
 
 //virtual signals:

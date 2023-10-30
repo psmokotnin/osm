@@ -626,7 +626,7 @@ void Measurement::averaging()
         emit estimatedChanged();
     }
 }
-chart::Source *Measurement::store() noexcept
+chart::Source *Measurement::store()
 {
     auto *store = new Stored();
     store->build(this);
@@ -833,6 +833,7 @@ void Measurement::updateAudio()
 {
     if (m_audioStream) {
         m_input.close();
+        m_audioStream->disconnect(this);
         m_audioStream->close();
     }
     m_audioStream = nullptr;

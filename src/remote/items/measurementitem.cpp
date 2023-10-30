@@ -50,7 +50,7 @@ void MeasurementItem::resetAverage() noexcept
     emit sendCommand("resetAverage");
 }
 
-chart::Source *MeasurementItem::store() noexcept
+chart::Source *MeasurementItem::store()
 {
     emit sendCommand("store");
     return nullptr;

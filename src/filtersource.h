@@ -50,7 +50,7 @@ public:
     Q_INVOKABLE QJsonObject toJSON(const SourceList *list = nullptr) const noexcept override;
     void fromJSON(QJsonObject data, const SourceList *list = nullptr) noexcept override;
 
-    Q_INVOKABLE chart::Source *store() noexcept override;
+    Q_INVOKABLE chart::Source *store()  override;
 
     bool autoName() const;
     void setAutoName(bool newAutoName);
