@@ -295,6 +295,64 @@ Item {
                             anchors {
                                 top: parent.top
                                 bottom: parent.bottom
+                                right: moveUpButton.left
+                            }
+                            width: 6
+                            color: "transparent"
+                        }
+
+                        Button {
+                            id: moveUpButton
+                            font.family: "Osm"
+                            text: "\uf062"
+                            anchors.right: spacer1.right
+                            anchors.top: parent.top
+                            flat: true
+                            font.pixelSize: 14
+                            rightPadding: 4
+                            leftPadding: 4
+                            onClicked: {
+                                sourceList.moveUp(dragArea.source);
+                            }
+                            background: Rectangle {
+                                color: "transparent"
+                            }
+                        }
+
+                        Rectangle {
+                            id: spacer1
+                            anchors {
+                                top: parent.top
+                                bottom: parent.bottom
+                                right: moveDownButton.left
+                            }
+                            width: 6
+                            color: "transparent"
+                        }
+
+                        Button {
+                            id: moveDownButton
+                            font.family: "Osm"
+                            text: "\uf063"
+                            anchors.right: spacer2.right
+                            anchors.top: parent.top
+                            flat: true
+                            font.pixelSize: 14
+                            rightPadding: 4
+                            leftPadding: 4
+                            onClicked: {
+                                sourceList.moveDown(dragArea.source);
+                            }
+                            background: Rectangle {
+                                color: "transparent"
+                            }
+                        }
+
+                        Rectangle {
+                            id: spacer2
+                            anchors {
+                                top: parent.top
+                                bottom: parent.bottom
                                 right: deleteButton.left
                             }
                             width: 6

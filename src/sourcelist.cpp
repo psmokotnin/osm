@@ -609,6 +609,32 @@ void SourceList::appendItem(chart::Source *item, bool autocolor)
     m_items.append(item);
     emit postItemAppended(item);
 }
+void SourceList::moveUp(chart::Source *item)//TODO:uuid
+{
+    auto guard = lock();
+    
+    for (int i = 1; i < m_items.size(); ++i) {
+        if (m_items.at(i) == item) {
+            emit preItemMoved(i, i-1);
+            m_items.move(i, i-1);
+            emit postItemMoved();
+            break;
+        }
+    }
+}
+void SourceList::moveDown(chart::Source *item)//TODO:uuid
+{
+    auto guard = lock();
+
+    for (int i = 0; i < m_items.size()-1; ++i) {
+        if (m_items.at(i) == item) {
+            emit preItemMoved(i+1, i);
+            m_items.move(i+1, i);
+            emit postItemMoved();
+            break;
+        }
+    }
+}
 void SourceList::removeItem(chart::Source *item, bool deleteItem)//TODO:uuid
 {
     auto guard = lock();

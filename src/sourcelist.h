@@ -101,6 +101,8 @@ public slots:
     Q_INVOKABLE FilterSource *addFilter();
     Q_INVOKABLE Windowing *addWindowing();
     Q_INVOKABLE void appendItem(chart::Source *item, bool autocolor = false);
+    Q_INVOKABLE void moveUp(chart::Source *item);
+    Q_INVOKABLE void moveDown(chart::Source *item);
     Q_INVOKABLE void removeItem(chart::Source *item, bool deleteItem = true);
     Q_INVOKABLE void cloneItem(chart::Source *item);
     Q_INVOKABLE void storeItem(chart::Source *item);
