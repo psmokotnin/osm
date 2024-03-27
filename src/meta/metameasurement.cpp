@@ -34,6 +34,7 @@ const std::map<Measurement::InputFilter, QString>Measurement::m_inputFilterMap =
     {Measurement::InputFilter::A,     "A"},
     {Measurement::InputFilter::C,     "C"},
     {Measurement::InputFilter::Notch, "Notch"},
+    {Measurement::InputFilter::BP100, "BP100"},
 };
 const std::map<Measurement::Mode, int>Measurement::m_FFTsizes = {
     {Measurement::FFT10, 10},

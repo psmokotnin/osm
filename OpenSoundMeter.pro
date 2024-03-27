@@ -47,6 +47,7 @@ SOURCES += src/main.cpp \
     src/generator/mnoise.cpp \
     src/common/notifier.cpp \
     src/common/profiler.cpp \
+    src/math/bandpass.cpp \
     src/math/biquad.cpp \
     src/math/integration_tree.cpp \
     src/math/leq.cpp \
@@ -177,6 +178,7 @@ HEADERS += \
     src/generator/mnoise.h \
     src/common/notifier.h \
     src/common/profiler.h \
+    src/math/bandpass.h \
     src/math/bessellpf.h \
     src/math/biquad.h \
     src/math/filter.h \

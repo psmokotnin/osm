@@ -26,6 +26,7 @@
 #include "audio/client.h"
 #include "generator/generatorthread.h"
 #include "math/notch.h"
+#include "math/bandpass.h"
 
 Measurement::Measurement(QObject *parent) : chart::Source(parent), meta::Measurement(),
     m_timer(nullptr), m_timerThread(nullptr),
@@ -302,6 +303,11 @@ void Measurement::applyInputFilters()
         auto q = 3.f;// AES17-1998 says: 1 to 5
         std::atomic_store(&m_inputFilters.first,  std::shared_ptr<math::Filter>(new math::Notch(1000, q, sampleRate())));
         std::atomic_store(&m_inputFilters.second, std::shared_ptr<math::Filter>(new math::Notch(1000, q, sampleRate())));
+    }
+    case InputFilter::BP100: {
+        auto q = 5.f;
+        std::atomic_store(&m_inputFilters.first,  std::shared_ptr<math::Filter>(new math::BandPass(100, q, sampleRate())));
+        std::atomic_store(&m_inputFilters.second, std::shared_ptr<math::Filter>(new math::BandPass(100, q, sampleRate())));
     }
     break;
     case InputFilter::Z:

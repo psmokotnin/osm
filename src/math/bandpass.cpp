@@ -1,6 +1,6 @@
 /**
  *  OSM
- *  Copyright (C) 2023  Pavel Smokotnin
+ *  Copyright (C) 2024  Pavel Smokotnin
 
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -15,40 +15,40 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "notch.h"
 #include "qmath.h"
+#include "bandpass.h"
 
 namespace math {
 
-Notch::Notch(float frequency, float q, unsigned sampleRate) :
+BandPass::BandPass(float frequency, float q, unsigned sampleRate) :
     m_frequency(frequency), m_q(q), m_sampleRate(sampleRate)
 {
     calculate();
 }
 
-void Notch::setFrequency(float newFrequency)
+void BandPass::setFrequency(float newFrequency)
 {
     m_frequency = newFrequency;
 }
 
-void Notch::setSampleRate(const unsigned &newSampleRate)
+void BandPass::setSampleRate(const unsigned &newSampleRate)
 {
     m_sampleRate = newSampleRate;
 }
 
-void Notch::setQ(float newQ)
+void BandPass::setQ(float newQ)
 {
     m_q = newQ;
 }
 
-void Notch::calculate()
+void BandPass::calculate()
 {
     float w0 = 2 * M_PI * m_frequency / m_sampleRate;
     float a = std::sin(w0) / (2 * m_q);
 
-    m_b[0] = 1;
-    m_b[1] = -2 * std::cos(w0);
-    m_b[2] = 1;
+    m_b[0] = a;
+    m_b[1] = 0;
+    m_b[2] = -a;
 
     m_a[0] = 1 + a;
     m_a[1] = -2 * std::cos(w0);
