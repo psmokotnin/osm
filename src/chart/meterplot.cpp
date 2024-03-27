@@ -17,6 +17,7 @@
  */
 #include "meterplot.h"
 #include "sourcelist.h"
+#include "measurement.h"//TODO: meta::measurement
 
 namespace chart {
 
@@ -27,6 +28,8 @@ const std::map<MeterPlot::Type, QString> MeterPlot::m_typesMap = {
     {MeterPlot::Type::THDN,  "THD+N"},
     {MeterPlot::Type::Time,  "Time" },
     {MeterPlot::Type::Leq,   "Leq"  },
+    {MeterPlot::Type::Gain,  "Gain" },
+    {MeterPlot::Type::Delay, "Delay"},
 };
 
 MeterPlot::MeterPlot(QObject *parent) : QObject(parent), LevelObject(),
@@ -73,7 +76,8 @@ QString MeterPlot::title() const
 {
     switch (m_type) {
     case Time:
-        return typeName();
+    case Gain:
+    case Delay:
     case THDN:
         return typeName();
     case Crest:
@@ -95,6 +99,8 @@ QString MeterPlot::value() const
         return timeValue();
     case THDN:
         return thdnValue();
+    case Delay:
+        return delayValue();
     default:
         return dBValue();
     }
@@ -126,6 +132,9 @@ QString MeterPlot::dBValue() const
     case Leq:
         level = m_leq.value() + SPL_OFFSET;
         break;
+    case Gain:
+        level = m_source->referenceLevel() - m_source->level(Weighting::Z, Meter::Fast);
+        break;
     default:
         qDebug() << "not db value";
         Q_ASSERT(false);
@@ -150,6 +159,15 @@ QString MeterPlot::thdnValue() const
     } else {
         return QString("%1\%" ).arg(level, 0, 'f', 1);
     }
+}
+
+QString MeterPlot::delayValue() const
+{
+    if (auto measurement = dynamic_cast<Measurement *>(m_source)) {
+        auto delay = measurement->estimatedDelta();
+        return QString("%1" ).arg(delay * 1000.f / measurement->sampleRate(), 0, 'f', 1);
+    }
+    return QString("N/A");
 }
 
 void MeterPlot::setSettings(Settings *newSettings)
@@ -282,6 +300,8 @@ void MeterPlot::sourceReadyRead()
     case Peak:
     case Crest:
     case THDN:
+    case Gain:
+    case Delay:
         emit valueChanged();
         break;
     case Leq:

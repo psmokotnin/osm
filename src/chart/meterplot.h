@@ -35,7 +35,9 @@ public:
         Crest   = 0x02,
         THDN    = 0x03,
         Time    = 0x04,
-        Leq     = 0x05
+        Leq     = 0x05,
+        Gain    = 0x06,
+        Delay   = 0x07,
     };
     Q_OBJECT
     Q_ENUM(Type);
@@ -113,6 +115,7 @@ private:
     QString dBValue() const;
     QString timeValue() const;
     QString thdnValue() const;
+    QString delayValue() const;
 
     chart::Source *m_source;
     SourceList *m_sourceList;

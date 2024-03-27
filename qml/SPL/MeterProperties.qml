@@ -73,7 +73,12 @@ Item {
                 onCurrentIndexChanged: {
                     dataObject.meter.mode = currentIndex;
                 }
-                enabled: dataObject.meter.type !== "Time" && dataObject.meter.type !== "THD+N" && dataObject.meter.type !== "Leq" && dataObject.meter.type !== "Crest"
+                enabled: dataObject.meter.type !== "Time"  &&
+                         dataObject.meter.type !== "THD+N" &&
+                         dataObject.meter.type !== "Leq"   &&
+                         dataObject.meter.type !== "Crest" &&
+                         dataObject.meter.type !== "Gain"  &&
+                         dataObject.meter.type !== "Delay"
 
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("scale")
@@ -85,7 +90,10 @@ Item {
                 currentIndex: model.indexOf(dataObject.meter.curve)
                 onCurrentValueChanged: dataObject.meter.curve = currentValue
 
-                enabled: dataObject.meter.type !== "Time" && dataObject.meter.type !== "THD+N"
+                enabled: dataObject.meter.type !== "Time" &&
+                         dataObject.meter.type !== "THD+N" &&
+                         dataObject.meter.type !== "Gain" &&
+                         dataObject.meter.type !== "Delay"
 
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("weighting")
@@ -98,7 +106,10 @@ Item {
                 currentIndex: model.indexOf(dataObject.meter.time)
                 onCurrentValueChanged: currentValue ? dataObject.meter.time = currentValue : {}
 
-                enabled: dataObject.meter.type !== "Time" && dataObject.meter.type !== "THD+N"
+                enabled: dataObject.meter.type !== "Time" &&
+                         dataObject.meter.type !== "THD+N" &&
+                         dataObject.meter.type !== "Gain" &&
+                         dataObject.meter.type !== "Delay"
 
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("integration time")
@@ -114,7 +125,10 @@ Item {
                 onValueChanged: dataObject.meter.threshold = value
                 Layout.preferredWidth: wideWidth
                 units: "dB"
-                enabled: dataObject.meter.type !== "Time" && dataObject.meter.type !== "THD+N"
+                enabled: dataObject.meter.type !== "Time" &&
+                         dataObject.meter.type !== "THD+N" &&
+                         dataObject.meter.type !== "Gain" &&
+                         dataObject.meter.type !== "Delay"
 
                 Connections {
                     target: dataObject.meter
