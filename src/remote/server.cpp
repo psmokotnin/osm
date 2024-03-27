@@ -388,7 +388,7 @@ QJsonObject Server::prepareMessage(const QString &message) const
     object["host"] = QHostInfo::localHostName();
     object["message"] = message;
     object["uuid"] = m_uuid.toString();
-    object["time"] = QTime::currentTime().toString();
+    object["time"] = QTime::currentTime().toString(Qt::ISODate);
     return object;
 }
 
