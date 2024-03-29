@@ -133,7 +133,7 @@ QString MeterPlot::dBValue() const
         level = m_leq.value() + SPL_OFFSET;
         break;
     case Gain:
-        level = m_source->referenceLevel() - m_source->level(Weighting::Z, Meter::Fast);
+        level = m_source->level(Weighting::Z, Meter::Slow) - m_source->referenceLevel();
         break;
     default:
         qDebug() << "not db value";
@@ -152,7 +152,7 @@ QString MeterPlot::timeValue() const
 QString MeterPlot::thdnValue() const
 {
 
-    auto level = m_source->level(Weighting::Curve::Z, Meter::Time::Fast) - m_source->referenceLevel();//Ref: Z Fast
+    auto level = m_source->level(Weighting::Curve::Z, Meter::Time::Slow) - m_source->referenceLevel();//Ref: Z Slow
     level = 100 * std::pow(10, level / 20);
     if (level < 1) {
         return QString("%1"   ).arg(level * 1000, 0, 'f', 0) + QString::fromUtf8("‰");
