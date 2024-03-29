@@ -57,6 +57,9 @@ public:
     float gain() const;
     void setGain(float gain);
 
+    float offset() const;
+    void setOffset(float newOffset);
+
     meta::Measurement::Mode mode() const;
     void setMode(const Mode &mode);
     void setMode(QVariant mode);
@@ -100,6 +103,7 @@ public:
 //virtual signals:
     virtual void polarityChanged(bool) = 0;
     virtual void gainChanged(float)  = 0;
+    virtual void offsetChanged(float) = 0;
     virtual void modeChanged(meta::Measurement::Mode)  = 0;
     virtual void averageChanged(unsigned int)  = 0;
     virtual void dataChanelChanged(unsigned int)  = 0;
@@ -116,8 +120,9 @@ public:
     static const std::map<Mode, int> m_FFTsizes;
 
 protected:
-    bool m_polarity;
-    float m_gain;
+    std::atomic<bool> m_polarity;
+    std::atomic<float> m_gain;
+    std::atomic<float> m_offset;
     unsigned int m_dataChanel, m_referenceChanel;
     int m_delay;
     std::atomic<unsigned int> m_average;

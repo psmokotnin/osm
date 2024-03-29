@@ -30,7 +30,7 @@ Item {
     id: measurementProperties
     property var dataObject
     readonly property int elementWidth: width / 9
-    readonly property int spinboxWidth: width / 11
+    readonly property int spinboxWidth: width / 14
     readonly property bool isLocal : dataObject.objectName === "Measurement"
 
     ColumnLayout {
@@ -203,11 +203,27 @@ Item {
             }
 
             FloatSpinBox {
+                id: offsetSpinBox
+                Layout.preferredWidth: spinboxWidth
+                value: dataObject.offset
+                from: -90
+                to: 90
+                decimals: 1
+                units: "dB"
+                indicators: false
+                onValueChanged: dataObject.offset = value
+                tooltiptext: qsTr("reference offset")
+                implicitHeight: titleField.implicitHeight
+                Layout.alignment: Qt.AlignVCenter
+            }
+
+            FloatSpinBox {
                 id: gainSpinBox
                 Layout.preferredWidth: spinboxWidth
                 value: dataObject.gain
                 from: -90
                 to: 90
+                decimals: 1
                 units: "dB"
                 indicators: false
                 onValueChanged: dataObject.gain = value

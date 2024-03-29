@@ -129,6 +129,7 @@ QJsonObject Measurement::toJSON(const SourceList *list) const noexcept
     auto data = Source::toJSON(list);
     data["delay"]           = static_cast<int>(delay());
     data["gain"]            = gain();
+    data["offset"]          = offset();
     data["averageType"]     = averageType();
     data["average"]         = static_cast<int>(average());
     data["filtersFrequency"] = static_cast<int>(filtersFrequency());
@@ -166,6 +167,7 @@ void Measurement::fromJSON(QJsonObject data, const SourceList *list) noexcept
     };
 
     setGain(                      data["gain"].toDouble(    gain()));
+    setOffset(                    data["offset"].toDouble(  offset()));
     setDelay(            castUInt(data["delay"           ], delay()));
     setAverage(          castUInt(data["average"         ], average()));
     setDataChanel(       castUInt(data["dataChanel"      ], dataChanel()));
@@ -223,7 +225,7 @@ float Measurement::referenceLevel() const
 }
 float Measurement::measurementPeak() const
 {
-    return m_levelMeters.m_meters.at({Weighting::Z, Meter::Fast}).peakdB();
+    return m_levelMeters.m_meters.at({Weighting::Z, Meter::Slow}).peakdB();
 }
 float Measurement::referencePeak() const
 {
@@ -485,14 +487,14 @@ void Measurement::writeData(const char *data, qint64 len)
 
         if (currentChanel == referenceChanel()) {
             memcpy(&sample, it, sizeof(float));
-            m_reference.write(sample);
-            m_levelMeters.addToReference(sample);
+            m_reference.write(sample * m_offset);
+            m_levelMeters.addToReference(sample * m_offset);
         }
         ++currentChanel;
         if (currentChanel >= totalChanels) {
             if (forceRef) {
-                m_reference.write(loopSample);
-                m_levelMeters.addToReference(loopSample);
+                m_reference.write(loopSample * m_offset);
+                m_levelMeters.addToReference(loopSample * m_offset);
             }
             if (forceData) {
                 m_data.write(loopSample * m_gain);
@@ -905,7 +907,7 @@ void Measurement::resetAverage() noexcept
     m_onReset.store(false);
 }
 
-Measurement::Meters::Meters() : m_reference(Weighting::Z, Meter::Fast)
+Measurement::Meters::Meters() : m_reference(Weighting::Z, Meter::Slow)
 {
     for (auto &curve : Weighting::allCurves) {
         for (auto &time : Meter::allTimes) {

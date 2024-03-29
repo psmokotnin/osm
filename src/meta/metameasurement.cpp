@@ -48,7 +48,7 @@ const std::map<Measurement::Mode, int>Measurement::m_FFTsizes = {
 
 Measurement::Measurement() : Base(),
     m_polarity(false),
-    m_gain(1.f),
+    m_gain(1.f), m_offset(1.f),
     m_dataChanel(0), m_referenceChanel(1), m_delay(0),
     m_average(1),
     m_sampleRate(48000),
@@ -90,6 +90,20 @@ void Measurement::setGain(float gain)
         m_gain = gain;
         emit gainChanged(m_gain);
     }
+}
+
+float Measurement::offset() const
+{
+    return 20 * std::log10(m_offset);;
+}
+
+void Measurement::setOffset(float newOffset)
+{
+    newOffset = std::pow(10, newOffset / 20.f);
+    if (qFuzzyCompare(m_offset, newOffset))
+        return;
+    m_offset = newOffset;
+    emit offsetChanged(m_offset);
 }
 
 QVariant Measurement::getAvailableModes()
