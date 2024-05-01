@@ -88,6 +88,7 @@ private:
     chart::Source *m_source;
     WindowFunction m_window;
     FourierTransform m_dataFT;
+    Mode m_usedMode;
 };
 
 #endif // SOURCE_WINDOWING_H

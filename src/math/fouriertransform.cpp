@@ -25,6 +25,7 @@ FourierTransform::FourierTransform(unsigned int size):
     m_size(size),
     m_pointer(0),
     m_sampleRate(1),
+    m_logWindowDenominator(1),
     m_type(Fast),
     m_window(WindowFunction::Rectangular),
     m_inA(m_size, 0.f),
@@ -134,6 +135,22 @@ void FourierTransform::reset()
         m_inA[i] = m_inB[i] = 0;
     }
 }
+
+void FourierTransform::setNorm(Norm newNorm)
+{
+    m_norm = newNorm;
+}
+
+void FourierTransform::setAlign(Align newAlign)
+{
+    m_align = newAlign;
+}
+
+void FourierTransform::setLogWindoDenominator(unsigned int newLogWindoDenominator)
+{
+    m_logWindowDenominator = newLogWindoDenominator;
+}
+
 long FourierTransform::f2i(double frequency, int sampleRate) const
 {
     return static_cast<long>(frequency * m_size / sampleRate);
@@ -405,14 +422,25 @@ GNU_ALIGN void FourierTransform::log()
 
         data = _mm_set1_ps(0.f);
 
-        int pointer = m_pointer - m_logBasis[i].N;
-        if (pointer < 0) pointer += m_size;
+        int pointer = static_cast<int>(m_pointer);
+        switch (m_align) {
+        case Center:
+            pointer -= m_size / 2;
+            pointer -= m_logBasis[i].N / 2;
+            break;
+        case Right:
+            pointer -= m_logBasis[i].N;
+            break;
+        }
+
+        while (pointer < 0) {
+            pointer += m_size;
+        }
 
         for (unsigned int j = 0; j < m_logBasis[i].N; ++j, ++pointer) {
             if (pointer >= static_cast<int>(m_size)) pointer -= m_size;
             //_fastA[i] +=  w * inA[j];
             //_fastB[i] +=  w * inB[j];
-
             //BUG: A <-> B ??
             t    = _mm_set_ps(m_inB[pointer], m_inB[pointer], m_inA[pointer], m_inA[pointer]);
             m    = _mm_mul_ps(t, m_logBasis[i].w[j]);
@@ -444,19 +472,19 @@ GNU_ALIGN void FourierTransform::prepareLog()
         offset = startOffset * pow(wFactor * fFactor, i);
         frequency =  static_cast<float>(offset) / (N);
 
-        m_logBasis[i].N = N;
+        m_logBasis[i].N = N / m_logWindowDenominator;
         m_logBasis[i].frequency = frequency;
         m_logBasis[i].w.resize(N);
-
         float gain(0);
-        for (unsigned int j = 0; j < N; ++j) {
-            gain += m_window.pointGain(j, N) / N;
+        for (unsigned int j = 0; j < m_logBasis[i].N; ++j) {
+            gain += m_window.pointGain(j, m_logBasis[i].N) / m_logBasis[i].N;
         }
-
-        for (unsigned int j = 0; j < N; ++j) {
-            w.polar(-2.f  * M_PI * j * frequency);
-            w *= m_window.pointGain(j, N) / (sqrtf(N) * gain);
-            m_logBasis[i].w[j] = _mm_set_ps(w.real, w.imag, w.real, w.imag);
+        auto norm = (m_norm == Norm::Sqrt ? sqrtf(m_logBasis[i].N) : float(1.f) );
+        float phase = (m_align == Align::Center ? -(m_logBasis[i].N / 2.f) : 0);
+        for (unsigned int j = 0; j < m_logBasis[i].N; ++j, ++phase) {
+            w.polar(-2.f  * M_PI * phase * frequency);
+            w *= m_window.pointGain(j, m_logBasis[i].N) / (norm * gain);
+            m_logBasis[i].w[j] = _mm_set_ps(w.imag, w.real, w.imag, w.real);
         }
     }
 }

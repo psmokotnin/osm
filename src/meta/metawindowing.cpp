@@ -21,15 +21,18 @@
 namespace meta {
 
 const std::map<Windowing::Mode, QString>Windowing::m_modeMap = {
-    {Windowing::Mode::FFT8,   "8"},
-    {Windowing::Mode::FFT9,   "9"},
-    {Windowing::Mode::FFT10, "10"},
-    {Windowing::Mode::FFT11, "11"},
-    {Windowing::Mode::FFT12, "12"},
-    {Windowing::Mode::FFT13, "13"},
-    {Windowing::Mode::FFT14, "14"},
-    {Windowing::Mode::FFT15, "15"},
-    {Windowing::Mode::FFT16, "16"},
+    {Windowing::Mode::FFT8,  "FFT 8"},
+    {Windowing::Mode::FFT9,  "FFT 9"},
+    {Windowing::Mode::FFT10, "FFT 10"},
+    {Windowing::Mode::FFT11, "FFT 11"},
+    {Windowing::Mode::FFT12, "FFT 12"},
+    {Windowing::Mode::FFT13, "FFT 13"},
+    {Windowing::Mode::FFT14, "FFT 14"},
+    {Windowing::Mode::FFT15, "FFT 15"},
+    {Windowing::Mode::FFT16, "FFT 16"},
+    {Windowing::Mode::LTW1,  "LTW1"},
+    {Windowing::Mode::LTW2,  "LTW2"},
+    {Windowing::Mode::LTW3,  "LTW3"},
 };
 const std::map<Windowing::Mode, int>Windowing::m_FFTsizes = {
     {Windowing::Mode::FFT8,   8},
@@ -40,7 +43,10 @@ const std::map<Windowing::Mode, int>Windowing::m_FFTsizes = {
     {Windowing::Mode::FFT13, 13},
     {Windowing::Mode::FFT14, 14},
     {Windowing::Mode::FFT15, 15},
-    {Windowing::Mode::FFT16, 16}
+    {Windowing::Mode::FFT16, 16},
+    {Windowing::Mode::LTW1,  16},
+    {Windowing::Mode::LTW2,  16},
+    {Windowing::Mode::LTW3,  16},
 };
 
 Windowing::Windowing() : m_wide(1), m_offset(0), m_mode(FFT10), m_domain(SourceDomain::Time),

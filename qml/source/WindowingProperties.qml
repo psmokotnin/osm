@@ -97,7 +97,6 @@ Item {
                 id: modeSelect
                 model: dataObject.modes
                 currentIndex: dataObject.mode
-                displayText: ( (modeSelect.width > 120 ? "Power:" : "") + currentText)
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Transfrom mode")
                 onCurrentIndexChanged: dataObject.mode = currentIndex;

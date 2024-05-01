@@ -77,11 +77,11 @@ void Windowing::fromJSON(QJsonObject data, const SourceList *list) noexcept
 {
     Source::fromJSON(data, list);
 
-    setMode(data["mode"].toInt(mode()));
-    setDomain(data["domain"].toInt(domain()));
+    setMode(static_cast<meta::Windowing::Mode>(data["mode"].toInt(mode())));
+    setDomain(static_cast<meta::Windowing::SourceDomain>(data["domain"].toInt(domain())));
     setOffset(data["offset"].toDouble(offset()));
     setWide(data["wide"].toDouble(wide()));
-    setWindowFunctionType(data["windowFunctionType"].toInt(windowFunctionType()));
+    setWindowFunctionType(static_cast<WindowFunction::Type>(data["windowFunctionType"].toInt(windowFunctionType())));
 
     auto sourceUuid = QUuid::fromString(data["source"].toString(""));
     auto connection = std::make_shared<QMetaObject::Connection>();
@@ -140,8 +140,9 @@ void Windowing::applyWindowFunctionType()
 
 void Windowing::applyAutoWide()
 {
-    if (m_source && m_deconvolutionSize > 0) {
-        auto windowSizeMs = 1000.f * m_deconvolutionSize / sampleRate();
+    if (m_source) {
+        auto size = pow(2, m_FFTsizes.at(mode()));
+        auto windowSizeMs = 1000.f * size / sampleRate();
         setWide(windowSizeMs / 10.f);
     }
 }
@@ -149,9 +150,10 @@ void Windowing::applyAutoWide()
 void Windowing::resizeData()
 {
     Q_ASSERT(m_source);
+    if (m_usedMode != mode() || m_deconvolutionSize == 0) {
+        m_usedMode = mode();
+        auto size = pow(2, m_FFTsizes.at(m_usedMode));
 
-    auto size = pow(2, m_FFTsizes.at(m_mode));
-    if (impulseSize() != size) {
         m_sampleRate = std::round(10.0 / (m_source->impulseTime(1) - m_source->impulseTime(0)));
         m_sampleRate *= 100;
         if (!m_sampleRate) {
@@ -163,8 +165,21 @@ void Windowing::resizeData()
 
         // FFT:
         m_dataFT.setSize(m_deconvolutionSize);
-        m_dataFT.setType(FourierTransform::Fast);
+        m_dataFT.setType(m_usedMode >= Mode::LTW1 ? FourierTransform::Log : FourierTransform::Fast);
+        m_dataFT.setNorm(m_usedMode >= Mode::LTW1 ? FourierTransform::Lin : FourierTransform::Sqrt);
+        m_dataFT.setAlign(FourierTransform::Center);
         m_dataFT.setSampleRate(sampleRate());
+        switch (m_usedMode) {
+        case Mode::LTW1:
+            m_dataFT.setLogWindoDenominator(1);
+            break;
+        case Mode::LTW2:
+            m_dataFT.setLogWindoDenominator(10);
+            break;
+        case Mode::LTW3:
+            m_dataFT.setLogWindoDenominator(25);
+            break;
+        }
         m_dataFT.prepare();
 
         auto frequencyList = m_dataFT.getFrequencies();
@@ -177,18 +192,17 @@ void Windowing::resizeData()
             m_ftdata[i].coherence = 1;
             i++;
         }
-    }
+        //fill frequency data
+        int t = 0;
+        float kt = 1000.f / sampleRate();
+        for (unsigned int i = 0, j = m_deconvolutionSize / 2 - 1; i < m_deconvolutionSize; i++, j++, t++) {
+            if (t > static_cast<int>(m_deconvolutionSize / 2)) {
+                t -= static_cast<int>(m_deconvolutionSize);
+                j -= m_deconvolutionSize;
+            }
 
-    //fill frequency data
-    int t = 0;
-    float kt = 1000.f / sampleRate();
-    for (unsigned int i = 0, j = m_deconvolutionSize / 2 - 1; i < m_deconvolutionSize; i++, j++, t++) {
-        if (t > static_cast<int>(m_deconvolutionSize / 2)) {
-            t -= static_cast<int>(m_deconvolutionSize);
-            j -= m_deconvolutionSize;
+            m_impulseData[j].time = t * kt;//ms
         }
-
-        m_impulseData[j].time = t * kt;//ms
     }
 }
 
@@ -207,6 +221,11 @@ void Windowing::updateFromDomain()
 void Windowing::updateFromFrequencyDomain()
 {
     Q_ASSERT(m_source);
+
+    if (m_usedMode >= Mode::LTW1) {
+        setActive(false);
+        return;
+    }
 
     unsigned last = 0;
     int j = 0;
@@ -308,7 +327,6 @@ void Windowing::updateFromTimeDomain(chart::Source *source)
     auto tukeyEnd  = center + sampleWide / 2;
 
     auto windowKoefficient = m_window.gain() / m_window.norm();
-
     for (int i = from, j = 0, f = m_deconvolutionSize / 2 + 1; i < end; ++i, ++j, time += dt, ++f) {
 
         float value = (i >= 0 ? source->impulseValue(i) * m_window.get(j) * windowKoefficient : 0);
@@ -326,14 +344,24 @@ void Windowing::updateFromTimeDomain(chart::Source *source)
         if (f == m_deconvolutionSize) {
             f = 0;
         }
-        m_dataFT.set(f, value, 0.f);
+        if (m_usedMode >= Mode::LTW1) {
+            m_dataFT.add(value, value);
+        } else {
+            m_dataFT.set(f, value, 0.f);
+        }
     }
 }
 
 void Windowing::transform()
 {
-    m_dataFT.transformSingleChannel(true);
-    auto m_norm = 1.f / sqrtf(m_deconvolutionSize);
+    auto m_norm = 1.f;
+    if (m_usedMode >= Mode::LTW1) {
+        m_dataFT.log();
+    } else {
+        m_dataFT.transformSingleChannel(true);
+        m_norm = 1.f / sqrtf(m_deconvolutionSize);
+    }
+
     auto criticalFrequency = 1000 / wide();
     for (unsigned i = 0; i < size(); ++i) {
         if (m_ftdata[i].frequency < criticalFrequency) {
@@ -349,6 +377,15 @@ void Windowing::transform()
         m_ftdata[i].meanSquared = m_ftdata[i].magnitude * m_ftdata[i].magnitude;
         m_ftdata[i].peakSquared = 0;
         m_ftdata[i].phase       = m_dataFT.af(i).normalize();
+
+        static float threshold1 = powf(10, -40 / 20);
+        static float threshold2 = powf(10, -30 / 20);
+
+        if (m_ftdata[i].module < threshold1) {
+            m_ftdata[i].coherence = 0;
+        } else if (m_ftdata[i].module < threshold2) {
+            m_ftdata[i].coherence *= (m_ftdata[i].module - threshold1) / (threshold2 - threshold1);
+        }
     }
 }
 
@@ -378,7 +415,8 @@ void Windowing::setSource(chart::Source *newSource)
 
             connect(
                 m_source, &chart::Source::readyRead,
-                this, &Windowing::update
+                this, &Windowing::update,
+                Qt::QueuedConnection
             );
         }
     } //guard

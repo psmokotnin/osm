@@ -42,7 +42,7 @@ class Windowing : public Base
 
 public:
     enum Mode {
-        FFT8, FFT9, FFT10, FFT11, FFT12, FFT13, FFT14, FFT15, FFT16
+        FFT8, FFT9, FFT10, FFT11, FFT12, FFT13, FFT14, FFT15, FFT16, LTW1, LTW2, LTW3
     };
     Q_ENUM(Mode)
     enum SourceDomain {

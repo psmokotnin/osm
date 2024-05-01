@@ -32,7 +32,9 @@
 class FourierTransform
 {
 public:
-    enum Type {Fast, Log};
+    enum Type { Fast, Log};
+    enum Norm { Sqrt, Lin};
+    enum Align { Right, Center};
 
     FourierTransform(unsigned int size = 2);
 
@@ -103,11 +105,22 @@ public:
 
     void reset();
 
+    void setNorm(Norm newNorm);
+
+    void setAlign(Align newAlign);
+
+
+    void setLogWindoDenominator(unsigned int newLogWindoDenominator);
+
 private:
     unsigned int m_size;
     unsigned int m_pointer;
     unsigned int m_sampleRate;
+    unsigned int m_logWindowDenominator;
+
     Type m_type;
+    Norm m_norm = Sqrt;
+    Align m_align = Right;
     WindowFunction m_window;
 
     //! income data channel
