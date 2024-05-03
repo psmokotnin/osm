@@ -110,7 +110,7 @@ public:
     void setAlign(Align newAlign);
 
 
-    void setLogWindoDenominator(unsigned int newLogWindoDenominator);
+    void setLogWindowDenominator(unsigned int newLogWindowDenominator);
 
 private:
     unsigned int m_size;

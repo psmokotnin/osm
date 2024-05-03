@@ -171,13 +171,13 @@ void Windowing::resizeData()
         m_dataFT.setSampleRate(sampleRate());
         switch (m_usedMode) {
         case Mode::LTW1:
-            m_dataFT.setLogWindoDenominator(1);
+            m_dataFT.setLogWindowDenominator(1);
             break;
         case Mode::LTW2:
-            m_dataFT.setLogWindoDenominator(10);
+            m_dataFT.setLogWindowDenominator(10);
             break;
         case Mode::LTW3:
-            m_dataFT.setLogWindoDenominator(25);
+            m_dataFT.setLogWindowDenominator(25);
             break;
         }
         m_dataFT.prepare();
@@ -275,6 +275,12 @@ void Windowing::updateFromFrequencyDomain()
             c = c2;
         }
 
+        static float threshold = powf(10, -20 / 20);
+        if (g < threshold || c < 0.7) {
+            g = 0;
+            p = 0;
+            c = 0;
+        }
         auto complexMagnitude = i == 0 ? 0 : p * g;
         m_ftdata[i].magnitude = g;
         m_ftdata[i].phase = p;

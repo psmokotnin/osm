@@ -146,9 +146,9 @@ void FourierTransform::setAlign(Align newAlign)
     m_align = newAlign;
 }
 
-void FourierTransform::setLogWindoDenominator(unsigned int newLogWindoDenominator)
+void FourierTransform::setLogWindowDenominator(unsigned int newLogWindowDenominator)
 {
-    m_logWindowDenominator = newLogWindoDenominator;
+    m_logWindowDenominator = newLogWindowDenominator;
 }
 
 long FourierTransform::f2i(double frequency, int sampleRate) const
