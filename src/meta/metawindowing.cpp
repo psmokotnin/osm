@@ -49,7 +49,9 @@ const std::map<Windowing::Mode, int>Windowing::m_FFTsizes = {
     {Windowing::Mode::LTW3,  16},
 };
 
-Windowing::Windowing() : m_wide(1), m_offset(0), m_mode(FFT10), m_domain(SourceDomain::Time),
+Windowing::Windowing() : m_wide(1), m_offset(0),
+    m_minFrequency(20), m_maxFrequency(20000),
+    m_mode(FFT10), m_domain(SourceDomain::Time),
     m_windowFunctionType(WindowFunction::Type::Hann)
 {
 }
@@ -100,6 +102,32 @@ void Windowing::setDomain(SourceDomain newDomain)
     emit domainChanged(m_domain);
 }
 
+float Windowing::minFrequency() const
+{
+    return m_minFrequency;
+}
+
+void Windowing::setMinFrequency(float newMinFrequency)
+{
+    if (qFuzzyCompare(m_minFrequency, newMinFrequency))
+        return;
+    m_minFrequency = newMinFrequency;
+    emit minFrequencyChanged();
+}
+
+float Windowing::maxFrequency() const
+{
+    return m_maxFrequency;
+}
+
+void Windowing::setMaxFrequency(float newMaxFrequency)
+{
+    if (qFuzzyCompare(m_maxFrequency, newMaxFrequency))
+        return;
+    m_maxFrequency = newMaxFrequency;
+    emit maxFrequencyChanged();
+}
+
 void Windowing::setDomain(QVariant newDomain)
 {
     setDomain(newDomain.value<SourceDomain>());
@@ -108,6 +136,11 @@ void Windowing::setDomain(QVariant newDomain)
 Windowing::Mode Windowing::mode() const
 {
     return m_mode;
+}
+
+QString Windowing::modeName() const
+{
+    return m_modeMap.at(mode());
 }
 
 void Windowing::setMode(Mode newMode)

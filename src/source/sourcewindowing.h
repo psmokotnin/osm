@@ -32,6 +32,8 @@ class Windowing : public chart::Source, public meta::Windowing
 
     Q_PROPERTY(float wide READ wide WRITE setWide NOTIFY wideChanged)
     Q_PROPERTY(float offset READ offset WRITE setOffset NOTIFY offsetChanged)
+    Q_PROPERTY(float minFrequency READ minFrequency WRITE setMinFrequency NOTIFY minFrequencyChanged)
+    Q_PROPERTY(float maxFrequency READ maxFrequency WRITE setMaxFrequency NOTIFY maxFrequencyChanged)
     Q_PROPERTY(QUuid source READ sourceId WRITE setSource NOTIFY sourceChanged)
     Q_PROPERTY(meta::Windowing::Mode mode READ mode WRITE setMode NOTIFY modeChanged)
     Q_PROPERTY(meta::Windowing::SourceDomain domain READ domain WRITE setDomain NOTIFY domainChanged)
@@ -70,6 +72,8 @@ public slots:
 signals:
     void wideChanged(float) override;
     void offsetChanged(float) override;
+    void minFrequencyChanged() override;
+    void maxFrequencyChanged() override;
     void modeChanged(meta::Windowing::Mode) override;
     void domainChanged(meta::Windowing::SourceDomain) override;
     void tipNameChanged(QString) override;
@@ -89,6 +93,7 @@ private:
     WindowFunction m_window;
     FourierTransform m_dataFT;
     Mode m_usedMode;
+    bool m_resize;
 };
 
 #endif // SOURCE_WINDOWING_H

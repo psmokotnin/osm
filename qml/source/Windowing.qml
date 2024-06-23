@@ -45,6 +45,7 @@ Item {
             Component.onCompleted: {
                 checked = dataModel ? dataModel.active : false
             }
+
         }
 
         ColumnLayout {

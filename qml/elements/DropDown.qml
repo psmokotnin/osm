@@ -38,7 +38,7 @@ ComboBox {
         let maxWidth = control.width;
         if (text) {
             for (let i = 0; i < popup.contentItem.count; ++i) {
-                text.text = popup.contentItem.itemAtIndex(i).text;
+                text.text = popup.contentItem.itemAtIndex(i) ? popup.contentItem.itemAtIndex(i).text : "";
 
                 //MenuItem{padding: 16}
                 maxWidth = Math.max(maxWidth, text.paintedWidth + popup.padding * 2 + 32);

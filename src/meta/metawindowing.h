@@ -39,6 +39,8 @@ class Windowing : public Base
     //Q_PROPERTY(QString tipName READ tipName WRITE setTipName NOTIFY tipNameChanged)
     //Q_PROPERTY(WindowFunction::Type windowFunctionType READ windowFunctionType WRITE setWindowFunctionType NOTIFY windowFunctionTypeChanged)
     //Q_PROPERTY(SourceDomain domain READ domain WRITE setDomain NOTIFY domainChanged)
+    //Q_PROPERTY(float minFrequency READ minFrequency WRITE setMinFrequency NOTIFY minFrequencyChanged)
+    //Q_PROPERTY(float maxFrequency READ maxFrequency WRITE setMaxFrequency NOTIFY maxFrequencyChanged)
 
 public:
     enum Mode {
@@ -64,7 +66,14 @@ public:
     float offset() const;
     void setOffset(float newOffset);
 
+    float minFrequency() const;
+    void setMinFrequency(float newMinFrequency);
+
+    float maxFrequency() const;
+    void setMaxFrequency(float newMaxFrequency);
+
     Mode mode() const;
+    QString modeName() const;
     void setMode(Mode newMode);
     void setMode(QVariant newMode);
 
@@ -88,10 +97,14 @@ public:
     virtual void tipNameChanged(QString) = 0;
     virtual void windowFunctionTypeChanged(WindowFunction::Type) = 0;
     virtual void domainChanged(meta::Windowing::SourceDomain) = 0;
+    virtual void minFrequencyChanged() = 0;
+    virtual void maxFrequencyChanged() = 0;
 
 protected:
     float                   m_wide;
     float                   m_offset;
+    float                   m_minFrequency;
+    float                   m_maxFrequency;
     QString                 m_tipName;
     Mode                    m_mode;
     SourceDomain            m_domain;

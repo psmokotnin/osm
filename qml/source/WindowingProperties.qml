@@ -35,34 +35,81 @@ Item {
 
         RowLayout {
 
+            DropDown {
+                id: domainSelect
+                model: ["Time", "Frequency"]
+                currentIndex: dataObject.domain
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Take data from")
+                onCurrentIndexChanged: dataObject.domain = currentIndex;
+                Layout.preferredWidth: elementWidth
+            }
+
             FloatSpinBox {
                 id: wideSpinBox
-                Layout.preferredWidth: elementWidth
-                value: dataObject.wide
                 from: 0.1
-                to: 2000
+                to: 10000
                 units: "ms"
-                onValueChanged: dataObject.wide = value
+                value: dataObject.wide
+                property bool completed: false
+                onValueChanged: {if (completed) { dataObject.wide = value; } }
                 tooltiptext: qsTr("Wide of Tukey window, ms")
                 Layout.alignment: Qt.AlignVCenter
+                Layout.preferredWidth: elementWidth
+                visible: dataObject.domain === 0
                 Connections {
                     target: dataObject
                     function onWideChanged() {
                         wideSpinBox.value = dataObject.wide;
                     }
                 }
+                Component.onCompleted: {
+                    completed = true;
+                    wideSpinBox.value = dataObject.wide;
+                }
             }
 
             FloatSpinBox {
                 id: offsetSpinBox
-                Layout.preferredWidth: elementWidth
-                value: dataObject.offset
                 from: -2000
                 to: 2000
                 units: "ms"
+                value: dataObject.offset
                 onValueChanged: dataObject.offset = value
                 tooltiptext: qsTr("offset zero point, ms")
                 Layout.alignment: Qt.AlignVCenter
+                Layout.preferredWidth: elementWidth
+                visible: dataObject.domain === 0
+            }
+
+            FloatSpinBox {
+                value: dataObject.minFrequency
+                from: 0
+                to: 96000
+                decimals: 1
+                step: 1
+                units: "Hz"
+                onValueChanged: dataObject.minFrequency = value
+
+                tooltiptext: qsTr("min frequency")
+                Layout.preferredWidth: elementWidth
+
+                visible: dataObject.domain === 1
+            }
+
+            FloatSpinBox {
+                value: dataObject.maxFrequency
+                from: 0
+                to: 96000
+                decimals: 1
+                step: 1
+                units: "Hz"
+                onValueChanged: dataObject.maxFrequency = value
+
+                tooltiptext: qsTr("max frequency")
+                Layout.preferredWidth: elementWidth
+
+                visible: dataObject.domain === 1
             }
 
             Item {
@@ -94,36 +141,6 @@ Item {
         RowLayout {
 
             DropDown {
-                id: modeSelect
-                model: dataObject.modes
-                currentIndex: dataObject.mode
-                ToolTip.visible: hovered
-                ToolTip.text: qsTr("Transfrom mode")
-                onCurrentIndexChanged: dataObject.mode = currentIndex;
-                Layout.preferredWidth: elementWidth
-            }
-
-            DropDown {
-                id: domainSelect
-                model: ["Impulse", "Frequency"]
-                currentIndex: dataObject.domain
-                ToolTip.visible: hovered
-                ToolTip.text: qsTr("Take data from")
-                onCurrentIndexChanged: dataObject.domain = currentIndex;
-                Layout.preferredWidth: elementWidth
-            }
-
-            DropDown {
-                id: windowSelect
-                model: dataObject.windows
-                currentIndex: dataObject.window
-                onCurrentIndexChanged: dataObject.window = currentIndex
-                ToolTip.visible: hovered
-                ToolTip.text: qsTr("window function")
-                Layout.preferredWidth: elementWidth
-            }
-
-            DropDown {
                 model: SourceModel {
                     id: sourceModel
                     addNone: false
@@ -140,6 +157,51 @@ Item {
                 onCurrentIndexChanged: {
                     dataObject.source = model.get(currentIndex);
                 }
+            }
+
+            DropDown {
+                id: modeSelect
+                model:[
+                    { text: "FFT 8",  enabled: true },
+                    { text: "FFT 9",  enabled: true },
+                    { text: "FFT 10", enabled: true },
+                    { text: "FFT 11", enabled: true },
+                    { text: "FFT 12", enabled: true },
+                    { text: "FFT 13", enabled: true },
+                    { text: "FFT 14", enabled: true },
+                    { text: "FFT 15", enabled: true },
+                    { text: "FFT 16", enabled: true },
+
+                    { text: "LTW 1", enabled: dataObject.domain === 0 },
+                    { text: "LTW 2", enabled: dataObject.domain === 0 },
+                    { text: "LTW 3", enabled: dataObject.domain === 0 },
+                ]
+                textRole: "text"
+                delegate: MenuItem {
+                    width: ListView.view.width
+                    text: modelData[modeSelect.textRole]
+                    enabled: modelData["enabled"]
+                    Material.foreground: modeSelect.currentIndex === index ? ListView.view.contentItem.Material.accent : ListView.view.contentItem.Material.foreground
+                    highlighted: modeSelect.highlightedIndex === index
+                    hoverEnabled: modeSelect.hoverEnabled
+                }
+
+                currentIndex: dataObject.mode
+                onCurrentIndexChanged: dataObject.mode = currentIndex;
+                Layout.preferredWidth: elementWidth
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Transfrom mode")
+            }
+
+            DropDown {
+                id: windowSelect
+                model: dataObject.windows
+                currentIndex: dataObject.window
+                onCurrentIndexChanged: dataObject.window = currentIndex
+                visible: dataObject.domain === 0
+                Layout.preferredWidth: elementWidth
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("window function")
             }
 
             Item {

@@ -28,10 +28,13 @@ Windowing::Windowing(QObject *parent) : chart::Source(parent), meta::Windowing()
     setObjectName("Windowing");
     connect(this, &Windowing::windowFunctionTypeChanged, this, &Windowing::applyAutoName);
     connect(this, &Windowing::sourceChanged, this, &Windowing::applyAutoName);
+    connect(this, &Windowing::domainChanged, this, &Windowing::applyAutoName);
     connect(this, &Windowing::windowFunctionTypeChanged, this, &Windowing::applyWindowFunctionType);
 
     connect(this, &Windowing::wideChanged,   this, &Windowing::update);
     connect(this, &Windowing::modeChanged,   this, &Windowing::update);
+    connect(this, &Windowing::minFrequencyChanged,   this, &Windowing::update);
+    connect(this, &Windowing::maxFrequencyChanged,   this, &Windowing::update);
     connect(this, &Windowing::offsetChanged, this, &Windowing::update);
     connect(this, &Windowing::sourceChanged, this, &Windowing::update);
     connect(this, &Windowing::domainChanged, this, &Windowing::update);
@@ -52,7 +55,10 @@ chart::Source *Windowing::clone() const
     cloned->setMode(mode());
     cloned->setOffset(offset());
     cloned->setWide(wide());
+    cloned->setDomain(domain());
     cloned->setWindowFunctionType(windowFunctionType());
+    cloned->setMinFrequency(minFrequency());
+    cloned->setMaxFrequency(maxFrequency());
     cloned->setSource(source());
     return cloned;
 }
@@ -65,6 +71,8 @@ QJsonObject Windowing::toJSON(const SourceList *list) const noexcept
     object["domain"]                = domain();
     object["offset"]                = offset();
     object["wide"]                  = wide();
+    object["minFrequency"]          = minFrequency();
+    object["maxFrequency"]          = maxFrequency();
     object["windowFunctionType"]    = windowFunctionType();
 
     auto dataSource = source();
@@ -81,6 +89,8 @@ void Windowing::fromJSON(QJsonObject data, const SourceList *list) noexcept
     setDomain(static_cast<meta::Windowing::SourceDomain>(data["domain"].toInt(domain())));
     setOffset(data["offset"].toDouble(offset()));
     setWide(data["wide"].toDouble(wide()));
+    setMinFrequency(data["minFrequency"].toDouble(minFrequency()));
+    setMaxFrequency(data["maxFrequency"].toDouble(maxFrequency()));
     setWindowFunctionType(static_cast<WindowFunction::Type>(data["windowFunctionType"].toInt(windowFunctionType())));
 
     auto sourceUuid = QUuid::fromString(data["source"].toString(""));
@@ -100,7 +110,7 @@ void Windowing::applyAutoName()
     try {
         setTipName(
             (m_source ? m_source->name() : "none") + " " +
-            WindowFunction::TypeMap.at(m_windowFunctionType)
+            (domain() == Time ? WindowFunction::TypeMap.at(m_windowFunctionType) : "Frequency")
         );
     } catch (std::exception &e) {
         qDebug() << "Windowing" << ":" << __LINE__  << e.what();
@@ -124,10 +134,7 @@ void Windowing::update()
         // [3] create impulse and apply Window
         updateFromDomain();
 
-        // [4] ifft
-        transform();
-
-        // [5] unlock
+        // [4] unlock
         m_source->unlock();
     }
     emit readyRead();
@@ -150,7 +157,7 @@ void Windowing::applyAutoWide()
 void Windowing::resizeData()
 {
     Q_ASSERT(m_source);
-    if (m_usedMode != mode() || m_deconvolutionSize == 0) {
+    if (m_usedMode != mode() || m_deconvolutionSize == 0 || m_resize) {
         m_usedMode = mode();
         auto size = pow(2, m_FFTsizes.at(m_usedMode));
 
@@ -191,6 +198,9 @@ void Windowing::resizeData()
             m_ftdata[i].frequency = frequency;
             m_ftdata[i].coherence = 1;
             i++;
+            if (i >= m_dataLength) {
+                break;
+            }
         }
         //fill frequency data
         int t = 0;
@@ -227,8 +237,7 @@ void Windowing::updateFromFrequencyDomain()
         return;
     }
 
-    unsigned last = 0;
-    int j = 0;
+    unsigned last = 0, j = 0;
     float kg, bg, g, g1, g2, f1, f2, c, kc, bc, c1, c2;
     complex p1, p2, kp, bp, p;
     bool inList = false;
@@ -251,10 +260,19 @@ void Windowing::updateFromFrequencyDomain()
         p1 = m_source->phase(last);
         c1 = m_source->coherence(last);
 
+        if (f1 < minFrequency() || f1 > maxFrequency()) {
+            g1 = 0;
+            p1 = 0;
+        }
+
         f2 = m_source->frequency(j);
         g2 = m_source->magnitudeRaw(j);
         p2 = m_source->phase(j);
         c2 = m_source->coherence(j);
+        if (f2 < minFrequency() || f2 > maxFrequency()) {
+            g2 = 0;
+            p2 = 0;
+        }
 
         if (inList) {
             kg = (g2 - g1) / (f2 - f1);
@@ -275,7 +293,7 @@ void Windowing::updateFromFrequencyDomain()
             c = c2;
         }
 
-        static float threshold = powf(10, -20 / 20);
+        static float threshold = powf(10, -30 / 20);
         if (g < threshold || c < 0.7) {
             g = 0;
             p = 0;
@@ -306,8 +324,6 @@ void Windowing::updateFromFrequencyDomain()
         m_impulseData[j].value.real = norm * m_dataFT.af(i).real;
         m_impulseData[j].time = t * kt;//ms
     }
-
-    updateFromTimeDomain(this);
 }
 
 void Windowing::updateFromTimeDomain(chart::Source *source)
@@ -356,6 +372,7 @@ void Windowing::updateFromTimeDomain(chart::Source *source)
             m_dataFT.set(f, value, 0.f);
         }
     }
+    transform();
 }
 
 void Windowing::transform()
@@ -407,12 +424,18 @@ void Windowing::setSource(chart::Source *newSource)
     }
 
     {
+        auto lockSource = m_source;
+        if (lockSource) {
+            //prevent change during update
+            lockSource->lock();
+        }
         std::lock_guard<std::mutex> guard(m_dataMutex);
         if (m_source) {
             disconnect(this, nullptr, m_source, nullptr);
         }
 
         m_source = newSource;
+        m_resize = true;
 
         if (m_source) {
             connect(m_source, &chart::Source::beforeDestroy, this, [this]() {
@@ -424,6 +447,9 @@ void Windowing::setSource(chart::Source *newSource)
                 this, &Windowing::update,
                 Qt::QueuedConnection
             );
+        }
+        if (lockSource) {
+            lockSource->unlock();
         }
     } //guard
     emit sourceChanged();
@@ -453,15 +479,25 @@ chart::Source *Windowing::store()
     store->build(this);
     store->autoName(name());
 
+    QString notes = "Windowing on " + (source() ? source()->name() : "") + "\n";
+    switch (domain()) {
+    case SourceDomain::Time:
+        notes += "Domain: Time\n";
+        notes += "Wide:"         + QString("%1").arg(double(wide()),   0, 'f', 2)    + "ms\t";
+        notes += "Offset:"       + QString("%1").arg(double(offset()), 0, 'f', 2)    + "ms\n";
+        notes += "Window: "      + WindowFunction::name(m_windowFunctionType) + "\t";
+        break;
+    case SourceDomain::Frequency:
+        notes += "Domain: Frequency\n";
+        notes += "from:"         + QString("%1").arg(double(minFrequency()),  0, 'f', 1)  + "Hz\t";
+        notes += "to:"           + QString("%1").arg(double(maxFrequency()),  0, 'f', 1)  + "Hz\n";
+        break;
+    }
+    notes += "Sample rate: " + QString("%1").arg(double(sampleRate()) / 1000, 0, 'f', 1)  + "kHz\t";
+    notes += "Transform: "   + modeName()                           + "\n";
+    notes += "Date: "        + QDateTime::currentDateTime().toString();
 
-    store->setNotes(
-        "Windowing on " + (source() ? source()->name() : "")                + "\n" +
-        "Wide:"         + QString("%1").arg(double(wide()),   0, 'f', 2)    + "ms\t" +
-        "Offset:"       + QString("%1").arg(double(offset()), 0, 'f', 2)    + "ms\n" +
-        "Window: "      + WindowFunction::name(m_windowFunctionType) + "\t" +
-        "FFT power: "   + QString::number(m_FFTsizes.at(mode()), 10)        + "\n" +
-        "Date: "        + QDateTime::currentDateTime().toString()
-    );
+    store->setNotes(notes);
     return store;
 }
 
