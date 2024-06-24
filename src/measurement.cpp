@@ -677,7 +677,8 @@ chart::Source *Measurement::store()
     store->setNotes(
         modeNote + "\t" +
         "delay: " + QString("%1").arg(1000.0 * delay() / sampleRate(), 0, 'f', 2) + "ms " +
-        "gain: " + QString("%1").arg(gain(), 0, 'f', 2) + "dB \n" +
+        "gain: " + QString("%1").arg(gain(), 0, 'f', 2) + "dB " +
+        "offset: " + QString("%1").arg(offset(), 0, 'f', 2) + "dB \n" +
         deviceName() + " " +
         QString::number(sampleRate() / 1000.f, 'f', 1) + "kHz " +
         QString(" R: %1").arg(referenceChanel() + 1) +
