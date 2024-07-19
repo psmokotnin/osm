@@ -163,14 +163,14 @@ void Network::sendTCP(const QByteArray &data, const QString host, quint16 port,
     connect(socketThread, &QThread::started, socketThread, [ = ]() {
         auto reciever =  new TCPReciever(socket);
 
-        connect(reciever, &TCPReciever::readyRead, context, [ = ]() {
+        connect(reciever, &TCPReciever::readyRead, context.get(), [ = ]() {
             callback(qUncompress(reciever->data()));
             if (socket) {
                 socket->disconnectFromHost();
             }
         }, Qt::DirectConnection);
 
-        connect(reciever, &TCPReciever::timeOut, context, [ = ]() {
+        connect(reciever, &TCPReciever::timeOut, context.get(), [ = ]() {
             qInfo() << "Can't connect to the device" << host << port << ". timeout expired.";
             if (socket) {
                 socket->abort();
@@ -180,7 +180,7 @@ void Network::sendTCP(const QByteArray &data, const QString host, quint16 port,
 
         connect(socket, &QTcpSocket::disconnected, this, [ = ]() {
             if (context) {
-                reciever->disconnect(context);
+                reciever->disconnect(context.get());
             }
             socketThread->exit();
         });

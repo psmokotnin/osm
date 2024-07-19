@@ -69,7 +69,7 @@ public:
     void setOrder(unsigned int newOrder);
     QVariant getAvailableOrders();
 
-    Q_INVOKABLE virtual chart::Source *store() = 0;
+    Q_INVOKABLE virtual Source::Shared store() = 0;
 
 //virtual signals:
     virtual void sampleRateChanged(unsigned int) = 0;

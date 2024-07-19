@@ -20,10 +20,11 @@
 
 #include <QObject>
 #include "network.h"
+#include "source/source_shared.h"
 
 class SourceList;
-namespace chart {
-class Source;
+namespace Source {
+class Abstract;
 }
 
 namespace remote {
@@ -62,7 +63,7 @@ private slots:
 
 private:
     QJsonObject prepareMessage(const QString &message) const;
-    void sourceNotify(chart::Source *source, const QString &message, const QJsonValue &data = {});
+    void sourceNotify(const Source::Shared &source, const QString &message, const QJsonValue &data = {});
     void sendMulticast(const QByteArray &data);
     void setLastConnected(const QString &lastConnected);
 
@@ -71,7 +72,7 @@ private:
     QString m_lastConnected;
     QThread m_networkThread;
     Network m_network;
-    SourceList *m_sourceList;
+    SourceList *m_sourceList;//TODO PTR
 };
 
 } // namespace remote

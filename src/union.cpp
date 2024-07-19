@@ -24,7 +24,7 @@
 
 std::mutex Union::s_calcmutex = std::mutex();
 
-Union::Union(QObject *parent): chart::Source(parent),
+Union::Union(QObject *parent): Source::Abstract(parent),
     m_sources(2),
     m_timer(nullptr), m_timerThread(nullptr),
     m_operation(Summation),
@@ -32,7 +32,6 @@ Union::Union(QObject *parent): chart::Source(parent),
     m_autoName(true)
 {
     m_name = "Union";
-    m_sources.fill(nullptr);
     setObjectName(m_name);
 
     m_timer.setInterval(80);//12.5 per sec
@@ -53,9 +52,9 @@ Union::~Union()
     m_timerThread.wait();
 }
 
-chart::Source *Union::clone() const
+Source::Shared Union::clone() const
 {
-    auto cloned = new Union(parent());
+    auto cloned = std::make_shared<Union>(parent());
 
     cloned->setCount(count());
     cloned->setOperation(operation());
@@ -65,7 +64,7 @@ chart::Source *Union::clone() const
     for (int i = 0; i < count(); ++i) {
         cloned->setSource(i, getSource(i));
     }
-    return cloned;
+    return std::static_pointer_cast<Source::Abstract>(cloned);
 }
 
 int Union::count() const noexcept
@@ -99,7 +98,7 @@ void Union::setActive(bool active) noexcept
     if (active && checkLoop(this)) {
         return;
     }
-    chart::Source::setActive(active);
+    Source::Abstract::setActive(active);
     update();
 }
 Union::Type Union::type() const
@@ -122,26 +121,18 @@ void Union::init() noexcept
 
 void Union::resize()
 {
-    chart::Source *primary = m_sources.first();
+    auto primary = m_sources.first();
     m_dataLength         = static_cast<unsigned int>(primary ? primary->size() : 1);
     m_deconvolutionSize = static_cast<unsigned int>(primary ? primary->impulseSize() : 1);
     m_ftdata.resize(m_dataLength);
     m_impulseData.resize(m_deconvolutionSize);
 }
-chart::Source *Union::getSource(int index) const noexcept
+Source::Shared Union::getSource(int index) const noexcept
 {
-    try {
-        if (index < m_sources.count()) {
-            auto ptr = m_sources.at(index);
-            if (ptr.isNull()) {
-                return nullptr;
-            }
-            return ptr.data();
-        }
-    } catch (std::exception &e) {
-        qDebug() << __FILE__ << ":" << __LINE__  << e.what();
+    if (index < m_sources.count()) {
+        return m_sources.at(index);
     }
-    return nullptr;
+    return {nullptr};
 }
 
 QUuid Union::getSourceId(int index) const noexcept
@@ -152,12 +143,12 @@ QUuid Union::getSourceId(int index) const noexcept
     }
     return {};
 }
-bool Union::setSource(int index, chart::Source *s) noexcept
+bool Union::setSource(int index, const Source::Shared &s) noexcept
 {
     if (s == getSource(index))
         return true;
 
-    auto unionSource = dynamic_cast<Union *>(s);
+    auto unionSource = std::dynamic_pointer_cast<Union>(s);
     if (unionSource) {
         if (unionSource->checkLoop(this)) {
             setActive(false);
@@ -167,15 +158,15 @@ bool Union::setSource(int index, chart::Source *s) noexcept
 
     if (index < m_sources.count()) {
         if (m_sources[index]) {
-            disconnect(m_sources[index], &chart::Source::readyRead, this, &Union::update);
+            disconnect(m_sources[index].get(), &Source::Abstract::readyRead, this, &Union::update);
         }
         m_sources.replace(index, s);
         if (index == 0)
             init();
 
         if (s) {
-            connect(s, &chart::Source::readyRead, this, &Union::update);
-            connect(s, &chart::Source::beforeDestroy, this, &Union::sourceDestroyed, Qt::DirectConnection);
+            connect(s.get(), &Source::Abstract::readyRead, this, &Union::update);
+            connect(s.get(), &Source::Abstract::beforeDestroy, this, &Union::sourceDestroyed, Qt::DirectConnection);
         }
         update();
         emit modelChanged();
@@ -200,14 +191,14 @@ void Union::update() noexcept
 }
 void Union::calc() noexcept
 {
-    std::set<chart::Source *> sources;
+    std::set<Source::Shared> sources;
 
     if (!active())
         return;
 
     std::lock_guard<std::mutex> callGuard(s_calcmutex);
     std::lock_guard<std::mutex> guard(m_dataMutex);
-    chart::Source *primary = m_sources.first();
+    auto primary = m_sources.first();
     unsigned int count = 0;
 
     if (!primary) {
@@ -242,7 +233,7 @@ void Union::calc() noexcept
 
     //lock each unique source, prevent deadlock
     for (auto &s : sources) {
-        if (s && s != this) s->lock();
+        if (s && s.get() != this) s->lock();
     }
 
     if (m_operation == Apply) {
@@ -269,7 +260,7 @@ void Union::calc() noexcept
     }
     emit readyRead();
 }
-void Union::calcPolar(unsigned int count, chart::Source *primary) noexcept
+void Union::calcPolar(unsigned int count, const Source::Shared &primary) noexcept
 {
     float magnitude, module, coherence, coherenceWeight;
     complex phase;
@@ -346,7 +337,7 @@ void Union::calcPolar(unsigned int count, chart::Source *primary) noexcept
         m_impulseData[i].value = NAN;
     }
 }
-void Union::calcVector(unsigned int count, chart::Source *primary) noexcept
+void Union::calcVector(unsigned int count, const Source::Shared &primary) noexcept
 {
     float coherence, coherenceWeight;
     complex a, m, p;
@@ -459,7 +450,7 @@ void Union::calcVector(unsigned int count, chart::Source *primary) noexcept
     }
 }
 
-void Union::calcdB(unsigned int count, chart::Source *primary) noexcept
+void Union::calcdB(unsigned int count, const Source::Shared &primary) noexcept
 {
     float magnitude, module, coherence, coherenceWeight;
     complex phase;
@@ -540,7 +531,7 @@ void Union::calcdB(unsigned int count, chart::Source *primary) noexcept
     }
 }
 
-void Union::calcPower(unsigned int count, chart::Source *primary) noexcept
+void Union::calcPower(unsigned int count, const Source::Shared &primary) noexcept
 {
     float magnitude, module, coherence, coherenceWeight;
     complex phase;
@@ -623,7 +614,7 @@ void Union::calcPower(unsigned int count, chart::Source *primary) noexcept
     }
 }
 
-void Union::calcApply(Source *primary) noexcept
+void Union::calcApply(const Source::Shared &primary) noexcept
 {
     float magnitude, module, coherence;
     complex phase;
@@ -673,18 +664,20 @@ void Union::setAutoName(bool autoName)
 
 bool Union::checkLoop(Union *target) const
 {
-    for (auto &source : sources()) {
-        if (!source) {
-            continue;
-        }
+    if (target) {
+        for (auto &source : sources()) {
+            if (!source) {
+                continue;
+            }
 
-        auto unionSource = dynamic_cast<Union *>(source.data());
-        if (!unionSource) {
-            continue;
-        }
-        if ((source.data() == target) || unionSource->checkLoop(target)) {
-            emit Notifier::getInstance()->newMessage("Source loop detected:", target->name());
-            return true;
+            auto unionSource = std::dynamic_pointer_cast<Union>(source);
+            if (!unionSource) {
+                continue;
+            }
+            if ((unionSource.get() == target) || unionSource->checkLoop(target)) {
+                emit Notifier::getInstance()->newMessage("Source loop detected:", target->name());
+                return true;
+            }
         }
     }
     return false;
@@ -707,12 +700,12 @@ void Union::applyAutoName() noexcept
     }
 }
 
-void Union::sourceDestroyed(Source *source)
+void Union::sourceDestroyed(Source::Abstract *source)
 {
     std::lock_guard l(s_calcmutex);
 
-    auto position = std::find_if(m_sources.begin(), m_sources.end(), [source](QPointer<chart::Source> &p) {
-        return p.data() == source;
+    auto position = std::find_if(m_sources.begin(), m_sources.end(), [source](const auto & p) {
+        return p.get() == source;
     });
     if (position != m_sources.end()) {
         auto index = std::distance(m_sources.begin(), position);
@@ -722,7 +715,7 @@ void Union::sourceDestroyed(Source *source)
 
 QJsonObject Union::toJSON(const SourceList *list) const noexcept
 {
-    auto object = Source::toJSON(list);
+    auto object = Source::Abstract::toJSON(list);
 
     object["count"]     = count();
     object["type"]      = type();
@@ -784,9 +777,9 @@ Union::Operation Union::operation() const noexcept
 {
     return m_operation;
 }
-QObject *Union::store()
+Source::Shared Union::store()
 {
-    auto *store = new Stored();
+    auto store = std::make_shared<Stored>();
     store->build(this);
     store->autoName(name());
 
@@ -801,5 +794,5 @@ QObject *Union::store()
     } catch (std::exception &e) {
         qDebug() << __FILE__ << ":" << __LINE__  << e.what();
     }
-    return store;
+    return { store };
 }

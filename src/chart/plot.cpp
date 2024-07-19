@@ -147,7 +147,7 @@ QSGNode *Plot::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *)
     emit updated();
     return node;
 }
-void Plot::appendDataSource(Source *source)
+void Plot::appendDataSource(const Source::Shared &source)
 {
     auto *sourceItem = createSeriesFromSource(source);
     if (sourceItem) {
@@ -160,7 +160,7 @@ void Plot::appendDataSource(Source *source)
         }
     }
 }
-void Plot::removeDataSource(Source *source)
+void Plot::removeDataSource(const Source::Shared &source)
 {
     foreach (auto *series, m_serieses) {
         if (series->source() == source) {
@@ -176,7 +176,7 @@ void Plot::removeDataSource(Source *source)
         }
     }
 }
-void Plot::setSourceZIndex(Source *source, int index)
+void Plot::setSourceZIndex(const Source::Shared &source, int index)
 {
     foreach (SeriesItem *series, m_serieses) {
         if (series->source() == source) {
@@ -186,7 +186,7 @@ void Plot::setSourceZIndex(Source *source, int index)
     }
 }
 
-void Plot::setHighlighted(Source *source)
+void Plot::setHighlighted(const Source::Shared &source)
 {
     foreach (SeriesItem *series, m_serieses) {
         series->setHighlighted((series->source() == source));

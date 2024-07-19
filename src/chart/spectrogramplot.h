@@ -53,7 +53,7 @@ signals:
     void activeChanged(bool);
 
 protected:
-    virtual SeriesItem *createSeriesFromSource(Source *source) override;
+    virtual SeriesItem *createSeriesFromSource(const Source::Shared &source) override;
 
     int m_min, m_mid, m_max;
     bool m_active;

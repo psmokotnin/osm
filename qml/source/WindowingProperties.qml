@@ -38,10 +38,10 @@ Item {
             DropDown {
                 id: domainSelect
                 model: ["Time", "Frequency"]
-                currentIndex: dataObject.domain
+                currentIndex: dataObject.data.domain
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Take data from")
-                onCurrentIndexChanged: dataObject.domain = currentIndex;
+                onCurrentIndexChanged: dataObject.data.domain = currentIndex;
                 Layout.preferredWidth: elementWidth
             }
 
@@ -50,22 +50,22 @@ Item {
                 from: 0.1
                 to: 10000
                 units: "ms"
-                value: dataObject.wide
+                value: dataObject.data.wide
                 property bool completed: false
-                onValueChanged: {if (completed) { dataObject.wide = value; } }
+                onValueChanged: {if (completed) { dataObject.data.wide = value; } }
                 tooltiptext: qsTr("Wide of Tukey window, ms")
                 Layout.alignment: Qt.AlignVCenter
                 Layout.preferredWidth: elementWidth
-                visible: dataObject.domain === 0
+                visible: dataObject.data.domain === 0
                 Connections {
-                    target: dataObject
+                    target: dataObject.data
                     function onWideChanged() {
-                        wideSpinBox.value = dataObject.wide;
+                        wideSpinBox.value = dataObject.data.wide;
                     }
                 }
                 Component.onCompleted: {
                     completed = true;
-                    wideSpinBox.value = dataObject.wide;
+                    wideSpinBox.value = dataObject.data.wide;
                 }
             }
 
@@ -74,42 +74,42 @@ Item {
                 from: -2000
                 to: 2000
                 units: "ms"
-                value: dataObject.offset
-                onValueChanged: dataObject.offset = value
+                value: dataObject.data.offset
+                onValueChanged: dataObject.data.offset = value
                 tooltiptext: qsTr("offset zero point, ms")
                 Layout.alignment: Qt.AlignVCenter
                 Layout.preferredWidth: elementWidth
-                visible: dataObject.domain === 0
+                visible: dataObject.data.domain === 0
             }
 
             FloatSpinBox {
-                value: dataObject.minFrequency
+                value: dataObject.data.minFrequency
                 from: 0
                 to: 96000
                 decimals: 1
                 step: 1
                 units: "Hz"
-                onValueChanged: dataObject.minFrequency = value
+                onValueChanged: dataObject.data.minFrequency = value
 
                 tooltiptext: qsTr("min frequency")
                 Layout.preferredWidth: elementWidth
 
-                visible: dataObject.domain === 1
+                visible: dataObject.data.domain === 1
             }
 
             FloatSpinBox {
-                value: dataObject.maxFrequency
+                value: dataObject.data.maxFrequency
                 from: 0
                 to: 96000
                 decimals: 1
                 step: 1
                 units: "Hz"
-                onValueChanged: dataObject.maxFrequency = value
+                onValueChanged: dataObject.data.maxFrequency = value
 
                 tooltiptext: qsTr("max frequency")
                 Layout.preferredWidth: elementWidth
 
-                visible: dataObject.domain === 1
+                visible: dataObject.data.domain === 1
             }
 
             Item {
@@ -124,10 +124,10 @@ Item {
                 Layout.margins: 5
 
                 onColorChanged: {
-                    dataObject.color = color
+                    dataObject.data.color = color
                 }
                 Component.onCompleted: {
-                    colorPicker.color = dataObject.color
+                    colorPicker.color = dataObject.data.color
                 }
             }
 
@@ -144,18 +144,18 @@ Item {
                 model: SourceModel {
                     id: sourceModel
                     addNone: false
-                    filter: dataObject.uuid
+                    filter: dataObject.data.uuid
                     noneTitle: "None"
                     list: sourceList
                 }
                 currentIndex: {
-                    model.indexOf(dataObject.source)
+                    model.indexOf(dataObject.data.source)
                 }
                 textRole: "title"
                 valueRole: "source"
                 Layout.preferredWidth: elementWidth
                 onCurrentIndexChanged: {
-                    dataObject.source = model.get(currentIndex);
+                    dataObject.data.source = model.get(currentIndex);
                 }
             }
 
@@ -172,9 +172,9 @@ Item {
                     { text: "FFT 15", enabled: true },
                     { text: "FFT 16", enabled: true },
 
-                    { text: "LTW 1", enabled: dataObject.domain === 0 },
-                    { text: "LTW 2", enabled: dataObject.domain === 0 },
-                    { text: "LTW 3", enabled: dataObject.domain === 0 },
+                    { text: "LTW 1", enabled: dataObject.data.domain === 0 },
+                    { text: "LTW 2", enabled: dataObject.data.domain === 0 },
+                    { text: "LTW 3", enabled: dataObject.data.domain === 0 },
                 ]
                 textRole: "text"
                 delegate: MenuItem {
@@ -186,8 +186,8 @@ Item {
                     hoverEnabled: modeSelect.hoverEnabled
                 }
 
-                currentIndex: dataObject.mode
-                onCurrentIndexChanged: dataObject.mode = currentIndex;
+                currentIndex: dataObject.data.mode
+                onCurrentIndexChanged: dataObject.data.mode = currentIndex;
                 Layout.preferredWidth: elementWidth
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Transfrom mode")
@@ -195,10 +195,10 @@ Item {
 
             DropDown {
                 id: windowSelect
-                model: dataObject.windows
-                currentIndex: dataObject.window
-                onCurrentIndexChanged: dataObject.window = currentIndex
-                visible: dataObject.domain === 0
+                model: dataObject.data.windows
+                currentIndex: dataObject.data.window
+                onCurrentIndexChanged: dataObject.data.window = currentIndex
+                visible: dataObject.data.domain === 0
                 Layout.preferredWidth: elementWidth
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("window function")
@@ -211,7 +211,7 @@ Item {
             Button {
                 text: qsTr("Store");
                 onClicked: {
-                    var stored = dataObject.store();
+                    var stored = dataObject.data.store();
                     stored.active = true;
                     sourceList.appendItem(stored, true);
                 }

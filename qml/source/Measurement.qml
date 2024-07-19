@@ -38,14 +38,14 @@ Item {
         MulticolorCheckBox {
             id: checkbox
             Layout.alignment: Qt.AlignVCenter
-            checked: (dataModel ? dataModel.active : false)
-            checkedColor: (dataModel ? dataModel.color : "none")
+            checked: (dataModel.data ? dataModel.data.active : false)
+            checkedColor: (dataModel.data ? dataModel.data.color : "none")
 
             onCheckStateChanged: {
-                if (dataModel)
-                    dataModel.active = checked
+                if (dataModel && dataModel.data)
+                    dataModel.data.active = checked
             }
-            error: (dataModel ? dataModel.error : false)
+            error: (dataModel.data ? dataModel.data.error : false)
         }
 
         ColumnLayout {
@@ -54,39 +54,39 @@ Item {
             Label {
                 Layout.fillWidth: true
                 font.bold: highlight
-                text:  (dataModel ? dataModel.name : "")
+                text:  (dataModel.data ? dataModel.data.name : "")
             }
 
             Meter {
-                dBV: (dataModel ? dataModel.level : 0)
-                peak:(dataModel ? dataModel.measurementPeak : 0)
+                dBV: (dataModel.data ? dataModel.data.level : 0)
+                peak:(dataModel.data ? dataModel.data.measurementPeak : 0)
                 width: parent.width
             }
 
             Meter {
-                dBV: (dataModel ? dataModel.referenceLevel : 0)
-                peak:(dataModel ? dataModel.referencePeak : 0)
+                dBV: (dataModel.data ? dataModel.data.referenceLevel : 0)
+                peak:(dataModel.data ? dataModel.data.referencePeak : 0)
                 width: parent.width
             }
         }
 
         Connections {
-            target: dataModel
+            target: dataModel.data
             function onColorChanged() {
-                checkbox.checkedColor = dataModel.color;
+                checkbox.checkedColor = dataModel.data.color;
             }
         }
 
         Component.onCompleted: {
-            if (!dataModel) {
+            if (!dataModel || !dataModel.data) {
                 return;
             }
-            if (!dataModel.isColorValid()) {
-                dataModel.color = applicationWindow.dataSourceList.nextColor();
+            if (!dataModel.data.isColorValid()) {
+                dataModel.data.color = applicationWindow.dataSourceList.nextColor();
             }
-            dataModel.errorChanged.connect(function(error) {
+            dataModel.data.errorChanged.connect(function(error) {
                 if (error) {
-                    applicationWindow.message.showError(qsTr("Can't start the %1.<br/>Device is not supported or busy.").arg(dataModel.name));
+                    applicationWindow.message.showError(qsTr("Can't start the %1.<br/>Device is not supported or busy.").arg(dataModel.data.name));
                 }
             });
         }

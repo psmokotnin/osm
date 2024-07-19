@@ -19,7 +19,7 @@
  */
 #include <QtQuick/QQuickItem>
 #include "type.h"
-#include "source.h"
+#include "source/source_abstract.h"
 #include "plot.h"
 #include "common/settings.h"
 
@@ -34,7 +34,7 @@ class VariableChart : public QQuickItem
     Q_PROPERTY(Settings *settings READ settings WRITE setSettings NOTIFY settingsChanged)
     Q_PROPERTY(QQuickItem *plot READ plot() NOTIFY typeChanged)
     Q_PROPERTY(SourceList *sources READ sources WRITE setSources NOTIFY sourcesChanged)
-    Q_PROPERTY(bool darkMode READ darkMode WRITE setDarkMode)
+    Q_PROPERTY(bool darkMode READ darkMode WRITE setDarkMode NOTIFY darkModeChanged)
 
 public:
     VariableChart(QQuickItem *parent = Q_NULLPTR);
@@ -45,9 +45,9 @@ public:
     Settings *settings() const noexcept;
     void setSettings(Settings *settings) noexcept;
 
-    Q_INVOKABLE void appendDataSource(Source *source);
-    Q_INVOKABLE void removeDataSource(Source *source);
-    Q_INVOKABLE void setSourceZIndex(Source *source, int index);
+    Q_INVOKABLE void appendDataSource(const Source::Shared &source);
+    Q_INVOKABLE void removeDataSource(const Source::Shared &source);
+    Q_INVOKABLE void setSourceZIndex(const Source::Shared &source, int index);
     Q_INVOKABLE QString urlForGrab(QUrl url) const;
 
     Plot *plot() const noexcept;
@@ -64,6 +64,7 @@ signals:
     void typeChanged();
     void settingsChanged();
     void sourcesChanged();
+    void darkModeChanged();
 
 protected:
     void initType();

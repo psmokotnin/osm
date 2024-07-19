@@ -113,7 +113,7 @@ void CoherenceSeriesNode::updateMatrix()
     m_matrix.translate(-1 * logf(m_xMin), 0);
 }
 
-Source *CoherenceSeriesNode::source() const
+const Source::Shared &CoherenceSeriesNode::source() const
 {
     return m_source;
 }

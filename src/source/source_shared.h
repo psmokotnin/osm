@@ -1,6 +1,6 @@
 /**
  *  OSM
- *  Copyright (C) 2021  Pavel Smokotnin
+ *  Copyright (C) 2024  Pavel Smokotnin
 
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -15,31 +15,29 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef FREQUENCYBASEDSERIESRENDERER_H
-#define FREQUENCYBASEDSERIESRENDERER_H
+#ifndef SOURCE_SHARED_H
+#define SOURCE_SHARED_H
 
-#include "xyseriesrenderer.h"
-#include "../frequencybasedserieshelper.h"
+#include <memory>
+#include <QObject>
 
-namespace chart {
+namespace Source {
+class Abstract;
+}
 
-class FrequencyBasedSeriesRenderer : public XYSeriesRenderer, public FrequencyBasedSeriesHelper
+namespace Source {
+
+class Shared : public std::shared_ptr<Source::Abstract>
 {
-
-protected:
-    constexpr const static float LEVEL_NORMALIZATION = -46.81f;
-
-    virtual void updateMatrix() override;
-    void setUniforms();
-    const Source::Shared &source() const override;
+    Q_GADGET
+    Q_PROPERTY(Source::Abstract *data READ get CONSTANT)
 
 public:
-    explicit FrequencyBasedSeriesRenderer();
-
-protected:
-    int m_minmaxUniform,
-        m_screenUniform,
-        m_widthUniform;
+    Shared(std::shared_ptr<Source::Abstract> ptr = nullptr);
 };
-}
-#endif // FREQUENCYBASEDSERIESRENDERER_H
+
+} // namespace Source
+
+Q_DECLARE_METATYPE(Source::Shared)
+
+#endif // SOURCE_SHARED_H

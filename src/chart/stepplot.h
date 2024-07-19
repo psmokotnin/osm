@@ -39,7 +39,7 @@ signals:
     void zeroChanged(float);
 
 protected:
-    virtual SeriesItem *createSeriesFromSource(Source *source) override;
+    virtual SeriesItem *createSeriesFromSource(const Source::Shared &source) override;
 
 private:
     float m_zero;

@@ -23,7 +23,7 @@
 #include <QtQml>
 
 #include "metabase.h"
-#include "chart/source.h"
+#include "source/source_abstract.h"
 #include "math/windowfunction.h"
 
 namespace meta {
@@ -88,7 +88,7 @@ public:
     void setDomain(QVariant newDomain);
     void setDomain(SourceDomain newDomain);
 
-    Q_INVOKABLE virtual chart::Source *store() = 0;
+    Q_INVOKABLE virtual Source::Shared store() = 0;
 
 //virtual signals:
     virtual void wideChanged(float) = 0;

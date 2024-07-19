@@ -188,7 +188,7 @@ void NyquistSeriesRenderer::updateMatrix()
     m_matrix.ortho(m_xMin, m_xMax, m_yMax, m_yMin, -1, 1);
 }
 
-Source *NyquistSeriesRenderer::source() const
+const Source::Shared &NyquistSeriesRenderer::source() const
 {
     return m_source;
 }

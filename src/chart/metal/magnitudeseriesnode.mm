@@ -122,7 +122,7 @@ void MagnitudeSeriesNode::updateMatrix()
     m_matrix.translate(-1 * logf(m_xMin), 0);
 }
 
-Source *MagnitudeSeriesNode::source() const
+const Source::Shared &MagnitudeSeriesNode::source() const
 {
     return m_source;
 }

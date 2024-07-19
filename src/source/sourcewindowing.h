@@ -17,7 +17,7 @@
  */
 
 #include <QJsonObject>
-#include "chart/source.h"
+#include "source/source_abstract.h"
 #include "math/fouriertransform.h"
 #include "meta/metawindowing.h"
 
@@ -25,7 +25,7 @@
 #define SOURCE_WINDOWING_H
 
 
-class Windowing : public chart::Source, public meta::Windowing
+class Windowing : public Source::Abstract, public meta::Windowing
 {
     Q_OBJECT
     QML_ELEMENT
@@ -49,17 +49,17 @@ public:
     Windowing(QObject *parent = nullptr);
     ~Windowing();
 
-    Source *clone() const override;
+    Source::Shared clone() const override;
     Q_INVOKABLE QJsonObject toJSON(const SourceList *list) const noexcept override;
     void fromJSON(QJsonObject data, const SourceList *list = nullptr) noexcept override;
 
-    chart::Source *source() const;
-    void setSource(chart::Source *newSource);
+    Source::Shared source() const;
+    void setSource(const Source::Shared &newSource);
 
     QUuid sourceId() const;
     void setSource(QUuid id);
 
-    Q_INVOKABLE chart::Source *store() override;
+    Q_INVOKABLE Source::Shared store() override;
 
     unsigned sampleRate() const;
 
@@ -85,11 +85,11 @@ private:
     void syncData();
     void updateFromDomain();
     void updateFromFrequencyDomain();
-    void updateFromTimeDomain(Source *source);
+    void updateFromTimeDomain(const Source::Shared &source);
     void transform();
 
     unsigned m_sampleRate;
-    chart::Source *m_source;
+    Source::Shared m_source;
     WindowFunction m_window;
     FourierTransform m_dataFT;
     Mode m_usedMode;

@@ -88,7 +88,7 @@ void Client::reset()
     stop();
 
     for (auto &item : m_items) {
-        m_sourceList->removeItem(item, true);
+        m_sourceList->removeItem(std::static_pointer_cast<Source::Abstract>(item), true);
     }
     m_items.clear();
 
@@ -103,7 +103,7 @@ void Client::sendRequests()
         return;
     }
     auto guard = m_sourceList->lock();
-    Item *updateItem = nullptr;
+    std::shared_ptr<Item> updateItem;
     UpdateKey minUpdate = READY_FOR_UPDATE;
     unsigned int minUpdateKey = 0;
 
@@ -125,7 +125,7 @@ void Client::sendRequests()
     }
 }
 
-void Client::sendCommand(Item *item, QString command, QVariant arg)
+void Client::sendCommand(const std::shared_ptr<Item> &item, QString command, QVariant arg)
 {
     Network::responseCallback onAnswer = [](const QByteArray &) {};
 
@@ -149,43 +149,46 @@ void Client::sendCommand(Item *item, QString command, QVariant arg)
     }
 }
 
-Item *Client::addItem(const QUuid &serverId, const QUuid &sourceId, const QString &objectName, const QString &host)
+std::shared_ptr<Item> Client::addItem(const QUuid &serverId, const QUuid &sourceId, const QString &objectName,
+                                      const QString &host)
 {
-    remote::Item *item;
+    std::shared_ptr<Item> item;
     if (objectName == "Measurement") {
-        item = new remote::MeasurementItem(this);
+        item = std::make_shared<remote::MeasurementItem>(this);
     } else if (objectName == "Stored") {
-        item = new remote::StoredItem(this);
+        item = std::make_shared<remote::StoredItem>(this);
     } else {
-        item = new remote::Item(this);
+        item = std::make_shared<remote::Item>(this);
     }
     item->setServerId(serverId);
     item->setSourceId(sourceId);
     item->setHost(host);
 
-    connect(this, &Client::dataError, item, &Item::dataError);
-    connect(this, &Client::dataReceived, item, &Item::dataReceived);
+    connect(this, &Client::dataError, item.get(), &Item::dataError);
+    connect(this, &Client::dataReceived, item.get(), &Item::dataReceived);
 
-    connect(item, &Item::updateData, this, &Client::requestUpdate);
-    connect(item, &Item::localChanged, this, [ = ](QString propertyName) {
+    connect(item.get(), &Item::updateData,   this, [ = ]() {
+        requestUpdate( item );
+    });
+    connect(item.get(), &Item::localChanged, this, [ = ](QString propertyName) {
         sendUpdate(item, propertyName);
     });
-    connect(item, &Item::sendCommand, this, [ = ](QString name, QVariant arg) {
+    connect(item.get(), &Item::sendCommand,  this, [ = ](QString name, QVariant arg) {
         sendCommand(item, name, arg);
     });
-    connect(item, &Item::beforeDestroy, this, [ = ]() {
+    connect(item.get(), &Item::beforeDestroy, this, [ = ]() {
         m_items[qHash(sourceId)] = nullptr;
         m_needUpdate[qHash(sourceId)] = READY_FOR_UPDATE;
     }, Qt::DirectConnection);
 
     item->connectProperties();
-    m_sourceList->appendItem(item);
+    m_sourceList->appendItem(Source::Shared{ item });
     m_items[qHash(sourceId)] = item;
 
     return item;
 }
 
-void Client::sendUpdate(Item *item, QString propertyName)
+void Client::sendUpdate(const std::shared_ptr<Item> &item, QString propertyName)
 {
     Network::responseCallback onAnswer = [](const QByteArray &) {};
 
@@ -243,7 +246,7 @@ void Client::processData(QHostAddress senderAddress, [[maybe_unused]] int sender
         }
 
         if (item && message == "removed") {
-            m_sourceList->removeItem(item);
+            m_sourceList->removeItem(item->uuid());
             m_items[qHash(sourceId)] = nullptr;
             m_needUpdate[qHash(sourceId)] = READY_FOR_UPDATE;
         }
@@ -263,7 +266,7 @@ void Client::processData(QHostAddress senderAddress, [[maybe_unused]] int sender
     }
 }
 
-void Client::requestUpdate(Item *item)
+void Client::requestUpdate(const std::shared_ptr<Item> &item)
 {
     if (item && item->active()) {
         if (m_needUpdate[qHash(item->sourceId())] == READY_FOR_UPDATE) {
@@ -272,7 +275,7 @@ void Client::requestUpdate(Item *item)
     }
 }
 
-void Client::requestChanged(Item *item)
+void Client::requestChanged(const std::shared_ptr<Item> &item)
 {
     Network::responseCallback onAnswer = [item](const QByteArray & data) {
         auto document = QJsonDocument::fromJson(data).object();
@@ -294,23 +297,23 @@ void Client::requestChanged(Item *item)
 
             switch (static_cast<int>(property.type())) {
             case QVariant::Type::Bool:
-                property.write(item, document[field].toBool());
+                property.write(item.get(), document[field].toBool());
                 break;
 
             case QVariant::Type::UInt:
             case QVariant::Type::Int:
             case QMetaType::Long:
-                property.write(item, document[field].toInt());
+                property.write(item.get(), document[field].toInt());
                 break;
 
 
             case QMetaType::Float:
             case QVariant::Type::Double:
-                property.write(item, document[field].toDouble());
+                property.write(item.get(), document[field].toDouble());
                 break;
 
             case QVariant::Type::String:
-                property.write(item, document[field].toString());
+                property.write(item.get(), document[field].toString());
                 break;
 
             case QVariant::Type::Color: {
@@ -320,11 +323,11 @@ void Client::requestChanged(Item *item)
                     colorObject["green"].toInt(0),
                     colorObject["blue" ].toInt(0),
                     colorObject["alpha"].toInt(1));
-                property.write(item, color);
+                property.write(item.get(), color);
                 break;
             }
             case QVariant::Type::UserType: {
-                property.write(item, document[field].toInt());
+                property.write(item.get(), document[field].toInt());
                 break;
             }
             default:
@@ -337,7 +340,7 @@ void Client::requestChanged(Item *item)
     requestSource(item, "requestChanged", onAnswer, {});
 }
 
-void Client::requestData(Item *item)
+void Client::requestData(const std::shared_ptr<Item> &item)
 {
     if (!item) {
         return;
@@ -365,7 +368,8 @@ void Client::requestData(Item *item)
     requestSource(item, "requestData", onAnswer, onError);
 }
 
-void Client::requestSource(Item *item, const QString &message, Network::responseCallback callback,
+void Client::requestSource(const std::shared_ptr<Item> &item, const QString &message,
+                           Network::responseCallback callback,
                            Network::errorCallback errorCallback, QJsonObject itemData)
 {
     auto server = m_servers.value(qHash(item->serverId()), {{}, 0});

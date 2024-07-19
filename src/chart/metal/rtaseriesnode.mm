@@ -123,7 +123,7 @@ void RTASeriesNode::updateMatrix()
     m_matrix.translate(-1 * logf(m_xMin), LEVEL_NORMALIZATION);
 }
 
-Source *RTASeriesNode::source() const
+const Source::Shared &RTASeriesNode::source() const
 {
     return m_source;
 }

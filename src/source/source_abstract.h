@@ -27,11 +27,13 @@
 
 #include "math/complex.h"
 #include "math/meter.h"
+#include "source/source_shared.h"
 class SourceList;
 
-namespace chart {
-class Source : public QObject
+namespace Source {
+class Abstract : public QObject
 {
+
     Q_OBJECT
 
     Q_PROPERTY(bool active READ active WRITE setActive NOTIFY activeChanged)
@@ -56,9 +58,9 @@ public:
         complex value;
     };
 
-    explicit Source(QObject *parent = nullptr);
-    virtual ~Source();
-    virtual Source *clone() const = 0;
+    explicit Abstract(QObject *parent = nullptr);
+    virtual ~Abstract();
+    virtual Source::Shared clone() const = 0;
     virtual bool cloneable() const;
 
     virtual Q_INVOKABLE void destroy();
@@ -128,7 +130,7 @@ signals:
     void nameChanged(QString);
     void colorChanged(QColor);
     void readyRead();
-    void beforeDestroy(chart::Source *);
+    void beforeDestroy(Source::Abstract *);//TODO: check if still needed
 
 public slots:
     void setGlobalColor(int globalValue);

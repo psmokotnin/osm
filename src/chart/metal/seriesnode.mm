@@ -60,7 +60,7 @@ SeriesNode::SeriesNode(QQuickItem *item) : m_item(static_cast<SeriesItem *>(item
 
     connect(m_item, &SeriesItem::preSourceDeleted, this, [this]() {
         m_active.lock();
-        m_source = nullptr;
+        m_source.reset();
         m_active.unlock();
     }, Qt::DirectConnection);
 }

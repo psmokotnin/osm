@@ -20,7 +20,7 @@
 #include "sourcelist.h"
 #include "stored.h"
 
-Windowing::Windowing(QObject *parent) : chart::Source(parent), meta::Windowing(),
+Windowing::Windowing(QObject *parent) : Source::Abstract(parent), meta::Windowing(),
     m_sampleRate(1), m_source(nullptr),
     m_window(WindowFunction::Type::Rectangular, this)
 {
@@ -49,9 +49,9 @@ Windowing::~Windowing()
 {
 }
 
-chart::Source *Windowing::clone() const
+Source::Shared Windowing::clone() const
 {
-    auto cloned = new Windowing(parent());
+    auto cloned = std::make_shared<Windowing>(parent());
     cloned->setMode(mode());
     cloned->setOffset(offset());
     cloned->setWide(wide());
@@ -60,12 +60,13 @@ chart::Source *Windowing::clone() const
     cloned->setMinFrequency(minFrequency());
     cloned->setMaxFrequency(maxFrequency());
     cloned->setSource(source());
-    return cloned;
+
+    return std::static_pointer_cast<Source::Abstract>(cloned);
 }
 
 QJsonObject Windowing::toJSON(const SourceList *list) const noexcept
 {
-    auto object = Source::toJSON(list);
+    auto object = Source::Abstract::toJSON(list);
 
     object["mode"]                  = mode();
     object["domain"]                = domain();
@@ -83,7 +84,7 @@ QJsonObject Windowing::toJSON(const SourceList *list) const noexcept
 
 void Windowing::fromJSON(QJsonObject data, const SourceList *list) noexcept
 {
-    Source::fromJSON(data, list);
+    Source::Abstract::fromJSON(data, list);
 
     setMode(static_cast<meta::Windowing::Mode>(data["mode"].toInt(mode())));
     setDomain(static_cast<meta::Windowing::SourceDomain>(data["domain"].toInt(domain())));
@@ -326,7 +327,7 @@ void Windowing::updateFromFrequencyDomain()
     }
 }
 
-void Windowing::updateFromTimeDomain(chart::Source *source)
+void Windowing::updateFromTimeDomain(const Source::Shared &source)
 {
     Q_ASSERT(source);
 
@@ -412,12 +413,12 @@ void Windowing::transform()
     }
 }
 
-chart::Source *Windowing::source() const
+Source::Shared Windowing::source() const
 {
     return m_source;
 }
 
-void Windowing::setSource(chart::Source *newSource)
+void Windowing::setSource(const Source::Shared &newSource)
 {
     if (m_source == newSource) {
         return;
@@ -431,19 +432,19 @@ void Windowing::setSource(chart::Source *newSource)
         }
         std::lock_guard<std::mutex> guard(m_dataMutex);
         if (m_source) {
-            disconnect(this, nullptr, m_source, nullptr);
+            disconnect(this, nullptr, m_source.get(), nullptr);
         }
 
         m_source = newSource;
         m_resize = true;
 
         if (m_source) {
-            connect(m_source, &chart::Source::beforeDestroy, this, [this]() {
+            connect(m_source.get(), &Source::Abstract::beforeDestroy, this, [this]() {
                 setSource(nullptr);
             }, Qt::DirectConnection);
 
             connect(
-                m_source, &chart::Source::readyRead,
+                m_source.get(), &Source::Abstract::readyRead,
                 this, &Windowing::update,
                 Qt::QueuedConnection
             );
@@ -473,11 +474,11 @@ void Windowing::setSource(QUuid id)
     }
 }
 
-chart::Source *Windowing::store()
+Source::Shared Windowing::store()
 {
-    auto *store = new Stored();
-    store->build(this);
-    store->autoName(name());
+    auto stored = std::make_shared<Stored>();
+    stored->build(this);
+    stored->autoName(name());
 
     QString notes = "Windowing on " + (source() ? source()->name() : "") + "\n";
     switch (domain()) {
@@ -497,8 +498,9 @@ chart::Source *Windowing::store()
     notes += "Transform: "   + modeName()                           + "\n";
     notes += "Date: "        + QDateTime::currentDateTime().toString();
 
-    store->setNotes(notes);
-    return store;
+    stored->setNotes(notes);
+
+    return std::static_pointer_cast<Source::Abstract>(stored);
 }
 
 unsigned Windowing::sampleRate() const

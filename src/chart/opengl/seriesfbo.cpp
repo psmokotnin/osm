@@ -20,21 +20,22 @@
 
 using namespace chart;
 
-SeriesFBO::SeriesFBO(Source *s, RendererCreator rc, QQuickItem *parent):
+SeriesFBO::SeriesFBO(Source::Shared source, RendererCreator rc, QQuickItem *parent):
     QQuickFramebufferObject(parent),
     m_rendererCreator(std::move(rc)),
-    m_source(s), m_highlighted(false)
+    m_source(source), m_highlighted(false)
 {
     setFlag(QQuickItem::ItemHasContents);
-    connect(s, SIGNAL(colorChanged(QColor)),  SLOT(update()));
-    connect(s, SIGNAL(readyRead()),     SLOT(update()));
-    connect(s, SIGNAL(activeChanged()), SLOT(update()));
+    connect(source.get(), SIGNAL(colorChanged(QColor)), SLOT(update()));
+    connect(source.get(), SIGNAL(readyRead()),          SLOT(update()));
+    connect(source.get(), SIGNAL(activeChanged()),      SLOT(update()));
 }
 
-Source *SeriesFBO::source() const noexcept
+Source::Shared SeriesFBO::source() const noexcept
 {
     return m_source;
 }
+
 QQuickFramebufferObject::Renderer *SeriesFBO::createRenderer() const
 {
     SeriesRenderer *renderer = static_cast<SeriesRenderer *>(m_rendererCreator());

@@ -66,6 +66,8 @@ SOURCES += src/main.cpp \
     src/remote/remoteclient.cpp \
     src/remote/server.cpp \
     src/remote/tcpreciever.cpp \
+    src/source/source_abstract.cpp \
+    src/source/source_shared.cpp \
     src/source/sourcewindowing.cpp \
     src/sourcelist.cpp \
     src/sourcemodel.cpp \
@@ -82,7 +84,6 @@ SOURCES += src/main.cpp \
     src/stored.cpp \
     src/chart/axis.cpp \
     src/chart/painteditem.cpp \
-    src/chart/source.cpp \
     src/measurement.cpp \
     src/common/settings.cpp \
     src/chart/variablechart.cpp \
@@ -199,6 +200,8 @@ HEADERS += \
     src/remote/remoteclient.h \
     src/remote/server.h \
     src/remote/tcpreciever.h \
+    src/source/source_abstract.h \
+    src/source/source_shared.h \
     src/source/sourcewindowing.h \
     src/sourcelist.h \
     src/sourcemodel.h \
@@ -217,7 +220,6 @@ HEADERS += \
     src/chart/axis.h \
     src/chart/painteditem.h \
     src/chart/type.h \
-    src/chart/source.h \
     src/measurement.h \
     src/common/settings.h \
     src/chart/variablechart.h \

@@ -21,7 +21,7 @@
 #include <cmath>
 #include "./complex.h"
 #include "container/array.h"
-#include "chart/source.h"
+#include "source/source_abstract.h"
 #include "fouriertransform.h"
 
 class Coherence
@@ -43,7 +43,7 @@ public:
     [[deprecated]] void append(unsigned int i, const complex &refernce, const complex &measurement) noexcept;
     [[deprecated]] float value(unsigned int i) const noexcept;
 
-    void calculate(chart::Source::FTData *dst, FourierTransform *src);
+    void calculate(Source::Abstract::FTData *dst, FourierTransform *src);
     inline void calculateRR(unsigned int i, FourierTransform *src);
     inline void calculateMM(unsigned int i, FourierTransform *src);
     inline void calculateRM(unsigned int i, FourierTransform *src);

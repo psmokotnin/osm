@@ -37,13 +37,13 @@ Item {
             id: checkbox
             Layout.alignment: Qt.AlignVCenter
 
-            checkedColor: (dataModel ? dataModel.color : "")
+            checkedColor: (dataModel && dataModel.data ? dataModel.data.color : "")
 
             onCheckStateChanged: {
-                dataModel.active = checked
+                dataModel.data.active = checked
             }
             Component.onCompleted: {
-                checked = dataModel.active
+                checked = dataModel.data.active
             }
         }
 
@@ -53,7 +53,7 @@ Item {
             Label {
                 Layout.fillWidth: true
                 font.bold: highlight
-                text:  (dataModel ? dataModel.name : "")
+                text:  (dataModel && dataModel.data ? dataModel.data.name : "")
             }
 
             RowLayout {
@@ -64,8 +64,8 @@ Item {
                     radius: width /2
                     color: updateColor()
                     function updateColor() {
-                        if (dataModel) {
-                            switch(dataModel.state) {
+                        if (dataModel && dataModel.data) {
+                            switch(dataModel.data.state) {
                                 case 1:
                                     return Material.color(Material.Orange);
                                 case 2:
@@ -76,7 +76,7 @@ Item {
                         return Material.color(Material.Red);
                     }
                     Connections {
-                        target: dataModel
+                        target: dataModel.data
                         function onStateChanged() {
                             color = indicator.updateColor();
                         }
@@ -87,18 +87,18 @@ Item {
                     Layout.fillWidth: true
                     font.bold: highlight
                     font.pixelSize: 10
-                    text:  (dataModel ? "@" + dataModel.host : "")
+                    text:  (dataModel && dataModel.data ? "@" + dataModel.data.host : "")
                 }
             }
         }
 
         Connections {
-            target: dataModel
+            target: dataModel.data
             function onColorChanged() {
-                checkbox.checkedColor = dataModel.color;
+                checkbox.checkedColor = dataModel.data.color;
             }
             function onActiveChanged() {
-                checkbox.checked = dataModel.active;
+                checkbox.checked = dataModel.data.active;
             }
         }
     }
@@ -122,13 +122,13 @@ Item {
         ToolTip.visible: hovered
         ToolTip.text: qsTr("refresh data")
 
-        onClicked: dataModel.refresh();
+        onClicked: dataModel.data.refresh();
     }
 
     Component.onCompleted: {
-        if (dataModel.objectName === "RemoteMeasurement") {
+        if (dataModel.data.objectName === "RemoteMeasurement") {
             propertiesQml = "qrc:/source/MeasurementProperties.qml";
-        } else if (dataModel.objectName === "RemoteStored") {
+        } else if (dataModel.data.objectName === "RemoteStored") {
             propertiesQml = "qrc:/source/StoredProperties.qml";
         }
     }

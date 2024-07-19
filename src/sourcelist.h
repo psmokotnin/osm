@@ -22,7 +22,8 @@
 #include <QVector>
 #include <QString>
 #include <QUrl>
-#include "chart/source.h"
+#include "source/source_abstract.h"
+#include "source/source_shared.h"
 
 
 class Measurement;
@@ -39,22 +40,22 @@ class SourceList : public QObject
     Q_PROPERTY(QUrl currentFile READ currentFile)
     Q_PROPERTY(QUuid first READ firstSource)
     Q_PROPERTY(int selectedIndex READ selectedIndex WRITE setSelected NOTIFY selectedChanged)
-    Q_PROPERTY(chart::Source *selected READ selected NOTIFY selectedChanged)
-    using iterator = QVector<chart::Source *>::iterator;
+    Q_PROPERTY(Source::Shared selected READ selected NOTIFY selectedChanged)
+    using iterator = QVector<Source::Shared>::iterator;
 
 public:
     explicit SourceList(QObject *parent = nullptr, bool appendMeasurement = true);
     SourceList *clone(QObject *parent, QUuid filter = {}) const;
 
     int count() const noexcept;
-    const QVector<chart::Source *> &items() const;
+    const QVector<Source::Shared> &items() const;
     SourceList::iterator begin() noexcept;
     SourceList::iterator end() noexcept;
 
     QUrl currentFile() const noexcept;
 
-    Q_INVOKABLE chart::Source *get(int i) const noexcept;
-    Q_INVOKABLE chart::Source *getByUUid(QUuid id) const noexcept;
+    Q_INVOKABLE Source::Shared get(int i) const noexcept;
+    Q_INVOKABLE Source::Shared getByUUid(QUuid id) const noexcept;
     Q_INVOKABLE QUuid getUUid(int id) const noexcept;
     Q_INVOKABLE QUuid firstSource() const noexcept;
     Q_INVOKABLE void clean() noexcept;
@@ -65,11 +66,11 @@ public:
     Q_INVOKABLE bool importImpulse(const QUrl &fileName, QString separator);
     Q_INVOKABLE bool importWav(const QUrl &fileName) ;
     Q_INVOKABLE bool move(int from, int to) noexcept;
-    Q_INVOKABLE int indexOf(chart::Source *item) const noexcept;
+    Q_INVOKABLE int indexOf(const Source::Shared &item) const noexcept;
     Q_INVOKABLE int indexOf(const QUuid &id) const noexcept;
 
     int selectedIndex() const;
-    chart::Source *selected() const noexcept;
+    Source::Shared selected() const noexcept;
     void setSelected(int selected);
 
     void check(const QUuid item);
@@ -95,21 +96,25 @@ public:
 
 public slots:
     Q_INVOKABLE QColor nextColor();
-    Q_INVOKABLE Measurement *addMeasurement();
-    Q_INVOKABLE Union *addUnion();
-    Q_INVOKABLE StandardLine *addStandardLine();
-    Q_INVOKABLE FilterSource *addFilter();
-    Q_INVOKABLE Windowing *addWindowing();
-    Q_INVOKABLE void appendItem(chart::Source *item, bool autocolor = false);
-    Q_INVOKABLE void removeItem(chart::Source *item, bool deleteItem = true);
-    Q_INVOKABLE void cloneItem(chart::Source *item);
-    Q_INVOKABLE void storeItem(chart::Source *item);
+
+    Q_INVOKABLE Source::Shared  addMeasurement();
+    Q_INVOKABLE Source::Shared  addUnion();
+    Q_INVOKABLE Source::Shared  addStandardLine();
+    Q_INVOKABLE Source::Shared  addFilter();
+    Q_INVOKABLE Source::Shared  addWindowing();
+
+    Q_INVOKABLE void appendItem(const Source::Shared &item, bool autocolor = false);
+    void removeItem(const Source::Shared &item, bool deleteItem = true);
+    Q_INVOKABLE void removeItem(const QUuid &uuid);
+    Q_INVOKABLE void cloneItem(Source::Shared  item);
+    Q_INVOKABLE void storeItem(Source::Shared  item);
+
     int appendNone();
     int appendAll();
 
 signals:
     void preItemAppended();
-    void postItemAppended(chart::Source *);
+    void postItemAppended(const Source::Shared &);
 
     void preItemRemoved(int index);
     void postItemRemoved();
@@ -123,10 +128,10 @@ signals:
 private:
     bool loadList(const QJsonDocument &document, const QUrl &fileName) noexcept;
     template<typename T> bool loadObject(const QJsonObject &data);
-    template<typename T> T *add();
+    template<typename T> Source::Shared add();
     bool importFile(const QUrl &fileName, QString separator);
 
-    QVector<chart::Source *> m_items; //TODO: unordered_map<uuid, shared_ptr>
+    QVector<Source::Shared> m_items; //TODO: unordered_map<uuid, shared_ptr>
     QList<QUuid> m_checked;
     QUrl m_currentFile;
     const QList<QColor> m_colors {

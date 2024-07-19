@@ -57,16 +57,16 @@ QUuid MeterPlot::source() const
 
 void MeterPlot::setSource(QUuid sourceId)
 {
-    auto source = m_sourceList ? m_sourceList->getByUUid(sourceId) : nullptr;
+    auto source = m_sourceList ? m_sourceList->getByUUid(sourceId) : Source::Shared{};
     if (m_source != source) {
         disconnect(m_sourceConnection);
 
         m_source = source;
 
         if (m_source) {
-            m_sourceConnection = connect(m_source, &chart::Source::readyRead, this, &MeterPlot::sourceReadyRead);
-            connect(m_source, &chart::Source::beforeDestroy, this, &MeterPlot::resetSource, Qt::DirectConnection);
-            connect(m_source, &chart::Source::nameChanged, this, &MeterPlot::sourceNameChanged);
+            m_sourceConnection = connect(m_source.get(), &Source::Abstract::readyRead, this, &MeterPlot::sourceReadyRead);
+            connect(m_source.get(), &Source::Abstract::beforeDestroy, this, &MeterPlot::resetSource, Qt::DirectConnection);
+            connect(m_source.get(), &Source::Abstract::nameChanged, this, &MeterPlot::sourceNameChanged);
         }
         emit sourceChanged(sourceId);
     }
@@ -163,7 +163,7 @@ QString MeterPlot::thdnValue() const
 
 QString MeterPlot::delayValue() const
 {
-    if (auto measurement = dynamic_cast<Measurement *>(m_source)) {
+    if (auto measurement = std::dynamic_pointer_cast<Measurement>(m_source)) {
         auto delay = measurement->estimatedDelta();
         return QString("%1" ).arg(delay * 1000.f / measurement->sampleRate(), 0, 'f', 1);
     }

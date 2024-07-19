@@ -19,7 +19,7 @@
 #define SERIESFBO_H
 
 #include <QQuickFramebufferObject>
-#include "../source.h"
+#include "source/source_abstract.h"
 
 namespace chart {
 
@@ -30,8 +30,8 @@ class SeriesFBO : public QQuickFramebufferObject
     Q_OBJECT
 
 public:
-    explicit SeriesFBO(Source *s, RendererCreator rc, QQuickItem *parent = nullptr);
-    Source *source() const noexcept;
+    explicit SeriesFBO(Source::Shared source, RendererCreator rc, QQuickItem *parent = nullptr);
+    Source::Shared source() const noexcept;
     QQuickFramebufferObject::Renderer *createRenderer() const override;
     void setZIndex(int index);
 
@@ -43,7 +43,7 @@ signals:
 
 protected:
     RendererCreator m_rendererCreator;
-    Source *m_source;
+    Source::Shared m_source;
     bool m_highlighted;
 };
 }

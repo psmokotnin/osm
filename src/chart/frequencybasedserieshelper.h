@@ -19,7 +19,7 @@
 #define CHART_FREQUENCYBASEDSERIESHELPER_H
 
 #include <QtCore>
-#include "source.h"
+#include "source/source_abstract.h"
 
 namespace chart {
 
@@ -31,7 +31,7 @@ public:
 protected:
     constexpr const static float LEVEL_NORMALIZATION = -46.81f;
 
-    virtual Source *source() const = 0;
+    virtual const Source::Shared &source() const = 0;
     void iterate(const unsigned int &pointsPerOctave,
                  const std::function<void(const unsigned int &)> &accumulate,
                  const std::function<void(const float &start, const float &end, const unsigned int &count)> &collected

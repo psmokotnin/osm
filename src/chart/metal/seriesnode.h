@@ -22,9 +22,9 @@
 #include <QSGTextureProvider>
 #include <QSGSimpleTextureNode>
 #include <QSGRendererInterface>
+#include "source/source_shared.h"
 
 namespace chart {
-class Source;
 class Plot;
 class SeriesItem;
 
@@ -65,7 +65,7 @@ protected:
     virtual void renderSeries() = 0;
 
     SeriesItem *m_item;
-    Source *m_source;
+    Source::Shared m_source;
 
     //! MTLLibrary
     void *m_library;

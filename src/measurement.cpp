@@ -28,7 +28,7 @@
 #include "math/notch.h"
 #include "math/bandpass.h"
 
-Measurement::Measurement(QObject *parent) : chart::Source(parent), meta::Measurement(),
+Measurement::Measurement(QObject *parent) : Source::Abstract(parent), meta::Measurement(),
     m_timer(nullptr), m_timerThread(nullptr),
     m_input(this),
     m_deviceId(audio::Client::defaultInputDeviceId()),
@@ -126,7 +126,7 @@ Measurement::~Measurement()
 }
 QJsonObject Measurement::toJSON(const SourceList *list) const noexcept
 {
-    auto data = Source::toJSON(list);
+    auto data = Source::Abstract::toJSON(list);
     data["delay"]           = static_cast<int>(delay());
     data["gain"]            = gain();
     data["offset"]          = offset();
@@ -160,7 +160,7 @@ QJsonObject Measurement::toJSON(const SourceList *list) const noexcept
 }
 void Measurement::fromJSON(QJsonObject data, const SourceList *list) noexcept
 {
-    Source::fromJSON(data, list);
+    Source::Abstract::fromJSON(data, list);
 
     auto castUInt = [](const QJsonValue & value, unsigned int defaultValue = 0) {
         return static_cast<unsigned int>(value.toInt(static_cast<int>(defaultValue)));
@@ -382,7 +382,7 @@ void Measurement::setActive(bool active)
         return;
     std::lock_guard<std::mutex> guard(m_dataMutex);
 
-    chart::Source::setActive(active);
+    Source::Abstract::setActive(active);
     m_error = false;
     emit errorChanged(m_error);
 
@@ -395,7 +395,7 @@ void Measurement::setActive(bool active)
 }
 void Measurement::setError()
 {
-    chart::Source::setActive(false);
+    Source::Abstract::setActive(false);
     m_error = true;
     m_levelMeters.reset();
     m_input.close();
@@ -634,9 +634,9 @@ void Measurement::averaging()
         emit estimatedChanged();
     }
 }
-chart::Source *Measurement::store()
+Source::Shared Measurement::store()
 {
-    auto *store = new Stored();
+    auto store = std::make_shared<Stored>();
     store->build(this);
     store->autoName(name());
 
@@ -691,11 +691,12 @@ chart::Source *Measurement::store()
 
     );
 
-    return store;
+    return { store };
 }
-chart::Source *Measurement::clone() const
+Source::Shared Measurement::clone() const
 {
-    auto cloned = new Measurement(parent());
+    auto cloned = std::make_shared<Measurement>(parent());
+
     cloned->setActive(false);
     cloned->setMode(mode());
     cloned->setAverageType(averageType());
@@ -717,7 +718,8 @@ chart::Source *Measurement::clone() const
 
     cloned->setName(name());
     cloned->setActive(active());
-    return cloned;
+
+    return std::static_pointer_cast<Source::Abstract>(cloned);
 }
 long Measurement::estimated() const noexcept
 {
@@ -878,7 +880,7 @@ void Measurement::checkChannels()
 void Measurement::destroy()
 {
     setActive(false);
-    chart::Source::destroy();
+    Source::Abstract::destroy();
 }
 void Measurement::resetAverage() noexcept
 {

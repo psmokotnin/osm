@@ -50,10 +50,10 @@ void MeasurementItem::resetAverage() noexcept
     emit sendCommand("resetAverage");
 }
 
-chart::Source *MeasurementItem::store()
+Source::Shared MeasurementItem::store()
 {
     emit sendCommand("store");
-    return nullptr;
+    return { nullptr };
 }
 
 void MeasurementItem::applyAutoGain(const float reference)

@@ -35,13 +35,13 @@ Source {
             id: checkbox
             Layout.alignment: Qt.AlignVCenter
 
-            checkedColor: (dataModel ? dataModel.color : "")
+            checkedColor: (dataModel.data ? dataModel.data.color : "")
 
             onCheckStateChanged: {
-                dataModel.active = checked
+                dataModel.data.active = checked
             }
             Component.onCompleted: {
-                checked = dataModel ? dataModel.active : false
+                checked = dataModel.data ? dataModel.data.active : false
             }
         }
 
@@ -51,15 +51,15 @@ Source {
             Label {
                 Layout.fillWidth: true
                 font.bold: highlight
-                text:  (dataModel ? dataModel.name : "")
+                text:  (dataModel.data ? dataModel.data.name : "")
             }
 
         }
 
         Connections {
-            target: dataModel
+            target: dataModel.data
             function onColorChanged() {
-                checkbox.checkedColor = dataModel.color;
+                checkbox.checkedColor = dataModel.data.color;
             }
         }
     }

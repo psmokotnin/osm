@@ -36,11 +36,11 @@ Item {
 
             DropDown {
                 model: ["Summation", "Subtract", "Average", "Min", "Max", "Diff", "Apply"]
-                currentIndex: dataObject.operation
+                currentIndex: dataObject.data.operation
                 onCurrentIndexChanged: {
-                    dataObject.operation = currentIndex;
-                    if (dataObject.operation === UnionSource.Apply) {
-                        dataObject.type = UnionSource.Vector;
+                    dataObject.data.operation = currentIndex;
+                    if (dataObject.data.operation === UnionSource.Apply) {
+                        dataObject.data.type = UnionSource.Vector;
                     }
                 }
                 Layout.preferredWidth: 150
@@ -51,9 +51,9 @@ Item {
 
             DropDown {
                 model: ["Vector", "Polar", "dB", "Power"]
-                currentIndex: dataObject.type
-                onCurrentIndexChanged: dataObject.type = currentIndex;
-                enabled: dataObject.operation !== UnionSource.Apply
+                currentIndex: dataObject.data.type
+                onCurrentIndexChanged: dataObject.data.type = currentIndex;
+                enabled: dataObject.data.operation !== UnionSource.Apply
 
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Complex numbers behaviour")
@@ -62,8 +62,8 @@ Item {
             DropDown {
                 id: count
                 model: [2, 3, 4, 5, 6, 7, 8, 9, 10]
-                currentIndex: dataObject.count - 2
-                onCurrentIndexChanged: dataObject.count = currentIndex + 2;
+                currentIndex: dataObject.data.count - 2
+                onCurrentIndexChanged: dataObject.data.count = currentIndex + 2;
                 displayText: currentIndex + 2
 
                 ToolTip.visible: hovered
@@ -84,11 +84,11 @@ Item {
                 Layout.margins: 0
 
                 onColorChanged: {
-                    dataObject.color = color
+                    dataObject.data.color = color
                 }
 
                 Component.onCompleted: {
-                    color = dataObject.color
+                    color = dataObject.data.color
                 }
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("series color")
@@ -99,13 +99,13 @@ Item {
                 target: dataObject
                 implicitWidth: 120
                 Layout.alignment: Qt.AlignVCenter
-                onTextEdited: dataObject.autoName = false;
+                onTextEdited: dataObject.data.autoName = false;
             }
 
             Button {
                 text: qsTr("Store");
                 onClicked: {
-                    var stored = dataObject.store();
+                    var stored = dataObject.data.store();
                     stored.active = true;
                     sourceList.appendItem(stored, true);
                 }
@@ -124,17 +124,17 @@ Item {
                     model: SourceModel {
                         id: sourceModel
                         addNone: (modelData > 1 ? true : false)
-                        filter: dataObject.uuid
+                        filter: dataObject.data.uuid
                         noneTitle: "None"
                         list: sourceList
                     }
-                    currentIndex: { model.indexOf(dataObject.getSourceId(index)) }
+                    currentIndex: { model.indexOf(dataObject.data.getSourceId(index)) }
                     property int prevIndex: currentIndex
                     textRole: "title"
                     valueRole: "source"
                     Layout.fillWidth: true
                     onCurrentIndexChanged: {
-                        if (!dataObject.setSource(index, model.get(currentIndex))) {
+                        if (!dataObject.data.setSource(index, model.get(currentIndex))) {
                             currentIndex = prevIndex;
                             return;
                         }

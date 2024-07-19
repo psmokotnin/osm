@@ -24,9 +24,9 @@
 #include <QThread>
 
 #include <set>
-#include "chart/source.h"
+#include "source/source_abstract.h"
 
-class Union : public chart::Source
+class Union : public Source::Abstract
 {
     Q_OBJECT
 
@@ -35,7 +35,7 @@ class Union : public chart::Source
     Q_PROPERTY(Operation operation READ operation WRITE setOperation NOTIFY operationChanged)
     Q_PROPERTY(Type type READ type WRITE setType NOTIFY typeChanged)
 
-    using SourceVector = QVector<QPointer<chart::Source>>;
+    using SourceVector = QVector<Source::Shared>;
 
 public:
     enum Operation {Summation, Subtract, Avg, Min, Max, Diff, Apply};
@@ -60,15 +60,15 @@ public:
 
     explicit Union(QObject *parent = nullptr);
     ~Union() override;
-    Source *clone() const override;
+    Source::Shared clone() const override;
 
     int count() const noexcept;
     void setCount(int count) noexcept;
 
-    Q_INVOKABLE chart::Source *getSource(int index) const noexcept;
+    Q_INVOKABLE Source::Shared getSource(int index) const noexcept;
     Q_INVOKABLE QUuid getSourceId(int index) const noexcept;
 
-    bool setSource(int index, chart::Source *s) noexcept;
+    bool setSource(int index, const Source::Shared &s) noexcept;
     Q_INVOKABLE bool setSource(int index, QUuid id) noexcept;
 
     Q_INVOKABLE QJsonObject toJSON(const SourceList *list = nullptr) const noexcept override;
@@ -85,15 +85,14 @@ public:
     bool autoName() const;
     void setAutoName(bool autoName);
 
-    bool checkLoop(Union *source) const;
     const SourceVector &sources() const;
 
 public slots:
     void update() noexcept;
     void calc() noexcept;
-    QObject *store();
+    Source::Shared store();
     void applyAutoName() noexcept;
-    void sourceDestroyed(chart::Source *source);
+    void sourceDestroyed(Source::Abstract *source);
 
 signals:
     void countChanged(int);
@@ -106,11 +105,12 @@ signals:
 private:
     void init() noexcept;
     void resize();
-    void calcPolar(unsigned int count, chart::Source *primary) noexcept;
-    void calcVector(unsigned int count, chart::Source *primary) noexcept;
-    void calcdB(unsigned int count, chart::Source *primary) noexcept;
-    void calcPower(unsigned int count, chart::Source *primary) noexcept;
-    void calcApply(chart::Source *primary) noexcept;
+    void calcPolar(unsigned int count, const Source::Shared &primary) noexcept;
+    void calcVector(unsigned int count, const Source::Shared &primary) noexcept;
+    void calcdB(unsigned int count, const Source::Shared &primary) noexcept;
+    void calcPower(unsigned int count, const Source::Shared &primary) noexcept;
+    void calcApply(const Source::Shared &primary) noexcept;
+    bool checkLoop(Union *source) const;
 
     SourceVector m_sources;
     QTimer m_timer;

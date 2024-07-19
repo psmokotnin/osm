@@ -41,84 +41,84 @@
 
 namespace chart {
 
-SeriesFBO *RTAPlot::createSeriesFromSource(Source *source)
+SeriesFBO *RTAPlot::createSeriesFromSource(const Source::Shared &source)
 {
     return new SeriesFBO(source, []() {
         return new RTASeriesRenderer();
     }, this);
 }
 
-SeriesFBO *MagnitudePlot::createSeriesFromSource(Source *source)
+SeriesFBO *MagnitudePlot::createSeriesFromSource(const Source::Shared &source)
 {
     return new SeriesFBO(source, []() {
         return new MagnitudeSeriesRenderer();
     }, this);
 }
 
-SeriesFBO *PhasePlot::createSeriesFromSource(Source *source)
+SeriesFBO *PhasePlot::createSeriesFromSource(const Source::Shared &source)
 {
     return new SeriesFBO(source, []() {
         return new PhaseSeriesRenderer();
     }, this);
 }
 
-SeriesFBO *CoherencePlot::createSeriesFromSource(Source *source)
+SeriesFBO *CoherencePlot::createSeriesFromSource(const Source::Shared &source)
 {
     return new SeriesFBO(source, []() {
         return new CoherenceSeriesRenderer();
     }, this);
 }
 
-SeriesFBO *GroupDelayPlot::createSeriesFromSource(Source *source)
+SeriesFBO *GroupDelayPlot::createSeriesFromSource(const Source::Shared &source)
 {
     return new SeriesFBO(source, []() {
         return new GroupDelaySeriesRenderer();
     }, this);
 }
 
-SeriesFBO *PhaseDelayPlot::createSeriesFromSource(Source *source)
+SeriesFBO *PhaseDelayPlot::createSeriesFromSource(const Source::Shared &source)
 {
     return new SeriesFBO(source, []() {
         return new PhaseDelaySeriesRenderer();
     }, this);
 }
 
-SeriesFBO *ImpulsePlot::createSeriesFromSource(Source *source)
+SeriesFBO *ImpulsePlot::createSeriesFromSource(const Source::Shared &source)
 {
     return new SeriesFBO(source, []() {
         return new ImpulseSeriesRenderer();
     }, this);
 }
 
-SeriesFBO *StepPlot::createSeriesFromSource(Source *source)
+SeriesFBO *StepPlot::createSeriesFromSource(const Source::Shared &source)
 {
     return new SeriesFBO(source, []() {
         return new StepSeriesRenderer();
     }, this);
 }
 
-SeriesFBO *SpectrogramPlot::createSeriesFromSource(Source *source)
+SeriesFBO *SpectrogramPlot::createSeriesFromSource(const Source::Shared &source)
 {
     return new SeriesFBO(source, []() {
         return new SpectrogramSeriesRenderer();
     }, this);
 }
 
-SeriesItem *CrestFactorPlot::createSeriesFromSource(Source *source)
+SeriesItem *CrestFactorPlot::createSeriesFromSource(const Source::Shared &source)
 {
     return new SeriesFBO(source, []() {
         return new CrestFactorSeriesRenderer();
     }, this);
 }
 
-SeriesFBO *NyquistPlot::createSeriesFromSource(Source *source)
+SeriesFBO *NyquistPlot::createSeriesFromSource(const Source::Shared &source)
 {
     return new SeriesFBO(source, []() {
         return new NyquistSeriesRenderer();
     }, this);
 }
 
-SeriesFBO *LevelPlot::createSeriesFromSource(Source *source)
+SeriesFBO *LevelPlot::createSeriesFromSource(const Source::Shared &source)
 {
     return new SeriesFBO(source, []() {
         return new LevelSeriesRenderer();

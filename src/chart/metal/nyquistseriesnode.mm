@@ -53,7 +53,7 @@ void NyquistSeriesNode::updateMatrix()
     m_matrix.ortho(m_xMin, m_xMax, m_yMin, m_yMax, -1, 1);
 }
 
-Source *NyquistSeriesNode::source() const
+const Source::Shared &NyquistSeriesNode::source() const
 {
     return m_source;
 }

@@ -201,7 +201,7 @@ Item {
                             if (applicationWindow && applicationWindow.properiesbar.currentObject === dragArea.source) {
                                 applicationWindow.properiesbar.reset();
                             }
-                            sourceList.removeItem(dragArea.source);
+                            sourceList.removeItem(dragArea.source.data.uuid);
                         } else if ((swipeStart - mouseX) / content.width <= -0.5) {
                             content.opacity = 0;
                             content.height = 0;
@@ -281,7 +281,7 @@ Item {
                             font.pixelSize: 14
                             rightPadding: 4
                             leftPadding: 4
-                            visible: (dragArea.source ? dragArea.source.cloneable : false)
+                            visible: (dragArea.source.data ? dragArea.source.data.cloneable : false)
                             onClicked: {
                                 sourceList.cloneItem(dragArea.source);
                             }
@@ -314,14 +314,14 @@ Item {
                             onClicked: {
                                 applicationWindow.dialog.accepted.connect(deleteModel);
                                 applicationWindow.dialog.rejected.connect(freeDialog);
-                                applicationWindow.dialog.title = "Delete " + dragArea.source.name + "?";
+                                applicationWindow.dialog.title = "Delete " + dragArea.source.data.name + "?";
                                 applicationWindow.dialog.open();
                             }
                             function deleteModel() {
                                 if (applicationWindow.properiesbar.currentObject === dragArea.source) {
                                     applicationWindow.properiesbar.reset();
                                 }
-                                sourceList.removeItem(dragArea.source);
+                                sourceList.removeItem(dragArea.source.data.uuid);
                                 freeDialog();
                             }
                             function freeDialog() {
@@ -362,7 +362,7 @@ Item {
             onCurrentIndexChanged: sourceList.selectedIndex = currentIndex
             currentIndex: -1
             highlight: Rectangle {
-                border.color: sourceList.selected ? sourceList.selected.color : "black"
+                border.color: sourceList.selected && sourceList.selected.data ? sourceList.selected.data.color : "black"
                 border.width: 0.5
                 visible: sourceList.selected ? true : false
                 color: "transparent"

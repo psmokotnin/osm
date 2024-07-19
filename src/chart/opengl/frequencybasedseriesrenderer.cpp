@@ -50,7 +50,7 @@ void FrequencyBasedSeriesRenderer::setUniforms()
     m_program.setUniformValue(m_widthUniform, m_weight * m_retinaScale);
 }
 
-Source *FrequencyBasedSeriesRenderer::source() const
+const Source::Shared &FrequencyBasedSeriesRenderer::source() const
 {
     return m_source;
 }

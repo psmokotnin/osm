@@ -128,7 +128,7 @@ void GroupDelaySeriesNode::updateMatrix()
     m_matrix.translate(-1 * logf(m_xMin), 0);
 }
 
-Source *GroupDelaySeriesNode::source() const
+const Source::Shared &GroupDelaySeriesNode::source() const
 {
     return m_source;
 }

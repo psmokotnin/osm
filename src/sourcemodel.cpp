@@ -39,7 +39,7 @@ QVariant SourceModel::data(const QModelIndex &index, int role) const
         return QVariant();
 
     auto j = index.row();
-    chart::Source *source = m_list->items().at(j);
+    Source::Shared source = m_list->items().at(j);
     QVariant r = {};
     switch (role) {
     case NameRole:
@@ -124,7 +124,7 @@ void SourceModel::setList(SourceList *list)
             const int index = m_list->items().size();
             beginInsertRows(QModelIndex(), index, index);
         });
-        connect(m_list, &SourceList::postItemAppended, this, [ = ](chart::Source *) {
+        connect(m_list, &SourceList::postItemAppended, this, [ = ](auto) {
             endInsertRows();
         });
 

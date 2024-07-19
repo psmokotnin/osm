@@ -18,13 +18,13 @@
 #ifndef REMOTE_ITEM_H
 #define REMOTE_ITEM_H
 
-#include "chart/source.h"
+#include "source/source_abstract.h"
 #include <QTimer>
 #include <QJsonArray>
 
 namespace remote {
 
-class Item : public chart::Source
+class Item : public Source::Abstract
 {
 
 private:
@@ -43,7 +43,7 @@ public:
     };
     Q_ENUM(State);
 
-    Source *clone() const override;
+    Source::Shared clone() const override;
     bool cloneable() const override;
 
     Q_INVOKABLE QJsonObject toJSON(const SourceList * = nullptr) const noexcept override;

@@ -24,19 +24,19 @@
 #include <QtEndian>
 #include "common/wavfile.h"
 
-Stored::Stored(QObject *parent) : chart::Source(parent), meta::Stored()
+Stored::Stored(QObject *parent) : Source::Abstract(parent), meta::Stored()
 {
     setObjectName("Stored");
-    connect(this, &Stored::polarityChanged, this, &Source::readyRead);
-    connect(this, &Stored::inverseChanged, this, &Source::readyRead);
-    connect(this, &Stored::ignoreCoherenceChanged, this, &Source::readyRead);
-    connect(this, &Stored::gainChanged, this, &Source::readyRead);
-    connect(this, &Stored::delayChanged, this, &Source::readyRead);
+    connect(this, &Stored::polarityChanged, this, &Source::Abstract::readyRead);
+    connect(this, &Stored::inverseChanged, this, &Source::Abstract::readyRead);
+    connect(this, &Stored::ignoreCoherenceChanged, this, &Source::Abstract::readyRead);
+    connect(this, &Stored::gainChanged, this, &Source::Abstract::readyRead);
+    connect(this, &Stored::delayChanged, this, &Source::Abstract::readyRead);
 }
 
-chart::Source *Stored::clone() const
+Source::Shared Stored::clone() const
 {
-    auto cloned = new Stored(parent());
+    auto cloned = std::make_shared<Stored>(parent());
     cloned->build(const_cast<Stored *>(this));
     cloned->setActive(active());
     cloned->setName(name());
@@ -46,10 +46,11 @@ chart::Source *Stored::clone() const
     cloned->setDelay(delay());
     cloned->setGain(gain());
     cloned->setNotes(notes());
-    return cloned;
+
+    return std::static_pointer_cast<Source::Abstract>(cloned);
 }
 
-void Stored::build (chart::Source *source)
+void Stored::build (Source::Abstract *source)
 {
     source->lock();
     m_dataLength = source->size();
@@ -71,7 +72,7 @@ void Stored::autoName(const QString &prefix) noexcept
 
 QJsonObject Stored::toJSON(const SourceList *list) const noexcept
 {
-    auto object = Source::toJSON(list);
+    auto object = Source::Abstract::toJSON(list);
     object["notes"]     = notes();
 
     object["polarity"]  = polarity();
@@ -112,7 +113,7 @@ QJsonObject Stored::toJSON(const SourceList *list) const noexcept
 }
 void Stored::fromJSON(QJsonObject data, const SourceList *list) noexcept
 {
-    Source::fromJSON(data, list);
+    Source::Abstract::fromJSON(data, list);
 
     auto ftdata         = data["ftdata"].toArray();
     auto impulse        = data["impulse"].toArray();
@@ -262,23 +263,23 @@ bool Stored::saveWAV(const QUrl &fileName) const noexcept
 }
 
 float Stored::module(const unsigned int &i) const noexcept {
-    return Source::module(i) * std::pow(10, gain() / 20.f);
+    return Source::Abstract::module(i) * std::pow(10, gain() / 20.f);
 }
 
 float Stored::magnitudeRaw(const unsigned int &i) const noexcept
 {
-    return std::pow(Source::magnitudeRaw(i), (inverse() ? -1 : 1)) * std::pow(10, gain() / 20.f);
+    return std::pow(Source::Abstract::magnitudeRaw(i), (inverse() ? -1 : 1)) * std::pow(10, gain() / 20.f);
 }
 
 float Stored::magnitude(const unsigned int &i) const noexcept
 {
-    return (inverse() ? -1 : 1) * (Source::magnitude(i) + gain());
+    return (inverse() ? -1 : 1) * (Source::Abstract::magnitude(i) + gain());
 }
 
 complex Stored::phase(const unsigned int &i) const noexcept
 {
     auto alpha = (polarity() ? M_PI : 0) - 2 * M_PI * delay() * frequency(i) / 1000.f;
-    return Source::phase(i).rotate(alpha);
+    return Source::Abstract::phase(i).rotate(alpha);
 }
 
 const float &Stored::coherence(const unsigned int &i) const noexcept
@@ -287,15 +288,15 @@ const float &Stored::coherence(const unsigned int &i) const noexcept
         static const float one = 1.f;
         return one;
     }
-    return Source::coherence(i);
+    return Source::Abstract::coherence(i);
 }
 
 float Stored::impulseTime(const unsigned int &i) const noexcept
 {
-    return Source::impulseTime(i) + delay();
+    return Source::Abstract::impulseTime(i) + delay();
 }
 
 float Stored::impulseValue(const unsigned int &i) const noexcept
 {
-    return (polarity() ? -1 : 1) * Source::impulseValue(i) * std::pow(10, gain() / 20.f);;
+    return (polarity() ? -1 : 1) * Source::Abstract::impulseValue(i) * std::pow(10, gain() / 20.f);
 }

@@ -19,11 +19,11 @@ import QtQuick 2.0
 import QtQuick.Controls 2.13
 
 TextField {
-    property var target
+    property var target //Source::Shared
 
     placeholderText: qsTr("title")
-    text: target.name
-    onTextEdited: target.name = text
+    text: target.data.name
+    onTextEdited: target.data.name = text
     ToolTip.visible: hovered
     ToolTip.text: qsTr("title")
 

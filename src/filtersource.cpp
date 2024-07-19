@@ -18,7 +18,7 @@
 #include "filtersource.h"
 #include "stored.h"
 
-FilterSource::FilterSource(QObject *parent) : chart::Source(parent), meta::Filter(), m_autoName(true)
+FilterSource::FilterSource(QObject *parent) : Source::Abstract(parent), meta::Filter(), m_autoName(true)
 {
     setObjectName("Filter");
     setName("Filter");
@@ -39,9 +39,9 @@ FilterSource::FilterSource(QObject *parent) : chart::Source(parent), meta::Filte
     applyAutoName();
 }
 
-chart::Source *FilterSource::clone() const
+Source::Shared FilterSource::clone() const
 {
-    auto cloned = new FilterSource(parent());
+    auto cloned = std::make_shared<FilterSource>(parent());
     cloned->setActive(active());
     cloned->setName(name());
     cloned->setMode(mode());
@@ -50,12 +50,12 @@ chart::Source *FilterSource::clone() const
     cloned->setOrder(order());
     cloned->setSampleRate(sampleRate());
 
-    return cloned;
+    return std::static_pointer_cast<Source::Abstract>(cloned);
 }
 
 QJsonObject FilterSource::toJSON(const SourceList *list) const noexcept
 {
-    auto object = Source::toJSON(list);
+    auto object = Source::Abstract::toJSON(list);
 
     object["mode"]          = mode();
     object["type"]          = type();
@@ -70,7 +70,7 @@ QJsonObject FilterSource::toJSON(const SourceList *list) const noexcept
 
 void FilterSource::fromJSON(QJsonObject data, const SourceList *list) noexcept
 {
-    Source::fromJSON(data, list);
+    Source::Abstract::fromJSON(data, list);
 
     auto variantMode = data["mode"].toVariant();
     if (variantMode.isValid()) {
@@ -90,12 +90,12 @@ void FilterSource::fromJSON(QJsonObject data, const SourceList *list) noexcept
     setQ(    data["q"].toDouble(cornerFrequency()));
 }
 
-chart::Source *FilterSource::store()
+Source::Shared FilterSource::store()
 {
-    auto *store = new Stored();
+    auto store = std::make_shared<Stored>();
     store->build(this);
     store->autoName(name());
-    return store;
+    return { store };
 }
 
 void FilterSource::update()

@@ -41,7 +41,7 @@ signals:
     void pointsPerOctaveChanged(unsigned int);
 
 protected:
-    virtual SeriesItem *createSeriesFromSource(Source *source) override;
+    virtual SeriesItem *createSeriesFromSource(const Source::Shared &source) override;
 };
 
 } // namespace chart

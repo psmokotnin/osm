@@ -175,20 +175,20 @@ void VariableChart::setSettings(Settings *settings) noexcept
         m_plot->setSettings(m_settings);
     }
 }
-void VariableChart::appendDataSource(Source *source)
+void VariableChart::appendDataSource(const Source::Shared &source)
 {
     if (m_plot) {
         m_plot->appendDataSource(source);
     }
 }
-void VariableChart::removeDataSource(Source *source)
+void VariableChart::removeDataSource(const Source::Shared &source)
 {
     if (m_plot) {
         m_plot->removeDataSource(source);
     }
 }
 
-void VariableChart::setSourceZIndex(Source *source, int index)
+void VariableChart::setSourceZIndex(const Source::Shared &source, int index)
 {
     if (m_plot) {
         m_plot->setSourceZIndex(source, index);
@@ -226,7 +226,7 @@ void VariableChart::setSources(SourceList *sourceList)
         auto selected = m_sources->selected();
         m_plot->setHighlighted(selected);
 
-        connect(m_sources, &SourceList::postItemAppended, this, [ = ](chart::Source * source) {
+        connect(m_sources, &SourceList::postItemAppended, this, [ = ](const Source::Shared & source) {
             appendDataSource(source);
         });
 
@@ -269,6 +269,7 @@ void VariableChart::setDarkMode(const bool &darkMode) noexcept
     m_darkMode = darkMode;
     if (m_plot) {
         m_plot->setDarkMode(darkMode);
+        emit darkModeChanged();
     }
 }
 

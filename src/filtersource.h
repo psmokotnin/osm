@@ -20,10 +20,10 @@
 
 #include <QtQml>
 #include "meta/metafilter.h"
-#include "chart/source.h"
+#include "source/source_abstract.h"
 #include "math/fouriertransform.h"
 
-class FilterSource : public chart::Source, public meta::Filter
+class FilterSource : public Source::Abstract, public meta::Filter
 {
     Q_OBJECT
     QML_ELEMENT
@@ -46,11 +46,11 @@ class FilterSource : public chart::Source, public meta::Filter
 public:
     FilterSource(QObject *parent = nullptr);
 
-    Source *clone() const override;
+    Source::Shared clone() const override;
     Q_INVOKABLE QJsonObject toJSON(const SourceList *list = nullptr) const noexcept override;
     void fromJSON(QJsonObject data, const SourceList *list = nullptr) noexcept override;
 
-    Q_INVOKABLE chart::Source *store()  override;
+    Q_INVOKABLE Source::Shared store()  override;
 
     bool autoName() const;
     void setAutoName(bool newAutoName);

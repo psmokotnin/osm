@@ -16,10 +16,11 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include <algorithm>
-#include "source.h"
+#include "source/source_abstract.h"
 
-using namespace chart;
-Source::Source(QObject *parent) : QObject(parent),
+namespace Source {
+
+Abstract::Abstract(QObject *parent) : QObject(parent),
     m_dataMutex(), m_onReset(false),
     m_ftdata(),
     m_impulseData(),
@@ -28,37 +29,38 @@ Source::Source(QObject *parent) : QObject(parent),
     m_active(false),
     m_uuid(QUuid::createUuid())
 {
+    qRegisterMetaType<Source::Abstract *>("Source*");
 }
 
-Source::~Source()
+Abstract::~Abstract()
 {
 }
 
-bool Source::cloneable() const
+bool Abstract::cloneable() const
 {
     return true;
 }
-void Source::destroy()
+void Abstract::destroy()
 {
     emit beforeDestroy(this);
     disconnect();
-    deleteLater();   //Schedules ~Source() from qml
+    //deleteLater();   //Schedules ~Source() from qml
 }
-void Source::setActive(bool active)
+void Abstract::setActive(bool active)
 {
     if (m_active != active) {
         m_active = active;
         emit activeChanged();
     }
 }
-void Source::setName(QString name)
+void Abstract::setName(QString name)
 {
     if (m_name != name) {
         m_name = name;
         emit nameChanged(m_name);
     }
 }
-void Source::setColor(QColor color)
+void Abstract::setColor(QColor color)
 {
     if (m_color != color) {
         m_color = color;
@@ -66,11 +68,11 @@ void Source::setColor(QColor color)
     }
 }
 
-const unsigned int &Source::size() const noexcept
+const unsigned int &Abstract::size() const noexcept
 {
     return m_dataLength;
 }
-void Source::setGlobalColor(int globalValue)
+void Abstract::setGlobalColor(int globalValue)
 {
     if (globalValue < 19) {
         m_color = Qt::GlobalColor(globalValue);
@@ -78,46 +80,46 @@ void Source::setGlobalColor(int globalValue)
     }
 }
 
-void Source::setUuid(const QUuid &newUuid)
+void Abstract::setUuid(const QUuid &newUuid)
 {
     m_uuid = newUuid;
 }
 
-QUuid Source::uuid() const
+QUuid Abstract::uuid() const
 {
     return m_uuid;
 }
-const float &Source::frequency(const unsigned int &i) const noexcept
+const float &Abstract::frequency(const unsigned int &i) const noexcept
 {
     if (i >= m_dataLength)
         return m_zero;
     return m_ftdata[i].frequency;
 }
-float Source::module(const unsigned int &i) const noexcept {
+float Abstract::module(const unsigned int &i) const noexcept {
     if (i >= m_dataLength)
         return m_zero;
     return m_ftdata[i].module;
 }
-float Source::magnitude(const unsigned int &i) const noexcept
+float Abstract::magnitude(const unsigned int &i) const noexcept
 {
     if (i >= m_dataLength)
         return m_zero;
     return 20.f * log10f(m_ftdata[i].magnitude);
 }
-float Source::magnitudeRaw(const unsigned int &i) const noexcept
+float Abstract::magnitudeRaw(const unsigned int &i) const noexcept
 {
     if (i >= m_dataLength)
         return m_zero;
     return m_ftdata[i].magnitude;
 }
-complex Source::phase(const unsigned int &i) const noexcept
+complex Abstract::phase(const unsigned int &i) const noexcept
 {
     if (i <= m_dataLength)
         return m_ftdata[i].phase;
 
     return m_ftdata[0].phase;
 }
-const float &Source::coherence(const unsigned int &i) const noexcept
+const float &Abstract::coherence(const unsigned int &i) const noexcept
 {
     if (i >= m_dataLength)
         return m_zero;
@@ -125,7 +127,7 @@ const float &Source::coherence(const unsigned int &i) const noexcept
     return m_ftdata[i].coherence;
 }
 
-const float &Source::peakSquared(const unsigned int &i) const noexcept
+const float &Abstract::peakSquared(const unsigned int &i) const noexcept
 {
     if (i >= m_dataLength)
         return m_zero;
@@ -133,7 +135,7 @@ const float &Source::peakSquared(const unsigned int &i) const noexcept
     return m_ftdata[i].peakSquared;
 }
 
-float Source::crestFactor(const unsigned int &i) const noexcept
+float Abstract::crestFactor(const unsigned int &i) const noexcept
 {
     if (i >= m_dataLength)
         return -INFINITY;
@@ -141,23 +143,23 @@ float Source::crestFactor(const unsigned int &i) const noexcept
     return 10.f * std::log10(m_ftdata[i].peakSquared / m_ftdata[i].meanSquared);
 }
 
-unsigned int Source::impulseSize() const noexcept
+unsigned int Abstract::impulseSize() const noexcept
 {
     return m_deconvolutionSize;
 }
-float Source::impulseTime(const unsigned int &i) const noexcept
+float Abstract::impulseTime(const unsigned int &i) const noexcept
 {
     if (i >= m_deconvolutionSize)
         return m_zero;
     return m_impulseData[i].time;
 }
-float Source::impulseValue(const unsigned int &i) const noexcept
+float Abstract::impulseValue(const unsigned int &i) const noexcept
 {
     if (i >= m_deconvolutionSize)
         return m_zero;
     return m_impulseData[i].value.real;
 }
-void Source::copy(FTData *dataDist, TimeData *timeDist)
+void Abstract::copy(FTData *dataDist, TimeData *timeDist)
 {
     if (dataDist) {
         std::copy_n(m_ftdata.data(), size(), dataDist);
@@ -167,8 +169,8 @@ void Source::copy(FTData *dataDist, TimeData *timeDist)
     }
 }
 
-void Source::copyFrom(size_t dataSize, size_t timeSize, Source::FTData *dataSrc,
-                      Source::TimeData *timeSrc)
+void Abstract::copyFrom(size_t dataSize, size_t timeSize, Abstract::FTData *dataSrc,
+                      Abstract::TimeData *timeSrc)
 {
     m_dataLength = dataSize;
     m_deconvolutionSize = timeSize;
@@ -179,7 +181,7 @@ void Source::copyFrom(size_t dataSize, size_t timeSize, Source::FTData *dataSrc,
     std::copy_n(timeSrc, impulseSize(), m_impulseData.data());
 }
 
-QJsonObject Source::toJSON(const SourceList *) const noexcept
+QJsonObject Abstract::toJSON(const SourceList *) const noexcept
 {
     QJsonObject object;
     object["uuid"]      = uuid().toString();
@@ -196,7 +198,7 @@ QJsonObject Source::toJSON(const SourceList *) const noexcept
     return object;
 }
 
-void Source::fromJSON(QJsonObject data, const SourceList *) noexcept
+void Abstract::fromJSON(QJsonObject data, const SourceList *) noexcept
 {
     auto uuid = QUuid::fromString(data["uuid"].toString());
     if (!uuid.isNull()) {
@@ -214,7 +216,7 @@ void Source::fromJSON(QJsonObject data, const SourceList *) noexcept
     setColor(c);
 }
 
-float Source::level(const Weighting::Curve curve, const Meter::Time time) const
+float Abstract::level(const Weighting::Curve curve, const Meter::Time time) const
 {
     if (m_levelsData.m_data.find({curve, time}) == m_levelsData.m_data.end()) {
         Q_ASSERT(false);
@@ -223,12 +225,12 @@ float Source::level(const Weighting::Curve curve, const Meter::Time time) const
     return m_levelsData.m_data.at({curve, time});
 }
 
-float Source::referenceLevel() const
+float Abstract::referenceLevel() const
 {
     return m_levelsData.m_referenceLevel;
 }
 
-float Source::peak(const Weighting::Curve curve, const Meter::Time time) const
+float Abstract::peak(const Weighting::Curve curve, const Meter::Time time) const
 {
     if (m_levelsData.m_data.find({curve, time}) == m_levelsData.m_data.end()) {
         Q_ASSERT(false);
@@ -237,7 +239,7 @@ float Source::peak(const Weighting::Curve curve, const Meter::Time time) const
     return m_levelsData.m_data.at({curve, time});//TODO: m_peakData ??
 }
 
-Source::Levels::Levels() : m_referenceLevel(0)
+Abstract::Levels::Levels() : m_referenceLevel(0)
 {
     for (auto &curve : Weighting::allCurves) {
         for (auto &time : Meter::allTimes) {
@@ -248,17 +250,17 @@ Source::Levels::Levels() : m_referenceLevel(0)
     }
 }
 
-auto Source::Levels::begin()
+auto Abstract::Levels::begin()
 {
     return m_data.begin();
 }
 
-auto Source::Levels::end()
+auto Abstract::Levels::end()
 {
     return m_data.end();
 }
 
-QJsonObject Source::levels()
+QJsonObject Abstract::levels()
 {
     QJsonObject levels;
     for (auto &&[key, value] : m_levelsData) {
@@ -273,7 +275,7 @@ QJsonObject Source::levels()
     return levels;
 }
 
-void Source::setLevels(const QJsonObject &data)
+void Abstract::setLevels(const QJsonObject &data)
 {
     for (auto &&[key, value] : m_levelsData) {
 
@@ -283,4 +285,5 @@ void Source::setLevels(const QJsonObject &data)
         auto curveData = data[curve].toObject();
         value = curveData[time].toDouble();
     }
+}
 }

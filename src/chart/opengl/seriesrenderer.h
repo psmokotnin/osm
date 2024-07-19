@@ -24,7 +24,7 @@
 #include <QtGui/QOpenGLFunctions>
 #include <QOpenGLFunctions_3_3_Core>
 
-#include "../source.h"
+#include "source/source_abstract.h"
 
 namespace chart {
 
@@ -52,7 +52,7 @@ protected:
                         const float &fromC, const float &toC);
     void drawOpenGL2(unsigned int verticiesCount, GLenum mode = GL_LINES);
 
-    Source *m_source = nullptr;
+    Source::Shared m_source;
     QQuickFramebufferObject *m_item = nullptr;
     QOpenGLShaderProgram m_program;
     QOpenGLFunctions *m_openGLFunctions;

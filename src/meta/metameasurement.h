@@ -24,7 +24,7 @@
 #include "math/bessellpf.h"
 #include "math/meter.h"
 #include "math/windowfunction.h"
-#include "chart/source.h"
+#include "source/source_abstract.h"
 
 namespace meta {
 
@@ -97,7 +97,7 @@ public:
     void setInputFilter(QVariant inputFilter);
 
     Q_INVOKABLE virtual void resetAverage() noexcept = 0;
-    Q_INVOKABLE virtual chart::Source *store() = 0;
+    Q_INVOKABLE virtual Source::Shared store() = 0;
     Q_INVOKABLE virtual void applyAutoGain(const float reference) = 0;
 
 //virtual signals:

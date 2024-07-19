@@ -75,7 +75,7 @@ public:
     };
 
 protected:
-    SeriesItem *createSeriesFromSource(Source *source) override;
+    SeriesItem *createSeriesFromSource(const Source::Shared &source) override;
 };
 
 } // namespace chart

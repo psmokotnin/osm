@@ -19,7 +19,7 @@
 #define SOURCEMODEL_H
 
 #include <QAbstractListModel>
-#include "chart/source.h"
+#include "source/source_abstract.h"
 class SourceList;
 
 class SourceModel : public QAbstractListModel

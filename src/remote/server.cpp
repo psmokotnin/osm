@@ -52,16 +52,20 @@ Server::~Server()
 void Server::setSourceList(SourceList *list)
 {
     m_sourceList = list;
-    auto onAdded = [this](chart::Source * source) {
+    if (!m_sourceList) {
+        return;
+    }
+    auto onAdded = [this](const Source::Shared & source) {
 
-        if (!source || dynamic_cast<remote::Item *>(source)) {
+        if (!source || std::dynamic_pointer_cast<remote::Item>(source)) {
             return ;
         }
 
         sourceNotify(source, "added");
 
-        connect(source, &chart::Source::readyRead, this, [this, source]() {
-            if (source) {
+        std::weak_ptr<Source::Abstract> weak{source};
+        connect(source.get(), &Source::Abstract::readyRead, this, [this, weak]() {
+            if (auto source = weak.lock()) {
                 sourceNotify(source, "readyRead");
                 sourceNotify(source, "levels", source->levels());//BUG: once crashed if source == null. remove raw ptr
             }
@@ -74,18 +78,18 @@ void Server::setSourceList(SourceList *list)
             auto normalizedSignature = QMetaObject::normalizedSignature("sendSouceNotify()");
             auto slotId = metaObject()->indexOfMethod(normalizedSignature);
             if (signal.isValid() && revision != NO_API_REVISION) {
-                connect(source, signal, this, metaObject()->method(slotId));
+                connect(source.get(), signal, this, metaObject()->method(slotId));
             }
         }
     };
 
-    for (auto *source : *list) {
+    for (const auto &source : *list) {
         onAdded(source);
     }
 
     connect(list, &SourceList::postItemAppended, this, onAdded);
     connect(list, &SourceList::preItemRemoved, this, [this, list](auto index) {
-        auto *source = list->get(index);
+        auto source = list->get(index);
         if (source) {
             sourceNotify(source, "removed");
             source->disconnect(this);
@@ -139,9 +143,10 @@ void Server::sendSouceNotify()
 
     QString signalName = metaObject->method(QObject::senderSignalIndex()).name();
 
-    auto source = dynamic_cast<chart::Source *>(QObject::sender());
-    if (source) {
-        sourceNotify(source, "changed");
+    auto source = dynamic_cast<Source::Abstract *>(QObject::sender());
+    if (source && m_sourceList) {
+        auto shared = m_sourceList->getByUUid(source->uuid());
+        sourceNotify(shared, "changed");
     }
 }
 
@@ -193,25 +198,25 @@ QByteArray Server::tcpCallback([[maybe_unused]] const QHostAddress &&address, co
             switch (static_cast<int>(property.type())) {
 
             case QVariant::Type::Bool:
-                object[property.name()]  = property.read(source).toBool();
+                object[property.name()]  = property.read(source.get()).toBool();
                 break;
 
             case QVariant::Type::UInt:
             case QVariant::Type::Int:
             case QMetaType::Long:
-                object[property.name()]  = property.read(source).toInt();
+                object[property.name()]  = property.read(source.get()).toInt();
                 break;
 
             case QMetaType::Float:
-                object[property.name()]  = property.read(source).toFloat();
+                object[property.name()]  = property.read(source.get()).toFloat();
                 break;
 
             case QVariant::Type::Double:
-                object[property.name()]  = property.read(source).toDouble();
+                object[property.name()]  = property.read(source.get()).toDouble();
                 break;
 
             case QVariant::Type::String:
-                object[property.name()]  = property.read(source).toString();
+                object[property.name()]  = property.read(source.get()).toString();
                 break;
 
             case QVariant::Type::Color: {
@@ -224,7 +229,7 @@ QByteArray Server::tcpCallback([[maybe_unused]] const QHostAddress &&address, co
                 break;
             }
             case QVariant::Type::UserType: {
-                object[property.name()] = property.read(source).toInt();
+                object[property.name()] = property.read(source.get()).toInt();
             }
             default:
                 ;
@@ -258,23 +263,23 @@ QByteArray Server::tcpCallback([[maybe_unused]] const QHostAddress &&address, co
 
             switch (static_cast<int>(property.type())) {
             case QVariant::Type::Bool:
-                property.write(source, itemData[field].toBool());
+                property.write(source.get(), itemData[field].toBool());
                 break;
 
             case QVariant::Type::UInt:
             case QVariant::Type::Int:
             case QMetaType::Long:
-                property.write(source, itemData[field].toInt());
+                property.write(source.get(), itemData[field].toInt());
                 break;
 
 
             case QMetaType::Float:
             case QVariant::Type::Double:
-                property.write(source, itemData[field].toDouble());
+                property.write(source.get(), itemData[field].toDouble());
                 break;
 
             case QVariant::Type::String:
-                property.write(source, itemData[field].toString());
+                property.write(source.get(), itemData[field].toString());
                 break;
 
             case QVariant::Type::Color: {
@@ -284,11 +289,11 @@ QByteArray Server::tcpCallback([[maybe_unused]] const QHostAddress &&address, co
                     colorObject["green"].toInt(0),
                     colorObject["blue" ].toInt(0),
                     colorObject["alpha"].toInt(1));
-                property.write(source, color);
+                property.write(source.get(), color);
                 break;
             }
             case QVariant::Type::UserType:
-                property.write(source, itemData[field].toInt());
+                property.write(source.get(), itemData[field].toInt());
                 break;
             default:
                 ;
@@ -364,7 +369,7 @@ QByteArray Server::tcpCallback([[maybe_unused]] const QHostAddress &&address, co
                 }
 
                 QMetaObject::invokeMethod(
-                    source,
+                    source.get(),
                     name.toLocal8Bit().data(),
                     Qt::QueuedConnection,
                     arg);
@@ -373,7 +378,7 @@ QByteArray Server::tcpCallback([[maybe_unused]] const QHostAddress &&address, co
                     m_sourceList,
                     "storeItem",
                     Qt::QueuedConnection,
-                    Q_ARG(chart::Source *, source));
+                    Q_ARG(Source::Shared, source));
             }
         }
     }
@@ -392,9 +397,9 @@ QJsonObject Server::prepareMessage(const QString &message) const
     return object;
 }
 
-void Server::sourceNotify(chart::Source *source, const QString &message, const QJsonValue &data)
+void Server::sourceNotify(const Source::Shared &source, const QString &message, const QJsonValue &data)
 {
-    if (active()) {
+    if (active() && source) {
         auto object = prepareMessage(message);
         object["source"]     = source->uuid().toString();
         object["objectName"] = source->objectName();
@@ -420,12 +425,14 @@ void Server::sendHello()
     object["port"] = m_network.port();
     object["multicast"] = m_network.MULTICAST_IP;
     QJsonArray sources {};
-    for (auto *source : *m_sourceList) {
-        if (source && !dynamic_cast<remote::Item *>(source)) {
-            QJsonObject sourceObject;
-            sourceObject["uuid"] = source->uuid().toString();
-            sourceObject["objectName"] = source->objectName();
-            sources.push_back(sourceObject);
+    if (m_sourceList) {
+        for (const auto &source : *m_sourceList) {
+            if (source && !std::dynamic_pointer_cast<remote::Item>(source)) {
+                QJsonObject sourceObject;
+                sourceObject["uuid"] = source->uuid().toString();
+                sourceObject["objectName"] = source->objectName();
+                sources.push_back(sourceObject);
+            }
         }
     }
 

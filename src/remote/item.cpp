@@ -21,7 +21,7 @@
 
 namespace remote {
 
-Item::Item(QObject *parent) : chart::Source(parent), m_originalActive(false), m_eventSilence(true),
+Item::Item(QObject *parent) : Source::Abstract(parent), m_originalActive(false), m_eventSilence(true),
     m_serverId(nullptr), m_sourceId(nullptr), m_state(WAIT), m_stateTimer()
 {
     setObjectName("RemoteItem");
@@ -31,7 +31,7 @@ Item::Item(QObject *parent) : chart::Source(parent), m_originalActive(false), m_
     m_stateTimer.setInterval(1000);
     connect(&m_stateTimer, &QTimer::timeout, this, &Item::resetState);
     connect(this, &Item::stateChanged, this, &Item::startResetTimer);
-    connect(this, &Source::activeChanged, this, &Item::refresh);
+    connect(this, &Source::Abstract::activeChanged, this, &Item::refresh);
 }
 
 void Item::connectProperties()
@@ -47,9 +47,9 @@ void Item::connectProperties()
     }
 }
 
-chart::Source *Item::clone() const
+Source::Shared Item::clone() const
 {
-    return nullptr;
+    return { nullptr };
 }
 
 bool Item::cloneable() const

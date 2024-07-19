@@ -127,7 +127,7 @@ void PhaseSeriesNode::updateMatrix()
     m_matrix.translate(-1 * logf(m_xMin), 0);
 }
 
-Source *PhaseSeriesNode::source() const
+const Source::Shared &PhaseSeriesNode::source() const
 {
     return m_source;
 }

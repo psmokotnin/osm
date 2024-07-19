@@ -1,6 +1,6 @@
 /**
  *  OSM
- *  Copyright (C) 2022  Pavel Smokotnin
+ *  Copyright (C) 2024  Pavel Smokotnin
 
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -15,24 +15,15 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef PHASEDELAYPLOT_H
-#define PHASEDELAYPLOT_H
+#include "source_shared.h"
+#include "source/source_abstract.h"
 
-#include "frequencybasedplot.h"
+namespace Source {
 
-namespace chart {
-class PhaseDelayPlot : public FrequencyBasedPlot
+Shared::Shared(std::shared_ptr<Source::Abstract> ptr)
+    : std::shared_ptr<Source::Abstract>(ptr)
 {
-    Q_OBJECT
 
-protected:
-    virtual SeriesItem *createSeriesFromSource(const Source::Shared &source) override;
+}
 
-public:
-    PhaseDelayPlot(Settings *settings, QQuickItem *parent = Q_NULLPTR);
-
-    virtual void setSettings(Settings *settings) noexcept override;
-    virtual void storeSettings() noexcept override;
-};
-};
-#endif // PHASEDELAYPLOT_H
+} // namespace Source

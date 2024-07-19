@@ -19,9 +19,9 @@
 #define STANDARDLINE_H
 
 #include <QObject>
-#include "chart/source.h"
+#include "source/source_abstract.h"
 
-class StandardLine : public chart::Source
+class StandardLine : public Source::Abstract
 {
 public:
     enum Mode {
@@ -39,10 +39,10 @@ public:
 
 public:
     explicit StandardLine(QObject *parent = nullptr);
-    Source *clone() const override;
+    Source::Shared clone() const override;
 
-    Q_INVOKABLE QJsonObject toJSON(const SourceList * list = nullptr) const noexcept override;
-    void fromJSON(QJsonObject data, const SourceList * list = nullptr) noexcept override;
+    Q_INVOKABLE QJsonObject toJSON(const SourceList *list = nullptr) const noexcept override;
+    void fromJSON(QJsonObject data, const SourceList *list = nullptr) noexcept override;
 
     float loudness() const noexcept;
     void setLoudness(float loudness);

@@ -40,11 +40,11 @@ Item {
                 FloatSpinBox {
                     id: gainSpinBox
                     implicitWidth: 170
-                    value: dataObject.gain
+                    value: dataObject.data.gain
                     from: -30
                     to: 30
                     units: "dB"
-                    onValueChanged: dataObject.gain = value
+                    onValueChanged: dataObject.data.gain = value
                     tooltiptext: qsTr("adjust gain")
                     Layout.alignment: Qt.AlignVCenter
                 }
@@ -52,11 +52,11 @@ Item {
                 FloatSpinBox {
                     id: delaySpinBox
                     implicitWidth: 170
-                    value: dataObject.delay
+                    value: dataObject.data.delay
                     from: -100
                     to: 100
                     units: "ms"
-                    onValueChanged: dataObject.delay = value
+                    onValueChanged: dataObject.data.delay = value
                     tooltiptext: qsTr("adjust delay")
                     Layout.alignment: Qt.AlignVCenter
                 }
@@ -69,10 +69,10 @@ Item {
                     Layout.margins: 5
 
                     onColorChanged: {
-                        dataObject.color = color
+                        dataObject.data.color = color
                     }
                     Component.onCompleted: {
-                        colorPicker.color = dataObject.color
+                        colorPicker.color = dataObject.data.color
                     }
                 }
 
@@ -87,8 +87,8 @@ Item {
                 Button {
                     text: "flip"
                     checkable: true
-                    checked: dataObject.inverse
-                    onCheckedChanged: dataObject.inverse = checked
+                    checked: dataObject.data.inverse
+                    onCheckedChanged: dataObject.data.inverse = checked
 
                     Material.background: parent.Material.background
 
@@ -99,8 +99,8 @@ Item {
                 Button {
                     text: "+/–"
                     checkable: true
-                    checked: dataObject.polarity
-                    onCheckedChanged: dataObject.polarity = checked
+                    checked: dataObject.data.polarity
+                    onCheckedChanged: dataObject.data.polarity = checked
 
                     Material.background: parent.Material.background
 
@@ -111,8 +111,8 @@ Item {
                 Button {
                     text: "100%"
                     checkable: true
-                    checked: dataObject.ignoreCoherence
-                    onCheckedChanged: dataObject.ignoreCoherence = checked
+                    checked: dataObject.data.ignoreCoherence
+                    onCheckedChanged: dataObject.data.ignoreCoherence = checked
 
                     Material.background: parent.Material.background
 
@@ -134,8 +134,8 @@ Item {
                     ToolTip.visible: hovered
                     ToolTip.text: qsTr("export data")
 
-                    enabled: dataObject.objectName === "Stored"
-                    visible: dataObject.objectName === "Stored"
+                    enabled: dataObject.data.objectName === "Stored"
+                    visible: dataObject.data.objectName === "Stored"
                 }
             }
         }
@@ -151,8 +151,8 @@ Item {
                 id:ta
                 padding: 5
                 placeholderText: qsTr("notes")
-                text: dataObject.notes;
-                onTextChanged: dataObject.notes = text;
+                text: dataObject.data.notes;
+                onTextChanged: dataObject.data.notes = text;
                 font.italic: true
                 wrapMode: TextEdit.WrapAnywhere
                 selectByMouse: true
@@ -179,22 +179,22 @@ Item {
         onAccepted: {
             switch (saveas) {
                 case "osm":
-                    dataObject.save(fileDialog.fileUrl);
+                    dataObject.data.save(fileDialog.fileUrl);
                     break;
                 case "cal":
-                    dataObject.saveCal(fileDialog.fileUrl);
+                    dataObject.data.saveCal(fileDialog.fileUrl);
                     break;
                 case "txt":
-                    dataObject.saveTXT(fileDialog.fileUrl);
+                    dataObject.data.saveTXT(fileDialog.fileUrl);
                     break;
                 case "csv":
-                    dataObject.saveCSV(fileDialog.fileUrl);
+                    dataObject.data.saveCSV(fileDialog.fileUrl);
                     break;
                 case "frd":
-                    dataObject.saveFRD(fileDialog.fileUrl);
+                    dataObject.data.saveFRD(fileDialog.fileUrl);
                     break;
                 case "wav":
-                    dataObject.saveWAV(fileDialog.fileUrl);
+                    dataObject.data.saveWAV(fileDialog.fileUrl);
                     break;
             }
         }

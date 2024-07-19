@@ -36,26 +36,26 @@ Item {
 
             DropDown {
                 id: modeSelect
-                model: dataObject.modes
-                currentIndex: dataObject.mode
+                model: dataObject.data.modes
+                currentIndex: dataObject.data.mode
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Standard")
-                onCurrentIndexChanged: dataObject.mode = currentIndex;
+                onCurrentIndexChanged: dataObject.data.mode = currentIndex;
                 Layout.preferredWidth: 200
             }
 
             SelectableSpinBox {
-                value: dataObject.loudness
-                onValueChanged: dataObject.loudness = value
+                value: dataObject.data.loudness
+                onValueChanged: dataObject.data.loudness = value
                 from: 20
                 to: 100
                 editable: true
-                visible: dataObject.mode === StandardLine.ELC
+                visible: dataObject.data.mode === StandardLine.ELC
             }
 
             Label {
                 text: qsTr("phon")
-                visible: dataObject.mode === StandardLine.ELC
+                visible: dataObject.data.mode === StandardLine.ELC
 
                 horizontalAlignment: Text.AlignLeft
             }
@@ -71,11 +71,11 @@ Item {
                 Layout.margins: 0
 
                 onColorChanged: {
-                    dataObject.color = color
+                    dataObject.data.color = color
                 }
 
                 Component.onCompleted: {
-                    color = dataObject.color
+                    color = dataObject.data.color
                 }
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("series color")

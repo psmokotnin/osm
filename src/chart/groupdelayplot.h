@@ -26,7 +26,7 @@ class GroupDelayPlot : public FrequencyBasedPlot
     Q_OBJECT
 
 protected:
-    virtual SeriesItem *createSeriesFromSource(Source *source) override;
+    virtual SeriesItem *createSeriesFromSource(const Source::Shared &source) override;
 
 public:
     GroupDelayPlot(Settings *settings, QQuickItem *parent = Q_NULLPTR);

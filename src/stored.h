@@ -19,10 +19,10 @@
 #define STORED_H
 
 #include <QJsonObject>
-#include "chart/source.h"
+#include "source/source_abstract.h"
 #include "meta/metastored.h"
 
-class Stored: public chart::Source, public meta::Stored
+class Stored: public Source::Abstract, public meta::Stored
 {
     Q_OBJECT
     Q_PROPERTY(QString notes READ notes WRITE setNotes NOTIFY notesChanged)
@@ -34,8 +34,8 @@ class Stored: public chart::Source, public meta::Stored
 
 public:
     explicit Stored(QObject *parent = nullptr);
-    Source *clone() const override;
-    void build (chart::Source *source);
+    Source::Shared clone() const override;
+    void build (Source::Abstract *source);
 
     Q_INVOKABLE void autoName(const QString &prefix) noexcept;
 
@@ -45,8 +45,8 @@ public:
     Q_INVOKABLE bool saveTXT(const QUrl &fileName) const noexcept;
     Q_INVOKABLE bool saveCSV(const QUrl &fileName) const noexcept;
     Q_INVOKABLE bool saveWAV(const QUrl &fileName) const noexcept;
-    Q_INVOKABLE QJsonObject toJSON(const SourceList * list = nullptr) const noexcept override;
-    void fromJSON(QJsonObject data, const SourceList * list = nullptr) noexcept override;
+    Q_INVOKABLE QJsonObject toJSON(const SourceList *list = nullptr) const noexcept override;
+    void fromJSON(QJsonObject data, const SourceList *list = nullptr) noexcept override;
 
     float module(const unsigned int &i) const noexcept override;
     float magnitudeRaw(const unsigned int &i) const noexcept override;

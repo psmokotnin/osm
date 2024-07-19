@@ -56,15 +56,16 @@ signals:
 
 private slots:
     void sendRequests();
-    void requestUpdate(remote::Item *item);
-    void sendCommand(remote::Item *item, QString command, QVariant arg);
+    void requestUpdate(const std::shared_ptr<Item> &item);
+    void sendCommand(const std::shared_ptr<Item> &item, QString command, QVariant arg);
 
 private:
-    remote::Item *addItem(const QUuid &serverId, const QUuid &sourceId, const QString &objectName, const QString &host);
-    void sendUpdate(Item *item, QString propertyName);
-    void requestChanged(Item *item);
-    void requestData(Item *item);
-    void requestSource(Item *item, const QString &message, Network::responseCallback callback,
+    std::shared_ptr<Item> addItem(const QUuid &serverId, const QUuid &sourceId, const QString &objectName,
+                                  const QString &host);
+    void sendUpdate(const std::shared_ptr<Item> &item, QString propertyName);
+    void requestChanged(const std::shared_ptr<Item> &item);
+    void requestData(const std::shared_ptr<Item> &item);
+    void requestSource(const std::shared_ptr<Item> &item, const QString &message, Network::responseCallback callback,
                        Network::errorCallback errorCallback = 0, QJsonObject itemData = {});
 
     Network m_network;
@@ -73,7 +74,7 @@ private:
     QTimer m_timer;
     SourceList *m_sourceList;
     QMap<unsigned int, std::pair<QHostAddress, int>> m_servers;
-    QMap<unsigned int, Item *> m_items;
+    QMap<unsigned int, std::shared_ptr<Item>> m_items;
 
     std::atomic<bool> m_onRequest;
     typedef unsigned long UpdateKey;

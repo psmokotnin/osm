@@ -73,7 +73,7 @@ QUuid SourceList::firstSource() const noexcept
     return first ? first->uuid() : QUuid();
 }
 
-const QVector<chart::Source *> &SourceList::items() const
+const QVector<Source::Shared> &SourceList::items() const
 {
     return m_items;
 }
@@ -94,10 +94,10 @@ QUrl SourceList::currentFile() const noexcept
 {
     return m_currentFile;
 }
-chart::Source *SourceList::get(int i) const noexcept
+Source::Shared SourceList::get(int i) const noexcept
 {
     if (i < 0 || i >= m_items.size())
-        return nullptr;
+        return {};
 
     return m_items.at(i);
 }
@@ -106,15 +106,15 @@ std::lock_guard<std::mutex> SourceList::lock() const
 {
     return std::lock_guard<std::mutex> {m_mutex};
 }
-chart::Source *SourceList::getByUUid(QUuid id) const noexcept
+Source::Shared SourceList::getByUUid(QUuid id) const noexcept
 {
-    auto result = std::find_if(m_items.cbegin(), m_items.cend(), [&id](chart::Source * source) {
+    auto result = std::find_if(m_items.cbegin(), m_items.cend(), [&id](const Source::Shared & source) {
         return source && source->uuid() == id;
     });
     if (result != m_items.end()) {
         return *result;
     }
-    return nullptr;
+    return {};
 }
 
 QUuid SourceList::getUUid(int i) const noexcept
@@ -157,7 +157,7 @@ bool SourceList::move(int from, int to) noexcept
 
     emit preItemMoved(from, to);
     if (m_items.size() > from) {
-        chart::Source *item = m_items.takeAt(from);
+        Source::Shared item = m_items.takeAt(from);
         m_items.insert((to > from ? to - 1 : to), item);
     } else {
         qWarning() << "move element from out the bounds";
@@ -167,7 +167,7 @@ bool SourceList::move(int from, int to) noexcept
     return true;
 }
 
-int SourceList::indexOf(chart::Source *item) const noexcept
+int SourceList::indexOf(const Source::Shared &item) const noexcept
 {
     return m_items.indexOf(item);
 }
@@ -256,12 +256,17 @@ bool SourceList::import(const QUrl &fileName, int type)
     if (type == -1) {
         QFileInfo info(fileName.toLocalFile());
         auto ext = info.suffix().toLower();
-        if (ext == "txt") { type = TRANSFER_TXT; }
-        else if (ext == "csv") { type = TRANSFER_CSV; }
-        else if (ext == "wav") { type = IMPULSE_WAV; }
-        else { type = TRANSFER_TXT; }
+        if (ext == "txt") {
+            type = TRANSFER_TXT;
+        } else if (ext == "csv") {
+            type = TRANSFER_CSV;
+        } else if (ext == "wav") {
+            type = IMPULSE_WAV;
+        } else {
+            type = TRANSFER_TXT;
+        }
     }
-    
+
     switch (type) {
     case TRANSFER_TXT:
         return importFile(fileName, "\t");
@@ -295,9 +300,9 @@ bool SourceList::importFile(const QUrl &fileName, QString separator)
     float frequency, magnitude = 0.f, coherence = 1.f, maxMagnitude = -100;
     complex phase;
 
-    std::vector<chart::Source::FTData> d;
+    std::vector<Source::Abstract::FTData> d;
     d.reserve(480); //48 ppo
-    auto s = new Stored();
+    auto s = std::make_shared<Stored>();
 
     while (file.readLine(line, 1024) > 0) {
         QString qLine(line);
@@ -336,7 +341,8 @@ bool SourceList::importFile(const QUrl &fileName, QString separator)
     s->setName(fileName.fileName());
     s->setNotes(notes);
     s->setActive(true);
-    appendItem(s, true);
+    Source::Shared shared{ s };
+    appendItem(shared, true);
     return true;
 }
 
@@ -361,9 +367,9 @@ bool SourceList::importImpulse(const QUrl &fileName, QString separator)
     char line[1024];
     float time, value;
 
-    std::vector<chart::Source::TimeData> d;
+    std::vector<Source::Abstract::TimeData> d;
     d.reserve(6720); //140ms @ 48kHz
-    auto s = new Stored();
+    auto s = std::make_shared<Stored>();
 
     while (file.readLine(line, 1024) > 0) {
         QString qLine(line);
@@ -385,7 +391,7 @@ bool SourceList::importImpulse(const QUrl &fileName, QString separator)
     s->setName(fileName.fileName());
     s->setNotes(notes);
     s->setActive(true);
-    appendItem(s, true);
+    appendItem(Source::Shared{ s }, true);
     return true;
 }
 bool SourceList::importWav(const QUrl &fileName)
@@ -401,9 +407,9 @@ bool SourceList::importWav(const QUrl &fileName)
     float time = 0, value = 0, dt = 1000.f / wav.sampleRate(), maxValue = 0, offset = 0;
     bool finished = false;
 
-    std::vector<chart::Source::TimeData> d;
+    std::vector<Source::Abstract::TimeData> d;
     d.reserve(6720); //140ms @ 48kHz
-    auto s = new Stored();
+    auto s = std::make_shared<Stored>();
 
     value = wav.nextSample(false, &finished);
     while (!finished) {
@@ -429,7 +435,8 @@ bool SourceList::importWav(const QUrl &fileName)
     s->setName(fileName.fileName());
     s->setNotes(notes);
     s->setActive(true);
-    appendItem(s, true);
+    Source::Shared shared{ s };
+    appendItem(shared, true);
     return true;
 }
 int SourceList::selectedIndex() const
@@ -437,7 +444,7 @@ int SourceList::selectedIndex() const
     return m_selected;
 }
 
-chart::Source *SourceList::selected() const noexcept
+Source::Shared SourceList::selected() const noexcept
 {
     return m_items.value(m_selected);
 }
@@ -554,51 +561,52 @@ template<typename T> bool SourceList::loadObject(const QJsonObject &data)
     if (data.isEmpty())
         return false;
 
-    auto s = new T(this);
+    auto s = std::make_shared<T>(this);
     s->fromJSON(data, this);
-    appendItem(s, false);
+    Source::Shared shared{ s };
+    appendItem(shared, false);
     nextColor();
     return true;
 }
-template<typename T> T *SourceList::add()
+template<typename T> Source::Shared SourceList::add()
 {
-    auto *t = new T(this);
+    Source::Shared t{ std::make_shared<T>(this) };
     appendItem(t, true);
     return t;
 }
-Union *SourceList::addUnion()
+Source::Shared SourceList::addUnion()
 {
     return add<Union>();
 }
-StandardLine *SourceList::addStandardLine()
+Source::Shared SourceList::addStandardLine()
 {
     return add<StandardLine>();
 }
 
-FilterSource *SourceList::addFilter()
+Source::Shared SourceList::addFilter()
 {
     return add<FilterSource>();
 }
 
-Windowing *SourceList::addWindowing()
+Source::Shared SourceList::addWindowing()
 {
     return add<Windowing>();
 }
-Measurement *SourceList::addMeasurement()
+Source::Shared SourceList::addMeasurement()
 {
     return add<Measurement>();
 }
 int SourceList::appendNone()
 {
-    m_items.prepend(nullptr);
+    m_items.prepend(Source::Shared{nullptr});
     return 0;
 }
 int SourceList::appendAll()
 {
-    m_items.prepend(nullptr);
+    m_items.prepend(Source::Shared{nullptr});
     return 0;
 }
-void SourceList::appendItem(chart::Source *item, bool autocolor)
+void SourceList::appendItem(const Source::Shared &item, bool autocolor)
 {
     auto guard = lock();
     emit preItemAppended();
@@ -609,7 +617,7 @@ void SourceList::appendItem(chart::Source *item, bool autocolor)
     m_items.append(item);
     emit postItemAppended(item);
 }
-void SourceList::removeItem(chart::Source *item, bool deleteItem)//TODO:uuid
+void SourceList::removeItem(const Source::Shared &item, bool deleteItem)
 {
     auto guard = lock();
     if (!item) {
@@ -628,7 +636,14 @@ void SourceList::removeItem(chart::Source *item, bool deleteItem)//TODO:uuid
         }
     }
 }
-void SourceList::cloneItem(chart::Source *item)
+
+void SourceList::removeItem(const QUuid &uuid)
+{
+    if (auto s = getByUUid(uuid)) {
+        removeItem(s);
+    }
+}
+void SourceList::cloneItem(Source::Shared item)
 {
     auto newItem = item->clone();
     if (newItem) {
@@ -636,14 +651,17 @@ void SourceList::cloneItem(chart::Source *item)
     }
 }
 
-void SourceList::storeItem(chart::Source *item)
+void SourceList::storeItem(Source::Shared item)
 {
-    chart::Source *newItem = nullptr;
+    if (!item) {
+        return;
+    }
+    Source::Shared newItem;
     QMetaObject::invokeMethod(
-        item,
+        item.get(),
         "store",
         Qt::DirectConnection,
-        Q_RETURN_ARG(chart::Source *, newItem));
+        Q_RETURN_ARG(Source::Shared, newItem));
 
     if (newItem) {
         newItem->setActive(true);

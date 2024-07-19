@@ -52,7 +52,7 @@ void CrestFactorSeriesNode::updateMatrix()
     m_matrix.translate(-1 * logf(m_xMin), 0);
 }
 
-Source *CrestFactorSeriesNode::source() const
+const Source::Shared &CrestFactorSeriesNode::source() const
 {
     return m_source;
 }

@@ -37,7 +37,7 @@ protected:
     void synchronizeSeries() override;
     void renderSeries() override;
     void updateMatrix() override;
-    Source *source() const override;
+    const Source::Shared &source() const override;
 
 private:
     unsigned int m_pointsPerOctave;

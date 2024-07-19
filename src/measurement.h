@@ -27,7 +27,7 @@
 #include "audio/stream.h"
 #include "inputdevice.h"
 #include "chart/type.h"
-#include "chart/source.h"
+#include "source/source_abstract.h"
 #include "stored.h"
 #include "math/meter.h"
 #include "math/averaging.h"
@@ -39,7 +39,7 @@
 #include "common/settings.h"
 #include "container/circular.h"
 
-class Measurement : public chart::Source, public meta::Measurement
+class Measurement : public Source::Abstract, public meta::Measurement
 {
     Q_OBJECT
 
@@ -92,7 +92,7 @@ public:
 
     static const unsigned int TIMER_INTERVAL = 80; //ms = 12.5 per sec
 
-    Source *clone() const override;
+    Source::Shared clone() const override;
 
     void setActive(bool active) override;
 
@@ -107,7 +107,7 @@ public:
     float referencePeak() const;
 
     Q_INVOKABLE void resetAverage() noexcept override;
-    Q_INVOKABLE chart::Source *store() override;
+    Q_INVOKABLE Source::Shared store() override;
 
     unsigned int sampleRate() const;
 

@@ -82,7 +82,7 @@ protected:
     QColor m_thresholdColor;
     CoherenceThresholdLine m_thresholdLine;
     Type m_type;
-    virtual SeriesItem *createSeriesFromSource(Source *source) override;
+    virtual SeriesItem *createSeriesFromSource(const Source::Shared &source) override;
 };
 }
 #endif // COHERENCEPLOT_H

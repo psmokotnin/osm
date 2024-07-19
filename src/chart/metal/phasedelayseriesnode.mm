@@ -122,7 +122,7 @@ void PhaseDelaySeriesNode::updateMatrix()
     m_matrix.translate(-1 * logf(m_xMin), 0);
 }
 
-Source *PhaseDelaySeriesNode::source() const
+const Source::Shared &PhaseDelaySeriesNode::source() const
 {
     return m_source;
 }

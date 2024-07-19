@@ -20,18 +20,19 @@
 
 namespace chart {
 
-SeriesItem::SeriesItem(Source *source, QQuickItem *parent, NodeConstructor nodeConstructor) : QQuickItem(parent),
+SeriesItem::SeriesItem(const Source::Shared &source, QQuickItem *parent,
+                       NodeConstructor nodeConstructor) : QQuickItem(parent),
     m_source(source), m_highlighted(false), m_nodeConstructor(nodeConstructor)
 {
     setFlag(QQuickItem::ItemHasContents, true);
     setSize(parent->size());
 
-    connect(source, SIGNAL(colorChanged(QColor)),  SLOT(update()));
-    connect(source, SIGNAL(readyRead()),     SLOT(update()));
-    connect(source, SIGNAL(activeChanged()), SLOT(update()));
+    connect(source.get(), SIGNAL(colorChanged(QColor)),  SLOT(update()));
+    connect(source.get(), SIGNAL(readyRead()),     SLOT(update()));
+    connect(source.get(), SIGNAL(activeChanged()), SLOT(update()));
 }
 
-Source *SeriesItem::source() const
+Source::Shared SeriesItem::source() const
 {
     return m_source;
 }
