@@ -25,7 +25,7 @@
 class GeneratorChannelModel : public QAbstractListModel
 {
     Q_OBJECT
-    Q_PROPERTY(QStringList list WRITE setList NOTIFY listChanged)
+    Q_PROPERTY(QStringList list READ list WRITE setList NOTIFY listChanged)
     Q_PROPERTY(QStringList checked READ checked NOTIFY checkedChanged)
     Q_PROPERTY(QSet<int> checkedIndexes READ checkedIndexes NOTIFY checkedChanged)
     Q_PROPERTY(QString noneTitle MEMBER m_noneTitle)
@@ -50,7 +50,8 @@ public:
     Qt::ItemFlags flags(const QModelIndex &index) const override;
     virtual QHash<int, QByteArray> roleNames() const override;
 
-    void setList(QStringList data);
+    QStringList list() const;
+    void setList(const QStringList &data);
 
     Q_INVOKABLE void check(const int &index, const bool &checked) noexcept;
     Q_INVOKABLE int checkedCount() const;
@@ -64,6 +65,7 @@ signals:
 private:
     void checkAll(const bool &checked);
 
+    QStringList m_list;
     std::vector<std::tuple<QString, bool, int>> m_data;
     QString m_noneTitle, m_allTitle;
     Generator *m_generator;

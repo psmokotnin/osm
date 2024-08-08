@@ -99,10 +99,16 @@ QHash<int, QByteArray> GeneratorChannelModel::roleNames() const
     return names;
 }
 
-void GeneratorChannelModel::setList(QStringList data)
+QStringList GeneratorChannelModel::list() const
+{
+    return m_list;
+}
+
+void GeneratorChannelModel::setList(const QStringList &data)
 {
     beginResetModel();
 
+    m_list = data;
     m_data.clear();
     m_data.reserve(data.size() + 2);
     m_data.push_back({m_allTitle, 0, -1});
