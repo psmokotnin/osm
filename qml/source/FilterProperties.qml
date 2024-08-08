@@ -25,6 +25,7 @@ import "qrc:/elements"
 
 Item {
     property var dataObject
+    property var dataObjectData : dataObject.data
     readonly property int elementWidth: 200//width / 9
 
     ColumnLayout {
@@ -36,19 +37,19 @@ Item {
 
             DropDown {
                 id: modeSelect
-                model: dataObject.data.modes
-                currentIndex: dataObject.data.mode
-                displayText: (dataObject.data.mode === Measurement.LFT ? "LTW" : (modeSelect.width > 120 ? "Power:" : "") + currentText)
+                model: dataObjectData.modes
+                currentIndex: dataObjectData.mode
+                displayText: (dataObjectData.mode === Measurement.LFT ? "LTW" : (modeSelect.width > 120 ? "Power:" : "") + currentText)
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Transfrom mode")
-                onCurrentIndexChanged: dataObject.data.mode = currentIndex;
+                onCurrentIndexChanged: dataObjectData.mode = currentIndex;
                 Layout.preferredWidth: elementWidth
             }
 
             DropDown {
                 model: [44100, 48000, 96000, 192000]
-                currentIndex: model.indexOf(dataObject.data.sampleRate)
-                onCurrentValueChanged: dataObject.data.sampleRate = currentValue;
+                currentIndex: model.indexOf(dataObjectData.sampleRate)
+                onCurrentValueChanged: dataObjectData.sampleRate = currentValue;
 
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Sample rate")
@@ -62,11 +63,11 @@ Item {
                 Layout.margins: 0
 
                 onColorChanged: {
-                    dataObject.data.color = color
+                    dataObjectData.color = color
                 }
 
                 Component.onCompleted: {
-                    color = dataObject.data.color
+                    color = dataObjectData.color
                 }
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("series color")
@@ -75,7 +76,7 @@ Item {
             NameField {
                 id:titleField
                 target: dataObject
-                onTextEdited: dataObject.data.autoName = false;
+                onTextEdited: dataObjectData.autoName = false;
                 Layout.preferredWidth: elementWidth - 30
                 Layout.minimumWidth: 100
                 Layout.alignment: Qt.AlignVCenter
@@ -91,12 +92,12 @@ Item {
 
             DropDown {
                 id: typeSelect
-                model: dataObject.data.types
-                currentIndex: dataObject.data.type
+                model: dataObjectData.types
+                currentIndex: dataObjectData.type
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Filter type")
                 onCurrentIndexChanged: {
-                    dataObject.data.type = currentIndex;
+                    dataObjectData.type = currentIndex;
                     selectOrder.updateModel();
                 }
                 Layout.preferredWidth: elementWidth
@@ -104,59 +105,59 @@ Item {
 
             DropDown {
                 id: selectOrder
-                model: dataObject.data.orders
-                currentIndex: model.indexOf(dataObject.data.order)
-                onCurrentValueChanged: dataObject.data.order = currentValue;
+                model: dataObjectData.orders
+                currentIndex: model.indexOf(dataObjectData.order)
+                onCurrentValueChanged: dataObjectData.order = currentValue;
 
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("order")
                 Layout.preferredWidth: elementWidth
 
                 function updateModel() {
-                    model = dataObject.data.orders;
+                    model = dataObjectData.orders;
                 }
 
                 Component.onCompleted: updateModel();
             }
 
             FloatSpinBox {
-                value: dataObject.data.cornerFrequency
+                value: dataObjectData.cornerFrequency
                 from: 1
                 to: 96000
                 decimals: 1
                 step: 1
                 units: "Hz"
-                onValueChanged: dataObject.data.cornerFrequency = value
+                onValueChanged: dataObjectData.cornerFrequency = value
 
                 tooltiptext: qsTr("frequency")
                 Layout.preferredWidth: elementWidth
             }
 
             FloatSpinBox {
-                value: dataObject.data.gain
+                value: dataObjectData.gain
                 from: -90
                 to: 90
                 decimals: 1
                 step: 0.1
                 units: "dB"
-                onValueChanged: dataObject.data.gain = value
+                onValueChanged: dataObjectData.gain = value
 
-                visible: dataObject.data.type == 7
+                visible: dataObjectData.type == 7
 
                 tooltiptext: qsTr("gain")
                 Layout.preferredWidth: elementWidth
             }
 
             FloatSpinBox {
-                value: dataObject.data.q
+                value: dataObjectData.q
                 from: 0.1
                 to: 10
                 decimals: 1
                 step: 0.1
                 units: ""
-                onValueChanged: dataObject.data.q = value
+                onValueChanged: dataObjectData.q = value
 
-                visible: dataObject.data.type == 7
+                visible: dataObjectData.type == 7
 
                 tooltiptext: qsTr("Q")
                 Layout.preferredWidth: elementWidth
@@ -173,7 +174,7 @@ Item {
                 implicitWidth: 75
 
                 onClicked: {
-                    var stored = dataObject.data.store();
+                    var stored = dataObjectData.store();
                     if (stored) {
                         stored.active = true;
                         sourceList.appendItem(stored, true);

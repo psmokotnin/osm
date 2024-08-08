@@ -188,7 +188,7 @@ void VariableChart::removeDataSource(const Source::Shared &source)
     }
 }
 
-void VariableChart::setSourceZIndex(const Source::Shared &source, int index)
+void VariableChart::setSourceZIndex(const QUuid &source, int index)
 {
     if (m_plot) {
         m_plot->setSourceZIndex(source, index);
@@ -223,7 +223,7 @@ void VariableChart::setSources(SourceList *sourceList)
         for (int i = 0; i < m_sources->count(); ++i) {
             appendDataSource(m_sources->items()[i]);
         }
-        auto selected = m_sources->selected();
+        auto selected = m_sources->selectedUuid();
         m_plot->setHighlighted(selected);
 
         connect(m_sources, &SourceList::postItemAppended, this, [ = ](const Source::Shared & source) {
@@ -240,7 +240,7 @@ void VariableChart::setSources(SourceList *sourceList)
         connect(m_sources, &SourceList::selectedChanged, this, [this]() {
             if (m_plot) {
                 updateZOrders();
-                auto selected = m_sources->selected();
+                auto selected = m_sources->selectedUuid();
                 m_plot->setHighlighted(selected);
                 setSourceZIndex(selected, m_sources->count() + 1);
             }
@@ -249,7 +249,7 @@ void VariableChart::setSources(SourceList *sourceList)
         connect(this, &VariableChart::typeChanged, this, [this]() {
             if (m_plot) {
                 updateZOrders();
-                auto selected = m_sources->selected();
+                auto selected = m_sources->selectedUuid();
                 m_plot->setHighlighted(selected);
                 setSourceZIndex(selected, m_sources->count() + 1);
             }
@@ -280,8 +280,10 @@ void VariableChart::updateZOrders() noexcept
     }
     auto total = m_sources->count();
     for (auto &&source : *m_sources) {
-        auto z = total - m_sources->indexOf(source);
-        setSourceZIndex(source, z);
+        if (source) {
+            auto z = total - m_sources->indexOf(source);
+            setSourceZIndex(source->uuid(), z);
+        }
     }
     update();
 }

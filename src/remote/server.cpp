@@ -63,12 +63,9 @@ void Server::setSourceList(SourceList *list)
 
         sourceNotify(source, "added");
 
-        std::weak_ptr<Source::Abstract> weak{source};
-        connect(source.get(), &Source::Abstract::readyRead, this, [this, weak]() {
-            if (auto source = weak.lock()) {
-                sourceNotify(source, "readyRead");
-                sourceNotify(source, "levels", source->levels());//BUG: once crashed if source == null. remove raw ptr
-            }
+        connect(source.get(), &Source::Abstract::readyRead, this, [this, source]() {
+            sourceNotify(source, "readyRead");
+            sourceNotify(source, "levels", source->levels());
         });
 
         for (int i = 0 ; i < source->metaObject()->propertyCount(); ++i) {

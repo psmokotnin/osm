@@ -29,9 +29,10 @@ import "qrc:/elements"
 Item {
     id: measurementProperties
     property var dataObject
+    property var dataObjectData : dataObject.data
     readonly property int elementWidth: width / 9
     readonly property int spinboxWidth: width / 14
-    readonly property bool isLocal : dataObject.data.objectName === "Measurement"
+    readonly property bool isLocal : dataObjectData.objectName === "Measurement"
 
     ColumnLayout {
         spacing: 0
@@ -43,48 +44,48 @@ Item {
                 id: averageType
                 Layout.preferredWidth: elementWidth
                 model: ["off", "LPF", "FIFO"]
-                currentIndex: dataObject.data.averageType
+                currentIndex: dataObjectData.averageType
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("average type")
-                onCurrentIndexChanged: dataObject.data.averageType = currentIndex;
+                onCurrentIndexChanged: dataObjectData.averageType = currentIndex;
             }
 
             SelectableSpinBox {
                 Layout.preferredWidth: elementWidth
-                value: dataObject.data.average
+                value: dataObjectData.average
                 from: 1
                 to: 100
                 editable: true
-                onValueChanged: dataObject.data.average = value
+                onValueChanged: dataObjectData.average = value
 
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("average count")
 
-                visible: dataObject.data.averageType === Measurement.FIFO;
+                visible: dataObjectData.averageType === Measurement.FIFO;
             }
 
             DropDown {
                 Layout.preferredWidth: elementWidth
                 model: [ "0.25Hz", "0.5Hz", "1Hz" ]
-                currentIndex: dataObject.data.filtersFrequency
-                onCurrentIndexChanged: dataObject.data.filtersFrequency = currentIndex;
+                currentIndex: dataObjectData.filtersFrequency
+                onCurrentIndexChanged: dataObjectData.filtersFrequency = currentIndex;
 
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("LPF frequency")
 
-                visible: dataObject.data.averageType === Measurement.LPF;
+                visible: dataObjectData.averageType === Measurement.LPF;
             }
 
             Rectangle {
                 Layout.preferredWidth: elementWidth
-                visible: dataObject.data.averageType === Measurement.OFF;
+                visible: dataObjectData.averageType === Measurement.OFF;
             }
 
             Button {
                 text: "+/–"
                 checkable: true
-                checked: dataObject.data.polarity
-                onCheckedChanged: dataObject.data.polarity = checked
+                checked: dataObjectData.polarity
+                onCheckedChanged: dataObjectData.polarity = checked
                 Layout.preferredWidth: (elementWidth - 5) / 2
                 Material.background: parent.Material.background
 
@@ -95,7 +96,7 @@ Item {
             Button {
                 font.family: "Osm"
                 text: "\ue808"
-                onClicked: dataObject.data.resetAverage()
+                onClicked: dataObjectData.resetAverage()
                 Layout.preferredWidth: (elementWidth - 5) / 2
                 Material.background: parent.Material.background
 
@@ -115,16 +116,16 @@ Item {
                     Layout.maximumWidth: elementWidth - 30
                     anchors.verticalCenter: parent.verticalCenter
                     anchors.left: parent.left
-                    checked: isLocal ? dataObject.data.calibration : false
+                    checked: isLocal ? dataObjectData.calibration : false
                     onCheckStateChanged: {
                         if (checked) {
-                            if (dataObject.data.calibrationLoaded) {
-                                dataObject.data.calibration = checked;
+                            if (dataObjectData.calibrationLoaded) {
+                                dataObjectData.calibration = checked;
                             } else {
                                 openCalibrationFileDialog.open();
                             }
                         } else {
-                            dataObject.data.calibration = false;
+                            dataObjectData.calibration = false;
                         }
                     }
 
@@ -160,15 +161,15 @@ Item {
                     title: qsTr("Please choose a file's name")
                     folder: (typeof shortcuts !== 'undefined' ? shortcuts.home : Filesystem.StandardFolder.Home)
                     onAccepted: function() {
-                        if (dataObject.data.loadCalibrationFile(openCalibrationFileDialog.fileUrl)) {
-                            dataObject.data.calibration = true;
+                        if (dataObjectData.loadCalibrationFile(openCalibrationFileDialog.fileUrl)) {
+                            dataObjectData.calibration = true;
                         } else {
-                            dataObject.data.calibration = false;
+                            dataObjectData.calibration = false;
                         }
                     }
                     onRejected: {
-                        dataObject.data.calibration = false;
-                        calibrateOn.checked = dataObject.data.calibration;
+                        dataObjectData.calibration = false;
+                        calibrateOn.checked = dataObjectData.calibration;
                     }
                 }
             }
@@ -180,11 +181,11 @@ Item {
                 Layout.margins: 0
 
                 onColorChanged: {
-                    dataObject.data.color = color
+                    dataObjectData.color = color
                 }
 
                 Component.onCompleted: {
-                    color = dataObject.data.color
+                    color = dataObjectData.color
                 }
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("series color")
@@ -205,13 +206,13 @@ Item {
             FloatSpinBox {
                 id: offsetSpinBox
                 Layout.preferredWidth: spinboxWidth
-                value: dataObject.data.offset
+                value: dataObjectData.offset
                 from: -90
                 to: 90
                 decimals: 1
                 units: "dB"
                 indicators: false
-                onValueChanged: dataObject.data.offset = value
+                onValueChanged: dataObjectData.offset = value
                 tooltiptext: qsTr("reference offset")
                 implicitHeight: titleField.implicitHeight
                 Layout.alignment: Qt.AlignVCenter
@@ -220,13 +221,13 @@ Item {
             FloatSpinBox {
                 id: gainSpinBox
                 Layout.preferredWidth: spinboxWidth
-                value: dataObject.data.gain
+                value: dataObjectData.gain
                 from: -90
                 to: 90
                 decimals: 1
                 units: "dB"
                 indicators: false
-                onValueChanged: dataObject.data.gain = value
+                onValueChanged: dataObjectData.gain = value
                 tooltiptext: qsTr("gain")
                 implicitHeight: titleField.implicitHeight
                 Layout.alignment: Qt.AlignVCenter
@@ -235,8 +236,8 @@ Item {
             Button {
                 text: qsTr("94 dB");
                 onClicked: {
-                    dataObject.data.applyAutoGain(94 - 140);
-                    gainSpinBox.value = dataObject.data.gain;
+                    dataObjectData.applyAutoGain(94 - 140);
+                    gainSpinBox.value = dataObjectData.gain;
                 }
                 font.capitalization: Font.MixedCase
                 ToolTip.visible: hovered
@@ -247,7 +248,7 @@ Item {
                 id: delaySpin
                 Layout.alignment: Qt.AlignVCenter
                 Layout.preferredWidth: spinboxWidth
-                value: dataObject.data.delay
+                value: dataObjectData.delay
                 implicitHeight: titleField.implicitHeight
                 from: -96000
                 to: 96000
@@ -255,26 +256,26 @@ Item {
                 spacing: 0
                 down.indicator.width: 0
                 up.indicator.width: 0
-                onValueChanged: dataObject.data.delay = value
+                onValueChanged: dataObjectData.delay = value
 
                 textFromValue: function(value, locale) {
-                    return Number(1000 * value / dataObject.data.sampleRate).toLocaleString(locale, 'f', 2) + "ms";
+                    return Number(1000 * value / dataObjectData.sampleRate).toLocaleString(locale, 'f', 2) + "ms";
                 }
 
                 valueFromText: function(text, locale) {
-                    return Number.fromLocaleString(locale, text.replace("ms", "")) * dataObject.data.sampleRate / 1000;
+                    return Number.fromLocaleString(locale, text.replace("ms", "")) * dataObjectData.sampleRate / 1000;
                 }
 
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("estimated delay delta: <b>%L1ms</b>")
-                    .arg(Number(1000 * dataObject.data.estimatedDelta / dataObject.data.sampleRate).toLocaleString(locale, 'f', 2));
+                    .arg(Number(1000 * dataObjectData.estimatedDelta / dataObjectData.sampleRate).toLocaleString(locale, 'f', 2));
             }
 
             Button {
                 text: qsTr("%L1 ms")
-                    .arg(Number(1000 * dataObject.data.estimated / dataObject.data.sampleRate).toLocaleString(locale, 'f', 2));
+                    .arg(Number(1000 * dataObjectData.estimated / dataObjectData.sampleRate).toLocaleString(locale, 'f', 2));
                 onClicked: {
-                    delaySpin.value = dataObject.data.estimated;
+                    delaySpin.value = dataObjectData.estimated;
                 }
                 implicitWidth: 75
 
@@ -289,20 +290,20 @@ Item {
 
             DropDown {
                 id: modeSelect
-                model: dataObject.data.modes
-                currentIndex: dataObject.data.mode
-                displayText: (dataObject.data.mode === Measurement.LFT ? "LTW" : (modeSelect.width > 120 ? "Power:" : "") + currentText)
+                model: dataObjectData.modes
+                currentIndex: dataObjectData.mode
+                displayText: (dataObjectData.mode === Measurement.LFT ? "LTW" : (modeSelect.width > 120 ? "Power:" : "") + currentText)
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Transfrom mode")
-                onCurrentIndexChanged: dataObject.data.mode = currentIndex;
+                onCurrentIndexChanged: dataObjectData.mode = currentIndex;
                 Layout.preferredWidth: elementWidth
             }
 
             DropDown {
                 id: windowSelect
-                model: dataObject.data.windows
-                currentIndex: dataObject.data.window
-                onCurrentIndexChanged: dataObject.data.window = currentIndex
+                model: dataObjectData.windows
+                currentIndex: dataObjectData.window
+                onCurrentIndexChanged: dataObjectData.window = currentIndex
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("window function")
                 Layout.preferredWidth: elementWidth
@@ -310,9 +311,9 @@ Item {
 
             DropDown {
                 id: inputFilterSelect
-                model: dataObject.data.inputFilters
-                currentIndex: dataObject.data.inputFilter
-                onCurrentIndexChanged: dataObject.data.inputFilter = currentIndex
+                model: dataObjectData.inputFilters
+                currentIndex: dataObjectData.inputFilter
+                onCurrentIndexChanged: dataObjectData.inputFilter = currentIndex
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("apply filter on M input")
                 Layout.preferredWidth: elementWidth
@@ -321,8 +322,8 @@ Item {
             DropDown {
                 id: measurementChannel
                 enabled: isLocal
-                currentIndex: dataObject.data.dataChanel
-                onCurrentIndexChanged: dataObject.data.dataChanel = currentIndex
+                currentIndex: dataObjectData.dataChanel
+                onCurrentIndexChanged: dataObjectData.dataChanel = currentIndex
                 displayText: "M: " + currentText
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("measurement chanel number")
@@ -332,8 +333,8 @@ Item {
             DropDown {
                 id: referenceChannel
                 enabled: isLocal
-                currentIndex: dataObject.data.referenceChanel
-                onCurrentIndexChanged: dataObject.data.referenceChanel = currentIndex
+                currentIndex: dataObjectData.referenceChanel
+                onCurrentIndexChanged: dataObjectData.referenceChanel = currentIndex
                 displayText: "R: " + currentText
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("reference chanel number")
@@ -350,7 +351,7 @@ Item {
                 }
                 textRole: "name"
                 valueRole: "id"
-                currentIndex: { model.indexOf(dataObject.data.deviceId) }
+                currentIndex: { model.indexOf(dataObjectData.deviceId) }
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("audio input device")
                 onCurrentIndexChanged: {
@@ -358,7 +359,7 @@ Item {
                     var referenceIndex = referenceChannel.currentIndex;
                     var channelNames = deviceModel.channelNames(deviceSelect.currentIndex);
                     channelNames.push("Loop");
-                    dataObject.data.deviceId = model.deviceId(currentIndex);
+                    dataObjectData.deviceId = model.deviceId(currentIndex);
                     measurementChannel.model = channelNames;
                     referenceChannel.model   = channelNames;
 
@@ -369,7 +370,7 @@ Item {
                 Connections {
                     target: deviceModel
                     function onModelReset() {
-                        deviceSelect.currentIndex = deviceModel.indexOf(dataObject.data.deviceId);
+                        deviceSelect.currentIndex = deviceModel.indexOf(dataObjectData.deviceId);
                         var measurementIndex = measurementChannel.currentIndex;
                         var referenceIndex = referenceChannel.currentIndex;
                         var channelNames = deviceModel.channelNames(deviceSelect.currentIndex);
@@ -400,14 +401,14 @@ Item {
             Shortcut {
                 sequence: "Ctrl+E"
                 onActivated: {
-                    delaySpin.value = dataObject.data.estimated;
+                    delaySpin.value = dataObjectData.estimated;
                 }
             }
         }
     }//ColumnLayout
 
     function store() {
-        var stored = dataObject.data.store();
+        var stored = dataObjectData.store();
         if (stored) {
             stored.active = true;
             sourceList.appendItem(stored, true);

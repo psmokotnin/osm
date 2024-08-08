@@ -41,6 +41,7 @@ class SourceList : public QObject
     Q_PROPERTY(QUuid first READ firstSource)
     Q_PROPERTY(int selectedIndex READ selectedIndex WRITE setSelected NOTIFY selectedChanged)
     Q_PROPERTY(Source::Shared selected READ selected NOTIFY selectedChanged)
+    Q_PROPERTY(QColor highlightColor READ highlightColor NOTIFY selectedChanged)
     using iterator = QVector<Source::Shared>::iterator;
 
 public:
@@ -54,7 +55,7 @@ public:
 
     QUrl currentFile() const noexcept;
 
-    Q_INVOKABLE Source::Shared get(int i) const noexcept;
+    Q_INVOKABLE const Source::Shared &get(int i) const noexcept;
     Q_INVOKABLE Source::Shared getByUUid(QUuid id) const noexcept;
     Q_INVOKABLE QUuid getUUid(int id) const noexcept;
     Q_INVOKABLE QUuid firstSource() const noexcept;
@@ -71,7 +72,10 @@ public:
 
     int selectedIndex() const;
     Source::Shared selected() const noexcept;
+    QUuid selectedUuid() const noexcept;
     void setSelected(int selected);
+
+    QColor highlightColor() const;
 
     void check(const QUuid item);
     void uncheck(const QUuid item);
@@ -106,8 +110,8 @@ public slots:
     Q_INVOKABLE void appendItem(const Source::Shared &item, bool autocolor = false);
     void removeItem(const Source::Shared &item, bool deleteItem = true);
     Q_INVOKABLE void removeItem(const QUuid &uuid);
-    Q_INVOKABLE void cloneItem(Source::Shared  item);
-    Q_INVOKABLE void storeItem(Source::Shared  item);
+    Q_INVOKABLE void cloneItem(const Source::Shared &item);
+    Q_INVOKABLE void storeItem(const Source::Shared &item);
 
     int appendNone();
     int appendAll();

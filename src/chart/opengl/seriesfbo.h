@@ -31,11 +31,11 @@ class SeriesFBO : public QQuickFramebufferObject
 
 public:
     explicit SeriesFBO(Source::Shared source, RendererCreator rc, QQuickItem *parent = nullptr);
-    Source::Shared source() const noexcept;
+    const Source::Shared &source() const noexcept;
     QQuickFramebufferObject::Renderer *createRenderer() const override;
     void setZIndex(int index);
 
-    const bool &highlighted() const noexcept;
+    bool highlighted() const noexcept;
     void setHighlighted(bool highlighted);
 
 signals:

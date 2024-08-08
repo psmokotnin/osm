@@ -24,6 +24,7 @@ Item {
     id: store
 
     property var dataModel : [];
+    property var dataModelData : dataModel.data
     property bool chartable : true;
     property bool highlight : false;
     property string propertiesQml: "qrc:/source/StoredProperties.qml"
@@ -37,13 +38,13 @@ Item {
             id: checkbox
             Layout.alignment: Qt.AlignVCenter
 
-            checkedColor: (dataModel.data ? dataModel.data.color : "")
+            checkedColor: (dataModelData ? dataModelData.color : "")
 
             onCheckStateChanged: {
-                dataModel.data.active = checked
+                dataModelData.active = checked
             }
             Component.onCompleted: {
-                checked = dataModel.data ? dataModel.data.active : false
+                checked = dataModelData ? dataModelData.active : false
             }
         }
 
@@ -53,15 +54,15 @@ Item {
             Label {
                 Layout.fillWidth: true
                 font.bold: highlight
-                text:  (dataModel.data ? dataModel.data.name : "")
+                text:  (dataModelData ? dataModelData.name : "")
             }
 
         }
 
         Connections {
-            target: dataModel.data
+            target: dataModelData
             function onColorChanged() {
-                checkbox.data.checkedColor = dataModel.data.color;
+                checkbox.data.checkedColor = dataModelData.color;
             }
         }
     }

@@ -46,6 +46,21 @@ Item {
                 }
             }
         }
+        Connections {
+            target: sourceList
+            function onPostItemRemoved() {
+                gcTimer.running = true;
+            }
+        }
+        Timer {
+            id: gcTimer
+            interval: 100
+            running: false
+            repeat: false
+            onTriggered: {
+                gc();
+            }
+        }
 
         onTypeChanged: function() {
             initOpener();

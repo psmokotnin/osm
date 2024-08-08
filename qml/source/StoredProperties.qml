@@ -26,6 +26,7 @@ import "qrc:/elements"
 
 Item {
     property var dataObject
+    property var dataObjectData : dataObject.data
     property string saveas: "osm"
 
     RowLayout
@@ -40,11 +41,11 @@ Item {
                 FloatSpinBox {
                     id: gainSpinBox
                     implicitWidth: 170
-                    value: dataObject.data.gain
+                    value: dataObjectData.gain
                     from: -30
                     to: 30
                     units: "dB"
-                    onValueChanged: dataObject.data.gain = value
+                    onValueChanged: dataObjectData.gain = value
                     tooltiptext: qsTr("adjust gain")
                     Layout.alignment: Qt.AlignVCenter
                 }
@@ -52,11 +53,11 @@ Item {
                 FloatSpinBox {
                     id: delaySpinBox
                     implicitWidth: 170
-                    value: dataObject.data.delay
+                    value: dataObjectData.delay
                     from: -100
                     to: 100
                     units: "ms"
-                    onValueChanged: dataObject.data.delay = value
+                    onValueChanged: dataObjectData.delay = value
                     tooltiptext: qsTr("adjust delay")
                     Layout.alignment: Qt.AlignVCenter
                 }
@@ -69,10 +70,10 @@ Item {
                     Layout.margins: 5
 
                     onColorChanged: {
-                        dataObject.data.color = color
+                        dataObjectData.color = color
                     }
                     Component.onCompleted: {
-                        colorPicker.color = dataObject.data.color
+                        colorPicker.color = dataObjectData.color
                     }
                 }
 
@@ -87,8 +88,8 @@ Item {
                 Button {
                     text: "flip"
                     checkable: true
-                    checked: dataObject.data.inverse
-                    onCheckedChanged: dataObject.data.inverse = checked
+                    checked: dataObjectData.inverse
+                    onCheckedChanged: dataObjectData.inverse = checked
 
                     Material.background: parent.Material.background
 
@@ -99,8 +100,8 @@ Item {
                 Button {
                     text: "+/–"
                     checkable: true
-                    checked: dataObject.data.polarity
-                    onCheckedChanged: dataObject.data.polarity = checked
+                    checked: dataObjectData.polarity
+                    onCheckedChanged: dataObjectData.polarity = checked
 
                     Material.background: parent.Material.background
 
@@ -111,8 +112,8 @@ Item {
                 Button {
                     text: "100%"
                     checkable: true
-                    checked: dataObject.data.ignoreCoherence
-                    onCheckedChanged: dataObject.data.ignoreCoherence = checked
+                    checked: dataObjectData.ignoreCoherence
+                    onCheckedChanged: dataObjectData.ignoreCoherence = checked
 
                     Material.background: parent.Material.background
 
@@ -134,8 +135,8 @@ Item {
                     ToolTip.visible: hovered
                     ToolTip.text: qsTr("export data")
 
-                    enabled: dataObject.data.objectName === "Stored"
-                    visible: dataObject.data.objectName === "Stored"
+                    enabled: dataObjectData.objectName === "Stored"
+                    visible: dataObjectData.objectName === "Stored"
                 }
             }
         }
@@ -151,8 +152,8 @@ Item {
                 id:ta
                 padding: 5
                 placeholderText: qsTr("notes")
-                text: dataObject.data.notes;
-                onTextChanged: dataObject.data.notes = text;
+                text: dataObjectData.notes;
+                onTextChanged: dataObjectData.notes = text;
                 font.italic: true
                 wrapMode: TextEdit.WrapAnywhere
                 selectByMouse: true
@@ -179,22 +180,22 @@ Item {
         onAccepted: {
             switch (saveas) {
                 case "osm":
-                    dataObject.data.save(fileDialog.fileUrl);
+                    dataObjectData.save(fileDialog.fileUrl);
                     break;
                 case "cal":
-                    dataObject.data.saveCal(fileDialog.fileUrl);
+                    dataObjectData.saveCal(fileDialog.fileUrl);
                     break;
                 case "txt":
-                    dataObject.data.saveTXT(fileDialog.fileUrl);
+                    dataObjectData.saveTXT(fileDialog.fileUrl);
                     break;
                 case "csv":
-                    dataObject.data.saveCSV(fileDialog.fileUrl);
+                    dataObjectData.saveCSV(fileDialog.fileUrl);
                     break;
                 case "frd":
-                    dataObject.data.saveFRD(fileDialog.fileUrl);
+                    dataObjectData.saveFRD(fileDialog.fileUrl);
                     break;
                 case "wav":
-                    dataObject.data.saveWAV(fileDialog.fileUrl);
+                    dataObjectData.saveWAV(fileDialog.fileUrl);
                     break;
             }
         }

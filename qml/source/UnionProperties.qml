@@ -27,6 +27,7 @@ import "qrc:/elements"
 
 Item {
     property var dataObject
+    property var dataObjectData : dataObject.data
 
     ColumnLayout {
         spacing: 0
@@ -36,11 +37,11 @@ Item {
 
             DropDown {
                 model: ["Summation", "Subtract", "Average", "Min", "Max", "Diff", "Apply"]
-                currentIndex: dataObject.data.operation
+                currentIndex: dataObjectData.operation
                 onCurrentIndexChanged: {
-                    dataObject.data.operation = currentIndex;
-                    if (dataObject.data.operation === UnionSource.Apply) {
-                        dataObject.data.type = UnionSource.Vector;
+                    dataObjectData.operation = currentIndex;
+                    if (dataObjectData.operation === UnionSource.Apply) {
+                        dataObjectData.type = UnionSource.Vector;
                     }
                 }
                 Layout.preferredWidth: 150
@@ -51,9 +52,9 @@ Item {
 
             DropDown {
                 model: ["Vector", "Polar", "dB", "Power"]
-                currentIndex: dataObject.data.type
-                onCurrentIndexChanged: dataObject.data.type = currentIndex;
-                enabled: dataObject.data.operation !== UnionSource.Apply
+                currentIndex: dataObjectData.type
+                onCurrentIndexChanged: dataObjectData.type = currentIndex;
+                enabled: dataObjectData.operation !== UnionSource.Apply
 
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Complex numbers behaviour")
@@ -62,8 +63,8 @@ Item {
             DropDown {
                 id: count
                 model: [2, 3, 4, 5, 6, 7, 8, 9, 10]
-                currentIndex: dataObject.data.count - 2
-                onCurrentIndexChanged: dataObject.data.count = currentIndex + 2;
+                currentIndex: dataObjectData.count - 2
+                onCurrentIndexChanged: dataObjectData.count = currentIndex + 2;
                 displayText: currentIndex + 2
 
                 ToolTip.visible: hovered
@@ -84,11 +85,11 @@ Item {
                 Layout.margins: 0
 
                 onColorChanged: {
-                    dataObject.data.color = color
+                    dataObjectData.color = color
                 }
 
                 Component.onCompleted: {
-                    color = dataObject.data.color
+                    color = dataObjectData.color
                 }
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("series color")
@@ -99,13 +100,13 @@ Item {
                 target: dataObject
                 implicitWidth: 120
                 Layout.alignment: Qt.AlignVCenter
-                onTextEdited: dataObject.data.autoName = false;
+                onTextEdited: dataObjectData.autoName = false;
             }
 
             Button {
                 text: qsTr("Store");
                 onClicked: {
-                    var stored = dataObject.data.store();
+                    var stored = dataObjectData.store();
                     stored.active = true;
                     sourceList.appendItem(stored, true);
                 }
@@ -124,17 +125,17 @@ Item {
                     model: SourceModel {
                         id: sourceModel
                         addNone: (modelData > 1 ? true : false)
-                        filter: dataObject.data.uuid
+                        filter: dataObjectData.uuid
                         noneTitle: "None"
                         list: sourceList
                     }
-                    currentIndex: { model.indexOf(dataObject.data.getSourceId(index)) }
+                    currentIndex: { model.indexOf(dataObjectData.getSourceId(index)) }
                     property int prevIndex: currentIndex
                     textRole: "title"
                     valueRole: "source"
                     Layout.fillWidth: true
                     onCurrentIndexChanged: {
-                        if (!dataObject.data.setSource(index, model.get(currentIndex))) {
+                        if (!dataObjectData.setSource(index, model.get(currentIndex))) {
                             currentIndex = prevIndex;
                             return;
                         }

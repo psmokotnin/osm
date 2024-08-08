@@ -170,7 +170,7 @@ void Abstract::copy(FTData *dataDist, TimeData *timeDist)
 }
 
 void Abstract::copyFrom(size_t dataSize, size_t timeSize, Abstract::FTData *dataSrc,
-                      Abstract::TimeData *timeSrc)
+                        Abstract::TimeData *timeSrc)
 {
     m_dataLength = dataSize;
     m_deconvolutionSize = timeSize;

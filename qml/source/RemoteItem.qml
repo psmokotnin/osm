@@ -24,6 +24,7 @@ import "qrc:/"
 Item {
     id: item
     property var dataModel;
+    property var dataModelData : dataModel.data
     property bool chartable : true;
     property bool highlight : false;
     property string propertiesQml: "qrc:/source/RemoteItemProperties.qml"
@@ -37,13 +38,13 @@ Item {
             id: checkbox
             Layout.alignment: Qt.AlignVCenter
 
-            checkedColor: (dataModel && dataModel.data ? dataModel.data.color : "")
+            checkedColor: (dataModel && dataModelData ? dataModelData.color : "")
 
             onCheckStateChanged: {
-                dataModel.data.active = checked
+                dataModelData.active = checked
             }
             Component.onCompleted: {
-                checked = dataModel.data.active
+                checked = dataModelData.active
             }
         }
 
@@ -53,7 +54,7 @@ Item {
             Label {
                 Layout.fillWidth: true
                 font.bold: highlight
-                text:  (dataModel && dataModel.data ? dataModel.data.name : "")
+                text:  (dataModel && dataModelData ? dataModelData.name : "")
             }
 
             RowLayout {
@@ -64,8 +65,8 @@ Item {
                     radius: width /2
                     color: updateColor()
                     function updateColor() {
-                        if (dataModel && dataModel.data) {
-                            switch(dataModel.data.state) {
+                        if (dataModel && dataModelData) {
+                            switch(dataModelData.state) {
                                 case 1:
                                     return Material.color(Material.Orange);
                                 case 2:
@@ -76,7 +77,7 @@ Item {
                         return Material.color(Material.Red);
                     }
                     Connections {
-                        target: dataModel.data
+                        target: dataModelData
                         function onStateChanged() {
                             color = indicator.updateColor();
                         }
@@ -87,18 +88,18 @@ Item {
                     Layout.fillWidth: true
                     font.bold: highlight
                     font.pixelSize: 10
-                    text:  (dataModel && dataModel.data ? "@" + dataModel.data.host : "")
+                    text:  (dataModel && dataModelData ? "@" + dataModelData.host : "")
                 }
             }
         }
 
         Connections {
-            target: dataModel.data
+            target: dataModelData
             function onColorChanged() {
-                checkbox.checkedColor = dataModel.data.color;
+                checkbox.checkedColor = dataModelData.color;
             }
             function onActiveChanged() {
-                checkbox.checked = dataModel.data.active;
+                checkbox.checked = dataModelData.active;
             }
         }
     }
@@ -122,13 +123,13 @@ Item {
         ToolTip.visible: hovered
         ToolTip.text: qsTr("refresh data")
 
-        onClicked: dataModel.data.refresh();
+        onClicked: dataModelData.refresh();
     }
 
     Component.onCompleted: {
-        if (dataModel.data.objectName === "RemoteMeasurement") {
+        if (dataModelData.objectName === "RemoteMeasurement") {
             propertiesQml = "qrc:/source/MeasurementProperties.qml";
-        } else if (dataModel.data.objectName === "RemoteStored") {
+        } else if (dataModelData.objectName === "RemoteStored") {
             propertiesQml = "qrc:/source/StoredProperties.qml";
         }
     }

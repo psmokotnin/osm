@@ -22,6 +22,7 @@ import "qrc:/"
 
 Item {
     property var dataModel;
+    property var dataModelData : dataModel.data
     property bool chartable : true;
     property bool highlight : false;
     property string propertiesQml: "qrc:/source/StandardLineProperties.qml"
@@ -35,13 +36,13 @@ Item {
             id: checkbox
             Layout.alignment: Qt.AlignVCenter
 
-            checkedColor: (dataModel ? dataModel.data.color : "")
+            checkedColor: (dataModel ? dataModelData.color : "")
 
             onCheckStateChanged: {
-                dataModel.data.active = checked
+                dataModelData.active = checked
             }
             Component.onCompleted: {
-                checked = dataModel.data.active
+                checked = dataModelData.active
             }
         }
 
@@ -51,18 +52,18 @@ Item {
             Label {
                 Layout.fillWidth: true
                 font.bold: highlight
-                text:  (dataModel ? dataModel.data.name : "")
+                text:  (dataModel ? dataModelData.name : "")
             }
 
         }
 
         Connections {
-            target: dataModel.data
+            target: dataModelData
             function onColorChanged() {
-                checkbox.checkedColor = dataModel.data.color;
+                checkbox.checkedColor = dataModelData.color;
             }
             function onActiveChanged() {
-                checkbox.checked = dataModel.data.active;
+                checkbox.checked = dataModelData.active;
             }
         }
     }

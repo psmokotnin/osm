@@ -21,7 +21,8 @@ import QtQuick.Layouts 1.3
 import "qrc:/"
 
 Source {
-    property var dataModel : [];
+    property var dataModel : { data: null};
+    property var dataModelData : dataModel.data
     property bool chartable : true;
     property bool highlight : false;
     property string propertiesQml: "qrc:/source/FilterProperties.qml"
@@ -35,13 +36,13 @@ Source {
             id: checkbox
             Layout.alignment: Qt.AlignVCenter
 
-            checkedColor: (dataModel.data ? dataModel.data.color : "")
+            checkedColor: (dataModelData ? dataModelData.color : "")
 
             onCheckStateChanged: {
-                dataModel.data.active = checked
+                dataModelData.active = checked
             }
             Component.onCompleted: {
-                checked = dataModel.data ? dataModel.data.active : false
+                checked = dataModelData ? dataModelData.active : false
             }
         }
 
@@ -51,15 +52,15 @@ Source {
             Label {
                 Layout.fillWidth: true
                 font.bold: highlight
-                text:  (dataModel.data ? dataModel.data.name : "")
+                text:  (dataModelData ? dataModelData.name : "")
             }
 
         }
 
         Connections {
-            target: dataModel.data
+            target: dataModelData
             function onColorChanged() {
-                checkbox.checkedColor = dataModel.data.color;
+                checkbox.checkedColor = dataModelData.color;
             }
         }
     }

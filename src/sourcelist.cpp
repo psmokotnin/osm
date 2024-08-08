@@ -44,7 +44,7 @@ SourceList::SourceList(QObject *parent, bool appendMeasurement) :
 SourceList *SourceList::clone(QObject *parent, QUuid filter) const
 {
     SourceList *list = new SourceList(parent, false);
-    for (auto item : items()) {
+    for (const auto &item : items()) {
         if (filter.isNull() || filter != item->uuid()) {
             list->appendItem(item);
         }
@@ -94,10 +94,12 @@ QUrl SourceList::currentFile() const noexcept
 {
     return m_currentFile;
 }
-Source::Shared SourceList::get(int i) const noexcept
+const Source::Shared &SourceList::get(int i) const noexcept
 {
-    if (i < 0 || i >= m_items.size())
-        return {};
+    if (i < 0 || i >= m_items.size()) {
+        static Source::Shared s;
+        return s;
+    }
 
     return m_items.at(i);
 }
@@ -199,7 +201,7 @@ bool SourceList::save(const QUrl &fileName) const noexcept
 
     QJsonArray data;
     for (int i = 0; i < m_items.size(); ++i) {
-        auto item = m_items.at(i);
+        auto &item = m_items.at(i);
         if (!item) {
             continue;
         }
@@ -449,12 +451,28 @@ Source::Shared SourceList::selected() const noexcept
     return m_items.value(m_selected);
 }
 
+QUuid SourceList::selectedUuid() const noexcept
+{
+    if (m_selected >= 0 && m_selected < m_items.size()) {
+        return m_items.at(m_selected)->uuid();
+    }
+    return {};
+}
+
 void SourceList::setSelected(int selected)
 {
     if (m_selected != selected) {
         m_selected = selected;
         emit selectedChanged();
     }
+}
+
+QColor SourceList::highlightColor() const
+{
+    if (m_selected >= 0 && m_selected < m_items.size()) {
+        return m_items.at(m_selected)->color();
+    }
+    return QColor{ "black" };
 }
 
 void SourceList::check(const QUuid item)
@@ -561,7 +579,7 @@ template<typename T> bool SourceList::loadObject(const QJsonObject &data)
     if (data.isEmpty())
         return false;
 
-    auto s = std::make_shared<T>(this);
+    auto s = std::make_shared<T>();
     s->fromJSON(data, this);
     Source::Shared shared{ s };
     appendItem(shared, false);
@@ -570,7 +588,7 @@ template<typename T> bool SourceList::loadObject(const QJsonObject &data)
 }
 template<typename T> Source::Shared SourceList::add()
 {
-    Source::Shared t{ std::make_shared<T>(this) };
+    Source::Shared t{ std::make_shared<T>() };
     appendItem(t, true);
     return t;
 }
@@ -628,10 +646,11 @@ void SourceList::removeItem(const Source::Shared &item, bool deleteItem)
         if (m_items.at(i) == item) {
             auto item = get(i);
             emit preItemRemoved(i);
+            m_items.replace(i, Source::Shared{});
             m_items.removeAt(i);
-            emit postItemRemoved();
             if (deleteItem)
                 item->destroy();
+            emit postItemRemoved();
             break;
         }
     }
@@ -643,7 +662,7 @@ void SourceList::removeItem(const QUuid &uuid)
         removeItem(s);
     }
 }
-void SourceList::cloneItem(Source::Shared item)
+void SourceList::cloneItem(const Source::Shared &item)
 {
     auto newItem = item->clone();
     if (newItem) {
@@ -651,7 +670,7 @@ void SourceList::cloneItem(Source::Shared item)
     }
 }
 
-void SourceList::storeItem(Source::Shared item)
+void SourceList::storeItem(const Source::Shared &item)
 {
     if (!item) {
         return;

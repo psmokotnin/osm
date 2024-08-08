@@ -22,6 +22,7 @@ import "qrc:/"
 
 Item {
     property var dataModel;
+    property var dataModelData : dataModel.data
     property bool chartable : true;
     property bool highlight : false;
     property string propertiesQml: "qrc:/source/UnionProperties.qml"
@@ -35,13 +36,13 @@ Item {
             id: checkbox
             Layout.alignment: Qt.AlignVCenter
 
-            checkedColor: (dataModel && dataModel.data ? dataModel.data.color : "")
+            checkedColor: (dataModel && dataModelData ? dataModelData.color : "")
 
             onCheckStateChanged: {
-                dataModel.data.active = checked
+                dataModelData.active = checked
             }
             Component.onCompleted: {
-                checked = dataModel.data.active
+                checked = dataModelData.active
             }
         }
 
@@ -51,26 +52,26 @@ Item {
             Label {
                 Layout.fillWidth: true
                 font.bold: highlight
-                text:  (dataModel && dataModel.data ? dataModel.data.name : "")
+                text:  (dataModel && dataModelData ? dataModelData.name : "")
             }
 
             RowLayout {
                 Layout.maximumHeight: 7
 
                 Repeater {
-                    model: dataModel && dataModel.data ? dataModel.data.count : 0
+                    model: dataModel && dataModelData ? dataModelData.count : 0
 
                     Rectangle {
-                        property var source: dataModel && dataModel.data ? dataModel.data.getSource(index) : source
+                        property var source: dataModel && dataModelData ? dataModelData.getSource(index) : source
                         color: (source && source.data ? source.data.color : "transparent")
                         width: 7
                         height: 7
                         visible: (source ? true : false)
 
                         Connections {
-                            target: dataModel.data
+                            target: dataModelData
                             function onModelChanged() {
-                                source = dataModel.data.getSource(index);
+                                source = dataModelData.getSource(index);
                             }
                         }
                     }
@@ -80,12 +81,12 @@ Item {
         }
 
         Connections {
-            target: dataModel.data
+            target: dataModelData
             function onColorChanged() {
-                checkbox.checkedColor = dataModel.data.color;
+                checkbox.checkedColor = dataModelData.color;
             }
             function onActiveChanged() {
-                checkbox.checked = dataModel.data ? dataModel.data.active : false;
+                checkbox.checked = dataModelData ? dataModelData.active : false;
             }
         }
     }

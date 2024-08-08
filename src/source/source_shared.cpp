@@ -26,4 +26,6 @@ Shared::Shared(std::shared_ptr<Source::Abstract> ptr)
 
 }
 
+Shared::~Shared() = default;
+
 } // namespace Source

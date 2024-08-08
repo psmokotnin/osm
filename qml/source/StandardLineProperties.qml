@@ -27,6 +27,7 @@ import "qrc:/elements"
 
 Item {
     property var dataObject
+    property var dataObjectData : dataObject.data
 
     ColumnLayout {
         spacing: 0
@@ -36,26 +37,26 @@ Item {
 
             DropDown {
                 id: modeSelect
-                model: dataObject.data.modes
-                currentIndex: dataObject.data.mode
+                model: dataObjectData.modes
+                currentIndex: dataObjectData.mode
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Standard")
-                onCurrentIndexChanged: dataObject.data.mode = currentIndex;
+                onCurrentIndexChanged: dataObjectData.mode = currentIndex;
                 Layout.preferredWidth: 200
             }
 
             SelectableSpinBox {
-                value: dataObject.data.loudness
-                onValueChanged: dataObject.data.loudness = value
+                value: dataObjectData.loudness
+                onValueChanged: dataObjectData.loudness = value
                 from: 20
                 to: 100
                 editable: true
-                visible: dataObject.data.mode === StandardLine.ELC
+                visible: dataObjectData.mode === StandardLine.ELC
             }
 
             Label {
                 text: qsTr("phon")
-                visible: dataObject.data.mode === StandardLine.ELC
+                visible: dataObjectData.mode === StandardLine.ELC
 
                 horizontalAlignment: Text.AlignLeft
             }
@@ -71,11 +72,11 @@ Item {
                 Layout.margins: 0
 
                 onColorChanged: {
-                    dataObject.data.color = color
+                    dataObjectData.color = color
                 }
 
                 Component.onCompleted: {
-                    color = dataObject.data.color
+                    color = dataObjectData.color
                 }
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("series color")

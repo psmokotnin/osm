@@ -31,7 +31,7 @@ SeriesFBO::SeriesFBO(Source::Shared source, RendererCreator rc, QQuickItem *pare
     connect(source.get(), SIGNAL(activeChanged()),      SLOT(update()));
 }
 
-Source::Shared SeriesFBO::source() const noexcept
+const Source::Shared &SeriesFBO::source() const noexcept
 {
     return m_source;
 }
@@ -49,7 +49,7 @@ void SeriesFBO::setZIndex(int index)
 {
     setZ(index);
 }
-const bool &SeriesFBO::highlighted() const noexcept
+bool SeriesFBO::highlighted() const noexcept
 {
     return m_highlighted;
 }

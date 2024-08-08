@@ -166,6 +166,7 @@ void Plot::removeDataSource(const Source::Shared &source)
         if (series->source() == source) {
             emit series->preSourceDeleted();
             series->deleteLater();
+
             m_serieses.removeOne(series);
             if (source) {
                 m_selected.removeAll(source->uuid());
@@ -176,20 +177,20 @@ void Plot::removeDataSource(const Source::Shared &source)
         }
     }
 }
-void Plot::setSourceZIndex(const Source::Shared &source, int index)
+void Plot::setSourceZIndex(const QUuid &source, int index)
 {
     foreach (SeriesItem *series, m_serieses) {
-        if (series->source() == source) {
+        if (series->source() && series->source()->uuid() == source) {
             series->setZIndex(index + 10);
             return;
         }
     }
 }
 
-void Plot::setHighlighted(const Source::Shared &source)
+void Plot::setHighlighted(const QUuid &source)
 {
     foreach (SeriesItem *series, m_serieses) {
-        series->setHighlighted((series->source() == source));
+        series->setHighlighted((series->source() && series->source()->uuid() == source));
     }
 }
 

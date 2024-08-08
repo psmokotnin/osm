@@ -72,7 +72,6 @@ void AutoSaver::load()
 
 void AutoSaver::save()
 {
-
     auto url = fileName();
     if (list()->save(url)) {
         m_settings->setValue(FILE_KEY, url);

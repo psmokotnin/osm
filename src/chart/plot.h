@@ -55,8 +55,8 @@ public:
 
     virtual void appendDataSource(const Source::Shared &source);
     virtual void removeDataSource(const Source::Shared &source);
-    virtual void setSourceZIndex(const Source::Shared &source, int index);
-    virtual void setHighlighted(const Source::Shared &source);
+    virtual void setSourceZIndex(const QUuid &source, int index);
+    virtual void setHighlighted(const QUuid &source);
 
     Q_INVOKABLE virtual void setHelper(qreal x, qreal y) noexcept = 0;
     Q_INVOKABLE virtual void unsetHelper() noexcept = 0;

@@ -47,7 +47,7 @@ public:
 
     Q_INVOKABLE void appendDataSource(const Source::Shared &source);
     Q_INVOKABLE void removeDataSource(const Source::Shared &source);
-    Q_INVOKABLE void setSourceZIndex(const Source::Shared &source, int index);
+    Q_INVOKABLE void setSourceZIndex(const QUuid &source, int index);
     Q_INVOKABLE QString urlForGrab(QUrl url) const;
 
     Plot *plot() const noexcept;

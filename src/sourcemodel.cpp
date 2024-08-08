@@ -39,7 +39,7 @@ QVariant SourceModel::data(const QModelIndex &index, int role) const
         return QVariant();
 
     auto j = index.row();
-    Source::Shared source = m_list->items().at(j);
+    const Source::Shared &source = m_list->items().at(j);
     QVariant r = {};
     switch (role) {
     case NameRole:

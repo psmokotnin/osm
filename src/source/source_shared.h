@@ -34,6 +34,7 @@ class Shared : public std::shared_ptr<Source::Abstract>
 
 public:
     Shared(std::shared_ptr<Source::Abstract> ptr = nullptr);
+    ~Shared();
 };
 
 } // namespace Source

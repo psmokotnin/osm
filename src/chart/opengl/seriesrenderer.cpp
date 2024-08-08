@@ -55,6 +55,7 @@ void SeriesRenderer::synchronize(QQuickFramebufferObject *item)
 {
     std::lock_guard<std::mutex> guard(m_active);
     m_item = item;
+    bool reset = false;
     if (item) {
         auto seriesFBO = dynamic_cast<SeriesFBO *>(item);
         if (seriesFBO && (m_source = seriesFBO->source())) {
@@ -69,7 +70,16 @@ void SeriesRenderer::synchronize(QQuickFramebufferObject *item)
             } else {
                 m_renderActive = false;
             }
+        } else {
+            reset = true;
         }
+    } else {
+        reset = true;
+    }
+
+    if (reset) {
+        m_renderActive = false;
+        m_source.reset();
     }
 }
 

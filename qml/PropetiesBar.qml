@@ -21,6 +21,7 @@ import QtQuick.Controls 2.12
 Item {
     property alias stack: propertiesStack
     property var currentObject : null
+    property var currentQml : null
 
     StackView {
         id: propertiesStack
@@ -58,23 +59,30 @@ Item {
     }
 
     function open(pushObject, propertiesQml) {
-        reset();
-        currentObject = pushObject;
-        if (propertiesQml) {
-            var item = propertiesStack.replace(
-                    propertiesQml,
-                    {
-                        dataObject: pushObject
-                    }
-            );
-        }
-        else
+        if (currentObject !== pushObject || currentQml !== propertiesQml) {
+
+            reset();
+            currentObject = pushObject;
+            currentQml = propertiesQml;
+            if (propertiesQml) {
+                var item = propertiesStack.replace(
+                        propertiesQml,
+                        {
+                            dataObject: pushObject
+                        }
+                );
+            }
+            else
             console.error("qml not set for ", pushObject)
+        }
+        delete pushObject;
     }
 
     function reset() {
         propertiesStack.clear();
         propertiesStack.push(topView);
+        currentObject = null;
+        currentQml = null;
     }
 
     function clear() {
@@ -85,9 +93,5 @@ Item {
         if (!currentObject) {
             reset();
         }
-    }
-
-    onCurrentObjectChanged: {
-        check();
     }
 }

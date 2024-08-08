@@ -362,9 +362,9 @@ Item {
             onCurrentIndexChanged: sourceList.selectedIndex = currentIndex
             currentIndex: -1
             highlight: Rectangle {
-                border.color: sourceList.selected && sourceList.selected.data ? sourceList.selected.data.color : "black"
+                border.color: sourceList.highlightColor
                 border.width: 0.5
-                visible: sourceList.selected ? true : false
+                visible: sourceList.selectedIndex >= 0 ? true : false
                 color: "transparent"
             }
 

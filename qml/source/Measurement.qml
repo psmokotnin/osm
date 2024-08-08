@@ -24,6 +24,7 @@ Item {
     id: measurement
 
     property var dataModel;
+    property var dataModelData : dataModel.data
     property bool chartable : true;
     property bool highlight : false;
     property string propertiesQml: "qrc:/source/MeasurementProperties.qml"
@@ -38,14 +39,14 @@ Item {
         MulticolorCheckBox {
             id: checkbox
             Layout.alignment: Qt.AlignVCenter
-            checked: (dataModel.data ? dataModel.data.active : false)
-            checkedColor: (dataModel.data ? dataModel.data.color : "none")
+            checked: (dataModelData ? dataModelData.active : false)
+            checkedColor: (dataModelData ? dataModelData.color : "none")
 
             onCheckStateChanged: {
-                if (dataModel && dataModel.data)
-                    dataModel.data.active = checked
+                if (dataModel && dataModelData)
+                    dataModelData.active = checked
             }
-            error: (dataModel.data ? dataModel.data.error : false)
+            error: (dataModelData ? dataModelData.error : false)
         }
 
         ColumnLayout {
@@ -54,39 +55,39 @@ Item {
             Label {
                 Layout.fillWidth: true
                 font.bold: highlight
-                text:  (dataModel.data ? dataModel.data.name : "")
+                text:  (dataModelData ? dataModelData.name : "")
             }
 
             Meter {
-                dBV: (dataModel.data ? dataModel.data.level : 0)
-                peak:(dataModel.data ? dataModel.data.measurementPeak : 0)
+                dBV: (dataModelData ? dataModelData.level : 0)
+                peak:(dataModelData ? dataModelData.measurementPeak : 0)
                 width: parent.width
             }
 
             Meter {
-                dBV: (dataModel.data ? dataModel.data.referenceLevel : 0)
-                peak:(dataModel.data ? dataModel.data.referencePeak : 0)
+                dBV: (dataModelData ? dataModelData.referenceLevel : 0)
+                peak:(dataModelData ? dataModelData.referencePeak : 0)
                 width: parent.width
             }
         }
 
         Connections {
-            target: dataModel.data
+            target: dataModelData
             function onColorChanged() {
-                checkbox.checkedColor = dataModel.data.color;
+                checkbox.checkedColor = dataModelData.color;
             }
         }
 
         Component.onCompleted: {
-            if (!dataModel || !dataModel.data) {
+            if (!dataModel || !dataModelData) {
                 return;
             }
-            if (!dataModel.data.isColorValid()) {
-                dataModel.data.color = applicationWindow.dataSourceList.nextColor();
+            if (!dataModelData.isColorValid()) {
+                dataModelData.color = applicationWindow.dataSourceList.nextColor();
             }
-            dataModel.data.errorChanged.connect(function(error) {
+            dataModelData.errorChanged.connect(function(error) {
                 if (error) {
-                    applicationWindow.message.showError(qsTr("Can't start the %1.<br/>Device is not supported or busy.").arg(dataModel.data.name));
+                    applicationWindow.message.showError(qsTr("Can't start the %1.<br/>Device is not supported or busy.").arg(dataModelData.name));
                 }
             });
         }
