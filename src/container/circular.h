@@ -38,7 +38,8 @@ public:
     const T &read()
     {
         if (m_collected == 0) {
-            return 0;
+            static const T t {0};
+            return t;
         }
 
         T *v = m_data.data() + m_read;
