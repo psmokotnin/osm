@@ -85,6 +85,11 @@ void Abstract::setUuid(const QUuid &newUuid)
     m_uuid = newUuid;
 }
 
+Source::Shared Abstract::store()
+{
+    return {};
+}
+
 QUuid Abstract::uuid() const
 {
     return m_uuid;

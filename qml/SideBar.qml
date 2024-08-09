@@ -380,15 +380,14 @@ Item {
                 context: Qt.ApplicationShortcut
                 onActivated: {
                     for (var i = 0; i < sourceList.count; i++) {
-                        if (sourceList.get(i) && sourceList.get(i).active &&
-                                (sourceList.get(i).objectName === "Measurement" ||
-                                 sourceList.get(i).objectName === "Union")
-                        ) {
-                            var stored = sourceList.get(i).store();
-
-                            stored.autoName(sourceList.get(i).name);
-                            stored.active = true;
-                            sourceList.appendItem(stored, true);
+                        let source = sourceList.get(i).data;
+                        if ( source && source.active ) {
+                            var stored = source.store();
+                            if (stored && stored.data) {
+                                stored.data.autoName(source.name);
+                                stored.data.active = true;
+                                sourceList.appendItem(stored, true);
+                            }
                         }
                     }
                 }
@@ -399,8 +398,9 @@ Item {
                 context: Qt.ApplicationShortcut
                 onActivated: {
                     for (var i = 0; i < sourceList.count; i++) {
-                        if (sourceList.get(i).objectName === "Measurement"){
-                            sourceList.get(i).resetAverage();
+                        let source = sourceList.get(i).data;
+                        if (source && source.objectName === "Measurement"){
+                            source.resetAverage();
                         }
                     }
                 }

@@ -125,6 +125,8 @@ public:
 
     void setUuid(const QUuid &newUuid);
 
+    Q_INVOKABLE virtual Source::Shared store();
+
 signals:
     void activeChanged();
     void nameChanged(QString);

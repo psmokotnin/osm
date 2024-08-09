@@ -51,7 +51,7 @@ SourceList *SourceList::clone(QObject *parent, QUuid filter) const
     }
 
     connect(this, &SourceList::preItemRemoved, list, [ = ](int index) {
-        auto item = get(index);
+        auto item = get_ref(index);
         list->removeItem(item, false);
     });
     connect(this, &SourceList::postItemAppended, list, [ = ](auto item) {
@@ -94,7 +94,7 @@ QUrl SourceList::currentFile() const noexcept
 {
     return m_currentFile;
 }
-const Source::Shared &SourceList::get(int i) const noexcept
+const Source::Shared &SourceList::get_ref(int i) const noexcept
 {
     if (i < 0 || i >= m_items.size()) {
         static Source::Shared s;
@@ -102,6 +102,11 @@ const Source::Shared &SourceList::get(int i) const noexcept
     }
 
     return m_items.at(i);
+}
+
+Source::Shared SourceList::get(int i) const noexcept
+{
+    return get_ref(i);
 }
 
 std::lock_guard<std::mutex> SourceList::lock() const
@@ -135,7 +140,7 @@ void SourceList::clean() noexcept
     emit selectedChanged();
     while (m_items.size() > 0) {
         emit preItemRemoved(0);
-        auto item = get(0);
+        auto item = get_ref(0);
         m_items.removeAt(0);
         emit postItemRemoved();
         item->destroy();
@@ -644,7 +649,7 @@ void SourceList::removeItem(const Source::Shared &item, bool deleteItem)
     m_checked.removeAll(item->uuid());
     for (int i = 0; i < m_items.size(); ++i) {
         if (m_items.at(i) == item) {
-            auto item = get(i);
+            auto item = get_ref(i);
             emit preItemRemoved(i);
             m_items.replace(i, Source::Shared{});
             m_items.removeAt(i);

@@ -55,7 +55,9 @@ public:
 
     QUrl currentFile() const noexcept;
 
-    Q_INVOKABLE const Source::Shared &get(int i) const noexcept;
+    const Source::Shared &get_ref(int i) const noexcept;
+
+    Q_INVOKABLE Source::Shared get(int i) const noexcept;
     Q_INVOKABLE Source::Shared getByUUid(QUuid id) const noexcept;
     Q_INVOKABLE QUuid getUUid(int id) const noexcept;
     Q_INVOKABLE QUuid firstSource() const noexcept;

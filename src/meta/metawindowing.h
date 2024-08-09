@@ -88,8 +88,6 @@ public:
     void setDomain(QVariant newDomain);
     void setDomain(SourceDomain newDomain);
 
-    Q_INVOKABLE virtual Source::Shared store() = 0;
-
 //virtual signals:
     virtual void wideChanged(float) = 0;
     virtual void offsetChanged(float) = 0;

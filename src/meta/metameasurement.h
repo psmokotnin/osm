@@ -97,7 +97,6 @@ public:
     void setInputFilter(QVariant inputFilter);
 
     Q_INVOKABLE virtual void resetAverage() noexcept = 0;
-    Q_INVOKABLE virtual Source::Shared store() = 0;
     Q_INVOKABLE virtual void applyAutoGain(const float reference) = 0;
 
 //virtual signals:

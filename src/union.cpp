@@ -759,7 +759,7 @@ void Union::fromJSON(QJsonObject data, const SourceList *list) noexcept
         for (int i = 0; i < sources.count(); i++) {
             auto index = sources[i].toInt();
 
-            auto source = list->get(index);
+            auto source = list->get_ref(index);
             if (source) {
                 setSource(i, source);
             }

@@ -231,7 +231,7 @@ void VariableChart::setSources(SourceList *sourceList)
         });
 
         connect(m_sources, &SourceList::preItemRemoved, this, [ = ](int index) {
-            auto source = m_sources->get(index);
+            auto source = m_sources->get_ref(index);
             removeDataSource(source);
         });
 

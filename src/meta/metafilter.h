@@ -69,8 +69,6 @@ public:
     void setOrder(unsigned int newOrder);
     QVariant getAvailableOrders();
 
-    Q_INVOKABLE virtual Source::Shared store() = 0;
-
 //virtual signals:
     virtual void sampleRateChanged(unsigned int) = 0;
     virtual void typeChanged(meta::Filter::Type) = 0;

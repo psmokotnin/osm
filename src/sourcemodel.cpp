@@ -152,7 +152,7 @@ int SourceModel::indexOf(const QUuid &item) const noexcept
 
 QUuid SourceModel::get(const int &index) const noexcept
 {
-    auto item = m_list->get(index);
+    auto item = m_list->get_ref(index);
     return item ? item->uuid() : QUuid{};
 }
 
