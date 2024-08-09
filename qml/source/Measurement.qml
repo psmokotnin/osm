@@ -83,7 +83,7 @@ Item {
                 return;
             }
             if (!dataModelData.isColorValid()) {
-                dataModelData.color = applicationWindow.dataSourceList.nextColor();
+                dataModelData.color = sourceList.nextColor();
             }
             dataModelData.errorChanged.connect(function(error) {
                 if (error) {

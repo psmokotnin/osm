@@ -107,7 +107,7 @@ Item {
                 text: qsTr("Store");
                 onClicked: {
                     var stored = dataObjectData.store();
-                    stored.active = true;
+                    stored.data.active = true;
                     sourceList.appendItem(stored, true);
                 }
                 ToolTip.visible: hovered

@@ -176,7 +176,7 @@ Item {
                 onClicked: {
                     var stored = dataObjectData.store();
                     if (stored) {
-                        stored.active = true;
+                        stored.data.active = true;
                         sourceList.appendItem(stored, true);
                     }
                 }

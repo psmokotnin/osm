@@ -35,7 +35,7 @@ Item {
             }
 
             Label {
-                text: dataObject.name
+                text: dataObject ? dataObject.name : ""
             }
 
             Label {
@@ -43,7 +43,7 @@ Item {
             }
 
             Label {
-                text: dataObject.host
+                text: dataObject ? dataObject.host : ""
             }
         }
 
