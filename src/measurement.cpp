@@ -305,6 +305,7 @@ void Measurement::applyInputFilters()
         auto q = 3.f;// AES17-1998 says: 1 to 5
         std::atomic_store(&m_inputFilters.first,  std::shared_ptr<math::Filter>(new math::Notch(1000, q, sampleRate())));
         std::atomic_store(&m_inputFilters.second, std::shared_ptr<math::Filter>(new math::Notch(1000, q, sampleRate())));
+        break;
     }
     case InputFilter::BP100: {
         auto q = 5.f;
