@@ -71,6 +71,10 @@ Item {
             function onColorChanged() {
                 checkbox.checkedColor = dataModelData.color;
             }
+
+            function onActiveChanged() {
+                checkbox.checked = dataModelData ? dataModelData.active : false;
+            }
         }
     }
 }

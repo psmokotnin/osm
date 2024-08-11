@@ -16,6 +16,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "notifier.h"
 #include "sourcewindowing.h"
 #include "sourcelist.h"
 #include "stored.h"
@@ -236,6 +237,9 @@ void Windowing::updateFromFrequencyDomain()
 
     if (m_usedMode >= Mode::LTW1) {
         setActive(false);
+        emit Notifier::getInstance()->newMessage(
+            name(),
+            " LTW mode can be applied only for Time domain: " + name());
         return;
     }
 
