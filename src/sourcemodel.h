@@ -54,6 +54,7 @@ public:
 
     Q_INVOKABLE int indexOf(const QUuid &item) const noexcept;
     Q_INVOKABLE QUuid get(const int &index) const noexcept;
+    Q_INVOKABLE Source::Shared getShared(const int &index) const noexcept;
 
     Q_INVOKABLE void check(const int &index, const bool &checked) noexcept;
     Q_INVOKABLE int checkedCount() const;

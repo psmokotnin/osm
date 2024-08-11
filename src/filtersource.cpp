@@ -41,7 +41,7 @@ FilterSource::FilterSource(QObject *parent) : Source::Abstract(parent), meta::Fi
 
 Source::Shared FilterSource::clone() const
 {
-    auto cloned = std::make_shared<FilterSource>(parent());
+    auto cloned = std::make_shared<FilterSource>();
     cloned->setActive(active());
     cloned->setName(name());
     cloned->setMode(mode());

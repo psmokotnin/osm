@@ -68,8 +68,7 @@ public:
     Q_INVOKABLE Source::Shared getSource(int index) const noexcept;
     Q_INVOKABLE QUuid getSourceId(int index) const noexcept;
 
-    bool setSource(int index, const Source::Shared &s) noexcept;
-    Q_INVOKABLE bool setSource(int index, QUuid id) noexcept;
+    Q_INVOKABLE bool setSource(int index, const Source::Shared &s) noexcept;
 
     Q_INVOKABLE QJsonObject toJSON(const SourceList *list = nullptr) const noexcept override;
     void fromJSON(QJsonObject data, const SourceList *list = nullptr) noexcept override;
@@ -90,7 +89,7 @@ public:
 public slots:
     void update() noexcept;
     void calc() noexcept;
-    Source::Shared store();
+    Source::Shared store() override;
     void applyAutoName() noexcept;
     void sourceDestroyed(Source::Abstract *source);
 

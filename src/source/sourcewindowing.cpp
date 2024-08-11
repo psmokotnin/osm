@@ -51,7 +51,7 @@ Windowing::~Windowing()
 
 Source::Shared Windowing::clone() const
 {
-    auto cloned = std::make_shared<Windowing>(parent());
+    auto cloned = std::make_shared<Windowing>();
     cloned->setMode(mode());
     cloned->setOffset(offset());
     cloned->setWide(wide());
@@ -214,6 +214,7 @@ void Windowing::resizeData()
 
             m_impulseData[j].time = t * kt;//ms
         }
+        m_resize = false;
     }
 }
 
@@ -440,13 +441,15 @@ void Windowing::setSource(const Source::Shared &newSource)
 
         if (m_source) {
             connect(m_source.get(), &Source::Abstract::beforeDestroy, this, [this]() {
-                setSource(nullptr);
+                setSource(Source::Shared{ nullptr });
             }, Qt::DirectConnection);
 
             connect(
                 m_source.get(), &Source::Abstract::readyRead,
                 this, &Windowing::update,
-                Qt::QueuedConnection
+
+                //TODO: QueuedConnection when it will work on its own thread
+                Qt::DirectConnection
             );
         }
         if (lockSource) {
@@ -463,15 +466,6 @@ QUuid Windowing::sourceId() const
     }
 
     return QUuid{};
-}
-
-void Windowing::setSource(QUuid id)
-{
-    auto list = qobject_cast<SourceList *>(parent());
-    if ( list) {
-        auto source = list->getByUUid(id);
-        setSource(source);
-    }
 }
 
 Source::Shared Windowing::store()

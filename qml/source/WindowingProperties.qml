@@ -150,13 +150,13 @@ Item {
                     list: sourceList
                 }
                 currentIndex: {
-                    model.indexOf(dataObjectData.source)
+                    model.indexOf(dataObjectData.sourceId)
                 }
                 textRole: "title"
                 valueRole: "source"
                 Layout.preferredWidth: elementWidth
                 onCurrentIndexChanged: {
-                    dataObjectData.source = model.get(currentIndex);
+                    dataObjectData.source = model.getShared(currentIndex);
                 }
             }
 

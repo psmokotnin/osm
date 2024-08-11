@@ -54,7 +54,7 @@ Union::~Union()
 
 Source::Shared Union::clone() const
 {
-    auto cloned = std::make_shared<Union>(parent());
+    auto cloned = std::make_shared<Union>();
 
     cloned->setCount(count());
     cloned->setOperation(operation());
@@ -174,21 +174,13 @@ bool Union::setSource(int index, const Source::Shared &s) noexcept
     return true;
 }
 
-bool Union::setSource(int index, QUuid id) noexcept
-{
-    auto list = qobject_cast<SourceList *>(parent());
-    if ( list) {
-        auto source = list->getByUUid(id);
-        return setSource(index, source);
-    }
-    return false;
-}
 void Union::update() noexcept
 {
     if (!m_timer.isActive()) {
         emit needUpdate();
     }
 }
+
 void Union::calc() noexcept
 {
     std::set<Source::Shared> sources;
@@ -709,7 +701,7 @@ void Union::sourceDestroyed(Source::Abstract *source)
     });
     if (position != m_sources.end()) {
         auto index = std::distance(m_sources.begin(), position);
-        setSource(index, nullptr);
+        setSource(index, Source::Shared{nullptr});
     }
 }
 

@@ -156,6 +156,11 @@ QUuid SourceModel::get(const int &index) const noexcept
     return item ? item->uuid() : QUuid{};
 }
 
+Source::Shared SourceModel::getShared(const int &index) const noexcept
+{
+    return m_list->get(index);
+}
+
 void SourceModel::check(const int &index, const bool &checked) noexcept
 {
     if (index == m_allIndex) {

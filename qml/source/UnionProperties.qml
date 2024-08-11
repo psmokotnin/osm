@@ -135,7 +135,7 @@ Item {
                     valueRole: "source"
                     Layout.fillWidth: true
                     onCurrentIndexChanged: {
-                        if (!dataObjectData.setSource(index, model.get(currentIndex))) {
+                        if (!dataObjectData.setSource(index, model.getShared(currentIndex))) {
                             currentIndex = prevIndex;
                             return;
                         }

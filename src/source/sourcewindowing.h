@@ -34,7 +34,8 @@ class Windowing : public Source::Abstract, public meta::Windowing
     Q_PROPERTY(float offset READ offset WRITE setOffset NOTIFY offsetChanged)
     Q_PROPERTY(float minFrequency READ minFrequency WRITE setMinFrequency NOTIFY minFrequencyChanged)
     Q_PROPERTY(float maxFrequency READ maxFrequency WRITE setMaxFrequency NOTIFY maxFrequencyChanged)
-    Q_PROPERTY(QUuid source READ sourceId WRITE setSource NOTIFY sourceChanged)
+    Q_PROPERTY(Source::Shared source READ source WRITE setSource NOTIFY sourceChanged)
+    Q_PROPERTY(QUuid sourceId READ sourceId NOTIFY sourceChanged)
     Q_PROPERTY(meta::Windowing::Mode mode READ mode WRITE setMode NOTIFY modeChanged)
     Q_PROPERTY(meta::Windowing::SourceDomain domain READ domain WRITE setDomain NOTIFY domainChanged)
     Q_PROPERTY(QString tipName READ tipName WRITE setTipName NOTIFY tipNameChanged)
@@ -57,7 +58,6 @@ public:
     void setSource(const Source::Shared &newSource);
 
     QUuid sourceId() const;
-    void setSource(QUuid id);
 
     Q_INVOKABLE Source::Shared store() override;
 

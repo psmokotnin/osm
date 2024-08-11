@@ -696,7 +696,7 @@ Source::Shared Measurement::store()
 }
 Source::Shared Measurement::clone() const
 {
-    auto cloned = std::make_shared<Measurement>(parent());
+    auto cloned = std::make_shared<Measurement>();
 
     cloned->setActive(false);
     cloned->setMode(mode());
