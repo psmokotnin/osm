@@ -25,6 +25,7 @@ class Appearance : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(bool darkMode READ darkMode WRITE setDarkMode NOTIFY darkModeChanged)
+    Q_PROPERTY(bool useSystemBrightness READ useSystemBrightness WRITE setUseSystemBrightness NOTIFY useSystemBrightnessChanged)
     Q_PROPERTY(bool showAboutOnStartup READ showAboutOnStartup CONSTANT)
     Q_PROPERTY(bool experimentFunctions READ experimentFunctions WRITE setExperimentFunctions NOTIFY
                experimentFunctionsChanged)
@@ -44,6 +45,9 @@ public:
     bool darkMode() const;
     void setDarkMode(const bool &setDark);
 
+    bool useSystemBrightness() const;
+    void setUseSystemBrightness(const bool &setSystemBrightness);
+
     bool experimentFunctions() const;
     void setExperimentFunctions(bool value);
 
@@ -58,6 +62,7 @@ public slots:
 
 signals:
     void darkModeChanged(bool);
+    void useSystemBrightnessChanged(bool);
     void experimentFunctionsChanged(bool);
     void visibilityChanged();
 
