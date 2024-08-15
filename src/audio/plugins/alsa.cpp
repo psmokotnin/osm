@@ -18,8 +18,9 @@
 #include "alsa.h"
 #include <cstring>
 #include <QCoreApplication>
-#define ALSA_BUFFER_SIZE 1024
+#define ALSA_PERIODS 16
 #define ALSA_PERIOD_SIZE 64
+#define ALSA_BUFFER_SIZE 1024
 
 struct pcm_guard {
     explicit pcm_guard() {};
@@ -284,6 +285,8 @@ bool AlsaPCMDevice::start()
     checkCall(snd_pcm_hw_params_set_format(pcm.handle, hw, SND_PCM_FORMAT_FLOAT_LE), false);
     checkCall(snd_pcm_hw_params_set_channels(pcm.handle, hw, streamFormat.channelCount), false);
     checkCall(snd_pcm_hw_params_set_rate_near(pcm.handle, hw, &sr, 0), false);
+    checkCall(snd_pcm_hw_params_set_periods(pcm.handle, hw, ALSA_PERIODS, 0), false);
+    checkCall(snd_pcm_hw_params_set_period_size(pcm.handle, hw, ALSA_PERIOD_SIZE, 0), false);
     checkCall(snd_pcm_hw_params_set_buffer_size(pcm.handle, hw, ALSA_BUFFER_SIZE), false);
     checkCall(snd_pcm_hw_params(pcm.handle, hw), false);
 
