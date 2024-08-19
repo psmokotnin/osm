@@ -555,7 +555,7 @@ void Measurement::averaging()
     for (unsigned int i = 0; i < m_dataLength ; i++) {
 
         j = static_cast<int>(i);
-        float calibratedA = m_dataFT.af(i).abs();
+        float calibratedA = M_SQRT2 * m_dataFT.af(i).abs();
         //TODO: think and do
         //if (calibratedA < someThresholdInDb ) continue;
 
