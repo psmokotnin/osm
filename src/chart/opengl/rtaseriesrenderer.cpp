@@ -19,10 +19,13 @@
 #include "rtaseriesrenderer.h"
 #include "../rtaplot.h"
 #include "common/notifier.h"
+#include "math/equalloudnesscontour.h"
+
 using namespace chart;
 RTASeriesRenderer::RTASeriesRenderer() : FrequencyBasedSeriesRenderer(),
     m_showPeaks(false), m_inited(false), m_pointsPerOctave(0),
-    m_mode(0),
+    m_mode(chart::RTAPlot::Mode::Line),
+    m_scale(chart::RTAPlot::Scale::DBfs),
     m_vertexShader(nullptr),
     m_geometryShader(nullptr),
     m_fragmentShader(nullptr)
@@ -63,7 +66,7 @@ void RTASeriesRenderer::initShaders()
         m_program.removeAllShaders();
         m_program.addShader(m_vertexShader);
         m_program.addShader(m_fragmentShader);
-        if (m_mode != 1) {
+        if (m_mode != chart::RTAPlot::Mode::Bars) {
             m_program.addShader(m_geometryShader);
         }
     }
@@ -75,7 +78,7 @@ void RTASeriesRenderer::initShaders()
     if (m_openGL33CoreFunctions) {
         m_colorUniform  = m_program.uniformLocation("m_color");
         m_matrixUniform = m_program.uniformLocation("matrix");
-        if (m_mode != 1) {
+        if (m_mode != chart::RTAPlot::Mode::Bars) {
             m_widthUniform  = m_program.uniformLocation("width");
             m_screenUniform = m_program.uniformLocation("screen");
         }
@@ -99,6 +102,9 @@ void RTASeriesRenderer::synchronize(QQuickFramebufferObject *item)
             m_mode = plot->mode();
             initShaders();
         }
+        if (m_scale != plot->scale()) {
+            m_scale = plot->scale();
+        }
         m_showPeaks = plot->showPeaks();
     }
 }
@@ -119,8 +125,7 @@ void RTASeriesRenderer::renderSeries()
     m_program.setUniformValue(m_widthUniform, m_weight * m_retinaScale);
 
     switch (m_mode) {
-    //line
-    case 0:
+    case chart::RTAPlot::Mode::Line:
         if (m_pointsPerOctave > 0) {
             renderPPOLine();
         } else {
@@ -128,13 +133,11 @@ void RTASeriesRenderer::renderSeries()
         }
         break;
 
-    //bars
-    case 1:
+    case chart::RTAPlot::Mode::Bars:
         renderBars();
         break;
 
-    //lines
-    case 2:
+    case chart::RTAPlot::Mode::Lines:
         renderLines();
         break;
 
@@ -152,19 +155,42 @@ void RTASeriesRenderer::renderLine()
         m_refreshBuffers = true;
     }
 
+    float offset = 0;
+    switch (m_scale) {
+    case RTAPlot::Scale::DBfs:
+        offset = 0;
+        break;
+    case RTAPlot::Scale::SPL:
+    case RTAPlot::Scale::Phon:
+        offset = absolute_scale_offset;
+    }
+
+    Math::EqualLoudnessContour elc;
     if (m_openGL33CoreFunctions) {
         for (unsigned int i = 0, j = 0; i < count; ++i, j += 2) {
+            auto value = 20 * log10f(m_source->module(i)) + offset;
+            if (m_scale == RTAPlot::Scale::Phon) {
+                value = elc.phone(m_source->frequency(i), value + LEVEL_NORMALIZATION) - LEVEL_NORMALIZATION;
+            }
+
             m_vertices[j] = m_source->frequency(i);
-            m_vertices[j + 1] = 20 * log10f(m_source->module(i));
+            m_vertices[j + 1] = value;
         }
 
         drawVertices(count, GL_LINE_STRIP);
     } else {
         unsigned int j = 0, i, verticiesCount = 0;
         for (i = 0; i < m_source->size() - 1; ++i) {
+
+            auto value1 = 20 * log10f(m_source->module(i)) + offset;
+            auto value2 = 20 * log10f(m_source->module(i)) + offset;
+            if (m_scale == RTAPlot::Scale::Phon) {
+                value1 = elc.phone(m_source->frequency(i    ), value1 + LEVEL_NORMALIZATION) - LEVEL_NORMALIZATION;
+                value2 = elc.phone(m_source->frequency(i + 1), value2 + LEVEL_NORMALIZATION) - LEVEL_NORMALIZATION;
+            }
             addLineSegment(j, verticiesCount,
-                           m_source->frequency(i), 20 * log10f(m_source->module(i)),
-                           m_source->frequency(i + 1), 20 * log10f(m_source->module(i + 1)),
+                           m_source->frequency(i), value1,
+                           m_source->frequency(i + 1), value2,
                            1, 1
                           );
         }
@@ -180,21 +206,33 @@ void RTASeriesRenderer::renderPPOLine()
         m_refreshBuffers = true;
     }
 
-    float value = 0, peak = 0;
+    float value = 0;
+    float offset = 0;
+    switch (m_scale) {
+    case RTAPlot::Scale::DBfs:
+        offset = 0;
+        break;
+    case RTAPlot::Scale::SPL:
+    case RTAPlot::Scale::Phon:
+        offset = absolute_scale_offset;
+    }
 
     auto accumalte = [ &, this] (const unsigned int &i) {
         if (i == 0) {
             return ;
         }
-        value += m_source->module(i);
-        peak = std::max(peak, m_source->peakSquared(i));
+        value += m_source->module(i) * m_source->module(i);
     };
 
     unsigned int i = 0, verticiesCount = 0;
-    auto collected = [ &, this] (const float & start, const float & end, const unsigned int &count) {
+    Math::EqualLoudnessContour elc;
+    auto collected = [ &, this] (const float & start, const float & end, const unsigned int &) {
 
         auto frequencyPoint = (start + end) / 2;
-        value = 20 * log10f(value / count);
+        value = 10 * log10f(value) + offset;
+        if (m_scale == RTAPlot::Scale::Phon) {
+            value = elc.phone(frequencyPoint, value + LEVEL_NORMALIZATION) - LEVEL_NORMALIZATION;
+        }
 
         if (m_openGL33CoreFunctions) {
             if (i + 2 > maxBufferSize) {
@@ -232,21 +270,40 @@ void RTASeriesRenderer::renderBars()
     unsigned int verticesCollected = 0;
 
     float value = 0, peak = 0;
+    unsigned pointCount = 0;
     float y = 1 / (m_matrix(0, 0) * m_width);
+    float offset = 0;
+    switch (m_scale) {
+    case RTAPlot::Scale::DBfs:
+        break;
+    case RTAPlot::Scale::SPL:
+    case RTAPlot::Scale::Phon:
+        offset += absolute_scale_offset;
+    }
 
     auto accumalte = [ &, this] (const unsigned int &i) {
         if (i == 0) {
             return ;
         }
-        value += 2 * m_source->module(i) * m_source->module(i) * (m_source->frequency(i) - m_source->frequency(i - 1));
+
+        value += m_source->module(i) * m_source->module(i);
         peak = std::max(peak, m_source->peakSquared(i));
+        pointCount ++;
     };
 
+    Math::EqualLoudnessContour elc;
     unsigned int i = 0;
-    auto collected = [ &, this] (const float & start, const float & end, const unsigned int &) {
+    auto collected = [ &, this] (const float & start, const float & end, const unsigned int &count) {
 
-        value = 10 * log10f(value);
-        peak  = 10 * log10f(peak);
+        value = 10 * log10f(value) + offset;
+        peak  = 10 * log10f(peak) + offset;
+
+        auto frequencyPoint = (start + end) / 2;
+        if (m_scale == RTAPlot::Scale::Phon) {
+            value = elc.phone(frequencyPoint, value + LEVEL_NORMALIZATION) - LEVEL_NORMALIZATION;
+            peak  = elc.phone(frequencyPoint, peak + LEVEL_NORMALIZATION) - LEVEL_NORMALIZATION;
+        }
+
         float shiftedStart = std::pow(M_E, std::log(start) + y);
         float shiftedEnd   = std::pow(M_E, std::log(end  ) - y);
         if (shiftedStart > shiftedEnd) {
@@ -314,6 +371,7 @@ void RTASeriesRenderer::renderBars()
         }
         value = 0;
         peak = 0;
+        pointCount = 0;
     };
 
     iterate(m_pointsPerOctave, accumalte, collected);
@@ -355,19 +413,31 @@ void RTASeriesRenderer::renderLines()
         m_refreshBuffers = true;
     }
 
+    float offset = 0;
+    switch (m_scale) {
+    case RTAPlot::Scale::DBfs:
+        offset = 0;
+        break;
+    case RTAPlot::Scale::SPL:
+        offset = absolute_scale_offset;
+
+    case RTAPlot::Scale::Phon:
+        return;
+    }
+
     if (m_openGL33CoreFunctions) {
         for (unsigned int i = 0, j = 0; i < count; ++i, j += 4) {
             m_vertices[j + 0] = m_source->frequency(i);
             m_vertices[j + 1] = m_yMin;
             m_vertices[j + 2] = m_source->frequency(i);
-            m_vertices[j + 3] = 20 * log10f(m_source->module(i));
+            m_vertices[j + 3] = 20 * log10f(m_source->module(i)) + offset;
         }
         drawVertices(count * 2, GL_LINES);
 
         if (m_showPeaks) {
             for (unsigned int i = 0, j = 0; i < count; ++i, j += 4) {
-                m_vertices[j + 1] = 10 * log10f(m_source->peakSquared(i));
-                m_vertices[j + 3] = 10 * log10f(m_source->peakSquared(i)) + 1;
+                m_vertices[j + 1] = 10 * log10f(m_source->peakSquared(i)) + offset;
+                m_vertices[j + 3] = 10 * log10f(m_source->peakSquared(i)) + 1 + offset;
             }
             drawVertices(count * 2, GL_LINES);
         }
@@ -377,12 +447,12 @@ void RTASeriesRenderer::renderLines()
         for (unsigned int i = 0; i < m_source->size(); ++i) {
             addLineSegment(j, verticiesCount,
                            m_source->frequency(i), m_yMin,
-                           m_source->frequency(i), 20 * log10f(m_source->module(i)),
+                           m_source->frequency(i), 20 * log10f(m_source->module(i)) + offset,
                            1, 1
                           );
 
             if (m_showPeaks) {
-                peak = 10 * log10f(m_source->peakSquared(i));
+                peak = 10 * log10f(m_source->peakSquared(i)) + offset;
                 addLineSegment(j, verticiesCount,
                                m_source->frequency(i), peak,
                                m_source->frequency(i), peak + 1,

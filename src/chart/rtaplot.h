@@ -23,15 +23,29 @@
 namespace chart {
 class RTAPlot : public FrequencyBasedPlot
 {
+public:
+    enum Mode {
+        Line  = 0,
+        Bars  = 1,
+        Lines = 2
+    };
+    enum Scale { DBfs, SPL, Phon };
+
     Q_OBJECT
-    Q_PROPERTY(unsigned int mode READ mode WRITE setMode NOTIFY modeChanged)
+    Q_ENUM(Mode)
+
+    Q_ENUM(Scale)
+
+    Q_PROPERTY(chart::RTAPlot::Mode mode READ mode WRITE setMode NOTIFY modeChanged)
     Q_PROPERTY(bool showPeaks READ showPeaks WRITE setShowPeaks NOTIFY showPeaksChanged)
+    Q_PROPERTY(chart::RTAPlot::Scale scale READ scale WRITE setScale NOTIFY scaleChanged)
 
 public:
     RTAPlot(Settings *settings, QQuickItem *parent = Q_NULLPTR);
 
+    chart::RTAPlot::Mode mode();
+    void setMode(chart::RTAPlot::Mode mode);
     void setMode(unsigned int mode);
-    unsigned int mode();
 
     virtual void setSettings(Settings *settings) noexcept override;
     virtual void storeSettings() noexcept override;
@@ -39,16 +53,26 @@ public:
     bool showPeaks() const;
     void setShowPeaks(bool showPeaks);
 
+    Scale scale() const;
+    void setScale(Scale newScale);
+    void setScale(unsigned int newScale);
+
+
 signals:
-    void modeChanged(unsigned int);
     void showPeaksChanged(bool);
+    void modeChanged(chart::RTAPlot::Mode);
+    void scaleChanged(chart::RTAPlot::Scale);
+
+protected slots:
+    void updateAxis();
 
 protected:
     bool isPointsPerOctaveValid(unsigned int &value) const override;
 
 private:
     virtual SeriesItem *createSeriesFromSource(const Source::Shared &source) override;
-    unsigned int m_mode;
+    Mode m_mode;
+    Scale m_scale;
     bool m_spline, m_showPeaks;
 };
 }

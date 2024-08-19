@@ -34,6 +34,7 @@ Item {
         spacing: 0
 
         RowLayout {
+            id: axis
             spacing: 0
 
             SelectableSpinBox {
@@ -79,6 +80,7 @@ Item {
             }
 
             SelectableSpinBox {
+                id: ymin
                 value: dataObject.ymin
                 onValueChanged: dataObject.ymin = value
                 from: dataObject.yLowLimit
@@ -100,6 +102,7 @@ Item {
             }
 
             SelectableSpinBox {
+                id: ymax
                 value: dataObject.ymax
                 onValueChanged: dataObject.ymax = value
                 from: dataObject.yLowLimit
@@ -117,6 +120,26 @@ Item {
 
                 valueFromText: function(text, locale) {
                     return parseInt(text)
+                }
+
+            }
+
+            function onYLimitsChanged() {
+                ymax.from  = dataObject.yLowLimit;
+                ymax.to    = dataObject.yHighLimit;
+                ymax.value = dataObject.ymax;
+                ymin.from  = dataObject.yLowLimit;
+                ymin.to    = dataObject.yHighLimit;
+                ymin.value = dataObject.ymin;
+            }
+
+            Connections {
+                target: dataObject
+                function onYmaxChanged() {
+                    axis.onYLimitsChanged();
+                }
+                function onYminChanged() {
+                    axis.onYLimitsChanged();
                 }
             }
 
@@ -162,6 +185,21 @@ Item {
 
                 onCurrentIndexChanged: {
                     dataObject.pointsPerOctave = model[currentIndex] === "off" ? 0 : model[currentIndex];
+                    if (model[currentIndex] === "off" && dataObject.mode === 1 /*bars*/) {
+                        dataObject.mode = 0;
+                    }
+                }
+            }
+
+            TitledCombo {
+                id: scale
+                implicitWidth: 170
+                title: qsTr("")
+                tooltip: qsTr("Show values in")
+                model: ["dBfs", "SPL", "phons"]
+                currentIndex: dataObject.scale;
+                onCurrentIndexChanged: {
+                    dataObject.scale = currentIndex;
                 }
             }
 

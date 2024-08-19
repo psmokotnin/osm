@@ -48,7 +48,11 @@ private:
     void initShaders();
 
     bool m_showPeaks, m_inited;
-    unsigned int m_pointsPerOctave, m_mode;
+    unsigned int m_pointsPerOctave;
+    RTAPlot::Mode m_mode;
+    RTAPlot::Scale m_scale;
+    static constexpr float absolute_scale_offset = 140.f;
+
     QOpenGLShader *m_vertexShader, *m_geometryShader, *m_fragmentShader;
 };
 }
