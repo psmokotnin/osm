@@ -49,6 +49,7 @@ SOURCES += src/main.cpp \
     src/common/profiler.cpp \
     src/math/bandpass.cpp \
     src/math/biquad.cpp \
+    src/math/equalloudnesscontour.cpp \
     src/math/integration_tree.cpp \
     src/math/leq.cpp \
     src/math/notch.cpp \
@@ -182,6 +183,7 @@ HEADERS += \
     src/math/bandpass.h \
     src/math/bessellpf.h \
     src/math/biquad.h \
+    src/math/equalloudnesscontour.h \
     src/math/filter.h \
     src/math/integration_tree.h \
     src/math/leq.h \
