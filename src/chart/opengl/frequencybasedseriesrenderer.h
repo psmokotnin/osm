@@ -27,7 +27,7 @@ class FrequencyBasedSeriesRenderer : public XYSeriesRenderer, public FrequencyBa
 {
 
 protected:
-    constexpr const static float LEVEL_NORMALIZATION = -46.81f;
+    constexpr const static float LEVEL_NORMALIZATION = 0;
 
     virtual void updateMatrix() override;
     void setUniforms();

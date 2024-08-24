@@ -319,7 +319,7 @@ void Windowing::updateFromFrequencyDomain()
     //fill time data
     int t = 0;
     float kt = 1000.f / sampleRate();
-    float norm = 1 / sqrt(m_deconvolutionSize);
+    float norm = 1.f / m_deconvolutionSize;
     for (unsigned int i = 0, j = m_deconvolutionSize / 2 - 1; i < m_deconvolutionSize; i++, j++, t++) {
 
         if (t > static_cast<int>(m_deconvolutionSize / 2)) {
@@ -383,12 +383,10 @@ void Windowing::updateFromTimeDomain(const Source::Shared &source)
 
 void Windowing::transform()
 {
-    auto m_norm = 1.f;
     if (m_usedMode >= Mode::LTW1) {
         m_dataFT.log();
     } else {
         m_dataFT.transformSingleChannel(true);
-        m_norm = 1.f / sqrtf(m_deconvolutionSize);
     }
 
     auto criticalFrequency = 1000 / wide();
@@ -401,7 +399,7 @@ void Windowing::transform()
             m_ftdata[i].coherence *= (m_ftdata[i].frequency - criticalFrequency) / criticalFrequency;
         }
 
-        m_ftdata[i].magnitude   = m_dataFT.af(i).abs() / m_norm;
+        m_ftdata[i].magnitude   = m_dataFT.af(i).abs();
         m_ftdata[i].module      = m_ftdata[i].magnitude;
         m_ftdata[i].meanSquared = m_ftdata[i].magnitude * m_ftdata[i].magnitude;
         m_ftdata[i].peakSquared = 0;

@@ -235,7 +235,12 @@ GNU_ALIGN void FourierTransform::fast(bool reverse, bool ultrafast)
     float stored[4];
     unsigned long ultraLimit = m_size / 2;
     bool breakloop = false;
-    norm = _mm_set1_ps(1.f / sqrtf(m_size));
+
+    float normalization = 1.f;
+    if (!reverse) {
+        normalization /= m_size;
+    }
+    norm = _mm_set1_ps(normalization);
     for (unsigned int len = 2, l = 0; len <= m_size; len <<= 1, l++, breakloop = false) {
         vwl = _mm_set_ps(
                   m_wlen[l].real,                               //vwl[0] = vwl[3] = wlen[l].real;
@@ -335,7 +340,11 @@ GNU_ALIGN void FourierTransform::transformSingleChannel(bool reverse)
 #endif
     float stored[4];
 
-    norm = _mm_set1_ps(1.f / sqrtf(m_size));
+    float normalization = 1.f;
+    if (!reverse) {
+        normalization /= m_size;
+    }
+    norm = _mm_set1_ps(normalization);
     for (unsigned int len = 2, l = 0; len <= m_size; len <<= 1, l++) {
         vwl = _mm_set_ps(
                   m_wlen[l].real,                               //vwl[0] = vwl[3] = wlen[l].real;
@@ -479,7 +488,7 @@ GNU_ALIGN void FourierTransform::prepareLog()
         for (unsigned int j = 0; j < m_logBasis[i].N; ++j) {
             gain += m_window.pointGain(j, m_logBasis[i].N) / m_logBasis[i].N;
         }
-        auto norm = (m_norm == Norm::Sqrt ? sqrtf(m_logBasis[i].N) : float(1.f) );
+        auto norm = (m_norm == Norm::Sqrt ? m_logBasis[i].N : float(1.f) );
         float phase = (m_align == Align::Center ? -(m_logBasis[i].N / 2.f) : 0);
         for (unsigned int j = 0; j < m_logBasis[i].N; ++j, ++phase) {
             w.polar(-2.f  * M_PI * phase * frequency);

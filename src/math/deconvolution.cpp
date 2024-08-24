@@ -74,7 +74,7 @@ float Deconvolution::get(const unsigned int i) const
 void Deconvolution::setSize(unsigned int size)
 {
     m_size = size;
-    m_norm = 1.f / sqrtf(m_size);
+    m_norm = 1.f / (m_size);
     m_data.resize(m_size, 0.f);
     m_fft.setSize(m_size);
     m_ifft.setSize(m_size);

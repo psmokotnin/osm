@@ -132,7 +132,7 @@ void SpectrogramSeriesNode::updateHistory()
         if (i == 0) {
             return ;
         }
-        value += 2 * m_source->module(i) * m_source->module(i) * (m_source->frequency(i) - m_source->frequency(i - 1));
+        value += m_source->module(i) * m_source->module(i);
     };
     auto collected = [&] (const float & start, const float & end, const unsigned int &) {
 

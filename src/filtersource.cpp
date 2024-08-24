@@ -162,7 +162,7 @@ void FilterSource::update()
 
         int t = 0;
         float kt = 1000.f / sampleRate();
-        auto norm = 1.f / sqrtf(m_deconvolutionSize);
+        auto norm = 1.f / m_deconvolutionSize;
         for (unsigned int i = 0, j = m_deconvolutionSize / 2 - 1; i < m_deconvolutionSize; i++, j++, t++) {
             if (t > static_cast<int>(m_deconvolutionSize / 2)) {
                 t -= static_cast<int>(m_deconvolutionSize);

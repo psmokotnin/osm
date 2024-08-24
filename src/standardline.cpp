@@ -100,7 +100,6 @@ void StandardLine::createELC()
     auto size = Math::EqualLoudnessContour::size();
     m_dataLength = size;
     m_ftdata.resize(size);
-    float m_offset = 46.81; //compensate RTA normalization
     for (size_t i = 0; i < size; ++i) {
         m_ftdata[i].frequency   = Math::EqualLoudnessContour::frequency(i);
         m_ftdata[i].phase       = -INFINITY;
@@ -109,7 +108,7 @@ void StandardLine::createELC()
 
         auto Lp = Math::EqualLoudnessContour::loudness(i, loudness());
 
-        m_ftdata[i].module    = powf(10, (Lp - 140/*dB*/ + m_offset) / 20);
+        m_ftdata[i].module    = powf(10, (Lp - 140/*dB*/) / 20);
         m_ftdata[i].magnitude = powf(10, (Lp - loudness()) / 20);
     }
 }

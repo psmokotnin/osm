@@ -556,6 +556,7 @@ void Measurement::averaging()
 
         j = static_cast<int>(i);
         float calibratedA = M_SQRT2 * m_dataFT.af(i).abs();
+        float calibratedB = M_SQRT2 * m_dataFT.bf(i).abs();
         //TODO: think and do
         //if (calibratedA < someThresholdInDb ) continue;
 
@@ -568,7 +569,7 @@ void Measurement::averaging()
             p.polar(m_dataFT.bf(i), m_dataFT.af(i));
         }
 
-        float magnitude = calibratedA / m_dataFT.bf(i).abs();
+        float magnitude = calibratedA / calibratedB;
 #ifdef WIN64
         if (magnitude / 0.f == magnitude) {
 #else

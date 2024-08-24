@@ -340,9 +340,10 @@ bool SourceList::importFile(const QUrl &fileName, QString separator)
         }
     }
 
+    bool absolute_scale = maxMagnitude > 30;
     for (auto &row : d) {
-        row.module = std::pow(10.f, (row.module - maxMagnitude) / 20.f);
-        row.magnitude = std::pow(10.f, (row.magnitude - (maxMagnitude > 30 ? maxMagnitude : 0)) / 20.f);
+        row.module    = std::pow(10.f, (row.module    + (absolute_scale ? 0 : 70) - 140) / 20.f);
+        row.magnitude = std::pow(10.f, (row.magnitude - (absolute_scale ? maxMagnitude : 0)      ) / 20.f);
     }
     s->copyFrom(d.size(), 0, d.data(), nullptr);
     s->setName(fileName.fileName());
