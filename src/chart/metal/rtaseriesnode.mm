@@ -15,15 +15,19 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+#include <Metal/Metal.h>
 #include "rtaseriesnode.h"
 #include "../rtaplot.h"
-#include <Metal/Metal.h>
+#include "math/equalloudnesscontour.h"
 
 namespace chart {
 
 #define id_cast(T, t) static_cast<id<T>>(t)
 
 RTASeriesNode::RTASeriesNode(QQuickItem *item) : XYSeriesNode(item),
+    m_pointsPerOctave(0),
+    m_mode(chart::RTAPlot::Mode::Line),
+    m_scale(chart::RTAPlot::Scale::DBfs),
     m_refreshBuffers(true), m_pipelineLine(nullptr), m_pipelineBars(nullptr),
     m_vertexBuffer(nullptr), m_matrixBuffer(nullptr)
 {
@@ -110,6 +114,9 @@ void RTASeriesNode::synchronizeSeries()
         if (m_mode != rtaPlot->mode()) {
             m_mode = rtaPlot->mode();
         }
+        if (m_scale != rtaPlot->scale()) {
+            m_scale = rtaPlot->scale();
+        }
         m_showPeaks = rtaPlot->showPeaks();
     }
     synchronizeMatrix();
@@ -136,18 +143,13 @@ void RTASeriesNode::renderSeries()
     }
 
     switch (m_mode) {
-    //line
-    case 0:
+    case chart::RTAPlot::Mode::Line:
         renderLine();
         break;
-
-    //bars
-    case 1:
+    case chart::RTAPlot::Mode::Bars:
         renderBars();
         break;
-
-    //lines
-    case 2:
+    case chart::RTAPlot::Mode::Lines:
         renderLines();
         break;
 
@@ -170,6 +172,18 @@ void RTASeriesNode::renderLine()
         m_vertices.resize(maxBufferSize, 0);
         m_refreshBuffers = true;
     }
+
+    float offset = 0;
+    switch (m_scale) {
+    case RTAPlot::Scale::DBfs:
+        offset = 0;
+        break;
+    case RTAPlot::Scale::SPL:
+    case RTAPlot::Scale::Phon:
+        offset = absolute_scale_offset;
+    }
+
+    Math::EqualLoudnessContour elc;
 
     auto addPoint = [ &, this] (auto & i, auto x, auto y, auto dX, auto dY, auto d) {
         m_vertices[i + 0] = x;
@@ -200,7 +214,7 @@ void RTASeriesNode::renderLine()
             if (i == 0) {
                 return ;
             }
-            value += m_source->module(i);
+            value += m_source->module(i) * m_source->module(i);
         };
         unsigned int i = 0;
         auto collected = [ &, this] (const float & start, const float & end, const unsigned int &count) {
@@ -210,7 +224,10 @@ void RTASeriesNode::renderLine()
             }
 
             auto frequency = (start + end) / 2;
-            value = 20 * log10f(value / count);
+            value = 10 * log10f(value) + offset;
+            if (m_scale == RTAPlot::Scale::Phon) {
+                value = elc.phone(frequency, value + LEVEL_NORMALIZATION) - LEVEL_NORMALIZATION;
+            }
 
             if (lastFrequency > 0) {
                 addSegment(i, lastFrequency, lastValue, frequency, value);
@@ -223,9 +240,15 @@ void RTASeriesNode::renderLine()
     } else {
         unsigned int j = 0, i;
         for (i = 0; i < m_source->size() - 1; ++i) {
+            auto value1 = 20 * log10f(m_source->module(i    )) + offset;
+            auto value2 = 20 * log10f(m_source->module(i + 1)) + offset;
+            if (m_scale == RTAPlot::Scale::Phon) {
+                value1 = elc.phone(m_source->frequency(i), value1 + LEVEL_NORMALIZATION) - LEVEL_NORMALIZATION;
+                value2 = elc.phone(m_source->frequency(i), value2 + LEVEL_NORMALIZATION) - LEVEL_NORMALIZATION;
+            }
             addSegment(j,
-                       m_source->frequency(i), 20 * log10f(m_source->module(i)),
-                       m_source->frequency(i + 1), 20 * log10f(m_source->module(i + 1))
+                       m_source->frequency(i),     value1,
+                       m_source->frequency(i + 1), value2
                       );
         }
     }
@@ -273,7 +296,17 @@ void RTASeriesNode::renderBars()
         m_refreshBuffers = true;
     }
 
+    float offset = 0;
+    switch (m_scale) {
+    case RTAPlot::Scale::DBfs:
+        break;
+    case RTAPlot::Scale::SPL:
+    case RTAPlot::Scale::Phon:
+        offset += absolute_scale_offset;
+    }
+
     unsigned int verticesCollected = 0;
+    Math::EqualLoudnessContour elc;
 
     float value = 0, peak = 0;
     float y = 1 / (m_matrix(0, 0) * width());
@@ -281,7 +314,7 @@ void RTASeriesNode::renderBars()
         if (i == 0) {
             return ;
         }
-        value += 2 * m_source->module(i) * m_source->module(i) * (m_source->frequency(i) - m_source->frequency(i - 1));
+        value += m_source->module(i) * m_source->module(i);
         peak = std::max(peak, m_source->peakSquared(i));
     };
 
@@ -293,8 +326,14 @@ void RTASeriesNode::renderBars()
             return;
         }
 
-        value = 10 * log10f(value);
-        peak  = 10 * log10f(peak);
+        value = 10 * log10f(value) + offset;
+        peak  = 10 * log10f(peak) + offset;
+        auto frequencyPoint = (start + end) / 2;
+        if (m_scale == RTAPlot::Scale::Phon) {
+            value = elc.phone(frequencyPoint, value + LEVEL_NORMALIZATION) - LEVEL_NORMALIZATION;
+            peak  = elc.phone(frequencyPoint, peak + LEVEL_NORMALIZATION) - LEVEL_NORMALIZATION;
+        }
+
         float shiftedStart = std::pow(M_E, std::log(start) + y);
         float shiftedEnd   = std::pow(M_E, std::log(end  ) - y);
         if (shiftedStart > shiftedEnd) {
@@ -387,6 +426,18 @@ void RTASeriesNode::renderLines()
         m_refreshBuffers = true;
     }
 
+    float offset = 0;
+    Math::EqualLoudnessContour elc;
+    switch (m_scale) {
+    case RTAPlot::Scale::DBfs:
+        offset = 0;
+        break;
+    case RTAPlot::Scale::SPL:
+    case RTAPlot::Scale::Phon:
+        offset = absolute_scale_offset;
+        break;
+    }
+
     auto addPoint = [ &, this] (auto & i, auto x, auto y, auto dX, auto dY, auto d) {
         m_vertices[i + 0] = x;
         m_vertices[i + 1] = y;
@@ -411,13 +462,21 @@ void RTASeriesNode::renderLines()
     unsigned int j = 0, i;
     float peak;
     for (i = 0; i < m_source->size(); ++i) {
+        auto value = 20 * log10f(m_source->module(i)) + offset;
+        if (m_scale == RTAPlot::Scale::Phon) {
+            value = elc.phone(m_source->frequency(i), value + LEVEL_NORMALIZATION) - LEVEL_NORMALIZATION;
+        }
+
         addSegment(j,
                    m_source->frequency(i), m_yMin,
-                   m_source->frequency(i), 20 * log10f(m_source->module(i))
+                   m_source->frequency(i), value
                   );
 
         if (m_showPeaks) {
-            peak = 10 * log10f(m_source->peakSquared(i));
+            peak = 10 * log10f(m_source->peakSquared(i)) + offset;
+            if (m_scale == RTAPlot::Scale::Phon) {
+                peak = elc.phone(m_source->frequency(i), peak + LEVEL_NORMALIZATION) - LEVEL_NORMALIZATION;
+            }
             addSegment(j,
                        m_source->frequency(i), peak,
                        m_source->frequency(i), peak + 1
@@ -434,7 +493,9 @@ void RTASeriesNode::renderLines()
                          ];
     }
     void *vertex_ptr = [id_cast(MTLBuffer, m_vertexBuffer) contents];
-    memcpy(vertex_ptr, m_vertices.data(), m_vertices.size() * sizeof(float));
+    if (vertex_ptr) {
+        memcpy(vertex_ptr, m_vertices.data(), m_vertices.size() * sizeof(float));
+    }
 
     void *matrix_ptr = [id_cast(MTLBuffer, m_matrixBuffer) contents];
     if (matrix_ptr) {

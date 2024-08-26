@@ -211,6 +211,10 @@ void SpectrogramSeriesNode::renderSeries()
                            ];
     }
     auto *indicies_ptr = static_cast<unsigned int *>([id_cast(MTLBuffer, m_indiciesBuffer) contents]);
+    if (!indicies_ptr) {
+        m_refreshBuffers = true;
+        return;
+    }
 
     float t(0), tStep(0);
     unsigned int j = 0, index = 0;

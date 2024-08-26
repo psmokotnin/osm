@@ -29,7 +29,7 @@ public:
     explicit FrequencyBasedSeriesHelper();
 
 protected:
-    constexpr const static float LEVEL_NORMALIZATION = -46.81f;
+    constexpr const static float LEVEL_NORMALIZATION = 0;
 
     virtual const Source::Shared &source() const = 0;
     void iterate(const unsigned int &pointsPerOctave,

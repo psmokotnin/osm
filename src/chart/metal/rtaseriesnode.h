@@ -21,6 +21,7 @@
 #include "seriesitem.h"
 #include "xyseriesnode.h"
 #include "../frequencybasedserieshelper.h"
+#include "../rtaplot.h"
 
 namespace chart {
 
@@ -44,7 +45,11 @@ private:
     void renderBars();
     void renderLines();
 
-    unsigned int m_pointsPerOctave, m_mode;
+    unsigned int m_pointsPerOctave;
+    RTAPlot::Mode m_mode;
+    RTAPlot::Scale m_scale;
+    static constexpr float absolute_scale_offset = 140.f;
+
     bool m_refreshBuffers, m_showPeaks;
     std::vector<float> m_vertices;
     std::vector<unsigned int> m_indicies;
