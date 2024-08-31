@@ -16,9 +16,30 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "targettrace.h"
+#include <QDebug>
+const QList<std::pair<QString, std::vector<QPointF>>> TargetTrace::m_presets = {
+    {
+        "Default", {
+            QPointF{20, 9},   QPointF{100, 9},  QPointF{250, 0},  QPointF{500, 0},
+            QPointF{1000, 0}, QPointF{2000, 0}, QPointF{20000, 0}
+        }
+    },
+    {
+        "Immersive studio", {
+            QPointF{20, -1},   QPointF{40, 1},  QPointF{125, 1},  QPointF{160, 0},
+            QPointF{1600, 0}, QPointF{10000, -3.97}, QPointF{20000, -7.93}
+        }
+    },
+    {
+        "Headphones", {
+            QPointF{20, 9.2},   QPointF{63, 9.2},  QPointF{200, 0},  QPointF{4000, 0},
+            QPointF{10000, -4}, QPointF{16000, -5}, QPointF{20000, -6.2}
+        }
+    },
+};
 
 TargetTrace::TargetTrace(Settings *settings, QObject *parent) : QObject(parent),
-    m_segments({{{9, 9}, {9, 0.0}, {0.0, 0.0}}}), m_points({{100, 1000}}), m_settings(settings)
+    m_points{ m_presets[0].second }, m_settings(settings), m_preset(0)
 {
     Q_ASSERT(!m_instance);
 
@@ -50,42 +71,30 @@ void TargetTrace::setActive(bool active)
     }
 }
 
-qreal TargetTrace::start(unsigned int i) const noexcept
+unsigned TargetTrace::size() const
 {
-    Q_ASSERT(i < SEGMENT_COUNT);
-    return m_segments[i].start;
+    return m_points.size();
 }
 
-qreal TargetTrace::end(unsigned int i) const noexcept
+qreal TargetTrace::frequency(unsigned int i) const
 {
-    Q_ASSERT(i < SEGMENT_COUNT);
-    return m_segments[i].end;
+    return m_points[i].x();
 }
 
-qreal TargetTrace::point(unsigned int i) const noexcept
+qreal TargetTrace::gain(unsigned int i) const
 {
-    Q_ASSERT(i < SEGMENT_COUNT - 1);
-    return m_points[i];
+    return m_points[i].y();
 }
 
-void TargetTrace::setStart(unsigned int i, qreal value) noexcept
+void TargetTrace::setFrequency(unsigned int i, qreal value)
 {
-    Q_ASSERT(i < SEGMENT_COUNT);
-    m_segments[i].start = value;
+    m_points[i].setX(value);
     emit changed();
 }
 
-void TargetTrace::setEnd(unsigned int i, qreal value) noexcept
+void TargetTrace::setGain(unsigned int i, qreal value)
 {
-    Q_ASSERT(i < SEGMENT_COUNT);
-    m_segments[i].end = value;
-    emit changed();
-}
-
-void TargetTrace::setPoint(unsigned int i, qreal value) noexcept
-{
-    Q_ASSERT(i < SEGMENT_COUNT);
-    m_points[i] = value;
+    m_points[i].setY(value);
     emit changed();
 }
 
@@ -149,22 +158,64 @@ void TargetTrace::loadSettings()
                      "color", this, &TargetTrace::colorChanged, color()
                  ).value<QColor>());
 
-        setPoint(0, m_settings->value("point0", point(0)).toFloat());
-        setPoint(1, m_settings->value("point1", point(1)).toFloat());
+        setPreset(m_settings->reactValue<TargetTrace, unsigned>(
+                      "preset", this, &TargetTrace::presetChanged, preset()
+                  ).toUInt());
 
-        for (size_t i = 0; i < SEGMENT_COUNT; ++i) {
-            setStart(i, m_settings->value(QString("start") + QString::number(i), start(i)).toFloat());
-            setEnd(i, m_settings->value(QString("end") + QString::number(i), end(i)).toFloat());
+        for (size_t i = 0; i < m_points.size(); ++i) {
+            setFrequency(i, m_settings->value(QString("frequency") + QString::number(i), frequency(i)).toFloat());
+            setGain(i, m_settings->value(QString("gain") + QString::number(i), gain(i)).toFloat());
         }
 
         connect(this, &TargetTrace::changed, this, [this]() {
-            for (size_t i = 0; i < SEGMENT_COUNT; ++i) {
-                m_settings->setValue(QString("start") + QString::number(i), start(i));
-                m_settings->setValue(QString("end") + QString::number(i),   end(i));
+            for (size_t i = 0; i < m_points.size(); ++i) {
+                m_settings->setValue(QString("frequency") + QString::number(i), frequency(i));
+                m_settings->setValue(QString("gain") + QString::number(i),   gain(i));
             }
-
-            m_settings->setValue(QString("point0"), point(0));
-            m_settings->setValue(QString("point1"), point(1));
         });
+
     }
+}
+
+unsigned TargetTrace::preset() const
+{
+    return m_preset;
+}
+
+void TargetTrace::setPreset(const unsigned &newPreset)
+{
+    if (m_preset == newPreset)
+        return;
+
+    m_preset = newPreset;
+    m_points = std::get<1>(m_presets[m_preset]);
+    emit presetChanged(m_preset);
+    emit changed();
+}
+
+const std::vector<QPointF> &TargetTrace::points() const
+{
+    return m_points;
+}
+
+qreal TargetTrace::offset() const
+{
+    return m_offset;
+}
+
+void TargetTrace::setOffset(qreal newOffset)
+{
+    if (qFuzzyCompare(m_offset, newOffset))
+        return;
+    m_offset = newOffset;
+    emit offsetChanged();
+}
+
+QVariant TargetTrace::getAvailablePresets() const
+{
+    QStringList typeList;
+    for (const auto &preset : m_presets) {
+        typeList << std::get<0>(preset);
+    }
+    return typeList;
 }

@@ -164,16 +164,18 @@ CoherenceThresholdLine::CoherenceThresholdLine(QQuickItem *parent) : PaintedItem
 
 void chart::CoherenceThresholdLine::paint(QPainter *painter)
 {
-    auto plot = reinterpret_cast<CoherencePlot *>(parent());
-    auto y = heightf() - padding.bottom - plot->yAxis()->convert(plot->threshold(), pheight());
-    QColor color(plot->thresholdColor());
-    QPen linePen(color, 1);
-    QPoint p1(padding.left, y),
-           p2(width() - padding.right, y);
+    try {
+        auto plot = reinterpret_cast<CoherencePlot *>(parent());
+        auto y = heightf() - padding.bottom - plot->yAxis()->convert(plot->threshold(), pheight());
+        QColor color(plot->thresholdColor());
+        QPen linePen(color, 1);
+        QPoint p1(padding.left, y),
+               p2(width() - padding.right, y);
 
-    painter->setRenderHints(QPainter::Antialiasing, true);
-    painter->setPen(linePen);
-    painter->drawLine(p1, p2);
+        painter->setRenderHints(QPainter::Antialiasing, true);
+        painter->setPen(linePen);
+        painter->drawLine(p1, p2);
+    } catch (std::invalid_argument) {}
 }
 
 void CoherenceThresholdLine::parentWidthChanged()

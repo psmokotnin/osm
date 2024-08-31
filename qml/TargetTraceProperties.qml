@@ -17,13 +17,17 @@
  */
 import QtQuick 2.7
 import QtQuick.Layouts 1.3
+import QtQuick.Controls 2.15
 import QtQuick.Controls.Material 2.1
 import "elements"
 
 Item {
+    readonly property int elementWidth: width / (targetTraceModel.size() * 2)
+
     ColumnLayout {
         anchors.fill: parent
         spacing: 0
+
 
         RowLayout {
             Layout.alignment: Qt.AlignTop
@@ -37,138 +41,100 @@ Item {
                 units: "dB"
                 indicators: false
                 onValueChanged: targetTraceModel.width = value
-                Layout.preferredWidth: firstSegmentStart.width
+                Layout.preferredWidth: elementWidth * 2
                 tooltiptext: qsTr("width")
             }
 
             Rectangle {
+                Layout.preferredWidth: elementWidth * 2
+            }
+
+            FloatSpinBox {
+                value: targetTraceModel.offset
+                from: 40
+                to: 1400
+                step: 0.1
+                units: "dB"
+                indicators: false
+                onValueChanged: targetTraceModel.offset = value
+                Layout.preferredWidth: elementWidth * 2
+                tooltiptext: qsTr("SPL offset")
+            }
+
+            Rectangle {
                 Layout.fillWidth: true
+            }
+
+            DropDown {
+                id: modeSelect
+                model: targetTraceModel.presets
+                currentIndex: targetTraceModel.preset
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Preset")
+                onCurrentIndexChanged: targetTraceModel.preset = currentIndex
+                Layout.preferredWidth: 200
             }
         }
 
         RowLayout {
             Layout.alignment: Qt.AlignTop
 
-            FloatSpinBox {
-                id: firstSegmentStart
-                value: targetTraceModel.start(0)
-                from: -20
-                to: 20
-                step: 0.1
-                units: "dB"
-                indicators: false
-                Layout.preferredWidth: 100
-                Layout.fillWidth: true
-                onValueChanged: targetTraceModel.setStart(0, value)
-                tooltiptext: qsTr("1 segment start")
-            }
+            Repeater {
+                model: targetTraceModel.size() < 8 ? targetTraceModel.size() : 7
 
-            FloatSpinBox {
-                id: firstSegmentEnd
-                value: targetTraceModel.end(0)
-                from: -20
-                to: 20
-                step: 0.1
-                units: "dB"
-                indicators: false
-                Layout.preferredWidth: 100
-                Layout.fillWidth: true
-                onValueChanged: targetTraceModel.setEnd(0, value)
-                tooltiptext: qsTr("1 segment end")
-            }
+                RowLayout {
+                    Layout.fillWidth: true
 
-            FloatSpinBox {
-                value: targetTraceModel.point(0)
-                from: 20
-                to: 20000
-                step: 1
-                units: "Hz"
-                indicators: false
-                Layout.preferredWidth: 100
-                Layout.fillWidth: true
-                decimals: 0
-                onValueChanged: targetTraceModel.setPoint(0, value)
-                tooltiptext: qsTr("1 turning-point")
+                    FloatSpinBox {
+                        id: frequency
+                        value: targetTraceModel.frequency( index )
+                        from: 20
+                        to: 40000
+                        step: 1
+                        units: "Hz"
+                        indicators: false
+                        Layout.preferredWidth: elementWidth
+                        Layout.fillWidth: true
+                        decimals: 0
+                        onValueChanged: targetTraceModel.setFrequency(index, value)
+                        tooltiptext: qsTr("frequency " + (index + 1))
 
-                Rectangle {
-                    anchors.fill: parent
-                    color: Material.color(Material.Grey)
-                    opacity: 0.3
+                        Rectangle {
+                            anchors.fill: parent
+                            color: Material.color(Material.Grey)
+                            opacity: 0.3
+                        }
+                        Connections {
+                            target: targetTraceModel
+                            function onChanged() {
+                                frequency.value = targetTraceModel.frequency( index );
+                            }
+                        }
+                    }
+
+                    FloatSpinBox {
+                        id: gain
+                        value: targetTraceModel.gain( index )
+                        from: -20
+                        to: 20
+                        step: 0.1
+                        decimals: 1
+                        units: "dB"
+                        indicators: false
+                        Layout.preferredWidth: elementWidth
+                        Layout.fillWidth: true
+                        onValueChanged: targetTraceModel.setGain( index , value)
+                        tooltiptext: qsTr("gain " + (index + 1))
+
+                        Connections {
+                            target: targetTraceModel
+                            function onChanged() {
+                                gain.value = targetTraceModel.gain( index );
+                            }
+                        }
+                    }
                 }
             }
-
-            FloatSpinBox {
-                value: targetTraceModel.start(1)
-                from: -20
-                to: 20
-                step: 0.1
-                units: "dB"
-                indicators: false
-                Layout.preferredWidth: 100
-                Layout.fillWidth: true
-                onValueChanged: targetTraceModel.setStart(1, value)
-                tooltiptext: qsTr("2 segment start")
-            }
-
-            FloatSpinBox {
-                value: targetTraceModel.end(1)
-                from: -20
-                to: 20
-                step: 0.1
-                units: "dB"
-                indicators: false
-                Layout.preferredWidth: 100
-                Layout.fillWidth: true
-                onValueChanged: targetTraceModel.setEnd(1, value)
-                tooltiptext: qsTr("2 segment end")
-            }
-
-            FloatSpinBox {
-                value: targetTraceModel.point(1)
-                from: 20
-                to: 20000
-                step: 1
-                units: "Hz"
-                indicators: false
-                decimals: 0
-                Layout.preferredWidth: 100
-                Layout.fillWidth: true
-                onValueChanged: targetTraceModel.setPoint(1, value)
-                tooltiptext: qsTr("2 turning-point")
-
-                Rectangle {
-                    anchors.fill: parent
-                    color: Material.color(Material.Grey)
-                    opacity: 0.3
-                }
-            }
-
-            FloatSpinBox {
-                value: targetTraceModel.start(2)
-                from: -20
-                to: 20
-                step: 0.1
-                units: "dB"
-                indicators: false
-                Layout.preferredWidth: 100
-                Layout.fillWidth: true
-                onValueChanged: targetTraceModel.setStart(2, value)
-                tooltiptext: qsTr("3 segment start")
-            }
-
-            FloatSpinBox {
-                value: targetTraceModel.end(2)
-                from: -20
-                to: 20
-                step: 0.1
-                units: "dB"
-                indicators: false
-                Layout.preferredWidth: 100
-                Layout.fillWidth: true
-                onValueChanged: targetTraceModel.setEnd(2, value)
-                tooltiptext: qsTr("3 segment end")
-            }
-
         }
     }
 

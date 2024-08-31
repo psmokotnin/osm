@@ -74,6 +74,17 @@ private:
     Mode m_mode;
     Scale m_scale;
     bool m_spline, m_showPeaks;
+
+    class TargetTraceItem : public PaintedItem
+    {
+    public:
+        TargetTraceItem(const Palette &palette, QQuickItem *parent = Q_NULLPTR);
+        void paint(QPainter *painter) noexcept override;
+
+    private:
+        const Palette &m_palette;
+
+    } *m_targetTrace = nullptr;
 };
 }
 #endif // RTAPLOT_H

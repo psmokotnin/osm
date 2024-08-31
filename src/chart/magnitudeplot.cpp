@@ -142,9 +142,10 @@ MagnitudePlot::TargetTraceItem::TargetTraceItem(const Palette &palette, QQuickIt
 void MagnitudePlot::TargetTraceItem::paint(QPainter *painter) noexcept
 {
     auto target = TargetTrace::getInstance();
-    if (!target->show() || !target->active()) {
+    if (!target->show() || !target->active() || !painter) {
         return;
     }
+
     auto plot = static_cast<MagnitudePlot *>(parent());
     auto yOffset = heightf() - padding.bottom;
     auto offset = QPointF(0, target->width() / 2);
@@ -154,14 +155,6 @@ void MagnitudePlot::TargetTraceItem::paint(QPainter *painter) noexcept
     painter->setPen(linePen);
     painter->setBrush(color);
 
-    std::array<QPair<QPointF, QPointF>, TargetTrace::SEGMENT_COUNT> segments = {
-        {
-            {QPointF(20,               target->start(0)), QPointF(target->point(0), target->end(0))},
-            {QPointF(target->point(0), target->start(1)), QPointF(target->point(1), target->end(1))},
-            {QPointF(target->point(1), target->start(2)), QPointF(20'000,           target->end(2))}
-        }
-    };
-
     auto convert = [this, plot, &yOffset] (const QPointF & values) {
         return QPointF(
                    plot->xAxis()->convert(values.x(), pwidth()) + padding.left,
@@ -169,13 +162,25 @@ void MagnitudePlot::TargetTraceItem::paint(QPainter *painter) noexcept
                );
     };
 
-    for (auto &segment : segments) {
+    try {
         QPainterPath path;
-        path.moveTo(convert(segment.first  + offset));
-        path.lineTo(convert(segment.second + offset));
-        path.lineTo(convert(segment.second - offset));
-        path.lineTo(convert(segment.first  - offset));
-        path.lineTo(convert(segment.first  + offset));
+
+        bool first = true;
+        auto &points = target->points();
+        for (auto &point : points ) {
+            if (first) {
+                path.moveTo(convert(point  + offset));
+                first = false;
+            } else {
+
+                path.lineTo(convert(point + offset));
+            }
+        }
+
+        for (auto it = points.crbegin(); it < points.crend(); ++it) {
+            path.lineTo(convert(*it - offset));
+        }
+        path.lineTo(convert(points[0]  + offset));
         painter->drawPath(path);
-    }
+    } catch (std::invalid_argument) {}
 }

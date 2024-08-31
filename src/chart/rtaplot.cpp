@@ -15,12 +15,18 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+#include <QPainter>
+#include <QPainterPath>
+
 #include "rtaplot.h"
+#include "targettrace.h"
 
 using namespace chart;
 
 RTAPlot::RTAPlot(Settings *settings, QQuickItem *parent): FrequencyBasedPlot(settings, parent),
-    m_mode(chart::RTAPlot::Mode::Line), m_spline(false), m_showPeaks(true)
+    m_mode(chart::RTAPlot::Mode::Line), m_spline(false), m_showPeaks(true),
+    m_targetTrace(new TargetTraceItem(m_palette, this))
 {
     qRegisterMetaType<chart::RTAPlot::Mode>();
     qRegisterMetaType<chart::RTAPlot::Scale>();
@@ -136,4 +142,82 @@ void RTAPlot::setScale(Scale newScale)
 void RTAPlot::setScale(unsigned int newScale)
 {
     setScale(static_cast<chart::RTAPlot::Scale>(newScale));
+}
+
+
+RTAPlot::TargetTraceItem::TargetTraceItem(const Palette &palette, QQuickItem *parent) : PaintedItem(parent),
+    m_palette(palette)
+{
+    connect(parent, &QQuickItem::widthChanged, this, [this, parent]() {
+        setWidth(parent->width());
+    });
+    connect(parent, &QQuickItem::heightChanged, this, [this, parent]() {
+        setHeight(parent->height());
+    });
+    auto updateSlot = [this] () {
+        update();
+    };
+    connect(reinterpret_cast<Plot *>(parent), &Plot::updated, this, updateSlot);
+    connect(TargetTrace::getInstance(), &TargetTrace::changed, this, updateSlot);
+    connect(TargetTrace::getInstance(), &TargetTrace::showChanged, this, updateSlot);
+    connect(TargetTrace::getInstance(), &TargetTrace::activeChanged, this, updateSlot);
+    connect(TargetTrace::getInstance(), &TargetTrace::offsetChanged, this, updateSlot);
+    setWidth(parent->width());
+    setHeight(parent->height());
+    setZ(1);
+}
+
+void RTAPlot::TargetTraceItem::paint(QPainter *painter) noexcept
+{
+    auto target = TargetTrace::getInstance();
+    if (!target->show() || !target->active() || !painter) {
+        return;
+    }
+
+
+    auto plot = static_cast<RTAPlot *>(parent());
+    if (plot->scale() == RTAPlot::Scale::Phon) {
+        return;
+    }
+    auto yOffset = heightf() - padding.bottom;
+    auto offset = QPointF(0, target->width() / 2);
+    auto scaleOffset = target->offset();
+    if (plot->scale() == RTAPlot::Scale::DBfs) {
+        scaleOffset -= 140;
+    }
+
+    QPen linePen(m_palette.lineColor(), 1);
+    QColor color = target->color();
+    color.setAlphaF(0.215);
+    painter->setPen(linePen);
+    painter->setBrush(color);
+
+    auto convert = [this, plot, yOffset, scaleOffset] (const QPointF & values) {
+        return QPointF(
+                   plot->xAxis()->convert(values.x(), pwidth()) + padding.left,
+                   yOffset - plot->yAxis()->convert(values.y() + scaleOffset, pheight())
+               );
+    };
+
+    try {
+        QPainterPath path;
+
+        bool first = true;
+        auto &points = target->points();
+        for (auto &point : points ) {
+            if (first) {
+                path.moveTo(convert(point  + offset));
+                first = false;
+            } else {
+
+                path.lineTo(convert(point + offset));
+            }
+        }
+
+        for (auto it = points.crbegin(); it < points.crend(); ++it) {
+            path.lineTo(convert(*it - offset));
+        }
+        path.lineTo(convert(points[0]  + offset));
+        painter->drawPath(path);
+    } catch (std::invalid_argument) {}
 }
