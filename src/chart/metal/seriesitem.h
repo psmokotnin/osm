@@ -33,7 +33,7 @@ class SeriesItem : public QQuickItem
     using NodeConstructor = std::function<SeriesNode *(SeriesItem *)>;
 public:
     explicit SeriesItem(const Source::Shared &source, QQuickItem *parent, NodeConstructor nodeConstructor);
-    Source::Shared source() const;
+    const Source::Shared &source() const;
 
     void setZIndex(int index);
     bool highlighted() const;

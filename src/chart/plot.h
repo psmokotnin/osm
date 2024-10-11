@@ -53,7 +53,7 @@ public:
     void disconnectFromParent();
     QSGNode *updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *);
 
-    virtual void appendDataSource(const Source::Shared &source);
+    virtual bool appendDataSource(const Source::Shared &source);
     virtual void removeDataSource(const Source::Shared &source);
     virtual void setSourceZIndex(const QUuid &source, int index);
     virtual void setHighlighted(const QUuid &source);

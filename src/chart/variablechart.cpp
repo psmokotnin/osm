@@ -179,9 +179,10 @@ void VariableChart::setSettings(Settings *settings) noexcept
 void VariableChart::appendDataSource(const Source::Shared &source)
 {
     if (m_plot) {
-        m_plot->appendDataSource(source);
-        if (auto group = std::dynamic_pointer_cast<Source::Group>(source)) {
-            connectSources(group->sourceList());
+        if (m_plot->appendDataSource(source)) {
+            if (auto group = std::dynamic_pointer_cast<Source::Group>(source)) {
+                connectSources(group->sourceList());
+            }
         }
     }
 }

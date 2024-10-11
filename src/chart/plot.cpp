@@ -147,21 +147,36 @@ QSGNode *Plot::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *)
     emit updated();
     return node;
 }
-void Plot::appendDataSource(const Source::Shared &source)
+
+bool Plot::appendDataSource(const Source::Shared &source)
 {
     if (!source) {
-        return;
+        return false;
     }
-    auto *sourceItem = createSeriesFromSource(source);
-    if (sourceItem) {
-        m_serieses.append(sourceItem);
-        applyWidthForSeries(sourceItem);
-        applyHeightForSeries(sourceItem);
 
-        if (m_selectAppended) {
-            select(source.uuid());
+    auto it = std::find_if(m_serieses.begin(), m_serieses.end(), [ &source ](auto e) {
+        if (e) {
+            return (e->source().uuid() == source.uuid());
         }
+        return false;
+    });
+    if (it != m_serieses.end()) {
+        return false;
     }
+
+    auto *sourceItem = createSeriesFromSource(source);
+    if (!sourceItem) {
+        return false;
+    }
+
+    m_serieses.append(sourceItem);
+    applyWidthForSeries(sourceItem);
+    applyHeightForSeries(sourceItem);
+
+    if (m_selectAppended) {
+        select(source.uuid());
+    }
+    return true;
 }
 void Plot::removeDataSource(const Source::Shared &source)
 {

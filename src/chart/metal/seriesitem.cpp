@@ -32,7 +32,7 @@ SeriesItem::SeriesItem(const Source::Shared &source, QQuickItem *parent,
     connect(source.get(), SIGNAL(activeChanged()), SLOT(update()));
 }
 
-Source::Shared SeriesItem::source() const
+const Source::Shared &SeriesItem::source() const
 {
     return m_source;
 }
