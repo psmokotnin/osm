@@ -36,13 +36,15 @@ class Windowing;
 class SourceList : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(int count READ count)
+    Q_PROPERTY(int count READ count NOTIFY countChanged)
     Q_PROPERTY(QUrl currentFile READ currentFile)
     Q_PROPERTY(QUuid first READ firstSource)
-    Q_PROPERTY(int selectedIndex READ selectedIndex WRITE setSelected NOTIFY selectedChanged)
+    Q_PROPERTY(int selectedIndex READ selectedIndex WRITE setSelected NOTIFY selectedChanged)//TODO: toUUID
     Q_PROPERTY(Source::Shared selected READ selected NOTIFY selectedChanged)
     Q_PROPERTY(QColor highlightColor READ highlightColor NOTIFY selectedChanged)
+    Q_PROPERTY(bool isRoot READ isRoot CONSTANT)
     using iterator = QVector<Source::Shared>::iterator;
+    using const_iterator = QVector<Source::Shared>::const_iterator;
 
 public:
     explicit SourceList(QObject *parent = nullptr, bool appendMeasurement = true);
@@ -52,13 +54,17 @@ public:
     const QVector<Source::Shared> &items() const;
     SourceList::iterator begin() noexcept;
     SourceList::iterator end() noexcept;
+    SourceList::const_iterator cbegin() const noexcept;
+    SourceList::const_iterator cend() const noexcept;
 
     QUrl currentFile() const noexcept;
 
     const Source::Shared &get_ref(int i) const noexcept;
+    unsigned size() const;
 
     Q_INVOKABLE Source::Shared get(int i) const noexcept;
     Q_INVOKABLE Source::Shared getByUUid(QUuid id) const noexcept;
+    //Q_INVOKABLE Source::Shared getGroupByUUid(QUuid id) const noexcept;
     Q_INVOKABLE QUuid getUUid(int id) const noexcept;
     Q_INVOKABLE QUuid firstSource() const noexcept;
     Q_INVOKABLE void clean() noexcept;
@@ -69,6 +75,7 @@ public:
     Q_INVOKABLE bool importImpulse(const QUrl &fileName, QString separator);
     Q_INVOKABLE bool importWav(const QUrl &fileName) ;
     Q_INVOKABLE bool move(int from, int to) noexcept;
+    Q_INVOKABLE bool moveToGroup(QUuid targetId, QUuid groupId) noexcept;
     Q_INVOKABLE int indexOf(const Source::Shared &item) const noexcept;
     Q_INVOKABLE int indexOf(const QUuid &id) const noexcept;
 
@@ -87,6 +94,11 @@ public:
     int checkedCount() const;
     QUuid firstChecked() const noexcept;
 
+    bool isRoot() const
+    {
+        return !!parent();
+    }
+
     enum {
         TRANSFER_TXT    = 0,
         TRANSFER_CSV    = 1,
@@ -100,6 +112,9 @@ public:
 
     std::lock_guard<std::mutex> lock() const;
 
+    QJsonArray  toJSON(const SourceList *list = nullptr) const noexcept;
+    void        fromJSON(const QJsonArray &list) noexcept;
+
 public slots:
     Q_INVOKABLE QColor nextColor();
 
@@ -108,10 +123,12 @@ public slots:
     Q_INVOKABLE Source::Shared  addStandardLine();
     Q_INVOKABLE Source::Shared  addFilter();
     Q_INVOKABLE Source::Shared  addWindowing();
+    Q_INVOKABLE Source::Shared  addGroup();
 
     Q_INVOKABLE void appendItem(const Source::Shared &item, bool autocolor = false);
+    Q_INVOKABLE void takeItem(Source::Shared item);
     void removeItem(const Source::Shared &item, bool deleteItem = true);
-    Q_INVOKABLE void removeItem(const QUuid &uuid);
+    Q_INVOKABLE void removeItem(const QUuid &uuid, bool deleteItem = true);
     Q_INVOKABLE void cloneItem(const Source::Shared &item);
     Q_INVOKABLE void storeItem(const Source::Shared &item);
 
@@ -128,17 +145,21 @@ signals:
     void preItemMoved(int from, int to);
     void postItemMoved();
 
+    void postItemChanged(const Source::Shared &, const QVector<int> &roles);
+
     void selectedChanged();
     void loaded(QUrl fileName);
+
+    void countChanged();
 
 private:
     bool loadList(const QJsonDocument &document, const QUrl &fileName) noexcept;
     template<typename T> bool loadObject(const QJsonObject &data);
-    template<typename T> Source::Shared add();
+    template<typename T, typename... Ts> Source::Shared add(Ts...);
     bool importFile(const QUrl &fileName, QString separator);
 
     QVector<Source::Shared> m_items; //TODO: unordered_map<uuid, shared_ptr>
-    QList<QUuid> m_checked;
+    QList<QUuid> m_checked{};
     QUrl m_currentFile;
     const QList<QColor> m_colors {
         "#F44336", "#FFEB3B", "#9C27B0", "#673AB7",

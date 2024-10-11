@@ -19,7 +19,10 @@
 #define SOURCE_SHARED_H
 
 #include <memory>
+
 #include <QObject>
+#include <QColor>
+#include <QUuid>
 
 namespace Source {
 class Abstract;
@@ -31,10 +34,16 @@ class Shared : public std::shared_ptr<Source::Abstract>
 {
     Q_GADGET
     Q_PROPERTY(Source::Abstract *data READ get CONSTANT)
+    Q_PROPERTY(QUuid uuid READ uuid CONSTANT)
+    Q_PROPERTY(QString objectName READ objectName CONSTANT)
 
 public:
     Shared(std::shared_ptr<Source::Abstract> ptr = nullptr);
     ~Shared();
+
+    QUuid uuid() const;
+    Q_INVOKABLE QColor color() const;
+    QString objectName() const;
 };
 
 } // namespace Source

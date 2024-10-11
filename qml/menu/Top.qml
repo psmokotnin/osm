@@ -193,6 +193,11 @@ MenuBar {
             onTriggered: sourceList.addWindowing();
         }
         MenuItem {
+            text: qsTr("&Add Group")
+            shortcut: "Ctrl+0"
+            onTriggered: sourceList.addGroup();
+        }
+        MenuItem {
             text: qsTr("&Show target")
             shortcut: "Ctrl+T"
             checkable: true

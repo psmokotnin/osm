@@ -15,19 +15,22 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "sourcelist.h"
-#include "measurement.h"
-#include "union.h"
-#include "standardline.h"
-#include "filtersource.h"
-#include "source/sourcewindowing.h"
-#include "common/wavfile.h"
 #include <qmath.h>
 #include <QUrl>
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <QFile>
 #include <QFileInfo>
+
+#include "common/wavfile.h"
+#include "filtersource.h"
+#include "measurement.h"
+#include "sourcelist.h"
+#include "sourcemodel.h"
+#include "source/group.h"
+#include "source/sourcewindowing.h"
+#include "standardline.h"
+#include "union.h"
 
 SourceList::SourceList(QObject *parent, bool appendMeasurement) :
     QObject(parent),
@@ -37,6 +40,8 @@ SourceList::SourceList(QObject *parent, bool appendMeasurement) :
     m_selected(-1),
     m_mutex()
 {
+    qRegisterMetaType<SourceList *>("SourceList*");
+
     if (appendMeasurement) {
         add<Measurement>();
     }
@@ -86,6 +91,14 @@ SourceList::iterator SourceList::end() noexcept
 {
     return m_items.end();
 }
+SourceList::const_iterator SourceList::cbegin() const noexcept
+{
+    return m_items.cbegin();
+}
+SourceList::const_iterator SourceList::cend() const noexcept
+{
+    return m_items.cend();
+}
 int SourceList::count() const noexcept
 {
     return m_items.size();
@@ -104,6 +117,11 @@ const Source::Shared &SourceList::get_ref(int i) const noexcept
     return m_items.at(i);
 }
 
+unsigned int SourceList::size() const
+{
+    return m_items.size();
+}
+
 Source::Shared SourceList::get(int i) const noexcept
 {
     return get_ref(i);
@@ -115,12 +133,19 @@ std::lock_guard<std::mutex> SourceList::lock() const
 }
 Source::Shared SourceList::getByUUid(QUuid id) const noexcept
 {
-    auto result = std::find_if(m_items.cbegin(), m_items.cend(), [&id](const Source::Shared & source) {
-        return source && source->uuid() == id;
-    });
-    if (result != m_items.end()) {
-        return *result;
+    for (auto &item : m_items) {
+        if (item && item->uuid() == id) {
+            return item;
+        }
+
+        if (auto group = std::dynamic_pointer_cast<Source::Group>(item)) {
+            auto found = group->sourceList()->getByUUid(id);
+            if (found) {
+                return found;
+            }
+        }
     }
+
     return {};
 }
 
@@ -174,6 +199,20 @@ bool SourceList::move(int from, int to) noexcept
     return true;
 }
 
+bool SourceList::moveToGroup(QUuid targetId, QUuid groupId) noexcept
+{
+    Source::Shared sharedTarget = getByUUid(targetId);
+    Source::Shared sharedGroup  = getByUUid(groupId);
+
+    if (sharedTarget) {
+        if (auto group = std::dynamic_pointer_cast<Source::Group>(sharedGroup)) {
+            removeItem(sharedTarget, false);
+            group->add(sharedTarget);
+        }
+    }
+
+}
+
 int SourceList::indexOf(const Source::Shared &item) const noexcept
 {
     return m_items.indexOf(item);
@@ -192,6 +231,75 @@ int SourceList::indexOf(const QUuid &id) const noexcept
     return -1;
 }
 
+QJsonArray SourceList::toJSON(const SourceList *list) const noexcept
+{
+    QJsonArray data;
+    for (int i = 0; i < m_items.size(); ++i) {
+        auto &item = m_items.at(i);
+        if (!item) {
+            continue;
+        }
+        QJsonObject itemJson;
+        itemJson["type"] = item->objectName();
+        itemJson["data"] = item->toJSON(list);
+        data.append(itemJson);
+    }
+    return data;
+}
+
+void SourceList::fromJSON(const QJsonArray &list) noexcept
+{
+    enum LoadType {MeasurementType, StoredType, UnionType, StandardLineType, FilterType, WindowingType, GroupType};
+    static std::map<QString, LoadType> typeMap = {
+        {"Measurement",  MeasurementType},
+        {"Stored",       StoredType},
+        {"Union",        UnionType},
+        {"StandardLine", StandardLineType},
+        {"Filter",       FilterType},
+        {"Windowing",    WindowingType},
+        {"Group",        GroupType}
+    };
+
+    clean();
+
+    for (const auto &item : list) {
+        auto object = item.toObject();
+
+        if (typeMap.find(object["type"].toString()) == typeMap.end())
+            continue;
+
+        switch (typeMap.at(object["type"].toString())) {
+        case MeasurementType:
+            loadObject<Measurement>(object["data"].toObject());
+            break;
+
+        case StoredType:
+            loadObject<Stored>(object["data"].toObject());
+            break;
+
+        case UnionType:
+            loadObject<Union>(object["data"].toObject());
+            break;
+
+        case StandardLineType:
+            loadObject<StandardLine>(object["data"].toObject());
+            break;
+
+        case FilterType:
+            loadObject<FilterSource>(object["data"].toObject());
+            break;
+
+        case WindowingType:
+            loadObject<Windowing>(object["data"].toObject());
+            break;
+
+        case GroupType:
+            loadObject<Source::Group>(object["data"].toObject());
+            break;
+        }
+    }
+}
+
 bool SourceList::save(const QUrl &fileName) const noexcept
 {
     QFile saveFile(fileName.toLocalFile());
@@ -204,17 +312,7 @@ bool SourceList::save(const QUrl &fileName) const noexcept
     QJsonObject object;
     object["type"] = "sourcelsist";
 
-    QJsonArray data;
-    for (int i = 0; i < m_items.size(); ++i) {
-        auto &item = m_items.at(i);
-        if (!item) {
-            continue;
-        }
-        QJsonObject itemJson;
-        itemJson["type"] = item->objectName();
-        itemJson["data"] = item->toJSON(this);
-        data.append(itemJson);
-    }
+    auto data = toJSON(this);
     object["list"] = data;
     object["selected"] = m_selected;
 
@@ -476,7 +574,10 @@ void SourceList::setSelected(int selected)
 QColor SourceList::highlightColor() const
 {
     if (m_selected >= 0 && m_selected < m_items.size()) {
-        return m_items.at(m_selected)->color();
+        auto item = m_items.at(m_selected);
+        if (item) {
+            return item->color();
+        }
     }
     return QColor{ "black" };
 }
@@ -530,56 +631,13 @@ QUuid SourceList::firstChecked() const noexcept
 
 bool SourceList::loadList(const QJsonDocument &document, const QUrl &fileName) noexcept
 {
-    enum LoadType {MeasurementType, StoredType, UnionType, StandardLineType, FilterType, WindowingType};
-    static std::map<QString, LoadType> typeMap = {
-        {"Measurement",  MeasurementType},
-        {"Stored",       StoredType},
-        {"Union",        UnionType},
-        {"StandardLine", StandardLineType},
-        {"Filter",       FilterType},
-        {"Windowing",    WindowingType}
-    };
-
-    clean();
-    QJsonArray list = document["list"].toArray();
-
-    for (const auto item : list) {
-        auto object = item.toObject();
-
-        if (typeMap.find(object["type"].toString()) == typeMap.end())
-            continue;
-
-        switch (typeMap.at(object["type"].toString())) {
-        case MeasurementType:
-            loadObject<Measurement>(object["data"].toObject());
-            break;
-
-        case StoredType:
-            loadObject<Stored>(object["data"].toObject());
-            break;
-
-        case UnionType:
-            loadObject<Union>(object["data"].toObject());
-            break;
-
-        case StandardLineType:
-            loadObject<StandardLine>(object["data"].toObject());
-            break;
-
-        case FilterType:
-            loadObject<FilterSource>(object["data"].toObject());
-            break;
-
-        case WindowingType:
-            loadObject<Windowing>(object["data"].toObject());
-            break;
-        }
-    }
+    fromJSON( document["list"].toArray() );
     setSelected(document["selected"].toInt(-1));
 
     emit loaded(fileName);
     return true;
 }
+
 template<typename T> bool SourceList::loadObject(const QJsonObject &data)
 {
     if (data.isEmpty())
@@ -592,9 +650,10 @@ template<typename T> bool SourceList::loadObject(const QJsonObject &data)
     nextColor();
     return true;
 }
-template<typename T> Source::Shared SourceList::add()
+
+template<typename T, typename... Ts> Source::Shared SourceList::add(Ts... args)
 {
-    Source::Shared t{ std::make_shared<T>() };
+    Source::Shared t{ std::make_shared<T>(&args...) };
     appendItem(t, true);
     return t;
 }
@@ -616,6 +675,20 @@ Source::Shared SourceList::addWindowing()
 {
     return add<Windowing>();
 }
+
+Source::Shared SourceList::addGroup()
+{
+    auto shared_group =  add<Source::Group>();
+    if (auto group = std::dynamic_pointer_cast<Source::Group>(shared_group)) {
+        auto addInto = selected();
+        if (addInto && !std::dynamic_pointer_cast<Source::Group>(addInto)) {
+            removeItem(addInto, false);
+            group->add(addInto);
+        }
+    }
+    return shared_group;
+}
+
 Source::Shared SourceList::addMeasurement()
 {
     return add<Measurement>();
@@ -630,6 +703,7 @@ int SourceList::appendAll()
     m_items.prepend(Source::Shared{nullptr});
     return 0;
 }
+
 void SourceList::appendItem(const Source::Shared &item, bool autocolor)
 {
     auto guard = lock();
@@ -640,7 +714,14 @@ void SourceList::appendItem(const Source::Shared &item, bool autocolor)
     }
     m_items.append(item);
     emit postItemAppended(item);
+    emit countChanged();
 }
+
+void SourceList::takeItem(Source::Shared item)
+{
+    appendItem(item, false);
+}
+
 void SourceList::removeItem(const Source::Shared &item, bool deleteItem)
 {
     auto guard = lock();
@@ -654,25 +735,28 @@ void SourceList::removeItem(const Source::Shared &item, bool deleteItem)
             emit preItemRemoved(i);
             m_items.replace(i, Source::Shared{});
             m_items.removeAt(i);
-            if (deleteItem)
+            if (deleteItem) {
                 item->destroy();
+            }
             emit postItemRemoved();
             break;
         }
     }
 }
 
-void SourceList::removeItem(const QUuid &uuid)
+void SourceList::removeItem(const QUuid &uuid, bool deleteItem)
 {
     if (auto s = getByUUid(uuid)) {
-        removeItem(s);
+        removeItem(s, deleteItem);
     }
 }
 void SourceList::cloneItem(const Source::Shared &item)
 {
-    auto newItem = item->clone();
-    if (newItem) {
-        appendItem(newItem, true);
+    if (item) {
+        auto newItem = item->clone();
+        if (newItem) {
+            appendItem(newItem, true);
+        }
     }
 }
 

@@ -149,6 +149,9 @@ QSGNode *Plot::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *)
 }
 void Plot::appendDataSource(const Source::Shared &source)
 {
+    if (!source) {
+        return;
+    }
     auto *sourceItem = createSeriesFromSource(source);
     if (sourceItem) {
         m_serieses.append(sourceItem);
@@ -156,7 +159,7 @@ void Plot::appendDataSource(const Source::Shared &source)
         applyHeightForSeries(sourceItem);
 
         if (m_selectAppended) {
-            select(source->uuid());
+            select(source.uuid());
         }
     }
 }

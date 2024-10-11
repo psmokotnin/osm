@@ -17,6 +17,7 @@
  */
 #include "sourcemodel.h"
 #include "sourcelist.h"
+#include "source/group.h"
 
 SourceModel::SourceModel(QObject *parent)
     : QAbstractListModel(parent), m_list(nullptr), m_filter(),
@@ -73,6 +74,7 @@ QVariant SourceModel::data(const QModelIndex &index, int role) const
 
     return r;
 }
+
 Qt::ItemFlags SourceModel::flags(const QModelIndex &index) const
 {
     if (!index.isValid())
@@ -80,6 +82,7 @@ Qt::ItemFlags SourceModel::flags(const QModelIndex &index) const
 
     return Qt::ItemIsSelectable;
 }
+
 QHash<int, QByteArray> SourceModel::roleNames() const
 {
     QHash<int, QByteArray> names;
@@ -117,7 +120,10 @@ void SourceModel::setList(SourceList *list)
     if (m_list)
         m_list->disconnect(this);
 
-    m_list = list;
+    if (m_list != list) {
+        m_list = list;
+        emit listChanged();
+    }
 
     if (m_list) {
         connect(m_list, &SourceList::preItemAppended, this, [ = ]() {
@@ -140,8 +146,9 @@ void SourceModel::setList(SourceList *list)
         connect(m_list, &SourceList::postItemMoved, this, [ = ]() {
             endMoveRows();
         });
-    }
 
+        connect(m_list, &SourceList::postItemChanged, this, &SourceModel::itemChanged);
+    }
     endResetModel();
 }
 
@@ -193,6 +200,7 @@ bool SourceModel::addNone() const noexcept
 void SourceModel::setAddNone(bool addNone) noexcept
 {
     m_addNone = addNone;
+    emit addNoneChanged();
 }
 
 QString SourceModel::noneTitle() const
@@ -213,6 +221,7 @@ bool SourceModel::addAll() const
 void SourceModel::setAddAll(bool addAll)
 {
     m_addAll = addAll;
+    emit addAllChanged();
 }
 
 QString SourceModel::allTitle() const
@@ -246,4 +255,10 @@ void SourceModel::setFilter(const QUuid filter)
         m_filter = filter;
         emit filterChanged();
     }
+}
+
+void SourceModel::itemChanged(const Source::Shared &item, const QVector<int> &roles)
+{
+    auto index = indexOf(item->uuid());
+    emit dataChanged(createIndex(index, 0), createIndex(index, 0), roles );
 }

@@ -61,5 +61,8 @@
         <file alias="source/Windowing.qml">qml/source/Windowing.qml</file>
         <file alias="source/WindowingProperties.qml">qml/source/WindowingProperties.qml</file>
         <file alias="source/Source.qml">qml/source/Source.qml</file>
+        <file alias="source/Group.qml">qml/source/Group.qml</file>
+        <file alias="source/GroupProperties.qml">qml/source/GroupProperties.qml</file>
+        <file alias="SourceLayout.qml">qml/SourceLayout.qml</file>
     </qresource>
 </RCC>

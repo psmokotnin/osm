@@ -26,12 +26,13 @@
 #include "common/notifier.h"
 #include "src/generator/generator.h"
 #include "src/targettrace.h"
-#include "src/measurement.h"
 #include "src/union.h"
 #include "src/standardline.h"
 #include "src/sourcemodel.h"
 #include "src/sourcelist.h"
+#include "src/source/group.h"
 #include "src/chart/variablechart.h"
+#include "src/measurement.h"
 
 #include "audio/client.h"
 #include "audio/devicemodel.h"
@@ -106,10 +107,13 @@ int main(int argc, char *argv[])
     qmlRegisterType<SourceModel>("SourceModel", 1, 0, "SourceModel");
     qmlRegisterUncreatableType<SourceList>("SourceModel", 1, 0, "SourceList",
                                            QStringLiteral("SourceList should not be created in QML"));
+    qmlRegisterUncreatableType<Source::Shared>("OpenSoundMeter", 1, 0, "SourceShared",
+                                               QStringLiteral("SourceShared should not be created in QML"));
     qmlRegisterType<Settings>("Settings", 1, 0, "Settings");
     qmlRegisterType<Appearance>("OpenSoundMeter", 1, 0, "Appearance");
     qmlRegisterType<Notifier>("OpenSoundMeter", 1, 0, "Notifier");
     qmlRegisterType<chart::MeterPlot>("OpenSoundMeter", 1, 0, "MeterPlot");
+    qmlRegisterType<Source::Group>("OpenSoundMeter", 1, 0, "SourceGroup");
 #ifdef Q_OS_IOS
     //replace for QQuickControls2 FileDialog:
     qmlRegisterUncreatableMetaObject(filesystem::staticMetaObject, "OpenSoundMeter", 1, 0, "Filesystem",
@@ -129,7 +133,6 @@ int main(int argc, char *argv[])
 
     engine.rootContext()->setContextProperty("remoteServer", &server);
     engine.rootContext()->setContextProperty("remoteClient", &client);
-
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
 
     if (engine.rootObjects().isEmpty())

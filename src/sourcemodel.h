@@ -20,28 +20,29 @@
 
 #include <QAbstractListModel>
 #include "source/source_abstract.h"
+
 class SourceList;
 
 class SourceModel : public QAbstractListModel
 {
     Q_OBJECT
-    Q_PROPERTY(SourceList *list READ list WRITE setList)
+    Q_PROPERTY(SourceList *list READ list WRITE setList NOTIFY listChanged)
     Q_PROPERTY(QList<QUuid> checked READ checked WRITE setChecked NOTIFY checkedChanged)
     Q_PROPERTY(QUuid filter READ filter WRITE setFilter NOTIFY filterChanged)
-    Q_PROPERTY(bool addNone READ addNone WRITE setAddNone)
-    Q_PROPERTY(bool addAll READ addAll WRITE setAddAll)
+    Q_PROPERTY(bool addNone READ addNone WRITE setAddNone NOTIFY addNoneChanged)
+    Q_PROPERTY(bool addAll READ addAll WRITE setAddAll NOTIFY addAllChanged)
     Q_PROPERTY(QString noneTitle READ noneTitle WRITE setNoneTitle)
     Q_PROPERTY(QString allTitle READ allTitle WRITE setAllTitle)
 
 public:
     explicit SourceModel(QObject *parent = nullptr);
 
-    enum {
+    enum DataRole {
         SourceRole  = Qt::UserRole,
         NameRole    = Qt::UserRole + 1,
         TitleRole   = Qt::UserRole + 2,
         CheckedRole = Qt::UserRole + 3,
-        ColorRole   = Qt::UserRole + 4
+        ColorRole   = Qt::UserRole + 4,
     };
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -78,10 +79,16 @@ public:
     QUuid filter() const;
     void setFilter(const QUuid filter);
 
+public slots:
+    void itemChanged(const Source::Shared &, const QVector<int> &roles);
+
 signals:
     void changed();
     void checkedChanged();
     void filterChanged();
+    void listChanged();
+    void addNoneChanged();
+    void addAllChanged();
 
 private:
     SourceList *m_list;

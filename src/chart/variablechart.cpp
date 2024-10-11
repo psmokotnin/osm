@@ -29,6 +29,7 @@
 #include "nyquistplot.h"
 #include "levelplot.h"
 #include "src/sourcelist.h"
+#include "source/group.h"
 
 using namespace chart;
 
@@ -179,6 +180,9 @@ void VariableChart::appendDataSource(const Source::Shared &source)
 {
     if (m_plot) {
         m_plot->appendDataSource(source);
+        if (auto group = std::dynamic_pointer_cast<Source::Group>(source)) {
+            connectSources(group->sourceList());
+        }
     }
 }
 void VariableChart::removeDataSource(const Source::Shared &source)
@@ -219,25 +223,33 @@ void VariableChart::setSources(SourceList *sourceList)
         m_sources->disconnect(this);
 
     m_sources = sourceList;
-    if (m_sources && m_plot) {
-        for (int i = 0; i < m_sources->count(); ++i) {
-            appendDataSource(m_sources->items()[i]);
+    connectSources(m_sources);
+    updateZOrders();
+    emit sourcesChanged();
+}
+
+void VariableChart::connectSources(SourceList *sourceList)
+{
+    if (sourceList && m_plot) {
+        for (int i = 0; i < sourceList->count(); ++i) {
+            auto source = sourceList->items()[i];
+            appendDataSource(source);
         }
-        auto selected = m_sources->selectedUuid();
+        auto selected = sourceList->selectedUuid();
         m_plot->setHighlighted(selected);
 
-        connect(m_sources, &SourceList::postItemAppended, this, [ = ](const Source::Shared & source) {
+        connect(sourceList, &SourceList::postItemAppended, this, [ = ](const Source::Shared & source) {
             appendDataSource(source);
         });
 
-        connect(m_sources, &SourceList::preItemRemoved, this, [ = ](int index) {
-            auto source = m_sources->get_ref(index);
+        connect(sourceList, &SourceList::preItemRemoved, this, [ = ](int index) {
+            auto source = sourceList->get_ref(index);
             removeDataSource(source);
         });
 
-        connect(m_sources, &SourceList::postItemMoved, this, &VariableChart::updateZOrders);
+        connect(sourceList, &SourceList::postItemMoved, this, &VariableChart::updateZOrders);
 
-        connect(m_sources, &SourceList::selectedChanged, this, [this]() {
+        connect(sourceList, &SourceList::selectedChanged, this, [this]() {
             if (m_plot) {
                 updateZOrders();
                 auto selected = m_sources->selectedUuid();
@@ -255,8 +267,6 @@ void VariableChart::setSources(SourceList *sourceList)
             }
         });
     }
-    updateZOrders();
-    emit sourcesChanged();
 }
 
 const bool &VariableChart::darkMode() const noexcept

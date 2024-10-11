@@ -70,6 +70,7 @@ protected:
     void initType();
 
 private:
+    void connectSources(SourceList *sourceList);
     Plot *m_plot;
     SourceList *m_sources;
     Settings *m_settings;
