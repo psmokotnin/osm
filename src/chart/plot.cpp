@@ -16,16 +16,18 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "plot.h"
-#include <QSGSimpleRectNode>
 #include <QQmlEngine>
+#include <QSGSimpleRectNode>
+#include "chart/plot.h"
+#include "source/group.h"
 
 using namespace chart;
 
 CursorHelper *Plot::s_cursorHelper = new CursorHelper();
 
 Plot::Plot(Settings *settings, QQuickItem *parent) :
-    QQuickItem(parent), m_settings(settings), m_palette(this), m_rendererError(), m_selectAppended(true)
+    QQuickItem(parent), m_settings(settings), m_palette(this), m_rendererError(), m_selectAppended(true),
+    m_seriesesItem(this, this)
 {
     connect(parent, &QQuickItem::widthChanged, this, &Plot::parentWidthChanged);
     connect(parent, &QQuickItem::heightChanged, this, &Plot::parentHeightChanged);
@@ -35,14 +37,11 @@ Plot::Plot(Settings *settings, QQuickItem *parent) :
 }
 void Plot::clear()
 {
-    for (auto &&series : m_serieses) {
-        emit series->preSourceDeleted();
-        series->deleteLater();
-    }
-    m_serieses.clear();
+    m_seriesesItem.clear();
 }
 void Plot::disconnectFromParent()
 {
+    m_seriesesItem.disconnectFromParent();
     disconnect(parentItem(), &QQuickItem::widthChanged, this, &Plot::parentWidthChanged);
     disconnect(parentItem(), &QQuickItem::heightChanged, this, &Plot::parentHeightChanged);
 }
@@ -52,37 +51,14 @@ void Plot::parentWidthChanged()
         return;
     }
     setWidth(parentItem()->width());
-    for (auto &&series : m_serieses) {
-        applyWidthForSeries(series);
-    }
 }
+
 void Plot::parentHeightChanged()
 {
     if (!parentItem()) {
         return;
     }
     setHeight(parentItem()->height());
-    for (auto &&series : m_serieses) {
-        applyHeightForSeries(series);
-    }
-}
-void Plot::applyWidthForSeries(SeriesItem *s)
-{
-    if (!parentItem())
-        return;
-
-    float width = static_cast<float>(parentItem()->width()) - m_padding.left - m_padding.right;
-    s->setX(static_cast<qreal>(m_padding.left));
-    s->setWidth(static_cast<qreal>(width));
-}
-void Plot::applyHeightForSeries(SeriesItem *s)
-{
-    if (!parentItem())
-        return;
-
-    float height = static_cast<float>(parentItem()->height()) - m_padding.top - m_padding.bottom;
-    s->setY(static_cast<qreal>(m_padding.top));
-    s->setHeight(static_cast<qreal>(height));
 }
 
 CursorHelper *Plot::cursorHelper() const noexcept
@@ -153,25 +129,7 @@ bool Plot::appendDataSource(const Source::Shared &source)
     if (!source) {
         return false;
     }
-
-    auto it = std::find_if(m_serieses.begin(), m_serieses.end(), [ &source ](auto e) {
-        if (e) {
-            return (e->source().uuid() == source.uuid());
-        }
-        return false;
-    });
-    if (it != m_serieses.end()) {
-        return false;
-    }
-
-    auto *sourceItem = createSeriesFromSource(source);
-    if (!sourceItem) {
-        return false;
-    }
-
-    m_serieses.append(sourceItem);
-    applyWidthForSeries(sourceItem);
-    applyHeightForSeries(sourceItem);
+    m_seriesesItem.appendDataSource(source);
 
     if (m_selectAppended) {
         select(source.uuid());
@@ -180,36 +138,18 @@ bool Plot::appendDataSource(const Source::Shared &source)
 }
 void Plot::removeDataSource(const Source::Shared &source)
 {
-    foreach (auto *series, m_serieses) {
-        if (series->source() == source) {
-            emit series->preSourceDeleted();
-            series->deleteLater();
-
-            m_serieses.removeOne(series);
-            if (source) {
-                m_selected.removeAll(source->uuid());
-            }
-            emit selectedChanged();
-            update();
-            return;
-        }
-    }
+    m_seriesesItem.removeDataSource(source);
+    m_selected.removeAll(source.uuid());
+    emit selectedChanged();
 }
 void Plot::setSourceZIndex(const QUuid &source, int index)
 {
-    foreach (SeriesItem *series, m_serieses) {
-        if (series->source() && series->source()->uuid() == source) {
-            series->setZIndex(index + 10);
-            return;
-        }
-    }
+    m_seriesesItem.setSourceZIndex(source, index);
 }
 
 void Plot::setHighlighted(const QUuid &source)
 {
-    foreach (SeriesItem *series, m_serieses) {
-        series->setHighlighted((series->source() && series->source()->uuid() == source));
-    }
+    m_seriesesItem.setHighlighted(source);
 }
 
 void Plot::setSettings(Settings *settings) noexcept
@@ -232,8 +172,5 @@ void Plot::setDarkMode(bool darkMode) noexcept
 void Plot::update()
 {
     QQuickItem::update();
-
-    foreach (SeriesItem *series, m_serieses) {
-        series->update();
-    }
+    m_seriesesItem.update();
 }

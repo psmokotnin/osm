@@ -24,18 +24,7 @@
 #include "palette.h"
 #include "cursorhelper.h"
 #include "common/settings.h"
-
-#ifdef GRAPH_METAL
-#include "seriesitem.h"
-using SeriesItem = chart::SeriesItem;
-
-#elif defined(GRAPH_OPENGL)
-#include "seriesfbo.h"
-using SeriesItem = chart::SeriesFBO;
-
-#else
-#pragma message("GRAPH backend not setted")
-#endif
+#include "chart/seriesesitem.h"
 
 namespace chart {
 
@@ -47,16 +36,18 @@ class Plot : public QQuickItem
     Q_PROPERTY(QString yLabel READ yLabel NOTIFY yLabelChanged)
     Q_PROPERTY(QString rendererError READ rendererError NOTIFY rendererErrorChanged)
 
+    friend class SeriesesItem;
+
 public:
     explicit Plot(Settings *settings, QQuickItem *parent);
     void clear();
     void disconnectFromParent();
-    QSGNode *updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *);
+    QSGNode *updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *) override;
 
-    virtual bool appendDataSource(const Source::Shared &source);
-    virtual void removeDataSource(const Source::Shared &source);
-    virtual void setSourceZIndex(const QUuid &source, int index);
-    virtual void setHighlighted(const QUuid &source);
+    bool appendDataSource(const Source::Shared &source);
+    void removeDataSource(const Source::Shared &source);
+    void setSourceZIndex(const QUuid &source, int index);
+    void setHighlighted(const QUuid &source);
 
     Q_INVOKABLE virtual void setHelper(qreal x, qreal y) noexcept = 0;
     Q_INVOKABLE virtual void unsetHelper() noexcept = 0;
@@ -98,8 +89,6 @@ public slots:
 
 protected:
     virtual SeriesItem *createSeriesFromSource(const Source::Shared &source) = 0;
-    void applyWidthForSeries(SeriesItem *s);
-    void applyHeightForSeries(SeriesItem *s);
 
     CursorHelper *cursorHelper() const noexcept;
 
@@ -109,8 +98,8 @@ protected:
                 top     = 10.f,
                 bottom  = 20.f;
     } m_padding;
+    SeriesesItem m_seriesesItem;
 
-    QList<SeriesItem *> m_serieses;
     Settings *m_settings;
     Palette m_palette;
     QList<QUuid> m_selected;

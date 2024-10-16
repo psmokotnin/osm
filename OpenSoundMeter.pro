@@ -25,6 +25,7 @@ SOURCES += src/main.cpp \
     src/chart/nyquistplot.cpp \
     src/chart/palette.cpp \
     src/chart/phasedelayplot.cpp \
+    src/chart/seriesesitem.cpp \
     src/chart/spectrogramplot.cpp \
     src/chart/stepplot.cpp \
     src/chart/coherenceplot.cpp \
@@ -158,6 +159,8 @@ HEADERS += \
     src/chart/nyquistplot.h \
     src/chart/palette.h \
     src/chart/phasedelayplot.h \
+    src/chart/seriesesitem.h \
+    src/chart/seriesitem.h \
     src/chart/spectrogramplot.h \
     src/chart/stepplot.h \
     src/chart/coherenceplot.h \
