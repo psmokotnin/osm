@@ -26,14 +26,22 @@ using namespace chart;
 CursorHelper *Plot::s_cursorHelper = new CursorHelper();
 
 Plot::Plot(Settings *settings, QQuickItem *parent) :
-    QQuickItem(parent), m_settings(settings), m_palette(this), m_rendererError(), m_selectAppended(true),
-    m_seriesesItem(this, this)
+    QQuickItem(parent), m_seriesesItem(this, this), m_settings(settings), m_palette(this), m_rendererError(),
+    m_selectAppended(true)
+
 {
+    setFlag(QQuickItem::ItemHasContents, true);
     connect(parent, &QQuickItem::widthChanged, this, &Plot::parentWidthChanged);
     connect(parent, &QQuickItem::heightChanged, this, &Plot::parentHeightChanged);
     connect(&m_palette, SIGNAL(changed()), this, SLOT(update()));
+
     setWidth(parent->width());
     setHeight(parent->height());
+}
+
+void Plot::connectSources(SourceList *sourceList)
+{
+    m_seriesesItem.connectSources(sourceList);
 }
 void Plot::clear()
 {
@@ -64,6 +72,11 @@ void Plot::parentHeightChanged()
 CursorHelper *Plot::cursorHelper() const noexcept
 {
     return s_cursorHelper;
+}
+
+bool Plot::selectAppended() const
+{
+    return m_selectAppended;
 }
 
 void Plot::setSelectAppended(bool selectAppended)

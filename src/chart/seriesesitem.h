@@ -22,7 +22,9 @@
 #include <QQmlEngine>
 #include <QList>
 
+#include "chart/plotpadding.h"
 #include "chart/seriesitem.h"
+#include "source/group.h"
 
 namespace chart {
 
@@ -35,6 +37,10 @@ class SeriesesItem : public QQuickItem
 
 public:
     SeriesesItem(QQuickItem *parent = nullptr, Plot *plot = nullptr);
+    ~SeriesesItem();
+    void connectSources(SourceList *sourceList);
+
+    SeriesesItem *constructFromGroup(const std::shared_ptr<Source::Group> &group);
     QSGNode *updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *) override;
 
     void disconnectFromParent();
@@ -44,11 +50,16 @@ public:
     void removeDataSource(const Source::Shared &source);
     void setSourceZIndex(const QUuid &source, int index);
     void setHighlighted(const QUuid &source);
+    Plot *plot() const;
+
+    QUuid groupUuid() const;
+    void setGroupUuid(const QUuid &newUuid);
 
 public slots:
     void parentWidthChanged();
     void parentHeightChanged();
     void update();
+    void updateZOrders();
 
 signals:
 
@@ -59,6 +70,8 @@ private:
     QList<SeriesItem *> m_serieses;
     Plot *m_plot = nullptr;
     bool m_selectAppended = false;
+    SourceList *m_sources;
+    QUuid   m_groupUuid;
 };
 
 } // namespace chart

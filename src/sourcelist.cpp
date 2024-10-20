@@ -199,18 +199,17 @@ bool SourceList::move(int from, int to) noexcept
     return true;
 }
 
-bool SourceList::moveToGroup(QUuid targetId, QUuid groupId) noexcept
+void SourceList::moveToGroup(QUuid targetId, QUuid groupId) noexcept
 {
     Source::Shared sharedTarget = getByUUid(targetId);
     Source::Shared sharedGroup  = getByUUid(groupId);
 
-    if (sharedTarget) {
+    if (sharedTarget && sharedTarget != sharedGroup) {
         if (auto group = std::dynamic_pointer_cast<Source::Group>(sharedGroup)) {
             removeItem(sharedTarget, false);
             group->add(sharedTarget);
         }
     }
-
 }
 
 int SourceList::indexOf(const Source::Shared &item) const noexcept

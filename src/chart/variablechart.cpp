@@ -144,14 +144,10 @@ void VariableChart::setType(const Type &type)
     if (m_selected != type) {
         m_selected = type;
         initType();
-        if (m_sources) {
-            for (int i = 0; i < m_sources->count(); ++i) {
-                appendDataSource(m_sources->items()[i]);
-            }
-        }
         if (m_plot && (type != Spectrogram)) {
             m_plot->setSelectAppended(true);
         }
+        connectSources(m_sources);
         updateZOrders();
         emit typeChanged();
     }
@@ -174,16 +170,6 @@ void VariableChart::setSettings(Settings *settings) noexcept
     m_settings = settings;
     if (m_plot) {
         m_plot->setSettings(m_settings);
-    }
-}
-void VariableChart::appendDataSource(const Source::Shared &source)
-{
-    if (m_plot) {
-        if (m_plot->appendDataSource(source)) {
-            if (auto group = std::dynamic_pointer_cast<Source::Group>(source)) {
-                connectSources(group->sourceList());
-            }
-        }
     }
 }
 void VariableChart::removeDataSource(const Source::Shared &source)
@@ -231,42 +217,8 @@ void VariableChart::setSources(SourceList *sourceList)
 
 void VariableChart::connectSources(SourceList *sourceList)
 {
-    if (sourceList && m_plot) {
-        for (int i = 0; i < sourceList->count(); ++i) {
-            auto source = sourceList->items()[i];
-            appendDataSource(source);
-        }
-        auto selected = sourceList->selectedUuid();
-        m_plot->setHighlighted(selected);
-
-        connect(sourceList, &SourceList::postItemAppended, this, [ = ](const Source::Shared & source) {
-            appendDataSource(source);
-        });
-
-        connect(sourceList, &SourceList::preItemRemoved, this, [ = ](int index) {
-            auto source = sourceList->get_ref(index);
-            removeDataSource(source);
-        });
-
-        connect(sourceList, &SourceList::postItemMoved, this, &VariableChart::updateZOrders);
-
-        connect(sourceList, &SourceList::selectedChanged, this, [this]() {
-            if (m_plot) {
-                updateZOrders();
-                auto selected = m_sources->selectedUuid();
-                m_plot->setHighlighted(selected);
-                setSourceZIndex(selected, m_sources->count() + 1);
-            }
-        });
-
-        connect(this, &VariableChart::typeChanged, this, [this]() {
-            if (m_plot) {
-                updateZOrders();
-                auto selected = m_sources->selectedUuid();
-                m_plot->setHighlighted(selected);
-                setSourceZIndex(selected, m_sources->count() + 1);
-            }
-        });
+    if (m_plot) {
+        m_plot->connectSources(sourceList);
     }
 }
 

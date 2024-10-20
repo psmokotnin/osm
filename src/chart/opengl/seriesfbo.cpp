@@ -45,7 +45,7 @@ QQuickFramebufferObject::Renderer *SeriesFBO::createRenderer() const
 
     return renderer;
 }
-void SeriesFBO::setZIndex(int index)
+void SeriesFBO::setZIndex(qreal index)
 {
     setZ(index);
 }

@@ -27,7 +27,7 @@
 #include "source/source_abstract.h"
 
 namespace chart {
-
+class Plot;
 class SeriesRenderer : public QQuickFramebufferObject::Renderer
 {
 public:
@@ -51,6 +51,8 @@ protected:
                         const float &toX, const float &toY,
                         const float &fromC, const float &toC);
     void drawOpenGL2(unsigned int verticiesCount, GLenum mode = GL_LINES);
+
+    Plot *plot() const;
 
     Source::Shared m_source;
     QQuickFramebufferObject *m_item = nullptr;

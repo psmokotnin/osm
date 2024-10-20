@@ -33,7 +33,7 @@ public:
     explicit SeriesFBO(Source::Shared source, RendererCreator rc, QQuickItem *parent = nullptr);
     const Source::Shared &source() const noexcept;
     QQuickFramebufferObject::Renderer *createRenderer() const override;
-    void setZIndex(int index);
+    void setZIndex(qreal index);
 
     bool highlighted() const noexcept;
     void setHighlighted(bool highlighted);

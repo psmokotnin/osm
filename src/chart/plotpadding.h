@@ -16,19 +16,14 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SERIESITEM_H
-#define SERIESITEM_H
-
-#ifdef GRAPH_METAL
-#include "chart/metal/seriesitem.h"
-using SeriesItem = chart::SeriesItem;
-
-#elif defined(GRAPH_OPENGL)
-#include "seriesfbo.h"
-using SeriesItem = chart::SeriesFBO;
-
-#else
-#pragma message("GRAPH backend not setted")
-#endif
-
-#endif // SERIESITEM_H
+#ifndef CHART_PLOTPADDING_H
+#define CHART_PLOTPADDING_H
+namespace chart {
+struct Padding {
+    float   left    = 0.f,
+            right   = 0.f,
+            top     = 0.f,
+            bottom  = 0.f;
+};
+}
+#endif // CHART_PLOTPADDING_H

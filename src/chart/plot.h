@@ -25,6 +25,7 @@
 #include "cursorhelper.h"
 #include "common/settings.h"
 #include "chart/seriesesitem.h"
+#include "plotpadding.h"
 
 namespace chart {
 
@@ -40,6 +41,8 @@ class Plot : public QQuickItem
 
 public:
     explicit Plot(Settings *settings, QQuickItem *parent);
+    void connectSources(SourceList *sourceList);
+
     void clear();
     void disconnectFromParent();
     QSGNode *updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *) override;
@@ -73,6 +76,7 @@ public:
     void setSelected(const QList<QUuid> &selected);
     bool isSelected(const QUuid &source) const;
 
+    bool selectAppended() const;
     void setSelectAppended(bool selectAppended);
 
 signals:
@@ -92,12 +96,7 @@ protected:
 
     CursorHelper *cursorHelper() const noexcept;
 
-    const struct Padding {
-        float   left    = 50.f,
-                right   = 10.f,
-                top     = 10.f,
-                bottom  = 20.f;
-    } m_padding;
+    const Padding m_padding { 50.f, 10.f, 10.f, 20.f };
     SeriesesItem m_seriesesItem;
 
     Settings *m_settings;

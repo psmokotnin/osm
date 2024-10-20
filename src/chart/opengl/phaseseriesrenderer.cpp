@@ -61,12 +61,12 @@ void PhaseSeriesRenderer::synchronize(QQuickFramebufferObject *item)
 {
     XYSeriesRenderer::synchronize(item);
 
-    if (auto *plot = dynamic_cast<PhasePlot *>(m_item ? m_item->parent() : nullptr)) {
-        m_pointsPerOctave = plot->pointsPerOctave();
-        m_coherence = plot->coherence();
+    if (auto *phasePlot = dynamic_cast<PhasePlot *>(plot())) {
+        m_pointsPerOctave = phasePlot->pointsPerOctave();
+        m_coherence = phasePlot->coherence();
         constexpr float pk = static_cast<float>(-M_PI / 180.0);
-        m_rotate = plot->rotate() *  pk;
-        m_coherenceThreshold = plot->coherenceThreshold();
+        m_rotate = phasePlot->rotate() *  pk;
+        m_coherenceThreshold = phasePlot->coherenceThreshold();
     }
 }
 void PhaseSeriesRenderer::renderSeries()

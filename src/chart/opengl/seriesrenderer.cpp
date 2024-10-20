@@ -21,6 +21,7 @@
 #include "seriesfbo.h"
 #include "../plot.h"
 #include "common/profiler.h"
+#include "chart/seriesesitem.h"
 using namespace chart;
 
 SeriesRenderer::SeriesRenderer() :
@@ -58,15 +59,15 @@ void SeriesRenderer::synchronize(QQuickFramebufferObject *item)
     bool reset = false;
     if (item) {
         auto seriesFBO = dynamic_cast<SeriesFBO *>(item);
-        if (seriesFBO && (m_source = seriesFBO->source())) {
+        if (seriesFBO && (m_source = seriesFBO->source()) && seriesFBO->parentItem()) {
             qreal retinaScale = m_item->window()->devicePixelRatio();
             m_width  = static_cast<GLsizei>(m_item->width() * retinaScale);
             m_height = static_cast<GLsizei>(m_item->height() * retinaScale);
             m_retinaScale = static_cast<GLfloat>(retinaScale);
-            auto plot = static_cast<chart::Plot *>(m_item->parent());
-            if (plot && m_source) {
-                m_renderActive = plot->isSelected(m_source->uuid());
-                m_weight = plot->palette().lineWidth(seriesFBO->highlighted());
+            auto currentPlot = plot();
+            if (currentPlot && m_source && seriesFBO->parentItem()->isVisible()) {
+                m_renderActive = currentPlot->isSelected(m_source->uuid());
+                m_weight = currentPlot->palette().lineWidth(seriesFBO->highlighted());
             } else {
                 m_renderActive = false;
             }
@@ -146,6 +147,15 @@ void SeriesRenderer::drawOpenGL2(unsigned int verticiesCount, GLenum mode)
     m_openGLFunctions->glDisableVertexAttribArray(1);
     m_openGLFunctions->glDisableVertexAttribArray(0);
 }
+
+Plot *SeriesRenderer::plot() const
+{
+    if (m_item) {
+        return dynamic_cast<chart::Plot *>(m_item->parent());
+    }
+    return nullptr;
+}
+
 void SeriesRenderer::render()
 {
 #ifdef QT_DEBUG

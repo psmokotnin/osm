@@ -33,18 +33,18 @@ void XYSeriesRenderer::synchronize(QQuickFramebufferObject *item)
 {
     SeriesRenderer::synchronize(item);
 
-    if (auto *plot = dynamic_cast<XYPlot *>(m_item ? m_item->parent() : nullptr)) {
+    if (auto *xyplot = dynamic_cast<XYPlot *>(plot())) {
         if (
-            m_xMin != plot->xAxis()->min() ||
-            m_xMax != plot->xAxis()->max() ||
-            m_yMin != plot->yAxis()->min() ||
-            m_yMax != plot->yAxis()->max()
+            m_xMin != xyplot->xAxis()->min() ||
+            m_xMax != xyplot->xAxis()->max() ||
+            m_yMin != xyplot->yAxis()->min() ||
+            m_yMax != xyplot->yAxis()->max()
         ) {
 
-            m_xMin = plot->xAxis()->min();
-            m_xMax = plot->xAxis()->max();
-            m_yMin = plot->yAxis()->min();
-            m_yMax = plot->yAxis()->max();
+            m_xMin = xyplot->xAxis()->min();
+            m_xMax = xyplot->xAxis()->max();
+            m_yMin = xyplot->yAxis()->min();
+            m_yMax = xyplot->yAxis()->max();
             updateMatrix();
         }
     }

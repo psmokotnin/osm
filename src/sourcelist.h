@@ -75,7 +75,7 @@ public:
     Q_INVOKABLE bool importImpulse(const QUrl &fileName, QString separator);
     Q_INVOKABLE bool importWav(const QUrl &fileName) ;
     Q_INVOKABLE bool move(int from, int to) noexcept;
-    Q_INVOKABLE bool moveToGroup(QUuid targetId, QUuid groupId) noexcept;
+    Q_INVOKABLE void moveToGroup(QUuid targetId, QUuid groupId) noexcept;
     Q_INVOKABLE int indexOf(const Source::Shared &item) const noexcept;
     Q_INVOKABLE int indexOf(const QUuid &id) const noexcept;
 

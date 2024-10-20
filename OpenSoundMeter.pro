@@ -159,6 +159,7 @@ HEADERS += \
     src/chart/nyquistplot.h \
     src/chart/palette.h \
     src/chart/phasedelayplot.h \
+    src/chart/plotpadding.h \
     src/chart/seriesesitem.h \
     src/chart/seriesitem.h \
     src/chart/spectrogramplot.h \
