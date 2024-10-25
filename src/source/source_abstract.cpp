@@ -119,10 +119,10 @@ float Abstract::magnitudeRaw(const unsigned int &i) const noexcept
 }
 complex Abstract::phase(const unsigned int &i) const noexcept
 {
-    if (i <= m_dataLength)
+    if (i < m_dataLength)
         return m_ftdata[i].phase;
 
-    return m_ftdata[0].phase;
+    return 0;
 }
 const float &Abstract::coherence(const unsigned int &i) const noexcept
 {
