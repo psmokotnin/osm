@@ -85,8 +85,8 @@ void Server::setSourceList(SourceList *list)
     }
 
     connect(list, &SourceList::postItemAppended, this, onAdded);
-    connect(list, &SourceList::preItemRemoved, this, [this, list](auto index) {
-        auto source = list->get_ref(index);
+    connect(list, &SourceList::preItemRemoved, this, [this, list](auto uuid) {
+        auto source = list->getByUUid(uuid);
         if (source) {
             sourceNotify(source, "removed");
             source->disconnect(this);

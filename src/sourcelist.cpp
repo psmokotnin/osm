@@ -46,27 +46,39 @@ SourceList::SourceList(QObject *parent, bool appendMeasurement) :
         add<Measurement>();
     }
 }
-SourceList *SourceList::clone(QObject *parent, QUuid filter) const
+SourceList *SourceList::clone(QObject *parent, QUuid filter, bool unrollGroups) const
 {
     SourceList *list = new SourceList(parent, false);
-    for (const auto &item : items()) {
+    list->appendItemsFrom(this, filter, unrollGroups);
+
+    return list;
+}
+
+void SourceList::appendItemsFrom(const SourceList *list, QUuid filter, bool unrollGroups)
+{
+    for (const auto &item : list->items()) {
         if (filter.isNull() || filter != item->uuid()) {
-            list->appendItem(item);
+            auto group = std::dynamic_pointer_cast<Source::Group>(item);
+            if ( group && unrollGroups) {
+                appendItemsFrom(group->sourceList(), filter, unrollGroups);
+            } else {
+                appendItem(item);
+            }
         }
     }
 
-    connect(this, &SourceList::preItemRemoved, list, [ = ](int index) {
-        auto item = get_ref(index);
-        list->removeItem(item, false);
+    connect(list, &SourceList::preItemRemoved, this, [ this ](auto uuid) {
+        qDebug() << "connected preItemRemoved" << uuid;
+        removeItem(uuid, false);
     });
-    connect(this, &SourceList::postItemAppended, list, [ = ](auto item) {
-        list->appendItem(item, false);
+    connect(list, &SourceList::postItemAppended, this, [ this ](auto item) {
+        appendItem(item, false);
     });
-    connect(this, &SourceList::preItemMoved, list, [ = ](int from, int to) {
-        list->move(from, to);
-    });
-
-    return list;
+    if (!unrollGroups) {
+        connect(list, &SourceList::preItemMoved, this, [ this ](int from, int to) {
+            move(from, to);
+        });
+    }
 }
 
 QUuid SourceList::firstSource() const noexcept
@@ -149,6 +161,19 @@ Source::Shared SourceList::getByUUid(QUuid id) const noexcept
     return {};
 }
 
+int SourceList::getIndexByUUid(QUuid id) const noexcept
+{
+    int index = 0;
+    for (auto &item : m_items) {
+        if (item && item->uuid() == id) {
+            return index;
+        }
+        index++;
+    }
+
+    return -1;
+}
+
 QUuid SourceList::getUUid(int i) const noexcept
 {
     if (i < 0 || i >= m_items.size())
@@ -164,8 +189,8 @@ void SourceList::clean() noexcept
     m_checked.clear();
     emit selectedChanged();
     while (m_items.size() > 0) {
-        emit preItemRemoved(0);
         auto item = get_ref(0);
+        emit preItemRemoved(item.uuid());
         m_items.removeAt(0);
         emit postItemRemoved();
         item->destroy();
@@ -458,7 +483,12 @@ QList<QUuid> SourceList::checked() const
 
 void SourceList::setChecked(const QList<QUuid> &checked)
 {
-    m_checked = checked;
+    m_checked.clear();
+    for (auto &uuid : checked) {
+        if (getIndexByUUid(uuid) > -1) {
+            check(uuid);
+        }
+    }
 }
 bool SourceList::importImpulse(const QUrl &fileName, QString separator)
 {
@@ -727,11 +757,11 @@ void SourceList::removeItem(const Source::Shared &item, bool deleteItem)
     if (!item) {
         return;
     }
-    m_checked.removeAll(item->uuid());
+    m_checked.removeAll(item.uuid());
     for (int i = 0; i < m_items.size(); ++i) {
         if (m_items.at(i) == item) {
             auto item = get_ref(i);
-            emit preItemRemoved(i);
+            emit preItemRemoved(item.uuid());
             m_items.replace(i, Source::Shared{});
             m_items.removeAt(i);
             if (deleteItem) {

@@ -54,8 +54,8 @@ void SeriesesItem::connectSources(SourceList *sourceList)
             appendDataSource(source);
         });
 
-        connect(m_sources, &SourceList::preItemRemoved, this, [ = ](int index) {
-            auto source = m_sources->get_ref(index);
+        connect(m_sources, &SourceList::preItemRemoved, this, [ = ](auto uuid) {
+            auto source = m_sources->getByUUid(uuid);
             removeDataSource(source);
         });
 

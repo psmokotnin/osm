@@ -243,6 +243,7 @@ Item {
         TitledCombo {
             tooltip: qsTr("show only this source")
             model: SourceModel {
+                unrollGroups: true
                 list: sourceList
             }
             Layout.preferredWidth: 160

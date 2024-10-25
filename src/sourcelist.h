@@ -48,7 +48,7 @@ class SourceList : public QObject
 
 public:
     explicit SourceList(QObject *parent = nullptr, bool appendMeasurement = true);
-    SourceList *clone(QObject *parent, QUuid filter = {}) const;
+    SourceList *clone(QObject *parent, QUuid filter = {}, bool unrollGroups = false) const;
 
     int count() const noexcept;
     const QVector<Source::Shared> &items() const;
@@ -64,6 +64,7 @@ public:
 
     Q_INVOKABLE Source::Shared get(int i) const noexcept;
     Q_INVOKABLE Source::Shared getByUUid(QUuid id) const noexcept;
+    int getIndexByUUid(QUuid id) const noexcept;
     //Q_INVOKABLE Source::Shared getGroupByUUid(QUuid id) const noexcept;
     Q_INVOKABLE QUuid getUUid(int id) const noexcept;
     Q_INVOKABLE QUuid firstSource() const noexcept;
@@ -139,7 +140,7 @@ signals:
     void preItemAppended();
     void postItemAppended(const Source::Shared &);
 
-    void preItemRemoved(int index);
+    void preItemRemoved(QUuid index);
     void postItemRemoved();
 
     void preItemMoved(int from, int to);
@@ -157,6 +158,7 @@ private:
     template<typename T> bool loadObject(const QJsonObject &data);
     template<typename T, typename... Ts> Source::Shared add(Ts...);
     bool importFile(const QUrl &fileName, QString separator);
+    void appendItemsFrom(const SourceList *list, QUuid filter, bool unrollGroups);
 
     QVector<Source::Shared> m_items; //TODO: unordered_map<uuid, shared_ptr>
     QList<QUuid> m_checked{};

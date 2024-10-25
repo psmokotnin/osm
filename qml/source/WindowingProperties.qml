@@ -147,6 +147,7 @@ Item {
                     addNone: false
                     filter: dataObjectData.uuid
                     noneTitle: "None"
+                    unrollGroups: true
                     list: sourceList
                 }
                 currentIndex: {

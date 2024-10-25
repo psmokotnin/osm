@@ -21,7 +21,7 @@
 
 SourceModel::SourceModel(QObject *parent)
     : QAbstractListModel(parent), m_list(nullptr), m_filter(),
-      m_addNone(false), m_addAll(false),
+      m_addNone(false), m_addAll(false), m_unrollGroups(false),
       m_noneIndex(-1), m_allIndex(-1),
       m_noneTitle("None"), m_allTitle("All")
 {
@@ -103,8 +103,8 @@ void SourceModel::setList(SourceList *list)
 {
     beginResetModel();
 
-    if (m_addAll || m_addNone || !m_filter.isNull()) {
-        list = list->clone(this, filter());
+    if (m_addAll || m_addNone || !m_filter.isNull() || m_unrollGroups) {
+        list = list->clone(this, filter(), m_unrollGroups);
     }
 
     if (m_addNone) {
@@ -134,7 +134,8 @@ void SourceModel::setList(SourceList *list)
             endInsertRows();
         });
 
-        connect(m_list, &SourceList::preItemRemoved, this, [ = ](int index) {
+        connect(m_list, &SourceList::preItemRemoved, this, [ = ](auto uuid) {
+            int index = m_list->getIndexByUUid(uuid);
             beginRemoveRows(QModelIndex(), index, index);
         });
         connect(m_list, &SourceList::postItemRemoved, this, [ = ]() {
@@ -148,8 +149,21 @@ void SourceModel::setList(SourceList *list)
         });
 
         connect(m_list, &SourceList::postItemChanged, this, &SourceModel::itemChanged);
+        connect(m_list, &SourceList::countChanged, this, &SourceModel::countChanged);
     }
     endResetModel();
+}
+
+int SourceModel::count() const noexcept
+{
+    auto cnt = m_list ? m_list->count() : 0;
+    if (m_noneIndex > -1) {
+        cnt--;
+    }
+    if (m_allIndex > -1) {
+        cnt--;
+    }
+    return std::max(cnt, 0);
 }
 
 int SourceModel::indexOf(const QUuid &item) const noexcept
@@ -261,4 +275,17 @@ void SourceModel::itemChanged(const Source::Shared &item, const QVector<int> &ro
 {
     auto index = indexOf(item->uuid());
     emit dataChanged(createIndex(index, 0), createIndex(index, 0), roles );
+}
+
+bool SourceModel::unrollGroups() const
+{
+    return m_unrollGroups;
+}
+
+void SourceModel::setUnrollGroups(bool newUnrollGroups)
+{
+    if (m_unrollGroups == newUnrollGroups)
+        return;
+    m_unrollGroups = newUnrollGroups;
+    emit unrollGroupsChanged();
 }

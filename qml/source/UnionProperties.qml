@@ -126,6 +126,7 @@ Item {
                         id: sourceModel
                         addNone: (modelData > 1 ? true : false)
                         filter: dataObjectData.uuid
+                        unrollGroups: true
                         noneTitle: "None"
                         list: sourceList
                     }

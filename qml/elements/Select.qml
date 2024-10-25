@@ -37,6 +37,7 @@ DropDown {
         id: sourceModel
         addNone: true
         addAll: true
+        unrollGroups: true
         list: sources
         checked: dataObject.selected
         onCheckedChanged: {
@@ -85,7 +86,7 @@ DropDown {
             control.displayText = qsTr("None");
         } else if (count === 1) {
             control.displayText = sourceModel.firstChecked()["name"];
-        } else if (count === sources.count) {
+        } else if (count === sourceModel.count) {
             control.displayText = qsTr("All");
         } else {
             control.displayText = qsTr("Many");

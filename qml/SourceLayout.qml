@@ -102,6 +102,7 @@ ListView {
     reuseItems: false
     model: SourceModel {
         id: sourceModel
+        unrollGroups: false
         list: sources
     }
     clip: true
