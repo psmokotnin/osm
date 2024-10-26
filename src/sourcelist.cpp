@@ -230,6 +230,12 @@ void SourceList::moveToGroup(QUuid targetId, QUuid groupId) noexcept
     Source::Shared sharedGroup  = getByUUid(groupId);
 
     if (sharedTarget && sharedTarget != sharedGroup) {
+        if (auto targetGroup = std::dynamic_pointer_cast<Source::Group>(sharedTarget)) {
+            if (targetGroup->sourceList()->getByUUid(groupId)) {
+                qDebug() << "loop prevented";
+                return;
+            }
+        }
         if (auto group = std::dynamic_pointer_cast<Source::Group>(sharedGroup)) {
             removeItem(sharedTarget, false);
             group->add(sharedTarget);
