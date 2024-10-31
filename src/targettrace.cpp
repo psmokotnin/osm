@@ -26,7 +26,7 @@ const QList<std::pair<QString, std::vector<QPointF>>> TargetTrace::m_presets = {
     },
     {
         "Immersive studio", {
-            QPointF{20, -1},   QPointF{40, 1},  QPointF{125, 1},  QPointF{160, 0},
+            QPointF{20, -1},  QPointF{40, 1},        QPointF{125, 1},  QPointF{160, 0},
             QPointF{1600, 0}, QPointF{10000, -3.97}, QPointF{20000, -7.93}
         }
     },
@@ -34,6 +34,12 @@ const QList<std::pair<QString, std::vector<QPointF>>> TargetTrace::m_presets = {
         "Headphones", {
             QPointF{20, 9.2},   QPointF{63, 9.2},  QPointF{200, 0},  QPointF{4000, 0},
             QPointF{10000, -4}, QPointF{16000, -5}, QPointF{20000, -6.2}
+        }
+    },
+    {
+        "Car", {
+            QPointF{20, 9.0}, QPointF{60, 9.0}, QPointF{160, 0},  QPointF{1000, 0},
+            QPointF{1000, 0}, QPointF{1000, 0}, QPointF{20000, -6.0}
         }
     },
 };
