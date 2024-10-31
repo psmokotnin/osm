@@ -145,7 +145,6 @@ ListView {
                 }
 
                 //swipe delete:
-
                 if ((swipeStart - mouseX) / content.width >= 1) {
                     if (applicationWindow && applicationWindow.properiesbar.currentObject === dragArea.source) {
                         applicationWindow.properiesbar.reset();
@@ -171,7 +170,7 @@ ListView {
                 swipeStart = mouseX;
             }
             onDoubleClicked: {
-                if (model.name === "Group" && source.data) {
+                if ((model.name === "Group" || model.name === "RemoteGroup") && source.data) {
                     applicationWindow.dataSourceList.list.openGroup(source);
                 }
             }
@@ -208,6 +207,7 @@ ListView {
                                 case "Group": return groupDelegate;
 
                                 case "RemoteItem":
+                                case "RemoteGroup":
                                 case "RemoteStored":
                                 case "RemoteMeasurement":
                                     return remoteItemDelegate;

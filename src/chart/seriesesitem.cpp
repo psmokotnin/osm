@@ -19,6 +19,8 @@
 #include <QSGSimpleRectNode>
 #include "chart/seriesesitem.h"
 #include "chart/plot.h"
+#include "source/group.h"
+#include "remote/items/groupitem.h"
 
 namespace chart {
 
@@ -72,7 +74,8 @@ void SeriesesItem::connectSources(SourceList *sourceList)
     }
 }
 
-SeriesesItem *SeriesesItem::constructFromGroup(const std::shared_ptr<Source::Group> &group)
+template<typename GroupType>
+SeriesesItem *SeriesesItem::constructFromGroup(const std::shared_ptr<GroupType> &group)
 {
     if (!group) {
         return nullptr;
@@ -144,6 +147,8 @@ bool SeriesesItem::appendDataSource(const Source::Shared &source)
 
     QQuickItem *item = nullptr;
     if (auto group = std::dynamic_pointer_cast<Source::Group>(source)) {
+        item = constructFromGroup(group);
+    } else if (auto group = std::dynamic_pointer_cast<remote::GroupItem>(source)) {
         item = constructFromGroup(group);
     } else {
         auto *sourceItem = m_plot->createSeriesFromSource(source);
@@ -238,7 +243,7 @@ void SeriesesItem::applyWidthForSeries(QQuickItem *s)
         return;
 
     qreal     x = m_plot->m_padding.left;
-    qreal width = parentItem()->width() - m_plot->m_padding.left - m_plot->m_padding.right;
+    qreal width = m_plot->width() - m_plot->m_padding.left - m_plot->m_padding.right;
     if (dynamic_cast<SeriesesItem *>(parentItem())) {
         x      = 0;
     }
@@ -252,7 +257,7 @@ void SeriesesItem::applyHeightForSeries(QQuickItem *s)
         return;
 
     qreal y      = m_plot->m_padding.top;
-    qreal height = parentItem()->height() - m_plot->m_padding.top - m_plot->m_padding.bottom;
+    qreal height = m_plot->height() - m_plot->m_padding.top - m_plot->m_padding.bottom;
     if (dynamic_cast<SeriesesItem *>(parentItem())) {
         y       = 0;
     }

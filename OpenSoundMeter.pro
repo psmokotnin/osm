@@ -62,6 +62,7 @@ SOURCES += src/main.cpp \
     src/meta/metawindowing.cpp \
     src/metertablemodel.cpp \
     src/remote/item.cpp \
+    src/remote/items/groupitem.cpp \
     src/remote/items/measurementitem.cpp \
     src/remote/items/storeditem.cpp \
     src/remote/network.cpp \
@@ -196,11 +197,13 @@ HEADERS += \
     src/math/weighting.h \
     src/meta/metabase.h \
     src/meta/metafilter.h \
+    src/meta/metagroup.h \
     src/meta/metameasurement.h \
     src/meta/metastored.h \
     src/meta/metawindowing.h \
     src/metertablemodel.h \
     src/remote/item.h \
+    src/remote/items/groupitem.h \
     src/remote/items/measurementitem.h \
     src/remote/items/storeditem.h \
     src/remote/network.h \

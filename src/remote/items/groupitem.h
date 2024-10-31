@@ -15,40 +15,27 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef SOURCE_GROUP_H
-#define SOURCE_GROUP_H
+#ifndef REMOTE_GROUPITEM_H
+#define REMOTE_GROUPITEM_H
 
-#include <QObject>
-#include <QColor>
-#include <QUuid>
-
+#include "remote/item.h"
 #include "meta/metagroup.h"
-#include "source/source_abstract.h"
-#include "sourcelist.h"
 
-namespace Source {
+namespace remote {
 
-class Group : public Abstract, public meta::Group
+class GroupItem : public remote::Item, public meta::Group
 {
     Q_OBJECT
     Q_PROPERTY(unsigned size READ size  NOTIFY sizeChanged)
     Q_PROPERTY(SourceList *sourceList READ sourceList CONSTANT)
 
 public:
-    explicit                    Group(QObject *parent = nullptr);
+    explicit GroupItem(QObject *parent = nullptr);
 
-    Q_INVOKABLE void            destroy() override;
-    Source::Shared              clone() const override;
+    SourceList *sourceList() override;
+    unsigned    size() const override;
 
-    void                        add(const Source::Shared &source);
-    Q_INVOKABLE Source::Shared  pop(const QUuid &uuid) override;
-    void                        remove(const QUuid &uuid, bool deleteItem = true);
-    unsigned                    size() const override;
-    SourceList                 *sourceList() override;
-
-
-    QJsonObject toJSON(const SourceList *list = nullptr) const noexcept override;
-    void        fromJSON(QJsonObject data, const SourceList *list = nullptr) noexcept override;
+    Q_INVOKABLE Source::Shared  pop(const QUuid &) override;
 
 signals:
     void sizeChanged() override;
@@ -57,6 +44,6 @@ private:
     SourceList  m_sourceList;
 };
 
-} // namespace Source
+} // namespace remote
 
-#endif // SOURCE_GROUP_H
+#endif // REMOTE_GROUPITEM_H

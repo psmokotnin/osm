@@ -21,6 +21,7 @@
 #include <QObject>
 #include "network.h"
 #include "source/source_shared.h"
+#include "source/group.h"
 
 class SourceList;
 namespace Source {
@@ -66,6 +67,7 @@ private:
     void sourceNotify(const Source::Shared &source, const QString &message, const QJsonValue &data = {});
     void sendMulticast(const QByteArray &data);
     void setLastConnected(const QString &lastConnected);
+    void connectSourceList(SourceList *list, const Source::Shared &group = {});
 
     QUuid m_uuid;
     QTimer m_timer;

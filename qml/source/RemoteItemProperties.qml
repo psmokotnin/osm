@@ -31,11 +31,11 @@ Item {
 
             Button {
                 text: qsTr("Refresh")
-                onClicked: dataObject.refresh();
+                onClicked: dataObject.data.refresh();
             }
 
             Label {
-                text: dataObject ? dataObject.name : ""
+                text: dataObject.data ? dataObject.data.name : ""
             }
 
             Label {
@@ -43,7 +43,7 @@ Item {
             }
 
             Label {
-                text: dataObject ? dataObject.host : ""
+                text: dataObject.data ? dataObject.data.host : ""
             }
         }
 

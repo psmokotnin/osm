@@ -24,7 +24,6 @@
 
 #include "chart/plotpadding.h"
 #include "chart/seriesitem.h"
-#include "source/group.h"
 
 namespace chart {
 
@@ -40,7 +39,8 @@ public:
     ~SeriesesItem();
     void connectSources(SourceList *sourceList);
 
-    SeriesesItem *constructFromGroup(const std::shared_ptr<Source::Group> &group);
+    template<typename GroupType>
+    SeriesesItem *constructFromGroup(const std::shared_ptr<GroupType> &group);
     QSGNode *updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *) override;
 
     void disconnectFromParent();

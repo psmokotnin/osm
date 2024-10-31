@@ -15,10 +15,10 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "server.h"
-#include "../sourcelist.h"
-#include "item.h"
+#include "sourcelist.h"
 #include "meta/metabase.h"
+#include "remote/server.h"
+#include "remote/item.h"
 
 namespace remote {
 
@@ -55,13 +55,23 @@ void Server::setSourceList(SourceList *list)
     if (!m_sourceList) {
         return;
     }
-    auto onAdded = [this](const Source::Shared & source) {
+    connectSourceList(list);
+}
+
+void Server::connectSourceList(SourceList *list, const Source::Shared &group)
+{
+    QJsonObject groupJson;
+    if (group) {
+        groupJson["group"] = group.uuid().toString();
+    }
+
+    auto onAdded = [this, group, groupJson](const Source::Shared & source) {
 
         if (!source || std::dynamic_pointer_cast<remote::Item>(source)) {
             return ;
         }
 
-        sourceNotify(source, "added");
+        sourceNotify(source, "added", groupJson);
 
         connect(source.get(), &Source::Abstract::readyRead, this, [this, source]() {
             sourceNotify(source, "readyRead");
@@ -78,6 +88,10 @@ void Server::setSourceList(SourceList *list)
                 connect(source.get(), signal, this, metaObject()->method(slotId));
             }
         }
+
+        if (auto group = std::dynamic_pointer_cast<Source::Group>(source)) {
+            connectSourceList(group->sourceList(), source);
+        }
     };
 
     for (const auto &source : *list) {
@@ -85,10 +99,10 @@ void Server::setSourceList(SourceList *list)
     }
 
     connect(list, &SourceList::postItemAppended, this, onAdded);
-    connect(list, &SourceList::preItemRemoved, this, [this, list](auto uuid) {
+    connect(list, &SourceList::preItemRemoved, this, [this, list, groupJson](auto uuid) {
         auto source = list->getByUUid(uuid);
         if (source) {
-            sourceNotify(source, "removed");
+            sourceNotify(source, "removed", groupJson);
             source->disconnect(this);
         }
     });
@@ -232,6 +246,21 @@ QByteArray Server::tcpCallback([[maybe_unused]] const QHostAddress &&address, co
                 ;
             }
         }
+
+        if (auto group = std::dynamic_pointer_cast<Source::Group>(source)) {
+            QJsonArray subSources {};
+            for (const auto &subSource : *group->sourceList()) {
+                if (source && !std::dynamic_pointer_cast<remote::Item>(subSource)) {
+                    QJsonObject subSourceObject;
+                    subSourceObject["uuid"] = subSource->uuid().toString();
+                    subSourceObject["objectName"] = subSource->objectName();
+                    subSources.push_back(subSourceObject);
+                }
+            }
+
+            object["sources"] = subSources;
+        }
+
         QJsonDocument document(std::move(object));
         return document.toJson(QJsonDocument::JsonFormat::Compact);
     }

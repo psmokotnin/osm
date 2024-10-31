@@ -30,6 +30,7 @@
 #include "source/group.h"
 #include "source/sourcewindowing.h"
 #include "standardline.h"
+#include "remote/items/groupitem.h"
 #include "union.h"
 
 SourceList::SourceList(QObject *parent, bool appendMeasurement) :
@@ -59,8 +60,11 @@ void SourceList::appendItemsFrom(const SourceList *list, QUuid filter, bool unro
     for (const auto &item : list->items()) {
         if (filter.isNull() || filter != item->uuid()) {
             auto group = std::dynamic_pointer_cast<Source::Group>(item);
+            auto remoteGroup = std::dynamic_pointer_cast<remote::GroupItem>(item);
             if ( group && unrollGroups) {
                 appendItemsFrom(group->sourceList(), filter, unrollGroups);
+            } else if ( remoteGroup && unrollGroups) {
+                appendItemsFrom(remoteGroup->sourceList(), filter, unrollGroups);
             } else {
                 appendItem(item);
             }
@@ -151,6 +155,12 @@ Source::Shared SourceList::getByUUid(QUuid id) const noexcept
         }
 
         if (auto group = std::dynamic_pointer_cast<Source::Group>(item)) {
+            auto found = group->sourceList()->getByUUid(id);
+            if (found) {
+                return found;
+            }
+        }
+        if (auto group = std::dynamic_pointer_cast<remote::GroupItem>(item)) {
             auto found = group->sourceList()->getByUUid(id);
             if (found) {
                 return found;

@@ -53,15 +53,19 @@ signals:
     void activeChanged();
     void dataError(const uint hash, const bool deactivate);
     void dataReceived(const uint hash, const QJsonArray &data, const QJsonArray &timeData);
+    void newRemoteItem(const QUuid &serverId, const QUuid &sourceId, const QString &objectName,
+                       const QString &host, const QUuid groupId);
 
 private slots:
     void sendRequests();
     void requestUpdate(const std::shared_ptr<Item> &item);
     void sendCommand(const std::shared_ptr<Item> &item, QString command, QVariant arg);
+    void appendItem(const QUuid &serverId, const QUuid &sourceId, const QString &objectName,
+                    const QString &host, const QUuid groupId = {});
 
 private:
     std::shared_ptr<Item> addItem(const QUuid &serverId, const QUuid &sourceId, const QString &objectName,
-                                  const QString &host);
+                                  const QString &host, const QUuid groupId = {});
     void sendUpdate(const std::shared_ptr<Item> &item, QString propertyName);
     void requestChanged(const std::shared_ptr<Item> &item);
     void requestData(const std::shared_ptr<Item> &item);

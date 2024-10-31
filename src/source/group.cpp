@@ -23,8 +23,6 @@ namespace Source {
 
 Group::Group(QObject *parent)
     : Abstract{parent},
-      m_expanded(false),
-      m_sync(false),
       m_sourceList(this, false)
 {
     qRegisterMetaType<Source::Group *>("Source::Group*");
@@ -42,38 +40,10 @@ void Group::destroy()
     Abstract::destroy();
 }
 
-bool Group::expanded() const
-{
-    return m_expanded;
-}
-
-void Group::setExpanded(bool expanded)
-{
-    if (m_expanded == expanded)
-        return;
-    m_expanded = expanded;
-    emit expandedChanged();
-}
-
-bool Group::sync() const
-{
-    return m_sync;
-}
-
-void Group::setSync(bool newSync)
-{
-    if (m_sync == newSync)
-        return;
-    m_sync = newSync;
-    emit syncChanged();
-}
-
 QJsonObject Group::toJSON(const SourceList *list) const noexcept
 {
     auto object = Source::Abstract::toJSON(list);
 
-    object["expanded"]  = expanded();
-    object["sync"]      = sync();
     object["list"]      = m_sourceList.toJSON();
 
     return object;
@@ -83,8 +53,6 @@ void Group::fromJSON(QJsonObject data, const SourceList *list) noexcept
 {
     Source::Abstract::fromJSON(data, list);
 
-    setExpanded(data["expanded"].toBool(false));
-    setSync(    data["sync"    ].toBool(false));
     m_sourceList.fromJSON(data["list"].toArray());
 }
 

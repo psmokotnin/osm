@@ -18,8 +18,9 @@
 #include "remoteclient.h"
 #include "sourcelist.h"
 #include "item.h"
-#include "items/storeditem.h"
-#include "items/measurementitem.h"
+#include "remote/items/storeditem.h"
+#include "remote/items/measurementitem.h"
+#include "remote/items/groupitem.h"
 
 namespace remote {
 
@@ -34,6 +35,7 @@ Client::Client(Settings *settings, QObject *parent) : QObject(parent), m_network
     m_timer.setInterval(TIMER_INTERVAL);
     m_timer.moveToThread(&m_thread);
 
+    connect(this, &Client::newRemoteItem, this, &Client::appendItem, Qt::QueuedConnection);
     connect(&m_timer, &QTimer::timeout, this, &Client::sendRequests, Qt::DirectConnection);
     connect(&m_thread, &QThread::started, this, [this]() {
         m_timer.start();
@@ -149,14 +151,24 @@ void Client::sendCommand(const std::shared_ptr<Item> &item, QString command, QVa
     }
 }
 
+void Client::appendItem(const QUuid &serverId, const QUuid &sourceId, const QString &objectName, const QString &host,
+                        const QUuid groupId)
+{
+    auto item = addItem(serverId, sourceId, objectName, host, groupId);
+    requestChanged(item);
+    requestUpdate(item);
+}
+
 std::shared_ptr<Item> Client::addItem(const QUuid &serverId, const QUuid &sourceId, const QString &objectName,
-                                      const QString &host)
+                                      const QString &host, const QUuid groupId)
 {
     std::shared_ptr<Item> item;
     if (objectName == "Measurement") {
         item = std::make_shared<remote::MeasurementItem>(this);
     } else if (objectName == "Stored") {
         item = std::make_shared<remote::StoredItem>(this);
+    } else if (objectName == "Group") {
+        item = std::make_shared<remote::GroupItem>(this);
     } else {
         item = std::make_shared<remote::Item>(this);
     }
@@ -182,7 +194,14 @@ std::shared_ptr<Item> Client::addItem(const QUuid &serverId, const QUuid &source
     }, Qt::DirectConnection);
 
     item->connectProperties();
-    m_sourceList->appendItem(Source::Shared{ item });
+    SourceList *targetSource = m_sourceList;
+    if (!groupId.isNull()) {
+        auto groupItem = std::dynamic_pointer_cast<remote::GroupItem>(m_items.value(qHash(groupId), nullptr));
+        if (groupItem) {
+            targetSource = groupItem->sourceList();
+        }
+    }
+    targetSource->appendItem(Source::Shared{ item });
     m_items[qHash(sourceId)] = item;
 
     return item;
@@ -221,9 +240,7 @@ void Client::processData(QHostAddress senderAddress, [[maybe_unused]] int sender
                 auto sourceObjectName = sourceObject["objectName"].toString();
 
                 if (m_items.find(qHash(sourceUuid)) == m_items.end()) {
-                    auto item = addItem(serverId, sourceUuid, sourceObjectName, host);
-                    requestChanged(item);
-                    requestUpdate(item);
+                    appendItem(serverId, sourceUuid, sourceObjectName, host);
                 }
             }
         }
@@ -240,7 +257,9 @@ void Client::processData(QHostAddress senderAddress, [[maybe_unused]] int sender
         }
 
         if (message == "added" && !item) {
-            item = addItem(serverId, sourceId, document["objectName"].toString(), host);
+            auto data = document["data"].toObject();
+            auto groupUuid = data["group"].toString();
+            item = addItem(serverId, sourceId, document["objectName"].toString(), host, groupUuid);
             requestChanged(item);
             requestUpdate(item);
         }
@@ -277,7 +296,7 @@ void Client::requestUpdate(const std::shared_ptr<Item> &item)
 
 void Client::requestChanged(const std::shared_ptr<Item> &item)
 {
-    Network::responseCallback onAnswer = [item](const QByteArray & data) {
+    Network::responseCallback onAnswer = [item, this](const QByteArray & data) {
         auto document = QJsonDocument::fromJson(data).object();
         item->setEventSilence(true);
         item->setOriginalActive(document["active"].toBool());
@@ -287,6 +306,22 @@ void Client::requestChanged(const std::shared_ptr<Item> &item)
 
             if (field == "objectName" || field == "active") {
                 continue;
+            }
+
+            if (field == "sources") {
+                if (auto groupItem = std::dynamic_pointer_cast<GroupItem>(item)) {
+
+
+                    auto sources = document["sources"].toArray();
+                    for (int i = 0; i < sources.count(); i++) {
+                        auto sourceObject = sources[i].toObject();
+                        auto sourceUuid = QUuid::fromString(sourceObject["uuid"].toString());
+                        auto sourceObjectName = sourceObject["objectName"].toString();
+                        if (m_items.find(qHash(sourceUuid)) == m_items.end()) {
+                            emit newRemoteItem(groupItem->serverId(), sourceUuid, sourceObjectName, groupItem->host(), groupItem->sourceId());
+                        }
+                    }
+                }
             }
 
             auto index = metaObject->indexOfProperty(field.toStdString().c_str());
