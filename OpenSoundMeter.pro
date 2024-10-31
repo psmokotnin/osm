@@ -37,6 +37,7 @@ SOURCES += src/main.cpp \
     src/filesystem/dialogPlugin.cpp \
     src/filesystem/plugins/widgetdialogplugin.cpp \
     src/filtersource.cpp \
+    src/generator/brownnoise.cpp \
     src/generator/burstnoise.cpp \
     src/generator/channelmodel.cpp \
     src/generator/mlsplus.cpp \
@@ -175,6 +176,7 @@ HEADERS += \
     src/filesystem/dialogPlugin.h \
     src/filesystem/plugins/widgetdialogplugin.h \
     src/filtersource.h \
+    src/generator/brownnoise.h \
     src/generator/burstnoise.h \
     src/generator/channelmodel.h \
     src/generator/mlsplus.h \
