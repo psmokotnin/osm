@@ -33,7 +33,8 @@ const std::map<MeterPlot::Type, QString> MeterPlot::m_typesMap = {
 };
 
 MeterPlot::MeterPlot(QObject *parent) : QObject(parent), LevelObject(),
-    m_source(nullptr), m_sourceList(nullptr), m_settings(nullptr), m_timer(this), m_type(RMS), m_threshold(0)
+    m_source(nullptr), m_sourceList(nullptr), m_settings(nullptr), m_timer(this), m_type(RMS), m_threshold(0),
+    m_peakHold(false)
 {
     m_timer.setInterval(1000);
     connect(this, &MeterPlot::curveChanged, this, &MeterPlot::updateThreshold);
@@ -47,6 +48,7 @@ MeterPlot::MeterPlot(QObject *parent) : QObject(parent), LevelObject(),
     connect(this, &MeterPlot::sourceChanged, this, &MeterPlot::sourceNameChanged);
     connect(this, &MeterPlot::typeChanged, this, &MeterPlot::sourceNameChanged);
 
+    reset();
     updateThreshold();
 }
 
@@ -79,11 +81,11 @@ QString MeterPlot::title() const
     case Gain:
     case Delay:
     case THDN:
-        return typeName();
+        return typeName() + (m_peakHold ? " max" : "");;
     case Crest:
         return typeName() + " " + curveName() + " " + timeName();
     case Leq:
-        return "L" + curveName() + "eq " + timeName();
+        return "L" + curveName() + "eq " + (m_peakHold ? "Max" : "") + timeName();
     default:
         return typeName() + " " + modeName() + " " + curveName() + " " + timeName();
     }
@@ -141,6 +143,11 @@ QString MeterPlot::dBValue() const
         return "";
     }
 
+    if (m_peakHold) {
+        m_peakLevel = std::max(m_peakLevel, level);
+        level = m_peakLevel;
+    }
+
     return QString("%1").arg(level, 0, 'f', 1);
 }
 
@@ -151,7 +158,6 @@ QString MeterPlot::timeValue() const
 
 QString MeterPlot::thdnValue() const
 {
-
     auto level = m_source->level(Weighting::Curve::Z, Meter::Time::Slow) - m_source->referenceLevel();//Ref: Z Slow
     level = 100 * std::pow(10, level / 20);
     if (level < 1) {
@@ -168,6 +174,27 @@ QString MeterPlot::delayValue() const
         return QString("%1" ).arg(delay * 1000.f / measurement->sampleRate(), 0, 'f', 1);
     }
     return QString("N/A");
+}
+
+bool MeterPlot::peakHold() const
+{
+    return m_peakHold;
+}
+
+void MeterPlot::setPeakHold(bool newPeakHold)
+{
+    if (m_peakHold == newPeakHold)
+        return;
+    m_peakHold = newPeakHold;
+    reset();
+    emit peakHoldChanged();
+    emit titleChanged();
+}
+
+void MeterPlot::reset()
+{
+    m_peakLevel = -std::numeric_limits<float>::infinity();
+    emit valueChanged();
 }
 
 void MeterPlot::setSettings(Settings *newSettings)

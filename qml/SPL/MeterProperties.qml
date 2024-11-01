@@ -18,6 +18,7 @@
 import QtQuick 2.9
 import QtQuick.Controls 2.2
 import QtQuick.Layouts 1.3
+import QtQuick.Controls.Material 2.13
 
 import "../" as Root
 import "../elements"
@@ -138,7 +139,6 @@ Item {
                     }
                 }
             }
-
         }
 
         RowLayout {
@@ -164,6 +164,32 @@ Item {
 
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("meter columns")
+            }
+
+            Button {
+                text: "peak"
+                checkable: true
+                checked: dataObject.meter.peakHold
+                onCheckedChanged: dataObject.meter.peakHold = checked
+                Material.background: parent.Material.background
+
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("hold on peak")
+                enabled: dataObject.meter.type !== "Time"  &&
+                         dataObject.meter.type !== "THD+N" &&
+                         dataObject.meter.type !== "Delay"
+            }
+
+            Button {
+                text: "reset"
+                onClicked: dataObject.meter.reset()
+                Material.background: parent.Material.background
+
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("reset peak")
+                enabled: dataObject.meter.type !== "Time"  &&
+                         dataObject.meter.type !== "THD+N" &&
+                         dataObject.meter.type !== "Delay"
             }
 
         }

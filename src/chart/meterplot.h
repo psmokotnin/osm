@@ -61,6 +61,7 @@ public:
     Q_PROPERTY(QString sourceName READ sourceName NOTIFY sourceNameChanged)
     Q_PROPERTY(float threshold READ threshold WRITE setThreshold NOTIFY thresholdChanged)
     Q_PROPERTY(bool pause READ pause WRITE setPause NOTIFY pauseChanged)
+    Q_PROPERTY(bool peakHold READ peakHold WRITE setPeakHold NOTIFY peakHoldChanged)
 
 public:
     MeterPlot(QObject *parent = nullptr);
@@ -90,6 +91,10 @@ public:
 
     void setSettings(Settings *newSettings);
 
+    bool peakHold() const;
+    void setPeakHold(bool newPeakHold);
+    Q_INVOKABLE void reset();
+
 signals:
     void curveChanged(QString) override;
     void timeChanged(QString) override;
@@ -105,6 +110,8 @@ signals:
     void sourceNameChanged();
 
     void sourceListChanged();
+
+    void peakHoldChanged();
 
 private slots:
     void updateThreshold();
@@ -126,6 +133,8 @@ private:
     math::Leq m_leq;
     QMetaObject::Connection m_sourceConnection;
     float m_threshold;
+    bool m_peakHold;
+    mutable float m_peakLevel;
 
     static const std::map<Type, QString> m_typesMap;
 };
