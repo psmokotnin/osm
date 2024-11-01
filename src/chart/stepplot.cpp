@@ -20,7 +20,7 @@ using namespace Chart;
 
 StepPlot::StepPlot(Settings *settings, QQuickItem *parent) : XYPlot(settings, parent), m_zero(0)
 {
-    m_x.configure(AxisType::Linear, -1000.0, 1000.0, 101);
+    m_x.configure(AxisType::Linear, -500.0, 500.0, 1001);
     m_x.setReset(-5.f, 5.f);
     m_x.reset();
     m_x.setUnit("ms");

@@ -58,7 +58,7 @@ void ImpulsePlot::setMode(const Mode &mode)
 
         switch (m_mode) {
         case Linear:
-            m_x.configure(AxisType::Linear, -50.0, 50.0, 101);
+            m_x.configure(AxisType::Linear, -500.0, 500.0, 1001);
             m_x.setReset(-5.f, 5.f);
             m_x.setUnit("ms");
             m_x.reset();
