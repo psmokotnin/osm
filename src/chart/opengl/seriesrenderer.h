@@ -32,7 +32,7 @@ class SeriesRenderer : public QQuickFramebufferObject::Renderer
 {
 public:
     explicit SeriesRenderer();
-    virtual ~SeriesRenderer() override = default;
+    virtual ~SeriesRenderer() override;
     virtual void init() {};//TODO: = 0;
     void render() override final;
     virtual void renderSeries() = 0;
@@ -41,6 +41,8 @@ public:
 
     QOpenGLFramebufferObject *createFramebufferObject(const QSize &size) override;
     void synchronize(QQuickFramebufferObject *item) override;
+
+    void setOnDelete(const std::function<void ()> &newOnDelete);
 
 protected:
     float coherenceSpline(const bool &coherence, const float &threshold, const float data[4], const float &t) const;
@@ -77,6 +79,7 @@ protected:
 
 private:
     std::mutex m_active;
+    std::function<void()> m_onDelete = nullptr;
 };
 }
 #endif // SERIESRENDERER_H

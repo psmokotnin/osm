@@ -39,9 +39,13 @@ const Source::Shared &SeriesFBO::source() const noexcept
 QQuickFramebufferObject::Renderer *SeriesFBO::createRenderer() const
 {
     SeriesRenderer *renderer = static_cast<SeriesRenderer *>(m_rendererCreator());
-    connect(this, &SeriesFBO::preSourceDeleted, this, [renderer]() {
+    auto connection = connect(this, &SeriesFBO::preSourceDeleted, this, [renderer]() {
         renderer->synchronize(nullptr);
     }, Qt::DirectConnection);
+
+    renderer->setOnDelete([ this, connection ]() {
+        disconnect(connection);
+    });
 
     return renderer;
 }

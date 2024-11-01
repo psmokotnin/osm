@@ -36,6 +36,12 @@ SeriesRenderer::SeriesRenderer() :
     m_active()
 {
 }
+SeriesRenderer::~SeriesRenderer()
+{
+    if (m_onDelete) {
+        m_onDelete();
+    }
+}
 QOpenGLFramebufferObject *SeriesRenderer::createFramebufferObject(const QSize &size)
 {
     QOpenGLFramebufferObjectFormat format;
@@ -154,6 +160,11 @@ Plot *SeriesRenderer::plot() const
         return dynamic_cast<Chart::Plot *>(m_item->parent());
     }
     return nullptr;
+}
+
+void SeriesRenderer::setOnDelete(const std::function<void ()> &newOnDelete)
+{
+    m_onDelete = newOnDelete;
 }
 
 void SeriesRenderer::render()
