@@ -19,7 +19,7 @@
 #include "../nyquistplot.h"
 #include <Metal/Metal.h>
 
-namespace chart {
+namespace Chart {
 
 NyquistSeriesNode::NyquistSeriesNode(QQuickItem *item) : XYSeriesNode(item),
     m_pointsPerOctave(0), m_coherenceThreshold(0), m_coherence(false),

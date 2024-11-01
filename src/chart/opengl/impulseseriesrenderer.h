@@ -21,7 +21,7 @@
 #include "xyseriesrenderer.h"
 #include "../impulseplot.h"
 
-namespace chart {
+namespace Chart {
 class ImpulseSeriesRenderer : public XYSeriesRenderer
 {
 public:

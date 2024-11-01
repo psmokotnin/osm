@@ -18,7 +18,7 @@
 #include "xyseriesrenderer.h"
 #include "../xyplot.h"
 
-using namespace chart;
+using namespace Chart;
 
 XYSeriesRenderer::XYSeriesRenderer() : SeriesRenderer(),
     m_matrixUniform(-1),

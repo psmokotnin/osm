@@ -23,7 +23,7 @@
 #include <optional>
 #include <cmath>
 
-namespace chart {
+namespace Chart {
 
 enum AxisType {Linear, Logarithmic};
 enum AxisDirection {Vertical, Horizontal};

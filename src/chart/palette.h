@@ -21,7 +21,7 @@
 #include <QObject>
 #include <QColor>
 
-namespace chart {
+namespace Chart {
 
 class Palette: public QObject
 {

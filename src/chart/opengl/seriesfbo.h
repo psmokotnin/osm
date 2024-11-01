@@ -21,7 +21,7 @@
 #include <QQuickFramebufferObject>
 #include "source/source_abstract.h"
 
-namespace chart {
+namespace Chart {
 
 typedef std::function<QQuickFramebufferObject::Renderer* (void)> RendererCreator;
 

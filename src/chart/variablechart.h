@@ -25,7 +25,7 @@
 
 class SourceList;
 
-namespace chart {
+namespace Chart {
 
 class VariableChart : public QQuickItem
 {

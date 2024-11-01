@@ -20,9 +20,9 @@
 
 #include "frequencybasedplot.h"
 
-namespace chart {
+namespace Chart {
 
-class CrestFactorPlot : public chart::FrequencyBasedPlot
+class CrestFactorPlot : public Chart::FrequencyBasedPlot
 {
     Q_OBJECT
     Q_PROPERTY(unsigned int pointsPerOctave READ pointsPerOctave WRITE setPointsPerOctave NOTIFY

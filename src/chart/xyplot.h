@@ -20,7 +20,7 @@
 
 #include "plot.h"
 
-namespace chart {
+namespace Chart {
 class XYPlot : public Plot
 {
     Q_OBJECT

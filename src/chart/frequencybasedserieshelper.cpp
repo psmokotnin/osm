@@ -17,7 +17,7 @@
  */
 #include "frequencybasedserieshelper.h"
 
-namespace chart {
+namespace Chart {
 
 FrequencyBasedSeriesHelper::FrequencyBasedSeriesHelper()
 {

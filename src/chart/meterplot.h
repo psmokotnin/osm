@@ -25,7 +25,7 @@
 #include "common/settings.h"
 #include "source/source_shared.h"
 
-namespace chart {
+namespace Chart {
 
 class MeterPlot : public QObject, public LevelObject
 {
@@ -53,7 +53,7 @@ public:
     Q_PROPERTY(QString curve READ curveName WRITE setCurve NOTIFY curveChanged)
     Q_PROPERTY(QString time READ timeName WRITE setTime NOTIFY timeChanged)
     Q_PROPERTY(QString type READ typeName WRITE setType NOTIFY typeChanged)
-    Q_PROPERTY(chart::LevelObject::Mode mode READ mode WRITE setMode NOTIFY modeChanged)
+    Q_PROPERTY(Chart::LevelObject::Mode mode READ mode WRITE setMode NOTIFY modeChanged)
     Q_PROPERTY(QString modeName READ modeName NOTIFY modeChanged)
 
     Q_PROPERTY(QString title READ title NOTIFY titleChanged)
@@ -93,7 +93,7 @@ public:
 signals:
     void curveChanged(QString) override;
     void timeChanged(QString) override;
-    void modeChanged(chart::LevelObject::Mode) override;
+    void modeChanged(Chart::LevelObject::Mode) override;
     void pauseChanged(bool) override;
 
     void sourceChanged(QUuid);
@@ -132,6 +132,6 @@ private:
 
 } // namespace chart
 
-Q_DECLARE_METATYPE(chart::MeterPlot *)
+Q_DECLARE_METATYPE(Chart::MeterPlot *)
 
 #endif // CHART_METERPLOT_H

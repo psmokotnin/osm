@@ -27,7 +27,7 @@
 #include "chart/seriesesitem.h"
 #include "plotpadding.h"
 
-namespace chart {
+namespace Chart {
 
 class Plot : public QQuickItem
 {

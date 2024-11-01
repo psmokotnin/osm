@@ -21,7 +21,7 @@
 #include "xyseriesrenderer.h"
 #include "math/windowfunction.h"
 
-namespace chart {
+namespace Chart {
 
 class StepSeriesRenderer : public XYSeriesRenderer
 {

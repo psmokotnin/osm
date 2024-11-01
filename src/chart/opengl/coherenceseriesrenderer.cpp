@@ -17,7 +17,7 @@
  */
 #include "coherenceseriesrenderer.h"
 #include "common/notifier.h"
-using namespace chart;
+using namespace Chart;
 
 CoherenceSeriesRenderer::CoherenceSeriesRenderer() : FrequencyBasedSeriesRenderer(), m_pointsPerOctave(24)
 {

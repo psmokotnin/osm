@@ -20,7 +20,7 @@
 
 #include "xyplot.h"
 
-namespace chart {
+namespace Chart {
 
 class StepPlot : public XYPlot
 {

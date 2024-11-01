@@ -21,7 +21,7 @@
 #include <QtCore>
 #include "source/source_abstract.h"
 
-namespace chart {
+namespace Chart {
 
 class FrequencyBasedSeriesHelper
 {

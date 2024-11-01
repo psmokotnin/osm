@@ -17,7 +17,7 @@
  */
 #include "spectrogramplot.h"
 
-using namespace chart;
+using namespace Chart;
 
 SpectrogramPlot::SpectrogramPlot(Settings *settings, QQuickItem *parent): FrequencyBasedPlot(settings, parent),
     m_min(-90), m_mid(-50), m_max(10), m_active(true)

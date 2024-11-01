@@ -19,7 +19,7 @@
 #define CHART_NYQUISTPLOT_H
 
 #include "frequencybasedplot.h"
-namespace chart {
+namespace Chart {
 
 class NyquistPlot : public FrequencyBasedPlot
 {

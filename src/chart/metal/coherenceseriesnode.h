@@ -22,7 +22,7 @@
 #include "../frequencybasedserieshelper.h"
 #include "../coherenceplot.h"
 
-namespace chart {
+namespace Chart {
 
 class CoherenceSeriesNode : public XYSeriesNode, public FrequencyBasedSeriesHelper
 {

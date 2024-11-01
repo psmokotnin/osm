@@ -19,7 +19,7 @@
 #include "common/notifier.h"
 #include <cstring>
 
-namespace chart {
+namespace Chart {
 
 CrestFactorSeriesRenderer::CrestFactorSeriesRenderer() : m_pointsPerOctave(0)
 {

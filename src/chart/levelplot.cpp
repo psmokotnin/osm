@@ -17,7 +17,7 @@
  */
 #include "levelplot.h"
 
-namespace chart {
+namespace Chart {
 
 LevelPlot::LevelPlot(Settings *settings, QQuickItem *parent): XYPlot(settings, parent), LevelObject()
 {

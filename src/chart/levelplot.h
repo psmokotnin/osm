@@ -23,7 +23,7 @@
 #include "math/weighting.h"
 #include "math/meter.h"
 
-namespace chart {
+namespace Chart {
 
 class LevelPlot : public XYPlot, public LevelObject
 {
@@ -35,7 +35,7 @@ public:
 
     Q_PROPERTY(QString curve READ curveName WRITE setCurve NOTIFY curveChanged)
     Q_PROPERTY(QString time READ timeName WRITE setTime NOTIFY timeChanged)
-    Q_PROPERTY(chart::LevelObject::Mode mode READ mode WRITE setMode NOTIFY modeChanged)
+    Q_PROPERTY(Chart::LevelObject::Mode mode READ mode WRITE setMode NOTIFY modeChanged)
     Q_PROPERTY(bool pause READ pause WRITE setPause NOTIFY pauseChanged)
 
 public:
@@ -46,7 +46,7 @@ public:
 signals:
     void curveChanged(QString) override;
     void timeChanged(QString) override;
-    void modeChanged(chart::LevelObject::Mode) override;
+    void modeChanged(Chart::LevelObject::Mode) override;
     void pauseChanged(bool) override;
 
 protected:

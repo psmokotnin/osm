@@ -20,7 +20,7 @@
 #include "../magnitudeplot.h"
 #include <cstring>
 #include "common/notifier.h"
-using namespace chart;
+using namespace Chart;
 
 MagnitudeSeriesRenderer::MagnitudeSeriesRenderer() : FrequencyBasedSeriesRenderer(),
     m_pointsPerOctave(0), m_coherenceThreshold(0), m_coherence(false), m_mode(MagnitudePlot::Mode::dB)

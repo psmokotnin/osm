@@ -23,7 +23,7 @@
 #include "seriesfbo.h"
 #include "../spectrogramplot.h"
 
-using namespace chart;
+using namespace Chart;
 
 SpectrogramSeriesRenderer::SpectrogramSeriesRenderer() : FrequencyBasedSeriesRenderer(),
     m_min(0), m_mid(0), m_max(0),

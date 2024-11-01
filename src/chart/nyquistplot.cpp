@@ -17,7 +17,7 @@
  */
 #include "nyquistplot.h"
 
-namespace chart {
+namespace Chart {
 
 NyquistPlot::NyquistPlot(Settings *settings, QQuickItem *parent) : FrequencyBasedPlot(settings, parent)
 {

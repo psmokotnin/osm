@@ -41,7 +41,7 @@
 #include "nyquistseriesnode.h"
 #include "levelseriesnode.h"
 
-namespace chart {
+namespace Chart {
 
 template<typename T> SeriesItem *itemNode(Plot *plot, const Source::Shared &source)
 {

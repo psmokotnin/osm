@@ -18,7 +18,7 @@
 #include "phasedelayplot.h"
 #include <QtMath>
 
-using namespace chart;
+using namespace Chart;
 
 PhaseDelayPlot::PhaseDelayPlot(Settings *settings, QQuickItem *parent) :
     FrequencyBasedPlot(settings, parent)

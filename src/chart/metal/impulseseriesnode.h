@@ -21,7 +21,7 @@
 #include "xyseriesnode.h"
 #include "../impulseplot.h"
 
-namespace chart {
+namespace Chart {
 
 class ImpulseSeriesNode : public XYSeriesNode
 {

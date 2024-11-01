@@ -24,7 +24,7 @@
 #include <QSGRendererInterface>
 #include "source/source_shared.h"
 
-namespace chart {
+namespace Chart {
 class Plot;
 class SeriesItem;
 

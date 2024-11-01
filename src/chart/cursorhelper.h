@@ -22,7 +22,7 @@
 #include <QObject>
 #include <QMap>
 
-namespace chart {
+namespace Chart {
 
 class CursorHelper : public QObject
 {

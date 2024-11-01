@@ -18,7 +18,7 @@
 
 #ifndef CHART_PLOTPADDING_H
 #define CHART_PLOTPADDING_H
-namespace chart {
+namespace Chart {
 struct Padding {
     float   left    = 0.f,
             right   = 0.f,

@@ -31,7 +31,7 @@
 #include "src/sourcelist.h"
 #include "source/group.h"
 
-using namespace chart;
+using namespace Chart;
 
 VariableChart::VariableChart(QQuickItem *parent) :
     QQuickItem(parent),

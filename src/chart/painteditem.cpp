@@ -18,7 +18,7 @@
 #include <cmath>
 #include "painteditem.h"
 
-using namespace chart;
+using namespace Chart;
 
 PaintedItem::PaintedItem(QQuickItem *parent)
     : QQuickPaintedItem(parent)

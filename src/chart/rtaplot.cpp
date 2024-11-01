@@ -22,14 +22,14 @@
 #include "rtaplot.h"
 #include "targettrace.h"
 
-using namespace chart;
+using namespace Chart;
 
 RTAPlot::RTAPlot(Settings *settings, QQuickItem *parent): FrequencyBasedPlot(settings, parent),
-    m_mode(chart::RTAPlot::Mode::Line), m_spline(false), m_showPeaks(true),
+    m_mode(Chart::RTAPlot::Mode::Line), m_spline(false), m_showPeaks(true),
     m_targetTrace(new TargetTraceItem(m_palette, this))
 {
-    qRegisterMetaType<chart::RTAPlot::Mode>();
-    qRegisterMetaType<chart::RTAPlot::Scale>();
+    qRegisterMetaType<Chart::RTAPlot::Mode>();
+    qRegisterMetaType<Chart::RTAPlot::Scale>();
 
     m_pointsPerOctave = 0;
 
@@ -68,7 +68,7 @@ void RTAPlot::updateAxis()
     }
 }
 
-void RTAPlot::setMode(chart::RTAPlot::Mode mode)
+void RTAPlot::setMode(Chart::RTAPlot::Mode mode)
 {
     if (m_mode == mode)
         return;
@@ -78,7 +78,7 @@ void RTAPlot::setMode(chart::RTAPlot::Mode mode)
 
 void RTAPlot::setMode(unsigned int mode)
 {
-    setMode(static_cast<chart::RTAPlot::Mode>(mode));
+    setMode(static_cast<Chart::RTAPlot::Mode>(mode));
 }
 
 RTAPlot::Mode RTAPlot::mode()
@@ -91,9 +91,9 @@ void RTAPlot::setSettings(Settings *settings) noexcept
     if (settings && (settings->value("type") == "Spectrum")) {
 
         FrequencyBasedPlot::setSettings(settings);
-        setScale(m_settings->reactValue<RTAPlot, chart::RTAPlot::Scale>("scale", this, &RTAPlot::scaleChanged,
+        setScale(m_settings->reactValue<RTAPlot, Chart::RTAPlot::Scale>("scale", this, &RTAPlot::scaleChanged,
                                                                         m_scale).toUInt());
-        setMode(m_settings->reactValue<RTAPlot, chart::RTAPlot::Mode>("mode", this, &RTAPlot::modeChanged, m_mode).toUInt());
+        setMode(m_settings->reactValue<RTAPlot, Chart::RTAPlot::Mode>("mode", this, &RTAPlot::modeChanged, m_mode).toUInt());
         setShowPeaks(m_settings->reactValue<RTAPlot, bool>("showPeaks", this, &RTAPlot::showPeaksChanged, m_mode).toBool());
     }
 }
@@ -141,7 +141,7 @@ void RTAPlot::setScale(Scale newScale)
 
 void RTAPlot::setScale(unsigned int newScale)
 {
-    setScale(static_cast<chart::RTAPlot::Scale>(newScale));
+    setScale(static_cast<Chart::RTAPlot::Scale>(newScale));
 }
 
 

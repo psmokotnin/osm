@@ -18,7 +18,7 @@
 #include "levelobject.h"
 #include <QDebug>
 
-namespace chart {
+namespace Chart {
 
 LevelObject::LevelObject() : m_curve(Weighting::A), m_time(Meter::Slow), m_mode(SPL), m_pause(false)
 {

@@ -24,7 +24,7 @@
 #include "xyseriesnode.h"
 #include "chart/levelplot.h"
 
-namespace chart {
+namespace Chart {
 
 class LevelSeriesNode : public XYSeriesNode
 {

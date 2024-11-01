@@ -18,7 +18,7 @@
 #include "coherenceseriesnode.h"
 #include <Metal/Metal.h>
 
-namespace chart {
+namespace Chart {
 
 CoherenceSeriesNode::CoherenceSeriesNode(QQuickItem *item) : XYSeriesNode(item),
     m_pointsPerOctave(0), m_type(CoherencePlot::Normal), m_pipeline(nullptr)

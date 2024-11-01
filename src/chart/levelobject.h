@@ -22,7 +22,7 @@
 #include "math/weighting.h"
 #include "math/meter.h"
 
-namespace chart {
+namespace Chart {
 
 class LevelObject
 {
@@ -32,7 +32,7 @@ public:
         dBfs    = 0x00,
         SPL     = 0x01
     };
-    Q_ENUM(chart::LevelObject::Mode);
+    Q_ENUM(Chart::LevelObject::Mode);
 
     static constexpr float SPL_OFFSET = 140;
 
@@ -49,9 +49,9 @@ public:
     virtual QString timeName() const;
     virtual void setTime(const QString &time);
 
-    chart::LevelObject::Mode mode() const;
+    Chart::LevelObject::Mode mode() const;
     QString modeName() const;
-    void setMode(const chart::LevelObject::Mode &mode);
+    void setMode(const Chart::LevelObject::Mode &mode);
     void setMode(const int &mode);
 
     bool pause() const;
@@ -60,7 +60,7 @@ public:
 //virtual signals:
     virtual void curveChanged(QString) = 0;
     virtual void timeChanged(QString) = 0;
-    virtual void modeChanged(chart::LevelObject::Mode) = 0;
+    virtual void modeChanged(Chart::LevelObject::Mode) = 0;
     virtual void pauseChanged(bool) = 0;
 
 private:
@@ -74,6 +74,6 @@ private:
 
 } // namespace chart
 
-Q_DECLARE_METATYPE(chart::LevelObject::Mode);
+Q_DECLARE_METATYPE(Chart::LevelObject::Mode);
 
 #endif // CHART_LEVEL_H

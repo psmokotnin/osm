@@ -22,7 +22,7 @@
 #include "../coherenceplot.h"
 #include <cstring>
 
-namespace chart {
+namespace Chart {
 class CoherenceSeriesRenderer : public FrequencyBasedSeriesRenderer
 {
 public:

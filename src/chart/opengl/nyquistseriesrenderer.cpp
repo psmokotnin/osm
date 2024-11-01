@@ -20,7 +20,7 @@
 #include "../nyquistplot.h"
 #include <cstring>
 
-namespace chart {
+namespace Chart {
 
 NyquistSeriesRenderer::NyquistSeriesRenderer() : XYSeriesRenderer(),
     m_pointsPerOctave(0),

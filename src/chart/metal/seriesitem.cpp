@@ -18,7 +18,7 @@
 #include "seriesitem.h"
 #include <QQuickWindow>
 
-namespace chart {
+namespace Chart {
 
 SeriesItem::SeriesItem(const Source::Shared &source, QQuickItem *parent,
                        NodeConstructor nodeConstructor) : QQuickItem(parent),

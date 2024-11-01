@@ -24,7 +24,7 @@
 #include "frequencybasedseriesrenderer.h"
 #include "../rtaplot.h"
 
-namespace chart {
+namespace Chart {
 
 class RTASeriesRenderer : public FrequencyBasedSeriesRenderer
 {

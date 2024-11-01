@@ -20,7 +20,7 @@
 
 #include "seriesrenderer.h"
 
-namespace chart {
+namespace Chart {
 class XYSeriesRenderer : public SeriesRenderer
 {
 public:

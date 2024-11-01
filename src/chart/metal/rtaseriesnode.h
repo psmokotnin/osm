@@ -23,7 +23,7 @@
 #include "../frequencybasedserieshelper.h"
 #include "../rtaplot.h"
 
-namespace chart {
+namespace Chart {
 
 class RTASeriesNode : public XYSeriesNode, public FrequencyBasedSeriesHelper
 {

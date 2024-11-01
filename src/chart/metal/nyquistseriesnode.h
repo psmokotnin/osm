@@ -21,9 +21,9 @@
 #include "xyseriesnode.h"
 #include "../frequencybasedserieshelper.h"
 
-namespace chart {
+namespace Chart {
 
-class NyquistSeriesNode : public chart::XYSeriesNode, public FrequencyBasedSeriesHelper
+class NyquistSeriesNode : public Chart::XYSeriesNode, public FrequencyBasedSeriesHelper
 {
     Q_OBJECT
 public:

@@ -21,11 +21,11 @@
 #include "common/notifier.h"
 #include "math/equalloudnesscontour.h"
 
-using namespace chart;
+using namespace Chart;
 RTASeriesRenderer::RTASeriesRenderer() : FrequencyBasedSeriesRenderer(),
     m_showPeaks(false), m_inited(false), m_pointsPerOctave(0),
-    m_mode(chart::RTAPlot::Mode::Line),
-    m_scale(chart::RTAPlot::Scale::DBfs),
+    m_mode(Chart::RTAPlot::Mode::Line),
+    m_scale(Chart::RTAPlot::Scale::DBfs),
     m_vertexShader(nullptr),
     m_geometryShader(nullptr),
     m_fragmentShader(nullptr)
@@ -66,7 +66,7 @@ void RTASeriesRenderer::initShaders()
         m_program.removeAllShaders();
         m_program.addShader(m_vertexShader);
         m_program.addShader(m_fragmentShader);
-        if (m_mode != chart::RTAPlot::Mode::Bars) {
+        if (m_mode != Chart::RTAPlot::Mode::Bars) {
             m_program.addShader(m_geometryShader);
         }
     }
@@ -78,7 +78,7 @@ void RTASeriesRenderer::initShaders()
     if (m_openGL33CoreFunctions) {
         m_colorUniform  = m_program.uniformLocation("m_color");
         m_matrixUniform = m_program.uniformLocation("matrix");
-        if (m_mode != chart::RTAPlot::Mode::Bars) {
+        if (m_mode != Chart::RTAPlot::Mode::Bars) {
             m_widthUniform  = m_program.uniformLocation("width");
             m_screenUniform = m_program.uniformLocation("screen");
         }
@@ -125,7 +125,7 @@ void RTASeriesRenderer::renderSeries()
     m_program.setUniformValue(m_widthUniform, m_weight * m_retinaScale);
 
     switch (m_mode) {
-    case chart::RTAPlot::Mode::Line:
+    case Chart::RTAPlot::Mode::Line:
         if (m_pointsPerOctave > 0) {
             renderPPOLine();
         } else {
@@ -133,11 +133,11 @@ void RTASeriesRenderer::renderSeries()
         }
         break;
 
-    case chart::RTAPlot::Mode::Bars:
+    case Chart::RTAPlot::Mode::Bars:
         renderBars();
         break;
 
-    case chart::RTAPlot::Mode::Lines:
+    case Chart::RTAPlot::Mode::Lines:
         renderLines();
         break;
 

@@ -23,7 +23,7 @@
 #include "source/source_abstract.h"
 #include "seriesnode.h"
 
-namespace chart {
+namespace Chart {
 
 //! represents a single series in a plot as QQuickItem
 class SeriesItem : public QQuickItem

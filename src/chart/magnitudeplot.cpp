@@ -20,7 +20,7 @@
 #include <QPainter>
 #include <QPainterPath>
 
-using namespace chart;
+using namespace Chart;
 
 MagnitudePlot::MagnitudePlot(Settings *settings, QQuickItem *parent) :
     FrequencyBasedPlot(settings, parent), m_invert(false), m_mode(Linear), m_sensor(2.6)

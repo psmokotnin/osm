@@ -21,7 +21,7 @@
 #include "chart/plot.h"
 #include "source/group.h"
 
-using namespace chart;
+using namespace Chart;
 
 CursorHelper *Plot::s_cursorHelper = new CursorHelper();
 

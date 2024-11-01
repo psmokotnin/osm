@@ -18,7 +18,7 @@
 #include "seriesfbo.h"
 #include "seriesrenderer.h"
 
-using namespace chart;
+using namespace Chart;
 
 SeriesFBO::SeriesFBO(Source::Shared source, RendererCreator rc, QQuickItem *parent):
     QQuickFramebufferObject(parent),

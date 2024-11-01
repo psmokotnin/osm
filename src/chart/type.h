@@ -21,7 +21,7 @@
 #include <map>
 #include <QString>
 
-namespace chart {
+namespace Chart {
 
 enum Type {RTA, Magnitude, Phase, Scope, Impulse, Step, Coherence, GroupDelay, PhaseDelay, Spectrogram, CrestFactor, Nyquist, Level, SPL};
 static std::map<Type, QString> typeMap = {

@@ -20,7 +20,7 @@
 
 #include "frequencybasedplot.h"
 
-namespace chart {
+namespace Chart {
 class RTAPlot : public FrequencyBasedPlot
 {
 public:
@@ -36,15 +36,15 @@ public:
 
     Q_ENUM(Scale)
 
-    Q_PROPERTY(chart::RTAPlot::Mode mode READ mode WRITE setMode NOTIFY modeChanged)
+    Q_PROPERTY(Chart::RTAPlot::Mode mode READ mode WRITE setMode NOTIFY modeChanged)
     Q_PROPERTY(bool showPeaks READ showPeaks WRITE setShowPeaks NOTIFY showPeaksChanged)
-    Q_PROPERTY(chart::RTAPlot::Scale scale READ scale WRITE setScale NOTIFY scaleChanged)
+    Q_PROPERTY(Chart::RTAPlot::Scale scale READ scale WRITE setScale NOTIFY scaleChanged)
 
 public:
     RTAPlot(Settings *settings, QQuickItem *parent = Q_NULLPTR);
 
-    chart::RTAPlot::Mode mode();
-    void setMode(chart::RTAPlot::Mode mode);
+    Chart::RTAPlot::Mode mode();
+    void setMode(Chart::RTAPlot::Mode mode);
     void setMode(unsigned int mode);
 
     virtual void setSettings(Settings *settings) noexcept override;
@@ -60,8 +60,8 @@ public:
 
 signals:
     void showPeaksChanged(bool);
-    void modeChanged(chart::RTAPlot::Mode);
-    void scaleChanged(chart::RTAPlot::Scale);
+    void modeChanged(Chart::RTAPlot::Mode);
+    void scaleChanged(Chart::RTAPlot::Scale);
 
 protected slots:
     void updateAxis();

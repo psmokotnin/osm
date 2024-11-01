@@ -18,7 +18,7 @@
 #include "groupdelayplot.h"
 #include <QtMath>
 
-using namespace chart;
+using namespace Chart;
 
 GroupDelayPlot::GroupDelayPlot(Settings *settings, QQuickItem *parent) :
     FrequencyBasedPlot(settings, parent)

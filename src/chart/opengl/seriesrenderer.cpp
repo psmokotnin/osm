@@ -22,7 +22,7 @@
 #include "../plot.h"
 #include "common/profiler.h"
 #include "chart/seriesesitem.h"
-using namespace chart;
+using namespace Chart;
 
 SeriesRenderer::SeriesRenderer() :
     m_program(), m_openGLFunctions(nullptr), m_openGL33CoreFunctions(nullptr),
@@ -151,7 +151,7 @@ void SeriesRenderer::drawOpenGL2(unsigned int verticiesCount, GLenum mode)
 Plot *SeriesRenderer::plot() const
 {
     if (m_item) {
-        return dynamic_cast<chart::Plot *>(m_item->parent());
+        return dynamic_cast<Chart::Plot *>(m_item->parent());
     }
     return nullptr;
 }
@@ -166,7 +166,7 @@ void SeriesRenderer::render()
         return;
     }
 
-    auto plot = static_cast<chart::Plot *>(m_item->parent());
+    auto plot = static_cast<Chart::Plot *>(m_item->parent());
     if (!m_program.isLinked()) {
         qDebug() << QString("shader not setted or linked");
         return;

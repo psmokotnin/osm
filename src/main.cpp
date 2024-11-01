@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
     qInstallMessageHandler(logger::messageHandler);
 
 #ifdef GRAPH_METAL
-    QQuickWindow::setSceneGraphBackend(chart::SeriesNode::chooseRhi());
+    QQuickWindow::setSceneGraphBackend(Chart::SeriesNode::chooseRhi());
 #elif defined(GRAPH_OPENGL)
     QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
@@ -97,7 +97,7 @@ int main(int argc, char *argv[])
     server.setSourceList(&sourceList);
 
     qmlRegisterType<audio::DeviceModel>("Audio", 1, 0, "DeviceModel");
-    qmlRegisterType<chart::VariableChart>("OpenSoundMeter", 1, 0, "VariableChart");
+    qmlRegisterType<Chart::VariableChart>("OpenSoundMeter", 1, 0, "VariableChart");
     qmlRegisterUncreatableMetaObject(Filter::staticMetaObject, "Measurement", 1, 0, "FilterFrequency",
                                      "Error: only enums");
     qmlRegisterType<Measurement>("Measurement", 1, 0, "Measurement");
@@ -112,7 +112,7 @@ int main(int argc, char *argv[])
     qmlRegisterType<Settings>("Settings", 1, 0, "Settings");
     qmlRegisterType<Appearance>("OpenSoundMeter", 1, 0, "Appearance");
     qmlRegisterType<Notifier>("OpenSoundMeter", 1, 0, "Notifier");
-    qmlRegisterType<chart::MeterPlot>("OpenSoundMeter", 1, 0, "MeterPlot");
+    qmlRegisterType<Chart::MeterPlot>("OpenSoundMeter", 1, 0, "MeterPlot");
     qmlRegisterType<Source::Group>("OpenSoundMeter", 1, 0, "SourceGroup");
 #ifdef Q_OS_IOS
     //replace for QQuickControls2 FileDialog:

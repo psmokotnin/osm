@@ -22,7 +22,7 @@
 #include "source/group.h"
 #include "remote/items/groupitem.h"
 
-namespace chart {
+namespace Chart {
 
 SeriesesItem::SeriesesItem(QQuickItem *parent, Plot *plot) : QQuickItem(parent), m_plot(plot)
 {

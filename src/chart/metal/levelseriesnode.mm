@@ -19,7 +19,7 @@
 #include "measurement.h"
 #include <Metal/Metal.h>
 
-namespace chart {
+namespace Chart {
 
 #define id_cast(T, t) static_cast<id<T>>(t)
 

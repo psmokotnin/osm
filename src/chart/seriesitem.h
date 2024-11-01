@@ -21,11 +21,11 @@
 
 #ifdef GRAPH_METAL
 #include "chart/metal/seriesitem.h"
-using SeriesItem = chart::SeriesItem;
+using SeriesItem = Chart::SeriesItem;
 
 #elif defined(GRAPH_OPENGL)
 #include "seriesfbo.h"
-using SeriesItem = chart::SeriesFBO;
+using SeriesItem = Chart::SeriesFBO;
 
 #else
 #pragma message("GRAPH backend not setted")

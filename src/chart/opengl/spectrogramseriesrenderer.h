@@ -26,7 +26,7 @@
 
 #include "frequencybasedseriesrenderer.h"
 
-namespace chart {
+namespace Chart {
 class SpectrogramSeriesRenderer : public FrequencyBasedSeriesRenderer
 {
 public:

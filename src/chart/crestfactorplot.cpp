@@ -17,7 +17,7 @@
  */
 #include "crestfactorplot.h"
 
-namespace chart {
+namespace Chart {
 
 CrestFactorPlot::CrestFactorPlot(Settings *settings, QQuickItem *parent) : FrequencyBasedPlot(settings, parent)
 {

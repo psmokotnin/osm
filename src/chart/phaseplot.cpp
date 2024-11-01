@@ -18,7 +18,7 @@
 #include "phaseplot.h"
 #include <QtMath>
 
-using namespace chart;
+using namespace Chart;
 static unsigned int PHASE_TICKS = 9;
 
 PhasePlot::PhasePlot(Settings *settings, QQuickItem *parent): FrequencyBasedPlot(settings, parent),

@@ -21,7 +21,7 @@
 #include "xyseriesrenderer.h"
 #include "../frequencybasedserieshelper.h"
 
-namespace chart {
+namespace Chart {
 
 class FrequencyBasedSeriesRenderer : public XYSeriesRenderer, public FrequencyBasedSeriesHelper
 {

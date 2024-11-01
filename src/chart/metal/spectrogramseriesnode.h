@@ -23,7 +23,7 @@
 #include <QElapsedTimer>
 #include <deque>
 
-namespace chart {
+namespace Chart {
 
 class SpectrogramSeriesNode : public XYSeriesNode, public FrequencyBasedSeriesHelper
 {

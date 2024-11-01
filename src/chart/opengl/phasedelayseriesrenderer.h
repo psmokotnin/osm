@@ -20,7 +20,7 @@
 
 #include "frequencybasedseriesrenderer.h"
 
-namespace chart {
+namespace Chart {
 class PhaseDelaySeriesRenderer : public FrequencyBasedSeriesRenderer
 {
 public:

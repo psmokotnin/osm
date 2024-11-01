@@ -17,7 +17,7 @@
  */
 #include "impulseplot.h"
 
-using namespace chart;
+using namespace Chart;
 
 ImpulsePlot::ImpulsePlot(Settings *settings, QQuickItem *parent): XYPlot(settings, parent), m_mode(Log)
 {

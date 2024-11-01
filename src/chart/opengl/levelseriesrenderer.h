@@ -26,7 +26,7 @@
 #include "math/weighting.h"
 #include "math/meter.h"
 
-namespace chart {
+namespace Chart {
 
 class LevelSeriesRenderer : public XYSeriesRenderer
 {

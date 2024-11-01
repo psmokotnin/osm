@@ -39,7 +39,7 @@
 #include "nyquistseriesrenderer.h"
 #include "levelseriesrenderer.h"
 
-namespace chart {
+namespace Chart {
 
 SeriesFBO *RTAPlot::createSeriesFromSource(const Source::Shared &source)
 {

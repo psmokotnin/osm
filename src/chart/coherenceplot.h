@@ -20,7 +20,7 @@
 
 #include "frequencybasedplot.h"
 
-namespace chart {
+namespace Chart {
 
 class CoherenceThresholdLine : public PaintedItem
 {

@@ -21,7 +21,7 @@
 #include "xyseriesnode.h"
 #include "../frequencybasedserieshelper.h"
 
-namespace chart {
+namespace Chart {
 
 class PhaseSeriesNode : public XYSeriesNode, public FrequencyBasedSeriesHelper
 {

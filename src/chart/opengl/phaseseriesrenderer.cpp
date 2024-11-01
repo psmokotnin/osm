@@ -21,7 +21,7 @@
 #include <QtMath>
 #include <cstring>
 #include "common/notifier.h"
-using namespace chart;
+using namespace Chart;
 
 PhaseSeriesRenderer::PhaseSeriesRenderer() : FrequencyBasedSeriesRenderer(),
     m_coherenceThresholdU(0), m_coherenceAlpha(0),

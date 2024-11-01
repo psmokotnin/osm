@@ -19,7 +19,7 @@
 #define PHASESERIESRENDERER_H
 
 #include "frequencybasedseriesrenderer.h"
-namespace chart {
+namespace Chart {
 
 class PhaseSeriesRenderer : public FrequencyBasedSeriesRenderer
 {

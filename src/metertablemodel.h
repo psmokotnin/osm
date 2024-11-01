@@ -72,7 +72,7 @@ private:
     int m_columns = 3;
     int m_rows = 1;
 
-    QVector<QVector<std::shared_ptr<chart::MeterPlot>>> m_data;
+    QVector<QVector<std::shared_ptr<Chart::MeterPlot>>> m_data;
     SourceList *m_sourceList;
     Settings   *m_settings;
 };

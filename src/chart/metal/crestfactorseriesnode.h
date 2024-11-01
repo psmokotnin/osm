@@ -22,7 +22,7 @@
 #include "../frequencybasedserieshelper.h"
 #include "../crestfactorplot.h"
 
-namespace chart {
+namespace Chart {
 
 class CrestFactorSeriesNode : public XYSeriesNode, public FrequencyBasedSeriesHelper
 {

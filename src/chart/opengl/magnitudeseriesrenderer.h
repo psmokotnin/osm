@@ -22,7 +22,7 @@
 #include "frequencybasedseriesrenderer.h"
 #include "../magnitudeplot.h"
 
-namespace chart {
+namespace Chart {
 
 class MagnitudeSeriesRenderer : public FrequencyBasedSeriesRenderer
 {

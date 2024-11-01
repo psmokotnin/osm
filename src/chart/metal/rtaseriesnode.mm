@@ -20,14 +20,14 @@
 #include "../rtaplot.h"
 #include "math/equalloudnesscontour.h"
 
-namespace chart {
+namespace Chart {
 
 #define id_cast(T, t) static_cast<id<T>>(t)
 
 RTASeriesNode::RTASeriesNode(QQuickItem *item) : XYSeriesNode(item),
     m_pointsPerOctave(0),
-    m_mode(chart::RTAPlot::Mode::Line),
-    m_scale(chart::RTAPlot::Scale::DBfs),
+    m_mode(Chart::RTAPlot::Mode::Line),
+    m_scale(Chart::RTAPlot::Scale::DBfs),
     m_refreshBuffers(true), m_pipelineLine(nullptr), m_pipelineBars(nullptr),
     m_vertexBuffer(nullptr), m_matrixBuffer(nullptr)
 {
@@ -143,13 +143,13 @@ void RTASeriesNode::renderSeries()
     }
 
     switch (m_mode) {
-    case chart::RTAPlot::Mode::Line:
+    case Chart::RTAPlot::Mode::Line:
         renderLine();
         break;
-    case chart::RTAPlot::Mode::Bars:
+    case Chart::RTAPlot::Mode::Bars:
         renderBars();
         break;
-    case chart::RTAPlot::Mode::Lines:
+    case Chart::RTAPlot::Mode::Lines:
         renderLines();
         break;
 

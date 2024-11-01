@@ -18,7 +18,7 @@
 #include "frequencybasedseriesrenderer.h"
 #include "../xyplot.h"
 
-using namespace chart;
+using namespace Chart;
 
 FrequencyBasedSeriesRenderer::FrequencyBasedSeriesRenderer() : XYSeriesRenderer(),
     m_minmaxUniform(0),

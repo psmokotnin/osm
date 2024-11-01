@@ -20,7 +20,7 @@
 
 #include "frequencybasedplot.h"
 
-namespace chart {
+namespace Chart {
 class MagnitudePlot : public FrequencyBasedPlot
 {
 public:

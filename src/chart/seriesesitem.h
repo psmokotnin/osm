@@ -25,14 +25,13 @@
 #include "chart/plotpadding.h"
 #include "chart/seriesitem.h"
 
-namespace chart {
+namespace Chart {
 
 class Plot;
 
 class SeriesesItem : public QQuickItem
 {
     Q_OBJECT
-    QML_ELEMENT
 
 public:
     SeriesesItem(QQuickItem *parent = nullptr, Plot *plot = nullptr);

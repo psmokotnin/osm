@@ -19,7 +19,7 @@
 #include "cursorhelper.h"
 #include <QtMath>
 
-namespace chart {
+namespace Chart {
 
 CursorHelper::CursorHelper(QObject *parent) : QObject(parent)
 {

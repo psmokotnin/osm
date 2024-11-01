@@ -19,7 +19,7 @@
 
 #include <QPainter>
 
-using namespace chart;
+using namespace Chart;
 
 CoherencePlot::CoherencePlot(Settings *settings, QQuickItem *parent): FrequencyBasedPlot(settings, parent),
     m_threshold(0.91f), m_showThreshold(true), m_thresholdColor("#FF5722"), m_thresholdLine(this),
@@ -162,7 +162,7 @@ CoherenceThresholdLine::CoherenceThresholdLine(QQuickItem *parent) : PaintedItem
     setHeight(parent->height());
 }
 
-void chart::CoherenceThresholdLine::paint(QPainter *painter)
+void Chart::CoherenceThresholdLine::paint(QPainter *painter)
 {
     try {
         auto plot = reinterpret_cast<CoherencePlot *>(parent());

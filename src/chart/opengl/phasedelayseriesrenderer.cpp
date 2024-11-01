@@ -20,7 +20,7 @@
 #include "phasedelayseriesrenderer.h"
 #include "../phasedelayplot.h"
 #include "common/notifier.h"
-using namespace chart;
+using namespace Chart;
 
 PhaseDelaySeriesRenderer::PhaseDelaySeriesRenderer() : FrequencyBasedSeriesRenderer(),
     m_pointsPerOctave(0), m_coherenceThreshold(0), m_coherence(false)

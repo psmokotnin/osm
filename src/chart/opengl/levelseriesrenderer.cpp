@@ -19,7 +19,7 @@
 #include "common/notifier.h"
 #include "measurement.h"
 
-namespace chart {
+namespace Chart {
 
 LevelSeriesRenderer::LevelSeriesRenderer(): XYSeriesRenderer(), m_timer(), m_history(0)
 {

@@ -21,9 +21,9 @@
 #include "frequencybasedseriesrenderer.h"
 #include "../crestfactorplot.h"
 
-namespace chart {
+namespace Chart {
 
-class CrestFactorSeriesRenderer : public chart::FrequencyBasedSeriesRenderer
+class CrestFactorSeriesRenderer : public Chart::FrequencyBasedSeriesRenderer
 {
 public:
     CrestFactorSeriesRenderer();

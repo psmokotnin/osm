@@ -19,7 +19,7 @@
 #include "sourcelist.h"
 #include "measurement.h"//TODO: meta::measurement
 
-namespace chart {
+namespace Chart {
 
 const std::map<MeterPlot::Type, QString> MeterPlot::m_typesMap = {
     {MeterPlot::Type::RMS,   "RMS"  },
@@ -186,7 +186,7 @@ void MeterPlot::setSettings(Settings *newSettings)
         m_settings->reactValue<MeterPlot, QString>("type", this, &MeterPlot::typeChanged, typeName()).toString()
     );
     setMode(
-        m_settings->reactValue<MeterPlot, chart::LevelObject::Mode>("mode", this, &MeterPlot::modeChanged, mode()).toInt()
+        m_settings->reactValue<MeterPlot, Chart::LevelObject::Mode>("mode", this, &MeterPlot::modeChanged, mode()).toInt()
     );
     setThreshold(
         m_settings->reactValue<MeterPlot, float>("threshold", this, &MeterPlot::thresholdChanged, threshold()).toFloat()

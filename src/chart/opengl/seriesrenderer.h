@@ -26,7 +26,7 @@
 
 #include "source/source_abstract.h"
 
-namespace chart {
+namespace Chart {
 class Plot;
 class SeriesRenderer : public QQuickFramebufferObject::Renderer
 {

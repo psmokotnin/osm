@@ -18,7 +18,7 @@
 #include "crestfactorseriesnode.h"
 #include <Metal/Metal.h>
 
-namespace chart {
+namespace Chart {
 
 CrestFactorSeriesNode::CrestFactorSeriesNode(QQuickItem *item) : XYSeriesNode(item),
     m_pointsPerOctave(0), m_pipeline(nullptr)

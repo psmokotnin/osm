@@ -20,7 +20,7 @@
 
 #include "seriesnode.h"
 
-namespace chart {
+namespace Chart {
 
 class XYSeriesNode : public SeriesNode
 {
