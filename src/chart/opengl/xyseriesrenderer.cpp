@@ -20,12 +20,14 @@
 
 using namespace Chart;
 
-XYSeriesRenderer::XYSeriesRenderer() : SeriesRenderer(),
+XYSeriesRenderer::XYSeriesRenderer(bool logX, bool logY) : SeriesRenderer(),
     m_matrixUniform(-1),
-    m_xMin(0.f),
-    m_xMax(0.f),
-    m_yMin(0.f),
-    m_yMax(0.f)
+    m_xMin(logX ? 1.f : 0.f),
+    m_xMax(logX ? 2.f : 0.f),
+    m_yMin(logY ? 1.f : 0.f),
+    m_yMax(logY ? 2.f : 0.f),
+    m_logX(logX),
+    m_logY(logY)
 {
 
 }
@@ -40,11 +42,19 @@ void XYSeriesRenderer::synchronize(QQuickFramebufferObject *item)
             m_yMin != xyplot->yAxis()->min() ||
             m_yMax != xyplot->yAxis()->max()
         ) {
-
-            m_xMin = xyplot->xAxis()->min();
-            m_xMax = xyplot->xAxis()->max();
-            m_yMin = xyplot->yAxis()->min();
-            m_yMax = xyplot->yAxis()->max();
+            if (
+                (xyplot->xAxis()->min() >= xyplot->xAxis()->max()) ||
+                (xyplot->yAxis()->min() >= xyplot->yAxis()->max()) ||
+                (m_logX && xyplot->xAxis()->min() <= 0) ||
+                (m_logY && xyplot->yAxis()->min() <= 0)
+            ) {
+                qDebug() << "prevent invalid matrix";
+            } else {
+                m_xMin = xyplot->xAxis()->min();
+                m_xMax = xyplot->xAxis()->max();
+                m_yMin = xyplot->yAxis()->min();
+                m_yMax = xyplot->yAxis()->max();
+            }
             updateMatrix();
         }
     }

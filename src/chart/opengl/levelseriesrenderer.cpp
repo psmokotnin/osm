@@ -21,7 +21,7 @@
 
 namespace Chart {
 
-LevelSeriesRenderer::LevelSeriesRenderer(): XYSeriesRenderer(), m_timer(), m_history(0)
+LevelSeriesRenderer::LevelSeriesRenderer(): XYSeriesRenderer(false, false), m_timer(), m_history(0)
 {
     m_timer.restart();
 }

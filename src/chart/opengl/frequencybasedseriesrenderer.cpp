@@ -20,7 +20,7 @@
 
 using namespace Chart;
 
-FrequencyBasedSeriesRenderer::FrequencyBasedSeriesRenderer() : XYSeriesRenderer(),
+FrequencyBasedSeriesRenderer::FrequencyBasedSeriesRenderer() : XYSeriesRenderer(true, false),
     m_minmaxUniform(0),
     m_screenUniform(0),
     m_widthUniform(0)

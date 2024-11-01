@@ -20,7 +20,7 @@
 #include "common/notifier.h"
 using namespace Chart;
 
-StepSeriesRenderer::StepSeriesRenderer() : XYSeriesRenderer(), m_window(WindowFunction::Hann)
+StepSeriesRenderer::StepSeriesRenderer() : XYSeriesRenderer(false, false), m_window(WindowFunction::Hann)
 {
 }
 

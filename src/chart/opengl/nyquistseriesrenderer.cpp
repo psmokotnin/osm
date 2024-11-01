@@ -22,7 +22,7 @@
 
 namespace Chart {
 
-NyquistSeriesRenderer::NyquistSeriesRenderer() : XYSeriesRenderer(),
+NyquistSeriesRenderer::NyquistSeriesRenderer() : XYSeriesRenderer(false, false),
     m_pointsPerOctave(0),
     m_coherenceThreshold(0), m_coherence(false)
 {

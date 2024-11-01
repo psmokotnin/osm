@@ -24,7 +24,7 @@ namespace Chart {
 class XYSeriesRenderer : public SeriesRenderer
 {
 public:
-    XYSeriesRenderer();
+    XYSeriesRenderer(bool logX, bool logY);
     virtual void synchronize(QQuickFramebufferObject *item) override;
 
 protected:
@@ -33,6 +33,7 @@ protected:
     QMatrix4x4 m_matrix;
     int m_matrixUniform;
     float m_xMin, m_xMax, m_yMin, m_yMax;
+    bool m_logX, m_logY;
 };
 }
 
