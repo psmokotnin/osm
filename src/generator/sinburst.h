@@ -1,6 +1,6 @@
 /**
  *  OSM
- *  Copyright (C) 2018  Pavel Smokotnin
+ *  Copyright (C) 2024  Pavel Smokotnin
 
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -15,18 +15,16 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef SINNOISE_H
-#define SINNOISE_H
+#ifndef SINBURST_H
+#define SINBURST_H
 
-#include <QtMath>
 #include "outputdevice.h"
 
-class SinNoise : public OutputDevice
+class SinBurst : public OutputDevice
 {
     Q_OBJECT
-
 public:
-    SinNoise(QObject *parent);
+    explicit SinBurst(QObject *parent = nullptr);
 
 public slots:
     void setFrequency(int f);
@@ -36,6 +34,9 @@ private:
 
     float m_frequency;
     double m_phase;
+
+    int m_periods;
+    bool m_burst;
 };
 
-#endif // SINNOISE_H
+#endif // SINBURST_H

@@ -27,6 +27,7 @@
 #include "burstnoise.h"
 #include "mlsplus.h"
 #include "brownnoise.h"
+#include "sinburst.h"
 
 GeneratorThread *GeneratorThread::s_instance = nullptr;
 
@@ -106,6 +107,7 @@ void GeneratorThread::init()
     m_sources << new BurstNoise(this);
     m_sources << new MLSPlus(this);
     m_sources << new BrownNoise(this);
+    m_sources << new SinBurst(this);
 
     for (auto &source : m_sources) {
         connect(source, &OutputDevice::sampleError, this, &GeneratorThread::deviceError);

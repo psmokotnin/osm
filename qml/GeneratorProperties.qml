@@ -67,7 +67,7 @@ Item {
             SelectableSpinBox {
                 id: frequencySpinBox
                 implicitWidth: 165
-                visible: type.currentText == 'Sin';
+                visible: type.currentText == 'Sin' || type.currentText == 'SinBurst'
                 value: generatorModel.frequency
                 from: 0
                 to: 192000
