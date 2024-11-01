@@ -61,11 +61,13 @@ float Leq::value() const
 }
 
 const std::unordered_map<std::size_t, QString> Leq::m_timeMap = {
-    {  1 * 60, " 1 min" },
-    {  5 * 60, " 5 min" },
-    { 15 * 60, "15 min" },
-    { 30 * 60, "30 min" },
-    { 60 * 60, "60 min" },
+    {   1 * 60, "  1 min" },
+    {   5 * 60, "  5 min" },
+    {  10 * 60, " 10 min" },
+    {  15 * 60, " 15 min" },
+    {  30 * 60, " 30 min" },
+    {  60 * 60, " 60 min" },
+    { 120 * 60, "120 min" },
 };
 
 } // namespace math
