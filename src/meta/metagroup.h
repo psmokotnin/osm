@@ -24,9 +24,9 @@
 #include "sourcelist.h"
 #include "source/source_shared.h"
 
-namespace meta {
+namespace Meta {
 
-class Group : public meta::Base
+class Group : public Meta::Base
 {
 public:
     Group() = default;

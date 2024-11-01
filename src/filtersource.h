@@ -23,7 +23,7 @@
 #include "source/source_abstract.h"
 #include "math/fouriertransform.h"
 
-class FilterSource : public Source::Abstract, public meta::Filter
+class FilterSource : public Source::Abstract, public Meta::Filter
 {
     Q_OBJECT
     QML_ELEMENT
@@ -32,11 +32,11 @@ class FilterSource : public Source::Abstract, public meta::Filter
 
     Q_PROPERTY(bool autoName READ autoName WRITE setAutoName NOTIFY autoNameChanged)
 
-    Q_PROPERTY(meta::Measurement::Mode mode READ mode WRITE setMode NOTIFY modeChanged)
+    Q_PROPERTY(Meta::Measurement::Mode mode READ mode WRITE setMode NOTIFY modeChanged)
     Q_PROPERTY(unsigned int sampleRate READ sampleRate WRITE setSampleRate NOTIFY sampleRateChanged)
 
     Q_PROPERTY(QVariant orders READ getAvailableOrders NOTIFY typeChanged)
-    Q_PROPERTY(meta::Filter::Type type READ type WRITE setType NOTIFY typeChanged)
+    Q_PROPERTY(Meta::Filter::Type type READ type WRITE setType NOTIFY typeChanged)
     Q_PROPERTY(unsigned int order READ order WRITE setOrder NOTIFY orderChanged)
 
     Q_PROPERTY(float cornerFrequency READ cornerFrequency WRITE setCornerFrequency NOTIFY cornerFrequencyChanged)
@@ -57,8 +57,8 @@ public:
 
 signals:
     void sampleRateChanged(unsigned int) override;
-    void typeChanged(meta::Filter::Type) override;
-    void modeChanged(meta::Measurement::Mode) override;
+    void typeChanged(Meta::Filter::Type) override;
+    void modeChanged(Meta::Measurement::Mode) override;
     void cornerFrequencyChanged(float) override;
     void orderChanged(unsigned int) override;
     void gainChanged(float) override;

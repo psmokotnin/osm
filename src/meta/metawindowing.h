@@ -26,12 +26,12 @@
 #include "source/source_abstract.h"
 #include "math/windowfunction.h"
 
-namespace meta {
+namespace Meta {
 
 class Windowing : public Base
 {
     Q_GADGET
-    QML_ELEMENT
+    //QML_ELEMENT
 
     //Q_PROPERTY(float wide READ wide WRITE setWide NOTIFY wideChanged)
     //Q_PROPERTY(float offset READ offset WRITE setOffset NOTIFY offsetChanged)
@@ -84,7 +84,7 @@ public:
     void setWindowFunctionType(const QVariant &newWindowFunctionType);
     void setWindowFunctionType(const WindowFunction::Type &newWindowFunctionType);
 
-    meta::Windowing::SourceDomain domain() const;
+    Meta::Windowing::SourceDomain domain() const;
     void setDomain(QVariant newDomain);
     void setDomain(SourceDomain newDomain);
 
@@ -94,7 +94,7 @@ public:
     virtual void modeChanged(Mode) = 0;
     virtual void tipNameChanged(QString) = 0;
     virtual void windowFunctionTypeChanged(WindowFunction::Type) = 0;
-    virtual void domainChanged(meta::Windowing::SourceDomain) = 0;
+    virtual void domainChanged(Meta::Windowing::SourceDomain) = 0;
     virtual void minFrequencyChanged() = 0;
     virtual void maxFrequencyChanged() = 0;
 

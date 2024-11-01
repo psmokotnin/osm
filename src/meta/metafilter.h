@@ -22,12 +22,12 @@
 #include "metabase.h"
 #include "metameasurement.h"
 
-namespace meta {
+namespace Meta {
 
 class Filter : public Base
 {
     Q_GADGET
-    QML_ELEMENT
+    //QML_ELEMENT
 
 public:
     enum Type {
@@ -71,8 +71,8 @@ public:
 
 //virtual signals:
     virtual void sampleRateChanged(unsigned int) = 0;
-    virtual void typeChanged(meta::Filter::Type) = 0;
-    virtual void modeChanged(meta::Measurement::Mode) = 0;
+    virtual void typeChanged(Meta::Filter::Type) = 0;
+    virtual void modeChanged(Meta::Measurement::Mode) = 0;
     virtual void cornerFrequencyChanged(float) = 0;
     virtual void orderChanged(unsigned int) = 0;
     virtual void gainChanged(float) = 0;
@@ -91,6 +91,6 @@ private:
 };
 
 } // namespace meta
-Q_DECLARE_METATYPE(meta::Filter::Type)
+Q_DECLARE_METATYPE(Meta::Filter::Type)
 
 #endif // META_FILTER_H

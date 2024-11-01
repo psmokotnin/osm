@@ -20,7 +20,7 @@
 
 #define NO_API_REVISION 1
 
-namespace meta {
+namespace Meta {
 
 class Base
 {

@@ -22,7 +22,7 @@
 #include "source/source_abstract.h"
 #include "meta/metastored.h"
 
-class Stored: public Source::Abstract, public meta::Stored
+class Stored: public Source::Abstract, public Meta::Stored
 {
     Q_OBJECT
     Q_PROPERTY(QString notes READ notes WRITE setNotes NOTIFY notesChanged)

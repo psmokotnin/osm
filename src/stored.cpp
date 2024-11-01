@@ -24,7 +24,7 @@
 #include <QtEndian>
 #include "common/wavfile.h"
 
-Stored::Stored(QObject *parent) : Source::Abstract(parent), meta::Stored()
+Stored::Stored(QObject *parent) : Source::Abstract(parent), Meta::Stored()
 {
     setObjectName("Stored");
     connect(this, &Stored::polarityChanged, this, &Source::Abstract::readyRead);

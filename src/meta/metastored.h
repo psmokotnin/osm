@@ -21,7 +21,7 @@
 #include <QObject>
 #include "metabase.h"
 
-namespace meta {
+namespace Meta {
 
 class Stored : public Base
 {

@@ -18,7 +18,7 @@
 
 #include "metawindowing.h"
 
-namespace meta {
+namespace Meta {
 
 const std::map<Windowing::Mode, QString>Windowing::m_modeMap = {
     {Windowing::Mode::FFT8,  "FFT 8"},

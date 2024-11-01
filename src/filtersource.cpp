@@ -18,7 +18,7 @@
 #include "filtersource.h"
 #include "stored.h"
 
-FilterSource::FilterSource(QObject *parent) : Source::Abstract(parent), meta::Filter(), m_autoName(true)
+FilterSource::FilterSource(QObject *parent) : Source::Abstract(parent), Meta::Filter(), m_autoName(true)
 {
     setObjectName("Filter");
     setName("Filter");
@@ -74,7 +74,7 @@ void FilterSource::fromJSON(QJsonObject data, const SourceList *list) noexcept
 
     auto variantMode = data["mode"].toVariant();
     if (variantMode.isValid()) {
-        setMode(variantMode.value<meta::Measurement::Mode>());
+        setMode(variantMode.value<Meta::Measurement::Mode>());
     }
 
     auto variantType = data["type"].toVariant();
@@ -107,7 +107,7 @@ void FilterSource::update()
         m_inverse.setSampleRate(sampleRate());
 
         try {
-            using M = meta::Measurement;
+            using M = Meta::Measurement;
             switch (mode()) {
             case M::Mode::LFT:
                 m_dataFT.setType(FourierTransform::Log);

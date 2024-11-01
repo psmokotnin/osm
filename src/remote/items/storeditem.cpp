@@ -19,7 +19,7 @@
 
 namespace remote {
 
-StoredItem::StoredItem(QObject *parent) : Item(parent), meta::Stored()
+StoredItem::StoredItem(QObject *parent) : Item(parent), Meta::Stored()
 {
     setObjectName("RemoteStored");
 }

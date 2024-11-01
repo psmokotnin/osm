@@ -19,7 +19,7 @@
 
 namespace remote {
 
-MeasurementItem::MeasurementItem(QObject *parent) : Item(parent), meta::Measurement(),
+MeasurementItem::MeasurementItem(QObject *parent) : Item(parent), Meta::Measurement(),
     m_estimated(0), m_estimatedDelta(0)
 {
     setObjectName("RemoteMeasurement");

@@ -25,7 +25,7 @@
 #define SOURCE_WINDOWING_H
 
 
-class Windowing : public Source::Abstract, public meta::Windowing
+class Windowing : public Source::Abstract, public Meta::Windowing
 {
     Q_OBJECT
     QML_ELEMENT
@@ -36,8 +36,8 @@ class Windowing : public Source::Abstract, public meta::Windowing
     Q_PROPERTY(float maxFrequency READ maxFrequency WRITE setMaxFrequency NOTIFY maxFrequencyChanged)
     Q_PROPERTY(Source::Shared source READ source WRITE setSource NOTIFY sourceChanged)
     Q_PROPERTY(QUuid sourceId READ sourceId NOTIFY sourceChanged)
-    Q_PROPERTY(meta::Windowing::Mode mode READ mode WRITE setMode NOTIFY modeChanged)
-    Q_PROPERTY(meta::Windowing::SourceDomain domain READ domain WRITE setDomain NOTIFY domainChanged)
+    Q_PROPERTY(Meta::Windowing::Mode mode READ mode WRITE setMode NOTIFY modeChanged)
+    Q_PROPERTY(Meta::Windowing::SourceDomain domain READ domain WRITE setDomain NOTIFY domainChanged)
     Q_PROPERTY(QString tipName READ tipName WRITE setTipName NOTIFY tipNameChanged)
     Q_PROPERTY(WindowFunction::Type window READ windowFunctionType WRITE setWindowFunctionType NOTIFY
                windowFunctionTypeChanged)
@@ -74,8 +74,8 @@ signals:
     void offsetChanged(float) override;
     void minFrequencyChanged() override;
     void maxFrequencyChanged() override;
-    void modeChanged(meta::Windowing::Mode) override;
-    void domainChanged(meta::Windowing::SourceDomain) override;
+    void modeChanged(Meta::Windowing::Mode) override;
+    void domainChanged(Meta::Windowing::SourceDomain) override;
     void tipNameChanged(QString) override;
     void windowFunctionTypeChanged(WindowFunction::Type) override;
     void sourceChanged();

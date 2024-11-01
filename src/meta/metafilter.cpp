@@ -17,7 +17,7 @@
  */
 #include "metafilter.h"
 
-namespace meta {
+namespace Meta {
 
 const std::map<Filter::Type, QString>Filter::m_typeMap = {
     {Filter::ButterworthLPF, "Butterworth LPF"},

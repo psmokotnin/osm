@@ -17,7 +17,7 @@
  */
 #include "metastored.h"
 
-namespace meta {
+namespace Meta {
 
 Stored::Stored() : Base(),
     m_notes(), m_polarity(false), m_inverse(false),

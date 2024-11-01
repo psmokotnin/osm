@@ -23,7 +23,7 @@
 
 namespace remote {
 
-class GroupItem : public remote::Item, public meta::Group
+class GroupItem : public remote::Item, public Meta::Group
 {
     Q_OBJECT
     Q_PROPERTY(unsigned size READ size  NOTIFY sizeChanged)

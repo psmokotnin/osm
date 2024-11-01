@@ -21,7 +21,7 @@
 #include "sourcelist.h"
 #include "stored.h"
 
-Windowing::Windowing(QObject *parent) : Source::Abstract(parent), meta::Windowing(),
+Windowing::Windowing(QObject *parent) : Source::Abstract(parent), Meta::Windowing(),
     m_sampleRate(1), m_source(nullptr),
     m_window(WindowFunction::Type::Rectangular, this)
 {
@@ -87,8 +87,8 @@ void Windowing::fromJSON(QJsonObject data, const SourceList *list) noexcept
 {
     Source::Abstract::fromJSON(data, list);
 
-    setMode(static_cast<meta::Windowing::Mode>(data["mode"].toInt(mode())));
-    setDomain(static_cast<meta::Windowing::SourceDomain>(data["domain"].toInt(domain())));
+    setMode(static_cast<Meta::Windowing::Mode>(data["mode"].toInt(mode())));
+    setDomain(static_cast<Meta::Windowing::SourceDomain>(data["domain"].toInt(domain())));
     setOffset(data["offset"].toDouble(offset()));
     setWide(data["wide"].toDouble(wide()));
     setMinFrequency(data["minFrequency"].toDouble(minFrequency()));

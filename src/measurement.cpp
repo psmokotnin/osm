@@ -28,7 +28,7 @@
 #include "math/notch.h"
 #include "math/bandpass.h"
 
-Measurement::Measurement(QObject *parent) : Source::Abstract(parent), meta::Measurement(),
+Measurement::Measurement(QObject *parent) : Source::Abstract(parent), Meta::Measurement(),
     m_timer(nullptr), m_timerThread(nullptr),
     m_input(this),
     m_deviceId(audio::Client::defaultInputDeviceId()),

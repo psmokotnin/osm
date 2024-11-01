@@ -23,7 +23,7 @@
 
 namespace remote {
 
-class StoredItem : public remote::Item, public meta::Stored
+class StoredItem : public remote::Item, public Meta::Stored
 {
     Q_OBJECT
     Q_PROPERTY(QString notes READ notes WRITE setNotes NOTIFY notesChanged)

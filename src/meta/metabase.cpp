@@ -17,7 +17,7 @@
  */
 #include "metabase.h"
 
-namespace meta {
+namespace Meta {
 
 Base::Base()
 {

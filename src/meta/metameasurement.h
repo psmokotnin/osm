@@ -26,12 +26,12 @@
 #include "math/windowfunction.h"
 #include "source/source_abstract.h"
 
-namespace meta {
+namespace Meta {
 
 class Measurement : public Base
 {
     Q_GADGET
-    QML_ELEMENT
+    //QML_ELEMENT
     //Q_PROPERTY(InputFilter inputFilter READ inputFilter WRITE setInputFilter NOTIFY inputFilterChanged)
 
 public:
@@ -60,7 +60,7 @@ public:
     float offset() const;
     void setOffset(float newOffset);
 
-    meta::Measurement::Mode mode() const;
+    Meta::Measurement::Mode mode() const;
     void setMode(const Mode &mode);
     void setMode(QVariant mode);
     QString modeName() const;
@@ -71,7 +71,7 @@ public:
     unsigned int referenceChanel() const;
     void setReferenceChanel(unsigned int referenceChanel);
 
-    meta::Measurement::AverageType averageType() const;
+    Meta::Measurement::AverageType averageType() const;
     void setAverageType(const AverageType &averageType);
     void setAverageType(QVariant type);
 
@@ -92,8 +92,8 @@ public:
     unsigned int sampleRate() const;
     void setSampleRate(unsigned int sampleRate);
 
-    meta::Measurement::InputFilter inputFilter() const;
-    void setInputFilter(meta::Measurement::InputFilter inputFilter);
+    Meta::Measurement::InputFilter inputFilter() const;
+    void setInputFilter(Meta::Measurement::InputFilter inputFilter);
     void setInputFilter(QVariant inputFilter);
 
     Q_INVOKABLE virtual void resetAverage() noexcept = 0;
@@ -103,16 +103,16 @@ public:
     virtual void polarityChanged(bool) = 0;
     virtual void gainChanged(float)  = 0;
     virtual void offsetChanged(float) = 0;
-    virtual void modeChanged(meta::Measurement::Mode)  = 0;
+    virtual void modeChanged(Meta::Measurement::Mode)  = 0;
     virtual void averageChanged(unsigned int)  = 0;
     virtual void dataChanelChanged(unsigned int)  = 0;
     virtual void referenceChanelChanged(unsigned int)  = 0;
-    virtual void averageTypeChanged(meta::Measurement::AverageType)  = 0;
+    virtual void averageTypeChanged(Meta::Measurement::AverageType)  = 0;
     virtual void windowFunctionTypeChanged(WindowFunction::Type)  = 0;
     virtual void filtersFrequencyChanged(Filter::Frequency) = 0;
     virtual void delayChanged(int) = 0;
     virtual void sampleRateChanged(unsigned int) = 0;
-    virtual void inputFilterChanged(meta::Measurement::InputFilter) = 0;
+    virtual void inputFilterChanged(Meta::Measurement::InputFilter) = 0;
 
     static const std::map<Mode, QString> m_modeMap;
     static const std::map<InputFilter, QString> m_inputFilterMap;
@@ -127,7 +127,7 @@ protected:
     std::atomic<unsigned int> m_average;
     unsigned int m_sampleRate;
     Mode m_mode;
-    meta::Measurement::InputFilter m_inputFilter;
+    Meta::Measurement::InputFilter m_inputFilter;
     AverageType m_averageType;
     Filter::Frequency m_filtersFrequency;
     WindowFunction::Type m_windowFunctionType;

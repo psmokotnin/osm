@@ -17,7 +17,7 @@
  */
 #include "metameasurement.h"
 
-namespace meta {
+namespace Meta {
 
 const std::map<Measurement::Mode, QString>Measurement::m_modeMap = {
     {Measurement::FFT10, "10"},
@@ -59,9 +59,9 @@ Measurement::Measurement() : Base(),
     m_windowFunctionType(WindowFunction::Type::Hann)
 {
     qRegisterMetaType<Filter::Frequency>();
-    qRegisterMetaType<meta::Measurement::Mode>();
-    qRegisterMetaType<meta::Measurement::AverageType>();
-    qRegisterMetaType<meta::Measurement::InputFilter>();
+    qRegisterMetaType<Meta::Measurement::Mode>();
+    qRegisterMetaType<Meta::Measurement::AverageType>();
+    qRegisterMetaType<Meta::Measurement::InputFilter>();
     qRegisterMetaType<WindowFunction::Type>();
 }
 
@@ -277,7 +277,7 @@ void Measurement::setSampleRate(unsigned int sampleRate)
     }
 }
 
-meta::Measurement::Measurement::InputFilter Measurement::inputFilter() const
+Meta::Measurement::Measurement::InputFilter Measurement::inputFilter() const
 {
     return m_inputFilter;
 }

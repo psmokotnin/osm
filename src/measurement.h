@@ -39,7 +39,7 @@
 #include "common/settings.h"
 #include "container/circular.h"
 
-class Measurement : public Source::Abstract, public meta::Measurement
+class Measurement : public Source::Abstract, public Meta::Measurement
 {
     Q_OBJECT
 
@@ -52,8 +52,8 @@ class Measurement : public Source::Abstract, public meta::Measurement
                referenceChanelChanged)
     Q_PROPERTY(int delay READ delay WRITE setDelay NOTIFY delayChanged)
     Q_PROPERTY(int average READ average WRITE setAverage NOTIFY averageChanged)
-    Q_PROPERTY(meta::Measurement::Mode mode READ mode WRITE setMode NOTIFY modeChanged)
-    Q_PROPERTY(meta::Measurement::AverageType averageType READ averageType WRITE setAverageType NOTIFY averageTypeChanged)
+    Q_PROPERTY(Meta::Measurement::Mode mode READ mode WRITE setMode NOTIFY modeChanged)
+    Q_PROPERTY(Meta::Measurement::AverageType averageType READ averageType WRITE setAverageType NOTIFY averageTypeChanged)
     Q_PROPERTY(Filter::Frequency filtersFrequency READ filtersFrequency WRITE setFiltersFrequency NOTIFY
                filtersFrequencyChanged)
     Q_PROPERTY(WindowFunction::Type window READ windowFunctionType WRITE setWindowFunctionType NOTIFY
@@ -84,7 +84,7 @@ class Measurement : public Source::Abstract, public meta::Measurement
     Q_PROPERTY(bool calibrationLoaded READ calibrationLoaded NOTIFY calibrationLoadedChanged)
     Q_PROPERTY(bool calibration READ calibration WRITE setCalibration NOTIFY calibrationChanged)
 
-    Q_PROPERTY(meta::Measurement::InputFilter inputFilter READ inputFilter WRITE setInputFilter NOTIFY inputFilterChanged)
+    Q_PROPERTY(Meta::Measurement::InputFilter inputFilter READ inputFilter WRITE setInputFilter NOTIFY inputFilterChanged)
 
 public:
     explicit Measurement(QObject *parent = nullptr);
@@ -213,16 +213,16 @@ signals:
     void polarityChanged(bool) override;
     void gainChanged(float) override;
     void offsetChanged(float) override;
-    void modeChanged(meta::Measurement::Mode) override;
+    void modeChanged(Meta::Measurement::Mode) override;
     void averageChanged(unsigned int) override;
     void dataChanelChanged(unsigned int) override;
     void referenceChanelChanged(unsigned int) override;
-    void averageTypeChanged(meta::Measurement::AverageType) override;
+    void averageTypeChanged(Meta::Measurement::AverageType) override;
     void windowFunctionTypeChanged(WindowFunction::Type) override;
     void filtersFrequencyChanged(Filter::Frequency) override;
     void delayChanged(int) override;
     void sampleRateChanged(unsigned int) override;
-    void inputFilterChanged(meta::Measurement::InputFilter) override;
+    void inputFilterChanged(Meta::Measurement::InputFilter) override;
 };
 
 #endif // MEASUREMENT_H

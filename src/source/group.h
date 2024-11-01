@@ -28,7 +28,7 @@
 
 namespace Source {
 
-class Group : public Abstract, public meta::Group
+class Group : public Abstract, public Meta::Group
 {
     Q_OBJECT
     Q_PROPERTY(unsigned size READ size  NOTIFY sizeChanged)
