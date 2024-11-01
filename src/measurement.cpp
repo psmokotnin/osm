@@ -767,7 +767,14 @@ bool Measurement::loadCalibrationFile(const QUrl &fileName) noexcept
         if (!line.at(0).isDigit())
             continue;
 
-        QStringList row = line.split("\t");
+        QStringList row;
+        qDebug() << line.indexOf("\t")  << line.indexOf(",") ;
+        if (line.indexOf("\t") > 0) {
+            row = line.split("\t");
+        } else if (line.indexOf(",") > 0) {
+            row = line.split(",");
+        }
+
         float frequency = 0.f, gain = 0.f, phase = 0.f;
         if (row.size() > 0) frequency   = row[0].toFloat();
 
