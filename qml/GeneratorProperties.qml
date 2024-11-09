@@ -24,6 +24,9 @@ import Audio 1.0
 import "elements"
 
 Item {
+    id: control
+    property var currentGenerator : (remoteClient.controlledGenerator && remoteClient.controlledGenerator.data ? remoteClient.controlledGenerator.data : generatorModel)
+
     ColumnLayout {
         anchors.fill: parent
         spacing: 0
@@ -35,9 +38,9 @@ Item {
             DropDown {
                 id: type
                 implicitWidth: 140
-                currentIndex: generatorModel.type
+                currentIndex: control.currentGenerator.type
                 model: generatorModel.types
-                onCurrentIndexChanged: generatorModel.type = currentIndex
+                onCurrentIndexChanged: control.currentGenerator.type = currentIndex
 
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("signal type")
@@ -46,11 +49,11 @@ Item {
             SelectableSpinBox {
                 id: gainSpinBox
                 implicitWidth: 165
-                value: generatorModel.gain
+                value: control.currentGenerator.gain
                 from: -140
                 to: 0
                 editable: true
-                onValueChanged: generatorModel.gain = value
+                onValueChanged: control.currentGenerator.gain = value
                 textFromValue: function(value, locale) {
                     return Number(value) + "dB"
                 }
@@ -68,11 +71,11 @@ Item {
                 id: frequencySpinBox
                 implicitWidth: 165
                 visible: type.currentText == 'Sin' || type.currentText == 'SinBurst'
-                value: generatorModel.frequency
+                value: control.currentGenerator.frequency
                 from: 0
                 to: 192000
                 editable: true
-                onValueChanged: generatorModel.frequency = value
+                onValueChanged: control.currentGenerator.frequency = value
 
                 textFromValue: function(value, locale) {
                     return Number(value) + "Hz"
@@ -91,11 +94,11 @@ Item {
                 //id: sinSweepDuration
                 visible: type.currentText == 'SineSweep';
                 implicitWidth: 165
-                value: generatorModel.duration
+                value: control.currentGenerator.duration
                 from: 0.5
                 to: 60
                 units: "sec"
-                onValueChanged: generatorModel.duration = value
+                onValueChanged: control.currentGenerator.duration = value
                 tooltiptext: qsTr("duration")
             }
 
@@ -103,11 +106,11 @@ Item {
                 id: sinSweepStart
                 implicitWidth: 165
                 visible: type.currentText == 'SineSweep';
-                value: generatorModel.startFrequency
+                value: control.currentGenerator.startFrequency
                 from: 20
                 to: sinSweepEnd.value-1
                 editable: true
-                onValueChanged: generatorModel.startFrequency = value
+                onValueChanged: control.currentGenerator.startFrequency = value
 
                 textFromValue: function(value, locale) {
                     return Number(value) + "Hz"
@@ -126,11 +129,11 @@ Item {
                 id: sinSweepEnd
                 implicitWidth: 165
                 visible: type.currentText == 'SineSweep';
-                value: generatorModel.endFrequency
+                value: control.currentGenerator.endFrequency
                 from: sinSweepStart.value+1
                 to: 20000
                 editable: true
-                onValueChanged: generatorModel.endFrequency = value
+                onValueChanged: control.currentGenerator.endFrequency = value
 
                 textFromValue: function(value, locale) {
                     return Number(value) + "Hz"
@@ -162,16 +165,23 @@ Item {
                 onClicked: frequencySpinBox.value *= 2
             }
 
-            Label {
+            Item {
                 Layout.fillWidth: true
-                visible: type.currentText == 'M-Noise™';
-                text: qsTr(
-                    "<a style='color:%1' href=\"https://m-noise.org/\">M‑Noise</a> is a trademark of Meyer Sound Laboratories <br/>" +
-                    "Can be activated if only your audio interface works in 96kHz sample rate."
-                ).arg(Material.accentColor)
-                onLinkActivated: Qt.openUrlExternally(link)
-                textFormat: Text.RichText
-                horizontalAlignment: Text.AlignHCenter
+            }
+
+            DropDown {
+                id: selectTarget
+                enabled: !control.currentGenerator.enabled
+                model: remoteClient.generatorsList
+                currentIndex: remoteClient.generatorsList.indexOf(
+                              remoteClient.controlledGenerator && remoteClient.controlledGenerator.data ? remoteClient.controlledGenerator.data.host : "Local"
+                            )
+                onCurrentValueChanged: remoteClient.selectGenerator(currentValue)
+
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("signal type")
+
+                Layout.preferredWidth: 240
             }
         }
 
@@ -184,6 +194,7 @@ Item {
                 }
                 textRole: "name"
                 valueRole: "id"
+                enabled: selectTarget.currentIndex === 0
 
                 Layout.fillWidth: true
                 currentIndex: model.indexOf(generatorModel.deviceId)
@@ -209,8 +220,9 @@ Item {
             Button {
                 text: "even inv"
                 checkable: true
+                enabled: selectTarget.currentIndex === 0
                 checked: generatorModel.evenPolarity
-                onCheckedChanged: generatorModel.evenPolarity = checked
+                onCheckedChanged: control.currentGenerator.evenPolarity = checked
                 Material.background: parent.Material.background
 
                 ToolTip.visible: hovered
@@ -221,6 +233,7 @@ Item {
                 id: selectChannels
                 tooltip: qsTr("show only selected sources")
                 dataObject: generatorModel
+                enabled: selectTarget.currentIndex === 0
                 Layout.preferredWidth: 240
             }
         }

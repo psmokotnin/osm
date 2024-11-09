@@ -24,6 +24,7 @@
 #include "source/group.h"
 
 class SourceList;
+class Generator;
 namespace Source {
 class Abstract;
 }
@@ -35,10 +36,11 @@ class Server : public QObject
     Q_OBJECT
     Q_PROPERTY(bool active READ active WRITE setActive NOTIFY activeChanged)
     Q_PROPERTY(QString lastConnected READ lastConnected NOTIFY lastConnectedChanged)
+    Q_PROPERTY(bool generatorEnable READ generatorEnable WRITE setGeneratorEnable NOTIFY generatorEnableChanged)
     const static int TIMER_INTERVAL = 1000;
 
 public:
-    explicit Server(QObject *parent = nullptr);
+    explicit Server(std::shared_ptr<Generator> generator, QObject *parent = nullptr);
     ~Server();
 
     void setSourceList(SourceList *list);
@@ -52,12 +54,17 @@ public:
     QByteArray tcpCallback(const QHostAddress &&address, const QByteArray &&data);
     QString lastConnected() const;
 
+    bool generatorEnable() const;
+    void setGeneratorEnable(bool newGeneratorEnable);
+
 signals:
     void activeChanged();
     void lastConnectedChanged();
+    void generatorEnableChanged();
 
 public slots:
     void sendSouceNotify();
+    void sendGeneratorNotify();
 
 private slots:
     void sendHello();
@@ -75,6 +82,8 @@ private:
     QThread m_networkThread;
     Network m_network;
     SourceList *m_sourceList;//TODO PTR
+    std::shared_ptr<Generator> m_generator;
+    bool m_generatorEnable;
 };
 
 } // namespace remote

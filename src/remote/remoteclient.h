@@ -22,15 +22,22 @@
 #include <QList>
 #include "network.h"
 #include "settings.h"
+#include "remote/generatorremote.h"
 
 class SourceList;
+class Generator;
 namespace remote {
 
 class Item;
+class GeneratorRemote;
+
 class Client : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(bool active READ active WRITE setActive NOTIFY activeChanged)
+    Q_PROPERTY(QStringList generatorsList READ generatorsList NOTIFY generatorsListChanged)
+    Q_PROPERTY(SharedGeneratorRemote controlledGenerator READ controlledGenerator NOTIFY controlledGeneratorChanged)
+
     const static int TIMER_INTERVAL = 250;
 
 public:
@@ -46,6 +53,12 @@ public:
 
     Q_INVOKABLE void reset();
 
+    QStringList generatorsList() const;
+    Q_INVOKABLE void selectGenerator(const QString &name);
+
+    SharedGeneratorRemote controlledGenerator() const;
+    void setControlledGenerator(const SharedGeneratorRemote &newControlledGenerator);
+
 public slots:
     void processData(QHostAddress senderAddress, int senderPort, const QByteArray &data);
 
@@ -55,6 +68,8 @@ signals:
     void dataReceived(const uint hash, const QJsonArray &data, const QJsonArray &timeData);
     void newRemoteItem(const QUuid &serverId, const QUuid &sourceId, const QString &objectName,
                        const QString &host, const QUuid groupId);
+    void generatorsListChanged();
+    void controlledGeneratorChanged();
 
 private slots:
     void sendRequests();
@@ -66,10 +81,14 @@ private slots:
 private:
     std::shared_ptr<Item> addItem(const QUuid &serverId, const QUuid &sourceId, const QString &objectName,
                                   const QString &host, const QUuid groupId = {});
-    void sendUpdate(const std::shared_ptr<Item> &item, QString propertyName);
     void requestChanged(const std::shared_ptr<Item> &item);
+    void requestGenearatorChanged(const SharedGeneratorRemote &genearator);
     void requestData(const std::shared_ptr<Item> &item);
-    void requestSource(const std::shared_ptr<Item> &item, const QString &message, Network::responseCallback callback,
+
+    template <typename ItemType>
+    void sendUpdate(const std::shared_ptr<ItemType> &item, QString propertyName);
+    template <typename ItemType>
+    void requestSource(const std::shared_ptr<ItemType> &item, const QString &message, Network::responseCallback callback,
                        Network::errorCallback errorCallback = 0, QJsonObject itemData = {});
 
     Network m_network;
@@ -79,6 +98,9 @@ private:
     SourceList *m_sourceList;
     QMap<unsigned int, std::pair<QHostAddress, int>> m_servers;
     QMap<unsigned int, std::shared_ptr<Item>> m_items;
+
+    QMap<unsigned int, SharedGeneratorRemote> m_generators;
+    SharedGeneratorRemote             m_controlledGenerator;
 
     std::atomic<bool> m_onRequest;
     typedef unsigned long UpdateKey;

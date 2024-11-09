@@ -19,76 +19,128 @@ import QtQuick 2.7
 import QtQuick.Window 2.2
 import QtQuick.Controls 2.2
 import QtQuick.Layouts 1.12
+import QtQuick.Controls.Material 2.2
 import "elements"
 
 Item {
-    height: 40
+    property bool remoteControlled : remoteClient.controlledGenerator && remoteClient.controlledGenerator.data
+    property var currentGenerator : (remoteClient.controlledGenerator && remoteClient.controlledGenerator.data ? remoteClient.controlledGenerator.data : generatorModel)
+
+
+    height: remoteControlled ? 40 : 57
     width: parent.width
 
-    RowLayout {
+    ColumnLayout {
         anchors.fill: parent
         anchors.rightMargin: 10
-        spacing: 0
 
-        Switch {
-            Layout.alignment: Qt.AlignCenter
+        RowLayout {
+            spacing: 0
+            Layout.preferredHeight: 40
 
-            checked: generatorModel.enabled
-            onCheckedChanged: generatorModel.enabled = checked
-        }
+            Switch {
+                id: onoff
+                Layout.alignment: Qt.AlignCenter
 
-        Label {
-            id: label
-            Layout.alignment: Qt.AlignCenter
-            text:  qsTr("Generator")
-
-            PropertiesOpener {
-               propertiesQml: "qrc:/GeneratorProperties.qml"
-               onClicked: {
-                   open();
-               }
+                checked: currentGenerator.enabled
+                onCheckedChanged: currentGenerator.enabled = checked
             }
-        }
 
-        Rectangle {
-            width: 15
-            height: label.implicitHeight
-            color: "transparent"
-            Layout.fillWidth: true
-            Layout.alignment: Qt.AlignCenter
-        }
+            Label {
+                id: label
+                Layout.alignment: Qt.AlignCenter
+                text:  qsTr("Generator")
 
-        FloatSpinBox {
-            id: gainSpinBox
-            value: generatorModel.gain
-            onValueChanged: generatorModel.gain = value
-            Layout.alignment: Qt.AlignCenter
-
-            decimals: 0
-            from: -90
-            step: 1
-            to: 0
-            units: "dB"
-
-            editable: true
-            indicators: false
-            background: false
-
-            width: 45
-            bottomPadding: 8
-            fontSize: label.font.pixelSize
-
-            Connections {
-                target: generatorModel
-                function onGainChanged() {
-                    gainSpinBox.value = generatorModel.gain;
+                PropertiesOpener {
+                   propertiesQml: "qrc:/GeneratorProperties.qml"
+                   onClicked: {
+                       open();
+                   }
                 }
             }
+
+            Rectangle {
+                width: 15
+                height: label.implicitHeight
+                color: "transparent"
+                Layout.fillWidth: true
+                Layout.alignment: Qt.AlignCenter
+            }
+
+            FloatSpinBox {
+                id: gainSpinBox
+                value: currentGenerator.gain
+                onValueChanged: currentGenerator.gain = value
+                Layout.alignment: Qt.AlignCenter
+
+                decimals: 0
+                from: -90
+                step: 1
+                to: 0
+                units: "dB"
+
+                editable: true
+                indicators: false
+                background: false
+
+                width: 45
+                bottomPadding: 8
+                fontSize: label.font.pixelSize
+
+                Connections {
+                    target: currentGenerator
+                    function onGainChanged() {
+                        gainSpinBox.value = currentGenerator.gain;
+                    }
+                }
+            }
+
+            Shortcut {
+                sequence: "Ctrl+G"
+                onActivated: currentGenerator.enabled = !currentGenerator.enabled;
+            }
         }
 
-        Shortcut {
-            sequence: "Ctrl+G"
-            onActivated: generatorModel.enabled = !generatorModel.enabled;
+        RowLayout {
+            enabled: remoteControlled
+            visible: remoteControlled
+
+            Item {
+                Layout.preferredWidth: 42
+            }
+
+            Rectangle {
+                id: indicator
+                width: 7
+                height: width
+                radius: width /2
+                color: updateColor()
+                function updateColor() {
+                    if (remoteControlled && currentGenerator) {
+                        switch(currentGenerator.state) {
+                            case 1:
+                                return Material.color(Material.Red);
+                            case 2:
+                                return Material.color(Material.Green);
+                        }
+                    }
+                    //error or unknown state
+                    return Material.color(Material.Red);
+                }
+                Connections {
+                    target: remoteControlled ? currentGenerator : null
+                    function onStateChanged() {
+                        color = indicator.updateColor();
+                    }
+                }
+            }
+
+            Label {
+                Layout.fillWidth: true
+                font.pixelSize: 10
+                text:  (remoteControlled && currentGenerator ? "@" + currentGenerator.host : "")
+            }
         }
+
     }
 }

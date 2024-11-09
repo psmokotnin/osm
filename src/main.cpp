@@ -85,7 +85,7 @@ int main(int argc, char *argv[])
     Settings settings;
     Appearance appearence(&settings);
     audio::Client::getInstance();
-    Generator g(settings.getGroup("generator"));
+    auto generator = std::make_shared<Generator>(settings.getGroup("generator"));
     SourceList sourceList;
     AutoSaver autoSaver(settings.getGroup("autosaver"), &sourceList);
     auto t = new TargetTrace(settings.getGroup("targettrace"));
@@ -93,7 +93,7 @@ int main(int argc, char *argv[])
 
     auto client = remote::Client(settings.getGroup("apiClient"));
     client.setSourceList(&sourceList);
-    auto server = remote::Server(&sourceList);
+    auto server = remote::Server(generator, &sourceList);
     server.setSourceList(&sourceList);
 
     qmlRegisterType<audio::DeviceModel>("Audio", 1, 0, "DeviceModel");
@@ -126,9 +126,10 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("applicationSettings", &settings);
     engine.rootContext()->setContextProperty("applicationAppearance", &appearence);
     engine.rootContext()->setContextProperty("sourceList", &sourceList);
-    engine.rootContext()->setContextProperty("generatorModel", &g);
+    engine.rootContext()->setContextProperty("generatorModel", generator.get());
     engine.rootContext()->setContextProperty("targetTraceModel", t);
     engine.rootContext()->setContextProperty("notifier", notifier);
+
     engine.rootContext()->setContextProperty("autoSaver", &autoSaver);
 
     engine.rootContext()->setContextProperty("remoteServer", &server);

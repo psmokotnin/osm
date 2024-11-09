@@ -63,6 +63,7 @@ SOURCES += src/main.cpp \
     src/meta/metastored.cpp \
     src/meta/metawindowing.cpp \
     src/metertablemodel.cpp \
+    src/remote/generatorremote.cpp \
     src/remote/item.cpp \
     src/remote/items/groupitem.cpp \
     src/remote/items/measurementitem.cpp \
@@ -206,6 +207,7 @@ HEADERS += \
     src/meta/metastored.h \
     src/meta/metawindowing.h \
     src/metertablemodel.h \
+    src/remote/generatorremote.h \
     src/remote/item.h \
     src/remote/items/groupitem.h \
     src/remote/items/measurementitem.h \

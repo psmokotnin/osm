@@ -16,14 +16,16 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "sourcelist.h"
+#include "generator.h"
 #include "meta/metabase.h"
 #include "remote/server.h"
 #include "remote/item.h"
 
 namespace remote {
 
-Server::Server(QObject *parent) : QObject(parent),
-    m_uuid(QUuid::createUuid()), m_networkThread(), m_network(), m_sourceList(nullptr)
+Server::Server(std::shared_ptr<Generator> generator, QObject *parent) : QObject(parent),
+    m_uuid(QUuid::createUuid()), m_networkThread(), m_network(), m_sourceList(nullptr),
+    m_generator(generator), m_generatorEnable(false)
 {
     m_network.moveToThread(&m_networkThread);
     m_timer.moveToThread(&m_networkThread);
@@ -42,6 +44,17 @@ Server::Server(QObject *parent) : QObject(parent),
     m_network.setTcpCallback([this] (const QHostAddress && address, const QByteArray && data) -> QByteArray {
         return tcpCallback(std::move(address), std::move(data));
     });
+
+    for (int i = 0 ; i < m_generator->metaObject()->propertyCount(); ++i) {
+        auto property = m_generator->metaObject()->property(i);
+        auto signal = property.notifySignal();
+        auto revision = property.revision();
+        auto normalizedSignature = QMetaObject::normalizedSignature("sendGeneratorNotify()");
+        auto slotId = metaObject()->indexOfMethod(normalizedSignature);
+        if (signal.isValid() && revision != NO_API_REVISION) {
+            connect(m_generator.get(), signal, this, metaObject()->method(slotId));
+        }
+    }
 }
 
 Server::~Server()
@@ -108,6 +121,19 @@ void Server::connectSourceList(SourceList *list, const Source::Shared &group)
     });
 }
 
+bool Server::generatorEnable() const
+{
+    return m_generatorEnable;
+}
+
+void Server::setGeneratorEnable(bool newGeneratorEnable)
+{
+    if (m_generatorEnable == newGeneratorEnable)
+        return;
+    m_generatorEnable = newGeneratorEnable;
+    emit generatorEnableChanged();
+}
+
 bool Server::start()
 {
     m_networkThread.start();
@@ -161,6 +187,16 @@ void Server::sendSouceNotify()
     }
 }
 
+void Server::sendGeneratorNotify()
+{
+    auto object          = prepareMessage("generator_changed");
+    object["generator"]  = m_generator->uuid().toString();
+    object["objectName"] = m_generator->objectName();
+    object["data"]       = QJsonValue();
+    QJsonDocument document(std::move(object));
+    sendMulticast(document.toJson(QJsonDocument::JsonFormat::Compact));
+}
+
 void Server::setLastConnected(const QString &lastConnected)
 {
     if (m_lastConnected != lastConnected) {
@@ -183,64 +219,71 @@ QByteArray Server::tcpCallback([[maybe_unused]] const QHostAddress &&address, co
     auto message = document["message"].toString();
     auto sourceId = QUuid::fromString(document["uuid"].toString());
     auto source = m_sourceList->getByUUid(sourceId);
+    QObject *targetQObject = nullptr;
+    if (source) {
+        targetQObject = source.get();
+    } else if (document["objectName"].toString() == "GeneratorRemote" && sourceId == m_generator->uuid()) {
+        targetQObject = m_generator.get();
+    }
     setLastConnected(document["name"].toString());
 
-    if (!source) {
+    if (!targetQObject) {
         QJsonObject object;
         object["api"]     = "Open Sound Meter";
         object["version"] = APP_GIT_VERSION;
         object["message"] = "error";
         object["string"]  = "source not found";
-
         QJsonDocument document(std::move(object));
         return document.toJson(QJsonDocument::JsonFormat::Compact);
     }
 
-    if (message == "requestChanged") {
+    if (targetQObject && message == "requestChanged") {
         QJsonObject object;
         object["api"]     = "Open Sound Meter";
         object["version"] = APP_GIT_VERSION;
         object["message"] = "sourceSettings";
-        object["uuid"]    = source->uuid().toString();
+        object["uuid"]    = sourceId.toString();
 
-        for (int i = 0 ; i < source->metaObject()->propertyCount(); ++i) {
-            auto property = source->metaObject()->property(i);
+        for (int i = 0 ; i < targetQObject->metaObject()->propertyCount(); ++i) {
+            auto property = targetQObject->metaObject()->property(i);
 
             switch (static_cast<int>(property.type())) {
 
             case QVariant::Type::Bool:
-                object[property.name()]  = property.read(source.get()).toBool();
+                object[property.name()]  = property.read(targetQObject).toBool();
                 break;
 
             case QVariant::Type::UInt:
             case QVariant::Type::Int:
             case QMetaType::Long:
-                object[property.name()]  = property.read(source.get()).toInt();
+                object[property.name()]  = property.read(targetQObject).toInt();
                 break;
 
             case QMetaType::Float:
-                object[property.name()]  = property.read(source.get()).toFloat();
+                object[property.name()]  = property.read(targetQObject).toFloat();
                 break;
 
             case QVariant::Type::Double:
-                object[property.name()]  = property.read(source.get()).toDouble();
+                object[property.name()]  = property.read(targetQObject).toDouble();
                 break;
 
             case QVariant::Type::String:
-                object[property.name()]  = property.read(source.get()).toString();
+                object[property.name()]  = property.read(targetQObject).toString();
                 break;
 
             case QVariant::Type::Color: {
                 QJsonObject color;
-                color["red"]     = source->color().red();
-                color["green"]   = source->color().green();
-                color["blue"]    = source->color().blue();
-                color["alpha"]   = source->color().alpha();
+                if (source) {
+                    color["red"]     = source->color().red();
+                    color["green"]   = source->color().green();
+                    color["blue"]    = source->color().blue();
+                    color["alpha"]   = source->color().alpha();
+                }
                 object[property.name()]  = color;
                 break;
             }
             case QVariant::Type::UserType: {
-                object[property.name()] = property.read(source.get()).toInt();
+                object[property.name()] = property.read(targetQObject).toInt();
             }
             default:
                 ;
@@ -265,16 +308,16 @@ QByteArray Server::tcpCallback([[maybe_unused]] const QHostAddress &&address, co
         return document.toJson(QJsonDocument::JsonFormat::Compact);
     }
 
-    if (message == "update") {
+    if (targetQObject && message == "update") {
         QJsonObject object;
         object["api"]     = "Open Sound Meter";
         object["version"] = APP_GIT_VERSION;
         object["message"] = "updated";
-        object["uuid"]    = source->uuid().toString();
+        object["uuid"]    = sourceId.toString();
 
         auto itemData = document["data"].toObject();
 
-        auto metaObject = source->metaObject();
+        auto metaObject = targetQObject->metaObject();
         for (auto &field : itemData.keys()) {
 
             if (field == "objectName" || field == "active") {
@@ -289,23 +332,23 @@ QByteArray Server::tcpCallback([[maybe_unused]] const QHostAddress &&address, co
 
             switch (static_cast<int>(property.type())) {
             case QVariant::Type::Bool:
-                property.write(source.get(), itemData[field].toBool());
+                property.write(targetQObject, itemData[field].toBool());
                 break;
 
             case QVariant::Type::UInt:
             case QVariant::Type::Int:
             case QMetaType::Long:
-                property.write(source.get(), itemData[field].toInt());
+                property.write(targetQObject, itemData[field].toInt());
                 break;
 
 
             case QMetaType::Float:
             case QVariant::Type::Double:
-                property.write(source.get(), itemData[field].toDouble());
+                property.write(targetQObject, itemData[field].toDouble());
                 break;
 
             case QVariant::Type::String:
-                property.write(source.get(), itemData[field].toString());
+                property.write(targetQObject, itemData[field].toString());
                 break;
 
             case QVariant::Type::Color: {
@@ -315,11 +358,11 @@ QByteArray Server::tcpCallback([[maybe_unused]] const QHostAddress &&address, co
                     colorObject["green"].toInt(0),
                     colorObject["blue" ].toInt(0),
                     colorObject["alpha"].toInt(1));
-                property.write(source.get(), color);
+                property.write(targetQObject, color);
                 break;
             }
             case QVariant::Type::UserType:
-                property.write(source.get(), itemData[field].toInt());
+                property.write(targetQObject, itemData[field].toInt());
                 break;
             default:
                 ;
@@ -329,7 +372,7 @@ QByteArray Server::tcpCallback([[maybe_unused]] const QHostAddress &&address, co
         return document.toJson(QJsonDocument::JsonFormat::Compact);
     }
 
-    if (message == "requestData") {
+    if (source && message == "requestData") {
         QJsonObject object;
         object["api"]     = "Open Sound Meter";
         object["version"] = APP_GIT_VERSION;
@@ -373,7 +416,7 @@ QByteArray Server::tcpCallback([[maybe_unused]] const QHostAddress &&address, co
         return document.toJson(QJsonDocument::JsonFormat::Compact);
     }
 
-    if (message == "command") {
+    if (source && message == "command") {
         auto itemData = document["data"].toObject();
         auto name = itemData["name"].toString();
         auto argType = itemData["argType"].toString();
@@ -463,6 +506,7 @@ void Server::sendHello()
     }
 
     object["sources"] = sources;
+    object["generator"] = (generatorEnable() ? m_generator->uuid().toString() : "disable");
     QJsonDocument document(std::move(object));
     QByteArray data = document.toJson(QJsonDocument::JsonFormat::Compact);
     QMetaObject::invokeMethod(

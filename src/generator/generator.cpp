@@ -18,7 +18,7 @@
 #include "generator.h"
 
 Generator::Generator(Settings *settings, QObject *parent) : QObject(parent),
-    m_thread(parent), m_settings(settings)
+    m_thread(parent), m_settings(settings), m_uuid(QUuid::createUuid())
 {
     QMetaObject::invokeMethod(&m_thread, "init", Qt::QueuedConnection);
 
@@ -145,6 +145,11 @@ void Generator::setEvenPolarity(bool newevenPolarity)
         Qt::QueuedConnection,
         Q_ARG(bool, newevenPolarity)
     );
+}
+
+QUuid Generator::uuid() const
+{
+    return m_uuid;
 }
 
 void Generator::setEnabled(bool enabled)

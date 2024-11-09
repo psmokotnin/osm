@@ -20,6 +20,7 @@
 
 #include <QObject>
 #include <QDebug>
+#include <QUuid>
 
 #include "generatorthread.h"
 #include "sinsweep.h"
@@ -118,6 +119,8 @@ public:
     bool evenPolarity() const;
     void setEvenPolarity(bool newevenPolarity);
 
+    QUuid uuid() const;
+
 signals:
     void enabledChanged(bool);
     void typeChanged();
@@ -130,6 +133,12 @@ signals:
     void channelsChanged(QSet<int>);
     void channelsChangedQList(QList<QVariant>);
     void evenPolarityChanged(bool);
+
+    //to support remote controller in qml needs to be defined, not used:
+    void stateChanged();
+
+private:
+    QUuid m_uuid;
 };
 
 #endif // GENERATOR_H

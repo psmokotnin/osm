@@ -24,7 +24,8 @@
 
 namespace remote {
 
-Client::Client(Settings *settings, QObject *parent) : QObject(parent), m_network(),
+Client::Client(Settings *settings, QObject *parent) : QObject(parent),
+    m_network(),
     m_settings(settings),
     m_thread(), m_timer(),
     m_sourceList(nullptr), m_servers(), m_items(), m_onRequest(false), m_updateCounter(0), m_needUpdate()
@@ -97,6 +98,29 @@ void Client::reset()
     if (restart) {
         start();
     }
+}
+
+QStringList Client::generatorsList() const
+{
+    QStringList list;
+    list << "Local";
+    for (auto &&generator : m_generators) {
+        if (generator) {
+            list << generator->host();
+        }
+    }
+    return list;
+}
+
+void Client::selectGenerator(const QString &name)
+{
+    for (auto &&generator : m_generators) {
+        if (generator && (generator->host() == name)) {
+            setControlledGenerator( generator );
+            return;
+        }
+    }
+    setControlledGenerator({});
 }
 
 void Client::sendRequests()
@@ -207,7 +231,8 @@ std::shared_ptr<Item> Client::addItem(const QUuid &serverId, const QUuid &source
     return item;
 }
 
-void Client::sendUpdate(const std::shared_ptr<Item> &item, QString propertyName)
+template <typename ItemType>
+void Client::sendUpdate(const std::shared_ptr<ItemType> &item, QString propertyName)
 {
     Network::responseCallback onAnswer = [](const QByteArray &) {};
 
@@ -243,6 +268,31 @@ void Client::processData(QHostAddress senderAddress, [[maybe_unused]] int sender
                     appendItem(serverId, sourceUuid, sourceObjectName, host);
                 }
             }
+        }
+
+        auto generatorUuid = QUuid::fromString(document["generator"].toString());
+        if (!generatorUuid.isNull()) {
+            if (m_generators.find(qHash(serverId)) == m_generators.end() ) {
+                auto generator = std::make_shared<GeneratorRemote>(this);
+                generator->setServerId(serverId);
+                generator->setSourceId(generatorUuid);
+                generator->setHost(host);
+
+                connect(this, &Client::dataError,    generator.get(), &GeneratorRemote::dataError);
+
+                connect(generator.get(), &GeneratorRemote::localChanged, this, [ = ](QString propertyName) {
+                    sendUpdate(generator, propertyName);
+                });
+
+                generator->connectProperties();
+                m_generators[qHash(serverId)] = generator;
+                emit generatorsListChanged();
+            } else {
+                m_generators[qHash(serverId)]->setState(GeneratorRemote::AVAILABLE);
+            }
+        } else if (m_generators.find(qHash(serverId)) != m_generators.end() ) {
+            m_generators.remove(qHash(serverId));
+            emit generatorsListChanged();
         }
 
         return;
@@ -282,6 +332,12 @@ void Client::processData(QHostAddress senderAddress, [[maybe_unused]] int sender
             item->setLevels(document["data"].toObject());
         }
         return;
+    }
+
+    if (document["message"].toString() == "generator_changed") {
+        if (m_generators.find(qHash(serverId)) != m_generators.end() ) {
+            requestGenearatorChanged(m_generators[qHash(serverId)]);
+        }
     }
 }
 
@@ -375,6 +431,70 @@ void Client::requestChanged(const std::shared_ptr<Item> &item)
     requestSource(item, "requestChanged", onAnswer, {});
 }
 
+void Client::requestGenearatorChanged(const SharedGeneratorRemote &genearator)
+{
+    Network::responseCallback onAnswer = [genearator, this](const QByteArray & data) {
+        auto document = QJsonDocument::fromJson(data).object();
+        genearator->setEventSilence(true);
+
+        auto metaObject = genearator->metaObject();
+        for (auto &field : document.keys()) {
+
+            if (field == "objectName") {
+                continue;
+            }
+
+            auto index = metaObject->indexOfProperty(field.toStdString().c_str());
+            if (index == -1) {
+                continue;
+            }
+            auto property = metaObject->property(index);
+
+            switch (static_cast<int>(property.type())) {
+            case QVariant::Type::Bool:
+                property.write(genearator.get(), document[field].toBool());
+                break;
+
+            case QVariant::Type::UInt:
+            case QVariant::Type::Int:
+            case QMetaType::Long:
+                property.write(genearator.get(), document[field].toInt());
+                break;
+
+
+            case QMetaType::Float:
+            case QVariant::Type::Double:
+                property.write(genearator.get(), document[field].toDouble());
+                break;
+
+            case QVariant::Type::String:
+                property.write(genearator.get(), document[field].toString());
+                break;
+
+            case QVariant::Type::Color: {
+                auto colorObject = document[field].toObject();
+                QColor color(
+                    colorObject["red"  ].toInt(0),
+                    colorObject["green"].toInt(0),
+                    colorObject["blue" ].toInt(0),
+                    colorObject["alpha"].toInt(1));
+                property.write(genearator.get(), color);
+                break;
+            }
+            case QVariant::Type::UserType: {
+                property.write(genearator.get(), document[field].toInt());
+                break;
+            }
+            default:
+                ;
+            }
+        }
+
+        genearator->setEventSilence(false);
+    };
+    requestSource(genearator, "requestChanged", onAnswer, {});
+}
+
 void Client::requestData(const std::shared_ptr<Item> &item)
 {
     if (!item) {
@@ -403,7 +523,8 @@ void Client::requestData(const std::shared_ptr<Item> &item)
     requestSource(item, "requestData", onAnswer, onError);
 }
 
-void Client::requestSource(const std::shared_ptr<Item> &item, const QString &message,
+template <typename ItemType>
+void Client::requestSource(const std::shared_ptr<ItemType> &item, const QString &message,
                            Network::responseCallback callback,
                            Network::errorCallback errorCallback, QJsonObject itemData)
 {
@@ -417,6 +538,7 @@ void Client::requestSource(const std::shared_ptr<Item> &item, const QString &mes
     object["version"] = APP_GIT_VERSION;
     object["message"] = message;
     object["uuid"] = item->sourceId().toString();
+    object["objectName"] = item->objectName();
     object["data"] = itemData;
 
     QJsonDocument document(std::move(object));
@@ -437,6 +559,19 @@ void Client::requestSource(const std::shared_ptr<Item> &item, const QString &mes
         Q_ARG(quint16, server.second),
         Q_ARG(remote::Network::responseErrorCallbacks, callbacks)
     );
+}
+
+SharedGeneratorRemote Client::controlledGenerator() const
+{
+    return m_controlledGenerator;
+}
+
+void Client::setControlledGenerator(const SharedGeneratorRemote &newControlledGenerator)
+{
+    if (m_controlledGenerator == newControlledGenerator)
+        return;
+    m_controlledGenerator = newControlledGenerator;
+    emit controlledGeneratorChanged();
 }
 
 } // namespace remote

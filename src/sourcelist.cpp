@@ -72,7 +72,6 @@ void SourceList::appendItemsFrom(const SourceList *list, QUuid filter, bool unro
     }
 
     connect(list, &SourceList::preItemRemoved, this, [ this ](auto uuid) {
-        qDebug() << "connected preItemRemoved" << uuid;
         removeItem(uuid, false);
     });
     connect(list, &SourceList::postItemAppended, this, [ this ](auto item) {

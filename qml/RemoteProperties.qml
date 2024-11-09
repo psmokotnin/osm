@@ -38,6 +38,18 @@ Item {
                 }
             }
 
+            Button {
+                checkable: true
+                text: qsTr("Generator")
+                checked: remoteServer.generatorEnable
+                Material.background: parent.Material.background
+                onCheckedChanged: {
+                    remoteServer.generatorEnable = checked;
+                }
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("enable for remote")
+            }
+
             Label {
                 Layout.fillWidth: true
                 text: remoteServer.lastConnected ? "Last connected client: <b>" + remoteServer.lastConnected + "</b>" : ""
