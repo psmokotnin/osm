@@ -18,6 +18,7 @@
 #ifndef REMOTE_GENERATORREMOTE_H
 #define REMOTE_GENERATORREMOTE_H
 
+#include <memory>
 #include <QObject>
 #include <QUuid>
 #include <QTimer>

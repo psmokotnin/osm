@@ -284,13 +284,20 @@ bool AlsaPCMDevice::start()
     checkCall(snd_pcm_hw_params_set_format(pcm.handle, hw, SND_PCM_FORMAT_FLOAT_LE), false);
     checkCall(snd_pcm_hw_params_set_channels(pcm.handle, hw, streamFormat.channelCount), false);
     checkCall(snd_pcm_hw_params_set_rate_near(pcm.handle, hw, &sr, 0), false);
-    checkCall(snd_pcm_hw_params_set_buffer_size(pcm.handle, hw, ALSA_BUFFER_SIZE), false);
+
+    snd_pcm_uframes_t bufferSize = ALSA_BUFFER_SIZE;
+    snd_pcm_uframes_t periodSize = ALSA_PERIOD_SIZE;
+    checkCall(snd_pcm_hw_params_set_buffer_size_near(pcm.handle, hw, &bufferSize), false);
+    checkCall(snd_pcm_hw_params_set_period_size_near(pcm.handle, hw, &periodSize, 0), false);
+
+    checkCall(snd_pcm_hw_params_get_buffer_size(hw, &bufferSize), false);
+    checkCall(snd_pcm_hw_params_get_period_size(hw, &periodSize, 0), false);
+
     checkCall(snd_pcm_hw_params(pcm.handle, hw), false);
 
     streamFormat.sampleRate = sr;
     snd_pcm_sw_params_t *sw;
     snd_pcm_sw_params_alloca(&sw);
-    snd_pcm_uframes_t periodSize = ALSA_PERIOD_SIZE;
     checkCall(snd_pcm_sw_params_current(pcm.handle, sw), false);
     checkCall(snd_pcm_sw_params_set_avail_min(pcm.handle, sw, periodSize), false);
     checkCall(snd_pcm_sw_params_set_start_threshold(pcm.handle, sw, periodSize), false);
