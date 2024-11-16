@@ -222,7 +222,8 @@ QByteArray Server::tcpCallback([[maybe_unused]] const QHostAddress &&address, co
     QObject *targetQObject = nullptr;
     if (source) {
         targetQObject = source.get();
-    } else if (document["objectName"].toString() == "GeneratorRemote" && sourceId == m_generator->uuid()) {
+    } else if (document["objectName"].toString() == "GeneratorRemote" && sourceId == m_generator->uuid()
+               && generatorEnable()) {
         targetQObject = m_generator.get();
     }
     setLastConnected(document["name"].toString());
