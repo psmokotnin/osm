@@ -718,8 +718,9 @@ QJsonObject Union::toJSON(const SourceList *list) const noexcept
     if (list) {
         for (int i = 0; i < count(); ++i) {
             auto source = getSource(i);
-            auto index = list->indexOf(source);
-            sources.append(index);
+            if (source) {
+                sources.append(source.uuid().toString());
+            }
         }
     }
     object["sources"] = sources;
@@ -749,9 +750,8 @@ void Union::fromJSON(QJsonObject data, const SourceList *list) noexcept
 
         auto sources = data["sources"].toArray();
         for (int i = 0; i < sources.count(); i++) {
-            auto index = sources[i].toInt();
-
-            auto source = list->get_ref(index);
+            auto uuid = QUuid::fromString( sources[i].toString() );
+            auto source = list->getByUUid(uuid);
             if (source) {
                 setSource(i, source);
             }
