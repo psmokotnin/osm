@@ -94,14 +94,18 @@ qreal TargetTrace::gain(unsigned int i) const
 
 void TargetTrace::setFrequency(unsigned int i, qreal value)
 {
-    m_points[i].setX(value);
-    emit changed();
+    if (!qFuzzyCompare(m_points[i].x(), value)) {
+        m_points[i].setX(value);
+        emit changed();
+    }
 }
 
 void TargetTrace::setGain(unsigned int i, qreal value)
 {
-    m_points[i].setY(value);
-    emit changed();
+    if (!qFuzzyCompare(m_points[i].y(), value)) {
+        m_points[i].setY(value);
+        emit changed();
+    }
 }
 
 qreal TargetTrace::width() const
@@ -188,15 +192,27 @@ unsigned TargetTrace::preset() const
     return m_preset;
 }
 
-void TargetTrace::setPreset(const unsigned &newPreset)
+void TargetTrace::setPreset(unsigned newPreset)
 {
     if (m_preset == newPreset)
         return;
 
-    m_preset = newPreset;
-    m_points = std::get<1>(m_presets[m_preset]);
-    emit presetChanged(m_preset);
-    emit changed();
+    std::lock_guard<std::mutex> guard(m_mutex);
+
+    if (m_presets.size() > newPreset) {
+        m_preset = newPreset;
+        for (auto i = 0; i < m_points.size(); ++i) {
+            m_points[i].setX(m_presets[m_preset].second[i].x());
+            m_points[i].setY(m_presets[m_preset].second[i].y());
+        }
+        emit presetChanged(m_preset);
+        emit changed();
+    }
+}
+
+std::mutex &TargetTrace::mutex()
+{
+    return m_mutex;
 }
 
 const std::vector<QPointF> &TargetTrace::points() const

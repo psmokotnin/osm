@@ -71,7 +71,7 @@ Item {
                 currentIndex: targetTraceModel.preset
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Preset")
-                onCurrentIndexChanged: targetTraceModel.preset = currentIndex
+                onCurrentIndexChanged: targetTraceModel.preset = currentIndex;
                 Layout.preferredWidth: 200
             }
         }

@@ -104,7 +104,8 @@ AudioSessionPlugin::AudioSessionPlugin() : m_permission(false), m_inInterrupt(fa
         qDebug() << "AudioSession setCategory" <<
                  [[AVAudioSession sharedInstance]
                   setCategory: AVAudioSessionCategoryPlayAndRecord
-                  withOptions: AVAudioSessionCategoryOptionMixWithOthers | AVAudioSessionCategoryOptionAllowBluetooth
+                  withOptions: AVAudioSessionCategoryOptionMixWithOthers | AVAudioSessionCategoryOptionAllowBluetooth |
+                  AVAudioSessionCategoryOptionAllowBluetoothA2DP | AVAudioSessionCategoryOptionAllowAirPlay
                   error: nil];
     }
     @catch (NSException *exception) {

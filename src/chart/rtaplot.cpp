@@ -174,6 +174,7 @@ void RTAPlot::TargetTraceItem::paint(QPainter *painter) noexcept
         return;
     }
 
+    std::lock_guard<std::mutex> guard(target->mutex());
 
     auto plot = static_cast<RTAPlot *>(parent());
     if (plot->scale() == RTAPlot::Scale::Phon) {
