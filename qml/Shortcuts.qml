@@ -24,6 +24,7 @@ Popup {
     id: popup
     modal: true
     focus: true
+    padding: 25
     closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
     width: text.paintedWidth + popup.padding * 2
     height: applicationWindow.height - popup.padding * 2
