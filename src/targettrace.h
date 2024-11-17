@@ -18,6 +18,7 @@
 #ifndef TARGETTRACE_H
 #define TARGETTRACE_H
 
+#include <mutex>
 #include <QObject>
 #include <QColor>
 #include <QPointF>
