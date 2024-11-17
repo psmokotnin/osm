@@ -79,6 +79,8 @@ Popup {
                     <tr><th colspan='2'>Tools</th></tr>
                     <tr><td>%1+W</td><td>show wavelength calculator</td></tr>
                     <tr><td>%1+D</td><td>toggle dark mode</td></tr>
+                    <tr><td>%1+T</td><td>show target trace</td></tr>
+                    <tr><td>%1+0</td><td>add group</td></tr>
                     <tr><td>F1</td><td>show keys combinations</td></tr>
                     <tr><td>F2</td><td>show info</td></tr>
                     <tr><td>F3</td><td>check for update</td></tr>
