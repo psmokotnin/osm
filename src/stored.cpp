@@ -173,12 +173,58 @@ bool Stored::saveCal(const QUrl &fileName) const noexcept
         qWarning("Couldn't open save file.");
         return false;
     }
+
+    unsigned int count = 0;
+    float _frequencyFactor = powf(2.f, 1.f / 12);
+    float bandStart = 1.f,
+          bandEnd   = bandStart * _frequencyFactor,
+          lastBandEnd = bandStart,
+          ppo_frequency = 0;
+
+    float avg_magnitude = 0;
+    float avg_coherence = 0;
+    complex avg_phase = 0;
+
     QTextStream out(&saveFile);
     for (unsigned int i = 0; i < m_dataLength; ++i) {
-        out << m_ftdata[i].frequency << "\t"
-            << magnitude(i) << "\t"
-            << m_ftdata[i].phase.arg() * 180.f / static_cast<float>(M_PI) << "\n";
 
+        ppo_frequency = frequency(i);
+
+        if (ppo_frequency < bandStart) continue;
+
+        while (ppo_frequency > bandEnd) {
+
+            if (count) {
+
+                avg_magnitude /= count;
+                avg_coherence /= count;
+                avg_phase /= count;
+
+                out << (lastBandEnd + bandEnd) / 2 << "\t"
+                    << avg_magnitude << "\t"
+                    << avg_phase.arg() * 180.f / static_cast<float>(M_PI) << "\t"
+                    //<< avg_coherence
+                    << "\n";
+                count = 0;
+                avg_magnitude = 0;
+                avg_coherence = 0;
+                avg_phase = 0;
+
+                //extend current band to the end of the pervious collected
+                lastBandEnd = bandEnd;
+            }
+
+            bandStart = bandEnd;
+            bandEnd   *= _frequencyFactor;
+        }
+
+        if (coherence(i) > 0.97f) {
+            count ++;
+
+            avg_magnitude += magnitude(i);
+            avg_coherence += coherence(i);
+            avg_phase    += phase(i);
+        }
 
     }
     saveFile.close();
