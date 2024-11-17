@@ -67,7 +67,9 @@ public:
     QVariant getAvailablePresets() const;
 
     unsigned preset() const;
-    void setPreset(const unsigned &newPreset);
+    void setPreset(unsigned newPreset);
+
+    std::mutex &mutex();
 
 signals:
     void changed();
@@ -81,6 +83,8 @@ signals:
 
 private:
     void loadSettings();
+
+    std::mutex m_mutex;
 
     bool m_active = true, m_show = false;
     qreal m_width = 3.0;

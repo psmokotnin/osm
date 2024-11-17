@@ -145,6 +145,7 @@ void MagnitudePlot::TargetTraceItem::paint(QPainter *painter) noexcept
     if (!target->show() || !target->active() || !painter) {
         return;
     }
+    std::lock_guard<std::mutex> guard(target->mutex());
 
     auto plot = static_cast<MagnitudePlot *>(parent());
     auto yOffset = heightf() - padding.bottom;
