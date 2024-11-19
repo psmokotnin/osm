@@ -87,6 +87,11 @@ Drawer {
             separator: true
         }
         ListElement {
+            name: qsTr("Add group")
+            onclick: function() {sourceList.addGroup();}
+            separator: true
+        }
+        ListElement {
             name: qsTr("Show target");
             onclick: function(button) {
                targetTraceModel.show = ! targetTraceModel.show;
