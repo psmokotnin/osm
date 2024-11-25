@@ -188,67 +188,69 @@ void Union::calc() noexcept
     if (!active())
         return;
 
-    std::lock_guard<std::mutex> callGuard(s_calcmutex);
-    std::lock_guard<std::mutex> guard(m_dataMutex);
-    auto primary = m_sources.first();
-    unsigned int count = 0;
+    {
+        std::lock_guard<std::mutex> callGuard(s_calcmutex);
+        std::lock_guard<std::mutex> guard(m_dataMutex);
+        auto primary = m_sources.first();
+        unsigned int count = 0;
 
-    if (!primary) {
-        setActive(false);
-        return;
-    }
+        if (!primary) {
+            setActive(false);
+            return;
+        }
 
-    if (primary->size() != size()) {
-        resize();
-    }
+        if (primary->size() != size()) {
+            resize();
+        }
 
-    for (auto &s : m_sources) {
-        if (s) {
-            sources.insert(s);
-            if (s->size() != primary->size()) {
-                if (0/*can resize*/) {
-                    //resize
-                } else {
-                    setActive(false);
-                    emit Notifier::getInstance()->newMessage(name(),
-                                                             " Sources must have the same window size and sample rate: " + s->name());
-                    return;
+        for (auto &s : m_sources) {
+            if (s) {
+                sources.insert(s);
+                if (s->size() != primary->size()) {
+                    if (0/*can resize*/) {
+                        //resize
+                    } else {
+                        setActive(false);
+                        emit Notifier::getInstance()->newMessage(name(),
+                                                                 " Sources must have the same window size and sample rate: " + s->name());
+                        return;
+                    }
                 }
+                count ++;
             }
-            count ++;
         }
-    }
-    if (count < 2) {
-        setActive(false);
-        return;
-    }
-
-    //lock each unique source, prevent deadlock
-    for (auto &s : sources) {
-        if (s && s.get() != this) s->lock();
-    }
-
-    if (m_operation == Apply) {
-        calcApply(primary);
-    } else {
-        switch (m_type) {
-        case Vector:
-            calcVector(count, primary);
-            break;
-        case Polar:
-            calcPolar(count, primary);
-            break;
-        case dB:
-            calcdB(count, primary);
-            break;
-        case Power:
-            calcPower(count, primary);
-            break;
+        if (count < 2) {
+            setActive(false);
+            return;
         }
-    }
 
-    for (auto &s : sources) {
-        if (s) s->unlock();
+        //lock each unique source, prevent deadlock
+        for (auto &s : sources) {
+            if (s && s.get() != this) s->lock();
+        }
+
+        if (m_operation == Apply) {
+            calcApply(primary);
+        } else {
+            switch (m_type) {
+            case Vector:
+                calcVector(count, primary);
+                break;
+            case Polar:
+                calcPolar(count, primary);
+                break;
+            case dB:
+                calcdB(count, primary);
+                break;
+            case Power:
+                calcPower(count, primary);
+                break;
+            }
+        }
+
+        for (auto &s : sources) {
+            if (s) s->unlock();
+        }
     }
     emit readyRead();
 }
