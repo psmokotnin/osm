@@ -68,6 +68,7 @@ void SeriesesItem::connectSources(SourceList *sourceList)
                 updateZOrders();
                 auto selected = m_sources->selectedUuid();
                 m_plot->setHighlighted(selected);
+                setHighlighted(selected);
                 setSourceZIndex(selected, m_sources->count() + 1);
             }
         });
