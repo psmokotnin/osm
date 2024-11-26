@@ -286,7 +286,7 @@ QJsonArray SourceList::toJSON(const SourceList *list) const noexcept
     return data;
 }
 
-void SourceList::fromJSON(const QJsonArray &list) noexcept
+void SourceList::fromJSON(const QJsonArray &list, const SourceList *topList) noexcept
 {
     enum LoadType {MeasurementType, StoredType, UnionType, StandardLineType, FilterType, WindowingType, GroupType};
     static std::map<QString, LoadType> typeMap = {
@@ -309,31 +309,31 @@ void SourceList::fromJSON(const QJsonArray &list) noexcept
 
         switch (typeMap.at(object["type"].toString())) {
         case MeasurementType:
-            loadObject<Measurement>(object["data"].toObject());
+            loadObject<Measurement>(object["data"].toObject(), topList);
             break;
 
         case StoredType:
-            loadObject<Stored>(object["data"].toObject());
+            loadObject<Stored>(object["data"].toObject(), topList);
             break;
 
         case UnionType:
-            loadObject<Union>(object["data"].toObject());
+            loadObject<Union>(object["data"].toObject(), topList);
             break;
 
         case StandardLineType:
-            loadObject<StandardLine>(object["data"].toObject());
+            loadObject<StandardLine>(object["data"].toObject(), topList);
             break;
 
         case FilterType:
-            loadObject<FilterSource>(object["data"].toObject());
+            loadObject<FilterSource>(object["data"].toObject(), topList);
             break;
 
         case WindowingType:
-            loadObject<Windowing>(object["data"].toObject());
+            loadObject<Windowing>(object["data"].toObject(), topList);
             break;
 
         case GroupType:
-            loadObject<Source::Group>(object["data"].toObject());
+            loadObject<Source::Group>(object["data"].toObject(), topList);
             break;
         }
     }
@@ -388,7 +388,7 @@ bool SourceList::load(const QUrl &fileName) noexcept
             return loadList(loadedDocument, fileName);
 
         case StoredType:
-            return loadObject<Stored>(loadedDocument["data"].toObject());
+            return loadObject<Stored>(loadedDocument["data"].toObject(), this);
         }
     }
 
@@ -675,20 +675,20 @@ QUuid SourceList::firstChecked() const noexcept
 
 bool SourceList::loadList(const QJsonDocument &document, const QUrl &fileName) noexcept
 {
-    fromJSON( document["list"].toArray() );
+    fromJSON( document["list"].toArray(), this );
     setSelected(document["selected"].toInt(-1));
 
     emit loaded(fileName);
     return true;
 }
 
-template<typename T> bool SourceList::loadObject(const QJsonObject &data)
+template<typename T> bool SourceList::loadObject(const QJsonObject &data, const SourceList *topList)
 {
     if (data.isEmpty())
         return false;
 
     auto s = std::make_shared<T>();
-    s->fromJSON(data, this);
+    s->fromJSON(data, topList);
     Source::Shared shared{ s };
     appendItem(shared, false);
     nextColor();

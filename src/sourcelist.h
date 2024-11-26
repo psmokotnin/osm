@@ -113,8 +113,8 @@ public:
 
     std::lock_guard<std::mutex> lock() const;
 
-    QJsonArray  toJSON(const SourceList *list = nullptr) const noexcept;
-    void        fromJSON(const QJsonArray &list) noexcept;
+    QJsonArray  toJSON(const SourceList *list ) const noexcept;
+    void        fromJSON(const QJsonArray &list, const SourceList *topList) noexcept;
 
 public slots:
     Q_INVOKABLE QColor nextColor();
@@ -155,7 +155,7 @@ signals:
 
 private:
     bool loadList(const QJsonDocument &document, const QUrl &fileName) noexcept;
-    template<typename T> bool loadObject(const QJsonObject &data);
+    template<typename T> bool loadObject(const QJsonObject &data, const SourceList *topList);
     template<typename T, typename... Ts> Source::Shared add(Ts...);
     bool importFile(const QUrl &fileName, QString separator);
     void appendItemsFrom(const SourceList *list, QUuid filter, bool unrollGroups);

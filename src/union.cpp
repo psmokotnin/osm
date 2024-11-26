@@ -731,6 +731,10 @@ QJsonObject Union::toJSON(const SourceList *list) const noexcept
 }
 void Union::fromJSON(QJsonObject data, const SourceList *list) noexcept
 {
+    auto uuid = QUuid::fromString(data["uuid"].toString());
+    if (!uuid.isNull()) {
+        setUuid(uuid);
+    }
     setType(static_cast<Type>(data["type"].toInt()));
     setOperation(static_cast<Operation>(data["operation"].toInt()));
 

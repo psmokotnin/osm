@@ -95,11 +95,13 @@ void Windowing::fromJSON(QJsonObject data, const SourceList *list) noexcept
     setMaxFrequency(data["maxFrequency"].toDouble(maxFrequency()));
     setWindowFunctionType(static_cast<WindowFunction::Type>(data["windowFunctionType"].toInt(windowFunctionType())));
 
-    auto sourceUuid = QUuid::fromString(data["source"].toString(""));
     auto connection = std::make_shared<QMetaObject::Connection>();
     auto connection_ptr = connection.get();
     auto fillSources = [ = ]() {
-        setSource(list->getByUUid(sourceUuid));
+        auto sourceUuid = QUuid::fromString(data["source"].toString(""));
+        auto source = list->getByUUid(sourceUuid);
+        setSource(source);
+        setActive(data["active"].toBool(active()));
         if (connection) {
             disconnect(*connection.get());
         }

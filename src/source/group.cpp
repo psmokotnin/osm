@@ -44,7 +44,7 @@ QJsonObject Group::toJSON(const SourceList *list) const noexcept
 {
     auto object = Source::Abstract::toJSON(list);
 
-    object["list"]      = m_sourceList.toJSON();
+    object["list"]      = m_sourceList.toJSON(list);
 
     return object;
 }
@@ -53,7 +53,7 @@ void Group::fromJSON(QJsonObject data, const SourceList *list) noexcept
 {
     Source::Abstract::fromJSON(data, list);
 
-    m_sourceList.fromJSON(data["list"].toArray());
+    m_sourceList.fromJSON(data["list"].toArray(), list);
 }
 
 Shared Group::clone() const
