@@ -51,10 +51,17 @@ ApplicationWindow {
 
         var mainwindowSettings = applicationSettings.getGroup("mainwindow");
 
-        x       = mainwindowSettings.value("x", (Screen.width  - width)  / 2);
-        y       = mainwindowSettings.value("y", (Screen.height - height) / 2);
         width   = mainwindowSettings.value("width", minimumWidth);
         height  = mainwindowSettings.value("height", minimumHeight);
+        x       = mainwindowSettings.value("x", (Screen.width  - width)  / 2);
+        y       = mainwindowSettings.value("y", (Screen.height - height) / 2);
+
+        if (x < 0 || x > Screen.desktopAvailableWidth) {
+            x = (Screen.width - width) / 2;
+        }
+        if (y < 0 || y > Screen.desktopAvailableHeight) {
+            y = (Screen.height - height) / 2;
+        }
 
         applicationWindow.onWidthChanged.connect(function() {applicationSettings.setValue("mainwindow/width", width)});
         applicationWindow.onHeightChanged.connect(function() {applicationSettings.setValue("mainwindow/height", height)});
