@@ -45,8 +45,8 @@ ASIOPlugin::ASIOPlugin() : Plugin(), m_bufferSize(0),
     }
     asioCallbacks::currentPlugin = this;
 
-    qRegisterMetaType<QVector<float>>();
-    connect(this, &ASIOPlugin::runInputProcessing, this, [this](QVector<float> buffer) {
+    qRegisterMetaType<const QVector<float> &>();
+    connect(this, &ASIOPlugin::runInputProcessing, this, [this](const QVector<float> &buffer) {
         processInputStreams(buffer);
     });
     moveToThread(&m_workingThread);
@@ -267,7 +267,7 @@ bool ASIOPlugin::startDevice(const DeviceInfo::Id &id)
     auto device = deviceInfo(m_currentDevice);
     auto channelCount = device.inputChannels().count() + device.outputChannels().count();
 
-    m_bufferSize = bufferSizes.max;
+    m_bufferSize = bufferSizes.preferd;
     m_bufferInfo.resize(channelCount);
     m_currentChannelInfo.resize(channelCount);
     m_inputBuffer.resize(device.inputChannels().count() * m_bufferSize);
@@ -325,7 +325,7 @@ void ASIOPlugin::stopAllStreams()
     }
 }
 
-void ASIOPlugin::processInputStreams(QVector<float> buffer)
+void ASIOPlugin::processInputStreams(const QVector<float> &buffer)
 {
     for (auto it = m_inputCallbacks.begin(); it != m_inputCallbacks.end();) {
         if (Q_UNLIKELY(!it.key()->active())) {
@@ -444,6 +444,10 @@ ASIOTime *ASIOPlugin::processBuffers(ASIOTime *params, long doubleBufferIndex, A
 {
     if (!directProcess) {
         return nullptr;
+    }
+
+    if (!(params->timeInfo.flags & (kSystemTimeValid | kSamplePositionValid | kSampleRateValid | kSpeedValid))) {
+        return params;
     }
 
     processOutputStreams();

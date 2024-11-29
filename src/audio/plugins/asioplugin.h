@@ -53,7 +53,7 @@ public:
     Stream *open(const DeviceInfo::Id &id, const Direction &mode, const Format &, QIODevice *endpoint) override;
 
 signals:
-    void runInputProcessing(QVector<float> buffer, QPrivateSignal);
+    void runInputProcessing(const QVector<float> &buffer, QPrivateSignal);
 
 private:
     void loadDeviceList();
@@ -63,7 +63,7 @@ private:
     DeviceInfo deviceInfo(const DeviceInfo::Id &id) const;
 
     ASIOTime *processBuffers(ASIOTime *params, long doubleBufferIndex, ASIOBool directProcess);
-    void processInputStreams(QVector<float> buffer);
+    void processInputStreams(const QVector<float> &buffer);
     void processOutputStreams();
     void sampleRateDidChange(ASIOSampleRate sRate);
 
@@ -73,7 +73,7 @@ private:
     AsioDrivers m_drivers;
     DeviceInfo::List m_deviceList;
     QHash<Stream *, std::function<void(void)>> m_outputCallbacks;
-    QHash<Stream *, std::function<void(QVector<float>)>> m_inputCallbacks;
+    QHash<Stream *, std::function<void(const QVector<float> &)>> m_inputCallbacks;
     QVector<ASIOBufferInfo> m_bufferInfo;
     QVector<ASIOChannelInfo> m_currentChannelInfo;
     QVector<float> m_inputBuffer, m_outputBuffer;
