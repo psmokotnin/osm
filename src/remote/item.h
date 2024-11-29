@@ -39,7 +39,7 @@ public:
     enum State {
         WAIT    = 1,
         UPDATED = 2,
-        ERROR   = 3
+        ERROR_STATE = 3
     };
     Q_ENUM(State);
 

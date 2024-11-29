@@ -266,7 +266,7 @@ void Item::dataError(const uint hash, const bool deactivate)
         return;
     }
     auto guard = std::lock_guard<std::mutex>(m_dataMutex);
-    setState(Item::ERROR);
+    setState(Item::ERROR_STATE);
     if (deactivate) {
         setActive(false);
     }

@@ -45,7 +45,7 @@ public:
     enum State {
         NOT_AVAILABLE   = 1,
         AVAILABLE       = 2,
-        ERROR           = 3
+        ERROR_STATE     = 3
     };
     Q_ENUM(State);
 

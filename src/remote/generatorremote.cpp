@@ -245,7 +245,7 @@ void GeneratorRemote::dataError(const uint hash, const bool deactivate)
     if (hash != qHash(serverId())) {
         return;
     }
-    setState(GeneratorRemote::ERROR);
+    setState(GeneratorRemote::ERROR_STATE);
 }
 
 void GeneratorRemote::properiesChanged()
