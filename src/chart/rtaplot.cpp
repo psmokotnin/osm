@@ -25,7 +25,7 @@
 using namespace Chart;
 
 RTAPlot::RTAPlot(Settings *settings, QQuickItem *parent): FrequencyBasedPlot(settings, parent),
-    m_mode(Chart::RTAPlot::Mode::Line), m_spline(false), m_showPeaks(true),
+    m_mode(Chart::RTAPlot::Mode::Line), m_scale(Scale::DBfs), m_spline(false), m_showPeaks(true),
     m_targetTrace(new TargetTraceItem(m_palette, this))
 {
     qRegisterMetaType<Chart::RTAPlot::Mode>();
@@ -36,6 +36,7 @@ RTAPlot::RTAPlot(Settings *settings, QQuickItem *parent): FrequencyBasedPlot(set
     m_y.configure(AxisType::Linear, -140.f, 140.f,  15);
     m_y.setCentralLabel(m_y.min() - 1.f);
     m_y.setUnit("dB");
+    updateAxis();
     setFlag(QQuickItem::ItemHasContents);
 
     connect(this, &RTAPlot::modeChanged, this, &RTAPlot::update);
@@ -49,20 +50,25 @@ void RTAPlot::updateAxis()
 {
     switch (m_scale) {
     case DBfs:
-        m_y.configure(AxisType::Linear, -140.f, 40.f,  15);
+        m_y.configure(AxisType::Linear, -140.f, 40.f,  29);
         m_y.setCentralLabel(m_y.min() - 1.f);
+        m_y.setMax(0);
         m_y.setUnit("dB");
         break;
 
     case SPL:
-        m_y.configure(AxisType::Linear, 40.f, 140.f,  10);
+        m_y.configure(AxisType::Linear, 40.f, 142.f,  34);
         m_y.setCentralLabel(m_y.min() - 1.f);
+        m_y.setMax(100);
+        m_y.setMin(60);
         m_y.setUnit("dB");
         break;
 
     case Phon:
-        m_y.configure(AxisType::Linear, 40.f, 140.f,  10);
+        m_y.configure(AxisType::Linear, 40.f, 142.f,  34);
         m_y.setCentralLabel(m_y.min() - 1.f);
+        m_y.setMax(100);
+        m_y.setMin(60);
         m_y.setUnit("ph");
         break;
     }
