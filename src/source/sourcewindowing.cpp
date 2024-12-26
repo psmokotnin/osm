@@ -357,7 +357,8 @@ void Windowing::updateFromTimeDomain(const Source::Shared &source)
     auto tukeyEnd  = center + sampleWide / 2;
 
     auto windowKoefficient = m_window.gain() / m_window.norm();
-    for (int i = from, j = 0, f = m_deconvolutionSize / 2 + 1; i < end; ++i, ++j, time += dt, ++f) {
+    int j = 0;
+    for (int i = from/*, j = 0*/, f = m_deconvolutionSize / 2 + 1; i < end; ++i, ++j, time += dt, ++f) {
 
         float value = (i >= 0 ? source->impulseValue(i) * m_window.get(j) * windowKoefficient : 0);
 
@@ -371,11 +372,12 @@ void Windowing::updateFromTimeDomain(const Source::Shared &source)
         }
 
         m_impulseData[j].value = value;
+        m_impulseData[j].time = m_source->impulseTime(i);
         if (f == m_deconvolutionSize) {
             f = 0;
         }
         if (m_usedMode >= Mode::LTW1) {
-            m_dataFT.add(value, value);
+            m_dataFT.add(value, 0.f);
         } else {
             m_dataFT.set(f, value, 0.f);
         }
@@ -393,10 +395,13 @@ void Windowing::transform()
 
     auto criticalFrequency = 1000 / wide();
     for (unsigned i = 0; i < size(); ++i) {
+        if (domain() == Windowing::SourceDomain::Time) {
+            m_ftdata[i].coherence = 1;
+        }
         if (m_ftdata[i].frequency < criticalFrequency) {
             m_ftdata[i].coherence = 0;
         } else if (m_ftdata[i].frequency > criticalFrequency * 2) {
-            m_ftdata[i].coherence *= 1;
+            //m_ftdata[i].coherence *= 1;
         } else {
             m_ftdata[i].coherence *= (m_ftdata[i].frequency - criticalFrequency) / criticalFrequency;
         }
@@ -406,14 +411,18 @@ void Windowing::transform()
         m_ftdata[i].meanSquared = m_ftdata[i].magnitude * m_ftdata[i].magnitude;
         m_ftdata[i].peakSquared = 0;
         m_ftdata[i].phase       = m_dataFT.af(i).normalize();
+        if (m_usedMode >= Mode::LTW1) {
+            //forward result to reverse
+            m_ftdata[i].phase.imag = std::exchange(m_ftdata[i].phase.real, m_ftdata[i].phase.imag);
+        }
 
         static float threshold1 = powf(10, -40 / 20);
         static float threshold2 = powf(10, -30 / 20);
 
-        if (m_ftdata[i].module < threshold1) {
+        if (m_ftdata[i].magnitude < threshold1) {
             m_ftdata[i].coherence = 0;
-        } else if (m_ftdata[i].module < threshold2) {
-            m_ftdata[i].coherence *= (m_ftdata[i].module - threshold1) / (threshold2 - threshold1);
+        } else if (m_ftdata[i].magnitude < threshold2) {
+            m_ftdata[i].coherence *= (m_ftdata[i].magnitude - threshold1) / (threshold2 - threshold1);
         }
     }
 }

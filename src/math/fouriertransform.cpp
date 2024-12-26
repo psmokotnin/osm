@@ -450,16 +450,15 @@ GNU_ALIGN void FourierTransform::log()
             if (pointer >= static_cast<int>(m_size)) pointer -= m_size;
             //_fastA[i] +=  w * inA[j];
             //_fastB[i] +=  w * inB[j];
-            //BUG: A <-> B ??
-            t    = _mm_set_ps(m_inB[pointer], m_inB[pointer], m_inA[pointer], m_inA[pointer]);
+            t    = _mm_set_ps(m_inA[pointer], m_inA[pointer], m_inB[pointer], m_inB[pointer]);
             m    = _mm_mul_ps(t, m_logBasis[i].w[j]);
             data = _mm_add_ps(data, m);
         }
         _mm_store_ps(stored, data);
-        m_fastA[i].real = std::move(stored[0]);
-        m_fastA[i].imag = std::move(stored[1]);
-        m_fastB[i].real = std::move(stored[2]);
-        m_fastB[i].imag = std::move(stored[3]);
+        m_fastA[i].real = std::move(stored[3]);
+        m_fastA[i].imag = std::move(stored[2]);
+        m_fastB[i].real = std::move(stored[1]);
+        m_fastB[i].imag = std::move(stored[0]);
     }
 }
 GNU_ALIGN void FourierTransform::prepareLog()
