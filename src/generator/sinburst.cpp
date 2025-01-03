@@ -48,7 +48,8 @@ Sample SinBurst::sample()
         }
     }
 
-    Sample output = { m_burst ? m_gain *static_cast<float>(sin(m_phase)) *(m_periods - 5) / 2 : 0.f };
+    const static float PI10 = M_PI / 10;
+    Sample output = { m_burst ? m_gain *static_cast<float>(sin(m_phase)) *sin(m_periods * PI10) / 2 : 0.f };
     return output;
 }
 
