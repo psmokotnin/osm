@@ -56,13 +56,6 @@ ApplicationWindow {
         x       = mainwindowSettings.value("x", (Screen.width  - width)  / 2);
         y       = mainwindowSettings.value("y", (Screen.height - height) / 2);
 
-        if (x < 0 || x > Screen.desktopAvailableWidth) {
-            x = (Screen.width - width) / 2;
-        }
-        if (y < 0 || y > Screen.desktopAvailableHeight) {
-            y = (Screen.height - height) / 2;
-        }
-
         applicationWindow.onWidthChanged.connect(function() {applicationSettings.setValue("mainwindow/width", width)});
         applicationWindow.onHeightChanged.connect(function() {applicationSettings.setValue("mainwindow/height", height)});
         applicationWindow.onXChanged.connect(function() {applicationSettings.setValue("mainwindow/x", x)});
