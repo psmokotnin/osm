@@ -52,7 +52,8 @@ void RTAPlot::updateAxis()
     case DBfs:
         m_y.configure(AxisType::Linear, -140.f, 40.f,  29);
         m_y.setCentralLabel(m_y.min() - 1.f);
-        m_y.setMax(0);
+        m_y.setMax(0.f);
+        m_y.setMin(-140.f);
         m_y.setUnit("dB");
         break;
 

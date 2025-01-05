@@ -179,7 +179,7 @@ Item {
                 onCurrentValueChanged: remoteClient.selectGenerator(currentValue)
 
                 ToolTip.visible: hovered
-                ToolTip.text: qsTr("signal type")
+                ToolTip.text: qsTr("Controlled generator")
 
                 Layout.preferredWidth: 240
             }
