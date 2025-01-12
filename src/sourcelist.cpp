@@ -457,11 +457,16 @@ bool SourceList::importFile(const QUrl &fileName, QString separator)
             frequency = list[0].replace(",", ".").toFloat(&fOk);
             magnitude = list[1].replace("*", "0").replace(",", ".").toFloat(&mOk);
             phase.polar(M_PI * (list.size() > 2 ? list[2].replace("*", "0").replace(",", ".").toFloat() : 0) / 180.f);
-            coherence = (list.size() > 3 ? list[3].replace("*", "0").replace(",", ".").toFloat() : 1);
+
+            bool coherenceOk = false;
+            coherence = (list.size() > 3 ? list[3].replace("*", "0").replace(",", ".").toFloat(&coherenceOk) : 1);
 
             if (fOk && mOk && list.size() > 1) {
                 if (magnitude > maxMagnitude) {
                     maxMagnitude = magnitude;
+                }
+                if (!coherenceOk) {
+                    coherence = 1;
                 }
 
                 d.push_back({

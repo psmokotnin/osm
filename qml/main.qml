@@ -204,7 +204,7 @@ ApplicationWindow {
         folder: (typeof shortcuts !== 'undefined' ? shortcuts.home : Filesystem.StandardFolder.Home)
         defaultSuffix: "txt"
         nameFilters: [
-            "txt transfer data file (*.txt)",
+            "txt transfer data file (*.txt *.cal)",
             "csv transfer data file (*.csv)",
             "txt impulse data file (*.txt)",
             "csv impulse data file (*.csv)",
