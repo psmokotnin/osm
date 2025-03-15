@@ -232,7 +232,7 @@ void Item::properiesChanged()
 
 
     property("active");
-    if (!m_eventSilence && signalName != "stateChanged" & signalName != "activeChanged" ) {
+    if (!m_eventSilence && signalName != "stateChanged" && signalName != "activeChanged" ) {
         emit localChanged(propertyName);
     }
 }
