@@ -240,7 +240,7 @@ void GeneratorRemote::connectProperties()
     }
 }
 
-void GeneratorRemote::dataError(const uint hash, const bool deactivate)
+void GeneratorRemote::dataError(const uint hash, const bool)
 {
     if (hash != qHash(serverId())) {
         return;
