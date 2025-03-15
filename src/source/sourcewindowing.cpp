@@ -360,7 +360,8 @@ void Windowing::updateFromTimeDomain(const Source::Shared &source)
 
     auto windowKoefficient = m_window.gain() / m_window.norm();
     int j = 0;
-    for (int i = from/*, j = 0*/, f = m_deconvolutionSize / 2 + 1; i < end; ++i, ++j, time += dt, ++f) {
+    unsigned int f = m_deconvolutionSize / 2 + 1;
+    for (int i = from/*, j = 0*/; i < end; ++i, ++j, time += dt, ++f) {
 
         float value = (i >= 0 ? source->impulseValue(i) * m_window.get(j) * windowKoefficient : 0);
 
