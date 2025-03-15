@@ -356,7 +356,7 @@ QString MeterPlot::typeName() const noexcept
 {
     try {
         return m_typesMap.at(m_type);
-    } catch (std::out_of_range) {}
+    } catch (std::out_of_range&) {}
 
     return "";
 }

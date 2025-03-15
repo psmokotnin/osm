@@ -175,7 +175,7 @@ void Chart::CoherenceThresholdLine::paint(QPainter *painter)
         painter->setRenderHints(QPainter::Antialiasing, true);
         painter->setPen(linePen);
         painter->drawLine(p1, p2);
-    } catch (std::invalid_argument) {}
+    } catch (std::invalid_argument&) {}
 }
 
 void CoherenceThresholdLine::parentWidthChanged()
