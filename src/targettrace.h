@@ -93,7 +93,7 @@ private:
     QColor m_color = "#8BC34A";
 
     std::vector<QPointF>    m_points;
-    unsigned m_preset;
+    unsigned int m_preset;
 
     Settings *m_settings = nullptr;
     static TargetTrace *m_instance;

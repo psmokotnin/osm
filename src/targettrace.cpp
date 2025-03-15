@@ -45,7 +45,7 @@ const QList<std::pair<QString, std::vector<QPointF>>> TargetTrace::m_presets = {
 };
 
 TargetTrace::TargetTrace(Settings *settings, QObject *parent) : QObject(parent),
-    m_points{ m_presets[0].second }, m_settings(settings), m_preset(0)
+    m_points{ m_presets[0].second }, m_preset(0), m_settings(settings)
 {
     Q_ASSERT(!m_instance);
 
