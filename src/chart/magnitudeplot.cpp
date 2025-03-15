@@ -183,5 +183,5 @@ void MagnitudePlot::TargetTraceItem::paint(QPainter *painter) noexcept
         }
         path.lineTo(convert(points[0]  + offset));
         painter->drawPath(path);
-    } catch (std::invalid_argument) {}
+    } catch (std::invalid_argument&) {}
 }
