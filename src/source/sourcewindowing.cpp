@@ -190,6 +190,8 @@ void Windowing::resizeData()
         case Mode::LTW3:
             m_dataFT.setLogWindowDenominator(25);
             break;
+        default: 
+            qDebug() << "unhandled usedMode" << m_usedMode; // Namely the different FFT modes, can they be handled?
         }
         m_dataFT.prepare();
 
