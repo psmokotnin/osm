@@ -380,14 +380,12 @@ void MeterPlot::setType(const Type &type)
 
 void MeterPlot::setType(const QString &type)
 {
-    std::find_if(m_typesMap.cbegin(), m_typesMap.cend(),
-    [&type, this](auto & e) {
-        if (e.second == type) {
-            setType(e.first);
-            return true;
+    for (auto& [enumType, strType] : m_typesMap) {
+        if (strType == type) {
+            setType(enumType);
+            return;
         }
-        return false;
-    });
+    }
 }
 
 } // namespace chart
