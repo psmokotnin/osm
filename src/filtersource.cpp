@@ -211,6 +211,7 @@ complex FilterSource::calculate(float frequency) const
     case Peak:
         return calculatePeak(s);
     }
+    return 1; // is this the sensible default?
 }
 
 complex FilterSource::Bessel(bool hpf, complex s) const
