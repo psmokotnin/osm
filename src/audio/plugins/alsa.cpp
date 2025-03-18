@@ -17,6 +17,8 @@
  */
 #include "alsa.h"
 #include <cstring>
+#include <memory> 
+
 #include <QCoreApplication>
 #define ALSA_BUFFER_SIZE 1024
 #define ALSA_PERIOD_SIZE 64
@@ -41,6 +43,10 @@ struct pcm_guard {
         }
     }
     snd_pcm_t *handle = nullptr;
+};
+
+auto ptr_free = [](auto* ptr) {
+    return std::free(ptr);
 };
 
 namespace audio {
@@ -72,14 +78,22 @@ DeviceInfo::List AlsaPlugin::getDeviceInfoList() const
 {
     DeviceInfo::List list = {};
     int cardIndex = -1, deviceIndex = -1;
-    char *cardName = nullptr;
+    // inner ptr allocated via malloc (via strdup), so it needs free() instead of delete
+    std::unique_ptr<char, decltype(ptr_free)> cardName = {nullptr, ptr_free};
     snd_pcm_t *pcm = nullptr;
     snd_ctl_t *ctl = nullptr;
 
     while (checkStatus(snd_card_next(&cardIndex), "snd_ctl_open") && (cardIndex > -1 )) {
         char cardId[127];
         snprintf(cardId, sizeof(cardId), "hw:%d", cardIndex);
-        checkContinue(snd_card_get_name(cardIndex, &cardName));
+        {
+            // TODO replace with C++23 std::out_ptr(card_name) instead of tmp_cardName
+            char* tmp_cardName = nullptr;
+            bool cont = snd_card_get_name(cardIndex, &tmp_cardName);
+            cardName.reset(tmp_cardName);
+            checkContinue(cont); 
+
+        }
         checkContinue(snd_ctl_open(&ctl, cardId, 0));
 
         deviceIndex = -1;
@@ -89,7 +103,7 @@ DeviceInfo::List AlsaPlugin::getDeviceInfoList() const
             snprintf(plugId, sizeof(plugId), "plughw:%d,%d", cardIndex, deviceIndex);
 
             DeviceInfo deviceInfo(plugId, name());
-            QString deviceName(cardName);
+            QString deviceName(cardName.get());
             deviceName += " #" + QString::number(deviceIndex);
             deviceInfo.setName(deviceName);
 
