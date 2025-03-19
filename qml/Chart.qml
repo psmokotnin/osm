@@ -18,7 +18,7 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.2
 import QtQuick.Controls.Material 2.2
-import QtGraphicalEffects 1.15
+import QtQuick.Effects
 import OpenSoundMeter 1.0
 import "elements"
 import "SPL" as SPL;
@@ -313,15 +313,12 @@ Item {
             text: cursor.text
         }
 
-        DropShadow {
+        MultiEffect {
             anchors.fill: cursorText
-            horizontalOffset: 0
-            verticalOffset: 0
-            radius: 1.0
-            samples: 9
-            spread: 1
-            color: applicationAppearance.darkMode ? "#99000000" : "#99FFFFFF"
             source: cursorText
+            shadowEnabled: true
+            shadowColor: applicationAppearance.darkMode ? "#99000000" : "#99FFFFFF"
+            shadowBlur: 1.0
         }
 
         onCursorXChanged: {

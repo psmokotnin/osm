@@ -42,7 +42,7 @@ QString workingfolder::settingsFilePath()
 
 QString workingfolder::commonPath()
 {
-    auto static path = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+    auto static path = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
 
     if ( path.indexOf(QApplication::applicationName()) == -1) {
         path += "/" + QApplication::applicationName();

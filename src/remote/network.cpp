@@ -124,7 +124,7 @@ void Network::newTCPConnection()
             auto data_ptr = answer.data_ptr()->data();
             int sent = 0, len;
             while (sent < answer.size() && clientConnection->isWritable()) {
-                len = std::min(answer.size() - sent, 32767);
+                len = std::min(static_cast<int>(answer.size()) - sent, 32767);
                 clientConnection->write(data_ptr + sent, len);
                 sent += len;
             }

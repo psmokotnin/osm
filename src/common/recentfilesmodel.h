@@ -22,6 +22,9 @@
 #include <QtQml>
 
 class Settings;
+
+Q_DECLARE_OPAQUE_POINTER(Settings*)
+
 class RecentFilesModel : public QAbstractListModel
 {
     Q_OBJECT

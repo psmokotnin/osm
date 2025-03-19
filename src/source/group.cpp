@@ -61,11 +61,11 @@ Shared Group::clone() const
     auto cloned = std::make_shared<Group>(parent());
     cloned->setActive(active());
     cloned->setName(name());
-    for (auto it = m_sourceList.cbegin(); it < m_sourceList.cend(); ++it) {
-        if (it && *it) {
-            auto clonedItem = (*it)->clone();
-            cloned->m_sourceList.appendItem(clonedItem, true);
+    for (const auto& itemPtr : m_sourceList) {
+        if (itemPtr == nullptr) {
+            continue;
         }
+        cloned->m_sourceList.appendItem(itemPtr->clone(), true);
     }
     return std::static_pointer_cast<Source::Abstract>(cloned);
 }

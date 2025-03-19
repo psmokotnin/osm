@@ -248,31 +248,31 @@ QByteArray Server::tcpCallback([[maybe_unused]] const QHostAddress &&address, co
         for (int i = 0 ; i < targetQObject->metaObject()->propertyCount(); ++i) {
             auto property = targetQObject->metaObject()->property(i);
 
-            switch (static_cast<int>(property.type())) {
+            switch (static_cast<int>(property.metaType().id())) {
 
-            case QVariant::Type::Bool:
+            case QMetaType::Type::Bool:
                 object[property.name()]  = property.read(targetQObject).toBool();
                 break;
 
-            case QVariant::Type::UInt:
-            case QVariant::Type::Int:
-            case QMetaType::Long:
+            case QMetaType::Type::UInt:
+            case QMetaType::Type::Int:
+            case QMetaType::Type::Long:
                 object[property.name()]  = property.read(targetQObject).toInt();
                 break;
 
-            case QMetaType::Float:
+            case QMetaType::Type::Float:
                 object[property.name()]  = property.read(targetQObject).toFloat();
                 break;
 
-            case QVariant::Type::Double:
+            case QMetaType::Type::Double:
                 object[property.name()]  = property.read(targetQObject).toDouble();
                 break;
 
-            case QVariant::Type::String:
+            case QMetaType::Type::QString:
                 object[property.name()]  = property.read(targetQObject).toString();
                 break;
 
-            case QVariant::Type::Color: {
+            case QMetaType::Type::QColor: {
                 QJsonObject color;
                 if (source) {
                     color["red"]     = source->color().red();
@@ -283,7 +283,7 @@ QByteArray Server::tcpCallback([[maybe_unused]] const QHostAddress &&address, co
                 object[property.name()]  = color;
                 break;
             }
-            case QVariant::Type::UserType: {
+            case QMetaType::Type::User: {
                 object[property.name()] = property.read(targetQObject).toInt();
             }
             default:
@@ -331,28 +331,28 @@ QByteArray Server::tcpCallback([[maybe_unused]] const QHostAddress &&address, co
             }
             auto property = metaObject->property(index);
 
-            switch (static_cast<int>(property.type())) {
-            case QVariant::Type::Bool:
+            switch (property.metaType().id()) {
+            case QMetaType::Type::Bool:
                 property.write(targetQObject, itemData[field].toBool());
                 break;
 
-            case QVariant::Type::UInt:
-            case QVariant::Type::Int:
-            case QMetaType::Long:
+            case QMetaType::Type::UInt:
+            case QMetaType::Type::Int:
+            case QMetaType::Type::Long:
                 property.write(targetQObject, itemData[field].toInt());
                 break;
 
 
-            case QMetaType::Float:
-            case QVariant::Type::Double:
+            case QMetaType::Type::Float:
+            case QMetaType::Type::Double:
                 property.write(targetQObject, itemData[field].toDouble());
                 break;
 
-            case QVariant::Type::String:
+            case QMetaType::Type::QString:
                 property.write(targetQObject, itemData[field].toString());
                 break;
 
-            case QVariant::Type::Color: {
+            case QMetaType::Type::QColor: {
                 auto colorObject = itemData[field].toObject();
                 QColor color(
                     colorObject["red"  ].toInt(0),
@@ -362,7 +362,7 @@ QByteArray Server::tcpCallback([[maybe_unused]] const QHostAddress &&address, co
                 property.write(targetQObject, color);
                 break;
             }
-            case QVariant::Type::UserType:
+            case QMetaType::Type::User:
                 property.write(targetQObject, itemData[field].toInt());
                 break;
             default:

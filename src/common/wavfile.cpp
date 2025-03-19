@@ -77,10 +77,10 @@ bool WavFile::save(const QString &fileName, int sampleRate, const QByteArray &da
         return false;
     }
     prepareHeader(sampleRate);
-    m_header.wave.chunk.size = qToLittleEndian(36 + data.count());;
-    m_header.data.size = qToLittleEndian(data.count());
+    m_header.wave.chunk.size = qToLittleEndian(36 + data.size());;
+    m_header.data.size = qToLittleEndian(data.size());
     m_file.write(reinterpret_cast<char *>(&m_header), sizeof (m_header));
-    m_file.write(data.data(), data.count());
+    m_file.write(data.data(), data.size());
     m_file.close();
 
     return true;

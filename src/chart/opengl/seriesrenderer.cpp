@@ -18,6 +18,7 @@
 #include "seriesrenderer.h"
 
 #include <QQuickWindow>
+#include <QOpenGLVersionFunctionsFactory>
 #include "seriesfbo.h"
 #include "../plot.h"
 #include "common/profiler.h"
@@ -50,7 +51,7 @@ QOpenGLFramebufferObject *SeriesRenderer::createFramebufferObject(const QSize &s
         m_openGLFunctions = QOpenGLContext::currentContext()->functions();
         m_openGLFunctions->initializeOpenGLFunctions();
 
-        m_openGL33CoreFunctions = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctions_3_3_Core>();
+        m_openGL33CoreFunctions = QOpenGLVersionFunctionsFactory::get<QOpenGLFunctions_3_3_Core>(QOpenGLContext::currentContext());
         if (m_openGL33CoreFunctions) {
             m_openGL33CoreFunctions->initializeOpenGLFunctions();
         }
@@ -182,6 +183,8 @@ void SeriesRenderer::render()
         qDebug() << QString("shader not setted or linked");
         return;
     }
+    // TODO: RAII wrapper for this?
+    plot->window()->beginExternalCommands();
 
     m_openGLFunctions->glViewport(
         0,
@@ -213,7 +216,7 @@ void SeriesRenderer::render()
     }
 
     m_program.release();
-    plot->window()->resetOpenGLState();
+    plot->window()->endExternalCommands();
 }
 void SeriesRenderer::setWeight(unsigned int weight)
 {

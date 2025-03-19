@@ -19,6 +19,7 @@
 #define GENERATORTHREAD_H
 
 #include <QThread>
+#include <QVariant>
 
 #include "outputdevice.h"
 #include "sinsweep.h"

@@ -24,11 +24,18 @@
 #include <QObject>
 #include <QColor>
 #include <QJsonObject>
+#include <QMetaType>
 
 #include "math/complex.h"
 #include "math/meter.h"
 #include "source/source_shared.h"
+
+// SourceList is used in Q_PROPERTY's so must either be complete or declared like this:
 class SourceList;
+
+Q_DECLARE_OPAQUE_POINTER(SourceList*)
+// Having to mark the const version too seems like a QtBug to me
+Q_DECLARE_OPAQUE_POINTER(const SourceList*)
 
 namespace Source {
 class Abstract : public QObject

@@ -28,6 +28,8 @@ namespace Source {
 class Abstract;
 }
 
+Q_DECLARE_OPAQUE_POINTER(Source::Abstract*)
+
 namespace Source {
 
 class Shared : public std::shared_ptr<Source::Abstract>

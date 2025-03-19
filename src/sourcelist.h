@@ -54,6 +54,8 @@ public:
     const QVector<Source::Shared> &items() const;
     SourceList::iterator begin() noexcept;
     SourceList::iterator end() noexcept;
+    SourceList::const_iterator begin() const noexcept;
+    SourceList::const_iterator end() const noexcept;
     SourceList::const_iterator cbegin() const noexcept;
     SourceList::const_iterator cend() const noexcept;
 

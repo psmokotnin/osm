@@ -1,6 +1,6 @@
 TEMPLATE = app
 
-QT += qml quick quickcontrols2 core
+QT += widgets qml quick quickcontrols2 core
 CONFIG += c++1z
 CONFIG += sdk_no_version_check
 CONFIG += qmltypes
@@ -513,9 +513,9 @@ unix:!macx:!ios:CONFIG(release, debug|release) {
     QMAKE_CXXFLAGS_RELEASE += -fno-fast-math
 }
 
-!isEqual(QT_MAJOR_VERSION, 5):lessThan(QT_MINOR_VERSION, 15) {
-    error(OpenSoundMeter $$APP_GIT_VERSION  requires Qt 5.15 or newer but Qt $$[QT_VERSION] was detected.)
-}
+# !isEqual(QT_MAJOR_VERSION, 5):lessThan(QT_MINOR_VERSION, 15) {
+#     error(OpenSoundMeter $$APP_GIT_VERSION  requires Qt 5.15 or newer but Qt $$[QT_VERSION] was detected.)
+# }
 
 FORMS +=
 

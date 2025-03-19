@@ -64,7 +64,7 @@ QVariant SourceModel::data(const QModelIndex &index, int role) const
         break;
 
     case CheckedRole:
-        r.setValue(m_list->isChecked(source ? source->uuid() : ""));
+        r.setValue(m_list->isChecked(source ? source->uuid() : QUuid()));
         break;
 
     case ColorRole:

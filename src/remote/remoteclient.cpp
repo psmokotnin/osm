@@ -159,11 +159,11 @@ void Client::sendCommand(const std::shared_ptr<Item> &item, QString command, QVa
         QJsonObject object;
         object["name"] = command;
 
-        switch (arg.type()) {
-        case QVariant::Type::Invalid:
+        switch (arg.metaType().id()) {
+        case QMetaType::Type::UnknownType:
             break;
-        case QMetaType::Float:
-        case QVariant::Type::Double:
+        case QMetaType::Type::Float:
+        case QMetaType::Type::Double:
             object["argType"] = "float";
             object["argValue"] = arg.toFloat();
             break;
@@ -308,7 +308,7 @@ void Client::processData(QHostAddress senderAddress, [[maybe_unused]] int sender
 
         if (message == "added" && !item) {
             auto data = document["data"].toObject();
-            auto groupUuid = data["group"].toString();
+            auto groupUuid = QUuid::fromString(data["group"].toString()); // TODO store/retrieve UUID directly
             item = addItem(serverId, sourceId, document["objectName"].toString(), host, groupUuid);
             requestChanged(item);
             requestUpdate(item);
@@ -386,28 +386,28 @@ void Client::requestChanged(const std::shared_ptr<Item> &item)
             }
             auto property = metaObject->property(index);
 
-            switch (static_cast<int>(property.type())) {
-            case QVariant::Type::Bool:
+            switch (property.metaType().id()) {
+            case QMetaType::Type::Bool:
                 property.write(item.get(), document[field].toBool());
                 break;
 
-            case QVariant::Type::UInt:
-            case QVariant::Type::Int:
-            case QMetaType::Long:
+            case QMetaType::Type::UInt:
+            case QMetaType::Type::Int:
+            case QMetaType::Type::Long:
                 property.write(item.get(), document[field].toInt());
                 break;
 
 
-            case QMetaType::Float:
-            case QVariant::Type::Double:
+            case QMetaType::Type::Float:
+            case QMetaType::Type::Double:
                 property.write(item.get(), document[field].toDouble());
                 break;
 
-            case QVariant::Type::String:
+            case QMetaType::Type::QString:
                 property.write(item.get(), document[field].toString());
                 break;
 
-            case QVariant::Type::Color: {
+            case QMetaType::Type::QColor: {
                 auto colorObject = document[field].toObject();
                 QColor color(
                     colorObject["red"  ].toInt(0),
@@ -417,7 +417,7 @@ void Client::requestChanged(const std::shared_ptr<Item> &item)
                 property.write(item.get(), color);
                 break;
             }
-            case QVariant::Type::UserType: {
+            case QMetaType::Type::User: {
                 property.write(item.get(), document[field].toInt());
                 break;
             }
@@ -450,28 +450,28 @@ void Client::requestGenearatorChanged(const SharedGeneratorRemote &genearator)
             }
             auto property = metaObject->property(index);
 
-            switch (static_cast<int>(property.type())) {
-            case QVariant::Type::Bool:
+            switch (property.metaType().id()) {
+            case QMetaType::Type::Bool:
                 property.write(genearator.get(), document[field].toBool());
                 break;
 
-            case QVariant::Type::UInt:
-            case QVariant::Type::Int:
-            case QMetaType::Long:
+            case QMetaType::Type::UInt:
+            case QMetaType::Type::Int:
+            case QMetaType::Type::Long:
                 property.write(genearator.get(), document[field].toInt());
                 break;
 
 
-            case QMetaType::Float:
-            case QVariant::Type::Double:
+            case QMetaType::Type::Float:
+            case QMetaType::Type::Double:
                 property.write(genearator.get(), document[field].toDouble());
                 break;
 
-            case QVariant::Type::String:
+            case QMetaType::Type::QString:
                 property.write(genearator.get(), document[field].toString());
                 break;
 
-            case QVariant::Type::Color: {
+            case QMetaType::Type::QColor: {
                 auto colorObject = document[field].toObject();
                 QColor color(
                     colorObject["red"  ].toInt(0),
@@ -481,7 +481,7 @@ void Client::requestGenearatorChanged(const SharedGeneratorRemote &genearator)
                 property.write(genearator.get(), color);
                 break;
             }
-            case QVariant::Type::UserType: {
+            case QMetaType::Type::User: {
                 property.write(genearator.get(), document[field].toInt());
                 break;
             }

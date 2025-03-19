@@ -22,6 +22,7 @@
 Appearance::Appearance(Settings *settings) : QObject(settings)
 {
     auto app = qobject_cast<QGuiApplication *>(QGuiApplication::instance());
+    // TODO ‘void QGuiApplication::paletteChanged(const QPalette&)’ is deprecated: Handle QEvent::ApplicationPaletteChange instead
     connect(app, &QGuiApplication::paletteChanged, this, &Appearance::setDarkModeFromSystem);
 
     if (

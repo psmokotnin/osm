@@ -178,31 +178,31 @@ QJsonObject GeneratorRemote::metaJsonObject(QString propertyName) const
             continue;
         }
 
-        switch (static_cast<int>(property.type())) {
+        switch (property.metaType().id()) {
 
-        case QVariant::Type::Bool:
+        case QMetaType::Type::Bool:
             object[property.name()]  = property.read(this).toBool();
             break;
 
-        case QVariant::Type::UInt:
-        case QVariant::Type::Int:
-        case QMetaType::Long:
+        case QMetaType::Type::UInt:
+        case QMetaType::Type::Int:
+        case QMetaType::Type::Long:
             object[property.name()]  = property.read(this).toInt();
             break;
 
-        case QMetaType::Float:
+        case QMetaType::Type::Float:
             object[property.name()]  = property.read(this).toFloat();
             break;
 
-        case QVariant::Type::Double:
+        case QMetaType::Type::Double:
             object[property.name()]  = property.read(this).toDouble();
             break;
 
-        case QVariant::Type::String:
+        case QMetaType::Type::QString:
             object[property.name()]  = property.read(this).toString();
             break;
 
-        case QVariant::Type::UserType: {
+        case QMetaType::Type::User: {
             object[property.name()] = property.read(this).toInt();
         }
         default:

@@ -317,7 +317,7 @@ void MeterPlot::updateThreshold()
 
 void MeterPlot::resetSource()
 {
-    setSource(nullptr);
+    setSource({});
 }
 
 void MeterPlot::sourceReadyRead()

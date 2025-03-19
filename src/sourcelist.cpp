@@ -106,6 +106,14 @@ SourceList::iterator SourceList::end() noexcept
 {
     return m_items.end();
 }
+SourceList::const_iterator SourceList::begin() const noexcept
+{
+    return m_items.begin();
+}
+SourceList::const_iterator SourceList::end() const noexcept
+{
+    return m_items.end();
+}
 SourceList::const_iterator SourceList::cbegin() const noexcept
 {
     return m_items.cbegin();

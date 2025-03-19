@@ -20,8 +20,7 @@ import QtQuick.Controls 2.15
 import QtQuick.Controls.Material 2.1
 import QtQuick.Layouts 1.1
 import QtQuick.Window 2.2
-import QtQuick.Controls 1.4
-import QtQuick.Dialogs 1.2
+import QtQuick.Dialogs
 import SourceModel 1.0
 import OpenSoundMeter 1.0
 
@@ -174,9 +173,9 @@ ApplicationWindow {
 
     FileDialog {
         id: saveDialog
-        selectExisting: false
+        fileMode: FileDialog.SaveFile
         title: qsTr("Please choose a file's name")
-        folder: (typeof shortcuts !== 'undefined' ? shortcuts.home : Filesystem.StandardFolder.Home)
+        currentFolder: (typeof shortcuts !== 'undefined' ? shortcuts.home : Filesystem.StandardFolder.Home)
         defaultSuffix: "osm"
         nameFilters: ["Open Sound Meter (*.osm)"]
         onAccepted: sourceList.save(saveDialog.fileUrl);
@@ -184,9 +183,9 @@ ApplicationWindow {
 
     FileDialog {
         id: openDialog
-        selectExisting: true
+        fileMode: FileDialog.OpenFile
         title: qsTr("Please choose a file's name")
-        folder: (typeof shortcuts !== 'undefined' ? shortcuts.home : Filesystem.StandardFolder.Home)
+        currentFolder: (typeof shortcuts !== 'undefined' ? shortcuts.home : Filesystem.StandardFolder.Home)
         defaultSuffix: "osm"
         nameFilters: ["Open Sound Meter (*.osm)"]
         onAccepted: function() {
@@ -199,9 +198,9 @@ ApplicationWindow {
 
     FileDialog {
         id: importDialog
-        selectExisting: true
+        fileMode: FileDialog.OpenFile
         title: qsTr("Please choose a file's name")
-        folder: (typeof shortcuts !== 'undefined' ? shortcuts.home : Filesystem.StandardFolder.Home)
+        currentFolder: (typeof shortcuts !== 'undefined' ? shortcuts.home : Filesystem.StandardFolder.Home)
         defaultSuffix: "txt"
         nameFilters: [
             "txt transfer data file (*.txt *.cal)",

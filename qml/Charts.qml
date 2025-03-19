@@ -15,9 +15,9 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-import QtQuick 2.7
-import QtQuick.Controls 1.4 //SplitView needs exactly 1.4
-import QtQuick.Layouts 1.3
+import QtQuick 6.0
+import QtQuick.Controls 6.0
+import QtQuick.Layouts 6.0
 
 Item {
     id: chartsLayout
@@ -33,77 +33,72 @@ Item {
 
     function updateCount() {
         autoHeight();
-        applicationSettings.setValue("layout/charts/count", count)
+        applicationSettings.setValue("layout/charts/count", count);
     }
 
     SplitView {
         id: sv
         anchors.fill: parent
         orientation: Qt.Vertical
-        readonly property int minimunHeight: 100
+        readonly property int minimumHeight: 100
 
-         Chart {
-             id: first
-             Layout.fillWidth: true
-             Layout.minimumHeight: sv.minimunHeight
-             Layout.preferredWidth: parent.width
-             Layout.fillHeight: true
-             height: applicationSettings.value("layout/charts/1/height")
-             onHeightChanged: applicationSettings.setValue("layout/charts/1/height", height)
-             type: applicationSettings.value("layout/charts/1/type", "Spectrum")
-             onTypeChanged: applicationSettings.setValue("layout/charts/1/type", type)
+        Chart {
+            id: first
+            SplitView.fillWidth: true
+            SplitView.minimumHeight: sv.minimumHeight
+            height: applicationSettings.value("layout/charts/1/height")
+            onHeightChanged: applicationSettings.setValue("layout/charts/1/height", height)
+            type: applicationSettings.value("layout/charts/1/type", "Spectrum")
+            onTypeChanged: applicationSettings.setValue("layout/charts/1/type", type)
 
-             Component.onCompleted: {
-                 settings = applicationSettings.getGroup("layout/charts/1");
-             }
-         }
+            Component.onCompleted: {
+                settings = applicationSettings.getGroup("layout/charts/1");
+            }
+        }
 
-         Chart {
-             id: second
-             visible: chartsLayout.count > 1
-             Layout.fillWidth: true
-             Layout.minimumHeight: sv.minimunHeight
-             Layout.preferredWidth: parent.width
-             height: applicationSettings.value("layout/charts/2/height")
-             onHeightChanged: applicationSettings.setValue("layout/charts/2/height", height)
-             type: applicationSettings.value("layout/charts/2/type", "Spectrum")
-             onTypeChanged: applicationSettings.setValue("layout/charts/2/type", type)
+        Chart {
+            id: second
+            visible: chartsLayout.count > 1
+            SplitView.fillWidth: true
+            SplitView.minimumHeight: sv.minimumHeight
+            height: applicationSettings.value("layout/charts/2/height")
+            onHeightChanged: applicationSettings.setValue("layout/charts/2/height", height)
+            type: applicationSettings.value("layout/charts/2/type", "Spectrum")
+            onTypeChanged: applicationSettings.setValue("layout/charts/2/type", type)
 
-             Component.onCompleted: {
-                 settings = applicationSettings.getGroup("layout/charts/2");
-             }
-         }
+            Component.onCompleted: {
+                settings = applicationSettings.getGroup("layout/charts/2");
+            }
+        }
 
-         Chart {
-             id: third
-             visible: chartsLayout.count > 2
-             Layout.fillWidth: true
-             Layout.minimumHeight: sv.minimunHeight
-             Layout.preferredWidth: parent.width
-             height: applicationSettings.value("layout/charts/3/height")
-             onHeightChanged: applicationSettings.setValue("layout/charts/3/height", height)
-             type: applicationSettings.value("layout/charts/3/type", "Spectrum")
-             onTypeChanged: applicationSettings.setValue("layout/charts/3/type", type)
+        Chart {
+            id: third
+            visible: chartsLayout.count > 2
+            SplitView.fillWidth: true
+            SplitView.minimumHeight: sv.minimumHeight
+            height: applicationSettings.value("layout/charts/3/height")
+            onHeightChanged: applicationSettings.setValue("layout/charts/3/height", height)
+            type: applicationSettings.value("layout/charts/3/type", "Spectrum")
+            onTypeChanged: applicationSettings.setValue("layout/charts/3/type", type)
 
-             Component.onCompleted: {
-                 settings = applicationSettings.getGroup("layout/charts/3");
-             }
-         }
+            Component.onCompleted: {
+                settings = applicationSettings.getGroup("layout/charts/3");
+            }
+        }
 
-         SystemPalette { id: pal }
-         handleDelegate: Rectangle {
-             width: 1
-             height: 1
-             color: Qt.darker(pal.window, 1.5)
+        SystemPalette { id: pal }
+        handle: Rectangle {
+            width: 1
+            height: 1
+            color: Qt.darker(pal.window, 1.5)
 
-             MouseArea {
-                 anchors.fill: parent
-                 propagateComposedEvents: true
-                 onDoubleClicked: {
-                     autoHeight();
-                 }
-             }
-         }
-     }
-
+            MouseArea {
+                anchors.fill: parent
+                propagateComposedEvents: true
+                onDoubleClicked: {
+                    autoHeight();
+                }
+            }
+        }
+    }
 }
