@@ -91,6 +91,8 @@ float WindowFunction::pointGain(float i, unsigned int N) const
         return std::pow(M_E, power);
     }
     }
+    // no windowing
+    return 1.0;
 }
 
 WindowFunction::Type WindowFunction::type() const

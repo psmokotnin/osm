@@ -16,8 +16,9 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <QtMath>
 #include "sinburst.h"
+
+#include <cmath>
 
 SinBurst::SinBurst(QObject *parent)
     : OutputDevice{parent},
@@ -48,8 +49,8 @@ Sample SinBurst::sample()
         }
     }
 
-    const static float PI10 = M_PI / 10;
-    Sample output = { m_burst ? m_gain *static_cast<float>(sin(m_phase)) *sin(m_periods * PI10) / 2 : 0.f };
+    constexpr static float PI10 = M_PI / 10.0;
+    Sample output = { m_burst ? m_gain * static_cast<float>(std::sin(m_phase)) * std::sin(m_periods * PI10) / 2.f : 0.f };
     return output;
 }
 

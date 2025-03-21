@@ -45,7 +45,7 @@ const QList<std::pair<QString, std::vector<QPointF>>> TargetTrace::m_presets = {
 };
 
 TargetTrace::TargetTrace(Settings *settings, QObject *parent) : QObject(parent),
-    m_points{ m_presets[0].second }, m_settings(settings), m_preset(0)
+    m_points{ m_presets[0].second }, m_preset(0), m_settings(settings)
 {
     Q_ASSERT(!m_instance);
 
@@ -199,9 +199,9 @@ void TargetTrace::setPreset(unsigned newPreset)
 
     std::lock_guard<std::mutex> guard(m_mutex);
 
-    if (m_presets.size() > newPreset) {
+    if (static_cast<unsigned>(m_presets.size()) > newPreset) {
         m_preset = newPreset;
-        for (auto i = 0; i < m_points.size(); ++i) {
+        for (std::size_t i = 0; i < static_cast<std::size_t>(m_points.size()); ++i) {
             m_points[i].setX(m_presets[m_preset].second[i].x());
             m_points[i].setY(m_presets[m_preset].second[i].y());
         }

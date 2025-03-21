@@ -130,7 +130,7 @@ void RTAPlot::setShowPeaks(bool showPeaks)
 
 bool RTAPlot::isPointsPerOctaveValid(unsigned int &value) const
 {
-    return value >= 0 && value <= 48;
+    return value <= 48; // >= 0 omitted since value is unsigned 
 }
 
 RTAPlot::Scale RTAPlot::scale() const
