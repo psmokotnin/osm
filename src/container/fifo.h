@@ -22,7 +22,7 @@
 #include <atomic>
 
 namespace Container {
-template<typename T> class fifo
+template<typename T> class Fifo
 {
 
 private:
@@ -35,11 +35,11 @@ private:
     std::atomic<size_t> m_size;
 
 public:
-    fifo(): m_front(nullptr), m_end(nullptr), m_size(0)
+    Fifo(): m_front(nullptr), m_end(nullptr), m_size(0)
     {
     }
 
-    ~fifo()
+    ~Fifo()
     {
         reset();
     }
