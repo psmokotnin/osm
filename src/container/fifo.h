@@ -21,7 +21,7 @@
 #include <cmath>
 #include <atomic>
 
-namespace container {
+namespace Container {
 template<typename T> class fifo
 {
 

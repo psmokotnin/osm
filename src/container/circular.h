@@ -20,7 +20,7 @@
 
 #include <vector>
 
-namespace container {
+namespace Container {
 template<typename T> class circular
 {
 public:

@@ -27,13 +27,13 @@
 class Coherence
 {
 private:
-    container::array<container::array<float>> m_Grr, m_Gmm;
-    container::array<container::array<complex>> m_Grm;
+    Container::array<Container::array<float>> m_Grr, m_Gmm;
+    Container::array<Container::array<complex>> m_Grm;
     unsigned int m_subpointer;
     size_t m_depth;
 
-    container::array<float> m_Crr, m_Cmm;
-    container::array<complex> m_Crm;
+    Container::array<float> m_Crr, m_Cmm;
+    Container::array<complex> m_Crm;
 
 public:
     Coherence();

@@ -39,7 +39,7 @@ public:
 private:
     unsigned int m_size, m_maxIndex;
     float m_norm;
-    container::array<float> m_data;
+    Container::array<float> m_data;
     FourierTransform m_fft, m_ifft;
 };
 

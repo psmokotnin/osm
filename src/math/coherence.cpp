@@ -44,15 +44,15 @@ void Coherence::setSize(const size_t &size) noexcept
 void Coherence::setDepth(const size_t &depth) noexcept
 {
     m_depth = depth;
-    m_Gmm.each([&depth](container::array<float> *a) {
+    m_Gmm.each([&depth](Container::array<float> *a) {
         a->resize(depth);
         a->fill(0.f);
     });
-    m_Grr.each([&depth](container::array<float> *a) {
+    m_Grr.each([&depth](Container::array<float> *a) {
         a->resize(depth);
         a->fill(0.f);
     });
-    m_Grm.each([&depth](container::array<complex> *a) {
+    m_Grm.each([&depth](Container::array<complex> *a) {
         a->resize(depth);
         a->fill(0);
     });

@@ -22,7 +22,7 @@
 #include <mutex>
 #include <QtGlobal>
 
-namespace container {
+namespace Container {
 template<typename T> class array
 {
 

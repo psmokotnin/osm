@@ -160,7 +160,7 @@ private:
     long m_estimatedDelay;
     bool m_error;
 
-    container::circular<float> m_data, m_reference, m_loopBuffer;
+    Container::circular<float> m_data, m_reference, m_loopBuffer;
     struct Meters {
         std::unordered_map<Levels::Key, Meter, Levels::Key::Hash> m_meters;
         Meter m_reference;
@@ -181,9 +181,9 @@ private:
     Averaging<complex> m_pahseAvg;
     Coherence m_coherence;
 
-    container::array<Filter::BesselLPF<float>> m_moduleLPFs, m_magnitudeLPFs, m_deconvLPFs;
-    container::array<Filter::BesselLPF<complex>> m_phaseLPFs;
-    container::array<Meter> m_meters;
+    Container::array<Filter::BesselLPF<float>> m_moduleLPFs, m_magnitudeLPFs, m_deconvLPFs;
+    Container::array<Filter::BesselLPF<complex>> m_phaseLPFs;
+    Container::array<Meter> m_meters;
 
     void calculateDataLength();
     void averaging();

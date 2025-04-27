@@ -27,11 +27,11 @@ template<typename T> class Averaging
 {
 
 private:
-    typedef container::fifo<T> dataT;
-    container::array<dataT> m_data;
+    typedef Container::fifo<T> dataT;
+    Container::array<dataT> m_data;
 
-    container::array<T> m_value;
-    container::array<unsigned int> m_collected;
+    Container::array<T> m_value;
+    Container::array<unsigned int> m_collected;
     float m_gain;
     unsigned int m_size;
     unsigned int m_depth;

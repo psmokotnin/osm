@@ -57,7 +57,7 @@ public:
 private:
     Type m_type;
     unsigned int m_size;
-    container::array<float> m_data;
+    Container::array<float> m_data;
     float m_gain;
     float m_norm;
 

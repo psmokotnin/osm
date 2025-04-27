@@ -124,20 +124,20 @@ private:
     WindowFunction m_window;
 
     //! income data channel
-    container::array<float> m_inA, m_inB;
+    Container::array<float> m_inA, m_inB;
 
     //! fft swap map
-    container::array<unsigned int> m_swapMap;
+    Container::array<unsigned int> m_swapMap;
 
     struct LogBasisVector {
         unsigned int N;
         float frequency;
         std::vector<v4sf> w;
     };
-    container::array<LogBasisVector> m_logBasis;
+    Container::array<LogBasisVector> m_logBasis;
 
     //! containers for fast transform
-    container::array<complex> m_fastA, m_fastB, m_wlen;
+    Container::array<complex> m_fastA, m_fastB, m_wlen;
 };
 
 #endif // FOURIERTRANSFORM_H
