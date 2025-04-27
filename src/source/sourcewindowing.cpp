@@ -247,6 +247,7 @@ void Windowing::updateFromFrequencyDomain()
 
     unsigned last = 0, j = 0;
     float kg, bg, g, g1, g2, f1, f2, c, kc, bc, c1, c2;
+    float m, m1, m2, km, bm;
     complex p1, p2, kp, bp, p;
     bool inList = false;
 
@@ -264,6 +265,7 @@ void Windowing::updateFromFrequencyDomain()
         }
 
         f1 = m_source->frequency(last);
+        m1 = m_source->module(last);
         g1 = m_source->magnitudeRaw(last);
         p1 = m_source->phase(last);
         c1 = m_source->coherence(last);
@@ -274,6 +276,7 @@ void Windowing::updateFromFrequencyDomain()
         }
 
         f2 = m_source->frequency(j);
+        m2 = m_source->module(j);
         g2 = m_source->magnitudeRaw(j);
         p2 = m_source->phase(j);
         c2 = m_source->coherence(j);
@@ -283,6 +286,9 @@ void Windowing::updateFromFrequencyDomain()
         }
 
         if (inList) {
+            km = (m2 - m1) / (f2 - f1);
+            bm = m2 - f2 * km;
+
             kg = (g2 - g1) / (f2 - f1);
             bg = g2 - f2 * kg;
 
@@ -292,10 +298,12 @@ void Windowing::updateFromFrequencyDomain()
             kc = (c2 - c1) / (f2 - f1);
             bc = c2 - kc * f2;
 
+            m = km * frequency(i) + bm;
             g = kg * frequency(i) + bg;
             p = kp * frequency(i) + bp;
             c = kc * frequency(i) + bc;
         } else {
+            m = m2;
             g = g2;
             p = p2;
             c = c2;
@@ -303,11 +311,13 @@ void Windowing::updateFromFrequencyDomain()
 
         static float threshold = powf(10, -30 / 20);
         if (g < threshold || c < 0.7) {
+            m = 0;
             g = 0;
             p = 0;
             c = 0;
         }
         auto complexMagnitude = i == 0 ? 0 : p * g;
+        m_ftdata[i].module = m;
         m_ftdata[i].magnitude = g;
         m_ftdata[i].phase = p;
         m_ftdata[i].coherence = c;
