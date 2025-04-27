@@ -45,7 +45,16 @@ void Deconvolution::transform(const FourierTransform *forward)
 
     //devision
     for (unsigned int i = 0; i < m_size; i++) {
-        m_ifft.set(i, source->af(i) / source->bf(i), 0.f);
+        static const float l = std::pow(10, -100.f / 20);
+        auto a = source->af(i);
+        auto b = source->bf(i);
+        if (a < l) {
+            a = 0;
+        }
+        if (b < l) {
+            b = std::numeric_limits<float>::epsilon();
+        }
+        m_ifft.set(i, a / b, 0.f);
     }
 
     //reverse
