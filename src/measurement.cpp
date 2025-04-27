@@ -27,6 +27,7 @@
 #include "generator/generatorthread.h"
 #include "math/notch.h"
 #include "math/bandpass.h"
+#include "math/lowpassfilter.h"
 
 Measurement::Measurement(QObject *parent) : Source::Abstract(parent), Meta::Measurement(),
     m_timer(nullptr), m_timerThread(nullptr),
@@ -311,6 +312,12 @@ void Measurement::applyInputFilters()
         auto q = 5.f;
         std::atomic_store(&m_inputFilters.first,  std::shared_ptr<math::Filter>(new math::BandPass(100, q, sampleRate())));
         std::atomic_store(&m_inputFilters.second, std::shared_ptr<math::Filter>(new math::BandPass(100, q, sampleRate())));
+    }
+    break;
+    case InputFilter::LP200: {
+        auto q = 0.5f;
+        std::atomic_store(&m_inputFilters.first,  std::shared_ptr<math::Filter>(new math::LowPassFilter(200, q, sampleRate())));
+        std::atomic_store(&m_inputFilters.second, std::shared_ptr<math::Filter>(new math::LowPassFilter(200, q, sampleRate())));
     }
     break;
     case InputFilter::Z:

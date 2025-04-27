@@ -55,6 +55,7 @@ SOURCES += src/main.cpp \
     src/math/equalloudnesscontour.cpp \
     src/math/integration_tree.cpp \
     src/math/leq.cpp \
+    src/math/lowpassfilter.cpp \
     src/math/notch.cpp \
     src/math/weighting.cpp \
     src/meta/metabase.cpp \
@@ -198,6 +199,7 @@ HEADERS += \
     src/math/filter.h \
     src/math/integration_tree.h \
     src/math/leq.h \
+    src/math/lowpassfilter.h \
     src/math/notch.h \
     src/math/weighting.h \
     src/meta/metabase.h \

@@ -42,7 +42,7 @@ public:
     Q_ENUM(Mode)
     Q_ENUM(Filter::Frequency)
 
-    enum InputFilter {Z, A, C, Notch, BP100};
+    enum InputFilter {Z, A, C, Notch, BP100, LP200};
     Q_ENUM(InputFilter)
 
     Measurement();
