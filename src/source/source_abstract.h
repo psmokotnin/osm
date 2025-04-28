@@ -28,10 +28,12 @@
 #include "math/complex.h"
 #include "math/meter.h"
 #include "source/source_shared.h"
+#include "abstract/source.h"
+
 class SourceList;
 
 namespace Source {
-class Abstract : public QObject
+class Abstract : public ::Abstract::Source
 {
 
     Q_OBJECT
@@ -60,7 +62,7 @@ public:
 
     explicit Abstract(QObject *parent = nullptr);
     virtual ~Abstract();
-    virtual Source::Shared clone() const = 0;
+    virtual ::Source::Shared clone() const = 0;
     virtual bool cloneable() const;
 
     virtual Q_INVOKABLE void destroy();
@@ -125,14 +127,14 @@ public:
 
     void setUuid(const QUuid &newUuid);
 
-    Q_INVOKABLE virtual Source::Shared store();
+    Q_INVOKABLE virtual ::Source::Shared store();
 
 signals:
     void activeChanged();
     void nameChanged(QString);
     void colorChanged(QColor);
     void readyRead();
-    void beforeDestroy(Source::Abstract *);//TODO: check if still needed
+    void beforeDestroy(::Source::Abstract *);//TODO: check if still needed
 
 public slots:
     void setGlobalColor(int globalValue);

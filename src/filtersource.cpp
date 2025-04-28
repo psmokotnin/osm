@@ -18,7 +18,7 @@
 #include "filtersource.h"
 #include "stored.h"
 
-FilterSource::FilterSource(QObject *parent) : Source::Abstract(parent), Meta::Filter(), m_autoName(true)
+FilterSource::FilterSource(QObject *parent) : ::Source::Abstract(parent), Meta::Filter(), m_autoName(true)
 {
     setObjectName("Filter");
     setName("Filter");
@@ -50,12 +50,12 @@ Source::Shared FilterSource::clone() const
     cloned->setOrder(order());
     cloned->setSampleRate(sampleRate());
 
-    return std::static_pointer_cast<Source::Abstract>(cloned);
+    return std::static_pointer_cast<::Source::Abstract>(cloned);
 }
 
 QJsonObject FilterSource::toJSON(const SourceList *list) const noexcept
 {
-    auto object = Source::Abstract::toJSON(list);
+    auto object = ::Source::Abstract::toJSON(list);
 
     object["mode"]          = mode();
     object["type"]          = type();
@@ -70,7 +70,7 @@ QJsonObject FilterSource::toJSON(const SourceList *list) const noexcept
 
 void FilterSource::fromJSON(QJsonObject data, const SourceList *list) noexcept
 {
-    Source::Abstract::fromJSON(data, list);
+    ::Source::Abstract::fromJSON(data, list);
 
     auto variantMode = data["mode"].toVariant();
     if (variantMode.isValid()) {

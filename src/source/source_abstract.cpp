@@ -20,7 +20,7 @@
 
 namespace Source {
 
-Abstract::Abstract(QObject *parent) : QObject(parent),
+Abstract::Abstract(QObject *parent) : ::Abstract::Source(parent),
     m_dataMutex(), m_onReset(false),
     m_ftdata(),
     m_impulseData(),
@@ -29,7 +29,7 @@ Abstract::Abstract(QObject *parent) : QObject(parent),
     m_active(false),
     m_uuid(QUuid::createUuid())
 {
-    qRegisterMetaType<Source::Abstract *>("Source*");
+    qRegisterMetaType<::Source::Abstract *>("Source*");
 }
 
 Abstract::~Abstract()

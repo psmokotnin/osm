@@ -24,7 +24,7 @@
 
 std::mutex Union::s_calcmutex = std::mutex();
 
-Union::Union(QObject *parent): Source::Abstract(parent),
+Union::Union(QObject *parent): ::Source::Abstract(parent),
     m_sources(2),
     m_timer(nullptr), m_timerThread(nullptr),
     m_operation(Summation),
@@ -64,7 +64,7 @@ Source::Shared Union::clone() const
     for (int i = 0; i < count(); ++i) {
         cloned->setSource(i, getSource(i));
     }
-    return std::static_pointer_cast<Source::Abstract>(cloned);
+    return std::static_pointer_cast<::Source::Abstract>(cloned);
 }
 
 int Union::count() const noexcept
@@ -98,7 +98,7 @@ void Union::setActive(bool active) noexcept
     if (active && checkLoop(this)) {
         return;
     }
-    Source::Abstract::setActive(active);
+    ::Source::Abstract::setActive(active);
     update();
 }
 Union::Type Union::type() const
@@ -143,7 +143,7 @@ QUuid Union::getSourceId(int index) const noexcept
     }
     return {};
 }
-bool Union::setSource(int index, const Source::Shared &s) noexcept
+bool Union::setSource(int index, const ::Source::Shared &s) noexcept
 {
     if (s == getSource(index))
         return true;
@@ -158,15 +158,15 @@ bool Union::setSource(int index, const Source::Shared &s) noexcept
 
     if (index < m_sources.count()) {
         if (m_sources[index]) {
-            disconnect(m_sources[index].get(), &Source::Abstract::readyRead, this, &Union::update);
+            disconnect(m_sources[index].get(), &::Source::Abstract::readyRead, this, &Union::update);
         }
         m_sources.replace(index, s);
         if (index == 0)
             init();
 
         if (s) {
-            connect(s.get(), &Source::Abstract::readyRead, this, &Union::update);
-            connect(s.get(), &Source::Abstract::beforeDestroy, this, &Union::sourceDestroyed, Qt::DirectConnection);
+            connect(s.get(), &::Source::Abstract::readyRead, this, &Union::update);
+            connect(s.get(), &::Source::Abstract::beforeDestroy, this, &Union::sourceDestroyed, Qt::DirectConnection);
         }
         update();
         emit modelChanged();
@@ -183,7 +183,7 @@ void Union::update() noexcept
 
 void Union::calc() noexcept
 {
-    std::set<Source::Shared> sources;
+    std::set<::Source::Shared> sources;
 
     if (!active())
         return;
@@ -254,7 +254,7 @@ void Union::calc() noexcept
     }
     emit readyRead();
 }
-void Union::calcPolar(unsigned int count, const Source::Shared &primary) noexcept
+void Union::calcPolar(unsigned int count, const ::Source::Shared &primary) noexcept
 {
     float magnitude, module, coherence, coherenceWeight;
     complex phase;
@@ -331,7 +331,7 @@ void Union::calcPolar(unsigned int count, const Source::Shared &primary) noexcep
         m_impulseData[i].value = NAN;
     }
 }
-void Union::calcVector(unsigned int count, const Source::Shared &primary) noexcept
+void Union::calcVector(unsigned int count, const ::Source::Shared &primary) noexcept
 {
     float coherence, coherenceWeight;
     complex a, m, p;
@@ -444,7 +444,7 @@ void Union::calcVector(unsigned int count, const Source::Shared &primary) noexce
     }
 }
 
-void Union::calcdB(unsigned int count, const Source::Shared &primary) noexcept
+void Union::calcdB(unsigned int count, const ::Source::Shared &primary) noexcept
 {
     float magnitude, module, coherence, coherenceWeight;
     complex phase;
@@ -525,7 +525,7 @@ void Union::calcdB(unsigned int count, const Source::Shared &primary) noexcept
     }
 }
 
-void Union::calcPower(unsigned int count, const Source::Shared &primary) noexcept
+void Union::calcPower(unsigned int count, const ::Source::Shared &primary) noexcept
 {
     float magnitude, module, coherence, coherenceWeight;
     complex phase;
@@ -608,7 +608,7 @@ void Union::calcPower(unsigned int count, const Source::Shared &primary) noexcep
     }
 }
 
-void Union::calcApply(const Source::Shared &primary) noexcept
+void Union::calcApply(const ::Source::Shared &primary) noexcept
 {
     float magnitude, module, coherence;
     complex phase;
@@ -694,7 +694,7 @@ void Union::applyAutoName() noexcept
     }
 }
 
-void Union::sourceDestroyed(Source::Abstract *source)
+void Union::sourceDestroyed(::Source::Abstract *source)
 {
     std::lock_guard l(s_calcmutex);
 
@@ -703,13 +703,13 @@ void Union::sourceDestroyed(Source::Abstract *source)
     });
     if (position != m_sources.end()) {
         auto index = std::distance(m_sources.begin(), position);
-        setSource(index, Source::Shared{nullptr});
+        setSource(index, ::Source::Shared{nullptr});
     }
 }
 
 QJsonObject Union::toJSON(const SourceList *list) const noexcept
 {
-    auto object = Source::Abstract::toJSON(list);
+    auto object = ::Source::Abstract::toJSON(list);
 
     object["count"]     = count();
     object["type"]      = type();

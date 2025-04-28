@@ -38,10 +38,10 @@ public:
     explicit                    Group(QObject *parent = nullptr);
 
     Q_INVOKABLE void            destroy() override;
-    Source::Shared              clone() const override;
+    ::Source::Shared              clone() const override;
 
-    void                        add(const Source::Shared &source);
-    Q_INVOKABLE Source::Shared  pop(const QUuid &uuid) override;
+    void                        add(const ::Source::Shared &source);
+    Q_INVOKABLE ::Source::Shared  pop(const QUuid &uuid) override;
     void                        remove(const QUuid &uuid, bool deleteItem = true);
     unsigned                    size() const override;
     SourceList                 *sourceList() override;

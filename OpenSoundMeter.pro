@@ -8,6 +8,7 @@ QML_IMPORT_NAME = OpenSoundMeterModule
 QML_IMPORT_MAJOR_VERSION = 1
 
 SOURCES += src/main.cpp \
+    src/abstract/source.cpp \
     src/audio/client.cpp \
     src/audio/deviceinfo.cpp \
     src/audio/devicemodel.cpp \
@@ -147,6 +148,7 @@ INCLUDEPATH += \
     src/source
 
 HEADERS += \
+    src/abstract/source.h \
     src/audio/client.h \
     src/audio/deviceinfo.h \
     src/audio/devicemodel.h \

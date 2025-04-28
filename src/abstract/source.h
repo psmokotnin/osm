@@ -1,6 +1,6 @@
 /**
  *  OSM
- *  Copyright (C) 2024  Pavel Smokotnin
+ *  Copyright (C) 2025  Pavel Smokotnin
 
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -15,35 +15,22 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef REMOTE_GROUPITEM_H
-#define REMOTE_GROUPITEM_H
 
-#include "remote/item.h"
-#include "meta/metagroup.h"
+#ifndef ABSTRACT_SOURCE_H
+#define ABSTRACT_SOURCE_H
 
-namespace remote {
+#include <QObject>
 
-class GroupItem : public remote::Item, public Meta::Group
+namespace Abstract {
+
+class Source : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(unsigned size READ size  NOTIFY sizeChanged)
-    Q_PROPERTY(SourceList *sourceList READ sourceList CONSTANT)
 
 public:
-    explicit GroupItem(QObject *parent = nullptr);
-
-    SourceList *sourceList() override;
-    unsigned    size() const override;
-
-    Q_INVOKABLE ::Source::Shared  pop(const QUuid &) override;
-
-signals:
-    void sizeChanged() override;
-
-private:
-    SourceList  m_sourceList;
+    explicit Source(QObject *parent = nullptr);
 };
 
-} // namespace remote
+} // namespace Abstract
 
-#endif // REMOTE_GROUPITEM_H
+#endif // ABSTRACT_SOURCE_H

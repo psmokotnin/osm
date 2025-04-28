@@ -39,7 +39,7 @@
 #include "common/settings.h"
 #include "container/circular.h"
 
-class Measurement : public Source::Abstract, public Meta::Measurement
+class Measurement : public ::Source::Abstract, public Meta::Measurement
 {
     Q_OBJECT
 
@@ -92,7 +92,7 @@ public:
 
     static const unsigned int TIMER_INTERVAL = 80; //ms = 12.5 per sec
 
-    Source::Shared clone() const override;
+    ::Source::Shared clone() const override;
 
     void setActive(bool active) override;
 
@@ -107,7 +107,7 @@ public:
     float referencePeak() const;
 
     Q_INVOKABLE void resetAverage() noexcept override;
-    Q_INVOKABLE Source::Shared store() override;
+    Q_INVOKABLE ::Source::Shared store() override;
 
     unsigned int sampleRate() const;
 

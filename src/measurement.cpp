@@ -29,7 +29,7 @@
 #include "math/bandpass.h"
 #include "math/lowpassfilter.h"
 
-Measurement::Measurement(QObject *parent) : Source::Abstract(parent), Meta::Measurement(),
+Measurement::Measurement(QObject *parent) : ::Source::Abstract(parent), Meta::Measurement(),
     m_timer(nullptr), m_timerThread(nullptr),
     m_input(this),
     m_deviceId(audio::Client::defaultInputDeviceId()),
@@ -127,7 +127,7 @@ Measurement::~Measurement()
 }
 QJsonObject Measurement::toJSON(const SourceList *list) const noexcept
 {
-    auto data = Source::Abstract::toJSON(list);
+    auto data = ::Source::Abstract::toJSON(list);
     data["delay"]           = static_cast<int>(delay());
     data["gain"]            = gain();
     data["offset"]          = offset();
@@ -161,7 +161,7 @@ QJsonObject Measurement::toJSON(const SourceList *list) const noexcept
 }
 void Measurement::fromJSON(QJsonObject data, const SourceList *list) noexcept
 {
-    Source::Abstract::fromJSON(data, list);
+    ::Source::Abstract::fromJSON(data, list);
 
     auto castUInt = [](const QJsonValue & value, unsigned int defaultValue = 0) {
         return static_cast<unsigned int>(value.toInt(static_cast<int>(defaultValue)));
@@ -390,7 +390,7 @@ void Measurement::setActive(bool active)
         return;
     std::lock_guard<std::mutex> guard(m_dataMutex);
 
-    Source::Abstract::setActive(active);
+    ::Source::Abstract::setActive(active);
     m_error = false;
     emit errorChanged(m_error);
 
@@ -403,7 +403,7 @@ void Measurement::setActive(bool active)
 }
 void Measurement::setError()
 {
-    Source::Abstract::setActive(false);
+    ::Source::Abstract::setActive(false);
     m_error = true;
     m_levelMeters.reset();
     m_input.close();
@@ -728,7 +728,7 @@ Source::Shared Measurement::clone() const
     cloned->setName(name());
     cloned->setActive(active());
 
-    return std::static_pointer_cast<Source::Abstract>(cloned);
+    return std::static_pointer_cast<::Source::Abstract>(cloned);
 }
 long Measurement::estimated() const noexcept
 {
@@ -896,7 +896,7 @@ void Measurement::checkChannels()
 void Measurement::destroy()
 {
     setActive(false);
-    Source::Abstract::destroy();
+    ::Source::Abstract::destroy();
 }
 void Measurement::resetAverage() noexcept
 {

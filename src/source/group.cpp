@@ -25,7 +25,7 @@ Group::Group(QObject *parent)
     : Abstract{parent},
       m_sourceList(this, false)
 {
-    qRegisterMetaType<Source::Group *>("Source::Group*");
+    qRegisterMetaType<::Source::Group *>("Source::Group*");
     setObjectName("Group");
     setName("Group");
     setActive(true);
@@ -42,7 +42,7 @@ void Group::destroy()
 
 QJsonObject Group::toJSON(const SourceList *list) const noexcept
 {
-    auto object = Source::Abstract::toJSON(list);
+    auto object = ::Source::Abstract::toJSON(list);
 
     object["list"]      = m_sourceList.toJSON(list);
 
@@ -51,7 +51,7 @@ QJsonObject Group::toJSON(const SourceList *list) const noexcept
 
 void Group::fromJSON(QJsonObject data, const SourceList *list) noexcept
 {
-    Source::Abstract::fromJSON(data, list);
+    ::Source::Abstract::fromJSON(data, list);
 
     m_sourceList.fromJSON(data["list"].toArray(), list);
 }
@@ -67,7 +67,7 @@ Shared Group::clone() const
             cloned->m_sourceList.appendItem(clonedItem, true);
         }
     }
-    return std::static_pointer_cast<Source::Abstract>(cloned);
+    return std::static_pointer_cast<::Source::Abstract>(cloned);
 }
 
 void Group::add(const Shared &source)

@@ -23,7 +23,7 @@
 #include "source/source_abstract.h"
 #include "math/fouriertransform.h"
 
-class FilterSource : public Source::Abstract, public Meta::Filter
+class FilterSource : public ::Source::Abstract, public Meta::Filter
 {
     Q_OBJECT
     QML_ELEMENT
@@ -46,11 +46,11 @@ class FilterSource : public Source::Abstract, public Meta::Filter
 public:
     FilterSource(QObject *parent = nullptr);
 
-    Source::Shared clone() const override;
+    ::Source::Shared clone() const override;
     Q_INVOKABLE QJsonObject toJSON(const SourceList *list = nullptr) const noexcept override;
     void fromJSON(QJsonObject data, const SourceList *list = nullptr) noexcept override;
 
-    Q_INVOKABLE Source::Shared store()  override;
+    Q_INVOKABLE ::Source::Shared store()  override;
 
     bool autoName() const;
     void setAutoName(bool newAutoName);

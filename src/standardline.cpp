@@ -25,7 +25,7 @@ const std::map<StandardLine::Mode, QString>StandardLine::m_modeMap = {
     {StandardLine::WEIGHTING_C, "Weighting C"},
 };
 
-StandardLine::StandardLine(QObject *parent) : Source::Abstract(parent), m_mode(ELC), m_loudness(80.f)
+StandardLine::StandardLine(QObject *parent) : ::Source::Abstract(parent), m_mode(ELC), m_loudness(80.f)
 {
     setObjectName("StandardLine");
     setActive(true);
@@ -40,12 +40,12 @@ Source::Shared StandardLine::clone() const
     cloned->setLoudness(loudness());
     cloned->setName(name());
     cloned->setActive(active());
-    return std::static_pointer_cast<Source::Abstract>(cloned);
+    return std::static_pointer_cast<::Source::Abstract>(cloned);
 }
 
 QJsonObject StandardLine::toJSON(const SourceList *list) const noexcept
 {
-    auto object = Source::Abstract::toJSON(list);
+    auto object = ::Source::Abstract::toJSON(list);
     object["mode"]      = mode();
     object["loudness"]  = loudness();
 
@@ -56,7 +56,7 @@ void StandardLine::fromJSON(QJsonObject data, const SourceList *list) noexcept
 {
     setMode(data["mode"].toInt(mode()));
     setLoudness(data["loudness"].toDouble());
-    Source::Abstract::fromJSON(data, list);
+    ::Source::Abstract::fromJSON(data, list);
 }
 
 float StandardLine::loudness() const noexcept

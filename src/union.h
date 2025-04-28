@@ -26,7 +26,7 @@
 #include <set>
 #include "source/source_abstract.h"
 
-class Union : public Source::Abstract
+class Union : public ::Source::Abstract
 {
     Q_OBJECT
 
@@ -35,7 +35,7 @@ class Union : public Source::Abstract
     Q_PROPERTY(Operation operation READ operation WRITE setOperation NOTIFY operationChanged)
     Q_PROPERTY(Type type READ type WRITE setType NOTIFY typeChanged)
 
-    using SourceVector = QVector<Source::Shared>;
+    using SourceVector = QVector<::Source::Shared>;
 
 public:
     enum Operation {Summation, Subtract, Avg, Min, Max, Diff, Apply};
@@ -60,15 +60,15 @@ public:
 
     explicit Union(QObject *parent = nullptr);
     ~Union() override;
-    Source::Shared clone() const override;
+    ::Source::Shared clone() const override;
 
     int count() const noexcept;
     void setCount(int count) noexcept;
 
-    Q_INVOKABLE Source::Shared getSource(int index) const noexcept;
+    Q_INVOKABLE ::Source::Shared getSource(int index) const noexcept;
     Q_INVOKABLE QUuid getSourceId(int index) const noexcept;
 
-    Q_INVOKABLE bool setSource(int index, const Source::Shared &s) noexcept;
+    Q_INVOKABLE bool setSource(int index, const ::Source::Shared &s) noexcept;
 
     Q_INVOKABLE QJsonObject toJSON(const SourceList *list = nullptr) const noexcept override;
     void fromJSON(QJsonObject data, const SourceList *list = nullptr) noexcept override;
@@ -89,9 +89,9 @@ public:
 public slots:
     void update() noexcept;
     void calc() noexcept;
-    Source::Shared store() override;
+    ::Source::Shared store() override;
     void applyAutoName() noexcept;
-    void sourceDestroyed(Source::Abstract *source);
+    void sourceDestroyed(::Source::Abstract *source);
 
 signals:
     void countChanged(int);
@@ -104,11 +104,11 @@ signals:
 private:
     void init() noexcept;
     void resize();
-    void calcPolar(unsigned int count, const Source::Shared &primary) noexcept;
-    void calcVector(unsigned int count, const Source::Shared &primary) noexcept;
-    void calcdB(unsigned int count, const Source::Shared &primary) noexcept;
-    void calcPower(unsigned int count, const Source::Shared &primary) noexcept;
-    void calcApply(const Source::Shared &primary) noexcept;
+    void calcPolar(unsigned int count, const ::Source::Shared &primary) noexcept;
+    void calcVector(unsigned int count, const ::Source::Shared &primary) noexcept;
+    void calcdB(unsigned int count, const ::Source::Shared &primary) noexcept;
+    void calcPower(unsigned int count, const ::Source::Shared &primary) noexcept;
+    void calcApply(const ::Source::Shared &primary) noexcept;
     bool checkLoop(Union *source) const;
 
     SourceVector m_sources;

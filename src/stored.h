@@ -22,7 +22,7 @@
 #include "source/source_abstract.h"
 #include "meta/metastored.h"
 
-class Stored: public Source::Abstract, public Meta::Stored
+class Stored: public ::Source::Abstract, public Meta::Stored
 {
     Q_OBJECT
     Q_PROPERTY(QString notes READ notes WRITE setNotes NOTIFY notesChanged)
@@ -34,8 +34,8 @@ class Stored: public Source::Abstract, public Meta::Stored
 
 public:
     explicit Stored(QObject *parent = nullptr);
-    Source::Shared clone() const override;
-    void build (Source::Abstract *source);
+    ::Source::Shared clone() const override;
+    void build (::Source::Abstract *source);
 
     Q_INVOKABLE void autoName(const QString &prefix) noexcept;
 
