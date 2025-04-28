@@ -52,7 +52,7 @@ public:
     static Time timeByName(QString name);
 
 private:
-    Container::circular<data_t> m_data;
+    Container::Circular<data_t> m_data;
     Weighting m_weighting;
     Time m_time;
     unsigned long m_size;

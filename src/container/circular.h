@@ -21,15 +21,15 @@
 #include <vector>
 
 namespace Container {
-template<typename T> class circular
+template<typename T> class Circular
 {
 public:
-    circular(size_t size) : m_size(size), m_read(0), m_write(0), m_collected(0), m_data()
+    Circular(size_t size) : m_size(size), m_read(0), m_write(0), m_collected(0), m_data()
     {
         m_data.resize(m_size, 0);
     }
 
-    void operator=(circular &other)
+    void operator=(Circular &other)
     {
         m_size = other.m_size.load();
         clear();
