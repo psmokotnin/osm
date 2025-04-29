@@ -42,8 +42,8 @@ Measurement::Measurement(QObject *parent) : ::Source::Abstract(parent), Meta::Me
     m_data(65536), m_reference(65536), m_loopBuffer(65536),
     m_enableCalibration(false), m_calibrationLoaded(false), m_calibrationList(), m_calibrationGain()
 {
-    m_name = "Measurement";
-    setObjectName(m_name);
+    setName("Measurement");
+    setObjectName(name());
 
     if (m_settings) {
         setMode(        m_settings->reactValue<Measurement, Mode>(              "mode",         this,
@@ -116,11 +116,11 @@ Measurement::Measurement(QObject *parent) : ::Source::Abstract(parent), Meta::Me
     connect(this, &Measurement::inputFilterChanged, this, &Measurement::applyInputFilters);
 
     m_timerThread.start();
-    setActive(true);
+    this->setActive(true);
 }
 Measurement::~Measurement()
 {
-    setActive(false);
+    this->setActive(false);
 
     m_timerThread.quit();
     m_timerThread.wait();
@@ -337,7 +337,7 @@ void Measurement::onSampleRateChanged()
 {
     std::lock_guard<std::mutex> guard(m_dataMutex);
     if (m_audioStream) {
-        m_sampleRate = m_audioStream->format().sampleRate;
+        setSampleRate(m_audioStream->format().sampleRate);
         m_dataFT.setSampleRate(sampleRate());
         m_dataFT.prepare();
         m_levelMeters.setSampleRate(sampleRate());
@@ -384,13 +384,13 @@ void Measurement::calculateDataLength()
     }
     applyCalibration();
 }
-void Measurement::setActive(bool active)
+void Measurement::setActive(bool newActive)
 {
-    if (active == m_active)
+    if (newActive == active())
         return;
     std::lock_guard<std::mutex> guard(m_dataMutex);
 
-    ::Source::Abstract::setActive(active);
+    ::Source::Abstract::setActive(newActive);
     m_error = false;
     emit errorChanged(m_error);
 
@@ -451,10 +451,7 @@ void Measurement::updateAverage()
     m_magnitudeAvg.setDepth(m_average);
     m_pahseAvg.setDepth(m_average);
 }
-unsigned int Measurement::sampleRate() const
-{
-    return m_sampleRate;
-}
+
 void Measurement::updateWindowFunction()
 {
     m_dataFT.setWindowFunctionType(m_windowFunctionType);
@@ -467,7 +464,7 @@ void Measurement::updateWindowFunction()
 }
 void Measurement::writeData(const char *data, qint64 len)
 {
-    if (!m_audioStream || m_onReset.load() || !m_active) {
+    if (!m_audioStream || m_onReset.load() || !active()) {
         return;
     }
     std::lock_guard<std::mutex> guard(m_dataMutex);
@@ -517,7 +514,7 @@ void Measurement::writeData(const char *data, qint64 len)
 }
 void Measurement::transform()
 {
-    if (!m_active || m_error)
+    if (!active() || m_error)
         return;
 
     lock();
@@ -865,10 +862,10 @@ void Measurement::updateAudio()
     }
     m_audioStream = nullptr;
     checkChannels();
-    if (m_active) {
+    if (active()) {
         std::async([this]() {
             audio::Format format = audio::Client::getInstance()->deviceInputFormat(m_deviceId);
-            m_sampleRate = format.sampleRate;
+            setSampleRate(format.sampleRate);
             m_input.setCallback([this](const char *buffer, qint64 size) {
                 writeData(buffer, size);
             });

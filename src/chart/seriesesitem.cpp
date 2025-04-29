@@ -91,7 +91,7 @@ SeriesesItem *SeriesesItem::constructFromGroup(const std::shared_ptr<GroupType> 
         groupItem->deleteLater();
     });
 
-    connect(group.get(), &Source::Abstract::activeChanged, groupItem, [ = ]() {
+    connect(group.get(), &::Abstract::Source::activeChanged, groupItem, [ = ]() {
         groupItem->setVisible(group->active());
         groupItem->update();
     });

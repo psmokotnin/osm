@@ -38,12 +38,6 @@ class Abstract : public ::Abstract::Source
 
     Q_OBJECT
 
-    Q_PROPERTY(bool active READ active WRITE setActive NOTIFY activeChanged)
-    Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
-    Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged)
-    Q_PROPERTY(bool cloneable READ cloneable CONSTANT)
-    Q_PROPERTY(QUuid uuid READ uuid CONSTANT)
-
 public:
     struct FTData {
         float frequency = 0;
@@ -63,31 +57,8 @@ public:
     explicit Abstract(QObject *parent = nullptr);
     virtual ~Abstract();
     virtual ::Source::Shared clone() const = 0;
-    virtual bool cloneable() const;
 
     virtual Q_INVOKABLE void destroy();
-
-    bool active() const noexcept
-    {
-        return m_active;
-    }
-    virtual void setActive(bool active);
-
-    QString name() const noexcept
-    {
-        return m_name;
-    }
-    void setName(QString name);
-
-    QColor color() const noexcept
-    {
-        return m_color;
-    }
-    void setColor(QColor color);
-    Q_INVOKABLE bool isColorValid()
-    {
-        return m_color.isValid();
-    }
 
     const unsigned int &size() const  noexcept;
     const float &frequency(const unsigned int &i) const noexcept;
@@ -123,35 +94,22 @@ public:
     virtual float referenceLevel() const;
     virtual QJsonObject levels();
     virtual void setLevels(const QJsonObject &data);
-    Q_INVOKABLE QUuid uuid() const;
-
-    void setUuid(const QUuid &newUuid);
 
     Q_INVOKABLE virtual ::Source::Shared store();
 
 signals:
-    void activeChanged();
-    void nameChanged(QString);
-    void colorChanged(QColor);
     void readyRead();
     void beforeDestroy(::Source::Abstract *);//TODO: check if still needed
 
-public slots:
-    void setGlobalColor(int globalValue);
-
 protected:
-    QString m_name;
-    QColor m_color;
-    //TODO: unsigned int m_sample_rate;
 
     std::mutex m_dataMutex;   //NOTE: shared_mutex (C++17)
-    std::atomic<bool>       m_onReset;
+    std::atomic<bool>       m_onReset; //move to measurement
     std::vector<FTData>     m_ftdata;
     std::vector<TimeData>   m_impulseData;
 
     unsigned int m_dataLength;
     unsigned int m_deconvolutionSize;
-    bool m_active;
     const float m_zero{0.f};
 
     struct Levels {
@@ -178,9 +136,6 @@ protected:
         std::unordered_map<Key, float, Key::Hash> m_data;
         float m_referenceLevel;
     } m_levelsData;
-
-private:
-    QUuid m_uuid;
 };
 }
 #endif // SOURCE_H

@@ -52,7 +52,6 @@ Measurement::Measurement() : Base(),
     m_gain(1.f), m_offset(1.f),
     m_dataChanel(0), m_referenceChanel(1), m_delay(0),
     m_average(1),
-    m_sampleRate(48000),
     m_mode(FFT14),
     m_inputFilter(InputFilter::Z),
     m_averageType(AverageType::LPF),
@@ -262,19 +261,6 @@ void Measurement::setDelay(int delay)
     if (m_delay != delay) {
         m_delay = delay;
         emit delayChanged(m_delay);
-    }
-}
-
-unsigned int Measurement::sampleRate() const
-{
-    return m_sampleRate;
-}
-
-void Measurement::setSampleRate(unsigned int sampleRate)
-{
-    if (m_sampleRate != sampleRate) {
-        m_sampleRate = sampleRate;
-        emit sampleRateChanged(m_sampleRate);
     }
 }
 

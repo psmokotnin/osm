@@ -31,8 +31,8 @@ Union::Union(QObject *parent): ::Source::Abstract(parent),
     m_type(Vector),
     m_autoName(true)
 {
-    m_name = "Union";
-    setObjectName(m_name);
+    setName("Union");
+    setObjectName(name());
 
     m_timer.setInterval(80);//12.5 per sec
     m_timer.setSingleShot(true);
@@ -90,15 +90,15 @@ void Union::setOperation(Operation operation) noexcept
     }
 }
 
-void Union::setActive(bool active) noexcept
+void Union::setActive(bool newActive) noexcept
 {
-    if (active == m_active)
+    if (newActive == active())
         return;
 
-    if (active && checkLoop(this)) {
+    if (newActive && checkLoop(this)) {
         return;
     }
-    ::Source::Abstract::setActive(active);
+    ::Source::Abstract::setActive(newActive);
     update();
 }
 Union::Type Union::type() const

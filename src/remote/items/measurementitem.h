@@ -47,8 +47,6 @@ class MeasurementItem : public remote::Item, public Meta::Measurement
     Q_PROPERTY(QVariant inputFilters READ getAvailableInputFilters CONSTANT)
     Q_PROPERTY(QVariant windows READ getAvailableWindowTypes CONSTANT)
 
-    Q_PROPERTY(int sampleRate READ sampleRate WRITE setSampleRate NOTIFY sampleRateChanged)
-
     Q_PROPERTY(int estimated READ estimated WRITE setEstimated NOTIFY estimatedChanged)
     Q_PROPERTY(int estimatedDelta READ estimatedDelta WRITE setEstimatedDelta NOTIFY estimatedChanged)
 
@@ -79,7 +77,6 @@ signals:
     void windowFunctionTypeChanged(WindowFunction::Type)  override;
     void filtersFrequencyChanged(Filter::Frequency) override;
     void delayChanged(int) override;
-    void sampleRateChanged(unsigned int) override;
     void inputFilterChanged(Meta::Measurement::InputFilter) override;
 
     void estimatedChanged();

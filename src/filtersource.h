@@ -33,7 +33,6 @@ class FilterSource : public ::Source::Abstract, public Meta::Filter
     Q_PROPERTY(bool autoName READ autoName WRITE setAutoName NOTIFY autoNameChanged)
 
     Q_PROPERTY(Meta::Measurement::Mode mode READ mode WRITE setMode NOTIFY modeChanged)
-    Q_PROPERTY(unsigned int sampleRate READ sampleRate WRITE setSampleRate NOTIFY sampleRateChanged)
 
     Q_PROPERTY(QVariant orders READ getAvailableOrders NOTIFY typeChanged)
     Q_PROPERTY(Meta::Filter::Type type READ type WRITE setType NOTIFY typeChanged)
@@ -56,7 +55,6 @@ public:
     void setAutoName(bool newAutoName);
 
 signals:
-    void sampleRateChanged(unsigned int) override;
     void typeChanged(Meta::Filter::Type) override;
     void modeChanged(Meta::Measurement::Mode) override;
     void cornerFrequencyChanged(float) override;

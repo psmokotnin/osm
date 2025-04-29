@@ -25,7 +25,7 @@ Windowing::Windowing(QObject *parent) : ::Source::Abstract(parent), Meta::Window
     m_sampleRate(1), m_source(nullptr),
     m_window(WindowFunction::Type::Rectangular, this)
 {
-    m_name = "Windowing";
+    setName("Windowing");
     setObjectName("Windowing");
     connect(this, &Windowing::windowFunctionTypeChanged, this, &Windowing::applyAutoName);
     connect(this, &Windowing::sourceChanged, this, &Windowing::applyAutoName);

@@ -49,9 +49,6 @@ public:
     void setType(Type newType);
     QVariant getAvailableTypes() const;
 
-    unsigned int sampleRate() const;
-    void setSampleRate(unsigned int newSampleRate);
-
     const Measurement::Mode &mode() const;
     void setMode(const Measurement::Mode &newMode);
     static QVariant getAvailableModes();
@@ -70,7 +67,6 @@ public:
     QVariant getAvailableOrders();
 
 //virtual signals:
-    virtual void sampleRateChanged(unsigned int) = 0;
     virtual void typeChanged(Meta::Filter::Type) = 0;
     virtual void modeChanged(Meta::Measurement::Mode) = 0;
     virtual void cornerFrequencyChanged(float) = 0;
@@ -84,7 +80,7 @@ public:
 private:
     Type m_type;
     Measurement::Mode m_mode;
-    unsigned int m_sampleRate, m_order;
+    unsigned int m_order;
     float m_cornerFrequency;
     float m_gain;
     float m_q;

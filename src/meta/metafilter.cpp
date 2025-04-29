@@ -42,7 +42,7 @@ const std::map<Filter::Type, QString>Filter::m_typeShortMap = {
 };
 
 Filter::Filter() : Base(), m_type(ButterworthLPF), m_mode(Measurement::FFT14),
-    m_sampleRate(48000), m_order(3), m_cornerFrequency(1000), m_q(1.f / sqrt(2))
+    m_order(3), m_cornerFrequency(1000), m_q(1.f / sqrt(2))
 {
 
 }
@@ -69,21 +69,6 @@ QVariant Filter::getAvailableTypes() const
         typeList << type.second;
     }
     return typeList;
-}
-
-unsigned int Filter::sampleRate() const
-{
-    return m_sampleRate;
-}
-
-void Filter::setSampleRate(unsigned int newSampleRate)
-{
-    if (m_sampleRate == newSampleRate) {
-        return;
-    }
-
-    m_sampleRate = newSampleRate;
-    emit sampleRateChanged(m_sampleRate);
 }
 
 const Measurement::Mode &Filter::mode() const

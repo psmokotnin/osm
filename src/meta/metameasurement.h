@@ -89,9 +89,6 @@ public:
     int delay() const;
     void setDelay(int delay);
 
-    unsigned int sampleRate() const;
-    void setSampleRate(unsigned int sampleRate);
-
     Meta::Measurement::InputFilter inputFilter() const;
     void setInputFilter(Meta::Measurement::InputFilter inputFilter);
     void setInputFilter(QVariant inputFilter);
@@ -111,7 +108,6 @@ public:
     virtual void windowFunctionTypeChanged(WindowFunction::Type)  = 0;
     virtual void filtersFrequencyChanged(Filter::Frequency) = 0;
     virtual void delayChanged(int) = 0;
-    virtual void sampleRateChanged(unsigned int) = 0;
     virtual void inputFilterChanged(Meta::Measurement::InputFilter) = 0;
 
     static const std::map<Mode, QString> m_modeMap;
@@ -125,7 +121,6 @@ protected:
     unsigned int m_dataChanel, m_referenceChanel;
     int m_delay;
     std::atomic<unsigned int> m_average;
-    unsigned int m_sampleRate;
     Mode m_mode;
     Meta::Measurement::InputFilter m_inputFilter;
     AverageType m_averageType;

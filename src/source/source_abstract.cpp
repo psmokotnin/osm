@@ -25,9 +25,7 @@ Abstract::Abstract(QObject *parent) : ::Abstract::Source(parent),
     m_ftdata(),
     m_impulseData(),
     m_dataLength(0),
-    m_deconvolutionSize(0),
-    m_active(false),
-    m_uuid(QUuid::createUuid())
+    m_deconvolutionSize(0)
 {
     qRegisterMetaType<::Source::Abstract *>("Source*");
 }
@@ -36,53 +34,16 @@ Abstract::~Abstract()
 {
 }
 
-bool Abstract::cloneable() const
-{
-    return true;
-}
 void Abstract::destroy()
 {
     emit beforeDestroy(this);
     disconnect();
     //deleteLater();   //Schedules ~Source() from qml
 }
-void Abstract::setActive(bool active)
-{
-    if (m_active != active) {
-        m_active = active;
-        emit activeChanged();
-    }
-}
-void Abstract::setName(QString name)
-{
-    if (m_name != name) {
-        m_name = name;
-        emit nameChanged(m_name);
-    }
-}
-void Abstract::setColor(QColor color)
-{
-    if (m_color != color) {
-        m_color = color;
-        emit colorChanged(m_color);
-    }
-}
 
 const unsigned int &Abstract::size() const noexcept
 {
     return m_dataLength;
-}
-void Abstract::setGlobalColor(int globalValue)
-{
-    if (globalValue < 19) {
-        m_color = Qt::GlobalColor(globalValue);
-        emit colorChanged(m_color);
-    }
-}
-
-void Abstract::setUuid(const QUuid &newUuid)
-{
-    m_uuid = newUuid;
 }
 
 Source::Shared Abstract::store()
@@ -90,10 +51,6 @@ Source::Shared Abstract::store()
     return {};
 }
 
-QUuid Abstract::uuid() const
-{
-    return m_uuid;
-}
 const float &Abstract::frequency(const unsigned int &i) const noexcept
 {
     if (i >= m_dataLength)
@@ -193,12 +150,13 @@ QJsonObject Abstract::toJSON(const SourceList *) const noexcept
     object["active"]    = active();
     object["name"]      = name();
 
-    QJsonObject color;
-    color["red"]    = m_color.red();
-    color["green"]  = m_color.green();
-    color["blue"]   = m_color.blue();
-    color["alpha"]  = m_color.alpha();
-    object["color"] = color;
+    auto m_color = color();
+    QJsonObject jscolor;
+    jscolor["red"]    = m_color.red();
+    jscolor["green"]  = m_color.green();
+    jscolor["blue"]   = m_color.blue();
+    jscolor["alpha"]  = m_color.alpha();
+    object["color"] = jscolor;
 
     return object;
 }

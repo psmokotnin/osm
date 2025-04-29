@@ -65,7 +65,6 @@ class Measurement : public ::Source::Abstract, public Meta::Measurement
     Q_PROPERTY(QVariant windows READ getAvailableWindowTypes CONSTANT)
 
     //local properties
-    Q_PROPERTY(int sampleRate READ sampleRate NOTIFY audioFormatChanged)
     Q_PROPERTY(QString deviceId READ deviceId WRITE setDeviceId NOTIFY deviceIdChanged REVISION NO_API_REVISION)
 
     //Current sound level
@@ -94,7 +93,7 @@ public:
 
     ::Source::Shared clone() const override;
 
-    void setActive(bool active) override;
+    void setActive(bool newActive) final;
 
     Q_INVOKABLE QJsonObject toJSON(const SourceList *list = nullptr) const noexcept override;
     void fromJSON(QJsonObject data, const SourceList *list = nullptr) noexcept override;
@@ -108,8 +107,6 @@ public:
 
     Q_INVOKABLE void resetAverage() noexcept override;
     Q_INVOKABLE ::Source::Shared store() override;
-
-    unsigned int sampleRate() const;
 
     long estimated() const noexcept;
     long estimatedDelta() const noexcept;
@@ -221,7 +218,6 @@ signals:
     void windowFunctionTypeChanged(WindowFunction::Type) override;
     void filtersFrequencyChanged(Filter::Frequency) override;
     void delayChanged(int) override;
-    void sampleRateChanged(unsigned int) override;
     void inputFilterChanged(Meta::Measurement::InputFilter) override;
 };
 
