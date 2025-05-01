@@ -927,7 +927,7 @@ Measurement::Meters::Meters() : m_reference(Weighting::Z, Meter::Slow)
 {
     for (auto &curve : Weighting::allCurves) {
         for (auto &time : Meter::allTimes) {
-            Levels::Key key     {curve, time};
+            LevelsData::Key key     {curve, time};
             Meter       meter   {curve, time};
             m_meters[key] = meter;
         }

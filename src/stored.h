@@ -48,14 +48,14 @@ public:
     Q_INVOKABLE QJsonObject toJSON(const SourceList *list = nullptr) const noexcept override;
     void fromJSON(QJsonObject data, const SourceList *list = nullptr) noexcept override;
 
-    float module(const unsigned int &i) const noexcept override;
-    float magnitudeRaw(const unsigned int &i) const noexcept override;
-    float magnitude(const unsigned int &i) const noexcept override;
-    complex phase(const unsigned int &i) const noexcept override;
-    const float &coherence(const unsigned int &i) const noexcept override;
+    float module(unsigned int i) const noexcept override;
+    float magnitudeRaw(unsigned int i) const noexcept override;
+    float magnitude(unsigned int i) const noexcept override;
+    complex phase(unsigned int i) const noexcept override;
+    float coherence(unsigned int i) const noexcept override;
 
-    float impulseTime(const unsigned int &i) const noexcept override;
-    float impulseValue(const unsigned int &i) const noexcept override;
+    float impulseTime(unsigned int i) const noexcept override;
+    float impulseValue(unsigned int i) const noexcept override;
 
 signals:
     void notesChanged() override;

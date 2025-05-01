@@ -308,41 +308,40 @@ bool Stored::saveWAV(const QUrl &fileName) const noexcept
     return file.save(fileName.toLocalFile(), sampleRate, data);
 }
 
-float Stored::module(const unsigned int &i) const noexcept {
-    return ::Source::Abstract::module(i) * std::pow(10, gain() / 20.f);
+float Stored::module(unsigned int i) const noexcept {
+    return ::Abstract::Source::module(i) * std::pow(10, gain() / 20.f);
 }
 
-float Stored::magnitudeRaw(const unsigned int &i) const noexcept
+float Stored::magnitudeRaw(unsigned int i) const noexcept
 {
-    return std::pow(::Source::Abstract::magnitudeRaw(i), (inverse() ? -1 : 1)) * std::pow(10, gain() / 20.f);
+    return std::pow(::Abstract::Source::magnitudeRaw(i), (inverse() ? -1 : 1)) * std::pow(10, gain() / 20.f);
 }
 
-float Stored::magnitude(const unsigned int &i) const noexcept
+float Stored::magnitude(unsigned int i) const noexcept
 {
-    return (inverse() ? -1 : 1) * (::Source::Abstract::magnitude(i) + gain());
+    return (inverse() ? -1 : 1) * (::Abstract::Source::magnitude(i) + gain());
 }
 
-complex Stored::phase(const unsigned int &i) const noexcept
+complex Stored::phase(unsigned int i) const noexcept
 {
     auto alpha = (polarity() ? M_PI : 0) - 2 * M_PI * delay() * frequency(i) / 1000.f;
-    return ::Source::Abstract::phase(i).rotate(alpha);
+    return ::Abstract::Source::phase(i).rotate(alpha);
 }
 
-const float &Stored::coherence(const unsigned int &i) const noexcept
+float Stored::coherence(unsigned int i) const noexcept
 {
     if (ignoreCoherence()) {
-        static const float one = 1.f;
-        return one;
+        return 1.f;
     }
-    return ::Source::Abstract::coherence(i);
+    return ::Abstract::Source::coherence(i);
 }
 
-float Stored::impulseTime(const unsigned int &i) const noexcept
+float Stored::impulseTime(unsigned int i) const noexcept
 {
-    return ::Source::Abstract::impulseTime(i) + delay();
+    return ::Abstract::Source::impulseTime(i) + delay();
 }
 
-float Stored::impulseValue(const unsigned int &i) const noexcept
+float Stored::impulseValue(unsigned int i) const noexcept
 {
-    return (polarity() ? -1 : 1) * ::Source::Abstract::impulseValue(i) * std::pow(10, gain() / 20.f);
+    return (polarity() ? -1 : 1) * ::Abstract::Source::impulseValue(i) * std::pow(10, gain() / 20.f);
 }

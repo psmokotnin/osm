@@ -159,7 +159,7 @@ private:
 
     Container::Circular<float> m_data, m_reference, m_loopBuffer;
     struct Meters {
-        std::unordered_map<Levels::Key, Meter, Levels::Key::Hash> m_meters;
+        std::unordered_map<LevelsData::Key, Meter, LevelsData::Key::Hash> m_meters;
         Meter m_reference;
         std::shared_ptr<math::Filter> m_filter;
 

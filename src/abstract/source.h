@@ -25,9 +25,11 @@
 #include <QColor>
 #include <QUuid>
 
+#include "abstract/data.h"
+
 namespace Abstract {
 
-class Source : public QObject
+class Source : public QObject, public Data
 {
     Q_OBJECT
     Q_PROPERTY(QString  name       READ name       WRITE setName       NOTIFY nameChanged)
