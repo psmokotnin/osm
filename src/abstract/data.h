@@ -22,7 +22,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include "math/meter.h"
+#include "abstract/levelsdata.h"
 #include "math/complex.h"
 
 namespace Abstract {
@@ -33,58 +33,18 @@ struct Data {
     virtual ~Data();
 
     struct FTData {
-        float   frequency = 0;
-        float   module = 0;
-        float   magnitude = 0;
-        complex phase = 0;
-        float   coherence = 0;
+        float   frequency   = 0;
+        float   module      = 0;
+        float   magnitude   = 0;
+        complex phase       = 0;
+        float   coherence   = 0;
         float   peakSquared = 0;
         float   meanSquared = NAN;
     };
 
     struct TimeData {
-        float   time; //ms
-        complex value;
-    };
-
-    struct LevelsData {
-        LevelsData()  : m_referenceLevel(0)
-        {
-            for (auto &curve : Weighting::allCurves) {
-                for (auto &time : Meter::allTimes) {
-                    Key   key   {curve, time};
-                    Meter meter {curve, time};
-                    m_data[key] = -INFINITY;
-                }
-            }
-        }
-
-        auto begin()
-        {
-            return m_data.begin();
-        }
-        auto end()
-        {
-            return m_data.end();
-        }
-
-        struct Key {
-            Weighting::Curve curve;
-            Meter::Time time;
-
-            bool operator==(const Key &other) const
-            {
-                return curve == other.curve && time == other.time;
-            }
-            struct Hash {
-                std::size_t operator()(const Key &k) const
-                {
-                    return std::hash<size_t>()(k.curve * 10 + k.time);
-                }
-            };
-        };
-        std::unordered_map<Key, float, Key::Hash> m_data;
-        float m_referenceLevel;
+        float   time  = 0; //ms
+        complex value = 0;
     };
 
     unsigned int    size()                       const noexcept;
