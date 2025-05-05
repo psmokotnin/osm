@@ -31,6 +31,82 @@ Source::Source(QObject *parent) : QObject{ parent },
     qRegisterMetaType<::Abstract::Source *>("AbstractSource*");
 }
 
+Source::~Source() = default;
+
+::Source::Shared Source::store()
+{
+    return {};
+}
+
+void Source::destroy()
+{
+    emit beforeDestroy(this);
+    disconnect();
+}
+
+QJsonObject Source::toJSON(const SourceList *) const noexcept
+{
+    QJsonObject object;
+    object["uuid"]      = uuid().toString();
+    object["active"]    = active();
+    object["name"]      = name();
+
+    auto m_color = color();
+    QJsonObject jscolor;
+    jscolor["red"]    = m_color.red();
+    jscolor["green"]  = m_color.green();
+    jscolor["blue"]   = m_color.blue();
+    jscolor["alpha"]  = m_color.alpha();
+    object["color"] = jscolor;
+
+    return object;
+}
+
+void Source::fromJSON(QJsonObject data, const SourceList *) noexcept
+{
+    auto uuid = QUuid::fromString(data["uuid"].toString());
+    if (!uuid.isNull()) {
+        setUuid(uuid);
+    }
+    setActive(data["active"].toBool(active()));
+    setName(data["name"].toString());
+
+    auto jsonColor = data["color"].toObject();
+    QColor c(
+        jsonColor["red"  ].toInt(0),
+        jsonColor["green"].toInt(0),
+        jsonColor["blue" ].toInt(0),
+        jsonColor["alpha"].toInt(1));
+    setColor(c);
+}
+
+QJsonObject Source::levels()
+{
+    QJsonObject levels;
+    for (auto &&[key, value] : m_levelsData) {
+
+        auto curve = Weighting::curveName(key.curve);
+        auto time = Meter::timeName(key.time);
+
+        auto curveData = levels[curve].toObject();
+        curveData[time] = level(key.curve, key.time);
+        levels[curve] = curveData;
+    }
+    return levels;
+}
+
+void Source::setLevels(const QJsonObject &data)
+{
+    for (auto &&[key, value] : m_levelsData) {
+
+        auto curve = Weighting::curveName(key.curve);
+        auto time = Meter::timeName(key.time);
+
+        auto curveData = data[curve].toObject();
+        value = curveData[time].toDouble();
+    }
+}
+
 QString Source::name() const
 {
     return m_name;

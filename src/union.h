@@ -91,7 +91,7 @@ public slots:
     void calc() noexcept;
     ::Source::Shared store() override;
     void applyAutoName() noexcept;
-    void sourceDestroyed(::Source::Abstract *source);
+    void sourceDestroyed(Source *source);
 
 signals:
     void countChanged(int);

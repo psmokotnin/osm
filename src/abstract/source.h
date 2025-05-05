@@ -23,9 +23,13 @@
 
 #include <QObject>
 #include <QColor>
+#include <QJsonObject>
 #include <QUuid>
 
 #include "abstract/data.h"
+#include "source/source_shared.h"
+
+class SourceList;
 
 namespace Abstract {
 
@@ -41,34 +45,46 @@ class Source : public QObject, public Data
     Q_PROPERTY(bool     cloneable  READ cloneable  CONSTANT)
 
 public:
-    explicit Source(QObject *parent = nullptr);
+    explicit         Source(QObject *parent = nullptr);
+    virtual         ~Source();
 
-    QString name() const;
-    void setName(const QString &newName);
+    virtual             ::Source::Shared    clone() const = 0; //TODO: Abstract::Shared
+    virtual Q_INVOKABLE ::Source::Shared    store();
+    virtual Q_INVOKABLE void                destroy(); //TODO: delete
+    virtual Q_INVOKABLE QJsonObject         toJSON(const SourceList * = nullptr) const noexcept; //TODO: shared ptr
+    virtual             void                fromJSON(QJsonObject data, const SourceList * = nullptr) noexcept;
+    virtual             QJsonObject         levels();
+    virtual             void                setLevels(const QJsonObject &data);
 
-    QColor color() const;
-    void setColor(const QColor &newColor);
+
+    QString          name() const;
+    void             setName(const QString &newName);
+
+    QColor           color() const;
+    void             setColor(const QColor &newColor);
     Q_INVOKABLE bool isColorValid();
 
-    QUuid uuid() const;
-    void setUuid(const QUuid &newUuid);
+    QUuid            uuid() const;
+    void             setUuid(const QUuid &newUuid);
 
-    unsigned int sampleRate() const;
-    void setSampleRate(unsigned int newSampleRate);
+    unsigned int     sampleRate() const;
+    void             setSampleRate(unsigned int newSampleRate);
 
-    bool active() const;
-    virtual void setActive(bool newActive);
+    bool             active() const;
+    virtual void     setActive(bool newActive);
 
-    virtual bool cloneable() const;
+    virtual bool     cloneable() const;
 
 public slots:
-    void setGlobalColor(int globalValue);
+    void    setGlobalColor(int globalValue);
 
 signals:
-    void activeChanged();
-    void nameChanged(QString);
-    void colorChanged(QColor);
-    void sampleRateChanged(unsigned int);
+    void    readyRead();
+    void    activeChanged();
+    void    nameChanged(QString);
+    void    colorChanged(QColor);
+    void    sampleRateChanged(unsigned int);
+    void    beforeDestroy(Source *);   //TODO: delete
 
 private:
     QString                 m_name;

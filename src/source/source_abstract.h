@@ -20,14 +20,8 @@
 
 
 #include <QObject>
-#include <QColor>
-#include <QJsonObject>
 
-#include "math/meter.h"
-#include "source/source_shared.h"
 #include "abstract/source.h"
-
-class SourceList;
 
 namespace Source {
 class Abstract : public ::Abstract::Source
@@ -37,22 +31,6 @@ class Abstract : public ::Abstract::Source
 
 public:
     explicit Abstract(QObject *parent = nullptr);
-    virtual ~Abstract();
-    virtual ::Source::Shared clone() const = 0;
-
-    virtual Q_INVOKABLE void destroy();
-
-    virtual Q_INVOKABLE QJsonObject toJSON(const SourceList * = nullptr) const noexcept;
-    virtual void fromJSON(QJsonObject data, const SourceList * = nullptr) noexcept;
-
-    virtual QJsonObject levels();
-    virtual void setLevels(const QJsonObject &data);
-
-    Q_INVOKABLE virtual ::Source::Shared store();
-
-signals:
-    void readyRead();
-    void beforeDestroy(::Source::Abstract *);//TODO: check if still needed
 
 protected:
     std::atomic<bool>       m_onReset; //move to measurement

@@ -165,8 +165,8 @@ bool Union::setSource(int index, const ::Source::Shared &s) noexcept
             init();
 
         if (s) {
-            connect(s.get(), &::Source::Abstract::readyRead, this, &Union::update);
-            connect(s.get(), &::Source::Abstract::beforeDestroy, this, &Union::sourceDestroyed, Qt::DirectConnection);
+            connect(s.get(), &::Abstract::Source::readyRead, this, &Union::update);
+            connect(s.get(), &::Abstract::Source::beforeDestroy, this, &Union::sourceDestroyed, Qt::DirectConnection);
         }
         update();
         emit modelChanged();
@@ -694,7 +694,7 @@ void Union::applyAutoName() noexcept
     }
 }
 
-void Union::sourceDestroyed(::Source::Abstract *source)
+void Union::sourceDestroyed(::Abstract::Source *source)
 {
     std::lock_guard l(s_calcmutex);
 
