@@ -38,7 +38,7 @@ Measurement::Measurement(QObject *parent) : ::Source::Abstract(parent), Meta::Me
     m_currentMode(Mode::FFT10),
     m_workingDelay(0), m_delayFinderCounter(0),
     m_estimatedDelay(0),
-    m_error(false),
+    m_error(false), m_onReset(false),
     m_data(65536), m_reference(65536), m_loopBuffer(65536),
     m_enableCalibration(false), m_calibrationLoaded(false), m_calibrationList(), m_calibrationGain()
 {

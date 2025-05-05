@@ -20,8 +20,7 @@
 
 namespace Source {
 
-Abstract::Abstract(QObject *parent) : ::Abstract::Source(parent),
-    m_onReset(false)
+Abstract::Abstract(QObject *parent) : ::Abstract::Source(parent)
 {
     qRegisterMetaType<::Source::Abstract *>("Source*");
 }

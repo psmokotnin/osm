@@ -156,6 +156,7 @@ private:
     unsigned int m_delayFinderCounter;
     long m_estimatedDelay;
     bool m_error;
+    std::atomic<bool>       m_onReset;
 
     Container::Circular<float> m_data, m_reference, m_loopBuffer;
     struct Meters {

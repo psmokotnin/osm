@@ -31,9 +31,6 @@ class Abstract : public ::Abstract::Source
 
 public:
     explicit Abstract(QObject *parent = nullptr);
-
-protected:
-    std::atomic<bool>       m_onReset; //move to measurement
 };
 }
 #endif // SOURCE_H
