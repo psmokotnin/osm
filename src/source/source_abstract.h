@@ -18,8 +18,6 @@
 #ifndef SOURCE_H
 #define SOURCE_H
 
-#include <mutex>
-#include <unordered_map>
 
 #include <QObject>
 #include <QColor>
@@ -44,15 +42,6 @@ public:
 
     virtual Q_INVOKABLE void destroy();
 
-    void lock()
-    {
-        m_dataMutex.lock();
-    }
-    void unlock()
-    {
-        m_dataMutex.unlock();
-    }
-
     virtual Q_INVOKABLE QJsonObject toJSON(const SourceList * = nullptr) const noexcept;
     virtual void fromJSON(QJsonObject data, const SourceList * = nullptr) noexcept;
 
@@ -66,8 +55,6 @@ signals:
     void beforeDestroy(::Source::Abstract *);//TODO: check if still needed
 
 protected:
-
-    std::mutex m_dataMutex;   //NOTE: shared_mutex (C++17)
     std::atomic<bool>       m_onReset; //move to measurement
 };
 }

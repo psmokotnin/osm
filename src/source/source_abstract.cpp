@@ -21,7 +21,7 @@
 namespace Source {
 
 Abstract::Abstract(QObject *parent) : ::Abstract::Source(parent),
-    m_dataMutex(), m_onReset(false)
+    m_onReset(false)
 {
     qRegisterMetaType<::Source::Abstract *>("Source*");
 }

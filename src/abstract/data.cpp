@@ -23,6 +23,16 @@ namespace Abstract {
 Data::Data()  = default;
 Data::~Data() = default;
 
+void Data::lock()
+{
+    m_dataMutex.lock();
+}
+
+void Data::unlock()
+{
+    m_dataMutex.unlock();
+}
+
 unsigned int Data::size() const noexcept
 {
     return m_dataLength;

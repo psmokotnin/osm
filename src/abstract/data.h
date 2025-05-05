@@ -19,6 +19,7 @@
 #ifndef DATA_H
 #define DATA_H
 
+#include <mutex>
 #include <unordered_map>
 #include <vector>
 
@@ -46,6 +47,9 @@ struct Data {
         float   time  = 0; //ms
         complex value = 0;
     };
+
+    void            lock();
+    void            unlock();
 
     unsigned int    size()                       const noexcept;
     float           frequency(   unsigned int i) const noexcept;
@@ -76,6 +80,8 @@ protected:
     std::vector<FTData>     m_ftdata;
     std::vector<TimeData>   m_impulseData;
     LevelsData              m_levelsData;
+
+    std::mutex              m_dataMutex;
 };
 
 }
