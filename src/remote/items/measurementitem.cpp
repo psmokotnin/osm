@@ -50,7 +50,7 @@ void MeasurementItem::resetAverage() noexcept
     emit sendCommand("resetAverage");
 }
 
-Source::Shared MeasurementItem::store()
+Shared::Source MeasurementItem::store()
 {
     emit sendCommand("store");
     return { nullptr };

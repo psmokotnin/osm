@@ -19,10 +19,10 @@
 #define STORED_H
 
 #include <QJsonObject>
-#include "source/source_abstract.h"
+#include "abstract/source.h"
 #include "meta/metastored.h"
 
-class Stored: public ::Source::Abstract, public Meta::Stored
+class Stored: public Abstract::Source, public Meta::Stored
 {
     Q_OBJECT
     Q_PROPERTY(QString notes READ notes WRITE setNotes NOTIFY notesChanged)
@@ -34,8 +34,8 @@ class Stored: public ::Source::Abstract, public Meta::Stored
 
 public:
     explicit Stored(QObject *parent = nullptr);
-    ::Source::Shared clone() const override;
-    void build (::Source::Abstract *source);
+    Shared::Source clone() const override;
+    void build (Abstract::Source *source);
 
     Q_INVOKABLE void autoName(const QString &prefix) noexcept;
 

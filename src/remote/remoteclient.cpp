@@ -91,7 +91,7 @@ void Client::reset()
     stop();
 
     for (auto &item : m_items) {
-        m_sourceList->removeItem(std::static_pointer_cast<Source::Abstract>(item), true);
+        m_sourceList->removeItem(std::static_pointer_cast<Abstract::Source>(item), true);
     }
     m_items.clear();
 
@@ -225,7 +225,7 @@ std::shared_ptr<Item> Client::addItem(const QUuid &serverId, const QUuid &source
             targetSource = groupItem->sourceList();
         }
     }
-    targetSource->appendItem(Source::Shared{ item });
+    targetSource->appendItem(Shared::Source{ item });
     m_items[qHash(sourceId)] = item;
 
     return item;

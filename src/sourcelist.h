@@ -22,8 +22,8 @@
 #include <QVector>
 #include <QString>
 #include <QUrl>
-#include "source/source_abstract.h"
-#include "source/source_shared.h"
+#include "abstract/source.h"
+#include "shared/source_shared.h"
 
 
 class Measurement;
@@ -40,18 +40,18 @@ class SourceList : public QObject
     Q_PROPERTY(QUrl currentFile READ currentFile)
     Q_PROPERTY(QUuid first READ firstSource)
     Q_PROPERTY(int selectedIndex READ selectedIndex WRITE setSelected NOTIFY selectedChanged)//TODO: toUUID
-    Q_PROPERTY(Source::Shared selected READ selected NOTIFY selectedChanged)
+    Q_PROPERTY(Shared::Source selected READ selected NOTIFY selectedChanged)
     Q_PROPERTY(QColor highlightColor READ highlightColor NOTIFY selectedChanged)
     Q_PROPERTY(bool isRoot READ isRoot CONSTANT)
-    using iterator = QVector<Source::Shared>::iterator;
-    using const_iterator = QVector<Source::Shared>::const_iterator;
+    using iterator = QVector<Shared::Source>::iterator;
+    using const_iterator = QVector<Shared::Source>::const_iterator;
 
 public:
     explicit SourceList(QObject *parent = nullptr, bool appendMeasurement = true);
     SourceList *clone(QObject *parent, QUuid filter = {}, bool unrollGroups = false) const;
 
     int count() const noexcept;
-    const QVector<Source::Shared> &items() const;
+    const QVector<Shared::Source> &items() const;
     SourceList::iterator begin() noexcept;
     SourceList::iterator end() noexcept;
     SourceList::const_iterator cbegin() const noexcept;
@@ -59,13 +59,13 @@ public:
 
     QUrl currentFile() const noexcept;
 
-    const Source::Shared &get_ref(int i) const noexcept;
+    const Shared::Source &get_ref(int i) const noexcept;
     unsigned size() const;
 
-    Q_INVOKABLE Source::Shared get(int i) const noexcept;
-    Q_INVOKABLE Source::Shared getByUUid(QUuid id) const noexcept;
+    Q_INVOKABLE Shared::Source get(int i) const noexcept;
+    Q_INVOKABLE Shared::Source getByUUid(QUuid id) const noexcept;
     int getIndexByUUid(QUuid id) const noexcept;
-    //Q_INVOKABLE Source::Shared getGroupByUUid(QUuid id) const noexcept;
+    //Q_INVOKABLE Shared::Source getGroupByUUid(QUuid id) const noexcept;
     Q_INVOKABLE QUuid getUUid(int id) const noexcept;
     Q_INVOKABLE QUuid firstSource() const noexcept;
     Q_INVOKABLE void clean() noexcept;
@@ -77,11 +77,11 @@ public:
     Q_INVOKABLE bool importWav(const QUrl &fileName) ;
     Q_INVOKABLE bool move(int from, int to) noexcept;
     Q_INVOKABLE void moveToGroup(QUuid targetId, QUuid groupId) noexcept;
-    Q_INVOKABLE int indexOf(const Source::Shared &item) const noexcept;
+    Q_INVOKABLE int indexOf(const Shared::Source &item) const noexcept;
     Q_INVOKABLE int indexOf(const QUuid &id) const noexcept;
 
     int selectedIndex() const;
-    Source::Shared selected() const noexcept;
+    Shared::Source selected() const noexcept;
     QUuid selectedUuid() const noexcept;
     void setSelected(int selected);
 
@@ -119,26 +119,26 @@ public:
 public slots:
     Q_INVOKABLE QColor nextColor();
 
-    Q_INVOKABLE Source::Shared  addMeasurement();
-    Q_INVOKABLE Source::Shared  addUnion();
-    Q_INVOKABLE Source::Shared  addStandardLine();
-    Q_INVOKABLE Source::Shared  addFilter();
-    Q_INVOKABLE Source::Shared  addWindowing();
-    Q_INVOKABLE Source::Shared  addGroup();
+    Q_INVOKABLE Shared::Source  addMeasurement();
+    Q_INVOKABLE Shared::Source  addUnion();
+    Q_INVOKABLE Shared::Source  addStandardLine();
+    Q_INVOKABLE Shared::Source  addFilter();
+    Q_INVOKABLE Shared::Source  addWindowing();
+    Q_INVOKABLE Shared::Source  addGroup();
 
-    Q_INVOKABLE void appendItem(const Source::Shared &item, bool autocolor = false);
-    Q_INVOKABLE void takeItem(Source::Shared item);
-    void removeItem(const Source::Shared &item, bool deleteItem = true);
+    Q_INVOKABLE void appendItem(const Shared::Source &item, bool autocolor = false);
+    Q_INVOKABLE void takeItem(Shared::Source item);
+    void removeItem(const Shared::Source &item, bool deleteItem = true);
     Q_INVOKABLE void removeItem(const QUuid &uuid, bool deleteItem = true);
-    Q_INVOKABLE void cloneItem(const Source::Shared &item);
-    Q_INVOKABLE void storeItem(const Source::Shared &item);
+    Q_INVOKABLE void cloneItem(const Shared::Source &item);
+    Q_INVOKABLE void storeItem(const Shared::Source &item);
 
     int appendNone();
     int appendAll();
 
 signals:
     void preItemAppended();
-    void postItemAppended(const Source::Shared &);
+    void postItemAppended(const Shared::Source &);
 
     void preItemRemoved(QUuid index);
     void postItemRemoved();
@@ -146,7 +146,7 @@ signals:
     void preItemMoved(int from, int to);
     void postItemMoved();
 
-    void postItemChanged(const Source::Shared &, const QVector<int> &roles);
+    void postItemChanged(const Shared::Source &, const QVector<int> &roles);
 
     void selectedChanged();
     void loaded(QUrl fileName);
@@ -156,11 +156,11 @@ signals:
 private:
     bool loadList(const QJsonDocument &document, const QUrl &fileName) noexcept;
     template<typename T> bool loadObject(const QJsonObject &data, const SourceList *topList);
-    template<typename T, typename... Ts> Source::Shared add(Ts...);
+    template<typename T, typename... Ts> Shared::Source add(Ts...);
     bool importFile(const QUrl &fileName, QString separator);
     void appendItemsFrom(const SourceList *list, QUuid filter, bool unrollGroups);
 
-    QVector<Source::Shared> m_items; //TODO: unordered_map<uuid, shared_ptr>
+    QVector<Shared::Source> m_items; //TODO: unordered_map<uuid, shared_ptr>
     QList<QUuid> m_checked{};
     QUrl m_currentFile;
     const QList<QColor> m_colors {

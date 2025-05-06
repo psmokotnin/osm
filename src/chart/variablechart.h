@@ -19,7 +19,7 @@
  */
 #include <QtQuick/QQuickItem>
 #include "type.h"
-#include "source/source_abstract.h"
+#include "abstract/source.h"
 #include "plot.h"
 #include "common/settings.h"
 
@@ -45,7 +45,7 @@ public:
     Settings *settings() const noexcept;
     void setSettings(Settings *settings) noexcept;
 
-    Q_INVOKABLE void removeDataSource(const Source::Shared &source);
+    Q_INVOKABLE void removeDataSource(const Shared::Source &source);
     Q_INVOKABLE void setSourceZIndex(const QUuid &source, int index);
     Q_INVOKABLE QString urlForGrab(QUrl url) const;
 

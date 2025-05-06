@@ -43,7 +43,7 @@
 
 namespace Chart {
 
-template<typename T> SeriesItem *itemNode(Plot *plot, const Source::Shared &source)
+template<typename T> SeriesItem *itemNode(Plot *plot, const Shared::Source &source)
 {
     auto s = new SeriesItem(source, plot, [](auto item) {
         return new T(item);
@@ -51,7 +51,7 @@ template<typename T> SeriesItem *itemNode(Plot *plot, const Source::Shared &sour
     return s;
 }
 
-SeriesItem *RTAPlot::createSeriesFromSource(const Source::Shared &source)
+SeriesItem *RTAPlot::createSeriesFromSource(const Shared::Source &source)
 {
     return itemNode<RTASeriesNode>(this, source);
     auto s = new SeriesItem(source, this, [](auto item) {
@@ -60,57 +60,57 @@ SeriesItem *RTAPlot::createSeriesFromSource(const Source::Shared &source)
     return s;
 }
 
-SeriesItem *MagnitudePlot::createSeriesFromSource(const Source::Shared &source)
+SeriesItem *MagnitudePlot::createSeriesFromSource(const Shared::Source &source)
 {
     return itemNode<MagnitudeSeriesNode>(this, source);
 }
 
-SeriesItem *PhasePlot::createSeriesFromSource(const Source::Shared &source)
+SeriesItem *PhasePlot::createSeriesFromSource(const Shared::Source &source)
 {
     return itemNode<PhaseSeriesNode>(this, source);
 }
 
-SeriesItem *CoherencePlot::createSeriesFromSource(const Source::Shared &source)
+SeriesItem *CoherencePlot::createSeriesFromSource(const Shared::Source &source)
 {
     return itemNode<CoherenceSeriesNode>(this, source);
 }
 
-SeriesItem *GroupDelayPlot::createSeriesFromSource(const Source::Shared &source)
+SeriesItem *GroupDelayPlot::createSeriesFromSource(const Shared::Source &source)
 {
     return itemNode<GroupDelaySeriesNode>(this, source);
 }
 
-SeriesItem *PhaseDelayPlot::createSeriesFromSource(const Source::Shared &source)
+SeriesItem *PhaseDelayPlot::createSeriesFromSource(const Shared::Source &source)
 {
     return itemNode<PhaseDelaySeriesNode>(this, source);
 }
 
-SeriesItem *ImpulsePlot::createSeriesFromSource(const Source::Shared &source)
+SeriesItem *ImpulsePlot::createSeriesFromSource(const Shared::Source &source)
 {
     return itemNode<ImpulseSeriesNode>(this, source);
 }
 
-SeriesItem *StepPlot::createSeriesFromSource(const Source::Shared &source)
+SeriesItem *StepPlot::createSeriesFromSource(const Shared::Source &source)
 {
     return itemNode<StepSeriesNode>(this, source);
 }
 
-SeriesItem *SpectrogramPlot::createSeriesFromSource(const Source::Shared &source)
+SeriesItem *SpectrogramPlot::createSeriesFromSource(const Shared::Source &source)
 {
     return itemNode<SpectrogramSeriesNode>(this, source);
 }
 
-SeriesItem *CrestFactorPlot::createSeriesFromSource(const Source::Shared &source)
+SeriesItem *CrestFactorPlot::createSeriesFromSource(const Shared::Source &source)
 {
     return itemNode<CrestFactorSeriesNode>(this, source);
 }
 
-SeriesItem *NyquistPlot::createSeriesFromSource(const Source::Shared &source)
+SeriesItem *NyquistPlot::createSeriesFromSource(const Shared::Source &source)
 {
     return itemNode<NyquistSeriesNode>(this, source);
 }
 
-SeriesItem *LevelPlot::createSeriesFromSource(const Source::Shared &source)
+SeriesItem *LevelPlot::createSeriesFromSource(const Shared::Source &source)
 {
     return itemNode<LevelSeriesNode>(this, source);
 }

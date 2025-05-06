@@ -24,7 +24,7 @@
 #include "math/bessellpf.h"
 #include "math/meter.h"
 #include "math/windowfunction.h"
-#include "source/source_abstract.h"
+#include "abstract/source.h"
 
 namespace Meta {
 

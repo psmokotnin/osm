@@ -35,7 +35,7 @@ unsigned int GroupItem::size() const
     return m_sourceList.size();
 }
 
-Source::Shared GroupItem::pop(const QUuid &)
+Shared::Source GroupItem::pop(const QUuid &)
 {
     return {};
 }

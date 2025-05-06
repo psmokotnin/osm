@@ -23,7 +23,7 @@
 #include <QtQml>
 
 #include "metabase.h"
-#include "source/source_abstract.h"
+#include "abstract/source.h"
 #include "math/windowfunction.h"
 
 namespace Meta {

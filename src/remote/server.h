@@ -20,7 +20,7 @@
 
 #include <QObject>
 #include "network.h"
-#include "source/source_shared.h"
+#include "shared/source_shared.h"
 #include "source/group.h"
 
 class SourceList;
@@ -71,10 +71,10 @@ private slots:
 
 private:
     QJsonObject prepareMessage(const QString &message) const;
-    void sourceNotify(const Source::Shared &source, const QString &message, const QJsonValue &data = {});
+    void sourceNotify(const Shared::Source &source, const QString &message, const QJsonValue &data = {});
     void sendMulticast(const QByteArray &data);
     void setLastConnected(const QString &lastConnected);
-    void connectSourceList(SourceList *list, const Source::Shared &group = {});
+    void connectSourceList(SourceList *list, const Shared::Source &group = {});
 
     QUuid m_uuid;
     QTimer m_timer;

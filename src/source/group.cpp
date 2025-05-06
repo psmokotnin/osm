@@ -22,7 +22,7 @@
 namespace Source {
 
 Group::Group(QObject *parent)
-    : Abstract{parent},
+    : Abstract::Source{parent},
       m_sourceList(this, false)
 {
     qRegisterMetaType<::Source::Group *>("Source::Group*");
@@ -37,12 +37,12 @@ Group::Group(QObject *parent)
 void Group::destroy()
 {
     m_sourceList.clean();
-    Abstract::destroy();
+    Abstract::Source::destroy();
 }
 
 QJsonObject Group::toJSON(const SourceList *list) const noexcept
 {
-    auto object = ::Source::Abstract::toJSON(list);
+    auto object = Abstract::Source::toJSON(list);
 
     object["list"]      = m_sourceList.toJSON(list);
 
@@ -51,12 +51,12 @@ QJsonObject Group::toJSON(const SourceList *list) const noexcept
 
 void Group::fromJSON(QJsonObject data, const SourceList *list) noexcept
 {
-    ::Source::Abstract::fromJSON(data, list);
+    Abstract::Source::fromJSON(data, list);
 
     m_sourceList.fromJSON(data["list"].toArray(), list);
 }
 
-Shared Group::clone() const
+Shared::Source Group::clone() const
 {
     auto cloned = std::make_shared<Group>(parent());
     cloned->setActive(active());
@@ -67,15 +67,15 @@ Shared Group::clone() const
             cloned->m_sourceList.appendItem(clonedItem, true);
         }
     }
-    return std::static_pointer_cast<::Source::Abstract>(cloned);
+    return std::static_pointer_cast<Abstract::Source>(cloned);
 }
 
-void Group::add(const Shared &source)
+void Group::add(const Shared::Source &source)
 {
     m_sourceList.appendItem(source);
 }
 
-Shared Group::pop(const QUuid &uuid)
+Shared::Source Group::pop(const QUuid &uuid)
 {
     auto source = m_sourceList.getByUUid(uuid);
     if (source) {

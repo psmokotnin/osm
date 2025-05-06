@@ -24,17 +24,17 @@
 #include <QtEndian>
 #include "common/wavfile.h"
 
-Stored::Stored(QObject *parent) : ::Source::Abstract(parent), Meta::Stored()
+Stored::Stored(QObject *parent) : Abstract::Source(parent), Meta::Stored()
 {
     setObjectName("Stored");
-    connect(this, &Stored::polarityChanged, this, &::Source::Abstract::readyRead);
-    connect(this, &Stored::inverseChanged, this, &::Source::Abstract::readyRead);
-    connect(this, &Stored::ignoreCoherenceChanged, this, &::Source::Abstract::readyRead);
-    connect(this, &Stored::gainChanged, this, &::Source::Abstract::readyRead);
-    connect(this, &Stored::delayChanged, this, &::Source::Abstract::readyRead);
+    connect(this, &Stored::polarityChanged, this, &Abstract::Source::readyRead);
+    connect(this, &Stored::inverseChanged, this, &Abstract::Source::readyRead);
+    connect(this, &Stored::ignoreCoherenceChanged, this, &Abstract::Source::readyRead);
+    connect(this, &Stored::gainChanged, this, &Abstract::Source::readyRead);
+    connect(this, &Stored::delayChanged, this, &Abstract::Source::readyRead);
 }
 
-Source::Shared Stored::clone() const
+Shared::Source Stored::clone() const
 {
     auto cloned = std::make_shared<Stored>(parent());
     cloned->build(const_cast<Stored *>(this));
@@ -47,10 +47,10 @@ Source::Shared Stored::clone() const
     cloned->setGain(gain());
     cloned->setNotes(notes());
 
-    return std::static_pointer_cast<::Source::Abstract>(cloned);
+    return std::static_pointer_cast<Abstract::Source>(cloned);
 }
 
-void Stored::build (::Source::Abstract *source)
+void Stored::build (Abstract::Source *source)
 {
     source->lock();
     m_dataLength = source->size();
@@ -72,7 +72,7 @@ void Stored::autoName(const QString &prefix) noexcept
 
 QJsonObject Stored::toJSON(const SourceList *list) const noexcept
 {
-    auto object = ::Source::Abstract::toJSON(list);
+    auto object = Abstract::Source::toJSON(list);
     object["notes"]     = notes();
 
     object["polarity"]  = polarity();
@@ -113,7 +113,7 @@ QJsonObject Stored::toJSON(const SourceList *list) const noexcept
 }
 void Stored::fromJSON(QJsonObject data, const SourceList *list) noexcept
 {
-    ::Source::Abstract::fromJSON(data, list);
+    Abstract::Source::fromJSON(data, list);
 
     auto ftdata         = data["ftdata"].toArray();
     auto impulse        = data["impulse"].toArray();

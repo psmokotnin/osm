@@ -19,9 +19,9 @@
 #define STANDARDLINE_H
 
 #include <QObject>
-#include "source/source_abstract.h"
+#include "abstract/source.h"
 
-class StandardLine : public ::Source::Abstract
+class StandardLine : public Abstract::Source
 {
 public:
     enum Mode {
@@ -39,7 +39,7 @@ public:
 
 public:
     explicit StandardLine(QObject *parent = nullptr);
-    ::Source::Shared clone() const override;
+    Shared::Source clone() const override;
 
     Q_INVOKABLE QJsonObject toJSON(const SourceList *list = nullptr) const noexcept override;
     void fromJSON(QJsonObject data, const SourceList *list = nullptr) noexcept override;

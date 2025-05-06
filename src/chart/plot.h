@@ -20,7 +20,7 @@
 
 #include <QtQuick/QQuickItem>
 #include "axis.h"
-#include "source/source_abstract.h"
+#include "abstract/source.h"
 #include "palette.h"
 #include "cursorhelper.h"
 #include "common/settings.h"
@@ -47,8 +47,8 @@ public:
     void disconnectFromParent();
     QSGNode *updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *) override;
 
-    bool appendDataSource(const Source::Shared &source);
-    void removeDataSource(const Source::Shared &source);
+    bool appendDataSource(const Shared::Source &source);
+    void removeDataSource(const Shared::Source &source);
     void setSourceZIndex(const QUuid &source, int index);
     void setHighlighted(const QUuid &source);
 
@@ -92,7 +92,7 @@ public slots:
     void update();
 
 protected:
-    virtual SeriesItem *createSeriesFromSource(const Source::Shared &source) = 0;
+    virtual SeriesItem *createSeriesFromSource(const Shared::Source &source) = 0;
 
     CursorHelper *cursorHelper() const noexcept;
 

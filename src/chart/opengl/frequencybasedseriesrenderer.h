@@ -31,7 +31,7 @@ protected:
 
     virtual void updateMatrix() override;
     void setUniforms();
-    const Source::Shared &source() const override;
+    const Shared::Source &source() const override;
 
 public:
     explicit FrequencyBasedSeriesRenderer();

@@ -71,14 +71,14 @@ void Server::setSourceList(SourceList *list)
     connectSourceList(list);
 }
 
-void Server::connectSourceList(SourceList *list, const Source::Shared &group)
+void Server::connectSourceList(SourceList *list, const Shared::Source &group)
 {
     QJsonObject groupJson;
     if (group) {
         groupJson["group"] = group.uuid().toString();
     }
 
-    auto onAdded = [this, group, groupJson](const Source::Shared & source) {
+    auto onAdded = [this, group, groupJson](const Shared::Source & source) {
 
         if (!source || std::dynamic_pointer_cast<remote::Item>(source)) {
             return ;
@@ -86,7 +86,7 @@ void Server::connectSourceList(SourceList *list, const Source::Shared &group)
 
         sourceNotify(source, "added", groupJson);
 
-        connect(source.get(), &Source::Abstract::readyRead, this, [this, source]() {
+        connect(source.get(), &Abstract::Source::readyRead, this, [this, source]() {
             sourceNotify(source, "readyRead");
             sourceNotify(source, "levels", source->levels());
         });
@@ -180,7 +180,7 @@ void Server::sendSouceNotify()
 
     QString signalName = metaObject->method(QObject::senderSignalIndex()).name();
 
-    auto source = dynamic_cast<Source::Abstract *>(QObject::sender());
+    auto source = dynamic_cast<Abstract::Source *>(QObject::sender());
     if (source && m_sourceList) {
         auto shared = m_sourceList->getByUUid(source->uuid());
         sourceNotify(shared, "changed");
@@ -448,7 +448,7 @@ QByteArray Server::tcpCallback([[maybe_unused]] const QHostAddress &&address, co
                     m_sourceList,
                     "storeItem",
                     Qt::QueuedConnection,
-                    Q_ARG(Source::Shared, source));
+                    Q_ARG(Shared::Source, source));
             }
         }
     }
@@ -467,7 +467,7 @@ QJsonObject Server::prepareMessage(const QString &message) const
     return object;
 }
 
-void Server::sourceNotify(const Source::Shared &source, const QString &message, const QJsonValue &data)
+void Server::sourceNotify(const Shared::Source &source, const QString &message, const QJsonValue &data)
 {
     if (active() && source) {
         auto object = prepareMessage(message);

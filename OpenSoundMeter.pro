@@ -77,9 +77,8 @@ SOURCES += src/main.cpp \
     src/remote/server.cpp \
     src/remote/tcpreciever.cpp \
     src/source/group.cpp \
-    src/source/source_abstract.cpp \
-    src/source/source_shared.cpp \
     src/source/sourcewindowing.cpp \
+    src/shared/source_shared.cpp \
     src/sourcelist.cpp \
     src/sourcemodel.cpp \
     src/standardline.cpp \
@@ -225,9 +224,8 @@ HEADERS += \
     src/remote/server.h \
     src/remote/tcpreciever.h \
     src/source/group.h \
-    src/source/source_abstract.h \
-    src/source/source_shared.h \
     src/source/sourcewindowing.h \
+    src/shared/source_shared.h \
     src/sourcelist.h \
     src/sourcemodel.h \
     src/standardline.h \

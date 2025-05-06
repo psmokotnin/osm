@@ -54,7 +54,7 @@ signals:
     void positivePeriodChanged(bool);
 
 protected:
-    virtual SeriesItem *createSeriesFromSource(const Source::Shared &source) override;
+    virtual SeriesItem *createSeriesFromSource(const Shared::Source &source) override;
     bool applyYGesture(qreal base, qreal move, qreal scale);
 
     int m_center, m_range;

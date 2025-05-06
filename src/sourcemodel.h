@@ -19,7 +19,7 @@
 #define SOURCEMODEL_H
 
 #include <QAbstractListModel>
-#include "source/source_abstract.h"
+#include "abstract/source.h"
 
 class SourceList;
 
@@ -58,7 +58,7 @@ public:
 
     Q_INVOKABLE int indexOf(const QUuid &item) const noexcept;
     Q_INVOKABLE QUuid get(const int &index) const noexcept;
-    Q_INVOKABLE Source::Shared getShared(const int &index) const noexcept;
+    Q_INVOKABLE Shared::Source getShared(const int &index) const noexcept;
 
     Q_INVOKABLE void check(const int &index, const bool &checked) noexcept;
     Q_INVOKABLE int checkedCount() const;
@@ -86,7 +86,7 @@ public:
     void setUnrollGroups(bool newUnrollGroups);
 
 public slots:
-    void itemChanged(const Source::Shared &, const QVector<int> &roles);
+    void itemChanged(const Shared::Source &, const QVector<int> &roles);
 
 signals:
     void changed();

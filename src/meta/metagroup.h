@@ -22,7 +22,7 @@
 #include <QObject>
 #include "meta/metabase.h"
 #include "sourcelist.h"
-#include "source/source_shared.h"
+#include "shared/source_shared.h"
 
 namespace Meta {
 
@@ -34,7 +34,7 @@ public:
     virtual SourceList *sourceList() = 0;
     virtual unsigned    size() const = 0;
 
-    virtual Source::Shared  pop(const QUuid &) = 0;
+    virtual Shared::Source  pop(const QUuid &) = 0;
 
 //virtual signals:
     virtual void sizeChanged() = 0;

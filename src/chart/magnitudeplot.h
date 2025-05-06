@@ -58,7 +58,7 @@ signals:
     void sensorChanged(float);
 
 protected:
-    virtual SeriesItem *createSeriesFromSource(const Source::Shared &source) override;
+    virtual SeriesItem *createSeriesFromSource(const Shared::Source &source) override;
 
 private:
     bool m_invert;

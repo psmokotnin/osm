@@ -24,7 +24,7 @@
 
 std::mutex Union::s_calcmutex = std::mutex();
 
-Union::Union(QObject *parent): ::Source::Abstract(parent),
+Union::Union(QObject *parent): Abstract::Source(parent),
     m_sources(2),
     m_timer(nullptr), m_timerThread(nullptr),
     m_operation(Summation),
@@ -52,7 +52,7 @@ Union::~Union()
     m_timerThread.wait();
 }
 
-Source::Shared Union::clone() const
+Shared::Source Union::clone() const
 {
     auto cloned = std::make_shared<Union>();
 
@@ -64,7 +64,7 @@ Source::Shared Union::clone() const
     for (int i = 0; i < count(); ++i) {
         cloned->setSource(i, getSource(i));
     }
-    return std::static_pointer_cast<::Source::Abstract>(cloned);
+    return std::static_pointer_cast<Abstract::Source>(cloned);
 }
 
 int Union::count() const noexcept
@@ -98,7 +98,7 @@ void Union::setActive(bool newActive) noexcept
     if (newActive && checkLoop(this)) {
         return;
     }
-    ::Source::Abstract::setActive(newActive);
+    Abstract::Source::setActive(newActive);
     update();
 }
 Union::Type Union::type() const
@@ -127,7 +127,7 @@ void Union::resize()
     m_ftdata.resize(m_dataLength);
     m_impulseData.resize(m_deconvolutionSize);
 }
-Source::Shared Union::getSource(int index) const noexcept
+Shared::Source Union::getSource(int index) const noexcept
 {
     if (index < m_sources.count()) {
         return m_sources.at(index);
@@ -143,7 +143,7 @@ QUuid Union::getSourceId(int index) const noexcept
     }
     return {};
 }
-bool Union::setSource(int index, const ::Source::Shared &s) noexcept
+bool Union::setSource(int index, const Shared::Source &s) noexcept
 {
     if (s == getSource(index))
         return true;
@@ -158,7 +158,7 @@ bool Union::setSource(int index, const ::Source::Shared &s) noexcept
 
     if (index < m_sources.count()) {
         if (m_sources[index]) {
-            disconnect(m_sources[index].get(), &::Source::Abstract::readyRead, this, &Union::update);
+            disconnect(m_sources[index].get(), &Abstract::Source::readyRead, this, &Union::update);
         }
         m_sources.replace(index, s);
         if (index == 0)
@@ -183,7 +183,7 @@ void Union::update() noexcept
 
 void Union::calc() noexcept
 {
-    std::set<::Source::Shared> sources;
+    std::set<Shared::Source> sources;
 
     if (!active())
         return;
@@ -254,7 +254,7 @@ void Union::calc() noexcept
     }
     emit readyRead();
 }
-void Union::calcPolar(unsigned int count, const ::Source::Shared &primary) noexcept
+void Union::calcPolar(unsigned int count, const Shared::Source &primary) noexcept
 {
     float magnitude, module, coherence, coherenceWeight;
     complex phase;
@@ -331,7 +331,7 @@ void Union::calcPolar(unsigned int count, const ::Source::Shared &primary) noexc
         m_impulseData[i].value = NAN;
     }
 }
-void Union::calcVector(unsigned int count, const ::Source::Shared &primary) noexcept
+void Union::calcVector(unsigned int count, const Shared::Source &primary) noexcept
 {
     float coherence, coherenceWeight;
     complex a, m, p;
@@ -444,7 +444,7 @@ void Union::calcVector(unsigned int count, const ::Source::Shared &primary) noex
     }
 }
 
-void Union::calcdB(unsigned int count, const ::Source::Shared &primary) noexcept
+void Union::calcdB(unsigned int count, const Shared::Source &primary) noexcept
 {
     float magnitude, module, coherence, coherenceWeight;
     complex phase;
@@ -525,7 +525,7 @@ void Union::calcdB(unsigned int count, const ::Source::Shared &primary) noexcept
     }
 }
 
-void Union::calcPower(unsigned int count, const ::Source::Shared &primary) noexcept
+void Union::calcPower(unsigned int count, const Shared::Source &primary) noexcept
 {
     float magnitude, module, coherence, coherenceWeight;
     complex phase;
@@ -608,7 +608,7 @@ void Union::calcPower(unsigned int count, const ::Source::Shared &primary) noexc
     }
 }
 
-void Union::calcApply(const ::Source::Shared &primary) noexcept
+void Union::calcApply(const Shared::Source &primary) noexcept
 {
     float magnitude, module, coherence;
     complex phase;
@@ -703,13 +703,13 @@ void Union::sourceDestroyed(::Abstract::Source *source)
     });
     if (position != m_sources.end()) {
         auto index = std::distance(m_sources.begin(), position);
-        setSource(index, ::Source::Shared{nullptr});
+        setSource(index, Shared::Source{nullptr});
     }
 }
 
 QJsonObject Union::toJSON(const SourceList *list) const noexcept
 {
-    auto object = ::Source::Abstract::toJSON(list);
+    auto object = Abstract::Source::toJSON(list);
 
     object["count"]     = count();
     object["type"]      = type();
@@ -775,7 +775,7 @@ Union::Operation Union::operation() const noexcept
 {
     return m_operation;
 }
-Source::Shared Union::store()
+Shared::Source Union::store()
 {
     auto store = std::make_shared<Stored>();
     store->build(this);

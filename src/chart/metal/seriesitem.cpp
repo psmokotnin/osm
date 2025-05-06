@@ -20,7 +20,7 @@
 
 namespace Chart {
 
-SeriesItem::SeriesItem(const Source::Shared &source, QQuickItem *parent,
+SeriesItem::SeriesItem(const Shared::Source &source, QQuickItem *parent,
                        NodeConstructor nodeConstructor) : QQuickItem(parent),
     m_source(source), m_highlighted(false), m_nodeConstructor(nodeConstructor)
 {
@@ -32,7 +32,7 @@ SeriesItem::SeriesItem(const Source::Shared &source, QQuickItem *parent,
     connect(source.get(), SIGNAL(activeChanged()), SLOT(update()));
 }
 
-const Source::Shared &SeriesItem::source() const
+const Shared::Source &SeriesItem::source() const
 {
     return m_source;
 }

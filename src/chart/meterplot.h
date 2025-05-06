@@ -20,10 +20,10 @@
 
 #include <QTimer>
 #include "levelobject.h"
-#include "source/source_abstract.h"
+#include "abstract/source.h"
 #include "math/leq.h"
 #include "common/settings.h"
-#include "source/source_shared.h"
+#include "shared/source_shared.h"
 
 namespace Chart {
 
@@ -125,7 +125,7 @@ private:
     QString thdnValue() const;
     QString delayValue() const;
 
-    Source::Shared m_source;
+    Shared::Source m_source;
     SourceList *m_sourceList;
     Settings   *m_settings;
     QTimer m_timer;

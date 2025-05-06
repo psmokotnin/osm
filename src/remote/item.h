@@ -18,13 +18,13 @@
 #ifndef REMOTE_ITEM_H
 #define REMOTE_ITEM_H
 
-#include "source/source_abstract.h"
+#include "abstract/source.h"
 #include <QTimer>
 #include <QJsonArray>
 
 namespace remote {
 
-class Item : public ::Source::Abstract
+class Item : public Abstract::Source
 {
 
 private:
@@ -43,7 +43,7 @@ public:
     };
     Q_ENUM(State);
 
-    ::Source::Shared clone() const override;
+    Shared::Source clone() const override;
     bool cloneable() const override;
 
     Q_INVOKABLE QJsonObject toJSON(const SourceList * = nullptr) const noexcept override;

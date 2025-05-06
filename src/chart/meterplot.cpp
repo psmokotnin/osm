@@ -59,16 +59,16 @@ QUuid MeterPlot::source() const
 
 void MeterPlot::setSource(QUuid sourceId)
 {
-    auto source = m_sourceList ? m_sourceList->getByUUid(sourceId) : Source::Shared{};
+    auto source = m_sourceList ? m_sourceList->getByUUid(sourceId) : Shared::Source{};
     if (m_source != source) {
         disconnect(m_sourceConnection);
 
         m_source = source;
 
         if (m_source) {
-            m_sourceConnection = connect(m_source.get(), &Source::Abstract::readyRead, this, &MeterPlot::sourceReadyRead);
-            connect(m_source.get(), &Source::Abstract::beforeDestroy, this, &MeterPlot::resetSource, Qt::DirectConnection);
-            connect(m_source.get(), &Source::Abstract::nameChanged, this, &MeterPlot::sourceNameChanged);
+            m_sourceConnection = connect(m_source.get(), &Abstract::Source::readyRead, this, &MeterPlot::sourceReadyRead);
+            connect(m_source.get(), &Abstract::Source::beforeDestroy, this, &MeterPlot::resetSource, Qt::DirectConnection);
+            connect(m_source.get(), &Abstract::Source::nameChanged, this, &MeterPlot::sourceNameChanged);
         }
         emit sourceChanged(sourceId);
     }

@@ -20,7 +20,7 @@
 
 using namespace Chart;
 
-SeriesFBO::SeriesFBO(Source::Shared source, RendererCreator rc, QQuickItem *parent):
+SeriesFBO::SeriesFBO(Shared::Source source, RendererCreator rc, QQuickItem *parent):
     QQuickFramebufferObject(parent),
     m_rendererCreator(std::move(rc)),
     m_source(source), m_highlighted(false)
@@ -31,7 +31,7 @@ SeriesFBO::SeriesFBO(Source::Shared source, RendererCreator rc, QQuickItem *pare
     connect(source.get(), SIGNAL(activeChanged()),      SLOT(update()));
 }
 
-const Source::Shared &SeriesFBO::source() const noexcept
+const Shared::Source &SeriesFBO::source() const noexcept
 {
     return m_source;
 }

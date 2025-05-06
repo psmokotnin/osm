@@ -29,7 +29,7 @@ SpectrogramSeriesNode::SpectrogramSeriesNode(QQuickItem *item) : XYSeriesNode(it
     m_timer(),
     m_pipeline(nullptr), m_indiciesBuffer(nullptr)
 {
-    connect(source().get(), &Source::Abstract::readyRead, this, &SpectrogramSeriesNode::updateHistory);
+    connect(source().get(), &Abstract::Source::readyRead, this, &SpectrogramSeriesNode::updateHistory);
 }
 
 SpectrogramSeriesNode::~SpectrogramSeriesNode()
@@ -289,7 +289,7 @@ void SpectrogramSeriesNode::updateMatrix()
     m_matrix.translate(-1 * logf(m_xMin), 0);
 }
 
-const Source::Shared &SpectrogramSeriesNode::source() const
+const Shared::Source &SpectrogramSeriesNode::source() const
 {
     return m_source;
 }

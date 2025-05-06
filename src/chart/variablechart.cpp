@@ -172,7 +172,7 @@ void VariableChart::setSettings(Settings *settings) noexcept
         m_plot->setSettings(m_settings);
     }
 }
-void VariableChart::removeDataSource(const Source::Shared &source)
+void VariableChart::removeDataSource(const Shared::Source &source)
 {
     if (m_plot) {
         m_plot->removeDataSource(source);

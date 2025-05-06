@@ -20,7 +20,7 @@
 
 #include <QObject>
 #include <QQuickItem>
-#include "source/source_abstract.h"
+#include "abstract/source.h"
 #include "seriesnode.h"
 
 namespace Chart {
@@ -32,8 +32,8 @@ class SeriesItem : public QQuickItem
 
     using NodeConstructor = std::function<SeriesNode *(SeriesItem *)>;
 public:
-    explicit SeriesItem(const Source::Shared &source, QQuickItem *parent, NodeConstructor nodeConstructor);
-    const Source::Shared &source() const;
+    explicit SeriesItem(const Shared::Source &source, QQuickItem *parent, NodeConstructor nodeConstructor);
+    const Shared::Source &source() const;
 
     void setZIndex(int index);
     bool highlighted() const;
@@ -47,7 +47,7 @@ protected:
     QSGNode *updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *) override;
     void geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry) override;
 
-    Source::Shared m_source;
+    Shared::Source m_source;
     bool m_highlighted;
     NodeConstructor m_nodeConstructor;
 };

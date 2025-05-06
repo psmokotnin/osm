@@ -24,7 +24,7 @@
 #include <QtGui/QOpenGLFunctions>
 #include <QOpenGLFunctions_3_3_Core>
 
-#include "source/source_abstract.h"
+#include "abstract/source.h"
 
 namespace Chart {
 class Plot;
@@ -56,7 +56,7 @@ protected:
 
     Plot *plot() const;
 
-    Source::Shared m_source;
+    Shared::Source m_source;
     QQuickFramebufferObject *m_item = nullptr;
     QOpenGLShaderProgram m_program;
     QOpenGLFunctions *m_openGLFunctions;

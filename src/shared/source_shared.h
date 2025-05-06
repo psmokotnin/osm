@@ -1,6 +1,6 @@
 /**
  *  OSM
- *  Copyright (C) 2018  Pavel Smokotnin
+ *  Copyright (C) 2024  Pavel Smokotnin
 
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -15,22 +15,39 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef SOURCE_H
-#define SOURCE_H
+#ifndef SHARED_SOURCE_H
+#define SHARED_SOURCE_H
 
+#include <memory>
 
 #include <QObject>
+#include <QColor>
+#include <QUuid>
 
-#include "abstract/source.h"
+namespace Abstract {
+class Source;
+}
 
-namespace Source {
-class Abstract : public ::Abstract::Source
+namespace Shared {
+
+class Source : public std::shared_ptr<Abstract::Source>
 {
-
-    Q_OBJECT
+    Q_GADGET
+    Q_PROPERTY(Abstract::Source *data READ get CONSTANT)
+    Q_PROPERTY(QUuid uuid READ uuid CONSTANT)
+    Q_PROPERTY(QString objectName READ objectName CONSTANT)
 
 public:
-    explicit Abstract(QObject *parent = nullptr);
+    Source(std::shared_ptr<Abstract::Source> ptr = nullptr);
+    ~Source();
+
+    QUuid   uuid()       const;
+    Q_INVOKABLE QColor  color()      const;
+    QString objectName() const;
 };
-}
-#endif // SOURCE_H
+
+} // namespace Source
+
+Q_DECLARE_METATYPE(Shared::Source)
+
+#endif // SHARED_SOURCE_H

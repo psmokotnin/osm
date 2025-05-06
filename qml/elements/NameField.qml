@@ -19,7 +19,7 @@ import QtQuick 2.0
 import QtQuick.Controls 2.13
 
 TextField {
-    property var target //Source::Shared
+    property var target //Shared::Source
 
     placeholderText: qsTr("title")
     text: target.data.name

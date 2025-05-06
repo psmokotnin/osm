@@ -52,7 +52,7 @@ void SeriesesItem::connectSources(SourceList *sourceList)
         auto selected = m_sources->selectedUuid();
         m_plot->setHighlighted(selected);
 
-        connect(m_sources, &SourceList::postItemAppended, this, [ = ](const Source::Shared & source) {
+        connect(m_sources, &SourceList::postItemAppended, this, [ = ](const Shared::Source & source) {
             appendDataSource(source);
         });
 
@@ -86,7 +86,7 @@ SeriesesItem *SeriesesItem::constructFromGroup(const std::shared_ptr<GroupType> 
     groupItem->connectSources(group->sourceList());
     groupItem->setGroupUuid(group->uuid());
 
-    connect(group.get(), &Source::Abstract::beforeDestroy, groupItem, [ = ](auto) {
+    connect(group.get(), &Abstract::Source::beforeDestroy, groupItem, [ = ](auto) {
         groupItem->clear();
         groupItem->deleteLater();
     });
@@ -131,7 +131,7 @@ void SeriesesItem::clear()
     }
 }
 
-bool SeriesesItem::appendDataSource(const Source::Shared &source)
+bool SeriesesItem::appendDataSource(const Shared::Source &source)
 {
     if (!source || !m_plot) {
         return false;
@@ -171,7 +171,7 @@ bool SeriesesItem::appendDataSource(const Source::Shared &source)
     return true;
 }
 
-void SeriesesItem::removeDataSource(const Source::Shared &source)
+void SeriesesItem::removeDataSource(const Shared::Source &source)
 {
     foreach (auto *series, m_serieses) {
         if (series->source() == source) {

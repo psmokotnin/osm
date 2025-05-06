@@ -35,7 +35,7 @@ public:
     SourceList *sourceList() override;
     unsigned    size() const override;
 
-    Q_INVOKABLE ::Source::Shared  pop(const QUuid &) override;
+    Q_INVOKABLE Shared::Source  pop(const QUuid &) override;
 
 signals:
     void sizeChanged() override;

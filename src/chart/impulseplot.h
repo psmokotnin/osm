@@ -51,7 +51,7 @@ signals:
     void normalizedChanged(bool);
 
 protected:
-    virtual SeriesItem *createSeriesFromSource(const Source::Shared &source) override;
+    virtual SeriesItem *createSeriesFromSource(const Shared::Source &source) override;
 
 private:
     Mode m_mode;

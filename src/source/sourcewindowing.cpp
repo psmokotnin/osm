@@ -21,7 +21,7 @@
 #include "sourcelist.h"
 #include "stored.h"
 
-Windowing::Windowing(QObject *parent) : ::Source::Abstract(parent), Meta::Windowing(),
+Windowing::Windowing(QObject *parent) : Abstract::Source(parent), Meta::Windowing(),
     m_sampleRate(1), m_source(nullptr),
     m_window(WindowFunction::Type::Rectangular, this)
 {
@@ -50,7 +50,7 @@ Windowing::~Windowing()
 {
 }
 
-Source::Shared Windowing::clone() const
+Shared::Source Windowing::clone() const
 {
     auto cloned = std::make_shared<Windowing>();
     cloned->setMode(mode());
@@ -62,12 +62,12 @@ Source::Shared Windowing::clone() const
     cloned->setMaxFrequency(maxFrequency());
     cloned->setSource(source());
 
-    return std::static_pointer_cast<::Source::Abstract>(cloned);
+    return std::static_pointer_cast<Abstract::Source>(cloned);
 }
 
 QJsonObject Windowing::toJSON(const SourceList *list) const noexcept
 {
-    auto object = ::Source::Abstract::toJSON(list);
+    auto object = Abstract::Source::toJSON(list);
 
     object["mode"]                  = mode();
     object["domain"]                = domain();
@@ -85,7 +85,7 @@ QJsonObject Windowing::toJSON(const SourceList *list) const noexcept
 
 void Windowing::fromJSON(QJsonObject data, const SourceList *list) noexcept
 {
-    ::Source::Abstract::fromJSON(data, list);
+    Abstract::Source::fromJSON(data, list);
 
     setMode(static_cast<Meta::Windowing::Mode>(data["mode"].toInt(mode())));
     setDomain(static_cast<Meta::Windowing::SourceDomain>(data["domain"].toInt(domain())));
@@ -344,7 +344,7 @@ void Windowing::updateFromFrequencyDomain()
     }
 }
 
-void Windowing::updateFromTimeDomain(const ::Source::Shared &source)
+void Windowing::updateFromTimeDomain(const Shared::Source &source)
 {
     Q_ASSERT(source);
 
@@ -437,12 +437,12 @@ void Windowing::transform()
     }
 }
 
-Source::Shared Windowing::source() const
+Shared::Source Windowing::source() const
 {
     return m_source;
 }
 
-void Windowing::setSource(const ::Source::Shared &newSource)
+void Windowing::setSource(const Shared::Source &newSource)
 {
     if (m_source == newSource) {
         return;
@@ -463,12 +463,12 @@ void Windowing::setSource(const ::Source::Shared &newSource)
         m_resize = true;
 
         if (m_source) {
-            connect(m_source.get(), &::Source::Abstract::beforeDestroy, this, [this]() {
-                setSource(::Source::Shared{ nullptr });
+            connect(m_source.get(), &Abstract::Source::beforeDestroy, this, [this]() {
+                setSource(Shared::Source{ nullptr });
             }, Qt::DirectConnection);
 
             connect(
-                m_source.get(), &::Source::Abstract::readyRead,
+                m_source.get(), &Abstract::Source::readyRead,
                 this, &Windowing::update,
 
                 //TODO: QueuedConnection when it will work on its own thread
@@ -491,7 +491,7 @@ QUuid Windowing::sourceId() const
     return QUuid{};
 }
 
-Source::Shared Windowing::store()
+Shared::Source Windowing::store()
 {
     auto stored = std::make_shared<Stored>();
     stored->build(this);
@@ -517,7 +517,7 @@ Source::Shared Windowing::store()
 
     stored->setNotes(notes);
 
-    return std::static_pointer_cast<::Source::Abstract>(stored);
+    return std::static_pointer_cast<Abstract::Source>(stored);
 }
 
 unsigned Windowing::sampleRate() const

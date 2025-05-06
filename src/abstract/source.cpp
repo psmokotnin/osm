@@ -33,7 +33,7 @@ Source::Source(QObject *parent) : QObject{ parent },
 
 Source::~Source() = default;
 
-::Source::Shared Source::store()
+Shared::Source Source::store()
 {
     return {};
 }

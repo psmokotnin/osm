@@ -23,12 +23,12 @@
 #include <QUuid>
 
 #include "meta/metagroup.h"
-#include "source/source_abstract.h"
+#include "abstract/source.h"
 #include "sourcelist.h"
 
 namespace Source {
 
-class Group : public Abstract, public Meta::Group
+class Group : public Abstract::Source, public Meta::Group
 {
     Q_OBJECT
     Q_PROPERTY(unsigned size READ size  NOTIFY sizeChanged)
@@ -38,10 +38,10 @@ public:
     explicit                    Group(QObject *parent = nullptr);
 
     Q_INVOKABLE void            destroy() override;
-    ::Source::Shared              clone() const override;
+    Shared::Source              clone() const override;
 
-    void                        add(const ::Source::Shared &source);
-    Q_INVOKABLE ::Source::Shared  pop(const QUuid &uuid) override;
+    void                        add(const Shared::Source &source);
+    Q_INVOKABLE Shared::Source  pop(const QUuid &uuid) override;
     void                        remove(const QUuid &uuid, bool deleteItem = true);
     unsigned                    size() const override;
     SourceList                 *sourceList() override;

@@ -33,7 +33,7 @@ public:
 
 protected:
     void updateMatrix() override;
-    const Source::Shared &source() const override;
+    const Shared::Source &source() const override;
 
 private:
     int m_widthUniform, m_screenUniform;

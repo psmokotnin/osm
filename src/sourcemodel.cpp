@@ -40,7 +40,7 @@ QVariant SourceModel::data(const QModelIndex &index, int role) const
         return QVariant();
 
     auto j = index.row();
-    const Source::Shared &source = m_list->items().at(j);
+    const Shared::Source &source = m_list->items().at(j);
     QVariant r = {};
     switch (role) {
     case NameRole:
@@ -177,7 +177,7 @@ QUuid SourceModel::get(const int &index) const noexcept
     return item ? item->uuid() : QUuid{};
 }
 
-Source::Shared SourceModel::getShared(const int &index) const noexcept
+Shared::Source SourceModel::getShared(const int &index) const noexcept
 {
     return m_list->get(index);
 }
@@ -271,7 +271,7 @@ void SourceModel::setFilter(const QUuid filter)
     }
 }
 
-void SourceModel::itemChanged(const Source::Shared &item, const QVector<int> &roles)
+void SourceModel::itemChanged(const Shared::Source &item, const QVector<int> &roles)
 {
     auto index = indexOf(item->uuid());
     emit dataChanged(createIndex(index, 0), createIndex(index, 0), roles );

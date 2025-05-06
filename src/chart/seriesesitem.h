@@ -45,8 +45,8 @@ public:
     void disconnectFromParent();
     void clear();
 
-    bool appendDataSource(const Source::Shared &source);
-    void removeDataSource(const Source::Shared &source);
+    bool appendDataSource(const Shared::Source &source);
+    void removeDataSource(const Shared::Source &source);
     void setSourceZIndex(const QUuid &source, int index);
     void setHighlighted(const QUuid &source);
     Plot *plot() const;

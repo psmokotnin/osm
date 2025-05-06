@@ -137,7 +137,7 @@ QSGNode *Plot::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *)
     return node;
 }
 
-bool Plot::appendDataSource(const Source::Shared &source)
+bool Plot::appendDataSource(const Shared::Source &source)
 {
     if (!source) {
         return false;
@@ -149,7 +149,7 @@ bool Plot::appendDataSource(const Source::Shared &source)
     }
     return true;
 }
-void Plot::removeDataSource(const Source::Shared &source)
+void Plot::removeDataSource(const Shared::Source &source)
 {
     m_seriesesItem.removeDataSource(source);
     m_selected.removeAll(source.uuid());

@@ -29,7 +29,7 @@
 #include "math/bandpass.h"
 #include "math/lowpassfilter.h"
 
-Measurement::Measurement(QObject *parent) : ::Source::Abstract(parent), Meta::Measurement(),
+Measurement::Measurement(QObject *parent) : Abstract::Source(parent), Meta::Measurement(),
     m_timer(nullptr), m_timerThread(nullptr),
     m_input(this),
     m_deviceId(audio::Client::defaultInputDeviceId()),
@@ -127,7 +127,7 @@ Measurement::~Measurement()
 }
 QJsonObject Measurement::toJSON(const SourceList *list) const noexcept
 {
-    auto data = ::Source::Abstract::toJSON(list);
+    auto data = Abstract::Source::toJSON(list);
     data["delay"]           = static_cast<int>(delay());
     data["gain"]            = gain();
     data["offset"]          = offset();
@@ -161,7 +161,7 @@ QJsonObject Measurement::toJSON(const SourceList *list) const noexcept
 }
 void Measurement::fromJSON(QJsonObject data, const SourceList *list) noexcept
 {
-    ::Source::Abstract::fromJSON(data, list);
+    Abstract::Source::fromJSON(data, list);
 
     auto castUInt = [](const QJsonValue & value, unsigned int defaultValue = 0) {
         return static_cast<unsigned int>(value.toInt(static_cast<int>(defaultValue)));
@@ -390,7 +390,7 @@ void Measurement::setActive(bool newActive)
         return;
     std::lock_guard<std::mutex> guard(m_dataMutex);
 
-    ::Source::Abstract::setActive(newActive);
+    Abstract::Source::setActive(newActive);
     m_error = false;
     emit errorChanged(m_error);
 
@@ -403,7 +403,7 @@ void Measurement::setActive(bool newActive)
 }
 void Measurement::setError()
 {
-    ::Source::Abstract::setActive(false);
+    Abstract::Source::setActive(false);
     m_error = true;
     m_levelMeters.reset();
     m_input.close();
@@ -640,7 +640,7 @@ void Measurement::averaging()
         emit estimatedChanged();
     }
 }
-Source::Shared Measurement::store()
+Shared::Source Measurement::store()
 {
     auto store = std::make_shared<Stored>();
     store->build(this);
@@ -699,7 +699,7 @@ Source::Shared Measurement::store()
 
     return { store };
 }
-Source::Shared Measurement::clone() const
+Shared::Source Measurement::clone() const
 {
     auto cloned = std::make_shared<Measurement>();
 
@@ -725,7 +725,7 @@ Source::Shared Measurement::clone() const
     cloned->setName(name());
     cloned->setActive(active());
 
-    return std::static_pointer_cast<::Source::Abstract>(cloned);
+    return std::static_pointer_cast<Abstract::Source>(cloned);
 }
 long Measurement::estimated() const noexcept
 {
@@ -893,7 +893,7 @@ void Measurement::checkChannels()
 void Measurement::destroy()
 {
     setActive(false);
-    ::Source::Abstract::destroy();
+    Abstract::Source::destroy();
 }
 void Measurement::resetAverage() noexcept
 {

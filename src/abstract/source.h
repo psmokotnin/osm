@@ -27,7 +27,7 @@
 #include <QUuid>
 
 #include "abstract/data.h"
-#include "source/source_shared.h"
+#include "shared/source_shared.h"
 
 class SourceList;
 
@@ -48,8 +48,8 @@ public:
     explicit         Source(QObject *parent = nullptr);
     virtual         ~Source();
 
-    virtual             ::Source::Shared    clone() const = 0; //TODO: Abstract::Shared
-    virtual Q_INVOKABLE ::Source::Shared    store();
+    virtual             Shared::Source      clone() const = 0; //TODO: Abstract::Shared
+    virtual Q_INVOKABLE Shared::Source      store();
     virtual Q_INVOKABLE void                destroy(); //TODO: delete
     virtual Q_INVOKABLE QJsonObject         toJSON(const SourceList * = nullptr) const noexcept; //TODO: shared ptr
     virtual             void                fromJSON(QJsonObject data, const SourceList * = nullptr) noexcept;

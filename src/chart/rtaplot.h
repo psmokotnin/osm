@@ -70,7 +70,7 @@ protected:
     bool isPointsPerOctaveValid(unsigned int &value) const override;
 
 private:
-    virtual SeriesItem *createSeriesFromSource(const Source::Shared &source) override;
+    virtual SeriesItem *createSeriesFromSource(const Shared::Source &source) override;
     Mode m_mode;
     Scale m_scale;
     bool m_spline, m_showPeaks;

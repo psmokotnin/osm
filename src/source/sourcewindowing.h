@@ -17,7 +17,7 @@
  */
 
 #include <QJsonObject>
-#include "source/source_abstract.h"
+#include "abstract/source.h"
 #include "math/fouriertransform.h"
 #include "meta/metawindowing.h"
 
@@ -25,7 +25,7 @@
 #define SOURCE_WINDOWING_H
 
 
-class Windowing : public ::Source::Abstract, public Meta::Windowing
+class Windowing : public Abstract::Source, public Meta::Windowing
 {
     Q_OBJECT
     QML_ELEMENT
@@ -34,7 +34,7 @@ class Windowing : public ::Source::Abstract, public Meta::Windowing
     Q_PROPERTY(float offset READ offset WRITE setOffset NOTIFY offsetChanged)
     Q_PROPERTY(float minFrequency READ minFrequency WRITE setMinFrequency NOTIFY minFrequencyChanged)
     Q_PROPERTY(float maxFrequency READ maxFrequency WRITE setMaxFrequency NOTIFY maxFrequencyChanged)
-    Q_PROPERTY(::Source::Shared source READ source WRITE setSource NOTIFY sourceChanged)
+    Q_PROPERTY(Shared::Source source READ source WRITE setSource NOTIFY sourceChanged)
     Q_PROPERTY(QUuid sourceId READ sourceId NOTIFY sourceChanged)
     Q_PROPERTY(Meta::Windowing::Mode mode READ mode WRITE setMode NOTIFY modeChanged)
     Q_PROPERTY(Meta::Windowing::SourceDomain domain READ domain WRITE setDomain NOTIFY domainChanged)
@@ -50,16 +50,16 @@ public:
     Windowing(QObject *parent = nullptr);
     ~Windowing();
 
-    ::Source::Shared clone() const override;
+    Shared::Source clone() const override;
     Q_INVOKABLE QJsonObject toJSON(const SourceList *list) const noexcept override;
     void fromJSON(QJsonObject data, const SourceList *list = nullptr) noexcept override;
 
-    ::Source::Shared source() const;
-    void setSource(const ::Source::Shared &newSource);
+    Shared::Source source() const;
+    void setSource(const Shared::Source &newSource);
 
     QUuid sourceId() const;
 
-    Q_INVOKABLE ::Source::Shared store() override;
+    Q_INVOKABLE Shared::Source store() override;
 
     unsigned sampleRate() const;
 
@@ -85,11 +85,11 @@ private:
     void syncData();
     void updateFromDomain();
     void updateFromFrequencyDomain();
-    void updateFromTimeDomain(const ::Source::Shared &source);
+    void updateFromTimeDomain(const Shared::Source &source);
     void transform();
 
     unsigned m_sampleRate;
-    ::Source::Shared m_source;
+    Shared::Source m_source;
     WindowFunction m_window;
     FourierTransform m_dataFT;
     Mode m_usedMode;
