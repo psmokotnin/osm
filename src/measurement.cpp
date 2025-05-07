@@ -256,15 +256,15 @@ void Measurement::updateFftPower()
     m_dataFT.prepare();
     calculateDataLength();
 
-    m_moduleAvg.setSize(size());
-    m_magnitudeAvg.setSize(size());
-    m_pahseAvg.setSize(size());
-    m_coherence.setSize(size());
+    m_moduleAvg.setSize(frequencyDomainSize());
+    m_magnitudeAvg.setSize(frequencyDomainSize());
+    m_pahseAvg.setSize(frequencyDomainSize());
+    m_coherence.setSize(frequencyDomainSize());
 
-    m_moduleLPFs.resize(size());
-    m_magnitudeLPFs.resize(size());
-    m_phaseLPFs.resize(size());
-    m_meters.resize(size());
+    m_moduleLPFs.resize(frequencyDomainSize());
+    m_magnitudeLPFs.resize(frequencyDomainSize());
+    m_phaseLPFs.resize(frequencyDomainSize());
+    m_meters.resize(frequencyDomainSize());
 
     // Deconvolution:
     m_deconvolution.setSize(timeDomainSize());

@@ -137,7 +137,7 @@ const Shared::Source &RTASeriesNode::source() const
 
 void RTASeriesNode::renderSeries()
 {
-    if (!m_source->size()) {
+    if (!m_source->frequencyDomainSize()) {
         clearRender();
         return;
     }
@@ -166,7 +166,7 @@ void RTASeriesNode::renderLine()
         return;
     }
 
-    unsigned int maxBufferSize = (m_pointsPerOctave > 0 ? 12 * m_pointsPerOctave : m_source->size() - 1) * 6 * 5;
+    unsigned int maxBufferSize = (m_pointsPerOctave > 0 ? 12 * m_pointsPerOctave : m_source->frequencyDomainSize() - 1) * 6 * 5;
     unsigned int vertexCount = 0;
     if (m_vertices.size() != maxBufferSize) {
         m_vertices.resize(maxBufferSize, 0);
@@ -239,7 +239,7 @@ void RTASeriesNode::renderLine()
         iterate(m_pointsPerOctave, accumalte, collected);
     } else {
         unsigned int j = 0, i;
-        for (i = 0; i < m_source->size() - 1; ++i) {
+        for (i = 0; i < m_source->frequencyDomainSize() - 1; ++i) {
             auto value1 = 20 * log10f(m_source->module(i    )) + offset;
             auto value2 = 20 * log10f(m_source->module(i + 1)) + offset;
             if (m_scale == RTAPlot::Scale::Phon) {
@@ -290,7 +290,7 @@ void RTASeriesNode::renderBars()
     if (!m_pipelineBars) {
         return;
     }
-    unsigned int maxBufferSize = (m_pointsPerOctave ? m_pointsPerOctave * 12 : m_source->size()) * 24;
+    unsigned int maxBufferSize = (m_pointsPerOctave ? m_pointsPerOctave * 12 : m_source->frequencyDomainSize()) * 24;
     if (m_vertices.size() != maxBufferSize) {
         m_vertices.resize(maxBufferSize);
         m_refreshBuffers = true;
@@ -420,7 +420,7 @@ void RTASeriesNode::renderLines()
         return;
     }
 
-    unsigned int vertexCount = m_source->size() * 6 * 2;
+    unsigned int vertexCount = m_source->frequencyDomainSize() * 6 * 2;
     if (m_vertices.size() != vertexCount * 5) {
         m_vertices.resize(vertexCount * 5, 0);
         m_refreshBuffers = true;
@@ -461,7 +461,7 @@ void RTASeriesNode::renderLines()
 
     unsigned int j = 0, i;
     float peak;
-    for (i = 0; i < m_source->size(); ++i) {
+    for (i = 0; i < m_source->frequencyDomainSize(); ++i) {
         auto value = 20 * log10f(m_source->module(i)) + offset;
         if (m_scale == RTAPlot::Scale::Phon) {
             value = elc.phone(m_source->frequency(i), value + LEVEL_NORMALIZATION) - LEVEL_NORMALIZATION;

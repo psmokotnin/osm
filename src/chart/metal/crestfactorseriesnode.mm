@@ -59,7 +59,7 @@ const Shared::Source &CrestFactorSeriesNode::source() const
 
 void CrestFactorSeriesNode::renderSeries()
 {
-    if (!m_source->size()) {
+    if (!m_source->frequencyDomainSize()) {
         clearRender();
         return;
     }

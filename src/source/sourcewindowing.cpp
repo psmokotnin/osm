@@ -249,11 +249,11 @@ void Windowing::updateFromFrequencyDomain()
     complex p1, p2, kp, bp, p;
     bool inList = false;
 
-    for (unsigned i = 0; i < size(); ++i) {
+    for (unsigned i = 0; i < frequencyDomainSize(); ++i) {
 
         while (frequency(i) > m_source->frequency(j)) {
             last = j;
-            if (j + 1 < m_source->size()) {
+            if (j + 1 < m_source->frequencyDomainSize()) {
                 ++j;
                 inList = true;
             } else {
@@ -320,7 +320,7 @@ void Windowing::updateFromFrequencyDomain()
         m_ftdata[i].phase = p;
         m_ftdata[i].coherence = c;
         m_dataFT.set(                i,     complexMagnitude.conjugate(), 0);
-        m_dataFT.set(impulseSize() - i - 1, complexMagnitude,             0);
+        m_dataFT.set(timeDomainSize() - i - 1, complexMagnitude,             0);
     }
 
     // apply iFFT
@@ -349,7 +349,7 @@ void Windowing::updateFromTimeDomain(const Shared::Source &source)
     float dt = 1000.f / m_sampleRate, time = -dt * timeDomainSize() / 2;
 
     //=m_source->impulseZeroOffset()
-    auto zeroOffset = source->impulseSize() / 2;
+    auto zeroOffset = source->timeDomainSize() / 2;
 
     int center  = zeroOffset + m_offset * m_sampleRate / 1000;
     int from    = center - timeDomainSize() / 2;
@@ -402,7 +402,7 @@ void Windowing::transform()
     }
 
     auto criticalFrequency = 1000 / wide();
-    for (unsigned i = 0; i < size(); ++i) {
+    for (unsigned i = 0; i < frequencyDomainSize(); ++i) {
         if (domain() == Windowing::SourceDomain::Time) {
             m_ftdata[i].coherence = 1;
         }

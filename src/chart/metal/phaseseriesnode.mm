@@ -54,7 +54,7 @@ void PhaseSeriesNode::synchronizeSeries()
 
 void PhaseSeriesNode::renderSeries()
 {
-    if (!m_source->size()) {
+    if (!m_source->frequencyDomainSize()) {
         clearRender();
         return;
     }

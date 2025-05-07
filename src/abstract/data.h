@@ -52,9 +52,8 @@ struct Data {
     void            lock();
     void            unlock();
 
-    unsigned int    frequencyDomainSize() const;
+    unsigned int    frequencyDomainSize() const noexcept;
     void            setFrequencyDomainSize(unsigned int size);
-    unsigned int    size()                       const noexcept; //TODO: delete
     float           frequency(   unsigned int i) const noexcept;
     virtual float   module(      unsigned int i) const noexcept;
     virtual float   magnitude(   unsigned int i) const noexcept;
@@ -64,9 +63,8 @@ struct Data {
     virtual float   peakSquared( unsigned int i) const noexcept;
     virtual float   crestFactor( unsigned int i) const noexcept;
 
-    unsigned int         timeDomainSize() const;
+    unsigned int         timeDomainSize() const noexcept;
     void                 setTimeDomainSize(unsigned int size);
-    virtual unsigned int impulseSize()                const noexcept; //TODO: delete, why virtual?
     virtual float        impulseTime( unsigned int i) const noexcept;
     virtual float        impulseValue(unsigned int i) const noexcept;
 

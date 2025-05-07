@@ -51,7 +51,7 @@ void GroupDelaySeriesNode::synchronizeSeries()
 
 void GroupDelaySeriesNode::renderSeries()
 {
-    if (!m_source->size()) {
+    if (!m_source->frequencyDomainSize()) {
         clearRender();
         return;
     }

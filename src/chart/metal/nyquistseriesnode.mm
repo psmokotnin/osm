@@ -60,7 +60,7 @@ const Shared::Source &NyquistSeriesNode::source() const
 
 void NyquistSeriesNode::renderSeries()
 {
-    if (!m_source->size()) {
+    if (!m_source->frequencyDomainSize()) {
         clearRender();
         return;
     }

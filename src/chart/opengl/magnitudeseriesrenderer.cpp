@@ -70,7 +70,7 @@ void MagnitudeSeriesRenderer::synchronize(QQuickFramebufferObject *item)
 }
 void MagnitudeSeriesRenderer::renderSeries()
 {
-    if (!m_source->active() || !m_source->size())
+    if (!m_source->active() || !m_source->frequencyDomainSize())
         return;
 
     unsigned int maxBufferSize = m_pointsPerOctave * 12 * (m_openGL33CoreFunctions ? 12 : PPO_BUFFER_MUL), i = 0,

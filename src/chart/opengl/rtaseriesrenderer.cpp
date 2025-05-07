@@ -117,7 +117,7 @@ void RTASeriesRenderer::updateMatrix()
 }
 void RTASeriesRenderer::renderSeries()
 {
-    if (!m_source->active() || !m_source->size())
+    if (!m_source->active() || !m_source->frequencyDomainSize())
         return;
 
     m_program.setUniformValue(m_matrixUniform, m_matrix);
@@ -148,8 +148,8 @@ void RTASeriesRenderer::renderSeries()
 }
 void RTASeriesRenderer::renderLine()
 {
-    unsigned int maxBufferSize = m_source->size() * (m_openGL33CoreFunctions ? 2 : VERTEX_PER_SEGMENT * LINE_VERTEX_SIZE);
-    unsigned int count = m_source->size();
+    unsigned int maxBufferSize = m_source->frequencyDomainSize() * (m_openGL33CoreFunctions ? 2 : VERTEX_PER_SEGMENT * LINE_VERTEX_SIZE);
+    unsigned int count = m_source->frequencyDomainSize();
     if (m_vertices.size() != maxBufferSize) {
         m_vertices.resize(maxBufferSize);
         m_refreshBuffers = true;
@@ -180,7 +180,7 @@ void RTASeriesRenderer::renderLine()
         drawVertices(count, GL_LINE_STRIP);
     } else {
         unsigned int j = 0, i, verticiesCount = 0;
-        for (i = 0; i < m_source->size() - 1; ++i) {
+        for (i = 0; i < m_source->frequencyDomainSize() - 1; ++i) {
 
             auto value1 = 20 * log10f(m_source->module(i)) + offset;
             auto value2 = 20 * log10f(m_source->module(i)) + offset;
@@ -258,7 +258,7 @@ void RTASeriesRenderer::renderPPOLine()
 }
 void RTASeriesRenderer::renderBars()
 {
-    unsigned int maxBufferSize = (m_pointsPerOctave ? m_pointsPerOctave * 12 : m_source->size()) *
+    unsigned int maxBufferSize = (m_pointsPerOctave ? m_pointsPerOctave * 12 : m_source->frequencyDomainSize()) *
                                  12 *
                                  (m_openGL33CoreFunctions ? 2 : LINE_VERTEX_SIZE);
 
@@ -402,9 +402,9 @@ void RTASeriesRenderer::drawVertices(const GLsizei &count, const GLenum &mode)
 }
 void RTASeriesRenderer::renderLines()
 {
-    unsigned int maxBufferSize = m_source->size() *
+    unsigned int maxBufferSize = m_source->frequencyDomainSize() *
                                  (m_openGL33CoreFunctions ? 4 : 2 * VERTEX_PER_SEGMENT * LINE_VERTEX_SIZE);
-    unsigned int count = m_source->size();
+    unsigned int count = m_source->frequencyDomainSize();
     if (m_vertices.size() != maxBufferSize) {
         m_vertices.resize(maxBufferSize);
         m_refreshBuffers = true;
@@ -452,7 +452,7 @@ void RTASeriesRenderer::renderLines()
     } else {
         unsigned int verticiesCount = 0, j = 0;
         float peak;
-        for (unsigned int i = 0; i < m_source->size(); ++i) {
+        for (unsigned int i = 0; i < m_source->frequencyDomainSize(); ++i) {
 
             auto value = 20 * log10f(m_source->module(i)) + offset;
             if (m_scale == RTAPlot::Scale::Phon) {

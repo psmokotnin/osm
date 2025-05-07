@@ -55,13 +55,13 @@ void SpectrogramSeriesRenderer::synchronize(QQuickFramebufferObject *item)
     if (auto *plot = dynamic_cast<SpectrogramPlot *>(m_item ? m_item->parent() : nullptr)) {
         if (
             m_pointsPerOctave != plot->pointsPerOctave() ||
-            m_sourceSize != m_source->size()
+            m_sourceSize != m_source->frequencyDomainSize()
         ) {
             m_refreshBuffers = true;
             history.clear();
             m_vertices.clear();
         }
-        m_sourceSize = m_source->size();
+        m_sourceSize = m_source->frequencyDomainSize();
         m_pointsPerOctave = plot->pointsPerOctave();
         m_min = plot->min();
         m_mid = plot->mid();
@@ -79,7 +79,7 @@ void SpectrogramSeriesRenderer::updateMatrix()
 }
 void SpectrogramSeriesRenderer::renderSeries()
 {
-    if (!m_source->active() || !m_source->size())
+    if (!m_source->active() || !m_source->frequencyDomainSize())
         return;
 
     float floor = -140.f;

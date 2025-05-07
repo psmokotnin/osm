@@ -71,7 +71,7 @@ void PhaseSeriesRenderer::synchronize(QQuickFramebufferObject *item)
 }
 void PhaseSeriesRenderer::renderSeries()
 {
-    if (!m_source->active() || !m_source->size())
+    if (!m_source->active() || !m_source->frequencyDomainSize())
         return;
 
     //max octave count: 11

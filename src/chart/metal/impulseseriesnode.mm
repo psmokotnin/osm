@@ -49,27 +49,27 @@ void ImpulseSeriesNode::synchronizeSeries()
 
 void ImpulseSeriesNode::renderSeries()
 {
-    if (!m_source->impulseSize()) {
+    if (!m_source->timeDomainSize()) {
         clearRender();
         return;
     }
 
-    unsigned int maxBufferSize = (m_source->impulseSize() - 1) * VERTEX_PER_SEGMENT * LINE_VERTEX_SIZE, verticiesCount = 0;
+    unsigned int maxBufferSize = (m_source->timeDomainSize() - 1) * VERTEX_PER_SEGMENT * LINE_VERTEX_SIZE, verticiesCount = 0;
     float *vertex_ptr = vertexBuffer(maxBufferSize);
 
     float max = 0;
     if (m_normalized) {
-        for (unsigned int i = 0; i < m_source->impulseSize(); ++i) {
+        for (unsigned int i = 0; i < m_source->timeDomainSize(); ++i) {
             max = std::max(max, std::abs(m_source->impulseValue(i)));
         }
     } else {
         max = 1;
     }
 
-    float dcOffset =  (m_source->impulseValue(0) + m_source->impulseValue(m_source->impulseSize() - 1)) / 2;
+    float dcOffset =  (m_source->impulseValue(0) + m_source->impulseValue(m_source->timeDomainSize() - 1)) / 2;
     dcOffset /= max;
     float value = 0, lastValue = 0, lastTime = 0;
-    for (unsigned int i = 0, j = 0; i < m_source->impulseSize(); ++i) {
+    for (unsigned int i = 0, j = 0; i < m_source->timeDomainSize(); ++i) {
         switch (m_mode) {
         case ImpulsePlot::Linear:
             value = m_source->impulseValue(i) / max - dcOffset;

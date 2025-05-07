@@ -42,7 +42,7 @@ void FrequencyBasedSeriesHelper::iterate(const unsigned int &pointsPerOctave,
         return;
     }
 
-    for (unsigned int i = 1; i < source()->size(); ++i) {
+    for (unsigned int i = 1; i < source()->frequencyDomainSize(); ++i) {
         frequency = source()->frequency(i);
         if (frequency < bandStart) continue;
 

@@ -47,23 +47,23 @@ void StepSeriesNode::synchronizeSeries()
 
 void StepSeriesNode::renderSeries()
 {
-    if (!m_source->impulseSize()) {
+    if (!m_source->timeDomainSize()) {
         clearRender();
         return;
     }
 
-    unsigned int maxBufferSize = (m_source->impulseSize() - 1) * VERTEX_PER_SEGMENT * LINE_VERTEX_SIZE, verticiesCount = 0;
+    unsigned int maxBufferSize = (m_source->timeDomainSize() - 1) * VERTEX_PER_SEGMENT * LINE_VERTEX_SIZE, verticiesCount = 0;
     float *vertex_ptr = vertexBuffer(maxBufferSize);
 
     float res = 0.f;
     float offsetValue = 0;
     float dcOffset = 0;
-    for (unsigned int i = 1; i < m_source->impulseSize() / 4; ++i) {
+    for (unsigned int i = 1; i < m_source->timeDomainSize() / 4; ++i) {
         dcOffset += m_source->impulseValue(i);
     }
-    dcOffset /= m_source->impulseSize() / 4;
+    dcOffset /= m_source->timeDomainSize() / 4;
 
-    for (unsigned int i = 0, j = 0; i < m_source->impulseSize() - 1; ++i) {
+    for (unsigned int i = 0, j = 0; i < m_source->timeDomainSize() - 1; ++i) {
         res += m_source->impulseValue(i) - dcOffset;
         if (m_source->impulseTime(i) < m_zero) {
             offsetValue = res;

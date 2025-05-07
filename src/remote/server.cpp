@@ -382,7 +382,7 @@ QByteArray Server::tcpCallback([[maybe_unused]] const QHostAddress &&address, co
 
         QJsonArray ftdata;
         QJsonArray ftcell = {0, 0, 0, 0, 0};
-        for (unsigned int i = 0; i < source->size(); ++i) {
+        for (unsigned int i = 0; i < source->frequencyDomainSize(); ++i) {
             ftcell[0] = static_cast<double>(source->frequency(i)  );
             ftcell[1] = static_cast<double>(source->module(i)     );
             ftcell[2] = static_cast<double>(source->magnitudeRaw(i));
@@ -401,7 +401,7 @@ QByteArray Server::tcpCallback([[maybe_unused]] const QHostAddress &&address, co
 
         QJsonArray timeData;
         QJsonArray timeCell = {0, 0};
-        for (unsigned int i = 0; i < source->impulseSize(); ++i) {
+        for (unsigned int i = 0; i < source->timeDomainSize(); ++i) {
             timeCell[0] = source->impulseTime(i);
             timeCell[1] = source->impulseValue(i);
 

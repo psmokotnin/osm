@@ -23,7 +23,7 @@ namespace Abstract {
 Data::Data()  = default;
 Data::~Data() = default;
 
-unsigned int Data::frequencyDomainSize() const
+unsigned int Data::frequencyDomainSize() const noexcept
 {
     return m_ftdata.size();
 }
@@ -33,7 +33,7 @@ void Data::setFrequencyDomainSize(unsigned int size)
     m_ftdata.resize(size);
 }
 
-unsigned int Data::timeDomainSize() const
+unsigned int Data::timeDomainSize() const noexcept
 {
     return m_impulseData.size();
 }
@@ -51,11 +51,6 @@ void Data::lock()
 void Data::unlock()
 {
     m_dataMutex.unlock();
-}
-
-unsigned int Data::size() const noexcept
-{
-    return frequencyDomainSize();
 }
 
 float Data::frequency(unsigned int i) const noexcept
@@ -122,11 +117,6 @@ float Data::crestFactor(unsigned int i) const noexcept
     return -INFINITY;
 }
 
-unsigned int Data::impulseSize() const noexcept
-{
-    return timeDomainSize();
-}
-
 float Data::impulseTime(unsigned int i) const noexcept
 {
     if (i < timeDomainSize()) {
@@ -169,10 +159,10 @@ float Data::referenceLevel() const
 void Data::copy(FTData *dataDist, TimeData *timeDist)
 {
     if (dataDist) {
-        std::copy_n(m_ftdata.data(), size(), dataDist);
+        std::copy_n(m_ftdata.data(), frequencyDomainSize(), dataDist);
     }
     if (timeDist) {
-        std::copy_n(m_impulseData.data(), impulseSize(), timeDist);
+        std::copy_n(m_impulseData.data(), timeDomainSize(), timeDist);
     }
 }
 
@@ -181,8 +171,8 @@ void Data::copyFrom(size_t dataSize, size_t timeSize, FTData *dataSrc, TimeData 
     setFrequencyDomainSize( dataSize );
     setTimeDomainSize(      timeSize );
 
-    std::copy_n(dataSrc, size(), m_ftdata.data());
-    std::copy_n(timeSrc, impulseSize(), m_impulseData.data());
+    std::copy_n(dataSrc, frequencyDomainSize(), m_ftdata.data());
+    std::copy_n(timeSrc, timeDomainSize(), m_impulseData.data());
 }
 
 }

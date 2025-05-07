@@ -51,10 +51,10 @@ void StepSeriesRenderer::init()
 
 void StepSeriesRenderer::renderSeries()
 {
-    if (!m_source->active() || !m_source->impulseSize())
+    if (!m_source->active() || !m_source->timeDomainSize())
         return;
 
-    unsigned int maxBufferSize = m_source->impulseSize() * (m_openGL33CoreFunctions ? 4 : VERTEX_PER_SEGMENT *
+    unsigned int maxBufferSize = m_source->timeDomainSize() * (m_openGL33CoreFunctions ? 4 : VERTEX_PER_SEGMENT *
                                                             LINE_VERTEX_SIZE), verticiesCount = 0;
     if (m_vertices.size() != maxBufferSize) {
         m_vertices.resize(maxBufferSize);
@@ -64,11 +64,11 @@ void StepSeriesRenderer::renderSeries()
     float res = 0.f;
     float offsetValue = 0;
     float dcOffset = 0;
-    for (unsigned int i = 1; i < m_source->impulseSize() / 4; ++i) {
+    for (unsigned int i = 1; i < m_source->timeDomainSize() / 4; ++i) {
         dcOffset += m_source->impulseValue(i);
     }
-    dcOffset /= m_source->impulseSize() / 4.0;
-    for (unsigned int i = 1, j = 0; i < m_source->impulseSize() - 1; ++i) {
+    dcOffset /= m_source->timeDomainSize() / 4.0;
+    for (unsigned int i = 1, j = 0; i < m_source->timeDomainSize() - 1; ++i) {
         res += m_source->impulseValue(i) - dcOffset;
 
         if (m_openGL33CoreFunctions) {

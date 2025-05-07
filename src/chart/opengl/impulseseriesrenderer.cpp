@@ -50,10 +50,10 @@ void ImpulseSeriesRenderer::init()
 }
 void ImpulseSeriesRenderer::renderSeries()
 {
-    if (!m_source->active() || !m_source->impulseSize())
+    if (!m_source->active() || !m_source->timeDomainSize())
         return;
 
-    unsigned int maxBufferSize = m_source->impulseSize() * (m_openGL33CoreFunctions ? 4 : VERTEX_PER_SEGMENT *
+    unsigned int maxBufferSize = m_source->timeDomainSize() * (m_openGL33CoreFunctions ? 4 : VERTEX_PER_SEGMENT *
                                                             LINE_VERTEX_SIZE), verticiesCount = 0;
     if (m_vertices.size() != maxBufferSize) {
         m_vertices.resize(maxBufferSize);
@@ -62,17 +62,17 @@ void ImpulseSeriesRenderer::renderSeries()
 
     float max = 0;
     if (m_normalized) {
-        for (unsigned int i = 0; i < m_source->impulseSize(); ++i) {
+        for (unsigned int i = 0; i < m_source->timeDomainSize(); ++i) {
             max = std::max(max, std::abs(m_source->impulseValue(i)));
         }
     } else {
         max = 1;
     }
 
-    float dc =  (m_source->impulseValue(0) + m_source->impulseValue(m_source->impulseSize() - 1)) / 2;
+    float dc =  (m_source->impulseValue(0) + m_source->impulseValue(m_source->timeDomainSize() - 1)) / 2;
     dc /= max;
     float value = 0, lastValue = 0, lastTime = 0;
-    for (unsigned int i = 0, j = 0; i < m_source->impulseSize(); ++i) {
+    for (unsigned int i = 0, j = 0; i < m_source->timeDomainSize(); ++i) {
 
         switch (m_mode) {
         case ImpulsePlot::Linear:

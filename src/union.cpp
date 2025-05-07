@@ -122,8 +122,8 @@ void Union::init() noexcept
 void Union::resize()
 {
     auto primary = m_sources.first();
-    setFrequencyDomainSize(static_cast<unsigned int>(primary ? primary->size()        : 1));
-    setTimeDomainSize(     static_cast<unsigned int>(primary ? primary->impulseSize() : 1));
+    setFrequencyDomainSize(static_cast<unsigned int>(primary ? primary->frequencyDomainSize() : 1));
+    setTimeDomainSize(     static_cast<unsigned int>(primary ? primary->timeDomainSize()      : 1));
 }
 Shared::Source Union::getSource(int index) const noexcept
 {
@@ -197,14 +197,14 @@ void Union::calc() noexcept
             return;
         }
 
-        if (primary->size() != size()) {
+        if (primary->frequencyDomainSize() != frequencyDomainSize()) {
             resize();
         }
 
         for (auto &s : m_sources) {
             if (s) {
                 sources.insert(s);
-                if (s->size() != primary->size()) {
+                if (s->frequencyDomainSize() != primary->frequencyDomainSize()) {
                     if (0/*can resize*/) {
                         //resize
                     } else {
@@ -257,7 +257,7 @@ void Union::calcPolar(unsigned int count, const Shared::Source &primary) noexcep
     float magnitude, module, coherence, coherenceWeight;
     complex phase;
 
-    for (unsigned int i = 0; i < primary->size(); i++) {
+    for (unsigned int i = 0; i < primary->frequencyDomainSize(); i++) {
         magnitude = primary->magnitudeRaw(i);
         phase = primary->phase(i);
         module = primary->module(i);
@@ -324,7 +324,7 @@ void Union::calcPolar(unsigned int count, const Shared::Source &primary) noexcep
         m_ftdata[i].coherence  = coherence;
     }
 
-    for (unsigned int i = 0; i < primary->impulseSize(); i++) {
+    for (unsigned int i = 0; i < primary->timeDomainSize(); i++) {
         m_impulseData[i].time = primary->impulseTime(i);
         m_impulseData[i].value = NAN;
     }
@@ -334,7 +334,7 @@ void Union::calcVector(unsigned int count, const Shared::Source &primary) noexce
     float coherence, coherenceWeight;
     complex a, m, p;
 
-    for (unsigned int i = 0; i < primary->size(); i++) {
+    for (unsigned int i = 0; i < primary->frequencyDomainSize(); i++) {
         a = primary->phase(i) * primary->module(i);
         p = primary->phase(i) * primary->peakSquared(i);
         m = primary->phase(i) * primary->magnitudeRaw(i);
@@ -391,17 +391,17 @@ void Union::calcVector(unsigned int count, const Shared::Source &primary) noexce
         m_ftdata[i].peakSquared = p.abs();
     }
 
-    if (primary->impulseSize() < 2) {
+    if (primary->timeDomainSize() < 2) {
         return;
     }
 
-    for (unsigned int i = 0; i < primary->impulseSize(); i++) {
+    for (unsigned int i = 0; i < primary->timeDomainSize(); i++) {
         m_impulseData[i].time = primary->impulseTime(i);
         m_impulseData[i].value = primary->impulseValue(i);
     }
     float dt = m_impulseData[1].time - m_impulseData[0].time;
 
-    for (unsigned int i = 0; i < primary->impulseSize(); i++) {
+    for (unsigned int i = 0; i < primary->timeDomainSize(); i++) {
         for (auto it = m_sources.begin(); it != m_sources.end(); ++it) {
             if (!(*it)) {
                 continue;
@@ -409,7 +409,7 @@ void Union::calcVector(unsigned int count, const Shared::Source &primary) noexce
             float st = (*it)->impulseTime(i);
             long offseted =  (long)i + (st - m_impulseData[i].time) / dt;
 
-            if (*it && it != m_sources.begin() && offseted > 0 && offseted < impulseSize()) {
+            if (*it && it != m_sources.begin() && offseted > 0 && offseted < timeDomainSize()) {
                 switch (m_operation) {
                 case Summation:
                 case Avg:
@@ -436,7 +436,7 @@ void Union::calcVector(unsigned int count, const Shared::Source &primary) noexce
     }
 
     if (m_operation == Avg) {
-        for (unsigned int i = 0; i < primary->impulseSize(); i++) {
+        for (unsigned int i = 0; i < primary->timeDomainSize(); i++) {
             m_impulseData[i].value /= count;
         }
     }
@@ -447,7 +447,7 @@ void Union::calcdB(unsigned int count, const Shared::Source &primary) noexcept
     float magnitude, module, coherence, coherenceWeight;
     complex phase;
 
-    for (unsigned int i = 0; i < primary->size(); i++) {
+    for (unsigned int i = 0; i < primary->frequencyDomainSize(); i++) {
         magnitude = primary->magnitude(i);
         phase = primary->phase(i);
         module = 20.f * std::log10((primary)->module(i));
@@ -517,7 +517,7 @@ void Union::calcdB(unsigned int count, const Shared::Source &primary) noexcept
         m_ftdata[i].coherence  = coherence;
     }
 
-    for (unsigned int i = 0; i < primary->impulseSize(); i++) {
+    for (unsigned int i = 0; i < primary->timeDomainSize(); i++) {
         m_impulseData[i].time = primary->impulseTime(i);
         m_impulseData[i].value = NAN;
     }
@@ -528,7 +528,7 @@ void Union::calcPower(unsigned int count, const Shared::Source &primary) noexcep
     float magnitude, module, coherence, coherenceWeight;
     complex phase;
 
-    for (unsigned int i = 0; i < primary->size(); i++) {
+    for (unsigned int i = 0; i < primary->frequencyDomainSize(); i++) {
         magnitude = std::pow(primary->magnitudeRaw(i), 2);
         phase = primary->phase(i);
         module = std::pow((primary)->module(i), 2);
@@ -600,7 +600,7 @@ void Union::calcPower(unsigned int count, const Shared::Source &primary) noexcep
         m_ftdata[i].coherence  = coherence;
     }
 
-    for (unsigned int i = 0; i < primary->impulseSize(); i++) {
+    for (unsigned int i = 0; i < primary->timeDomainSize(); i++) {
         m_impulseData[i].time = primary->impulseTime(i);
         m_impulseData[i].value = NAN;
     }
@@ -611,7 +611,7 @@ void Union::calcApply(const Shared::Source &primary) noexcept
     float magnitude, module, coherence;
     complex phase;
 
-    for (unsigned int i = 0; i < primary->size(); i++) {
+    for (unsigned int i = 0; i < primary->frequencyDomainSize(); i++) {
         magnitude   = primary->magnitudeRaw(i);
         phase       = primary->phase(i);
         module      = (primary)->module(i);
@@ -637,7 +637,7 @@ void Union::calcApply(const Shared::Source &primary) noexcept
         m_ftdata[i].coherence  = coherence;
     }
 
-    for (unsigned int i = 0; i < primary->impulseSize(); i++) {
+    for (unsigned int i = 0; i < primary->timeDomainSize(); i++) {
         m_impulseData[i].time = primary->impulseTime(i);
         m_impulseData[i].value = NAN;
     }

@@ -67,7 +67,7 @@ void PhaseDelaySeriesRenderer::synchronize(QQuickFramebufferObject *item)
 }
 void PhaseDelaySeriesRenderer::renderSeries()
 {
-    if (!m_source->active() || !m_source->size())
+    if (!m_source->active() || !m_source->frequencyDomainSize())
         return;
 
     //max octave count: 11

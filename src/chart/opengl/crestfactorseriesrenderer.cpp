@@ -63,7 +63,7 @@ void CrestFactorSeriesRenderer::synchronize(QQuickFramebufferObject *item)
 
 void CrestFactorSeriesRenderer::renderSeries()
 {
-    if (!m_source->active() || !m_source->size())
+    if (!m_source->active() || !m_source->frequencyDomainSize())
         return;
 
     unsigned int maxBufferSize = m_pointsPerOctave * 12 * (m_openGL33CoreFunctions ? 8 : PPO_BUFFER_MUL), i = 0,
