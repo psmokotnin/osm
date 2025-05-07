@@ -23,6 +23,26 @@ namespace Abstract {
 Data::Data()  = default;
 Data::~Data() = default;
 
+unsigned int Data::frequencyDomainSize() const
+{
+    return m_ftdata.size();
+}
+
+void Data::setFrequencyDomainSize(unsigned int size)
+{
+    m_ftdata.resize(size);
+}
+
+unsigned int Data::timeDomainSize() const
+{
+    return m_impulseData.size();
+}
+
+void Data::setTimeDomainSize(unsigned int size)
+{
+    m_impulseData.resize(size);
+}
+
 void Data::lock()
 {
     m_dataMutex.lock();
@@ -35,19 +55,19 @@ void Data::unlock()
 
 unsigned int Data::size() const noexcept
 {
-    return m_dataLength;
+    return frequencyDomainSize();
 }
 
 float Data::frequency(unsigned int i) const noexcept
 {
-    if (i < m_dataLength) {
+    if (i < frequencyDomainSize()) {
         return m_ftdata[i].frequency;
     }
     return 0;
 }
 
 float Data::module (unsigned int i) const noexcept {
-    if (i < m_dataLength)
+    if (i < frequencyDomainSize())
     {
         return m_ftdata[i].module;
     }
@@ -56,7 +76,7 @@ float Data::module (unsigned int i) const noexcept {
 
 float Data::magnitude(unsigned int i) const noexcept
 {
-    if (i < m_dataLength) {
+    if (i < frequencyDomainSize()) {
         return 20.f * log10f(m_ftdata[i].magnitude);
     }
     return 0;
@@ -64,7 +84,7 @@ float Data::magnitude(unsigned int i) const noexcept
 
 float Data::magnitudeRaw(unsigned int i) const noexcept
 {
-    if (i < m_dataLength) {
+    if (i < frequencyDomainSize()) {
         return m_ftdata[i].magnitude;
     }
     return 0;
@@ -72,7 +92,7 @@ float Data::magnitudeRaw(unsigned int i) const noexcept
 
 complex Data::phase(unsigned int i) const noexcept
 {
-    if (i < m_dataLength) {
+    if (i < frequencyDomainSize()) {
         return m_ftdata[i].phase;
     }
     return 0;
@@ -80,7 +100,7 @@ complex Data::phase(unsigned int i) const noexcept
 
 float Data::coherence(unsigned int i) const noexcept
 {
-    if (i < m_dataLength) {
+    if (i < frequencyDomainSize()) {
         return m_ftdata[i].coherence;
     }
     return 0;
@@ -88,7 +108,7 @@ float Data::coherence(unsigned int i) const noexcept
 
 float Data::peakSquared(unsigned int i) const noexcept
 {
-    if (i < m_dataLength) {
+    if (i < frequencyDomainSize()) {
         return m_ftdata[i].peakSquared;
     }
     return 0;
@@ -96,7 +116,7 @@ float Data::peakSquared(unsigned int i) const noexcept
 
 float Data::crestFactor(unsigned int i) const noexcept
 {
-    if (i < m_dataLength) {
+    if (i < frequencyDomainSize()) {
         return 10.f * std::log10(m_ftdata[i].peakSquared / m_ftdata[i].meanSquared);
     }
     return -INFINITY;
@@ -104,12 +124,12 @@ float Data::crestFactor(unsigned int i) const noexcept
 
 unsigned int Data::impulseSize() const noexcept
 {
-    return m_deconvolutionSize;
+    return timeDomainSize();
 }
 
 float Data::impulseTime(unsigned int i) const noexcept
 {
-    if (i < m_deconvolutionSize) {
+    if (i < timeDomainSize()) {
         return m_impulseData[i].time;
     }
     return 0;
@@ -117,7 +137,7 @@ float Data::impulseTime(unsigned int i) const noexcept
 
 float Data::impulseValue(unsigned int i) const noexcept
 {
-    if (i < m_deconvolutionSize) {
+    if (i < timeDomainSize()) {
         return m_impulseData[i].value.real;
     }
     return 0;
@@ -158,10 +178,8 @@ void Data::copy(FTData *dataDist, TimeData *timeDist)
 
 void Data::copyFrom(size_t dataSize, size_t timeSize, FTData *dataSrc, TimeData *timeSrc)
 {
-    m_dataLength = dataSize;
-    m_deconvolutionSize = timeSize;
-    m_ftdata.resize(m_dataLength);
-    m_impulseData.resize(m_deconvolutionSize);
+    setFrequencyDomainSize( dataSize );
+    setTimeDomainSize(      timeSize );
 
     std::copy_n(dataSrc, size(), m_ftdata.data());
     std::copy_n(timeSrc, impulseSize(), m_impulseData.data());

@@ -122,10 +122,8 @@ void Union::init() noexcept
 void Union::resize()
 {
     auto primary = m_sources.first();
-    m_dataLength         = static_cast<unsigned int>(primary ? primary->size() : 1);
-    m_deconvolutionSize = static_cast<unsigned int>(primary ? primary->impulseSize() : 1);
-    m_ftdata.resize(m_dataLength);
-    m_impulseData.resize(m_deconvolutionSize);
+    setFrequencyDomainSize(static_cast<unsigned int>(primary ? primary->size()        : 1));
+    setTimeDomainSize(     static_cast<unsigned int>(primary ? primary->impulseSize() : 1));
 }
 Shared::Source Union::getSource(int index) const noexcept
 {

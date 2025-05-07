@@ -111,29 +111,29 @@ void FilterSource::update()
             switch (mode()) {
             case M::Mode::LFT:
                 m_dataFT.setType(FourierTransform::Log);
-                m_deconvolutionSize = pow(2, M::m_FFTsizes.at(M::FFT12));
+                setTimeDomainSize(pow(2, M::m_FFTsizes.at(M::FFT12)));
                 break;
 
             default:
                 m_dataFT.setType(FourierTransform::Fast);
                 m_dataFT.setSize(pow(2, M::m_FFTsizes.at(mode())));
-                m_deconvolutionSize = pow(2, M::m_FFTsizes.at(mode()));
+                setTimeDomainSize(pow(2, M::m_FFTsizes.at(mode())));
             }
         } catch (std::exception &e) {
             qDebug() << __FILE__ << ":" << __LINE__  << e.what();
-            m_deconvolutionSize = 0;
-            m_dataLength = 0;
+            setTimeDomainSize(0);
+            setFrequencyDomainSize(0);
             return;
         }
 
         m_inverse.setType(FourierTransform::Fast);
-        m_inverse.setSize(m_deconvolutionSize);
+        m_inverse.setSize(timeDomainSize());
         m_inverse.prepare();
         m_dataFT.prepare();
 
         auto frequencyList = m_dataFT.getFrequencies();
-        m_dataLength = frequencyList.size();
-        m_ftdata.resize(m_dataLength);
+        setFrequencyDomainSize(frequencyList.size());
+
         unsigned int i = 0;
         for (auto frequency : frequencyList) {
             auto H = calculate(frequency);
@@ -146,8 +146,6 @@ void FilterSource::update()
             ++i;
         }
 
-        m_impulseData.resize(m_deconvolutionSize);
-
         frequencyList = m_inverse.getFrequencies();
         for (unsigned int i = 0; i < frequencyList.size(); ++i) {
             auto v = calculate(frequencyList[i]);
@@ -155,18 +153,18 @@ void FilterSource::update()
                 v = 0;
             }
             m_inverse.set(i, v.conjugate(), 0.f);
-            m_inverse.set(m_deconvolutionSize - i - 1, v, 0.f);
+            m_inverse.set(timeDomainSize() - i - 1, v, 0.f);
         }
 
         m_inverse.transformSingleChannel();
 
         int t = 0;
         float kt = 1000.f / sampleRate();
-        auto norm = 1.f / m_deconvolutionSize;
-        for (unsigned int i = 0, j = m_deconvolutionSize / 2 - 1; i < m_deconvolutionSize; i++, j++, t++) {
-            if (t > static_cast<int>(m_deconvolutionSize / 2)) {
-                t -= static_cast<int>(m_deconvolutionSize);
-                j -= m_deconvolutionSize;
+        auto norm = 1.f / timeDomainSize();
+        for (unsigned int i = 0, j = timeDomainSize() / 2 - 1; i < timeDomainSize(); i++, j++, t++) {
+            if (t > static_cast<int>(timeDomainSize() / 2)) {
+                t -= static_cast<int>(timeDomainSize());
+                j -= timeDomainSize();
             }
 
             m_impulseData[j].value = m_inverse.af(i).real * norm;

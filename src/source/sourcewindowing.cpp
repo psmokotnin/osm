@@ -161,7 +161,7 @@ void Windowing::applyAutoWide()
 void Windowing::resizeData()
 {
     Q_ASSERT(m_source);
-    if (m_usedMode != mode() || m_deconvolutionSize == 0 || m_resize) {
+    if (m_usedMode != mode() || timeDomainSize() == 0 || m_resize) {
         m_usedMode = mode();
         auto size = pow(2, m_FFTsizes.at(m_usedMode));
 
@@ -170,12 +170,11 @@ void Windowing::resizeData()
         if (!m_sampleRate) {
             m_sampleRate = 48'000; //TODO: get from source, apply default in the source
         }
-        m_deconvolutionSize = size;
-        m_impulseData.resize(m_deconvolutionSize);
-        m_window.setSize(m_deconvolutionSize);
+        setTimeDomainSize(size);
+        m_window.setSize(timeDomainSize());
 
         // FFT:
-        m_dataFT.setSize(m_deconvolutionSize);
+        m_dataFT.setSize(timeDomainSize());
         m_dataFT.setType(m_usedMode >= Mode::LTW1 ? FourierTransform::Log : FourierTransform::Fast);
         m_dataFT.setNorm(m_usedMode >= Mode::LTW1 ? FourierTransform::Lin : FourierTransform::Sqrt);
         m_dataFT.setAlign(FourierTransform::Center);
@@ -194,25 +193,24 @@ void Windowing::resizeData()
         m_dataFT.prepare();
 
         auto frequencyList = m_dataFT.getFrequencies();
-        m_dataLength = frequencyList.size();
-        m_ftdata.resize(m_dataLength);
+        setFrequencyDomainSize(frequencyList.size());
 
         unsigned int i = 0;
         for (auto frequency : frequencyList) {
             m_ftdata[i].frequency = frequency;
             m_ftdata[i].coherence = 1;
             i++;
-            if (i >= m_dataLength) {
+            if (i >= frequencyDomainSize()) {
                 break;
             }
         }
         //fill frequency data
         int t = 0;
         float kt = 1000.f / sampleRate();
-        for (unsigned int i = 0, j = m_deconvolutionSize / 2 - 1; i < m_deconvolutionSize; i++, j++, t++) {
-            if (t > static_cast<int>(m_deconvolutionSize / 2)) {
-                t -= static_cast<int>(m_deconvolutionSize);
-                j -= m_deconvolutionSize;
+        for (unsigned int i = 0, j = timeDomainSize() / 2 - 1; i < timeDomainSize(); i++, j++, t++) {
+            if (t > static_cast<int>(timeDomainSize() / 2)) {
+                t -= static_cast<int>(timeDomainSize());
+                j -= timeDomainSize();
             }
 
             m_impulseData[j].time = t * kt;//ms
@@ -331,12 +329,12 @@ void Windowing::updateFromFrequencyDomain()
     //fill time data
     int t = 0;
     float kt = 1000.f / sampleRate();
-    float norm = 1.f / m_deconvolutionSize;
-    for (unsigned int i = 0, j = m_deconvolutionSize / 2 - 1; i < m_deconvolutionSize; i++, j++, t++) {
+    float norm = 1.f / timeDomainSize();
+    for (unsigned int i = 0, j = timeDomainSize() / 2 - 1; i < timeDomainSize(); i++, j++, t++) {
 
-        if (t > static_cast<int>(m_deconvolutionSize / 2)) {
-            t -= static_cast<int>(m_deconvolutionSize);
-            j -= m_deconvolutionSize;
+        if (t > static_cast<int>(timeDomainSize() / 2)) {
+            t -= static_cast<int>(timeDomainSize());
+            j -= timeDomainSize();
         }
 
         m_impulseData[j].value.real = norm * m_dataFT.af(i).real;
@@ -348,14 +346,14 @@ void Windowing::updateFromTimeDomain(const Shared::Source &source)
 {
     Q_ASSERT(source);
 
-    float dt = 1000.f / m_sampleRate, time = -dt * m_deconvolutionSize / 2;
+    float dt = 1000.f / m_sampleRate, time = -dt * timeDomainSize() / 2;
 
     //=m_source->impulseZeroOffset()
     auto zeroOffset = source->impulseSize() / 2;
 
     int center  = zeroOffset + m_offset * m_sampleRate / 1000;
-    int from    = center - m_deconvolutionSize / 2;
-    int end     = center + m_deconvolutionSize / 2;
+    int from    = center - timeDomainSize() / 2;
+    int end     = center + timeDomainSize() / 2;
 
     //Tukey Window:
     auto alpha = 0.25f;
@@ -368,7 +366,7 @@ void Windowing::updateFromTimeDomain(const Shared::Source &source)
 
     auto windowKoefficient = m_window.gain() / m_window.norm();
     int j = 0;
-    for (int i = from/*, j = 0*/, f = m_deconvolutionSize / 2 + 1; i < end; ++i, ++j, time += dt, ++f) {
+    for (int i = from/*, j = 0*/, f = timeDomainSize() / 2 + 1; i < end; ++i, ++j, time += dt, ++f) {
 
         float value = (i >= 0 ? source->impulseValue(i) * m_window.get(j) * windowKoefficient : 0);
 
@@ -383,7 +381,7 @@ void Windowing::updateFromTimeDomain(const Shared::Source &source)
 
         m_impulseData[j].value = value;
         m_impulseData[j].time = m_source->impulseTime(i);
-        if (f == m_deconvolutionSize) {
+        if (f == timeDomainSize()) {
             f = 0;
         }
         if (m_usedMode >= Mode::LTW1) {

@@ -160,9 +160,8 @@ void Item::applyData(const QJsonArray &data, const QJsonArray &timeData)
     {
         std::lock_guard guard(m_dataMutex);
 
-        if (m_dataLength != static_cast<unsigned int>(data.count())) {
-            m_dataLength = static_cast<unsigned int>(data.count());
-            m_ftdata.resize(m_dataLength);
+        if (frequencyDomainSize() != static_cast<unsigned int>(data.count())) {
+            setFrequencyDomainSize(static_cast<unsigned int>(data.count()));
         }
 
         for (int i = 0; i < data.count(); i++) {
@@ -176,9 +175,8 @@ void Item::applyData(const QJsonArray &data, const QJsonArray &timeData)
             if (row.count() > 6) m_ftdata[i].meanSquared  = static_cast<float>(row[6].toDouble());
         }
 
-        if (m_deconvolutionSize != static_cast<unsigned int>(timeData.count())) {
-            m_deconvolutionSize = static_cast<unsigned int>(timeData.count());
-            m_impulseData.resize(m_deconvolutionSize);
+        if (timeDomainSize() != static_cast<unsigned int>(timeData.count())) {
+            setTimeDomainSize(static_cast<unsigned int>(timeData.count()));
         }
 
         for (int i = 0; i < timeData.count(); i++) {

@@ -95,11 +95,9 @@ void StandardLine::update()
 
 void StandardLine::createELC()
 {
-
-    m_deconvolutionSize = 0;
     auto size = Math::EqualLoudnessContour::size();
-    m_dataLength = size;
-    m_ftdata.resize(size);
+    setFrequencyDomainSize(size);
+    setTimeDomainSize(0);
     for (size_t i = 0; i < size; ++i) {
         m_ftdata[i].frequency   = Math::EqualLoudnessContour::frequency(i);
         m_ftdata[i].phase       = -INFINITY;
@@ -115,8 +113,8 @@ void StandardLine::createELC()
 
 void StandardLine::createWeighting()
 {
-    m_dataLength = 34;
-    m_deconvolutionSize = 0;
+    setFrequencyDomainSize(34);
+    setTimeDomainSize(0);
 
     static const auto f1 = 20.598997;
     static const auto f2 = 107.65265;
@@ -124,10 +122,8 @@ void StandardLine::createWeighting()
     static const auto f4 = 12194.217;
     static const auto f5 = 158.489032;
 
-    m_ftdata.resize(m_dataLength);
-
     //i = 10...43
-    for (size_t i = 0; i < m_dataLength; ++i) {
+    for (size_t i = 0; i < frequencyDomainSize(); ++i) {
         auto f = std::pow(10, 0.1 * (i + 10));
 
         m_ftdata[i].frequency   = f;

@@ -53,10 +53,8 @@ Shared::Source Stored::clone() const
 void Stored::build (Abstract::Source *source)
 {
     source->lock();
-    m_dataLength = source->size();
-    m_deconvolutionSize = source->impulseSize();
-    m_ftdata.resize(m_dataLength);
-    m_impulseData.resize(m_deconvolutionSize);
+    setFrequencyDomainSize(source->frequencyDomainSize());
+    setTimeDomainSize(source->timeDomainSize());
     source->copy(m_ftdata.data(), m_impulseData.data());
     source->unlock();
     emit readyRead();
@@ -82,7 +80,7 @@ QJsonObject Stored::toJSON(const SourceList *list) const noexcept
     object["gain"]      = gain();
 
     QJsonArray ftdata;
-    for (unsigned int i = 0; i < m_dataLength; ++i) {
+    for (unsigned int i = 0; i < frequencyDomainSize(); ++i) {
 
         //frequecy, module, magnitude, phase, coherence
         QJsonArray ftcell;
@@ -99,7 +97,7 @@ QJsonObject Stored::toJSON(const SourceList *list) const noexcept
     object["ftdata"] = ftdata;
 
     QJsonArray impulse;
-    for (unsigned int i = 0; i < m_deconvolutionSize; ++i) {
+    for (unsigned int i = 0; i < timeDomainSize(); ++i) {
 
         //time, value
         QJsonArray impulsecell;
@@ -118,10 +116,8 @@ void Stored::fromJSON(QJsonObject data, const SourceList *list) noexcept
     auto ftdata         = data["ftdata"].toArray();
     auto impulse        = data["impulse"].toArray();
 
-    m_dataLength         = static_cast<unsigned int>(ftdata.count());
-    m_deconvolutionSize = static_cast<unsigned int>(impulse.count());
-    m_ftdata.resize(m_dataLength);
-    m_impulseData.resize(m_deconvolutionSize);
+    setFrequencyDomainSize(static_cast<unsigned int>(ftdata.count()));
+    setTimeDomainSize(     static_cast<unsigned int>(impulse.count()));
 
     for (int i = 0; i < ftdata.count(); i++) {
         auto row = ftdata[i].toArray();
@@ -186,7 +182,7 @@ bool Stored::saveCal(const QUrl &fileName) const noexcept
     complex avg_phase = 0;
 
     QTextStream out(&saveFile);
-    for (unsigned int i = 0; i < m_dataLength; ++i) {
+    for (unsigned int i = 0; i < frequencyDomainSize(); ++i) {
 
         ppo_frequency = frequency(i);
 
@@ -239,7 +235,7 @@ bool Stored::saveFRD(const QUrl &fileName) const noexcept
         return false;
     }
     QTextStream out(&saveFile);
-    for (unsigned int i = 0; i < m_dataLength; ++i) {
+    for (unsigned int i = 0; i < frequencyDomainSize(); ++i) {
         auto m = magnitude(i);
         auto p = m_ftdata[i].phase.arg() * 180.f / static_cast<float>(M_PI);
         if (std::isnormal(m) && std::isnormal(p)) {
@@ -259,7 +255,7 @@ bool Stored::saveTXT(const QUrl &fileName) const noexcept
     QTextStream out(&saveFile);
     out << "Created with Open Sound Meter\n\n";
 
-    for (unsigned int i = 0; i < m_dataLength; ++i) {
+    for (unsigned int i = 0; i < frequencyDomainSize(); ++i) {
         auto m = magnitude(i);
         auto p = m_ftdata[i].phase.arg() * 180.f / static_cast<float>(M_PI);
         if (std::isnormal(m) && std::isnormal(p)) {
@@ -281,7 +277,7 @@ bool Stored::saveCSV(const QUrl &fileName) const noexcept
     }
     QTextStream out(&saveFile);
 
-    for (unsigned int i = 0; i < m_dataLength; ++i) {
+    for (unsigned int i = 0; i < frequencyDomainSize(); ++i) {
         auto m = magnitude(i);
         auto p = m_ftdata[i].phase.arg() * 180.f / static_cast<float>(M_PI);
         if (std::isnormal(m) && std::isnormal(p)) {
@@ -298,9 +294,9 @@ bool Stored::saveWAV(const QUrl &fileName) const noexcept
 {
     WavFile file;
     QByteArray data;
-    data.resize(m_deconvolutionSize * 4);
+    data.resize(timeDomainSize() * 4);
     auto dst = data.data();
-    for (unsigned int i = 0; i < m_deconvolutionSize; ++i, dst += 4) {
+    for (unsigned int i = 0; i < timeDomainSize(); ++i, dst += 4) {
         qToLittleEndian(m_impulseData[i].value.real, dst);
     }
 

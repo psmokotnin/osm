@@ -48,10 +48,13 @@ struct Data {
         complex value = 0;
     };
 
+
     void            lock();
     void            unlock();
 
-    unsigned int    size()                       const noexcept;
+    unsigned int    frequencyDomainSize() const;
+    void            setFrequencyDomainSize(unsigned int size);
+    unsigned int    size()                       const noexcept; //TODO: delete
     float           frequency(   unsigned int i) const noexcept;
     virtual float   module(      unsigned int i) const noexcept;
     virtual float   magnitude(   unsigned int i) const noexcept;
@@ -61,7 +64,9 @@ struct Data {
     virtual float   peakSquared( unsigned int i) const noexcept;
     virtual float   crestFactor( unsigned int i) const noexcept;
 
-    virtual unsigned int impulseSize()                const noexcept;
+    unsigned int         timeDomainSize() const;
+    void                 setTimeDomainSize(unsigned int size);
+    virtual unsigned int impulseSize()                const noexcept; //TODO: delete, why virtual?
     virtual float        impulseTime( unsigned int i) const noexcept;
     virtual float        impulseValue(unsigned int i) const noexcept;
 
@@ -73,9 +78,6 @@ struct Data {
     void copyFrom(size_t dataSize, size_t timeSize, FTData *dataSrc, TimeData *timeSrc);    //TODO: refactor
 
 protected:
-    unsigned int    m_dataLength        = 0; //TODO: delete, use size()
-    unsigned int    m_deconvolutionSize = 0; //TODO: delete, use size()
-
 //TODO: private:
     std::vector<FTData>     m_ftdata;
     std::vector<TimeData>   m_impulseData;
