@@ -487,7 +487,7 @@ bool SourceList::importFile(const QUrl &fileName, QString separator)
         row.module    = std::pow(10.f, (row.module    + (absolute_scale ? 0 : 70) - 140) / 20.f);
         row.magnitude = std::pow(10.f, (row.magnitude - (absolute_scale ? maxMagnitude : 0)      ) / 20.f);
     }
-    s->copyFrom(d.size(), 0, d.data(), nullptr);
+    s->setFrequencyDomainData(std::move(d));
     s->setName(fileName.fileName());
     s->setNotes(notes);
     s->setActive(true);
@@ -542,7 +542,7 @@ bool SourceList::importImpulse(const QUrl &fileName, QString separator)
         }
     }
 
-    s->copyFrom(0, d.size(), nullptr, d.data());
+    s->setTimeDomainData(std::move(d));
     s->setName(fileName.fileName());
     s->setNotes(notes);
     s->setActive(true);
@@ -585,7 +585,8 @@ bool SourceList::importWav(const QUrl &fileName)
         row.time -= offset;
     }
 
-    s->copyFrom(0, d.size(), nullptr, d.data());
+    s->setSampleRate(wav.sampleRate());
+    s->setTimeDomainData(std::move(d));
     //s->restoreFromImpulse();
     s->setName(fileName.fileName());
     s->setNotes(notes);

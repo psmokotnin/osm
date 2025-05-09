@@ -156,23 +156,22 @@ float Data::referenceLevel() const
     return m_levelsData.m_referenceLevel;
 }
 
-void Data::copy(FTData *dataDist, TimeData *timeDist)
+void Data::copy(Data *dist) const
 {
-    if (dataDist) {
-        std::copy_n(m_ftdata.data(), frequencyDomainSize(), dataDist);
-    }
-    if (timeDist) {
-        std::copy_n(m_impulseData.data(), timeDomainSize(), timeDist);
+    if (dist) {
+        std::copy_n(m_ftdata.data(), frequencyDomainSize(), dist->m_ftdata.data());
+        std::copy_n(m_impulseData.data(), timeDomainSize(), dist->m_impulseData.data());
     }
 }
 
-void Data::copyFrom(size_t dataSize, size_t timeSize, FTData *dataSrc, TimeData *timeSrc)
+void Data::setFrequencyDomainData(std::vector<FTData> &&data)
 {
-    setFrequencyDomainSize( dataSize );
-    setTimeDomainSize(      timeSize );
+    m_ftdata = data;
+}
 
-    std::copy_n(dataSrc, frequencyDomainSize(), m_ftdata.data());
-    std::copy_n(timeSrc, timeDomainSize(), m_impulseData.data());
+void Data::setTimeDomainData(std::vector<TimeData> &&data)
+{
+    m_impulseData = data;
 }
 
 }

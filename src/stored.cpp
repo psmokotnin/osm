@@ -55,7 +55,7 @@ void Stored::build (Abstract::Source *source)
     source->lock();
     setFrequencyDomainSize(source->frequencyDomainSize());
     setTimeDomainSize(source->timeDomainSize());
-    source->copy(m_ftdata.data(), m_impulseData.data());
+    source->copy(this);
     source->unlock();
     emit readyRead();
 }

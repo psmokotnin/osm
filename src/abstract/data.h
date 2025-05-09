@@ -63,20 +63,20 @@ struct Data {
     virtual float   peakSquared( unsigned int i) const noexcept;
     virtual float   crestFactor( unsigned int i) const noexcept;
 
-    unsigned int         timeDomainSize() const noexcept;
-    void                 setTimeDomainSize(unsigned int size);
-    virtual float        impulseTime( unsigned int i) const noexcept;
-    virtual float        impulseValue(unsigned int i) const noexcept;
+    unsigned int    timeDomainSize() const noexcept;
+    void            setTimeDomainSize(unsigned int size);
+    virtual float   impulseTime( unsigned int i) const noexcept;
+    virtual float   impulseValue(unsigned int i) const noexcept;
 
-    virtual float       level(const Weighting::Curve curve = Weighting::Z, const Meter::Time time = Meter::Fast) const;
-    virtual float       peak( const Weighting::Curve curve = Weighting::Z, const Meter::Time time = Meter::Fast) const;
-    virtual float       referenceLevel() const;
+    virtual float   level(const Weighting::Curve curve = Weighting::Z, const Meter::Time time = Meter::Fast) const;
+    virtual float   peak( const Weighting::Curve curve = Weighting::Z, const Meter::Time time = Meter::Fast) const;
+    virtual float   referenceLevel() const;
 
-    void copy(FTData *dataDist, TimeData *timeDist);                                        //TODO: refactor
-    void copyFrom(size_t dataSize, size_t timeSize, FTData *dataSrc, TimeData *timeSrc);    //TODO: refactor
+    void            copy(Data *dist) const;
+    void            setFrequencyDomainData(std::vector<FTData> &&data);
+    void            setTimeDomainData(std::vector<TimeData> &&data);
 
 protected:
-//TODO: private:
     std::vector<FTData>     m_ftdata;
     std::vector<TimeData>   m_impulseData;
     LevelsData              m_levelsData;

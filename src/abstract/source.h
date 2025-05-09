@@ -48,7 +48,7 @@ public:
     explicit         Source(QObject *parent = nullptr);
     virtual         ~Source();
 
-    virtual             Shared::Source      clone() const = 0; //TODO: Abstract::Shared
+    virtual             Shared::Source      clone() const = 0;
     virtual Q_INVOKABLE Shared::Source      store();
     virtual Q_INVOKABLE void                destroy(); //TODO: delete
     virtual Q_INVOKABLE QJsonObject         toJSON(const SourceList * = nullptr) const noexcept; //TODO: shared ptr
