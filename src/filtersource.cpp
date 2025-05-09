@@ -63,7 +63,6 @@ QJsonObject FilterSource::toJSON(const SourceList *list) const noexcept
     object["gain"]          = gain();
     object["q"]             = q();
     object["order"]         = static_cast<int>(order());
-    object["sampleRate"]    = static_cast<int>(sampleRate());
 
     return object;
 }
@@ -82,8 +81,6 @@ void FilterSource::fromJSON(QJsonObject data, const SourceList *list) noexcept
         setType(variantType.value<Type>());
     }
 
-
-    setSampleRate(      data["sampleRate"].toInt(       sampleRate()));
     setOrder(           data["order"].toInt(            order()));
     setCornerFrequency( data["cornerFrequency"].toDouble(cornerFrequency()));
     setGain( data["gain"].toDouble(cornerFrequency()));

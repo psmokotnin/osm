@@ -50,6 +50,7 @@ QJsonObject Source::toJSON(const SourceList *) const noexcept
     object["uuid"]      = uuid().toString();
     object["active"]    = active();
     object["name"]      = name();
+    object["sampleRate"] = static_cast<int>(sampleRate());
 
     auto m_color = color();
     QJsonObject jscolor;
@@ -68,8 +69,9 @@ void Source::fromJSON(QJsonObject data, const SourceList *) noexcept
     if (!uuid.isNull()) {
         setUuid(uuid);
     }
-    setActive(data["active"].toBool(active()));
-    setName(data["name"].toString());
+    setActive(    data["active"].toBool(active()));
+    setName(      data["name"].toString());
+    setSampleRate(data["sampleRate"].toInt(       sampleRate()));
 
     auto jsonColor = data["color"].toObject();
     QColor c(
