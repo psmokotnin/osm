@@ -25,11 +25,11 @@ struct complex {
 
     static const complex i;
 
-    float real;
-    float imag;
-    complex (float r = 0.0, float i = 0.0): real(r), imag(i) {}
-    complex (const complex &c) : real(c.real), imag(c.imag) {}
-    complex (complex &&c) noexcept : real(std::move(c.real)), imag(std::move(c.imag)) {}
+    float real { 0 };
+    float imag { 0 };
+
+    complex() = default;
+    complex (float r, float i = 0.0): real(r), imag(i) {}
 
     float abs() const noexcept;
     float absSquared() const noexcept;
@@ -42,8 +42,6 @@ struct complex {
     void polar(const complex &a, const complex &b);
 
     complex &operator=(const float &r);
-    complex &operator=(const complex &c);
-    complex &operator=(complex &&c);
 
     const complex operator+(const float &r) const;
     const complex operator+(const complex &c) const;
