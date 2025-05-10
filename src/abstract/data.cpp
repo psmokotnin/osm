@@ -85,7 +85,7 @@ float Data::magnitudeRaw(unsigned int i) const noexcept
     return 0;
 }
 
-complex Data::phase(unsigned int i) const noexcept
+Complex Data::phase(unsigned int i) const noexcept
 {
     if (i < frequencyDomainSize()) {
         return m_ftdata[i].phase;

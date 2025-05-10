@@ -32,10 +32,10 @@ public:
     void storeSettings() noexcept override;
 
     struct SplineValue {
-        complex m_phase = 0;
+        Complex m_phase = 0;
         float m_magnitude = 0;
 
-        SplineValue(complex phase, float magnitude) : m_phase(phase), m_magnitude(magnitude) {}
+        SplineValue(Complex phase, float magnitude) : m_phase(phase), m_magnitude(magnitude) {}
         SplineValue(const SplineValue &right)
         {
             m_phase = right.m_phase;
@@ -55,7 +55,7 @@ public:
             return *this;
         }
 
-        SplineValue &operator+=(const complex &rh)
+        SplineValue &operator+=(const Complex &rh)
         {
             m_phase += rh;
             return *this;

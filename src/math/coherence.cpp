@@ -52,12 +52,12 @@ void Coherence::setDepth(const size_t &depth) noexcept
         a->resize(depth);
         a->fill(0.f);
     });
-    m_Grm.each([&depth](Container::array<complex> *a) {
+    m_Grm.each([&depth](Container::array<Complex> *a) {
         a->resize(depth);
         a->fill(0);
     });
 }
-void Coherence::append(unsigned int i, const complex &refernce, const complex &measurement) noexcept
+void Coherence::append(unsigned int i, const Complex &refernce, const Complex &measurement) noexcept
 {
     if (i == 0) {
         ++m_subpointer;
@@ -72,7 +72,7 @@ void Coherence::append(unsigned int i, const complex &refernce, const complex &m
 float Coherence::value(unsigned int i) const noexcept
 {
     float Crr(0), Cmm(0);
-    complex Crm(0);
+    Complex Crm(0);
 
     for (unsigned int j = 0; j < m_depth; ++j) {
         Crm += m_Grm[i][j];

@@ -93,7 +93,7 @@ void FourierTransform::prepareFast()
     float ang, dPi = 2 * static_cast<float>(M_PI);
     for (unsigned int len = 2, l = 0; len <= m_size; len <<= 1, l++) {
         ang = dPi / len;
-        m_wlen[l] = complex(cosf(ang), sinf(ang));
+        m_wlen[l] = Complex(cosf(ang), sinf(ang));
     }
 
     for (unsigned int i = 0; i < m_size; i++) {
@@ -110,11 +110,11 @@ void FourierTransform::prepareFast()
         }
     }
 }
-complex FourierTransform::af(unsigned int i) const
+Complex FourierTransform::af(unsigned int i) const
 {
     return m_fastA[i];
 }
-complex FourierTransform::bf(unsigned int i) const
+Complex FourierTransform::bf(unsigned int i) const
 {
     return m_fastB[i];
 }
@@ -179,7 +179,7 @@ void FourierTransform::add(float sampleA, float sampleB)
     m_inA[m_pointer] = sampleA;
     m_inB[m_pointer] = sampleB;
 }
-void FourierTransform::set(unsigned int i, const complex &a, const complex &b)
+void FourierTransform::set(unsigned int i, const Complex &a, const Complex &b)
 {
     m_fastA[m_swapMap[i]] = a;
     m_fastB[m_swapMap[i]] = b;
@@ -463,7 +463,7 @@ GNU_ALIGN void FourierTransform::log()
 }
 GNU_ALIGN void FourierTransform::prepareLog()
 {
-    complex w;
+    Complex w;
     const int ppo = 24, octaves = 11;
     unsigned int startWindow = pow(2, 16), startOffset = 1'344'000 / sampleRate(); // 28 for 48k
     float wFactor = powf(10.f, 1.f / (-octaves * ppo / 2.5));

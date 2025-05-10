@@ -442,7 +442,7 @@ bool SourceList::importFile(const QUrl &fileName, QString separator)
     char line[1024];
     bool fOk, mOk;
     float frequency, magnitude = 0.f, coherence = 1.f, maxMagnitude = -100;
-    complex phase;
+    Complex phase;
 
     std::vector<Abstract::Source::FTData> d;
     d.reserve(480); //48 ppo

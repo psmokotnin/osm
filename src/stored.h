@@ -51,7 +51,7 @@ public:
     float module(unsigned int i) const noexcept override;
     float magnitudeRaw(unsigned int i) const noexcept override;
     float magnitude(unsigned int i) const noexcept override;
-    complex phase(unsigned int i) const noexcept override;
+    Complex phase(unsigned int i) const noexcept override;
     float coherence(unsigned int i) const noexcept override;
 
     float impulseTime(unsigned int i) const noexcept override;

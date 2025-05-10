@@ -183,10 +183,10 @@ void FilterSource::applyAutoName()
     }
 }
 
-complex FilterSource::calculate(float frequency) const
+Complex FilterSource::calculate(float frequency) const
 {
     auto w = frequency / cornerFrequency();
-    auto s = complex::i * w;
+    auto s = Complex::i * w;
 
     switch (type()) {
     case ButterworthHPF:
@@ -208,7 +208,7 @@ complex FilterSource::calculate(float frequency) const
     }
 }
 
-complex FilterSource::Bessel(bool hpf, complex s) const
+Complex FilterSource::Bessel(bool hpf, Complex s) const
 {
     auto n  = order();
 
@@ -224,9 +224,9 @@ complex FilterSource::Bessel(bool hpf, complex s) const
         return factorial(2 * n - k) / (std::pow(2.0, n - k) * factorial(k) * factorial(n - k));
     };
 
-    complex s_k = 1;
-    complex numerator = a(0);
-    complex denominator = 0;
+    Complex s_k = 1;
+    Complex numerator = a(0);
+    Complex denominator = 0;
     float orderK = 1;
 
     switch (order()) {
@@ -248,7 +248,7 @@ complex FilterSource::Bessel(bool hpf, complex s) const
     }
 
     if (hpf) {
-        s = complex{1, 0} / s;
+        s = Complex{1, 0} / s;
     }
     s *= orderK;
 
@@ -262,11 +262,11 @@ complex FilterSource::Bessel(bool hpf, complex s) const
     return numerator / denominator;
 }
 
-complex FilterSource::calculateAPF(complex s) const
+Complex FilterSource::calculateAPF(Complex s) const
 {
     float q;
-    complex numerator;
-    complex denominator;
+    Complex numerator;
+    Complex denominator;
 
     switch (order()) {
     case 2:
@@ -284,11 +284,11 @@ complex FilterSource::calculateAPF(complex s) const
     return numerator / denominator;
 }
 
-complex FilterSource::calculatePeak(complex s) const
+Complex FilterSource::calculatePeak(Complex s) const
 {
     float a;
-    complex numerator;
-    complex denominator;
+    Complex numerator;
+    Complex denominator;
 
     a = std::pow(10, gain() / 40);
     numerator   = s * s + (s * a) / q() + 1;
@@ -297,9 +297,9 @@ complex FilterSource::calculatePeak(complex s) const
     return numerator / denominator;
 }
 
-complex FilterSource::Butterworth(bool hpf, unsigned int order, const complex &s) const
+Complex FilterSource::Butterworth(bool hpf, unsigned int order, const Complex &s) const
 {
-    complex numerator = 1;
+    Complex numerator = 1;
     if (hpf) {
         for (unsigned int i = 0; i < order; ++i) {
             numerator *= s;
@@ -307,7 +307,7 @@ complex FilterSource::Butterworth(bool hpf, unsigned int order, const complex &s
     }
 
     bool odd = order % 2;
-    complex denominator = (odd ? (s + 1) : 1);
+    Complex denominator = (odd ? (s + 1) : 1);
     unsigned int lastK = (order - (odd % 2 ? 1 : 0)) / 2;
     for (unsigned int k = 1; k <= lastK; ++k) {
         denominator *= ButterworthPolinom(k, order, s);
@@ -316,13 +316,13 @@ complex FilterSource::Butterworth(bool hpf, unsigned int order, const complex &s
     return numerator / denominator;
 }
 
-complex FilterSource::ButterworthPolinom(unsigned int k, unsigned int order, const complex &s) const
+Complex FilterSource::ButterworthPolinom(unsigned int k, unsigned int order, const Complex &s) const
 {
     float b =  -2 * cos((2 * k + order - 1) * M_PI / (2 * order));
     return s * s + s * b + 1;
 }
 
-complex FilterSource::LinkwitzRiley(bool hpf, const complex &s) const
+Complex FilterSource::LinkwitzRiley(bool hpf, const Complex &s) const
 {
     auto b = Butterworth(hpf, order() / 2, s);
     return b * b;

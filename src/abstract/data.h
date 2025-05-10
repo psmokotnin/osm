@@ -37,7 +37,7 @@ struct Data {
         float   frequency   = 0;
         float   module      = 0;
         float   magnitude   = 0;
-        complex phase       = 0;
+        Complex phase       = 0;
         float   coherence   = 0;
         float   peakSquared = 0;
         float   meanSquared = NAN;
@@ -45,7 +45,7 @@ struct Data {
 
     struct TimeData {
         float   time  = 0; //ms
-        complex value = 0;
+        Complex value = 0;
     };
 
 
@@ -58,7 +58,7 @@ struct Data {
     virtual float   module(      unsigned int i) const noexcept;
     virtual float   magnitude(   unsigned int i) const noexcept;
     virtual float   magnitudeRaw(unsigned int i) const noexcept;
-    virtual complex phase(       unsigned int i) const noexcept;
+    virtual Complex phase(       unsigned int i) const noexcept;
     virtual float   coherence(   unsigned int i) const noexcept;
     virtual float   peakSquared( unsigned int i) const noexcept;
     virtual float   crestFactor( unsigned int i) const noexcept;

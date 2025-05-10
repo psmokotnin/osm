@@ -246,7 +246,7 @@ void Windowing::updateFromFrequencyDomain()
     unsigned last = 0, j = 0;
     float kg, bg, g, g1, g2, f1, f2, c, kc, bc, c1, c2;
     float m, m1, m2, km, bm;
-    complex p1, p2, kp, bp, p;
+    Complex p1, p2, kp, bp, p;
     bool inList = false;
 
     for (unsigned i = 0; i < frequencyDomainSize(); ++i) {
@@ -337,7 +337,7 @@ void Windowing::updateFromFrequencyDomain()
             j -= timeDomainSize();
         }
 
-        m_impulseData[j].value.real = norm * m_dataFT.af(i).real;
+        m_impulseData[j].value = norm * m_dataFT.af(i).real;
         m_impulseData[j].time = t * kt;//ms
     }
 }

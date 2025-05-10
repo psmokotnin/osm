@@ -21,58 +21,58 @@
 #include <math.h>
 #include <QDebug>
 
-struct complex {
+struct Complex {
 
-    static const complex i;
+    static const Complex i;
 
     float real { 0 };
     float imag { 0 };
 
-    complex() = default;
-    complex (float r, float i = 0.0): real(r), imag(i) {}
+    Complex() = default;
+    Complex (float r, float i = 0.0): real(r), imag(i) {}
 
     float abs() const noexcept;
     float absSquared() const noexcept;
     float arg() const noexcept;
 
-    const complex conjugate() const;
-    const complex normalize() const;
-    const complex rotate(const float &a) const;
+    const Complex conjugate() const;
+    const Complex normalize() const;
+    const Complex rotate(const float &a) const;
     void polar(const float &phase);
-    void polar(const complex &a, const complex &b);
+    void polar(const Complex &a, const Complex &b);
 
-    complex &operator=(const float &r);
+    Complex &operator=(const float &r);
 
-    const complex operator+(const float &r) const;
-    const complex operator+(const complex &c) const;
+    const Complex operator+(const float &r) const;
+    const Complex operator+(const Complex &c) const;
 
-    complex &operator+=(const float &r);
-    complex &operator+=(const complex &c);
+    Complex &operator+=(const float &r);
+    Complex &operator+=(const Complex &c);
 
-    const complex operator-(const float &r) const;
-    const complex operator-(const complex &c) const;
+    const Complex operator-(const float &r) const;
+    const Complex operator-(const Complex &c) const;
 
-    complex &operator-=(const float &r);
-    complex &operator-=(const complex &c);
+    Complex &operator-=(const float &r);
+    Complex &operator-=(const Complex &c);
 
-    const complex operator/(const float &r) const;
-    const complex operator/(const complex &c) const;
+    const Complex operator/(const float &r) const;
+    const Complex operator/(const Complex &c) const;
 
-    complex &operator/=(const float &r);
-    complex &operator/=(const complex &c);
+    Complex &operator/=(const float &r);
+    Complex &operator/=(const Complex &c);
 
-    complex operator*(const float &r) const;
-    complex operator*(const complex &c) const;
+    Complex operator*(const float &r) const;
+    Complex operator*(const Complex &c) const;
 
-    complex &operator*=(const float &r);
-    complex &operator*=(const complex &c);
+    Complex &operator*=(const float &r);
+    Complex &operator*=(const Complex &c);
 
-    bool operator==(const complex &c) const;
-    bool operator!=(const complex &c) const;
+    bool operator==(const Complex &c) const;
+    bool operator!=(const Complex &c) const;
 
-    bool operator<(const complex &c) const;
+    bool operator<(const Complex &c) const;
 };
 
-QDebug operator<<(QDebug dbg, const complex &c);
+QDebug operator<<(QDebug dbg, const Complex &c);
 
 #endif // COMPLEX_H

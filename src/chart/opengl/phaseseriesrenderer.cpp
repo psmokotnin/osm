@@ -82,7 +82,7 @@ void PhaseSeriesRenderer::renderSeries()
         m_refreshBuffers = true;
     }
 
-    complex value(0);
+    Complex value(0);
     float coherence = 0.f;
 
     float xadd, xmul;
@@ -96,7 +96,7 @@ void PhaseSeriesRenderer::renderSeries()
     auto beforeSpline = [this] (const auto * value, auto, const auto & count) {
         return value->rotate(m_rotate) / count;
     };
-    auto collected = [ &, this] (const float & f1, const float & f2, const complex ac[4], const float c[4]) {
+    auto collected = [ &, this] (const float & f1, const float & f2, const Complex ac[4], const float c[4]) {
         if (i + 16 > maxBufferSize) {
             return;
         }
@@ -158,7 +158,7 @@ void PhaseSeriesRenderer::renderSeries()
         coherence = 0.f;
     };
 
-    iterateForSpline<complex, complex>(m_pointsPerOctave, &value, &coherence, accumulate, collected, beforeSpline);
+    iterateForSpline<Complex, Complex>(m_pointsPerOctave, &value, &coherence, accumulate, collected, beforeSpline);
 
     setUniforms();
     if (m_openGL33CoreFunctions) {

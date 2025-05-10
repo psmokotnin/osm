@@ -28,19 +28,19 @@ class Coherence
 {
 private:
     Container::array<Container::array<float>> m_Grr, m_Gmm;
-    Container::array<Container::array<complex>> m_Grm;
+    Container::array<Container::array<Complex>> m_Grm;
     unsigned int m_subpointer;
     size_t m_depth;
 
     Container::array<float> m_Crr, m_Cmm;
-    Container::array<complex> m_Crm;
+    Container::array<Complex> m_Crm;
 
 public:
     Coherence();
 
     void setDepth(const size_t &depth) noexcept;
     void setSize(const size_t &size) noexcept;
-    [[deprecated]] void append(unsigned int i, const complex &refernce, const complex &measurement) noexcept;
+    [[deprecated]] void append(unsigned int i, const Complex &refernce, const Complex &measurement) noexcept;
     [[deprecated]] float value(unsigned int i) const noexcept;
 
     void calculate(Abstract::Data::FTData *dst, FourierTransform *src);

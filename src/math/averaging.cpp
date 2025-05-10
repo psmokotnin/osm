@@ -18,7 +18,7 @@
 #include <cmath>
 #include "averaging.h"
 
-template <> void Averaging<complex>::checkDepth(unsigned int i)
+template <> void Averaging<Complex>::checkDepth(unsigned int i)
 {
     while (m_data.pat(i)->size() > m_depth) {
         m_value[i] -= m_data.pat(i)->front();
@@ -26,17 +26,17 @@ template <> void Averaging<complex>::checkDepth(unsigned int i)
         m_collected[i]--;
     }
 };
-template<> void Averaging<complex>::append(unsigned int i, const complex &value)
+template<> void Averaging<Complex>::append(unsigned int i, const Complex &value)
 {
     m_data.pat(i)->push(value);
     m_value[i] += value;
     m_collected[i]++;
     checkDepth(i);
 };
-template <> complex Averaging<complex>::value(unsigned int i)
+template <> Complex Averaging<Complex>::value(unsigned int i)
 {
     if (m_collected[i] == 0)
-        return complex(0);
+        return Complex(0);
 
     return m_value[i] / (m_collected[i] * m_gain);
 };

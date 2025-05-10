@@ -62,7 +62,7 @@ void PhaseSeriesNode::renderSeries()
     unsigned int maxBufferSize = m_pointsPerOctave * PPO_BUFFER_MUL, j = 0, verticiesCount = 0;
     float *vertex_ptr = vertexBuffer(maxBufferSize);
 
-    complex value(0);
+    Complex value(0);
     float coherence = 0.f;
 
     float xadd, xmul;
@@ -76,7 +76,7 @@ void PhaseSeriesNode::renderSeries()
     auto beforeSpline = [this] (const auto * value, auto, const auto & count) {
         return value->rotate(m_rotate) / count;
     };
-    auto collected = [ & ] (const float & f1, const float & f2, const complex ac[4], const float c[4]) {
+    auto collected = [ & ] (const float & f1, const float & f2, const Complex ac[4], const float c[4]) {
         float fx1 = (logf(f1) + xadd) * xmul;
         float fx2 = (logf(f2) + xadd) * xmul;
         auto points = std::min(MAX_LINE_SPLITF, std::abs(std::round(fx2 - fx1)));
@@ -114,7 +114,7 @@ void PhaseSeriesNode::renderSeries()
         value = 0.f;
         coherence = 0.f;
     };
-    iterateForSpline<complex, complex>(m_pointsPerOctave, &value, &coherence, accumulate, collected, beforeSpline);
+    iterateForSpline<Complex, Complex>(m_pointsPerOctave, &value, &coherence, accumulate, collected, beforeSpline);
 
     encodeLine(m_pipeline, verticiesCount);
 }

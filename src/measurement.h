@@ -176,11 +176,11 @@ private:
 
     Averaging<float> m_deconvAvg;
     Averaging<float> m_magnitudeAvg, m_moduleAvg;
-    Averaging<complex> m_pahseAvg;
+    Averaging<Complex> m_pahseAvg;
     Coherence m_coherence;
 
     Container::array<Filter::BesselLPF<float>> m_moduleLPFs, m_magnitudeLPFs, m_deconvLPFs;
-    Container::array<Filter::BesselLPF<complex>> m_phaseLPFs;
+    Container::array<Filter::BesselLPF<Complex>> m_phaseLPFs;
     Container::array<Meter> m_meters;
 
     void calculateDataLength();

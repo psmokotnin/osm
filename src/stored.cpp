@@ -179,7 +179,7 @@ bool Stored::saveCal(const QUrl &fileName) const noexcept
 
     float avg_magnitude = 0;
     float avg_coherence = 0;
-    complex avg_phase = 0;
+    Complex avg_phase = 0;
 
     QTextStream out(&saveFile);
     for (unsigned int i = 0; i < frequencyDomainSize(); ++i) {
@@ -318,7 +318,7 @@ float Stored::magnitude(unsigned int i) const noexcept
     return (inverse() ? -1 : 1) * (::Abstract::Source::magnitude(i) + gain());
 }
 
-complex Stored::phase(unsigned int i) const noexcept
+Complex Stored::phase(unsigned int i) const noexcept
 {
     auto alpha = (polarity() ? M_PI : 0) - 2 * M_PI * delay() * frequency(i) / 1000.f;
     return ::Abstract::Source::phase(i).rotate(alpha);

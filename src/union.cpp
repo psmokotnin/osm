@@ -255,7 +255,7 @@ void Union::calc() noexcept
 void Union::calcPolar(unsigned int count, const Shared::Source &primary) noexcept
 {
     float magnitude, module, coherence, coherenceWeight;
-    complex phase;
+    Complex phase;
 
     for (unsigned int i = 0; i < primary->frequencyDomainSize(); i++) {
         magnitude = primary->magnitudeRaw(i);
@@ -332,7 +332,7 @@ void Union::calcPolar(unsigned int count, const Shared::Source &primary) noexcep
 void Union::calcVector(unsigned int count, const Shared::Source &primary) noexcept
 {
     float coherence, coherenceWeight;
-    complex a, m, p;
+    Complex a, m, p;
 
     for (unsigned int i = 0; i < primary->frequencyDomainSize(); i++) {
         a = primary->phase(i) * primary->module(i);
@@ -420,10 +420,10 @@ void Union::calcVector(unsigned int count, const Shared::Source &primary) noexce
                     m_impulseData[offseted].value -= (*it)->impulseValue(i);
                     break;
                 case Min:
-                    m_impulseData[offseted].value = std::min(m_impulseData[offseted].value, complex{(*it)->impulseValue(i)});
+                    m_impulseData[offseted].value = std::min(m_impulseData[offseted].value, Complex{(*it)->impulseValue(i)});
                     break;
                 case Max:
-                    m_impulseData[offseted].value = std::max(m_impulseData[offseted].value, complex{(*it)->impulseValue(i)});
+                    m_impulseData[offseted].value = std::max(m_impulseData[offseted].value, Complex{(*it)->impulseValue(i)});
                     break;
                 case Apply:
                     //calculated in calcApply
@@ -445,7 +445,7 @@ void Union::calcVector(unsigned int count, const Shared::Source &primary) noexce
 void Union::calcdB(unsigned int count, const Shared::Source &primary) noexcept
 {
     float magnitude, module, coherence, coherenceWeight;
-    complex phase;
+    Complex phase;
 
     for (unsigned int i = 0; i < primary->frequencyDomainSize(); i++) {
         magnitude = primary->magnitude(i);
@@ -526,7 +526,7 @@ void Union::calcdB(unsigned int count, const Shared::Source &primary) noexcept
 void Union::calcPower(unsigned int count, const Shared::Source &primary) noexcept
 {
     float magnitude, module, coherence, coherenceWeight;
-    complex phase;
+    Complex phase;
 
     for (unsigned int i = 0; i < primary->frequencyDomainSize(); i++) {
         magnitude = std::pow(primary->magnitudeRaw(i), 2);
@@ -609,7 +609,7 @@ void Union::calcPower(unsigned int count, const Shared::Source &primary) noexcep
 void Union::calcApply(const Shared::Source &primary) noexcept
 {
     float magnitude, module, coherence;
-    complex phase;
+    Complex phase;
 
     for (unsigned int i = 0; i < primary->frequencyDomainSize(); i++) {
         magnitude   = primary->magnitudeRaw(i);

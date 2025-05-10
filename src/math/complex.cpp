@@ -17,51 +17,51 @@
  */
 #include "./complex.h"
 
-const complex complex::i = {0, 1};
+const Complex Complex::i = {0, 1};
 
-float complex::abs() const noexcept
+float Complex::abs() const noexcept
 {
     return sqrtf(powf(real, 2) + powf(imag, 2));
 }
 
-float complex::absSquared() const noexcept
+float Complex::absSquared() const noexcept
 {
     return real * real + imag * imag;
 }
-float complex::arg() const noexcept
+float Complex::arg() const noexcept
 {
     return atan2f(imag, real);
 }
-const complex complex::conjugate() const
+const Complex Complex::conjugate() const
 {
-    complex rc;
+    Complex rc;
     rc.real = real;
     rc.imag = -1 * imag;
     return rc;
 }
 
-const complex complex::normalize() const
+const Complex Complex::normalize() const
 {
-    complex rc {real, imag};
+    Complex rc {real, imag};
     rc /= abs();
     return rc;
 }
 //TODO: use vector
-const complex complex::rotate(const float &a) const
+const Complex Complex::rotate(const float &a) const
 {
-    complex rc;
+    Complex rc;
     rc.real = real * cos(a) - imag * sin(a);
     rc.imag = real * sin(a) + imag * cos(a);
     return rc;
 }
 //TODO: use vector
-void complex::polar(const float &phase)
+void Complex::polar(const float &phase)
 {
     real = cos(phase);
     imag = sin(phase);
 }
 
-void complex::polar(const complex &x, const complex &y)
+void Complex::polar(const Complex &x, const Complex &y)
 {
     float tanx = x.imag / x.real;
     float tany = y.imag / y.real;
@@ -88,77 +88,77 @@ void complex::polar(const complex &x, const complex &y)
     imag = sinx * cosy - cosx * siny;
 }
 
-complex &complex::operator=(const float &r)
+Complex &Complex::operator=(const float &r)
 {
     real = r;
     imag = 0.0;
     return *this;
 }
 
-const complex complex::operator+(const float &r) const
+const Complex Complex::operator+(const float &r) const
 {
-    complex rc;
+    Complex rc;
     rc.real = real + r;
     rc.imag = imag;
     return rc;
 }
-const complex complex::operator+(const complex &c) const
+const Complex Complex::operator+(const Complex &c) const
 {
-    complex rc;
+    Complex rc;
     rc.real = real + c.real;
     rc.imag = imag + c.imag;
     return rc;
 }
 
-complex &complex::operator+=(const float &r)
+Complex &Complex::operator+=(const float &r)
 {
     real += r;
     return *this;
 }
-complex &complex::operator+=(const complex &c)
+Complex &Complex::operator+=(const Complex &c)
 {
     real += c.real;
     imag += c.imag;
     return *this;
 }
 
-const complex complex::operator-(const float &r) const
+const Complex Complex::operator-(const float &r) const
 {
-    complex rc;
+    Complex rc;
     rc.real = real - r;
     rc.imag = imag;
     return rc;
 }
-const complex complex::operator-(const complex &c) const
+const Complex Complex::operator-(const Complex &c) const
 {
-    complex rc;
+    Complex rc;
     rc.real = real - c.real;
     rc.imag = imag - c.imag;
     return rc;
 }
 
-complex &complex::operator-=(const float &r)
+Complex &Complex::operator-=(const float &r)
 {
     real -= r;
     return *this;
 }
-complex &complex::operator-=(const complex &c)
+Complex &Complex::operator-=(const Complex &c)
 {
     real -= c.real;
     imag -= c.imag;
     return *this;
 }
 
-const complex complex::operator/(const float &r) const
+const Complex Complex::operator/(const float &r) const
 {
-    complex rc;
+    Complex rc;
     rc.real = real / r;
     rc.imag = imag / r;
     return rc;
 }
-const complex complex::operator/(const complex &c) const
+const Complex Complex::operator/(const Complex &c) const
 {
-    complex rc;
+    Complex rc;
     float d = c.real * c.real + c.imag * c.imag;
 
     rc.real = (real * c.real + imag * c.imag) / d;
@@ -166,13 +166,13 @@ const complex complex::operator/(const complex &c) const
 
     return rc;
 }
-complex &complex::operator/=(const float &r)
+Complex &Complex::operator/=(const float &r)
 {
     real /= r;
     imag /= r;
     return *this;
 }
-complex &complex::operator/=(const complex &c)
+Complex &Complex::operator/=(const Complex &c)
 {
     float r = real, d = c.real * c.real + c.imag * c.imag;
 
@@ -182,48 +182,48 @@ complex &complex::operator/=(const complex &c)
     return *this;
 }
 
-complex complex::operator*(const float &r) const
+Complex Complex::operator*(const float &r) const
 {
-    complex rc;
+    Complex rc;
     rc.real = real * r;
     rc.imag = imag * r;
     return rc;
 }
-complex complex::operator*(const complex &c) const
+Complex Complex::operator*(const Complex &c) const
 {
-    complex rc;
+    Complex rc;
     rc.real = real * c.real - imag * c.imag;
     rc.imag = real * c.imag + imag * c.real;
     return rc;
 }
 
-complex &complex::operator*=(const float &r)
+Complex &Complex::operator*=(const float &r)
 {
     real *= r;
     imag *= r;
     return *this;
 }
-complex &complex::operator*=(const complex &c)
+Complex &Complex::operator*=(const Complex &c)
 {
     float r = real;
     real = real * c.real - imag * c.imag;
     imag = r * c.imag + imag * c.real;
     return *this;
 }
-bool complex::operator==(const complex &c) const
+bool Complex::operator==(const Complex &c) const
 {
     return (real == c.real && imag == c.imag);
 }
-bool complex::operator!=(const complex &c) const
+bool Complex::operator!=(const Complex &c) const
 {
     return (real != c.real || imag != c.imag);
 }
 
-bool complex::operator<(const complex &c) const
+bool Complex::operator<(const Complex &c) const
 {
     return absSquared() < c.absSquared();
 }
-QDebug operator<<(QDebug dbg, const complex &c)
+QDebug operator<<(QDebug dbg, const Complex &c)
 {
     dbg.nospace() << "Complex value: r:"
                   << c.real << " i:" << c.imag << " ";

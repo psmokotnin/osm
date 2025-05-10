@@ -68,15 +68,15 @@ private slots:
     void applyAutoName();
 
 private:
-    complex calculate(float frequency) const;
-    complex Bessel(bool hpf, complex s) const;
-    complex calculateAPF(complex s) const;
-    complex calculatePeak(complex s) const;
+    Complex calculate(float frequency) const;
+    Complex Bessel(bool hpf, Complex s) const;
+    Complex calculateAPF(Complex s) const;
+    Complex calculatePeak(Complex s) const;
 
-    complex Butterworth(bool hpf, unsigned int order, const complex &s) const;
-    complex ButterworthPolinom(unsigned int k, unsigned int order, const complex &s) const;
+    Complex Butterworth(bool hpf, unsigned int order, const Complex &s) const;
+    Complex ButterworthPolinom(unsigned int k, unsigned int order, const Complex &s) const;
 
-    complex LinkwitzRiley(bool hpf, const complex &s) const;
+    Complex LinkwitzRiley(bool hpf, const Complex &s) const;
 
     bool m_autoName;
     FourierTransform m_dataFT, m_inverse;

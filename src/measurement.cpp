@@ -281,7 +281,7 @@ void Measurement::updateFilterFrequency()
     m_moduleLPFs.each(setFrequency);
     m_magnitudeLPFs.each(setFrequency);
     m_deconvLPFs.each(setFrequency);
-    m_phaseLPFs.each([&m_filtersFrequency = m_filtersFrequency](Filter::BesselLPF<complex> *f) {
+    m_phaseLPFs.each([&m_filtersFrequency = m_filtersFrequency](Filter::BesselLPF<Complex> *f) {
         f->setFrequency(m_filtersFrequency);
     });
 }
@@ -552,7 +552,7 @@ void Measurement::transform()
 }
 void Measurement::averaging()
 {
-    complex p;
+    Complex p;
     int j;
     for (unsigned int i = 0; i < frequencyDomainSize() ; i++) {
 
