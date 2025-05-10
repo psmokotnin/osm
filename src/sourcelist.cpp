@@ -582,7 +582,7 @@ bool SourceList::importWav(const QUrl &fileName)
     }
 
     for (auto &row : d) {
-        row.time -= offset;
+        row.time = row.time - offset;
     }
 
     s->setSampleRate(wav.sampleRate());

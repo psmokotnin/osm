@@ -49,14 +49,14 @@ private:
         void update();
 
     private:
-        atomic<float> m_value = 0;
+        Atomic<float> m_value = 0;
         node *m_left  = nullptr;
         node *m_right = nullptr;
         node *m_top   = nullptr;
     };
 
-    atomic<std::size_t> m_size = 0;
-    atomic<std::size_t> m_pos = 0;
+    Atomic<std::size_t> m_size = 0;
+    Atomic<std::size_t> m_pos = 0;
     std::vector<std::vector<node>> data;
     node m_top;
 };

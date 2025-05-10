@@ -21,15 +21,27 @@
 
 #include <atomic>
 
-template <typename T>
-struct atomic : public std::atomic<T> {
+template <typename T,
+          std::enable_if_t<std::atomic<T>::is_always_lock_free, bool> = true
+          >
+struct Atomic : public std::atomic<T> {
 
-    atomic(T value = 0) : std::atomic<T>(value) {};
-    atomic(const atomic &other) : std::atomic<T>()
+    Atomic(T value = 0) noexcept : std::atomic<T>(value) {}
+    ~Atomic() = default;
+
+    Atomic(const Atomic &other) noexcept : std::atomic<T>()
     {
         this->store(other.load());
     }
-    atomic &operator=(const float value)
+
+    Atomic &operator=(const Atomic<T> &value) noexcept
+    {
+        this->store(value.load());
+        return *this;
+    }
+
+
+    Atomic &operator=(const T value) noexcept
     {
         this->store(value);
         return *this;
