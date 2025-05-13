@@ -641,7 +641,7 @@ void Measurement::averaging()
 Shared::Source Measurement::store()
 {
     auto store = std::make_shared<Stored>();
-    store->build(this);
+    store->build( *this );
     store->autoName(name());
 
     QString avg;

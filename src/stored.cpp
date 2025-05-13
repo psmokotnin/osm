@@ -37,7 +37,7 @@ Stored::Stored(QObject *parent) : Abstract::Source(parent), Meta::Stored()
 Shared::Source Stored::clone() const
 {
     auto cloned = std::make_shared<Stored>(parent());
-    cloned->build(const_cast<Stored *>(this));
+    cloned->build(*this);
     cloned->setActive(active());
     cloned->setName(name());
     cloned->setInverse(inverse());
@@ -50,13 +50,9 @@ Shared::Source Stored::clone() const
     return std::static_pointer_cast<Abstract::Source>(cloned);
 }
 
-void Stored::build (Abstract::Source *source)
+void Stored::build (const Abstract::Source &source)
 {
-    source->lock();
-    setFrequencyDomainSize(source->frequencyDomainSize());
-    setTimeDomainSize(source->timeDomainSize());
-    source->copy(this);
-    source->unlock();
+    source.copyTo(*this);
     emit readyRead();
 }
 

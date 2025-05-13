@@ -492,7 +492,7 @@ QUuid Windowing::sourceId() const
 Shared::Source Windowing::store()
 {
     auto stored = std::make_shared<Stored>();
-    stored->build(this);
+    stored->build( *this );
     stored->autoName(name());
 
     QString notes = "Windowing on " + (source() ? source()->name() : "") + "\n";

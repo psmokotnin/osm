@@ -72,7 +72,7 @@ struct Data {
     virtual float   peak( const Weighting::Curve curve = Weighting::Z, const Meter::Time time = Meter::Fast) const;
     virtual float   referenceLevel() const;
 
-    void            copy(Data *dist) const;
+    void            copyTo(Data &dist) const;
     void            setFrequencyDomainData(std::vector<FTData> &&data);
     void            setTimeDomainData(std::vector<TimeData> &&data);
 
@@ -81,7 +81,7 @@ protected:
     std::vector<TimeData>   m_impulseData;
     LevelsData              m_levelsData;
 
-    std::mutex              m_dataMutex;
+    mutable std::mutex      m_dataMutex;
 };
 
 }

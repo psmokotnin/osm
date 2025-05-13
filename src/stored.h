@@ -35,7 +35,7 @@ class Stored: public Abstract::Source, public Meta::Stored
 public:
     explicit Stored(QObject *parent = nullptr);
     Shared::Source clone() const override;
-    void build (Abstract::Source *source);
+    void build (const Abstract::Source &source);
 
     Q_INVOKABLE void autoName(const QString &prefix) noexcept;
 

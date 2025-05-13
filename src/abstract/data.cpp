@@ -156,12 +156,17 @@ float Data::referenceLevel() const
     return m_levelsData.m_referenceLevel;
 }
 
-void Data::copy(Data *dist) const
+void Data::copyTo(Data &dist) const
 {
-    if (dist) {
-        std::copy_n(m_ftdata.data(), frequencyDomainSize(), dist->m_ftdata.data());
-        std::copy_n(m_impulseData.data(), timeDomainSize(), dist->m_impulseData.data());
-    }
+    std::lock_guard<std::mutex> guard(m_dataMutex);
+    dist.lock();
+
+    dist.setFrequencyDomainSize(frequencyDomainSize());
+    dist.setTimeDomainSize(timeDomainSize());
+    std::copy_n(m_ftdata.data(), frequencyDomainSize(), dist.m_ftdata.data());
+    std::copy_n(m_impulseData.data(), timeDomainSize(), dist.m_impulseData.data());
+
+    dist.unlock();
 }
 
 void Data::setFrequencyDomainData(std::vector<FTData> &&data)

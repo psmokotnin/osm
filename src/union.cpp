@@ -776,7 +776,7 @@ Union::Operation Union::operation() const noexcept
 Shared::Source Union::store()
 {
     auto store = std::make_shared<Stored>();
-    store->build(this);
+    store->build( *this );
     store->autoName(name());
 
     try {

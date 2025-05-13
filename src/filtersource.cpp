@@ -90,7 +90,7 @@ void FilterSource::fromJSON(QJsonObject data, const SourceList *list) noexcept
 Shared::Source FilterSource::store()
 {
     auto store = std::make_shared<Stored>();
-    store->build(this);
+    store->build( *this );
     store->autoName(name());
     return { store };
 }
