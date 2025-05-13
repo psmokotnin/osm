@@ -47,7 +47,7 @@ public:
     SourceList                 *sourceList() override;
 
 
-    QJsonObject toJSON(const SourceList *list = nullptr) const noexcept override;
+    QJsonObject toJSON() const noexcept override;
     void        fromJSON(QJsonObject data, const SourceList *list = nullptr) noexcept override;
 
 signals:

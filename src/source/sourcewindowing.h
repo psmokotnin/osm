@@ -51,7 +51,7 @@ public:
     ~Windowing();
 
     Shared::Source clone() const override;
-    Q_INVOKABLE QJsonObject toJSON(const SourceList *list) const noexcept override;
+    Q_INVOKABLE QJsonObject toJSON() const noexcept override;
     void fromJSON(QJsonObject data, const SourceList *list = nullptr) noexcept override;
 
     Shared::Source source() const;

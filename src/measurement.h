@@ -95,7 +95,7 @@ public:
 
     void setActive(bool newActive) final;
 
-    Q_INVOKABLE QJsonObject toJSON(const SourceList *list = nullptr) const noexcept override;
+    Q_INVOKABLE QJsonObject toJSON() const noexcept override;
     void fromJSON(QJsonObject data, const SourceList *list = nullptr) noexcept override;
 
     float level(const Weighting::Curve curve = Weighting::Z, const Meter::Time time = Meter::Fast) const override;

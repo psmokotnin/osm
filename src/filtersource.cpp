@@ -53,9 +53,9 @@ Shared::Source FilterSource::clone() const
     return std::static_pointer_cast<Abstract::Source>(cloned);
 }
 
-QJsonObject FilterSource::toJSON(const SourceList *list) const noexcept
+QJsonObject FilterSource::toJSON() const noexcept
 {
-    auto object = Abstract::Source::toJSON(list);
+    auto object = Abstract::Source::toJSON();
 
     object["mode"]          = mode();
     object["type"]          = type();
@@ -67,9 +67,9 @@ QJsonObject FilterSource::toJSON(const SourceList *list) const noexcept
     return object;
 }
 
-void FilterSource::fromJSON(QJsonObject data, const SourceList *list) noexcept
+void FilterSource::fromJSON(QJsonObject data, const SourceList *) noexcept
 {
-    Abstract::Source::fromJSON(data, list);
+    Abstract::Source::fromJSON(data);
 
     auto variantMode = data["mode"].toVariant();
     if (variantMode.isValid()) {

@@ -43,20 +43,20 @@ Shared::Source StandardLine::clone() const
     return std::static_pointer_cast<Abstract::Source>(cloned);
 }
 
-QJsonObject StandardLine::toJSON(const SourceList *list) const noexcept
+QJsonObject StandardLine::toJSON() const noexcept
 {
-    auto object = Abstract::Source::toJSON(list);
+    auto object = Abstract::Source::toJSON();
     object["mode"]      = mode();
     object["loudness"]  = loudness();
 
     return object;
 }
 
-void StandardLine::fromJSON(QJsonObject data, const SourceList *list) noexcept
+void StandardLine::fromJSON(QJsonObject data, const SourceList *) noexcept
 {
     setMode(data["mode"].toInt(mode()));
     setLoudness(data["loudness"].toDouble());
-    Abstract::Source::fromJSON(data, list);
+    Abstract::Source::fromJSON(data);
 }
 
 float StandardLine::loudness() const noexcept

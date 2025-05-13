@@ -44,7 +44,7 @@ void Source::destroy()
     disconnect();
 }
 
-QJsonObject Source::toJSON(const SourceList *) const noexcept
+QJsonObject Source::toJSON() const noexcept
 {
     QJsonObject object;
     object["uuid"]      = uuid().toString();

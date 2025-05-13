@@ -270,7 +270,7 @@ int SourceList::indexOf(const QUuid &id) const noexcept
     return -1;
 }
 
-QJsonArray SourceList::toJSON(const SourceList *list) const noexcept
+QJsonArray SourceList::toJSON() const noexcept
 {
     QJsonArray data;
     for (int i = 0; i < m_items.size(); ++i) {
@@ -280,7 +280,7 @@ QJsonArray SourceList::toJSON(const SourceList *list) const noexcept
         }
         QJsonObject itemJson;
         itemJson["type"] = item->objectName();
-        itemJson["data"] = item->toJSON(list);
+        itemJson["data"] = item->toJSON();
         data.append(itemJson);
     }
     return data;
@@ -351,7 +351,7 @@ bool SourceList::save(const QUrl &fileName) const noexcept
     QJsonObject object;
     object["type"] = "sourcelsist";
 
-    auto data = toJSON(this);
+    auto data = toJSON();
     object["list"] = data;
     object["selected"] = m_selected;
 

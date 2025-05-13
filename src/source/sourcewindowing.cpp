@@ -65,9 +65,9 @@ Shared::Source Windowing::clone() const
     return std::static_pointer_cast<Abstract::Source>(cloned);
 }
 
-QJsonObject Windowing::toJSON(const SourceList *list) const noexcept
+QJsonObject Windowing::toJSON() const noexcept
 {
-    auto object = Abstract::Source::toJSON(list);
+    auto object = Abstract::Source::toJSON();
 
     object["mode"]                  = mode();
     object["domain"]                = domain();

@@ -64,9 +64,9 @@ void Stored::autoName(const QString &prefix) noexcept
     setName(name);
 }
 
-QJsonObject Stored::toJSON(const SourceList *list) const noexcept
+QJsonObject Stored::toJSON() const noexcept
 {
-    auto object = Abstract::Source::toJSON(list);
+    auto object = Abstract::Source::toJSON();
     object["notes"]     = notes();
 
     object["polarity"]  = polarity();
@@ -105,9 +105,9 @@ QJsonObject Stored::toJSON(const SourceList *list) const noexcept
 
     return object;
 }
-void Stored::fromJSON(QJsonObject data, const SourceList *list) noexcept
+void Stored::fromJSON(QJsonObject data, const SourceList *) noexcept
 {
-    Abstract::Source::fromJSON(data, list);
+    Abstract::Source::fromJSON(data);
 
     auto ftdata         = data["ftdata"].toArray();
     auto impulse        = data["impulse"].toArray();

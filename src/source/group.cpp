@@ -40,11 +40,11 @@ void Group::destroy()
     Abstract::Source::destroy();
 }
 
-QJsonObject Group::toJSON(const SourceList *list) const noexcept
+QJsonObject Group::toJSON() const noexcept
 {
-    auto object = Abstract::Source::toJSON(list);
+    auto object = Abstract::Source::toJSON();
 
-    object["list"]      = m_sourceList.toJSON(list);
+    object["list"]      = m_sourceList.toJSON();
 
     return object;
 }

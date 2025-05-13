@@ -46,7 +46,7 @@ public:
     Shared::Source clone() const override;
     bool cloneable() const override;
 
-    Q_INVOKABLE QJsonObject toJSON(const SourceList * = nullptr) const noexcept override;
+    Q_INVOKABLE QJsonObject toJSON() const noexcept override;
     void fromJSON(QJsonObject data, const SourceList * = nullptr) noexcept override;
 
     QJsonObject metaJsonObject(QString propertyName = {}) const;

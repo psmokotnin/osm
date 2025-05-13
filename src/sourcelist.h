@@ -113,7 +113,7 @@ public:
 
     std::lock_guard<std::mutex> lock() const;
 
-    QJsonArray  toJSON(const SourceList *list ) const noexcept;
+    QJsonArray  toJSON() const noexcept;
     void        fromJSON(const QJsonArray &list, const SourceList *topList) noexcept;
 
 public slots:

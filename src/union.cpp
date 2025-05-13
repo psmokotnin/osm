@@ -705,9 +705,9 @@ void Union::sourceDestroyed(::Abstract::Source *source)
     }
 }
 
-QJsonObject Union::toJSON(const SourceList *list) const noexcept
+QJsonObject Union::toJSON() const noexcept
 {
-    auto object = Abstract::Source::toJSON(list);
+    auto object = Abstract::Source::toJSON();
 
     object["count"]     = count();
     object["type"]      = type();
@@ -715,12 +715,10 @@ QJsonObject Union::toJSON(const SourceList *list) const noexcept
     object["autoName"]  = autoName();
 
     QJsonArray sources;
-    if (list) {
-        for (int i = 0; i < count(); ++i) {
-            auto source = getSource(i);
-            if (source) {
-                sources.append(source.uuid().toString());
-            }
+    for (int i = 0; i < count(); ++i) {
+        auto source = getSource(i);
+        if (source) {
+            sources.append(source.uuid().toString());
         }
     }
     object["sources"] = sources;

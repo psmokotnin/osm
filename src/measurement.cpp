@@ -125,9 +125,9 @@ Measurement::~Measurement()
     m_timerThread.quit();
     m_timerThread.wait();
 }
-QJsonObject Measurement::toJSON(const SourceList *list) const noexcept
+QJsonObject Measurement::toJSON() const noexcept
 {
-    auto data = Abstract::Source::toJSON(list);
+    auto data = Abstract::Source::toJSON();
     data["delay"]           = static_cast<int>(delay());
     data["gain"]            = gain();
     data["offset"]          = offset();

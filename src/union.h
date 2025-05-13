@@ -70,7 +70,7 @@ public:
 
     Q_INVOKABLE bool setSource(int index, const Shared::Source &s) noexcept;
 
-    Q_INVOKABLE QJsonObject toJSON(const SourceList *list = nullptr) const noexcept override;
+    Q_INVOKABLE QJsonObject toJSON() const noexcept override;
     void fromJSON(QJsonObject data, const SourceList *list = nullptr) noexcept override;
 
     Operation operation() const noexcept;

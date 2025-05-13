@@ -57,7 +57,7 @@ bool Item::cloneable() const
     return false;
 }
 
-QJsonObject Item::toJSON(const SourceList *) const noexcept
+QJsonObject Item::toJSON() const noexcept
 {
     QJsonObject object;
     object["serverId"]  = serverId().toString();
