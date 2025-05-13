@@ -50,8 +50,8 @@ public:
 
     virtual             Shared::Source      clone() const = 0;
     virtual Q_INVOKABLE Shared::Source      store();
-    virtual Q_INVOKABLE void                destroy(); //TODO: delete
-    virtual Q_INVOKABLE QJsonObject         toJSON() const noexcept;
+    virtual             void                destroy(); //TODO: delete
+    virtual             QJsonObject         toJSON() const noexcept;
     virtual             void                fromJSON(QJsonObject data, const SourceList * = nullptr) noexcept;
     virtual             QJsonObject         levels();
     virtual             void                setLevels(const QJsonObject &data);
