@@ -17,6 +17,7 @@ SOURCES += src/main.cpp \
     src/audio/format.cpp \
     src/audio/plugin.cpp \
     src/audio/stream.cpp \
+    \
     src/chart/crestfactorplot.cpp \
     src/chart/cursorhelper.cpp \
     src/chart/frequencybasedplot.cpp \
@@ -32,14 +33,37 @@ SOURCES += src/main.cpp \
     src/chart/spectrogramplot.cpp \
     src/chart/stepplot.cpp \
     src/chart/coherenceplot.cpp \
+    src/chart/axis.cpp \
+    src/chart/painteditem.cpp \
+    src/chart/variablechart.cpp \
+    src/chart/plot.cpp \
+    src/chart/rtaplot.cpp \
+    src/chart/impulseplot.cpp \
+    src/chart/phaseplot.cpp \
+    src/chart/magnitudeplot.cpp \
+    src/chart/xyplot.cpp \
+    \
     src/common/autosaver.cpp \
     src/common/recentfilesmodel.cpp \
     src/common/wavfile.cpp \
     src/common/workingfolder.cpp \
+    src/common/appearance.cpp \
+    src/common/logger.cpp \
+    src/common/notifier.cpp \
+    src/common/profiler.cpp \
+    src/common/settings.cpp \
+    \
     src/filesystem/dialog.cpp \
     src/filesystem/dialogPlugin.cpp \
     src/filesystem/plugins/widgetdialogplugin.cpp \
-    src/filtersource.cpp \
+    \
+    src/generator/generator.cpp \
+    src/generator/generatorthread.cpp \
+    src/generator/pinknoise.cpp \
+    src/generator/outputdevice.cpp \
+    src/generator/whitenoise.cpp \
+    src/generator/sinnoise.cpp \
+    src/generator/sinsweep.cpp \
     src/generator/brownnoise.cpp \
     src/generator/burstnoise.cpp \
     src/generator/channelmodel.cpp \
@@ -47,12 +71,14 @@ SOURCES += src/main.cpp \
     src/generator/musicnoise.cpp \
     src/generator/sinburst.cpp \
     src/generator/wav.cpp \
-    src/inputdevice.cpp \
-    src/common/appearance.cpp \
-    src/common/logger.cpp \
     src/generator/mnoise.cpp \
-    src/common/notifier.cpp \
-    src/common/profiler.cpp \
+    \
+    src/inputdevice.cpp \
+    src/metertablemodel.cpp \
+    src/sourcelist.cpp \
+    src/sourcemodel.cpp \
+    src/targettrace.cpp \
+    \
     src/math/bandpass.cpp \
     src/math/biquad.cpp \
     src/math/equalloudnesscontour.cpp \
@@ -61,12 +87,20 @@ SOURCES += src/main.cpp \
     src/math/lowpassfilter.cpp \
     src/math/notch.cpp \
     src/math/weighting.cpp \
+    src/math/meter.cpp \
+    src/math/coherence.cpp \
+    src/math/averaging.cpp \
+    src/math/complex.cpp \
+    src/math/fouriertransform.cpp \
+    src/math/windowfunction.cpp \
+    src/math/deconvolution.cpp \
+    \
     src/meta/metabase.cpp \
     src/meta/metafilter.cpp \
     src/meta/metameasurement.cpp \
     src/meta/metastored.cpp \
     src/meta/metawindowing.cpp \
-    src/metertablemodel.cpp \
+    \
     src/remote/generatorremote.cpp \
     src/remote/item.cpp \
     src/remote/items/groupitem.cpp \
@@ -76,40 +110,16 @@ SOURCES += src/main.cpp \
     src/remote/remoteclient.cpp \
     src/remote/server.cpp \
     src/remote/tcpreciever.cpp \
+    \
+    src/shared/source_shared.cpp \
+    src/source/filtersource.cpp \
     src/source/group.cpp \
     src/source/sourcewindowing.cpp \
-    src/shared/source_shared.cpp \
-    src/sourcelist.cpp \
-    src/sourcemodel.cpp \
-    src/standardline.cpp \
-    src/targettrace.cpp \
-    src/union.cpp \
-    src/generator/generator.cpp \
-    src/generator/generatorthread.cpp \
-    src/generator/pinknoise.cpp \
-    src/generator/outputdevice.cpp \
-    src/generator/whitenoise.cpp \
-    src/generator/sinnoise.cpp \
-    src/generator/sinsweep.cpp \
-    src/stored.cpp \
-    src/chart/axis.cpp \
-    src/chart/painteditem.cpp \
-    src/measurement.cpp \
-    src/common/settings.cpp \
-    src/chart/variablechart.cpp \
-    src/chart/plot.cpp \
-    src/chart/rtaplot.cpp \
-    src/chart/impulseplot.cpp \
-    src/chart/phaseplot.cpp \
-    src/chart/magnitudeplot.cpp \
-    src/chart/xyplot.cpp \
-    src/math/meter.cpp \
-    src/math/coherence.cpp \
-    src/math/averaging.cpp \
-    src/math/complex.cpp \
-    src/math/fouriertransform.cpp \
-    src/math/windowfunction.cpp \
-    src/math/deconvolution.cpp \
+    src/source/standardline.cpp \
+    src/source/union.cpp \
+    src/source/stored.cpp \
+    src/source/measurement.cpp \
+    \
 
 RESOURCES += qml.qrc \
     audio/noises.qrc \
@@ -183,7 +193,7 @@ HEADERS += \
     src/filesystem/dialog.h \
     src/filesystem/dialogPlugin.h \
     src/filesystem/plugins/widgetdialogplugin.h \
-    src/filtersource.h \
+    src/source/filtersource.h \
     src/generator/brownnoise.h \
     src/generator/burstnoise.h \
     src/generator/channelmodel.h \
@@ -228,9 +238,9 @@ HEADERS += \
     src/shared/source_shared.h \
     src/sourcelist.h \
     src/sourcemodel.h \
-    src/standardline.h \
+    src/source/standardline.h \
     src/targettrace.h \
-    src/union.h \
+    src/source/union.h \
     src/generator/generator.h \
     src/generator/generatorthread.h \
     src/generator/pinknoise.h \
@@ -239,11 +249,11 @@ HEADERS += \
     src/generator/sinnoise.h \
     src/generator/sinsweep.h \
     src/generator/sample.h \
-    src/stored.h \
+    src/source/stored.h \
     src/chart/axis.h \
     src/chart/painteditem.h \
     src/chart/type.h \
-    src/measurement.h \
+    src/source/measurement.h \
     src/common/settings.h \
     src/chart/variablechart.h \
     src/chart/plot.h \
