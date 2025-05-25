@@ -74,9 +74,7 @@ SOURCES += src/main.cpp \
     src/generator/mnoise.cpp \
     \
     src/inputdevice.cpp \
-    src/metertablemodel.cpp \
     src/sourcelist.cpp \
-    src/sourcemodel.cpp \
     src/targettrace.cpp \
     \
     src/math/bandpass.cpp \
@@ -100,6 +98,9 @@ SOURCES += src/main.cpp \
     src/meta/metameasurement.cpp \
     src/meta/metastored.cpp \
     src/meta/metawindowing.cpp \
+    \
+    src/model/metertablemodel.cpp \
+    src/model/sourcemodel.cpp \
     \
     src/remote/generatorremote.cpp \
     src/remote/item.cpp \
@@ -223,7 +224,6 @@ HEADERS += \
     src/meta/metameasurement.h \
     src/meta/metastored.h \
     src/meta/metawindowing.h \
-    src/metertablemodel.h \
     src/remote/generatorremote.h \
     src/remote/item.h \
     src/remote/items/groupitem.h \
@@ -237,7 +237,8 @@ HEADERS += \
     src/source/sourcewindowing.h \
     src/shared/source_shared.h \
     src/sourcelist.h \
-    src/sourcemodel.h \
+    src/model/metertablemodel.h \
+    src/model/sourcemodel.h \
     src/source/standardline.h \
     src/targettrace.h \
     src/source/union.h \
