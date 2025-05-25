@@ -46,7 +46,7 @@ void SeriesesItem::connectSources(SourceList *sourceList)
     m_sources = sourceList;
     if (m_sources && m_plot) {
         for (int i = 0; i < m_sources->count(); ++i) {
-            auto source = m_sources->items()[i];
+            auto source = m_sources->get(i);
             appendDataSource(source);
         }
         auto selected = m_sources->selectedUuid();
@@ -186,7 +186,7 @@ void SeriesesItem::removeDataSource(const Shared::Source &source)
 
     for (auto &child : childItems()) {
         if (auto child_serieses = dynamic_cast<SeriesesItem *>(child)) {
-            if (child_serieses->groupUuid() == source->uuid()) {
+            if (source && child_serieses->groupUuid() == source->uuid()) {
                 child_serieses->clear();
                 child_serieses->deleteLater();
             }

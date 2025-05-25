@@ -42,6 +42,7 @@ SourceList::SourceList(QObject *parent, bool appendMeasurement) :
     m_mutex()
 {
     qRegisterMetaType<SourceList *>("SourceList*");
+    m_items.reserve(64);
 
     if (appendMeasurement) {
         add<Measurement>();

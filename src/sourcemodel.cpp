@@ -31,7 +31,7 @@ int SourceModel::rowCount(const QModelIndex &parent) const
 {
     if (parent.isValid() || !m_list)
         return 0;
-    return m_list->items().size();
+    return m_list->size();
 }
 
 QVariant SourceModel::data(const QModelIndex &index, int role) const
@@ -40,7 +40,7 @@ QVariant SourceModel::data(const QModelIndex &index, int role) const
         return QVariant();
 
     auto j = index.row();
-    const Shared::Source &source = m_list->items().at(j);
+    const Shared::Source &source = m_list->get(j);
     QVariant r = {};
     switch (role) {
     case NameRole:
@@ -127,7 +127,7 @@ void SourceModel::setList(SourceList *list)
 
     if (m_list) {
         connect(m_list, &SourceList::preItemAppended, this, [ = ]() {
-            const int index = m_list->items().size();
+            const int index = m_list->size();
             beginInsertRows(QModelIndex(), index, index);
         });
         connect(m_list, &SourceList::postItemAppended, this, [ = ](auto) {
@@ -173,8 +173,7 @@ int SourceModel::indexOf(const QUuid &item) const noexcept
 
 QUuid SourceModel::get(const int &index) const noexcept
 {
-    auto item = m_list->get_ref(index);
-    return item ? item->uuid() : QUuid{};
+    return m_list->getUUid(index);
 }
 
 Shared::Source SourceModel::getShared(const int &index) const noexcept

@@ -61,7 +61,7 @@ Shared::Source Group::clone() const
     auto cloned = std::make_shared<Group>(parent());
     cloned->setActive(active());
     cloned->setName(name());
-    for (auto it = m_sourceList.cbegin(); it < m_sourceList.cend(); ++it) {
+    for (auto it = m_sourceList.cbegin(); it != m_sourceList.cend(); ++it) {
         if (it && *it) {
             auto clonedItem = (*it)->clone();
             cloned->m_sourceList.appendItem(clonedItem, true);
