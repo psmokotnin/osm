@@ -41,6 +41,10 @@ class FilterSource : public Abstract::Source, public Meta::Filter
     Q_PROPERTY(float cornerFrequency READ cornerFrequency WRITE setCornerFrequency NOTIFY cornerFrequencyChanged)
     Q_PROPERTY(float gain READ gain WRITE setGain NOTIFY gainChanged)
     Q_PROPERTY(float q READ q WRITE setQ NOTIFY qChanged)
+    Q_PROPERTY(bool polarity READ polarity WRITE setPolarity NOTIFY polarityChanged)
+
+    Q_PROPERTY(bool qAvailable READ isQAvailable NOTIFY availableQChanged)
+    Q_PROPERTY(bool gainAvailable READ isGainAvailable NOTIFY typeChanged)
 
 public:
     FilterSource(QObject *parent = nullptr);
@@ -61,6 +65,8 @@ signals:
     void orderChanged(unsigned int) override;
     void gainChanged(float) override;
     void qChanged(float) override;
+    void availableQChanged() override;
+    void polarityChanged(bool) override;
     void autoNameChanged();
 
 private slots:
@@ -71,7 +77,11 @@ private:
     Complex calculate(float frequency) const;
     Complex Bessel(bool hpf, Complex s) const;
     Complex calculateAPF(Complex s) const;
+    Complex calculateBPF(Complex s) const;
     Complex calculatePeak(Complex s) const;
+    Complex calculateNotch(Complex s) const;
+
+    Complex calculateShelf(bool high, Complex s) const;
 
     Complex Butterworth(bool hpf, unsigned int order, const Complex &s) const;
     Complex ButterworthPolinom(unsigned int k, unsigned int order, const Complex &s) const;

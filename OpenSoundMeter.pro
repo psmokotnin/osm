@@ -157,7 +157,8 @@ INCLUDEPATH += \
     src/common \
     src/remote \
     src/generator \
-    src/source
+    src/source \
+    src/model
 
 HEADERS += \
     src/abstract/data.h \

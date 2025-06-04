@@ -19,6 +19,8 @@
 import QtQuick 2.13
 import QtQuick.Controls 2.13
 import QtQuick.Layouts 1.3
+import QtQuick.Controls.Material 2.12
+
 import OpenSoundMeter 1.0
 import Measurement 1.0
 import "qrc:/elements"
@@ -142,7 +144,7 @@ Item {
                 units: "dB"
                 onValueChanged: dataObjectData.gain = value
 
-                visible: dataObjectData.type == 7
+                visible: dataObjectData.gainAvailable
 
                 tooltiptext: qsTr("gain")
                 Layout.preferredWidth: elementWidth
@@ -151,16 +153,28 @@ Item {
             FloatSpinBox {
                 value: dataObjectData.q
                 from: 0.1
-                to: 10
+                to: 20
                 decimals: 1
                 step: 0.1
                 units: ""
                 onValueChanged: dataObjectData.q = value
 
-                visible: dataObjectData.type == 7
+                visible: dataObjectData.qAvailable
 
                 tooltiptext: qsTr("Q")
                 Layout.preferredWidth: elementWidth
+            }
+
+            Button {
+                text: "+/–"
+                checkable: true
+                checked: dataObjectData.polarity
+                onCheckedChanged: dataObjectData.polarity = checked
+
+                Material.background: parent.Material.background
+
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("inverse polarity")
             }
 
             Item {

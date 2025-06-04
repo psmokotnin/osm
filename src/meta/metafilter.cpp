@@ -20,29 +20,37 @@
 namespace Meta {
 
 const std::map<Filter::Type, QString>Filter::m_typeMap = {
-    {Filter::ButterworthLPF, "Butterworth LPF"},
-    {Filter::ButterworthHPF, "Butterworth HPF"},
-    {Filter::LinkwitzRileyLPF, "Linkwitz-Riley LPF"},
-    {Filter::LinkwitzRileyHPF, "Linkwitz-Riley HPF"},
-    {Filter::BesselLPF, "Bessel LPF"},
-    {Filter::BesselHPF, "Bessel HPF"},
-    {Filter::APF,       "All pass"},
-    {Filter::Peak,      "Peak"}
+    {Filter::ButterworthLPF,    "Butterworth LPF"    },
+    {Filter::ButterworthHPF,    "Butterworth HPF"    },
+    {Filter::LinkwitzRileyLPF,  "Linkwitz-Riley LPF" },
+    {Filter::LinkwitzRileyHPF,  "Linkwitz-Riley HPF" },
+    {Filter::BesselLPF,         "Bessel LPF"         },
+    {Filter::BesselHPF,         "Bessel HPF"         },
+    {Filter::APF,               "All Pass"           },
+    {Filter::Peak,              "Peak"               },
+    {Filter::HighShelf,         "High Shelf"         },
+    {Filter::LowShelf,          "Low Shelf"          },
+    {Filter::Notch,             "Notch"              },
+    {Filter::BPF,               "Band Pass"          }
 };
 
 const std::map<Filter::Type, QString>Filter::m_typeShortMap = {
-    {Filter::ButterworthLPF,   "BW LPF"},
-    {Filter::ButterworthHPF,   "BW HPF"},
-    {Filter::LinkwitzRileyLPF, "LR LPF"},
-    {Filter::LinkwitzRileyHPF, "LR HPF"},
-    {Filter::BesselLPF,        "Bessel LPF"},
-    {Filter::BesselHPF,        "Bessel HPF"},
-    {Filter::APF,              "APF"},
-    {Filter::Peak,             "Peak"}
+    {Filter::ButterworthLPF,   "BW LPF"     },
+    {Filter::ButterworthHPF,   "BW HPF"     },
+    {Filter::LinkwitzRileyLPF, "LR LPF"     },
+    {Filter::LinkwitzRileyHPF, "LR HPF"     },
+    {Filter::BesselLPF,        "Bessel LPF" },
+    {Filter::BesselHPF,        "Bessel HPF" },
+    {Filter::APF,              "APF"        },
+    {Filter::Peak,             "Peak"       },
+    {Filter::HighShelf,        "HighShelf"  },
+    {Filter::LowShelf,         "LowShelf"   },
+    {Filter::Notch,            "Notch"      },
+    {Filter::BPF,              "BPF"        }
 };
 
 Filter::Filter() : Base(), m_type(ButterworthLPF), m_mode(Measurement::FFT14),
-    m_order(3), m_cornerFrequency(1000), m_q(1.f / sqrt(2))
+    m_order(3), m_cornerFrequency(1000), m_q(1.f / sqrt(2)), m_polarity(false)
 {
 
 }
@@ -60,6 +68,7 @@ void Filter::setType(Filter::Type newType)
 
     m_type = newType;
     emit typeChanged(m_type);
+    emit availableQChanged();
 }
 
 QVariant Filter::getAvailableTypes() const
@@ -115,6 +124,7 @@ void Filter::setOrder(unsigned int newOrder)
         return;
     m_order = newOrder;
     emit orderChanged(m_order);
+    emit availableQChanged();
 }
 
 QVariant Filter::getAvailableOrders()
@@ -137,10 +147,77 @@ QVariant Filter::getAvailableOrders()
         orders = QList<QVariant>({2, 4});
         break;
     case Peak:
+    case HighShelf:
+    case LowShelf:
+    case Notch:
+    case BPF:
         orders = QList<QVariant>({1});
         break;
     }
     return orders;
+}
+
+bool Filter::isQAvailable() const
+{
+    bool r;
+    switch (type()) {
+    case ButterworthHPF:
+    case ButterworthLPF:
+    case LinkwitzRileyHPF:
+    case LinkwitzRileyLPF:
+    case BesselHPF:
+    case BesselLPF:
+        r = false;
+        break;
+    case APF:
+        r = order() == 4 ? true : false;
+        break;
+    case Peak:
+    case HighShelf:
+    case LowShelf:
+    case Notch:
+    case BPF:
+        r = true;
+        break;
+    }
+    return r;
+}
+
+bool Filter::isGainAvailable() const
+{
+    bool r;
+    switch (type()) {
+    case ButterworthHPF:
+    case ButterworthLPF:
+    case LinkwitzRileyHPF:
+    case LinkwitzRileyLPF:
+    case BesselHPF:
+    case BesselLPF:
+    case APF:
+        r = false;
+        break;
+    case Peak:
+    case HighShelf:
+    case LowShelf:
+    case Notch:
+    case BPF:
+        r = true;
+        break;
+    }
+    return r;
+}
+
+bool Filter::polarity() const
+{
+    return m_polarity;
+}
+
+void Filter::setPolarity(bool newPolarity)
+{
+    if (m_polarity == newPolarity)
+        return;
+    m_polarity = newPolarity;
+    emit polarityChanged(m_polarity);
 }
 
 float Filter::q() const

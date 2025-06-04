@@ -32,6 +32,7 @@ FilterSource::FilterSource(QObject *parent) : Abstract::Source(parent), Meta::Fi
     connect(this, &FilterSource::qChanged, this, &FilterSource::update);
     connect(this, &FilterSource::cornerFrequencyChanged, this, &FilterSource::update);
     connect(this, &FilterSource::sampleRateChanged, this, &FilterSource::update);
+    connect(this, &FilterSource::polarityChanged, this, &FilterSource::update);
 
     connect(this, &FilterSource::typeChanged, this, &FilterSource::applyAutoName);
     connect(this, &FilterSource::orderChanged, this, &FilterSource::applyAutoName);
@@ -48,6 +49,8 @@ Shared::Source FilterSource::clone() const
     cloned->setType(type());
     cloned->setCornerFrequency(cornerFrequency());
     cloned->setOrder(order());
+    cloned->setQ(q());
+    cloned->setPolarity(polarity());
     cloned->setSampleRate(sampleRate());
 
     return std::static_pointer_cast<Abstract::Source>(cloned);
@@ -62,6 +65,7 @@ QJsonObject FilterSource::toJSON() const noexcept
     object["cornerFrequency"]     = cornerFrequency();
     object["gain"]          = gain();
     object["q"]             = q();
+    object["polarity"]      = polarity();
     object["order"]         = static_cast<int>(order());
 
     return object;
@@ -83,8 +87,9 @@ void FilterSource::fromJSON(QJsonObject data, const SourceList *) noexcept
 
     setOrder(           data["order"].toInt(            order()));
     setCornerFrequency( data["cornerFrequency"].toDouble(cornerFrequency()));
-    setGain( data["gain"].toDouble(cornerFrequency()));
-    setQ(    data["q"].toDouble(cornerFrequency()));
+    setGain(    data["gain"].toDouble(cornerFrequency()));
+    setQ(       data["q"].toDouble(cornerFrequency()));
+    setPolarity(data["polarity"].toBool(polarity()));
 }
 
 Shared::Source FilterSource::store()
@@ -140,6 +145,10 @@ void FilterSource::update()
             m_ftdata[i].coherence   = 1.f;
             m_ftdata[i].magnitude   = H.abs();
             m_ftdata[i].phase       = H.normalize();
+            if (polarity()) {
+                m_ftdata[i].phase.real *= -1;
+                m_ftdata[i].phase.imag *= -1;
+            }
             ++i;
         }
 
@@ -203,8 +212,16 @@ Complex FilterSource::calculate(float frequency) const
         return Bessel(false, s);
     case APF:
         return calculateAPF(s);
+    case BPF:
+        return calculateBPF(s);
     case Peak:
         return calculatePeak(s);
+    case HighShelf:
+        return calculateShelf(true, s);
+    case LowShelf:
+        return calculateShelf(false, s);
+    case Notch:
+        return calculateNotch(s);
     }
 }
 
@@ -264,22 +281,32 @@ Complex FilterSource::Bessel(bool hpf, Complex s) const
 
 Complex FilterSource::calculateAPF(Complex s) const
 {
-    float q;
     Complex numerator;
     Complex denominator;
+    float q2 = 0.5f;
+    //float q4 = 1.f / sqrt(2);
 
     switch (order()) {
     case 2:
-        q = 1.f / 2;
-        numerator = s * s - 1;
-        denominator = s * s + s / q + 1;
+        numerator   = s * s - 1;
+        denominator = s * s + s / q2 + 1;
         break;
     case 4:
-        q = 1.f / sqrt(2);
-        numerator = s * s - s / q + 1;
-        denominator = s * s + s / q + 1;
+        numerator   = s * s - s / q() + 1;
+        denominator = s * s + s / q() + 1;
         break;
     }
+
+    return numerator / denominator;
+}
+
+Complex FilterSource::calculateBPF(Complex s) const
+{
+    Complex numerator;
+    Complex denominator;
+
+    numerator   =         s / q();
+    denominator = s * s + s / q() + 1;
 
     return numerator / denominator;
 }
@@ -295,6 +322,35 @@ Complex FilterSource::calculatePeak(Complex s) const
     denominator = s * s + s / (a * q()) + 1;
 
     return numerator / denominator;
+}
+
+Complex FilterSource::calculateNotch(Complex s) const
+{
+    Complex numerator;
+    Complex denominator;
+
+    numerator   = s * s           + 1;
+    denominator = s * s + s / q() + 1;
+
+    return numerator / denominator;
+}
+
+Complex FilterSource::calculateShelf(bool high, Complex s) const
+{
+    float a;
+    Complex numerator;
+    Complex denominator;
+
+    a = std::pow(10, gain() / 40);
+    if (high) {
+        numerator   = s * s * a + s * sqrt(a) / q() + 1;
+        denominator = s * s     + s * sqrt(a) / q() + a;
+    } else {
+        numerator   = s * s     + s * sqrt(a) / q() + a;
+        denominator = s * s * a + s * sqrt(a) / q() + 1;
+    }
+
+    return numerator * a / denominator;
 }
 
 Complex FilterSource::Butterworth(bool hpf, unsigned int order, const Complex &s) const

@@ -26,7 +26,7 @@
 #include "filtersource.h"
 #include "measurement.h"
 #include "sourcelist.h"
-#include "sourcemodel.h"
+#include "model/sourcemodel.h"
 #include "source/group.h"
 #include "source/sourcewindowing.h"
 #include "standardline.h"

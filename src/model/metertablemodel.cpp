@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "metertablemodel.h"
+#include "model/metertablemodel.h"
 #include "sourcelist.h"
 
 MeterTableModel::MeterTableModel(QObject *parent) : QAbstractTableModel(parent),

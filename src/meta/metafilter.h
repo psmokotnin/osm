@@ -31,14 +31,18 @@ class Filter : public Base
 
 public:
     enum Type {
-        ButterworthLPF,
-        ButterworthHPF,
-        LinkwitzRileyLPF,
-        LinkwitzRileyHPF,
-        BesselLPF,
-        BesselHPF,
-        APF,
-        Peak    = 7
+        ButterworthLPF      =  0,
+        ButterworthHPF      =  1,
+        LinkwitzRileyLPF    =  2,
+        LinkwitzRileyHPF    =  3,
+        BesselLPF           =  4,
+        BesselHPF           =  5,
+        APF                 =  6,
+        Peak                =  7,
+        HighShelf           =  8,
+        LowShelf            =  9,
+        Notch               = 10,
+        BPF                 = 11
     };
     Q_ENUM(Type)
 
@@ -66,6 +70,12 @@ public:
     void setOrder(unsigned int newOrder);
     QVariant getAvailableOrders();
 
+    bool polarity() const;
+    void setPolarity(bool newPolarity);
+
+    bool isQAvailable() const;
+    bool isGainAvailable() const;
+
 //virtual signals:
     virtual void typeChanged(Meta::Filter::Type) = 0;
     virtual void modeChanged(Meta::Measurement::Mode) = 0;
@@ -73,6 +83,8 @@ public:
     virtual void orderChanged(unsigned int) = 0;
     virtual void gainChanged(float) = 0;
     virtual void qChanged(float) = 0;
+    virtual void availableQChanged() = 0;
+    virtual void polarityChanged(bool) = 0;
 
     static const std::map<Type, QString> m_typeMap;
     static const std::map<Type, QString> m_typeShortMap;
@@ -84,6 +96,7 @@ private:
     float m_cornerFrequency;
     float m_gain;
     float m_q;
+    bool m_polarity;
 };
 
 } // namespace meta
