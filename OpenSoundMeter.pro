@@ -74,6 +74,7 @@ SOURCES += src/main.cpp \
     src/generator/mnoise.cpp \
     \
     src/inputdevice.cpp \
+    src/shared/sourcelist_shared.cpp \
     src/sourcelist.cpp \
     src/targettrace.cpp \
     \
@@ -195,6 +196,7 @@ HEADERS += \
     src/filesystem/dialog.h \
     src/filesystem/dialogPlugin.h \
     src/filesystem/plugins/widgetdialogplugin.h \
+    src/shared/sourcelist_shared.h \
     src/source/filtersource.h \
     src/generator/brownnoise.h \
     src/generator/burstnoise.h \
