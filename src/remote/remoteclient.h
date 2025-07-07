@@ -43,7 +43,7 @@ class Client : public QObject
 public:
     explicit Client(Settings *settings, QObject *parent = nullptr);
     ~Client();
-    void setSourceList(SourceList *list);
+    void setSourceList(const std::shared_ptr<SourceList> &list);
 
     bool start();
     void stop();
@@ -95,7 +95,7 @@ private:
     Settings *m_settings;
     QThread m_thread;
     QTimer m_timer;
-    SourceList *m_sourceList;
+    std::shared_ptr<SourceList> m_sourceList;
     QMap<unsigned int, std::pair<QHostAddress, int>> m_servers;
     QMap<unsigned int, std::shared_ptr<Item>> m_items;
 

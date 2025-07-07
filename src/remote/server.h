@@ -43,7 +43,7 @@ public:
     explicit Server(std::shared_ptr<Generator> generator, QObject *parent = nullptr);
     ~Server();
 
-    void setSourceList(SourceList *list);
+    void setSourceList(const std::shared_ptr<SourceList> &list);
 
     bool start();
     void stop();
@@ -81,7 +81,7 @@ private:
     QString m_lastConnected;
     QThread m_networkThread;
     Network m_network;
-    SourceList *m_sourceList;//TODO PTR
+    std::shared_ptr<SourceList> m_sourceList;
     std::shared_ptr<Generator> m_generator;
     bool m_generatorEnable;
 };

@@ -51,7 +51,7 @@ Client::~Client()
     stop();
 }
 
-void Client::setSourceList(SourceList *list)
+void Client::setSourceList(const std::shared_ptr<SourceList> &list)
 {
     m_sourceList = list;
 }
@@ -218,7 +218,7 @@ std::shared_ptr<Item> Client::addItem(const QUuid &serverId, const QUuid &source
     }, Qt::DirectConnection);
 
     item->connectProperties();
-    SourceList *targetSource = m_sourceList;
+    SourceList *targetSource = m_sourceList.get();
     if (!groupId.isNull()) {
         auto groupItem = std::dynamic_pointer_cast<remote::GroupItem>(m_items.value(qHash(groupId), nullptr));
         if (groupItem) {

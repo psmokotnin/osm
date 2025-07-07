@@ -20,8 +20,8 @@
 #include "settings.h"
 #include "workingfolder.h"
 
-AutoSaver::AutoSaver(Settings *settings, SourceList *parent) : QObject(parent),
-    m_settings(settings), m_timer()
+AutoSaver::AutoSaver(Settings *settings, const std::shared_ptr<SourceList> &list) : QObject(),
+    m_settings(settings), m_timer(), m_sourceList(list)
 {
     m_timer.setInterval(30'000); //30 sec
     m_timer.moveToThread(&m_timerThread);
@@ -43,11 +43,6 @@ AutoSaver::~AutoSaver()
     }
 }
 
-SourceList *AutoSaver::list() const
-{
-    return static_cast<SourceList *>(parent());
-}
-
 QUrl AutoSaver::fileName() const
 {
     return "file:/" + workingfolder::autosaveFilePath();
@@ -64,7 +59,7 @@ void AutoSaver::load()
     m_settings->setValue(FILE_KEY, "");
     m_settings->flush();
     QUrl url(file);
-    if (list()->load(url)) {
+    if (m_sourceList && m_sourceList->load(url)) {
         //restore if we still alive
         m_settings->setValue(FILE_KEY, url);
     }
@@ -73,7 +68,7 @@ void AutoSaver::load()
 void AutoSaver::save()
 {
     auto url = fileName();
-    if (list()->save(url)) {
+    if (m_sourceList && m_sourceList->save(url)) {
         m_settings->setValue(FILE_KEY, url);
     }
 }

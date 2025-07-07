@@ -62,13 +62,13 @@ Server::~Server()
     stop();
 }
 
-void Server::setSourceList(SourceList *list)
+void Server::setSourceList(const std::shared_ptr<SourceList> &list)
 {
     m_sourceList = list;
     if (!m_sourceList) {
         return;
     }
-    connectSourceList(list);
+    connectSourceList(list.get());
 }
 
 void Server::connectSourceList(SourceList *list, const Shared::Source &group)
@@ -445,7 +445,7 @@ QByteArray Server::tcpCallback([[maybe_unused]] const QHostAddress &&address, co
                     arg);
             } else {
                 QMetaObject::invokeMethod(
-                    m_sourceList,
+                    m_sourceList.get(),
                     "storeItem",
                     Qt::QueuedConnection,
                     Q_ARG(Shared::Source, source));

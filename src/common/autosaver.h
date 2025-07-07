@@ -32,10 +32,9 @@ class AutoSaver : public QObject
     const QString FILE_KEY = "filename";
 
 public:
-    explicit AutoSaver(Settings *settings, SourceList *parent);
+    explicit AutoSaver(Settings *settings, const std::shared_ptr<SourceList> &list);
     ~AutoSaver();
 
-    SourceList *list() const;
     QUrl fileName() const;
 
     Q_INVOKABLE void save();
@@ -49,6 +48,7 @@ private:
     Settings *m_settings;
     QTimer m_timer;
     QThread m_timerThread;
+    std::shared_ptr<SourceList> m_sourceList;
 };
 
 #endif // AUTOSAVER_H

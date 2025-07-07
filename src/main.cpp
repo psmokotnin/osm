@@ -26,13 +26,14 @@
 #include "common/notifier.h"
 #include "src/generator/generator.h"
 #include "src/targettrace.h"
-#include "src/union.h"
-#include "src/standardline.h"
-#include "src/sourcemodel.h"
+#include "src/source/union.h"
+#include "src/source/standardline.h"
+#include "src/model/sourcemodel.h"
 #include "src/sourcelist.h"
+#include "src/shared/sourcelist_shared.h"
 #include "src/source/group.h"
 #include "src/chart/variablechart.h"
-#include "src/measurement.h"
+#include "src/source/measurement.h"
 
 #include "audio/client.h"
 #include "audio/devicemodel.h"
@@ -86,15 +87,15 @@ int main(int argc, char *argv[])
     Appearance appearence(&settings);
     audio::Client::getInstance();
     auto generator = std::make_shared<Generator>(settings.getGroup("generator"));
-    SourceList sourceList;
-    AutoSaver autoSaver(settings.getGroup("autosaver"), &sourceList);
+    Shared::SourceList sourceList = std::make_shared<SourceList>();
+    AutoSaver autoSaver(settings.getGroup("autosaver"), sourceList);
     auto t = new TargetTrace(settings.getGroup("targettrace"));
     auto notifier = Notifier::getInstance();
 
     auto client = remote::Client(settings.getGroup("apiClient"));
-    client.setSourceList(&sourceList);
-    auto server = remote::Server(generator, &sourceList);
-    server.setSourceList(&sourceList);
+    client.setSourceList(sourceList);
+    auto server = remote::Server(generator);
+    server.setSourceList(sourceList);
 
     qmlRegisterType<audio::DeviceModel>("Audio", 1, 0, "DeviceModel");
     qmlRegisterType<Chart::VariableChart>("OpenSoundMeter", 1, 0, "VariableChart");
@@ -125,7 +126,7 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("appVersion", QString(APP_GIT_VERSION));
     engine.rootContext()->setContextProperty("applicationSettings", &settings);
     engine.rootContext()->setContextProperty("applicationAppearance", &appearence);
-    engine.rootContext()->setContextProperty("sourceList", &sourceList);
+    engine.rootContext()->setContextProperty("sourceList", sourceList.get());
     engine.rootContext()->setContextProperty("generatorModel", generator.get());
     engine.rootContext()->setContextProperty("targetTraceModel", t);
     engine.rootContext()->setContextProperty("notifier", notifier);
