@@ -28,7 +28,7 @@ import "qrc:/elements"
 Item {
     property var dataObject
     property var dataObjectData : dataObject.data
-    readonly property int elementWidth: 200//width / 9
+    readonly property int elementWidth: Math.min(200, width / 6)
 
     ColumnLayout {
         spacing: 0
@@ -56,6 +56,29 @@ Item {
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Sample rate")
                 Layout.preferredWidth: elementWidth
+            }
+
+            FloatSpinBox {
+                id: delaySpinBox
+                implicitWidth: 170
+                value: dataObjectData.delay
+                from: -100
+                to: 100
+                units: "ms"
+                onValueChanged: dataObjectData.delay = value
+                tooltiptext: qsTr("adjust delay")
+                Layout.alignment: Qt.AlignVCenter
+            }
+
+            Button {
+                text: "+/–"
+                checkable: true
+                checked: dataObjectData.polarity
+                onCheckedChanged: dataObjectData.polarity = checked
+                Material.background: parent.Material.background
+
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("inverse polarity")
             }
 
             ColorPicker {
@@ -163,18 +186,6 @@ Item {
 
                 tooltiptext: qsTr("Q")
                 Layout.preferredWidth: elementWidth
-            }
-
-            Button {
-                text: "+/–"
-                checkable: true
-                checked: dataObjectData.polarity
-                onCheckedChanged: dataObjectData.polarity = checked
-
-                Material.background: parent.Material.background
-
-                ToolTip.visible: hovered
-                ToolTip.text: qsTr("inverse polarity")
             }
 
             Item {

@@ -33,6 +33,7 @@ FilterSource::FilterSource(QObject *parent) : Abstract::Source(parent), Meta::Fi
     connect(this, &FilterSource::cornerFrequencyChanged, this, &FilterSource::update);
     connect(this, &FilterSource::sampleRateChanged, this, &FilterSource::update);
     connect(this, &FilterSource::polarityChanged, this, &FilterSource::update);
+    connect(this, &FilterSource::delayChanged, this, &FilterSource::update);
 
     connect(this, &FilterSource::typeChanged, this, &FilterSource::applyAutoName);
     connect(this, &FilterSource::orderChanged, this, &FilterSource::applyAutoName);
@@ -51,6 +52,8 @@ Shared::Source FilterSource::clone() const
     cloned->setOrder(order());
     cloned->setQ(q());
     cloned->setPolarity(polarity());
+    cloned->setGain(gain());
+    cloned->setDelay(delay());
     cloned->setSampleRate(sampleRate());
 
     return std::static_pointer_cast<Abstract::Source>(cloned);
@@ -64,6 +67,7 @@ QJsonObject FilterSource::toJSON() const noexcept
     object["type"]          = type();
     object["cornerFrequency"]     = cornerFrequency();
     object["gain"]          = gain();
+    object["delay"]         = delay();
     object["q"]             = q();
     object["polarity"]      = polarity();
     object["order"]         = static_cast<int>(order());
@@ -87,7 +91,8 @@ void FilterSource::fromJSON(QJsonObject data, const SourceList *) noexcept
 
     setOrder(           data["order"].toInt(            order()));
     setCornerFrequency( data["cornerFrequency"].toDouble(cornerFrequency()));
-    setGain(    data["gain"].toDouble(cornerFrequency()));
+    setGain(    data["gain"].toDouble(gain()));
+    setDelay(   data["delay"].toDouble(delay()));
     setQ(       data["q"].toDouble(cornerFrequency()));
     setPolarity(data["polarity"].toBool(polarity()));
 }
@@ -145,10 +150,6 @@ void FilterSource::update()
             m_ftdata[i].coherence   = 1.f;
             m_ftdata[i].magnitude   = H.abs();
             m_ftdata[i].phase       = H.normalize();
-            if (polarity()) {
-                m_ftdata[i].phase.real *= -1;
-                m_ftdata[i].phase.imag *= -1;
-            }
             ++i;
         }
 
@@ -158,6 +159,7 @@ void FilterSource::update()
             if (std::isnan(v.real) || std::isnan(v.imag)) {
                 v = 0;
             }
+            //polarity??
             m_inverse.set(i, v.conjugate(), 0.f);
             m_inverse.set(timeDomainSize() - i - 1, v, 0.f);
         }
@@ -197,32 +199,48 @@ Complex FilterSource::calculate(float frequency) const
     auto w = frequency / cornerFrequency();
     auto s = Complex::i * w;
 
+    Complex r;
     switch (type()) {
     case ButterworthHPF:
-        return Butterworth(true, order(), s);
+        r = Butterworth(true, order(), s);
+        break;
     case ButterworthLPF:
-        return Butterworth(false, order(), s);
+        r = Butterworth(false, order(), s);
+        break;
     case LinkwitzRileyHPF:
-        return LinkwitzRiley(true, s);
+        r = LinkwitzRiley(true, s);
+        break;
     case LinkwitzRileyLPF:
-        return LinkwitzRiley(false, s);
+        r = LinkwitzRiley(false, s);
+        break;
     case BesselHPF:
-        return Bessel(true, s);
+        r = Bessel(true, s);
+        break;
     case BesselLPF:
-        return Bessel(false, s);
+        r = Bessel(false, s);
+        break;
     case APF:
-        return calculateAPF(s);
+        r = calculateAPF(s);
+        break;
     case BPF:
-        return calculateBPF(s);
+        r = calculateBPF(s);
+        break;
     case Peak:
-        return calculatePeak(s);
+        r = calculatePeak(s);
+        break;
     case HighShelf:
-        return calculateShelf(true, s);
+        r = calculateShelf(true, s);
+        break;
     case LowShelf:
-        return calculateShelf(false, s);
+        r = calculateShelf(false, s);
+        break;
     case Notch:
-        return calculateNotch(s);
+        r = calculateNotch(s);
+        break;
     }
+    auto alpha = (polarity() ? M_PI : 0) - 2 * M_PI * delay() * frequency / 1000.f;
+    r = r.rotate(alpha);
+    return r;
 }
 
 Complex FilterSource::Bessel(bool hpf, Complex s) const

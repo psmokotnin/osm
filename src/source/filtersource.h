@@ -42,6 +42,7 @@ class FilterSource : public Abstract::Source, public Meta::Filter
     Q_PROPERTY(float gain READ gain WRITE setGain NOTIFY gainChanged)
     Q_PROPERTY(float q READ q WRITE setQ NOTIFY qChanged)
     Q_PROPERTY(bool polarity READ polarity WRITE setPolarity NOTIFY polarityChanged)
+    Q_PROPERTY(float delay READ delay WRITE setDelay NOTIFY delayChanged)
 
     Q_PROPERTY(bool qAvailable READ isQAvailable NOTIFY availableQChanged)
     Q_PROPERTY(bool gainAvailable READ isGainAvailable NOTIFY typeChanged)
@@ -64,6 +65,7 @@ signals:
     void cornerFrequencyChanged(float) override;
     void orderChanged(unsigned int) override;
     void gainChanged(float) override;
+    void delayChanged() override;
     void qChanged(float) override;
     void availableQChanged() override;
     void polarityChanged(bool) override;

@@ -63,6 +63,9 @@ public:
     float gain() const;
     void setGain(float newGain);
 
+    float delay() const;
+    void setDelay(float newDelay);
+
     float q() const;
     void setQ(float newQ);
 
@@ -82,6 +85,7 @@ public:
     virtual void cornerFrequencyChanged(float) = 0;
     virtual void orderChanged(unsigned int) = 0;
     virtual void gainChanged(float) = 0;
+    virtual void delayChanged() = 0;
     virtual void qChanged(float) = 0;
     virtual void availableQChanged() = 0;
     virtual void polarityChanged(bool) = 0;
@@ -95,6 +99,7 @@ private:
     unsigned int m_order;
     float m_cornerFrequency;
     float m_gain;
+    float m_delay;
     float m_q;
     bool m_polarity;
 };

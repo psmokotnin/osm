@@ -207,6 +207,19 @@ bool Filter::isGainAvailable() const
     return r;
 }
 
+float Filter::delay() const
+{
+    return m_delay;
+}
+
+void Filter::setDelay(float newDelay)
+{
+    if (qFuzzyCompare(m_delay, newDelay))
+        return;
+    m_delay = newDelay;
+    emit delayChanged();
+}
+
 bool Filter::polarity() const
 {
     return m_polarity;
