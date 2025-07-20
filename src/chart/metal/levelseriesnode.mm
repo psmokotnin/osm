@@ -44,11 +44,23 @@ void LevelSeriesNode::synchronizeSeries()
     synchronizeMatrix();
     if (auto *levelPlot = dynamic_cast<LevelPlot *>(plot())) {
 
-        if (m_curve != levelPlot->curve() || m_time != levelPlot->time() || m_mode != levelPlot->mode()) {
+        if (
+            m_curve    != levelPlot->curve() ||
+            m_time     != levelPlot->time() ||
+            m_mode     != levelPlot->mode() ||
+            m_type     != levelPlot->type() ||
+            m_timeName != levelPlot->timeName()
+        ) {
 
             m_curve = levelPlot->curve();
             m_time = levelPlot->time();
             m_mode = levelPlot->mode();
+            m_type = levelPlot->type();
+            m_timeName = levelPlot->timeName();
+
+            if (m_type == LevelPlot::Type::Leq) {
+                m_leq.setTime(m_timeName);
+            }
             m_history.clear();
         }
         m_pause = levelPlot->pause();
@@ -62,13 +74,25 @@ void LevelSeriesNode::renderSeries()
         return;
     }
 
-    if (m_timer.elapsed() >= Measurement::TIMER_INTERVAL && !m_pause) {
-        auto time = static_cast<float>(m_timer.restart()) / 1000.f;
-        auto level = m_source->level(m_curve, m_time);
-        if (m_mode == LevelPlot::SPL) {
-            level += LevelPlot::SPL_OFFSET;
+    if (!m_pause) {
+        switch (m_type) {
+        case LevelPlot::Type::RMS:
+            if (m_timer.elapsed() >= Measurement::TIMER_INTERVAL) {
+                auto time = static_cast<float>(m_timer.restart()) / 1000.f;
+                auto level = m_source->level(m_curve, m_time);
+                if (m_mode == LevelPlot::SPL) {
+                    level += LevelPlot::SPL_OFFSET;
+                }
+                m_history.push_back( {time, level});
+            }
+        case LevelPlot::Type::Leq:
+            if (m_timer.elapsed() >= 1000) {
+                auto time = static_cast<float>(m_timer.restart()) / 1000.f;
+                m_leq.addOneSecondValue(m_source->level(m_curve, Meter::Time::Fast));
+                auto level = m_leq.value() + LevelPlot::SPL_OFFSET;
+                m_history.push_back( {time, level});
+            }
         }
-        m_history.push_back( {time, level});
     }
 
     if (m_history.size() > MAX_HISTORY_SIZE) {

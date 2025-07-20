@@ -22,17 +22,25 @@
 #include "levelobject.h"
 #include "math/weighting.h"
 #include "math/meter.h"
+#include "math/leq.h"
 
 namespace Chart {
 
 class LevelPlot : public XYPlot, public LevelObject
 {
 public:
+    enum Type {
+        RMS     = 0x00,
+        Leq     = 0x05
+    };
     Q_OBJECT
+    Q_ENUM(Type);
 
     Q_PROPERTY(QVariant availableCurves READ getAvailableCurves CONSTANT)
-    Q_PROPERTY(QVariant availableTimes READ getAvailableTimes CONSTANT)
+    Q_PROPERTY(QVariant availableTimes READ getAvailableTimes NOTIFY typeChanged)
+    Q_PROPERTY(QVariant availableTypes READ getAvailableTypes CONSTANT)
 
+    Q_PROPERTY(QString type READ typeName WRITE setType NOTIFY typeChanged)
     Q_PROPERTY(QString curve READ curveName WRITE setCurve NOTIFY curveChanged)
     Q_PROPERTY(QString time READ timeName WRITE setTime NOTIFY timeChanged)
     Q_PROPERTY(Chart::LevelObject::Mode mode READ mode WRITE setMode NOTIFY modeChanged)
@@ -43,17 +51,35 @@ public:
     void setSettings(Settings *settings) noexcept override;
     void storeSettings() noexcept override;
 
+    QVariant getAvailableTypes() const;
+    QVariant getAvailableTimes() const override;
+
+    QString timeName() const override;
+    void setTime(const QString &time) override;
+
+    Type type() const;
+    QString typeName() const noexcept;
+    void setType(const Type &newType);
+    void setType(const QString &type);
+
 signals:
     void curveChanged(QString) override;
     void timeChanged(QString) override;
     void modeChanged(Chart::LevelObject::Mode) override;
     void pauseChanged(bool) override;
 
+    void typeChanged();
+
 protected:
     virtual SeriesItem *createSeriesFromSource(const Shared::Source &source) override;
 
 private slots:
     void updateAxes();
+
+private:
+    Type m_type;
+    math::Leq m_leq;
+    static const std::map<Type, QString> m_typesMap;
 };
 
 } // namespace chart

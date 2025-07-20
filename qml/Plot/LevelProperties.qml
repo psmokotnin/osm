@@ -120,10 +120,23 @@ Item {
     }
     RowLayout {
 
+        DropDown {
+            Layout.preferredWidth: 100
+
+            model: dataObject.availableTypes
+            currentIndex: model.indexOf(dataObject.type)
+
+            onCurrentValueChanged: dataObject.type = currentValue
+
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("type")
+        }
+
         TitledCombo {
             id: type
             Layout.preferredWidth: 100
             model: ["dBFs", "SPL"]
+            enabled: dataObject.type === "RMS"
             currentIndex: dataObject.mode
             onCurrentIndexChanged: {
                 dataObject.mode = currentIndex;
@@ -147,8 +160,8 @@ Item {
             Layout.preferredWidth: 100
 
             model: dataObject.availableTimes
-            currentIndex: model.indexOf(dataObject.time)
-            onCurrentValueChanged: dataObject.time = currentValue
+            currentIndex: model.indexOf(dataObject ? dataObject.time : "")
+            onCurrentValueChanged: if(dataObject && currentValue) { dataObject.time = currentValue; }
 
             ToolTip.visible: hovered
             ToolTip.text: qsTr("time")

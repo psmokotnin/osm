@@ -19,6 +19,11 @@
 
 namespace Chart {
 
+const std::map<LevelPlot::Type, QString> LevelPlot::m_typesMap = {
+    { LevelPlot::Type::RMS,   "RMS" },
+    { LevelPlot::Type::Leq,   "Leq" },
+};
+
 LevelPlot::LevelPlot(Settings *settings, QQuickItem *parent): XYPlot(settings, parent), LevelObject()
 {
     setFlag(QQuickItem::ItemHasContents);
@@ -35,6 +40,7 @@ LevelPlot::LevelPlot(Settings *settings, QQuickItem *parent): XYPlot(settings, p
     m_y.setUnit("dB");
 
     connect(this, &LevelPlot::modeChanged, this, &LevelPlot::updateAxes);
+
     updateAxes();
 }
 
@@ -64,6 +70,50 @@ void LevelPlot::storeSettings() noexcept
     m_settings->setValue("time", timeName());
 }
 
+QVariant LevelPlot::getAvailableTypes() const
+{
+    QStringList typeList;
+    for (const auto &type : m_typesMap) {
+        typeList << type.second;
+    }
+    return typeList;
+}
+
+QVariant LevelPlot::getAvailableTimes() const
+{
+    switch (m_type) {
+    case Type::Leq:
+        return math::Leq::availableTimes();
+    default:
+        break;
+    }
+    return LevelObject::getAvailableTimes();
+}
+
+QString LevelPlot::timeName() const
+{
+    switch (m_type) {
+    case Type::Leq:
+        return m_leq.timeName();
+    default:
+        break;
+    }
+    return LevelObject::timeName();
+}
+
+void LevelPlot::setTime(const QString &time)
+{
+    switch (m_type) {
+    case Leq:
+        m_leq.setTime(time);
+        emit timeChanged(timeName());
+        break;
+    default:
+        LevelObject::setTime(time);
+        break;
+    }
+}
+
 void LevelPlot::updateAxes()
 {
     switch (mode()) {
@@ -82,6 +132,47 @@ void LevelPlot::updateAxes()
         break;
     }
     update();
+}
+
+LevelPlot::Type LevelPlot::type() const
+{
+    return m_type;
+}
+
+QString LevelPlot::typeName() const noexcept
+{
+    try {
+        return m_typesMap.at(m_type);
+    } catch (std::out_of_range) {}
+
+    return "";
+}
+
+void LevelPlot::setType(const Type &newType)
+{
+    if (m_type == newType)
+        return;
+    m_type = newType;
+    emit typeChanged();
+    emit timeChanged(timeName());
+    if (m_type == Leq) {
+        setMode(SPL);
+        m_x.configure(AxisType::Linear, -600.f,  0.f,  30);
+    } else {
+        m_x.configure(AxisType::Linear, -60.f,  0.f,  30);
+    }
+}
+
+void LevelPlot::setType(const QString &type)
+{
+    std::find_if(m_typesMap.cbegin(), m_typesMap.cend(),
+    [&type, this](auto & e) {
+        if (e.second == type) {
+            setType(e.first);
+            return true;
+        }
+        return false;
+    });
 }
 
 } // namespace chart

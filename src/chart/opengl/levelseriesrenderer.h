@@ -44,10 +44,13 @@ private:
 
     Weighting::Curve m_curve;
     Meter::Time m_time;
+    QString m_timeName;
     LevelPlot::Mode m_mode;
-    bool m_pause;
-
+    LevelPlot::Type m_type;
     QElapsedTimer m_timer;
+    math::Leq m_leq;
+
+    bool m_pause;
 
     struct timePoint {
         float time;
