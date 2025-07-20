@@ -90,12 +90,12 @@ void SpectrogramSeriesNode::synchronizeSeries()
     if (auto *spectrogramPlot = dynamic_cast<SpectrogramPlot *>(plot())) {
         if (
             m_pointsPerOctave != spectrogramPlot->pointsPerOctave() ||
-            m_sourceSize != m_source->size()
+            m_sourceSize != m_source->frequencyDomainSize()
         ) {
             m_refreshBuffers = true;
             m_history.clear();
         }
-        m_sourceSize = m_source->size();
+        m_sourceSize = m_source->frequencyDomainSize();
         m_pointsPerOctave = spectrogramPlot->pointsPerOctave();
         m_min = spectrogramPlot->min();
         m_mid = spectrogramPlot->mid();
@@ -185,7 +185,7 @@ void SpectrogramSeriesNode::renderSeries()
     if (!m_pipeline) {
         return;
     }
-    if (!m_source->size() || m_history.empty() || !m_pointsPerOctave) {
+    if (!m_source->frequencyDomainSize() || m_history.empty() || !m_pointsPerOctave) {
         clearRender();
         return;
     }
