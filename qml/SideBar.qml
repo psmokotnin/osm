@@ -169,7 +169,7 @@ Item {
         }
 
         Shortcut {
-            sequence: "Ctrl+X"
+            sequences: ["Ctrl+X", "Space"]
             context: Qt.ApplicationShortcut
             onActivated: {
                 for (var i = 0; i < sourceList.count; i++) {
