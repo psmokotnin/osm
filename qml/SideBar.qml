@@ -139,6 +139,18 @@ Item {
                     }
                     TapHandler {
                         onDoubleTapped: sideList.pop();
+                        onTapped: {
+                            if (group && group.data) {
+                                switch (group.data.objectName) {
+                                    case "Group":
+                                        applicationWindow.properiesbar.open(group, "qrc:/source/GroupProperties.qml");
+                                        break;
+                                    case "Equalizer":
+                                        applicationWindow.properiesbar.open(group, "qrc:/source/EqualizerProperties.qml");
+                                    break;
+                                }
+                            }
+                        }
                     }
 
                     DropArea {
