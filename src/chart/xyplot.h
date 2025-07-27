@@ -122,6 +122,7 @@ signals:
     void xmaxChanged(float);
     void yminChanged(float);
     void ymaxChanged(float);
+    void sizeChanged();
 };
 }
 

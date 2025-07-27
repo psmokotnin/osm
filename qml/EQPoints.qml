@@ -83,9 +83,21 @@ Item {
                 function onHeightChanged() {
                     updateCoordinates();
                 }
+                function onSizeChanged() {
+                    updateCoordinates();
+                }
+            }
+            Connections {
+                target: control
+                function onWidthChanged() {
+                    updateCoordinates();
+                }
+                function onHeightChanged() {
+                    updateCoordinates();
+                }
             }
 
-            Connections{
+            Connections {
                 target: (filterData && filterData.data ? filterData.data : target)
                 function onCornerFrequencyChanged() {
                     updateCoordinates();

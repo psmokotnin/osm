@@ -44,6 +44,11 @@ XYPlot::XYPlot(Settings *settings, QQuickItem *parent) :
     connect(&m_x, &Axis::unitChanged, this, &Plot::xLabelChanged);
     connect(&m_y, &Axis::unitChanged, this, &Plot::yLabelChanged);
 
+    connect(this, &QQuickItem::widthChanged, this, &XYPlot::sizeChanged);
+    connect(this, &QQuickItem::heightChanged, this, &XYPlot::sizeChanged);
+    connect(&m_x, &Axis::widthChanged, this, &XYPlot::sizeChanged);
+    connect(&m_y, &Axis::heightChanged, this, &XYPlot::sizeChanged);
+
     connect(s_cursorHelper, &CursorHelper::valueUpdated, this, [this]() {
         m_x.setHelperValue(s_cursorHelper->value(xLabel(), "x"));
         m_y.setHelperValue(s_cursorHelper->value(yLabel(), "y"));
