@@ -71,6 +71,16 @@ qreal XYPlot::y2v(qreal mouseY) const noexcept
     return m_y.coordToValue(mouseY);
 }
 
+qreal XYPlot::v2x(qreal value) const noexcept
+{
+    return m_x.valueToCoord(value);
+}
+
+qreal XYPlot::v2y(qreal value) const noexcept
+{
+    return m_y.valueToCoord(value);
+}
+
 void XYPlot::beginGesture()
 {
     m_x.beginGesture();

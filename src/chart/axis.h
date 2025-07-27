@@ -41,6 +41,7 @@ public:
     float reverse(float value, float size, float max = NAN, float min = NAN) const noexcept;
     float coordToValue(float coord) const noexcept;
     qreal coordToValue(qreal coord) const noexcept;
+    float valueToCoord(float value) const noexcept;
 
     void configure(AxisType type, float min, float max, unsigned int ticks = 0, float scale = 1.0f);
     void reset();

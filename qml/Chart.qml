@@ -51,6 +51,9 @@ Item {
             function onPostItemRemoved() {
                 gcTimer.running = true;
             }
+            function onSelectedChanged() {
+                chart.updateHelper();
+            }
         }
         Timer {
             id: gcTimer
@@ -64,6 +67,21 @@ Item {
 
         onTypeChanged: function() {
             initOpener();
+            updateHelper();
+        }
+
+        function updateHelper() {
+            helper.active = false;
+            switch (type) {
+                case "Magnitude":
+                    let selectedSource = sourceList.selected;
+                    if (selectedSource.objectName === "Equalizer") {
+                        let helperQml = "qrc:/EQPoints.qml";
+                        helper.setSource(helperQml, {plot: chart.plot, dataObject: selectedSource });
+                        helper.active=true;
+                    }
+                break;
+            }
         }
 
         function initOpener() {
@@ -347,6 +365,10 @@ Item {
                 if (chart.plot) chart.plot.unsetHelper();
             }
         }
+    }
+    Loader {
+        id: helper;
+        anchors.fill: parent
     }
 
     SPL.Grid {

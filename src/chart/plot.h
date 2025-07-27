@@ -56,6 +56,8 @@ public:
     Q_INVOKABLE virtual void unsetHelper() noexcept = 0;
     Q_INVOKABLE virtual qreal x2v(qreal x) const noexcept = 0;
     Q_INVOKABLE virtual qreal y2v(qreal y) const noexcept = 0;
+    Q_INVOKABLE virtual qreal v2x(qreal value) const noexcept = 0;
+    Q_INVOKABLE virtual qreal v2y(qreal value) const noexcept = 0;
     virtual QString xLabel() const = 0;
     virtual QString yLabel() const = 0;
 

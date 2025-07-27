@@ -294,6 +294,17 @@ qreal Axis::coordToValue(qreal coord) const noexcept
 {
     return static_cast<qreal>(coordToValue(static_cast<float>(coord)));
 }
+
+float Axis::valueToCoord(float value) const noexcept
+{
+    float size = (m_direction == Horizontal ? pwidth() : pheight());
+    auto coord = convert(value / scale(), size);
+    coord = (m_direction == Horizontal ?
+             coord + padding.left :
+             static_cast<float>(height()) - coord - padding.bottom);
+    return coord;
+}
+
 void Axis::autoLabels(unsigned int ticks)
 {
     m_labels.clear();

@@ -105,6 +105,8 @@ public:
     Q_INVOKABLE virtual void unsetHelper() noexcept override;
     Q_INVOKABLE qreal x2v(qreal mouseX) const noexcept override;
     Q_INVOKABLE qreal y2v(qreal mouseY) const noexcept override;
+    Q_INVOKABLE qreal v2x(qreal value) const noexcept override;
+    Q_INVOKABLE qreal v2y(qreal value) const noexcept override;
     Q_INVOKABLE virtual void beginGesture();
     Q_INVOKABLE virtual void applyGesture(QPointF base, QPointF move, QPointF scale);
     Q_INVOKABLE virtual void resetAxis();
