@@ -123,6 +123,8 @@ ListView {
             property int swipeStart: 0
             property var source: model.source
 
+            acceptedButtons: Qt.LeftButton | Qt.RightButton
+
             anchors {
                 left: parent ? parent.left : delegateComponent.left
                 right: parent ? parent.right : delegateComponent.right
@@ -165,11 +167,12 @@ ListView {
                     content.opacity = 1;
                 }
             }
-            onClicked: {
-                if (sideList.currentIndex != index) {
+            onClicked: function (e) {
+                if (sideList.currentIndex !== index && e.button === Qt.LeftButton) {
                     sideList.currentIndex = index;
                     sideList.forceActiveFocus();
-                } else {
+                }
+                if (sideList.currentIndex === index && e.button === Qt.RightButton) {
                     sideList.currentIndex = -1
                 }
             }
