@@ -15,9 +15,12 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+#include <QVariant>
+
 #include "generatorthread.h"
 #include "audio/client.h"
-#include <QVariant>
+#include "notifier.h"
 
 #include "whitenoise.h"
 #include "pinknoise.h"
@@ -130,6 +133,7 @@ void GeneratorThread::setEnabled(bool enabled)
         if (m_type == 3 && m_enabled == false)
             qobject_cast<SinSweep *>(m_sources[3])->setFrequency(m_startFrequency);
         emit enabledChanged(m_enabled);
+        validateChannels();
     }
 }
 void GeneratorThread::setType(int type)
@@ -183,6 +187,13 @@ void GeneratorThread::setEvenPolarity(bool evenPolarity)
         return;
     m_evenPolarity = evenPolarity;
     emit evenPolarityChanged(m_evenPolarity);
+}
+
+void GeneratorThread::validateChannels()
+{
+    if (enabled() && m_channels.size() == 0) {
+        emit Notifier::getInstance()->newMessage("Generator", "Output channels are not set");
+    }
 }
 
 QSet<int> GeneratorThread::channels() const

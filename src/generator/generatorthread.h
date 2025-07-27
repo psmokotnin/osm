@@ -101,10 +101,10 @@ signals:
     void deviceError();
     void sampleOut(float);
     void channelsChanged(QSet<int>);
-
     void evenPolarityChanged(bool);
 
 private:
+    void validateChannels();
     void updateAudio();
 
     static GeneratorThread *s_instance;
