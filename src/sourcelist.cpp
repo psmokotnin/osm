@@ -348,7 +348,14 @@ void SourceList::fromJSON(const QJsonArray &list, const SourceList *topList) noe
 
 bool SourceList::save(const QUrl &fileName) const noexcept
 {
-    QFile saveFile(fileName.toLocalFile());
+    QString addSuffix = "";
+
+    QFileInfo fileInfo(fileName.toLocalFile());
+    if (fileInfo.completeSuffix().size() == 0) {
+        addSuffix = ".osm";
+    }
+
+    QFile saveFile(fileName.toLocalFile() + addSuffix);
     if (!saveFile.open(QIODevice::WriteOnly)) {
         qWarning("Couldn't open file");
         return false;
