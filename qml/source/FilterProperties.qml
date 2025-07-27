@@ -42,16 +42,19 @@ Item {
                 model: dataObjectData.modes
                 currentIndex: dataObjectData.mode
                 displayText: (dataObjectData.mode === Measurement.LFT ? "LTW" : (modeSelect.width > 120 ? "Power:" : "") + currentText)
+                enabled: !dataObjectData.limited
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Transfrom mode")
                 onCurrentIndexChanged: dataObjectData.mode = currentIndex;
                 Layout.preferredWidth: elementWidth
+
             }
 
             DropDown {
                 model: [44100, 48000, 96000, 192000]
                 currentIndex: model.indexOf(dataObjectData.sampleRate)
                 onCurrentValueChanged: dataObjectData.sampleRate = currentValue;
+                enabled: !dataObjectData.limited
 
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Sample rate")
@@ -65,6 +68,7 @@ Item {
                 from: -100
                 to: 100
                 units: "ms"
+                enabled: !dataObjectData.limited
                 onValueChanged: dataObjectData.delay = value
                 tooltiptext: qsTr("adjust delay")
                 Layout.alignment: Qt.AlignVCenter
@@ -75,6 +79,7 @@ Item {
                 checkable: true
                 checked: dataObjectData.polarity
                 onCheckedChanged: dataObjectData.polarity = checked
+                enabled: !dataObjectData.limited
                 Material.background: parent.Material.background
 
                 ToolTip.visible: hovered

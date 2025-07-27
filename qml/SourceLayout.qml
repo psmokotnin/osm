@@ -73,6 +73,14 @@ ListView {
         }
     }
     Component {
+        id: equalizerDelegate
+        Equalizer {
+            width: sideList.width
+            dataModel: modelData
+            highlight: modelHighlight
+        }
+    }
+    Component {
         id: windowingDelegate
         Windowing {
             width: sideList.width
@@ -170,7 +178,14 @@ ListView {
                 swipeStart = mouseX;
             }
             onDoubleClicked: {
-                if ((model.name === "Group" || model.name === "RemoteGroup") && source.data) {
+                if (
+                    (
+                        model.name === "Group"       ||
+                        model.name === "RemoteGroup" ||
+                        model.name === "Equalizer"
+                    ) &&
+                    source.data
+                ) {
                     applicationWindow.dataSourceList.list.openGroup(source);
                 }
             }
@@ -203,6 +218,7 @@ ListView {
                                 case "Union": return unionDelegate;
                                 case "StandardLine": return standardLineDelegate;
                                 case "Filter": return filterDelegate;
+                                case "Equalizer": return equalizerDelegate;
                                 case "Windowing": return windowingDelegate;
                                 case "Group": return groupDelegate;
 

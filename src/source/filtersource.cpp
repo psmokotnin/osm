@@ -37,6 +37,7 @@ FilterSource::FilterSource(QObject *parent) : Abstract::Source(parent), Meta::Fi
 
     connect(this, &FilterSource::typeChanged, this, &FilterSource::applyAutoName);
     connect(this, &FilterSource::orderChanged, this, &FilterSource::applyAutoName);
+    connect(this, &FilterSource::cornerFrequencyChanged, this, &FilterSource::applyAutoName);
 
     applyAutoName();
 }
@@ -159,7 +160,6 @@ void FilterSource::update()
             if (std::isnan(v.real) || std::isnan(v.imag)) {
                 v = 0;
             }
-            //polarity??
             m_inverse.set(i, v.conjugate(), 0.f);
             m_inverse.set(timeDomainSize() - i - 1, v, 0.f);
         }
@@ -188,7 +188,11 @@ void FilterSource::applyAutoName()
         return;
     }
     try {
-        setName(m_typeShortMap.at(type()) + " " + QString::number(order()));
+        if (type() == Type::Peak) {
+            setName(m_typeShortMap.at(type()) + " " + QString::number(cornerFrequency(), 'f', 0) + "Hz");
+        } else {
+            setName(m_typeShortMap.at(type()) + " " + QString::number(order()));
+        }
     } catch (std::exception &e) {
         qDebug() << __FILE__ << ":" << __LINE__  << e.what();
     }

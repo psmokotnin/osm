@@ -89,9 +89,13 @@ public:
     virtual void qChanged(float) = 0;
     virtual void availableQChanged() = 0;
     virtual void polarityChanged(bool) = 0;
+    virtual void limitedChanged(bool) = 0;
 
     static const std::map<Type, QString> m_typeMap;
     static const std::map<Type, QString> m_typeShortMap;
+
+    bool limited() const;
+    void setLimited(bool newLimited);
 
 private:
     Type m_type;
@@ -102,6 +106,7 @@ private:
     float m_delay;
     float m_q;
     bool m_polarity;
+    bool m_limited;
 };
 
 } // namespace meta

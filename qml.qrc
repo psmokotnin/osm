@@ -64,5 +64,7 @@
         <file alias="source/Group.qml">qml/source/Group.qml</file>
         <file alias="source/GroupProperties.qml">qml/source/GroupProperties.qml</file>
         <file alias="SourceLayout.qml">qml/SourceLayout.qml</file>
+        <file alias="source/Equalizer.qml">qml/source/Equalizer.qml</file>
+        <file alias="source/EqualizerProperties.qml">qml/source/EqualizerProperties.qml</file>
     </qresource>
 </RCC>

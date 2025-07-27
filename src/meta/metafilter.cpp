@@ -50,7 +50,8 @@ const std::map<Filter::Type, QString>Filter::m_typeShortMap = {
 };
 
 Filter::Filter() : Base(), m_type(ButterworthLPF), m_mode(Measurement::FFT14),
-    m_order(3), m_cornerFrequency(1000), m_q(1.f / sqrt(2)), m_polarity(false)
+    m_order(3), m_cornerFrequency(1000), m_q(1.f / sqrt(2)),
+    m_polarity(false), m_limited(false)
 {
 
 }
@@ -205,6 +206,19 @@ bool Filter::isGainAvailable() const
         break;
     }
     return r;
+}
+
+bool Filter::limited() const
+{
+    return m_limited;
+}
+
+void Filter::setLimited(bool newLimited)
+{
+    if (m_limited == newLimited)
+        return;
+    m_limited = newLimited;
+    emit limitedChanged(m_limited);
 }
 
 float Filter::delay() const

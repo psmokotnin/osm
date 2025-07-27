@@ -27,6 +27,7 @@
 #include "measurement.h"
 #include "sourcelist.h"
 #include "model/sourcemodel.h"
+#include "source/equalizer.h"
 #include "source/group.h"
 #include "source/sourcewindowing.h"
 #include "standardline.h"
@@ -289,7 +290,7 @@ QJsonArray SourceList::toJSON() const noexcept
 
 void SourceList::fromJSON(const QJsonArray &list, const SourceList *topList) noexcept
 {
-    enum LoadType {MeasurementType, StoredType, UnionType, StandardLineType, FilterType, WindowingType, GroupType};
+    enum LoadType {MeasurementType, StoredType, UnionType, StandardLineType, FilterType, WindowingType, GroupType, EqualizerType};
     static std::map<QString, LoadType> typeMap = {
         {"Measurement",  MeasurementType},
         {"Stored",       StoredType},
@@ -297,7 +298,8 @@ void SourceList::fromJSON(const QJsonArray &list, const SourceList *topList) noe
         {"StandardLine", StandardLineType},
         {"Filter",       FilterType},
         {"Windowing",    WindowingType},
-        {"Group",        GroupType}
+        {"Group",        GroupType},
+        {"Equalizer",    EqualizerType}
     };
 
     clean();
@@ -335,6 +337,10 @@ void SourceList::fromJSON(const QJsonArray &list, const SourceList *topList) noe
 
         case GroupType:
             loadObject<Source::Group>(object["data"].toObject(), topList);
+            break;
+
+        case EqualizerType:
+            loadObject<Source::Equalizer>(object["data"].toObject(), topList);
             break;
         }
     }
@@ -376,10 +382,11 @@ bool SourceList::load(const QUrl &fileName) noexcept
     if (loadedDocument.isNull() || loadedDocument.isEmpty())
         return false;
 
-    enum LoadType {ListType, StoredType};
+    enum LoadType {ListType, StoredType, EqualizerType};
     static std::map<QString, LoadType> typeMap = {
         {"sourcelsist", ListType},
         {"stored",      StoredType},
+        {"Equalizer",   EqualizerType}
     };
 
     if (typeMap.find(loadedDocument["type"].toString()) != typeMap.end()) {
@@ -390,6 +397,9 @@ bool SourceList::load(const QUrl &fileName) noexcept
 
         case StoredType:
             return loadObject<Stored>(loadedDocument["data"].toObject(), this);
+
+        case EqualizerType:
+            return loadObject<Source::Equalizer>(loadedDocument["data"].toObject(), this);
         }
     }
 
@@ -727,6 +737,11 @@ Shared::Source SourceList::addWindowing()
     return add<Windowing>();
 }
 
+Shared::Source SourceList::addEqualizer()
+{
+    return add<Source::Equalizer>();
+}
+
 Shared::Source SourceList::addGroup()
 {
     auto shared_group =  add<Source::Group>();
@@ -757,6 +772,9 @@ int SourceList::appendAll()
 
 void SourceList::appendItem(const Shared::Source &item, bool autocolor)
 {
+    if (!item || getByUUid(item->uuid())) {
+        return;
+    }
     auto guard = lock();
     emit preItemAppended();
 

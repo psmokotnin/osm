@@ -125,6 +125,7 @@ public slots:
     Q_INVOKABLE Shared::Source  addFilter();
     Q_INVOKABLE Shared::Source  addWindowing();
     Q_INVOKABLE Shared::Source  addGroup();
+    Q_INVOKABLE Shared::Source  addEqualizer();
 
     Q_INVOKABLE void appendItem(const Shared::Source &item, bool autocolor = false);
     Q_INVOKABLE void takeItem(Shared::Source item);

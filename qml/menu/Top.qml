@@ -188,6 +188,11 @@ MenuBar {
             onTriggered: sourceList.addFilter();
         }
         MenuItem {
+            text: qsTr("&Add equalizer")
+            shortcut: "Ctrl+E"
+            onTriggered: sourceList.addEqualizer();
+        }
+        MenuItem {
             text: qsTr("&Add windowing")
             shortcut: "Ctrl+W"
             onTriggered: sourceList.addWindowing();

@@ -46,6 +46,7 @@ class FilterSource : public Abstract::Source, public Meta::Filter
 
     Q_PROPERTY(bool qAvailable READ isQAvailable NOTIFY availableQChanged)
     Q_PROPERTY(bool gainAvailable READ isGainAvailable NOTIFY typeChanged)
+    Q_PROPERTY(bool limited READ limited WRITE setLimited NOTIFY limitedChanged)
 
 public:
     FilterSource(QObject *parent = nullptr);
@@ -70,6 +71,7 @@ signals:
     void availableQChanged() override;
     void polarityChanged(bool) override;
     void autoNameChanged();
+    void limitedChanged(bool) override;
 
 private slots:
     void update();
