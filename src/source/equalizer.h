@@ -35,6 +35,7 @@ class Equalizer : public Abstract::Source, public Meta::Equalizer
 
 public:
     explicit Equalizer(QObject *parent = nullptr);
+    ~Equalizer();
 
     Shared::Source clone() const override;
     Q_INVOKABLE QJsonObject toJSON() const noexcept override;
@@ -50,15 +51,19 @@ public:
 signals:
     void modeChanged(Meta::Measurement::Mode) override;
     void sizeChanged() override;
+    void needUpdate();
 
 private slots:
     void update();
+    void doUpdate();
 
 private:
     void calc(const Shared::Source &primary) noexcept;
     void postFilterAppended(const Shared::Source &source);
 
     std::shared_ptr<SourceList> m_filterList;
+    QTimer m_timer;
+    QThread m_timerThread;
 };
 
 } // namespace Source

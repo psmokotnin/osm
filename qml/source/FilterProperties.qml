@@ -68,7 +68,7 @@ Item {
                 from: -100
                 to: 100
                 units: "ms"
-                enabled: !dataObjectData.limited
+                visible: !dataObjectData.limited
                 onValueChanged: dataObjectData.delay = value
                 tooltiptext: qsTr("adjust delay")
                 Layout.alignment: Qt.AlignVCenter
@@ -79,7 +79,7 @@ Item {
                 checkable: true
                 checked: dataObjectData.polarity
                 onCheckedChanged: dataObjectData.polarity = checked
-                enabled: !dataObjectData.limited
+                visible: !dataObjectData.limited
                 Material.background: parent.Material.background
 
                 ToolTip.visible: hovered
@@ -151,6 +151,7 @@ Item {
             }
 
             FloatSpinBox {
+                id: cornerFrequency
                 value: dataObjectData.cornerFrequency
                 from: 1
                 to: 96000
@@ -164,6 +165,7 @@ Item {
             }
 
             FloatSpinBox {
+                id: gain
                 value: dataObjectData.gain
                 from: -90
                 to: 90
@@ -179,10 +181,11 @@ Item {
             }
 
             FloatSpinBox {
+                id: q
                 value: dataObjectData.q
                 from: 0.1
                 to: 20
-                decimals: 1
+                decimals: 2
                 step: 0.1
                 units: ""
                 onValueChanged: dataObjectData.q = value
@@ -191,6 +194,19 @@ Item {
 
                 tooltiptext: qsTr("Q")
                 Layout.preferredWidth: elementWidth
+            }
+
+            Connections {
+                target: dataObjectData
+                function onCornerFrequencyChanged() {
+                    cornerFrequency.value = dataObjectData.cornerFrequency
+                }
+                function onGainChanged() {
+                    gain.value = dataObjectData.gain
+                }
+                function onQChanged() {
+                    q.value = dataObjectData.q
+                }
             }
 
             Item {
@@ -202,6 +218,7 @@ Item {
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("store current measurement")
                 implicitWidth: 75
+                visible: !dataObjectData.limited
 
                 onClicked: {
                     var stored = dataObjectData.store();

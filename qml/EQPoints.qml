@@ -40,8 +40,10 @@ Item {
             property point beginDrag
             property bool caught: false
             function updateCoordinates() {
-                x = plot.v2x(filterData && filterData.data ? filterData.data.cornerFrequency : 1000) - width/2;
-                y = plot.v2y(filterData && filterData.data ? filterData.data.gain : 0) - height/2;
+                if (!mouseArea.drag.active) {
+                    x = plot.v2x(filterData && filterData.data ? filterData.data.cornerFrequency : 1000) - width/2;
+                    y = plot.v2y(filterData && filterData.data ? filterData.data.gain : 0) - height/2;
+                }
             }
             width: 24
             height: 24
@@ -112,6 +114,7 @@ Item {
                     eqpoint.beginDrag = Qt.point(eqpoint.x, eqpoint.y);
                     mouseArea.cursorShape = Qt.ClosedHandCursor
 
+                    applicationWindow.properiesbar.open(filterData, "qrc:/source/FilterProperties.qml");
                 }
                 onReleased:{
                     mouseArea.cursorShape = Qt.OpenHandCursor
@@ -132,7 +135,16 @@ Item {
                 }
                 onWheel: function(event) {
                     if (eqpoint.filterData && eqpoint.filterData.data) {
-                        eqpoint.filterData.data.q *= event.angleDelta.y > 0 ? 1.1 : 0.9;
+                        if (event.modifiers & Qt.ShiftModifier) {
+                            if (event.angleDelta.x !== 0) {
+                                eqpoint.filterData.data.q *= event.angleDelta.x > 0 ? 1.1 : 0.9;
+                            }
+                            else if (event.angleDelta.y !== 0) {
+                                eqpoint.filterData.data.q *= event.angleDelta.y > 0 ? 1.1 : 0.9;
+                            }
+
+                            event.accepted = true;
+                        }
                     }
                 }
             }

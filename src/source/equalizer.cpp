@@ -28,16 +28,33 @@ Equalizer::Equalizer(QObject *parent)
 {
     setObjectName("Equalizer");
     setName("Equalizer");
-    setActive(true);
+
+    m_timer.setInterval(80);//12.5 per sec
+    m_timer.setSingleShot(true);
+    m_timer.moveToThread(&m_timerThread);
+
 
     connect(this, &Equalizer::sizeChanged, this, &Equalizer::update);
     connect(m_filterList.get(), &SourceList::countChanged, this, &Equalizer::sizeChanged);
-
     connect(m_filterList.get(), &SourceList::postItemAppended, this, &Equalizer::postFilterAppended);
+
+    connect(&m_timer, SIGNAL(timeout()), SLOT(doUpdate()), Qt::DirectConnection);
+    connect(this, SIGNAL(needUpdate()), &m_timer, SLOT(start()));
+    connect(&m_timerThread, SIGNAL(finished()), &m_timer, SLOT(stop()), Qt::DirectConnection);
+    m_timerThread.start();
+
+    setActive(true);
+}
+
+Equalizer::~Equalizer()
+{
+    m_timerThread.quit();
+    m_timerThread.wait();
 }
 
 Shared::Source Equalizer::clone() const
 {
+    //TODO:!
     return Shared::Source{};
 }
 
@@ -81,6 +98,7 @@ void Equalizer::setSize(unsigned int newSize)
 
     if (m_filterList->size() < newSize) {
         auto filter = std::make_shared<FilterSource>(this);
+        filter->setSampleRate(sampleRate());
         filter->setType(Meta::Filter::Type::Peak);
         filter->setOrder(1);
         m_filterList->appendItem(Shared::Source(filter), true);
@@ -112,6 +130,13 @@ bool Equalizer::save(const QUrl &fileName) const noexcept
 }
 
 void Equalizer::update()
+{
+    if (!m_timer.isActive()) {
+        emit needUpdate();
+    }
+
+}
+void Equalizer::doUpdate()
 {
     if (!active())
         return;

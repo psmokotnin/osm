@@ -188,13 +188,13 @@ Item {
                     ];
 
                 let currentGesture = gestrureMatrix[di1][di2];
-                if (gesture === gestureNone) {
+                if (touchArea.gesture === gestureNone) {
                     //begin gesture;
                     gesture = currentGesture;
                     chart.plot.beginGesture();
                 }
 
-                if (currentGesture !== gesture) {
+                if (currentGesture !== touchArea.gesture) {
                     return;
                 }
 
@@ -267,18 +267,22 @@ Item {
             }
 
             onWheel: function (e) {
-                let d = Math.max(Math.abs(e.angleDelta.x), Math.abs(e.angleDelta.y));
 
-                if (d >= 120) {
-                    let base = Qt.point(e.x, e.y);
-                    let move = Qt.point(0.0, 0.0);
-                    let scale = Qt.point(1.0, 1.0);
-                    move = Qt.point(e.angleDelta.x / 8, e.angleDelta.y / 8);
+                if (e.modifiers === Qt.NoModifier) {
 
-                    chart.plot.beginGesture();
-                    chart.plot.applyGesture(base, move, scale);
+                    let d = Math.max(Math.abs(e.angleDelta.x), Math.abs(e.angleDelta.y));
 
-                    e.accepted = true;
+                    if (d >= 120) {
+                        let base = Qt.point(e.x, e.y);
+                        let move = Qt.point(0.0, 0.0);
+                        let scale = Qt.point(1.0, 1.0);
+                        move = Qt.point(e.angleDelta.x / 8, e.angleDelta.y / 8);
+
+                        chart.plot.beginGesture();
+                        chart.plot.applyGesture(base, move, scale);
+
+                        e.accepted = true;
+                    }
                 }
             }
 
