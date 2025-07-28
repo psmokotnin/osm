@@ -50,7 +50,7 @@ const std::map<Filter::Type, QString>Filter::m_typeShortMap = {
 };
 
 Filter::Filter() : Base(), m_type(ButterworthLPF), m_mode(Measurement::FFT14),
-    m_order(3), m_cornerFrequency(1000), m_q(1.f / sqrt(2)),
+    m_order(3), m_cornerFrequency(1000), m_gain(0), m_delay(0), m_q(1.f / sqrt(2)),
     m_polarity(false), m_limited(false)
 {
 
