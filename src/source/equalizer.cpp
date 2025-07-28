@@ -54,8 +54,18 @@ Equalizer::~Equalizer()
 
 Shared::Source Equalizer::clone() const
 {
-    //TODO:!
-    return Shared::Source{};
+    auto cloned = std::make_shared<Equalizer>();
+    cloned->setActive(active());
+    cloned->setName(name());
+    cloned->setMode(mode());
+    cloned->setSampleRate(sampleRate());
+
+    for (unsigned i = 0; i < m_filterList->size(); ++i) {
+        auto clonedFilter = m_filterList->get_ref(i)->clone();
+        cloned->m_filterList->takeItem(clonedFilter);
+    }
+
+    return std::static_pointer_cast<Abstract::Source>(cloned);
 }
 
 QJsonObject Equalizer::toJSON() const noexcept
@@ -86,22 +96,28 @@ unsigned int Equalizer::size() const
 
 void Equalizer::setSize(unsigned int newSize)
 {
+    auto currentSize = m_filterList->size();
     while (m_filterList->size() > newSize) {
-        auto currentSize = m_filterList->size();
         auto to_delete = m_filterList->get( m_filterList->size() - 1);
         m_filterList->removeItem(to_delete);
+        update();
 
         if (currentSize == m_filterList->size()) {
             break;
         }
     }
 
-    if (m_filterList->size() < newSize) {
+    while (m_filterList->size() < newSize) {
         auto filter = std::make_shared<FilterSource>(this);
         filter->setSampleRate(sampleRate());
         filter->setType(Meta::Filter::Type::Peak);
         filter->setOrder(1);
         m_filterList->appendItem(Shared::Source(filter), true);
+        update();
+
+        if (currentSize == m_filterList->size()) {
+            break;
+        }
     }
 }
 
