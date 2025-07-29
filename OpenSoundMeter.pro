@@ -7,6 +7,12 @@ CONFIG += qmltypes
 QML_IMPORT_NAME = OpenSoundMeterModule
 QML_IMPORT_MAJOR_VERSION = 1
 
+# Set this to false in the qmake command to avoid building
+# the appimage. Useful for Github workflows and Debian packaging.
+!defined(OSM_BUILD_APPIMAGE, var) {
+  OSM_BUILD_APPIMAGE = true
+}
+
 SOURCES += src/main.cpp \
     src/abstract/data.cpp \
     src/abstract/levelsdata.cpp \
@@ -528,7 +534,7 @@ isEqual(GRAPH, "OPENGL") {
 #}
 
 # Special rules for deployment on Linux for AppImage
-unix:!macx:!ios:CONFIG(release, debug|release) {
+unix:!macx:!ios:CONFIG(release, debug|release):equals(OSM_BUILD_APPIMAGE, "true") {
     QMAKE_POST_LINK += $$QMAKE_COPY $$PWD/OpenSoundMeter.desktop $$OUT_PWD/OpenSoundMeter_\\"$$APP_GIT_VERSION\\".desktop
     QMAKE_POST_LINK += && $$QMAKE_COPY $$PWD/icons/white.png $$OUT_PWD
     QMAKE_POST_LINK += && $$QMAKE_COPY $$PWD/linuxdeployosm.sh $$OUT_PWD
