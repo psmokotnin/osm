@@ -20,6 +20,8 @@
 
 #include <QObject>
 #include "abstract/source.h"
+#include "meta/metameasurement.h"
+#include "math/fouriertransform.h"
 
 class StandardLine : public Abstract::Source
 {
@@ -28,7 +30,8 @@ public:
         ELC         = 0,
         WEIGHTING_A = 1,
         WEIGHTING_B = 2,
-        WEIGHTING_C = 3
+        WEIGHTING_C = 3,
+        FLAT        = 4
     };
 
     Q_OBJECT
@@ -36,6 +39,9 @@ public:
     Q_PROPERTY(float loudness READ loudness WRITE setLoudness NOTIFY loudnessChanged)
     Q_PROPERTY(StandardLine::Mode mode READ mode WRITE setMode NOTIFY modeChanged)
     Q_PROPERTY(QVariant modes READ getAvailableModes CONSTANT)
+
+    Q_PROPERTY(QVariant transformModes READ getAvailableTransformModes CONSTANT)
+    Q_PROPERTY(Meta::Measurement::Mode transformMode READ transformMode WRITE setTransformMode NOTIFY transformModeChanged)
 
 public:
     explicit StandardLine(QObject *parent = nullptr);
@@ -52,19 +58,30 @@ public:
     void setMode(const Mode &mode);
     QVariant getAvailableModes() const;
 
+    Meta::Measurement::Mode transformMode() const;
+    void setTransformMode(const Meta::Measurement::Mode &newTransformMode);
+    static QVariant getAvailableTransformModes();
+
 signals:
     void loudnessChanged(float);
     void modeChanged(StandardLine::Mode);
 
-private:
+    void transformModeChanged();
+
+private slots:
     void update();
+
+private:
     void createELC();
     void createWeighting();
+    void createFlat();
 
     Mode m_mode;
+    Meta::Measurement::Mode m_transformMode;
     float m_loudness;
 
     static const std::map<Mode, QString> m_modeMap;
+    FourierTransform m_dataFT;
 };
 
 #endif // STANDARDLINE_H

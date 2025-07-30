@@ -23,6 +23,7 @@ const std::map<StandardLine::Mode, QString>StandardLine::m_modeMap = {
     {StandardLine::WEIGHTING_A, "Weighting A"},
     {StandardLine::WEIGHTING_B, "Weighting B"},
     {StandardLine::WEIGHTING_C, "Weighting C"},
+    {StandardLine::FLAT,        "Flat"},
 };
 
 StandardLine::StandardLine(QObject *parent) : Abstract::Source(parent), m_mode(ELC), m_loudness(80.f)
@@ -31,6 +32,9 @@ StandardLine::StandardLine(QObject *parent) : Abstract::Source(parent), m_mode(E
     setActive(true);
     setName("ELC");
     update();
+
+    connect(this, &Abstract::Source::sampleRateChanged, this, &StandardLine::update);
+    connect(this, &StandardLine::transformModeChanged, this, &StandardLine::update);
 }
 
 Shared::Source StandardLine::clone() const
@@ -86,6 +90,9 @@ void StandardLine::update()
     case WEIGHTING_B:
     case WEIGHTING_C:
         createWeighting();
+        break;
+    case FLAT:
+        createFlat();
         break;
     }
 
@@ -166,10 +173,81 @@ void StandardLine::createWeighting()
             break;
 
         case ELC:
+        case FLAT:
             Q_UNREACHABLE();
             break;
         }
     }
+}
+
+void StandardLine::createFlat()
+{
+    m_dataFT.setSampleRate(sampleRate());
+    try {
+        using M = Meta::Measurement;
+        switch (transformMode()) {
+        case M::Mode::LFT:
+            m_dataFT.setType(FourierTransform::Log);
+            setTimeDomainSize(pow(2, M::m_FFTsizes.at(M::FFT12)));
+            break;
+
+        default:
+            m_dataFT.setType(FourierTransform::Fast);
+            m_dataFT.setSize(pow(2, M::m_FFTsizes.at(transformMode())));
+            setTimeDomainSize(pow(2, M::m_FFTsizes.at(transformMode())));
+        }
+    } catch (std::exception &e) {
+        qDebug() << __FILE__ << ":" << __LINE__  << e.what();
+        setTimeDomainSize(0);
+        setFrequencyDomainSize(0);
+        return;
+    }
+
+    m_dataFT.prepare();
+
+    auto frequencyList = m_dataFT.getFrequencies();
+    setFrequencyDomainSize(frequencyList.size());
+
+    unsigned int i = 0;
+    for (auto &frequency : frequencyList) {
+        m_ftdata[i].frequency   = frequency;
+        m_ftdata[i].module      = 1.f;
+        m_ftdata[i].coherence   = 1.f;
+        m_ftdata[i].magnitude   = 1.f;
+        m_ftdata[i].phase       = {1.f, 0.f};
+        ++i;
+    }
+
+    int t = 0;
+    float kt = 1000.f / sampleRate();
+    for (unsigned int i = 0, j = timeDomainSize() / 2 - 1; i < timeDomainSize(); i++, j++, t++) {
+        if (t > static_cast<int>(timeDomainSize() / 2)) {
+            t -= static_cast<int>(timeDomainSize());
+            j -= timeDomainSize();
+        }
+
+        m_impulseData[j].value = (t == 0 ? 1.f : 0.f);
+        m_impulseData[j].time  = t * kt;
+    }
+
+}
+
+Meta::Measurement::Mode StandardLine::transformMode() const
+{
+    return m_transformMode;
+}
+
+void StandardLine::setTransformMode(const Meta::Measurement::Mode &newTransformMode)
+{
+    if (m_transformMode == newTransformMode)
+        return;
+    m_transformMode = newTransformMode;
+    emit transformModeChanged();
+}
+
+QVariant StandardLine::getAvailableTransformModes()
+{
+    return Meta::Measurement::getAvailableModes();
 }
 
 StandardLine::Mode StandardLine::mode() const

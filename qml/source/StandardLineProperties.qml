@@ -28,6 +28,7 @@ import "qrc:/elements"
 Item {
     property var dataObject
     property var dataObjectData : dataObject.data
+    readonly property int elementWidth: Math.min(200, width / 6)
 
     ColumnLayout {
         spacing: 0
@@ -90,6 +91,30 @@ Item {
             }
         }
 
-        RowLayout {}
+        RowLayout {
+            DropDown {
+                id: transformModeSelect
+                model: dataObjectData.transformModes
+                currentIndex: dataObjectData.transformMode
+                displayText: (dataObjectData.transformMode === Measurement.LFT ? "LTW" : (transformModeSelect.width > 120 ? "Power:" : "") + currentText)
+                enabled: !dataObjectData.limited
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Transfrom mode")
+                onCurrentIndexChanged: dataObjectData.transformMode = currentIndex;
+                Layout.preferredWidth: elementWidth
+
+            }
+
+            DropDown {
+                model: [44100, 48000, 96000, 192000]
+                currentIndex: model.indexOf(dataObjectData.sampleRate)
+                onCurrentValueChanged: dataObjectData.sampleRate = currentValue;
+                enabled: !dataObjectData.limited
+
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Sample rate")
+                Layout.preferredWidth: elementWidth
+            }
+        }
     }
 }
