@@ -26,6 +26,26 @@
 
 #include "abstract/source.h"
 
+#if defined(QT_NO_OPENGL) || defined(QT_OPENGL_ES_2)
+struct QOpenGLFunctions_3_3_Core {
+    void initializeOpenGLFunctions() {}
+    void glGenBuffers(int, unsigned*) {}
+    void glGenVertexArrays(int, unsigned*) {}
+
+    void glBindVertexArray(unsigned) {}
+    void glBindBuffer(unsigned, unsigned) {}
+
+    void glBufferData(unsigned, unsigned, void*, unsigned) {}
+    void glVertexAttribPointer(unsigned, unsigned, unsigned, bool, unsigned, const void *) {}
+    void glBufferSubData(unsigned, unsigned, unsigned, void*) {}
+    void glDrawElements(unsigned, unsigned, unsigned, unsigned) {}
+
+    void glEnableVertexAttribArray(unsigned) {}
+    void glDrawArrays(unsigned, unsigned, unsigned) {}
+    void glDisableVertexAttribArray(unsigned) {}
+};
+#endif
+
 namespace Chart {
 class Plot;
 class SeriesRenderer : public QQuickFramebufferObject::Renderer

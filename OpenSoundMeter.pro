@@ -283,8 +283,8 @@ HEADERS += \
     src/container/array.h
 
 #math
-equals(QT_ARCH, "arm64") {
-    message("Building for: ARM64")
+equals(QT_ARCH, "arm64")|equals(QT_ARCH, "arm") {
+    message("Building for: ARM ($${QT_ARCH})")
     HEADERS += src/armmath.h
 } else {
     message("Building for: x64")

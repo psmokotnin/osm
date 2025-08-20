@@ -50,7 +50,9 @@ QOpenGLFramebufferObject *SeriesRenderer::createFramebufferObject(const QSize &s
         m_openGLFunctions = QOpenGLContext::currentContext()->functions();
         m_openGLFunctions->initializeOpenGLFunctions();
 
+#if !defined(QT_NO_OPENGL) && !defined(QT_OPENGL_ES_2)
         m_openGL33CoreFunctions = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctions_3_3_Core>();
+#endif
         if (m_openGL33CoreFunctions) {
             m_openGL33CoreFunctions->initializeOpenGLFunctions();
         }
