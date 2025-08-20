@@ -108,7 +108,7 @@ void Equalizer::setSize(unsigned int newSize)
     }
 
     while (m_filterList->size() < newSize) {
-        auto filter = std::make_shared<FilterSource>(this);
+        auto filter = std::make_shared<FilterSource>();
         filter->setSampleRate(sampleRate());
         filter->setType(Meta::Filter::Type::Peak);
         filter->setOrder(1);
