@@ -61,17 +61,16 @@ Item {
                 Layout.preferredWidth: elementWidth
             }
 
-            FloatSpinBox {
-                id: delaySpinBox
-                implicitWidth: 170
-                value: dataObjectData.delay
-                from: -100
-                to: 100
-                units: "ms"
-                visible: !dataObjectData.limited
-                onValueChanged: dataObjectData.delay = value
-                tooltiptext: qsTr("adjust delay")
-                Layout.alignment: Qt.AlignVCenter
+            Button {
+                text: "On"
+                checkable: true
+                checked: dataObjectData.active
+                onCheckedChanged: dataObjectData.active = checked
+                visible: dataObjectData.limited
+                Material.background: parent.Material.background
+
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("active")
             }
 
             Button {
@@ -84,6 +83,19 @@ Item {
 
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("inverse polarity")
+            }
+
+            FloatSpinBox {
+                id: delaySpinBox
+                implicitWidth: 170
+                value: dataObjectData.delay
+                from: -100
+                to: 100
+                units: "ms"
+                visible: !dataObjectData.limited
+                onValueChanged: dataObjectData.delay = value
+                tooltiptext: qsTr("adjust delay")
+                Layout.alignment: Qt.AlignVCenter
             }
 
             ColorPicker {
