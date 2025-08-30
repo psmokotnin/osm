@@ -59,6 +59,7 @@ int main(int argc, char *argv[])
 #ifdef GRAPH_METAL
     QQuickWindow::setSceneGraphBackend(Chart::SeriesNode::chooseRhi());
 #elif defined(GRAPH_OPENGL)
+    QQuickWindow::setSceneGraphBackend(QSGRendererInterface::OpenGL);
     QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QQuickWindow::setTextRenderType(QQuickWindow::NativeTextRendering);
