@@ -65,7 +65,7 @@ public slots:
 signals:
     void activeChanged();
     void dataError(const uint hash, const bool deactivate);
-    void dataReceived(const uint hash, const QJsonArray &data, const QJsonArray &timeData);
+    void dataReceived(const uint hash, QJsonArray data, QJsonArray timeData);
     void newRemoteItem(const QUuid &serverId, const QUuid &sourceId, const QString &objectName,
                        const QString &host, const QUuid groupId);
     void generatorsListChanged();

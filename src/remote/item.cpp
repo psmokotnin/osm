@@ -230,7 +230,7 @@ void Item::properiesChanged()
 
 
     property("active");
-    if (!m_eventSilence && signalName != "stateChanged" & signalName != "activeChanged" ) {
+    if (!m_eventSilence && signalName != "stateChanged" && signalName != "activeChanged" ) {
         emit localChanged(propertyName);
     }
 }
@@ -271,7 +271,7 @@ void Item::dataError(const uint hash, const bool deactivate)
 
 }
 
-void Item::dataReceived(const uint hash, const QJsonArray &data, const QJsonArray &timeData)
+void Item::dataReceived(const uint hash, QJsonArray data, QJsonArray timeData)
 {
     if (hash != qHash(sourceId())) {
         return;
