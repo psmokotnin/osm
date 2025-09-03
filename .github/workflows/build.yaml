@@ -1,0 +1,42 @@
+name: Build OSM
+
+on:
+  pull_request:
+    branches: [ master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os:
+          - ubuntu-22.04
+          - ubuntu-24.04
+        arch:
+          - ""
+          - "-arm"
+
+    runs-on: ${{ matrix.os }}${{ matrix.arch }}
+
+    steps:
+      - name: Checkout the repository on the runner
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt -y upgrade
+          sudo apt -y install build-essential qt5-qmake-bin qt5-qmake libqt5opengl5-dev \
+            qtbase5-dev libqt5opengl5-dev qtquickcontrols2-5-dev qtdeclarative5-dev \
+            libasound2-dev
+
+      - name: Configure the tree with qmake
+        run: |
+          mkdir -p _build
+          cd _build
+          qmake OSM_BUILD_APPIMAGE=false ..
+          cd ..
+
+      - name: Build the source
+        run: make -C _build -j4
+
