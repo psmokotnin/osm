@@ -40,7 +40,7 @@ public:
 private:
     integration_tree m_integration;
 
-    static const std::unordered_map<std::size_t, QString> m_timeMap;
+    static const std::map<std::size_t, QString> m_timeMap;
 };
 
 } // namespace math

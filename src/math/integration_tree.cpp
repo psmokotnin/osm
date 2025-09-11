@@ -50,7 +50,9 @@ void integration_tree::add_value(float value)
         m_pos = 0;
     }
 
-    data[0][m_pos].set_value(value);
+    if (data[0].size() > m_pos) {
+        data[0][m_pos].set_value(value);
+    }
 }
 
 std::size_t integration_tree::size() const

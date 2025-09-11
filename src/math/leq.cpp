@@ -19,7 +19,7 @@
 
 namespace math {
 
-Leq::Leq() : m_integration((*m_timeMap.begin()).first, 12)
+Leq::Leq() : m_integration((*m_timeMap.rbegin()).first, 12)
 {
 
 }
@@ -60,7 +60,7 @@ float Leq::value() const
     return 10.f * std::log10(m_integration.value() / m_integration.size());
 }
 
-const std::unordered_map<std::size_t, QString> Leq::m_timeMap = {
+const std::map<std::size_t, QString> Leq::m_timeMap = {
     {   1 * 60, "  1 min" },
     {   5 * 60, "  5 min" },
     {  10 * 60, " 10 min" },
