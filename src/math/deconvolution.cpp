@@ -45,7 +45,7 @@ void Deconvolution::transform(const FourierTransform *forward)
 
     //devision
     for (unsigned int i = 0; i < m_size; i++) {
-        static const float l = std::pow(10, -100.f / 20);
+        static const float l = std::pow(10, -140.f / 20);
         auto a = source->af(i);
         auto b = source->bf(i);
         if (a < l) {
