@@ -31,6 +31,10 @@ SeriesFBO::SeriesFBO(Shared::Source source, RendererCreator rc, QQuickItem *pare
     connect(source.get(), SIGNAL(activeChanged()),      SLOT(update()));
 }
 
+SeriesFBO::~SeriesFBO() {
+
+}
+
 const Shared::Source &SeriesFBO::source() const noexcept
 {
     return m_source;

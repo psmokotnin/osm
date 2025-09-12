@@ -31,6 +31,7 @@ class SeriesFBO : public QQuickFramebufferObject
 
 public:
     explicit SeriesFBO(Shared::Source source, RendererCreator rc, QQuickItem *parent = nullptr);
+    virtual ~SeriesFBO();
     const Shared::Source &source() const noexcept;
     QQuickFramebufferObject::Renderer *createRenderer() const override;
     void setZIndex(qreal index);

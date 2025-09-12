@@ -77,7 +77,7 @@ protected:
     Plot *plot() const;
 
     Shared::Source m_source;
-    QQuickFramebufferObject *m_item = nullptr;
+    QPointer<QQuickFramebufferObject> m_item { nullptr };
     QOpenGLShaderProgram m_program;
     QOpenGLFunctions *m_openGLFunctions;
     QOpenGLFunctions_3_3_Core *m_openGL33CoreFunctions = nullptr;
