@@ -35,6 +35,10 @@
 #include "plugins/alsa.h"
 #endif
 
+#ifdef USE_JACK
+#include "plugins/jack.h"
+#endif
+
 #ifdef USE_ASIO
 #include "plugins/asioplugin.h"
 #endif
@@ -87,6 +91,10 @@ void Client::initPlugins()
 
 #ifdef Q_OS_LINUX
     m_plugins.push_back(QSharedPointer<Plugin>(new AlsaPlugin()));
+#endif
+
+#ifdef USE_JACK
+    m_plugins.push_back(QSharedPointer<Plugin>(new JackPlugin()));
 #endif
 
     for (auto &&plugin : m_plugins) {
