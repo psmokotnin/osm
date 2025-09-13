@@ -399,7 +399,7 @@ Item {
             }
 
             Shortcut {
-                sequence: "Ctrl+D"
+                sequence: "Ctrl+9"
                 onActivated: {
                     delaySpin.value = dataObjectData.estimated;
                 }
