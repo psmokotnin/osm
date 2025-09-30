@@ -376,6 +376,18 @@ unix:!macx:!ios {
         src/audio/plugins/alsa.cpp
 
     LIBS += -lasound
+
+    CONFIG(jack) {
+        HEADERS += \
+            src/audio/plugins/jack.h
+
+        SOURCES += \
+            src/audio/plugins/jack.cpp
+
+        LIBS += -ljack
+
+        DEFINES += USE_JACK
+    }
 }
 
 GRAPH = $$(GRAPH_BACKEND)
