@@ -16,6 +16,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include <QApplication>
+#include <QCommandLineParser>
 #include <QQmlApplicationEngine>
 #include <QtQuick/QQuickView>
 #include <QQuickStyle>
@@ -84,6 +85,14 @@ int main(int argc, char *argv[])
     QCoreApplication::setOrganizationName("opensoundmeter");
     QCoreApplication::setOrganizationDomain("opensoundmeter.com");
 
+    QCommandLineParser parser;
+    parser.setApplicationDescription("Sound measurement software for tuning sound systems.");
+    parser.addHelpOption();
+    parser.addVersionOption();
+    const QCommandLineOption serverOption("server", "Start the Remote API server with the application.");
+    parser.addOption(serverOption);
+    parser.process(app);
+
     Settings settings;
     Appearance appearence(&settings);
     audio::Client::getInstance();
@@ -140,6 +149,10 @@ int main(int argc, char *argv[])
 
     if (engine.rootObjects().isEmpty())
         return -1;
+
+    if (parser.isSet(serverOption)) {
+        server.setActive(true);
+    }
 
     return QApplication::exec();
 }

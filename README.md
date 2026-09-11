@@ -11,6 +11,32 @@ Current version: v1.4.1
 
 Qt5.15 C++17
 
+## Command-line options
+
+Pass `--server` to enable the Remote API server automatically when Open Sound Meter
+starts. This is equivalent to turning on **Server** in the Remote API panel and is
+useful for login/startup shortcuts:
+
+```powershell
+# Windows (from the installation directory)
+.\OpenSoundMeter.exe --server
+```
+
+```sh
+# macOS
+open -a OpenSoundMeter --args --server
+
+# Linux
+./OpenSoundMeter --server
+```
+
+The application still opens its normal graphical interface and requires a desktop
+session. The option applies only to this launch; without it, the server remains
+off at startup. The Server switch can still be used to stop and restart it.
+Remote generator control remains a separate option in the Remote API panel.
+
+Use `--help` to list options or `--version` to print the application version.
+
 
 ## SAST Tools
 
