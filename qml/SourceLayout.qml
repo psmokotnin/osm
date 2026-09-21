@@ -155,7 +155,7 @@ ListView {
                 }
 
                 //swipe delete:
-                if ((swipeStart - mouseX) / content.width >= 1) {
+                if (!content.locked && (swipeStart - mouseX) / content.width >= 1) {
                     if (applicationWindow && applicationWindow.properiesbar.currentObject === dragArea.source) {
                         applicationWindow.properiesbar.reset();
                     }
@@ -203,6 +203,7 @@ ListView {
 
             Item {
                 id: content
+                property bool locked: lockButton.checked
                 anchors { left: parent.left; right: parent.right }
                 height: loaded.height
                 Drag.active: dragArea.held
@@ -246,6 +247,22 @@ ListView {
                 }
 
                 Button {
+                    id: lockButton
+                    checkable: true
+                    text: checked ? "🔒" : "🔓"
+                    //text: checked ? "\ue80b" : "\ue80c"
+                    anchors.right: cloneButton.left
+                    anchors.top: parent.top
+                    flat: true
+                    font.pixelSize: 14
+                    rightPadding: 4
+                    leftPadding: 4
+                    background: Rectangle {
+                        color: "transparent"
+                    }
+                }
+
+                Button {
                     id: cloneButton
                     font.family: "Osm"
                     text: "\uf24d"
@@ -282,25 +299,16 @@ ListView {
                     anchors.right: parent.right
                     anchors.top: parent.top
                     flat: true
+                    enabled: !content.locked
+                    opacity: content.locked ? 0.8 : 1.0
                     font.pixelSize: 14
                     rightPadding: 4
                     leftPadding: 4
                     onClicked: {
-                        applicationWindow.dialog.accepted.connect(deleteModel);
-                        applicationWindow.dialog.rejected.connect(freeDialog);
-                        applicationWindow.dialog.title = "Delete " + dragArea.source.data.name + "?";
-                        applicationWindow.dialog.open();
-                    }
-                    function deleteModel() {
                         if (applicationWindow.properiesbar.currentObject === dragArea.source) {
                             applicationWindow.properiesbar.reset();
                         }
                         sources.removeItem(dragArea.source.data.uuid);
-                        freeDialog();
-                    }
-                    function freeDialog() {
-                        applicationWindow.dialog.accepted.disconnect(deleteModel);
-                        applicationWindow.dialog.rejected.disconnect(freeDialog);
                     }
                     background: Rectangle {
                         color: "transparent"
@@ -318,6 +326,13 @@ ListView {
                     text: "clone source"
                     visible: cloneButton.hovered
                     y: bottomPadding - cloneButton.height
+                    x: content.width - rightPadding - availableWidth - leftMargin - rightMargin
+                }
+
+                ToolTip {
+                    text: lockButton.checked ? "unlock source" : "lock source"
+                    visible: lockButton.hovered
+                    y: bottomPadding - lockButton.height
                     x: content.width - rightPadding - availableWidth - leftMargin - rightMargin
                 }
             }

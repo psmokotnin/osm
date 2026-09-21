@@ -126,7 +126,7 @@ ApplicationWindow {
             id: righttab
             Layout.fillHeight: true
             Layout.rowSpan: applicationWindow.narrowWindow ? 1 : 2
-            width: 200
+            width: 226
         }
 
         //Properties area
