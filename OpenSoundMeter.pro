@@ -117,6 +117,7 @@ SOURCES += src/main.cpp \
     \
     src/shared/source_shared.cpp \
     src/source/filtersource.cpp \
+    src/source/firsource.cpp \
     src/source/group.cpp \
     src/source/sourcewindowing.cpp \
     src/source/standardline.cpp \
@@ -202,6 +203,7 @@ HEADERS += \
     src/shared/sourcelist_shared.h \
     src/source/equalizer.h \
     src/source/filtersource.h \
+    src/source/firsource.h \
     src/generator/brownnoise.h \
     src/generator/burstnoise.h \
     src/generator/channelmodel.h \

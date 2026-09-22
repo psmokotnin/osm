@@ -28,6 +28,7 @@
 #include "src/targettrace.h"
 #include "src/source/union.h"
 #include "src/source/standardline.h"
+#include "src/source/firsource.h"
 #include "src/model/sourcemodel.h"
 #include "src/sourcelist.h"
 #include "src/shared/sourcelist_shared.h"
@@ -106,6 +107,7 @@ int main(int argc, char *argv[])
     qmlRegisterType<Union>("OpenSoundMeter", 1, 0, "UnionSource");
     qmlRegisterType<Stored>("Stored", 1, 0, "Stored");
     qmlRegisterType<StandardLine>("StandardLine", 1, 0, "StandardLine");
+    qmlRegisterType<FirSource>("OpenSoundMeter", 1, 0, "FirSource");
     qmlRegisterType<SourceModel>("SourceModel", 1, 0, "SourceModel");
     qmlRegisterUncreatableType<SourceList>("SourceModel", 1, 0, "SourceList",
                                            QStringLiteral("SourceList should not be created in QML"));

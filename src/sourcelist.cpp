@@ -24,6 +24,7 @@
 
 #include "common/wavfile.h"
 #include "filtersource.h"
+#include "firsource.h"
 #include "measurement.h"
 #include "sourcelist.h"
 #include "model/sourcemodel.h"
@@ -290,7 +291,7 @@ QJsonArray SourceList::toJSON() const noexcept
 
 void SourceList::fromJSON(const QJsonArray &list, const SourceList *topList) noexcept
 {
-    enum LoadType {MeasurementType, StoredType, UnionType, StandardLineType, FilterType, WindowingType, GroupType, EqualizerType};
+    enum LoadType {MeasurementType, StoredType, UnionType, StandardLineType, FilterType, WindowingType, GroupType, EqualizerType, FirSourceType};
     static std::map<QString, LoadType> typeMap = {
         {"Measurement",  MeasurementType},
         {"Stored",       StoredType},
@@ -299,7 +300,8 @@ void SourceList::fromJSON(const QJsonArray &list, const SourceList *topList) noe
         {"Filter",       FilterType},
         {"Windowing",    WindowingType},
         {"Group",        GroupType},
-        {"Equalizer",    EqualizerType}
+        {"Equalizer",    EqualizerType},
+        {"FirSource",   FirSourceType}
     };
 
     clean();
@@ -341,6 +343,10 @@ void SourceList::fromJSON(const QJsonArray &list, const SourceList *topList) noe
 
         case EqualizerType:
             loadObject<Source::Equalizer>(object["data"].toObject(), topList);
+            break;
+
+        case FirSourceType:
+            loadObject<FirSource>(object["data"].toObject(), topList);
             break;
         }
     }
@@ -737,6 +743,11 @@ Shared::Source SourceList::addStandardLine()
 Shared::Source SourceList::addFilter()
 {
     return add<FilterSource>();
+}
+
+Shared::Source SourceList::addFirSource()
+{
+    return add<FirSource>();
 }
 
 Shared::Source SourceList::addWindowing()
