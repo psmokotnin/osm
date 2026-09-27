@@ -86,20 +86,24 @@ Item {
             }
         }
 
-        // ── Row 2: HP, LP, tap count, export button ───────────────────────
+        // ── Row 2: HP, LP, slope, tap count, export button ───────────────────────
         RowLayout {
 
             FloatSpinBox {
                 id: highpassBox
-                from: 0
+                from: dataObjectData.minFrequency
                 to: 24000
                 decimals: 1
                 step: 10
                 units: "Hz"
                 value: dataObjectData.highpass
                 onValueChanged: dataObjectData.highpass = value
-                tooltiptext: qsTr("highpass cutoff frequency (0 = off)")
+                tooltiptext: qsTr("highpass cutoff frequency")
                 Layout.preferredWidth: elementWidth
+                Connections {
+                    target: dataObjectData
+                    function onHighpassChanged() { highpassBox.value = dataObjectData.highpass; }
+                }
             }
 
             FloatSpinBox {
@@ -111,8 +115,19 @@ Item {
                 units: "Hz"
                 value: dataObjectData.lowpass
                 onValueChanged: dataObjectData.lowpass = value
-                tooltiptext: qsTr("lowpass cutoff frequency (0 = off)")
+                tooltiptext: qsTr("lowpass cutoff frequency")
                 Layout.preferredWidth: elementWidth
+            }
+
+            DropDown {
+                id: slopeSelect
+                model: ["6 dB/oct", "12 dB/oct", "18 dB/oct", "24 dB/oct", "48 dB/oct"]
+                readonly property var slopeValues: [6, 12, 18, 24, 48]
+                currentIndex: slopeValues.indexOf(dataObjectData.slope)
+                Layout.preferredWidth: elementWidth
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("HP/LP rolloff slope")
+                onCurrentIndexChanged: dataObjectData.slope = slopeValues[currentIndex]
             }
 
             DropDown {

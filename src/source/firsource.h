@@ -33,6 +33,8 @@ class FirSource : public Abstract::Source
     Q_PROPERTY(float highpass READ highpass WRITE setHighpass NOTIFY highpassChanged)
     Q_PROPERTY(float lowpass READ lowpass WRITE setLowpass NOTIFY lowpassChanged)
     Q_PROPERTY(int tapCount READ tapCount WRITE setTapCount NOTIFY tapCountChanged)
+    Q_PROPERTY(float slope READ slope WRITE setSlope NOTIFY slopeChanged)
+    Q_PROPERTY(float minFrequency READ minFrequency NOTIFY minFrequencyChanged)
     Q_PROPERTY(QVariant smoothingValues READ smoothingValues CONSTANT)
 
 public:
@@ -60,6 +62,11 @@ public:
     int tapCount() const;
     void setTapCount(int taps);
 
+    float slope() const;
+    void setSlope(float dbPerOctave);
+
+    float minFrequency() const;
+
     QVariant smoothingValues() const;
 
 public slots:
@@ -71,25 +78,30 @@ signals:
     void highpassChanged();
     void lowpassChanged();
     void tapCountChanged();
+    void slopeChanged();
+    void minFrequencyChanged();
 
 private:
     // Interpolate complex H from m_ftdata at the given frequency.
     // m_ftdata must already be populated (after smoothing/filtering).
     Complex interpolateH(float freq) const;
 
-    // Apply 1/N-octave Gaussian smoothing in the complex domain.
-    // smoothingN: octave denominator (1=1oct, 3=1/3oct, ..., 0=off)
-    std::vector<Complex> applySmoothing(const std::vector<Complex> &H,
-                                        int smoothingN) const;
+    // Gaussian smoothing of magnitudes in dB/log-frequency space.
+    // Kernel sigma = 1/(2*ppo) octaves, so the ±3-sigma window spans ±1.5/ppo oct.
+    // Works on linear magnitudes; converts to dB internally for symmetric weighting.
+    std::vector<float> applySmoothing(const std::vector<float> &mag, int ppo) const;
 
-    // Apply LP/HP cosine-tapered cutoffs in-place.
-    void applyCutoffs(std::vector<Complex> &H) const;
+    // Apply LP/HP power-law rolloff cutoffs in-place.
+    // fMin is the hard lower bound (bins below it are zeroed).
+    void applyCutoffs(std::vector<Complex> &H, float fMin) const;
 
     Shared::Source m_source;
-    int   m_smoothing;   // 0=off, 1, 3, 6, 12, 24
-    float m_highpass;    // Hz, 0=off
-    float m_lowpass;     // Hz, 0=off
-    int   m_tapCount;    // 512 or 1024
+    int   m_smoothing;       // 0=off, 1, 3, 6, 12, 24
+    float m_highpass;        // Hz, 0 = auto (uses minFrequency)
+    float m_lowpass;         // Hz, 0=off
+    int   m_tapCount;        // 512 or 1024
+    float m_slope;           // dB/octave rolloff for HP/LP
+    float m_minFrequency;    // sr / tapCount, computed in update()
 
     FourierTransform m_inverse;
 };

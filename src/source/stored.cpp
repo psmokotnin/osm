@@ -300,49 +300,6 @@ bool Stored::saveWAV(const QUrl &fileName) const noexcept
     return file.save(fileName.toLocalFile(), sampleRate, data);
 }
 
-bool Stored::saveFIR(const QUrl &fileName, int taps) const noexcept
-{
-    QFile saveFile(fileName.toLocalFile());
-    if (!saveFile.open(QIODevice::WriteOnly)) {
-        qWarning("Couldn't open save file.");
-        return false;
-    }
-
-    const unsigned int size = timeDomainSize();
-    if (size == 0 || taps <= 0) {
-        return false;
-    }
-
-    // Find the peak of the impulse response
-    unsigned int peakIndex = 0;
-    float peakAbs = 0.f;
-    for (unsigned int i = 0; i < size; ++i) {
-        float v = std::abs(impulseValue(i));
-        if (v > peakAbs) {
-            peakAbs = v;
-            peakIndex = i;
-        }
-    }
-
-    // Extract taps centred on the peak, clamping at boundaries
-    const int half = taps / 2;
-    QTextStream out(&saveFile);
-    out.setRealNumberPrecision(10);
-    for (int n = 0; n < taps; ++n) {
-        int srcIndex = static_cast<int>(peakIndex) - half + n;
-        float sample = (srcIndex >= 0 && srcIndex < static_cast<int>(size))
-                       ? impulseValue(static_cast<unsigned int>(srcIndex))
-                       : 0.f;
-
-        // Hann window
-        float w = 0.5f * (1.f - std::cos(2.f * static_cast<float>(M_PI) * n / (taps - 1)));
-        out << (sample * w) << "\n";
-    }
-
-    saveFile.close();
-    return true;
-}
-
 float Stored::module(unsigned int i) const noexcept {
     return ::Abstract::Source::module(i) * std::pow(10, gain() / 20.f);
 }

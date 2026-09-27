@@ -28,7 +28,6 @@ Item {
     property var dataObject
     property var dataObjectData : dataObject.data
     property string saveas: "osm"
-    property int firTaps: 512
 
     RowLayout
     {
@@ -123,37 +122,6 @@ Item {
                 }
 
                 DropDown {
-                    id: firTapsSelector
-                    displayText: qsTr("FIR taps: ") + currentText
-                    implicitWidth: 150
-                    model: ["512", "1024"]
-                    currentIndex: 0
-                    onActivated: firTaps = parseInt(currentText)
-
-                    ToolTip.visible: hovered
-                    ToolTip.text: qsTr("number of FIR taps to export")
-
-                    enabled: dataObjectData.objectName === "Stored"
-                    visible: dataObjectData.objectName === "Stored"
-                }
-
-                Button {
-                    text: qsTr("Export FIR")
-                    implicitWidth: 120
-
-                    ToolTip.visible: hovered
-                    ToolTip.text: qsTr("export FIR taps as plain text (.txt)")
-
-                    enabled: dataObjectData.objectName === "Stored"
-                    visible: dataObjectData.objectName === "Stored"
-
-                    onClicked: {
-                        saveas = "fir";
-                        firDialog.open();
-                    }
-                }
-
-                DropDown {
                     displayText: qsTr("Save data as");
 
                     implicitWidth: 170
@@ -200,17 +168,6 @@ Item {
                     focus = false;
                 }
             }
-        }
-    }
-
-    FileDialog {
-        id: firDialog
-        selectExisting: false
-        title: "Export FIR taps"
-        folder: (typeof shortcuts !== 'undefined' ? shortcuts.home : Filesystem.StandardFolder.Home)
-        defaultSuffix: "txt"
-        onAccepted: {
-            dataObjectData.saveFIR(firDialog.fileUrl, firTaps);
         }
     }
 
