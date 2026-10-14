@@ -31,6 +31,7 @@ class Union;
 class Stored;
 class StandardLine;
 class FilterSource;
+class FirSource;
 class Windowing;
 
 class SourceList : public QObject
@@ -123,6 +124,7 @@ public slots:
     Q_INVOKABLE Shared::Source  addUnion();
     Q_INVOKABLE Shared::Source  addStandardLine();
     Q_INVOKABLE Shared::Source  addFilter();
+    Q_INVOKABLE Shared::Source  addFirSource();
     Q_INVOKABLE Shared::Source  addWindowing();
     Q_INVOKABLE Shared::Source  addGroup();
     Q_INVOKABLE Shared::Source  addEqualizer();

@@ -87,6 +87,10 @@ Drawer {
             separator: true
         }
         ListElement {
+            name: qsTr("Add FIR export")
+            onclick: function() {sourceList.addFirSource();}
+        }
+        ListElement {
             name: qsTr("Add group")
             onclick: function() {sourceList.addGroup();}
             separator: true

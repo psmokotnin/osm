@@ -81,6 +81,14 @@ ListView {
         }
     }
     Component {
+        id: firSourceDelegate
+        FirSource {
+            width: sideList.width
+            dataModel: modelData
+            highlight: modelHighlight
+        }
+    }
+    Component {
         id: windowingDelegate
         Windowing {
             width: sideList.width
@@ -222,6 +230,7 @@ ListView {
                                 case "StandardLine": return standardLineDelegate;
                                 case "Filter": return filterDelegate;
                                 case "Equalizer": return equalizerDelegate;
+                                case "FirSource": return firSourceDelegate;
                                 case "Windowing": return windowingDelegate;
                                 case "Group": return groupDelegate;
 

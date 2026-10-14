@@ -93,6 +93,7 @@ SOURCES += src/main.cpp \
     src/math/averaging.cpp \
     src/math/complex.cpp \
     src/math/fouriertransform.cpp \
+    src/math/firdesign.cpp \
     src/math/windowfunction.cpp \
     src/math/deconvolution.cpp \
     \
@@ -117,6 +118,7 @@ SOURCES += src/main.cpp \
     \
     src/shared/source_shared.cpp \
     src/source/filtersource.cpp \
+    src/source/firsource.cpp \
     src/source/group.cpp \
     src/source/sourcewindowing.cpp \
     src/source/standardline.cpp \
@@ -202,6 +204,7 @@ HEADERS += \
     src/shared/sourcelist_shared.h \
     src/source/equalizer.h \
     src/source/filtersource.h \
+    src/source/firsource.h \
     src/generator/brownnoise.h \
     src/generator/burstnoise.h \
     src/generator/channelmodel.h \
@@ -275,6 +278,7 @@ HEADERS += \
     src/math/averaging.h \
     src/math/complex.h \
     src/math/fouriertransform.h \
+    src/math/firdesign.h \
     src/math/deconvolution.h \
     src/math/windowfunction.h \
     src/math/deconvolution.h \

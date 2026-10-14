@@ -57,6 +57,8 @@
         <file alias="SPL/Meter.qml">qml/SPL/Meter.qml</file>
         <file alias="SPL/MeterProperties.qml">qml/SPL/MeterProperties.qml</file>
         <file alias="source/Filter.qml">qml/source/Filter.qml</file>
+        <file alias="source/FirSource.qml">qml/source/FirSource.qml</file>
+        <file alias="source/FirSourceProperties.qml">qml/source/FirSourceProperties.qml</file>
         <file alias="source/FilterProperties.qml">qml/source/FilterProperties.qml</file>
         <file alias="source/Windowing.qml">qml/source/Windowing.qml</file>
         <file alias="source/WindowingProperties.qml">qml/source/WindowingProperties.qml</file>

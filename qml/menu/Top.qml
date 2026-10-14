@@ -198,6 +198,10 @@ MenuBar {
             onTriggered: sourceList.addWindowing();
         }
         MenuItem {
+            text: qsTr("Add &FIR export")
+            onTriggered: sourceList.addFirSource()
+        }
+        MenuItem {
             text: qsTr("&Add Group")
             shortcut: "Ctrl+0"
             onTriggered: sourceList.addGroup();

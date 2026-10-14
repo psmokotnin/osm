@@ -83,3 +83,5 @@ PVS-Studio.cfg
 *.PVS-Studio.cfg
 .pvsconfig
 pvs.log*
+
+build_tmp/
