@@ -17,31 +17,96 @@
  */
 #include "firsource.h"
 #include "sourcelist.h"
+#include "math/firdesign.h"
 #include <QFile>
 #include <QTextStream>
 #include <QtMath>
 #include <cmath>
 #include <algorithm>
+#include <iterator>
+
+namespace {
+
+// Smoothing denominator for each index in smoothingValues
+constexpr int kSmoothingN[] = { 0, 1, 3, 6, 12, 24 };
+
+// Sample rate of the source data. Impulse times are in ms, so 1 / dt is the rate
+// in kHz, rounded to 100 Hz. The source must be locked.
+unsigned int sourceSampleRate(const Abstract::Source &source)
+{
+    if (source.timeDomainSize() > 2) {
+        const float dt = std::abs(source.impulseTime(1) - source.impulseTime(0));
+        if (dt > 0.f) {
+            return static_cast<unsigned int>(std::round(10.f / dt)) * 100u;
+        }
+    }
+    return source.sampleRate();
+}
+
+// Time of the impulse response peak in seconds, refined by parabolic interpolation.
+// The source must be locked.
+float impulsePeak(const Abstract::Source &source)
+{
+    const unsigned int size = source.timeDomainSize();
+    if (size < 3) {
+        return 0.f;
+    }
+
+    unsigned int peak = 0;
+    float peakValue = 0.f;
+    for (unsigned int i = 0; i < size; ++i) {
+        const float value = std::abs(source.impulseValue(i));
+        if (value > peakValue) {
+            peakValue = value;
+            peak = i;
+        }
+    }
+
+    float time = source.impulseTime(peak);
+    if (peak > 0 && peak + 1 < size) {
+        const float before = std::abs(source.impulseValue(peak - 1));
+        const float after  = std::abs(source.impulseValue(peak + 1));
+        const float curve  = before - 2.f * peakValue + after;
+        if (curve < 0.f) {
+            const float shift = 0.5f * (before - after) / curve;
+            time += shift * (source.impulseTime(peak + 1) - source.impulseTime(peak));
+        }
+    }
+    return time / 1000.f;
+}
+
+} // namespace
 
 FirSource::FirSource(QObject *parent)
     : Abstract::Source(parent),
       m_source(nullptr),
       m_smoothing(0),
-      m_highpass(0.f),
+      m_highpass(20.f),
+      m_highpassEnabled(true),
       m_lowpass(20000.f),
+      m_lowpassEnabled(true),
       m_tapCount(512),
-      m_slope(24.f),
-      m_minFrequency(0.f)
+      m_transition(3),   // Firm fade by default
+      m_targetSampleRate(0),
+      m_phaseMode(FirDesign::LinearPhase),
+      m_maxBoost(6.f),
+      m_minFrequency(0.f),
+      m_latency(0.f)
 {
     setObjectName("FirSource");
     setName("FIR Export");
 
-    connect(this, &FirSource::sourceChanged,   this, &FirSource::update);
-    connect(this, &FirSource::smoothingChanged, this, &FirSource::update);
-    connect(this, &FirSource::highpassChanged,  this, &FirSource::update);
-    connect(this, &FirSource::lowpassChanged,   this, &FirSource::update);
-    connect(this, &FirSource::tapCountChanged,  this, &FirSource::update);
-    connect(this, &FirSource::slopeChanged,     this, &FirSource::update);
+    connect(this, &FirSource::sourceChanged,           this, &FirSource::scheduleUpdate);
+    connect(this, &FirSource::smoothingChanged,        this, &FirSource::scheduleUpdate);
+    connect(this, &FirSource::highpassChanged,         this, &FirSource::scheduleUpdate);
+    connect(this, &FirSource::lowpassChanged,          this, &FirSource::scheduleUpdate);
+    connect(this, &FirSource::tapCountChanged,         this, &FirSource::scheduleUpdate);
+    connect(this, &FirSource::transitionChanged,       this, &FirSource::scheduleUpdate);
+    connect(this, &FirSource::highpassEnabledChanged,  this, &FirSource::scheduleUpdate);
+    connect(this, &FirSource::lowpassEnabledChanged,   this, &FirSource::scheduleUpdate);
+    connect(this, &FirSource::targetSampleRateChanged, this, &FirSource::scheduleUpdate);
+    connect(this, &FirSource::phaseModeChanged,        this, &FirSource::scheduleUpdate);
+    connect(this, &FirSource::maxBoostChanged,         this, &FirSource::scheduleUpdate);
 }
 
 Shared::Source FirSource::clone() const
@@ -52,20 +117,31 @@ Shared::Source FirSource::clone() const
     cloned->setHighpass(m_highpass);
     cloned->setLowpass(m_lowpass);
     cloned->setTapCount(m_tapCount);
-    cloned->setSlope(m_slope);
+    cloned->setTransition(m_transition);
+    cloned->setHighpassEnabled(m_highpassEnabled);
+    cloned->setLowpassEnabled(m_lowpassEnabled);
+    cloned->setTargetSampleRate(m_targetSampleRate);
+    cloned->setPhaseMode(m_phaseMode);
+    cloned->setMaxBoost(m_maxBoost);
     cloned->setName(name());
     cloned->setActive(active());
+    cloned->update();
     return std::static_pointer_cast<Abstract::Source>(cloned);
 }
 
 QJsonObject FirSource::toJSON() const noexcept
 {
     auto obj = Abstract::Source::toJSON();
-    obj["smoothing"] = m_smoothing;
-    obj["highpass"]  = static_cast<double>(m_highpass);
-    obj["lowpass"]   = static_cast<double>(m_lowpass);
-    obj["tapCount"]  = m_tapCount;
-    obj["slope"]     = static_cast<double>(m_slope);
+    obj["smoothing"]        = m_smoothing;
+    obj["highpass"]         = static_cast<double>(m_highpass);
+    obj["lowpass"]          = static_cast<double>(m_lowpass);
+    obj["tapCount"]         = m_tapCount;
+    obj["transition"]       = m_transition;
+    obj["highpassEnabled"]  = m_highpassEnabled;
+    obj["lowpassEnabled"]   = m_lowpassEnabled;
+    obj["targetSampleRate"] = m_targetSampleRate;
+    obj["phaseMode"]        = m_phaseMode;
+    obj["maxBoost"]         = static_cast<double>(m_maxBoost);
     if (m_source) {
         obj["sourceId"] = m_source->uuid().toString();
     }
@@ -75,11 +151,16 @@ QJsonObject FirSource::toJSON() const noexcept
 void FirSource::fromJSON(QJsonObject data, const SourceList *list) noexcept
 {
     Abstract::Source::fromJSON(data);
-    setSmoothing(data["smoothing"].toInt(0));
-    setHighpass(static_cast<float>(data["highpass"].toDouble(0.0)));
-    setLowpass( static_cast<float>(data["lowpass" ].toDouble(20000.0)));
-    setTapCount(data["tapCount"].toInt(512));
-    setSlope(   static_cast<float>(data["slope"   ].toDouble(24.0)));
+    setSmoothing(       data["smoothing"       ].toInt(0));
+    setHighpass(        static_cast<float>(data["highpass"].toDouble(20.0)));
+    setLowpass(         static_cast<float>(data["lowpass" ].toDouble(20000.0)));
+    setTapCount(        data["tapCount"        ].toInt(512));
+    setTransition(      data["transition"      ].toInt(3));
+    setHighpassEnabled( data["highpassEnabled" ].toBool(true));
+    setLowpassEnabled(  data["lowpassEnabled"  ].toBool(true));
+    setTargetSampleRate(data["targetSampleRate"].toInt(0));
+    setPhaseMode(       data["phaseMode"       ].toInt(FirDesign::LinearPhase));
+    setMaxBoost(        static_cast<float>(data["maxBoost"].toDouble(6.0)));
 
     if (list && data.contains("sourceId")) {
         auto id = QUuid(data["sourceId"].toString());
@@ -91,14 +172,16 @@ Shared::Source FirSource::source() const { return m_source; }
 
 void FirSource::setSource(const Shared::Source &src)
 {
-    if (m_source == src) return;
+    if (m_source == src || src.get() == this) return;
 
     if (m_source) {
-        disconnect(m_source.get(), &Abstract::Source::readyRead, this, &FirSource::update);
+        disconnect(m_source.get(), &Abstract::Source::readyRead, this, &FirSource::scheduleUpdate);
     }
     m_source = src;
     if (m_source) {
-        connect(m_source.get(), &Abstract::Source::readyRead, this, &FirSource::update);
+        // readyRead may come from the measurement thread: handle it in our own thread
+        connect(m_source.get(), &Abstract::Source::readyRead,
+                this, &FirSource::scheduleUpdate, Qt::QueuedConnection);
     }
     emit sourceChanged();
 }
@@ -109,267 +192,203 @@ QUuid FirSource::sourceId() const
 }
 
 int FirSource::smoothing() const { return m_smoothing; }
-void FirSource::setSmoothing(int v) { if (m_smoothing != v) { m_smoothing = v; emit smoothingChanged(); } }
+void FirSource::setSmoothing(int v)
+{
+    v = std::clamp(v, 0, static_cast<int>(std::size(kSmoothingN)) - 1);
+    if (m_smoothing != v) { m_smoothing = v; emit smoothingChanged(); }
+}
 
 float FirSource::highpass() const { return m_highpass; }
-void FirSource::setHighpass(float v) { if (!qFuzzyCompare(m_highpass, v)) { m_highpass = v; emit highpassChanged(); } }
+void FirSource::setHighpass(float v)
+{
+    v = std::max(v, 0.f);
+    if (!qFuzzyCompare(m_highpass, v)) { m_highpass = v; emit highpassChanged(); }
+}
 
 float FirSource::lowpass() const { return m_lowpass; }
-void FirSource::setLowpass(float v) { if (!qFuzzyCompare(m_lowpass, v)) { m_lowpass = v; emit lowpassChanged(); } }
+void FirSource::setLowpass(float v)
+{
+    v = std::max(v, 0.f);
+    if (!qFuzzyCompare(m_lowpass, v)) { m_lowpass = v; emit lowpassChanged(); }
+}
 
 int FirSource::tapCount() const { return m_tapCount; }
-void FirSource::setTapCount(int v) { if (m_tapCount != v) { m_tapCount = v; emit tapCountChanged(); } }
+void FirSource::setTapCount(int v)
+{
+    v = std::clamp(v, 16, 16384);
+    if (m_tapCount != v) { m_tapCount = v; emit tapCountChanged(); }
+}
 
-float FirSource::slope() const { return m_slope; }
-void FirSource::setSlope(float v) { if (!qFuzzyCompare(m_slope, v)) { m_slope = v; emit slopeChanged(); } }
+int FirSource::transition() const { return m_transition; }
+void FirSource::setTransition(int v)
+{
+    v = std::clamp(v, 1, 16);
+    if (m_transition != v) { m_transition = v; emit transitionChanged(); }
+}
+
+bool FirSource::highpassEnabled() const { return m_highpassEnabled; }
+void FirSource::setHighpassEnabled(bool v) { if (m_highpassEnabled != v) { m_highpassEnabled = v; emit highpassEnabledChanged(); } }
+
+bool FirSource::lowpassEnabled() const { return m_lowpassEnabled; }
+void FirSource::setLowpassEnabled(bool v) { if (m_lowpassEnabled != v) { m_lowpassEnabled = v; emit lowpassEnabledChanged(); } }
+
+int FirSource::targetSampleRate() const { return m_targetSampleRate; }
+void FirSource::setTargetSampleRate(int v)
+{
+    v = std::max(v, 0);
+    if (m_targetSampleRate != v) { m_targetSampleRate = v; emit targetSampleRateChanged(); }
+}
+
+int FirSource::phaseMode() const { return m_phaseMode; }
+void FirSource::setPhaseMode(int v)
+{
+    v = std::clamp(v, static_cast<int>(FirDesign::LinearPhase), static_cast<int>(FirDesign::FullPhase));
+    if (m_phaseMode != v) { m_phaseMode = v; emit phaseModeChanged(); }
+}
+
+float FirSource::maxBoost() const { return m_maxBoost; }
+void FirSource::setMaxBoost(float v)
+{
+    v = std::clamp(v, 0.f, 24.f);
+    if (!qFuzzyCompare(m_maxBoost, v)) { m_maxBoost = v; emit maxBoostChanged(); }
+}
 
 float FirSource::minFrequency() const { return m_minFrequency; }
+
+float FirSource::latency() const { return m_latency; }
+
+bool FirSource::ready() const
+{
+    std::lock_guard<std::mutex> guard(m_dataMutex);
+    return !m_taps.empty();
+}
+
+QVariant FirSource::sampleRateValues() const
+{
+    return QVariant::fromValue(QStringList{"Auto", "44100 Hz", "48000 Hz", "88200 Hz", "96000 Hz", "192000 Hz"});
+}
 
 QVariant FirSource::smoothingValues() const
 {
     return QVariant::fromValue(QStringList{"Off", "1 oct", "1/3 oct", "1/6 oct", "1/12 oct", "1/24 oct"});
 }
 
-// Smoothing denominator for each index in smoothingValues
-static const int s_smoothingN[] = { 0, 1, 3, 6, 12, 24 };
+void FirSource::scheduleUpdate()
+{
+    if (m_updateScheduled) {
+        return;
+    }
+    m_updateScheduled = true;
+    QMetaObject::invokeMethod(this, [this]() {
+        if (m_updateScheduled) {
+            update();
+        }
+    }, Qt::QueuedConnection);
+}
 
 // -----------------------------------------------------------------------
 void FirSource::update()
 {
-    if (!m_source || m_source->frequencyDomainSize() == 0) {
-        setFrequencyDomainSize(0);
-        emit readyRead();
-        return;
+    m_updateScheduled = false;
+    const bool wasReady = ready();
+
+    // ── Snapshot the source (source locked, own data untouched) ─────────────
+    FirDesign::Input input;
+    unsigned int sampleRate = m_targetSampleRate > 0 ? static_cast<unsigned int>(m_targetSampleRate) : 48000u;
+
+    if (m_source) {
+        m_source->lock();
+        if (m_targetSampleRate <= 0) {
+            sampleRate = sourceSampleRate(*m_source);
+        }
+        const float nyquist = static_cast<float>(sampleRate) / 2.f;
+        const unsigned int size = m_source->frequencyDomainSize();
+        input.frequency.reserve(size);
+        input.magnitude.reserve(size);
+        input.phase.reserve(size);
+        input.coherence.reserve(size);
+        for (unsigned int i = 0; i < size; ++i) {
+            const float f = m_source->frequency(i);
+            if (f <= 0.f || f > nyquist) {
+                continue;
+            }
+            input.frequency.push_back(f);
+            input.magnitude.push_back(m_source->magnitudeRaw(i));
+            input.phase.push_back(m_source->phase(i));
+            input.coherence.push_back(m_source->coherence(i));
+        }
+        if (m_phaseMode == FirDesign::FullPhase) {
+            input.delay = impulsePeak(*m_source);
+        }
+        m_source->unlock();
     }
 
-    m_source->lock();
-    const unsigned int srcSize = m_source->frequencyDomainSize();
+    // ── Design ──────────────────────────────────────────────────────────────
+    FirDesign::Parameters parameters;
+    parameters.sampleRate = sampleRate;
+    parameters.taps       = static_cast<unsigned int>(m_tapCount);
+    parameters.phaseMode  = static_cast<FirDesign::PhaseMode>(m_phaseMode);
+    parameters.smoothing  = kSmoothingN[m_smoothing];
+    parameters.lowLimit   = m_highpassEnabled ? m_highpass : 0.f;
+    parameters.highLimit  = m_lowpassEnabled  ? m_lowpass  : 0.f;
+    parameters.transition = static_cast<float>(m_transition);
+    parameters.maxBoost   = m_maxBoost;
 
-    // Infer sample rate from impulse time steps (same method as Windowing)
-    unsigned int sr = 48000;
-    if (m_source->timeDomainSize() > 2) {
-        float dt = std::abs(m_source->impulseTime(1) - m_source->impulseTime(0));
-        if (dt > 0.f)
-            sr = static_cast<unsigned int>(std::round(10.f / dt)) * 100u;
+    auto result = FirDesign::design(input, parameters);
+
+    // ── Publish (own data locked) ───────────────────────────────────────────
+    {
+        std::lock_guard<std::mutex> guard(m_dataMutex);
+
+        setFrequencyDomainSize(static_cast<unsigned int>(result.response.size()));
+        for (size_t j = 0; j < result.response.size(); ++j) {
+            const float abs = result.response[j].abs();
+            m_ftdata[j]           = {};
+            m_ftdata[j].frequency = input.frequency[j];
+            m_ftdata[j].module    = abs;
+            m_ftdata[j].magnitude = abs;
+            m_ftdata[j].phase     = abs > 0.f ? result.response[j] / abs : Complex{1.f, 0.f};
+            m_ftdata[j].coherence = 1.f;
+        }
+
+        const float kt = 1000.f / static_cast<float>(sampleRate);  // ms per sample
+        setTimeDomainSize(static_cast<unsigned int>(result.taps.size()));
+        for (size_t i = 0; i < result.taps.size(); ++i) {
+            m_impulseData[i].time  = (static_cast<int>(i) - static_cast<int>(result.latency)) * kt;
+            m_impulseData[i].value = result.taps[i];
+        }
+
+        m_taps = std::move(result.taps);
     }
 
-    // Frequency range representable by the selected tap count:
-    //   f_min = sr / tapCount  (first non-DC bin)
-    //   f_max = sr / 2         (Nyquist)
-    const float fMin = static_cast<float>(sr) / static_cast<float>(m_tapCount);
-    const float fMax = static_cast<float>(sr) / 2.f;
+    setSampleRate(sampleRate);
 
-    // Collect only source bins that fall within [fMin, fMax]
-    std::vector<unsigned int> validIdx;
-    validIdx.reserve(srcSize);
-    for (unsigned int i = 0; i < srcSize; ++i) {
-        float f = m_source->frequency(i);
-        if (f >= fMin && f <= fMax)
-            validIdx.push_back(i);
-    }
-
-    const unsigned int M = static_cast<unsigned int>(validIdx.size());
-    setFrequencyDomainSize(M);
-
-    // Step 1 — read magnitudes from source (floor at -40 dB prevents infinite boost).
-    constexpr float kFloor = 0.01f;
-    std::vector<float> mag(M);
-    for (unsigned int k = 0; k < M; ++k) {
-        unsigned int i = validIdx[k];
-        m_ftdata[k].frequency = m_source->frequency(i);
-        m_ftdata[k].coherence = m_source->coherence(i);
-        mag[k] = std::max(m_source->magnitudeRaw(i), kFloor);
-    }
-
-    // Update minFrequency and auto-initialise highpass on first use.
-    if (!qFuzzyCompare(m_minFrequency, fMin)) {
-        m_minFrequency = fMin;
+    const float minFrequency = FirDesign::minFrequency(sampleRate, parameters.taps);
+    if (!qFuzzyCompare(m_minFrequency, minFrequency)) {
+        m_minFrequency = minFrequency;
         emit minFrequencyChanged();
     }
-    if (m_highpass == 0.f) {
-        m_highpass = fMin;
-        emit highpassChanged();
+    const float latency = 1000.f * static_cast<float>(result.latency) / static_cast<float>(sampleRate);
+    if (!qFuzzyCompare(m_latency, latency)) {
+        m_latency = latency;
+        emit latencyChanged();
     }
-
-    // Step 2 — smooth magnitudes in dB/log-frequency space before inverting,
-    // so the kernel operates on the measured shape, not the amplified correction.
-    int smoothN = (m_smoothing >= 0 && m_smoothing < 6) ? s_smoothingN[m_smoothing] : 0;
-    if (smoothN > 0) {
-        mag = applySmoothing(mag, smoothN);
+    if (wasReady != ready()) {
+        emit readyChanged();
     }
-
-    // Step 3 — invert to correction filter; result is zero-phase (real-valued H).
-    std::vector<Complex> H(M);
-    for (unsigned int k = 0; k < M; ++k) {
-        H[k] = Complex{1.f / mag[k], 0.f};
-    }
-
-    // Step 4 — apply LP/HP cutoffs.
-    applyCutoffs(H, fMin);
-
-    // Store back to m_ftdata for display
-    for (unsigned int k = 0; k < M; ++k) {
-        float mod = H[k].abs();
-        m_ftdata[k].module    = mod;
-        m_ftdata[k].magnitude = mod;   // Data::magnitude(i) returns 20*log10(this)
-        m_ftdata[k].phase     = (mod > 1e-12f) ? H[k] * (1.f / mod) : Complex{1.f, 0.f};
-    }
-
-    m_source->unlock();
     emit readyRead();
-}
-
-// -----------------------------------------------------------------------
-std::vector<float> FirSource::applySmoothing(const std::vector<float> &mag, int ppo) const
-{
-    const int M = static_cast<int>(mag.size());
-    if (M == 0) return mag;
-
-    std::vector<float> out(M);
-
-    // Gaussian kernel in log2-frequency space with sigma = 1/(2*ppo) octaves.
-    // Smoothing is done in the dB domain so a symmetric kernel in log-frequency
-    // maps to symmetric dB weighting — no phase cancellation, no frequency bias.
-    const float sigma   = 1.f / (2.f * static_cast<float>(ppo));  // octaves
-    const float sigma2  = sigma * sigma;
-    const float winHalf = 3.f * sigma;  // cut-off at ±3 sigma (~99.7 %)
-
-    for (int k = 0; k < M; ++k) {
-        const float f0 = m_ftdata[k].frequency;
-        if (f0 <= 0.f) { out[k] = mag[k]; continue; }
-
-        const float log2_f0 = std::log2(f0);
-        const float fLo = std::pow(2.f, log2_f0 - winHalf);
-        const float fHi = std::pow(2.f, log2_f0 + winHalf);
-
-        float wSum  = 0.f;
-        float accum = 0.f;
-
-        for (int j = 0; j < M; ++j) {
-            const float fj = m_ftdata[j].frequency;
-            if (fj < fLo || fj > fHi) continue;
-
-            // Distance in log2 space, weight in dB domain
-            const float d = std::log2(fj) - log2_f0;
-            const float w = std::exp(-0.5f * d * d / sigma2);
-
-            // Accumulate in dB so the average is geometrically correct
-            accum += 20.f * std::log10(mag[j]) * w;
-            wSum  += w;
-        }
-
-        // Convert averaged dB back to linear
-        out[k] = (wSum > 0.f)
-                 ? std::pow(10.f, accum / (wSum * 20.f))
-                 : mag[k];
-    }
-    return out;
-}
-
-// -----------------------------------------------------------------------
-void FirSource::applyCutoffs(std::vector<Complex> &H, float fMin) const
-{
-    // Power-law rolloff: gain = (f/fc)^(slope/6) below HP, (fc/f)^(slope/6) above LP.
-    // This gives exactly `slope` dB/octave at every point in the rolloff region.
-    // slope/6 converts dB/oct to the Nth-order exponent (6 dB/oct = 1st order).
-    const float exponent = m_slope / 6.f;
-    const int M = static_cast<int>(H.size());
-
-    for (int i = 0; i < M; ++i) {
-        const float f = m_ftdata[i].frequency;
-        float gain = 1.f;
-
-        // Hard zero below the minimum representable frequency
-        if (f < fMin) {
-            gain = 0.f;
-        } else {
-            // Highpass power-law rolloff below m_highpass
-            const float hp = (m_highpass > fMin) ? m_highpass : fMin;
-            if (f < hp) {
-                gain *= std::pow(f / hp, exponent);
-            }
-
-            // Lowpass power-law rolloff above m_lowpass
-            if (m_lowpass > 0.f && f > m_lowpass) {
-                gain *= std::pow(m_lowpass / f, exponent);
-            }
-        }
-
-        H[i] *= gain;
-    }
-}
-
-// -----------------------------------------------------------------------
-Complex FirSource::interpolateH(float freq) const
-{
-    const unsigned int M = frequencyDomainSize();
-    if (M == 0) return {};
-
-    // Below first bin
-    if (freq <= m_ftdata[0].frequency) {
-        return m_ftdata[0].phase * m_ftdata[0].module;
-    }
-    // Above last bin
-    if (freq >= m_ftdata[M - 1].frequency) {
-        return m_ftdata[M - 1].phase * m_ftdata[M - 1].module;
-    }
-
-    // Binary search for surrounding bins
-    unsigned int lo = 0, hi = M - 1;
-    while (hi - lo > 1) {
-        unsigned int mid = (lo + hi) / 2;
-        if (m_ftdata[mid].frequency <= freq) lo = mid;
-        else hi = mid;
-    }
-
-    float fLo = m_ftdata[lo].frequency;
-    float fHi = m_ftdata[hi].frequency;
-    float t = (fHi > fLo) ? (freq - fLo) / (fHi - fLo) : 0.f;
-
-    Complex HLo = m_ftdata[lo].phase * m_ftdata[lo].module;
-    Complex HHi = m_ftdata[hi].phase * m_ftdata[hi].module;
-    return HLo * (1.f - t) + HHi * t;
 }
 
 // -----------------------------------------------------------------------
 bool FirSource::exportFIR(const QUrl &fileName) const noexcept
 {
-    const unsigned int N = static_cast<unsigned int>(m_tapCount);
-    if (frequencyDomainSize() == 0 || N == 0) return false;
-
-    // Determine sample rate from source impulse data
-    unsigned int sr = 48000;
-    if (m_source && m_source->timeDomainSize() > 2) {
-        float dt = std::abs(m_source->impulseTime(1) - m_source->impulseTime(0));
-        if (dt > 0.f) {
-            sr = static_cast<unsigned int>(std::round(10.f / dt)) * 100u;
-        }
+    std::vector<float> taps;
+    {
+        std::lock_guard<std::mutex> guard(m_dataMutex);
+        taps = m_taps;
     }
-
-    // Build uniform FFT grid via interpolation from current m_ftdata
-    FourierTransform ifft;
-    ifft.setType(FourierTransform::Fast);
-    ifft.setSampleRate(sr);
-    ifft.setSize(N);
-    ifft.prepare();
-
-    auto freqList = ifft.getFrequencies();  // N/2 bins: 0..sr/2
-    for (unsigned int k = 0; k < freqList.size(); ++k) {
-        Complex H = interpolateH(freqList[k]);
-        // Conjugate-symmetric fill (following filtersource convention)
-        ifft.set(k,         H.conjugate(), Complex{});
-        ifft.set(N - k - 1, H,             Complex{});
-    }
-
-    ifft.transformSingleChannel();  // reverse = true
-
-    // Normalise, circularly shift to centre, and apply Hann window
-    const float norm = 1.f / static_cast<float>(N);
-    std::vector<float> taps(N);
-    for (unsigned int i = 0; i < N; ++i) {
-        unsigned int src = (i + N / 2) % N;
-        float w = 0.5f * (1.f - std::cos(2.f * static_cast<float>(M_PI) * i / (N - 1)));
-        taps[i] = ifft.af(src).real * norm * w;
+    if (taps.empty()) {
+        return false;
     }
 
     QFile file(fileName.toLocalFile());
@@ -379,8 +398,8 @@ bool FirSource::exportFIR(const QUrl &fileName) const noexcept
     }
     QTextStream out(&file);
     out.setRealNumberPrecision(10);
-    for (unsigned int i = 0; i < N; ++i) {
-        out << taps[i] << "\n";
+    for (auto tap : taps) {
+        out << tap << "\n";
     }
     file.close();
     return true;

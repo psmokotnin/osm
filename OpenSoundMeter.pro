@@ -93,6 +93,7 @@ SOURCES += src/main.cpp \
     src/math/averaging.cpp \
     src/math/complex.cpp \
     src/math/fouriertransform.cpp \
+    src/math/firdesign.cpp \
     src/math/windowfunction.cpp \
     src/math/deconvolution.cpp \
     \
@@ -277,6 +278,7 @@ HEADERS += \
     src/math/averaging.h \
     src/math/complex.h \
     src/math/fouriertransform.h \
+    src/math/firdesign.h \
     src/math/deconvolution.h \
     src/math/windowfunction.h \
     src/math/deconvolution.h \

@@ -20,9 +20,10 @@
 
 #include <QObject>
 #include "abstract/source.h"
-#include "math/fouriertransform.h"
 #include "shared/source_shared.h"
 
+//! Correction FIR filter designed from another source.
+//! The frequency and impulse data show what the exported taps actually do.
 class FirSource : public Abstract::Source
 {
     Q_OBJECT
@@ -33,9 +34,17 @@ class FirSource : public Abstract::Source
     Q_PROPERTY(float highpass READ highpass WRITE setHighpass NOTIFY highpassChanged)
     Q_PROPERTY(float lowpass READ lowpass WRITE setLowpass NOTIFY lowpassChanged)
     Q_PROPERTY(int tapCount READ tapCount WRITE setTapCount NOTIFY tapCountChanged)
-    Q_PROPERTY(float slope READ slope WRITE setSlope NOTIFY slopeChanged)
+    Q_PROPERTY(int transition READ transition WRITE setTransition NOTIFY transitionChanged)
+    Q_PROPERTY(bool highpassEnabled READ highpassEnabled WRITE setHighpassEnabled NOTIFY highpassEnabledChanged)
+    Q_PROPERTY(bool lowpassEnabled READ lowpassEnabled WRITE setLowpassEnabled NOTIFY lowpassEnabledChanged)
+    Q_PROPERTY(int targetSampleRate READ targetSampleRate WRITE setTargetSampleRate NOTIFY targetSampleRateChanged)
+    Q_PROPERTY(int phaseMode READ phaseMode WRITE setPhaseMode NOTIFY phaseModeChanged)
+    Q_PROPERTY(float maxBoost READ maxBoost WRITE setMaxBoost NOTIFY maxBoostChanged)
     Q_PROPERTY(float minFrequency READ minFrequency NOTIFY minFrequencyChanged)
+    Q_PROPERTY(float latency READ latency NOTIFY latencyChanged)
+    Q_PROPERTY(bool ready READ ready NOTIFY readyChanged)
     Q_PROPERTY(QVariant smoothingValues READ smoothingValues CONSTANT)
+    Q_PROPERTY(QVariant sampleRateValues READ sampleRateValues CONSTANT)
 
 public:
     explicit FirSource(QObject *parent = nullptr);
@@ -62,15 +71,37 @@ public:
     int tapCount() const;
     void setTapCount(int taps);
 
-    float slope() const;
-    void setSlope(float dbPerOctave);
+    int transition() const;
+    void setTransition(int exponent);
+
+    bool highpassEnabled() const;
+    void setHighpassEnabled(bool enabled);
+
+    bool lowpassEnabled() const;
+    void setLowpassEnabled(bool enabled);
+
+    int targetSampleRate() const;
+    void setTargetSampleRate(int hz);
+
+    int phaseMode() const;
+    void setPhaseMode(int mode);
+
+    float maxBoost() const;
+    void setMaxBoost(float dB);
 
     float minFrequency() const;
+    float latency() const;
+    bool ready() const;
 
+    QVariant sampleRateValues() const;
     QVariant smoothingValues() const;
 
 public slots:
+    //! recalculate now
     void update();
+
+    //! recalculate once on the next event loop pass, coalescing repeated requests
+    void scheduleUpdate();
 
 signals:
     void sourceChanged();
@@ -78,32 +109,33 @@ signals:
     void highpassChanged();
     void lowpassChanged();
     void tapCountChanged();
-    void slopeChanged();
+    void transitionChanged();
+    void highpassEnabledChanged();
+    void lowpassEnabledChanged();
+    void targetSampleRateChanged();
+    void phaseModeChanged();
+    void maxBoostChanged();
     void minFrequencyChanged();
+    void latencyChanged();
+    void readyChanged();
 
 private:
-    // Interpolate complex H from m_ftdata at the given frequency.
-    // m_ftdata must already be populated (after smoothing/filtering).
-    Complex interpolateH(float freq) const;
-
-    // Gaussian smoothing of magnitudes in dB/log-frequency space.
-    // Kernel sigma = 1/(2*ppo) octaves, so the ±3-sigma window spans ±1.5/ppo oct.
-    // Works on linear magnitudes; converts to dB internally for symmetric weighting.
-    std::vector<float> applySmoothing(const std::vector<float> &mag, int ppo) const;
-
-    // Apply LP/HP power-law rolloff cutoffs in-place.
-    // fMin is the hard lower bound (bins below it are zeroed).
-    void applyCutoffs(std::vector<Complex> &H, float fMin) const;
-
     Shared::Source m_source;
-    int   m_smoothing;       // 0=off, 1, 3, 6, 12, 24
-    float m_highpass;        // Hz, 0 = auto (uses minFrequency)
-    float m_lowpass;         // Hz, 0=off
-    int   m_tapCount;        // 512 or 1024
-    float m_slope;           // dB/octave rolloff for HP/LP
-    float m_minFrequency;    // sr / tapCount, computed in update()
+    int   m_smoothing;              // index in smoothingValues: 0=off, 1, 3, 6, 12, 24
+    float m_highpass;               // Hz, lower limit of the correction range
+    bool  m_highpassEnabled;
+    float m_lowpass;                // Hz, upper limit of the correction range
+    bool  m_lowpassEnabled;
+    int   m_tapCount;
+    int   m_transition;             // exponent of the fade outside the range (3=firm … 8=sharp)
+    int   m_targetSampleRate;       // 0 = taken from the source
+    int   m_phaseMode;              // FirDesign::PhaseMode
+    float m_maxBoost;               // dB
+    float m_minFrequency;           // sample rate / taps, computed in update()
+    float m_latency;                // ms, computed in update()
+    bool  m_updateScheduled = false;
 
-    FourierTransform m_inverse;
+    std::vector<float> m_taps;      // guarded by m_dataMutex
 };
 
 #endif // FIRSOURCE_H
