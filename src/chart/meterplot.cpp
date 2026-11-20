@@ -212,6 +212,9 @@ void MeterPlot::setSettings(Settings *newSettings)
     setType(
         m_settings->reactValue<MeterPlot, QString>("type", this, &MeterPlot::typeChanged, typeName()).toString()
     );
+    setTime(
+        m_settings->reactValue<MeterPlot, QString>("time", this, &MeterPlot::timeChanged, timeName()).toString()
+    );
     setMode(
         m_settings->reactValue<MeterPlot, Chart::LevelObject::Mode>("mode", this, &MeterPlot::modeChanged, mode()).toInt()
     );
